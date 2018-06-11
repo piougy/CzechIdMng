@@ -70,7 +70,6 @@ public class DefaultIdmTreeNodeService
 	private final IdmTreeTypeService treeTypeService;
 	private final ConfigurationService configurationService;
 	private final LongRunningTaskManager longRunningTaskManager;
-	private final IdmIdentityContractRepository identityContractRepository;
 	private final DefaultBaseTreeService<IdmTreeNode> baseTreeService;
 	private final IdmTreeNodeForestContentService forestContentService;
 	//
@@ -84,7 +83,7 @@ public class DefaultIdmTreeNodeService
 		LongRunningTaskManager longRunningTaskManager,
 		FormService formService,
 		EntityEventManager entityEventManager,
-		IdmIdentityContractRepository identityContractRepository,
+		IdmIdentityContractRepository identityContractRepository, // TODO: should be removed, referential integrity is solved in processor (backward compatibility ...)
 		DefaultBaseTreeService<IdmTreeNode> baseTreeService,
 		IdmTreeNodeForestContentService forestContentService) {
 		super(treeNodeRepository, entityEventManager, formService);
@@ -92,7 +91,6 @@ public class DefaultIdmTreeNodeService
 		Assert.notNull(treeTypeService);
 		Assert.notNull(configurationService);
 		Assert.notNull(longRunningTaskManager);
-		Assert.notNull(identityContractRepository);
 		Assert.notNull(baseTreeService);
 		Assert.notNull(forestContentService);
 		//
@@ -100,7 +98,6 @@ public class DefaultIdmTreeNodeService
 		this.treeTypeService = treeTypeService;
 		this.configurationService = configurationService;
 		this.longRunningTaskManager = longRunningTaskManager;
-		this.identityContractRepository = identityContractRepository;
 		this.baseTreeService = baseTreeService;
 		this.forestContentService = forestContentService;
 	}
@@ -148,9 +145,6 @@ public class DefaultIdmTreeNodeService
 		Page<IdmTreeNode> nodes = repository.findChildren(null, treeNode.getId(), new PageRequest(0, 1));
 		if (nodes.getTotalElements() > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CHILDREN,  ImmutableMap.of("treeNode", treeNode.getName()));
-		}		
-		if (this.identityContractRepository.countByWorkPosition_Id(treeNode.getId()) > 0) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeNode", treeNode.getName()));
 		}
 		//
 		forestContentService.deleteIndex(treeNode.getId());

@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
@@ -116,7 +117,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public UUID getSubordinatesFor() {
-		return (UUID) data.getFirst(PARAMETER_SUBORDINATES_FOR);
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_FOR));
 	}
 
 	public void setSubordinatesFor(UUID subordinatesFor) {
@@ -124,7 +125,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public UUID getSubordinatesByTreeType() {
-		return (UUID) data.getFirst(PARAMETER_SUBORDINATES_BY_TREE_TYPE);
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_BY_TREE_TYPE));
 	}
 
 	public void setSubordinatesByTreeType(UUID subordinatesByTreeType) {
@@ -136,7 +137,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public UUID getManagersFor() {
-		return (UUID) data.getFirst(PARAMETER_MANAGERS_FOR);
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_FOR));
 	}
 	
 	public void setManagersByTreeType(UUID managersByTreeType) {
@@ -144,11 +145,11 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public UUID getManagersByTreeType() {
-		return (UUID) data.getFirst(PARAMETER_MANAGERS_BY_TREE_TYPE);
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_BY_TREE_TYPE));
 	}
 	
 	public UUID getManagersByContract() {
-		return (UUID) data.getFirst(PARAMETER_MANAGERS_BY_CONTRACT);
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_BY_CONTRACT));
 	}
 	
 	public void setManagersByContract(UUID managersByContract) {

@@ -9,6 +9,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 /**
  * Controller tests
  * - TODO: move filters here
+ * - rebuildIndex
  * 
  * @author Radek Tomiška
  *

@@ -2,11 +2,13 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.UUID;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Filter for tree node
@@ -17,16 +19,31 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, ExternalIdentifiable {
 
 	public static final String PARAMETER_CODE = "code"; // PARAMETER_CODEABLE_IDENTIFIER can be used too
-	//
-	private UUID treeTypeId;
-    private UUID treeNode; // parent - TODO: rename!
-    private Boolean defaultTreeType; // Search for tree nodes within the default tree type
-    private String property; // Attribute name to search for, like 'code' or 'name'
-    private String value; // Value of the attribute defined in property to search for
-    /**
-     * Tree nodes by tree structure recursively down
-     */
-    private boolean recursively = true;
+	/**
+	 * Tree type identifier
+	 */
+	public static final String PARAMETER_TREE_TYPE_ID = "treeTypeId";
+	/**
+	 * Parent tree node identifier 
+	 */
+	public static final String PARAMETER_PARENT_TREE_NODE_ID = "treeNodeId";
+	/**
+	 * Search for tree nodes within the default tree type 
+	 */
+	public static final String PARAMETER_DEFAULT_TREE_TYPE = "defaultTreeType";
+	/**
+	 * Tree nodes by tree structure recursively down
+	 */
+	public static final String PARAMETER_RECURSIVELY = "recursively";
+	public static final boolean DEFAULT_RECURSIVELY = true;
+	/**
+	 * Attribute name to search for, like 'code' or 'name'
+	 */
+	public static final String PARAMETER_PROPERTY = "property";
+	/**
+	 * Value of the attribute defined in property to search for
+	 */
+	public static final String PARAMETER_VALUE = "value";
 
     public IdmTreeNodeFilter() {
         this(new LinkedMultiValueMap<>());
@@ -37,63 +54,71 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
     }
 
     public UUID getTreeTypeId() {
-        return treeTypeId;
+        return DtoUtils.toUuid(data.getFirst(PARAMETER_TREE_TYPE_ID));
     }
 
     public void setTreeTypeId(UUID treeTypeId) {
-        this.treeTypeId = treeTypeId;
+    	data.set(PARAMETER_TREE_TYPE_ID, treeTypeId);
     }
 
     public void setTreeNode(UUID treeNode) {
-        this.treeNode = treeNode;
+    	data.set(PARAMETER_PARENT_TREE_NODE_ID, treeNode);
     }
 
     public UUID getTreeNode() {
-        return treeNode;
+    	return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT_TREE_NODE_ID));
     }
 
     public Boolean getDefaultTreeType() {
-        return defaultTreeType;
+    	Object first = data.getFirst(PARAMETER_DEFAULT_TREE_TYPE);
+    	if (first == null) {
+    		return null;
+    	}
+    	return BooleanUtils.toBoolean(first.toString());
     }
 
     public void setDefaultTreeType(Boolean defaultTreeType) {
-        this.defaultTreeType = defaultTreeType;
+    	data.set(PARAMETER_DEFAULT_TREE_TYPE, defaultTreeType);
     }
 
     public boolean isRecursively() {
-        return recursively;
+    	Object first = data.getFirst(PARAMETER_RECURSIVELY);
+    	if (first == null) {
+    		return DEFAULT_RECURSIVELY;
+    	}
+    	return BooleanUtils.toBoolean(first.toString());
     }
 
     public void setRecursively(boolean recursively) {
-        this.recursively = recursively;
+    	data.set(PARAMETER_RECURSIVELY, recursively);
     }
 
     @Override
     public String getProperty() {
-        return property;
+        return (String) data.getFirst(PARAMETER_PROPERTY);
     }
 
     @Override
     public void setProperty(String property) {
-        this.property = property;
+    	data.set(PARAMETER_PROPERTY, property);
     }
 
     @Override
     public String getValue() {
-        return value;
+    	return (String) data.getFirst(PARAMETER_VALUE);
     }
 
     @Override
     public void setValue(String value) {
-        this.value = value;
+    	data.set(PARAMETER_VALUE, value);
     }
     
     public String getCode() {
 		return (String) data.getFirst(PARAMETER_CODE);
 	}
 
-	public void setCode(String username) {
-		data.set(PARAMETER_CODE, username);
+	public void setCode(String code) {
+		data.set(PARAMETER_CODE, code);
 	}
 	
 	@Override

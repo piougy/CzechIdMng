@@ -14,7 +14,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
@@ -28,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -521,6 +525,16 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	}
 	
 	/**
+	 * Find dtos by given filter. DataFilter should be fully implemented - only properties mapped in DATA will be used.
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	public List<DTO> find(DataFilter filter) {
+		return find(toQueryParams(filter));
+	}
+	
+	/**
 	 * Login as admin
 	 * 
 	 * @return
@@ -572,6 +586,11 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		}
 	}
 	
+	/**
+	 * Entry point url
+	 * 
+	 * @return
+	 */
 	protected String getBaseUrl() {
 		Class<?> clazz = AopUtils.getTargetClass(getController());
 	 
@@ -609,6 +628,49 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		return String.format("%s/bulk/action", getBaseUrl());
 	}
 	
+	/**
+	 * Converts path (relative url) and filter parameters to string
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	protected String toUrl(String path, DataFilter filter) {
+		UriComponents uriComponents = UriComponentsBuilder.fromPath(path).queryParams(toQueryParams(filter)).build();
+		//
+		return uriComponents.toString();
+	}
+	
+	/**
+	 * Converts filter parameters to string
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	protected MultiValueMap<String, String> toQueryParams(DataFilter filter) {
+		MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
+		if (filter == null) {
+			return queryParams;
+		}
+		//
+		filter.getData().entrySet().forEach(entry -> {
+			queryParams.put(
+					entry.getKey(), 
+					entry
+						.getValue()
+						.stream()
+						.filter(Objects::nonNull)
+						.map(Objects::toString)
+						.collect(Collectors.toList())
+						);
+		});
+		return queryParams;
+	}
+	
+	/**
+	 * Returns dto's resource name defined by {@link Relation} annotation.
+	 * 
+	 * @return
+	 */
 	protected String getResourcesName() {
 		Relation mapping = getController().getDtoClass().getAnnotation(Relation.class);
 		if (mapping == null) {

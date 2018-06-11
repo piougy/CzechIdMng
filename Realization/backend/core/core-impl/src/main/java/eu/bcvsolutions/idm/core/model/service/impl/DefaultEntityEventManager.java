@@ -774,7 +774,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 * @param event
 	 * @return
 	 */
-	private boolean isDuplicate(IdmEntityEventDto olderEvent, IdmEntityEventDto event) {
+	public boolean isDuplicate(IdmEntityEventDto olderEvent, IdmEntityEventDto event) {
 		return Objects.equal(olderEvent.getEventType(), event.getEventType())
 				&& Objects.equal(olderEvent.getParentEventType(), event.getParentEventType())
 				&& Objects.equal(getProperties(olderEvent), getProperties(event));

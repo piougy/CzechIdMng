@@ -10,6 +10,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -243,12 +243,13 @@ public class DefaultIdmTreeNodeService
 		}
 		//
 		// dyn property
-		if (filter.getProperty() != null) {
-			if (IdmTreeNode_.name.getName().equals(filter.getProperty())) {
+		String property = filter.getProperty();
+		if (StringUtils.isNotEmpty(property)) {
+			if (IdmTreeNode_.name.getName().equals(property)) {
 				predicates.add(builder.equal(root.get(IdmTreeNode_.name), filter.getValue()));
-			} else if(IdmTreeNode_.code.getName().equals(filter.getProperty())) {
+			} else if(IdmTreeNode_.code.getName().equals(property)) {
 				predicates.add(builder.equal(root.get(IdmTreeNode_.code), filter.getValue()));
-			} else if(IdmTreeNode_.externalId.getName().equals(filter.getProperty())) {
+			} else if(IdmTreeNode_.externalId.getName().equals(property)) {
 				predicates.add(builder.equal(root.get(IdmTreeNode_.externalId), filter.getValue()));
 			}
 		}

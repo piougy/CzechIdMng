@@ -176,7 +176,7 @@ class ContractSliceDetail extends Basic.AbstractContent {
                         readOnly
                         helpBlock={this.i18n('entity.ContractSlice.usingAsContract.help')}/>
                       <Basic.SelectBox
-                        ref="parentContract" useFirst={Utils.Entity.isNew(entity)}
+                        ref="parentContract"
                         manager={identityContractManager}
                         forceSearchParameters={parentForceSearchParameters}
                         label={this.i18n('entity.ContractSlice.parentContract')}/>

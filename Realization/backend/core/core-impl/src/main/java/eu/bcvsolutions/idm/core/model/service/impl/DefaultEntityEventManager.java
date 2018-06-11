@@ -776,6 +776,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 */
 	private boolean isDuplicate(IdmEntityEventDto olderEvent, IdmEntityEventDto event) {
 		return Objects.equal(olderEvent.getEventType(), event.getEventType())
+				&& Objects.equal(olderEvent.getParentEventType(), event.getParentEventType())
 				&& Objects.equal(getProperties(olderEvent), getProperties(event));
 	}
 	
@@ -792,7 +793,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		// remove internal event properties needed for processing
 		copiedProperies.remove(EVENT_PROPERTY_EVENT_ID);
 		copiedProperies.remove(EVENT_PROPERTY_EXECUTE_DATE);
-		copiedProperies.remove(EVENT_PROPERTY_PARENT_EVENT_TYPE);
 		copiedProperies.remove(EVENT_PROPERTY_PRIORITY);
 		copiedProperies.remove(EVENT_PROPERTY_SKIP_NOTIFY);
 		copiedProperies.remove(EVENT_PROPERTY_SUPER_OWNER_ID);

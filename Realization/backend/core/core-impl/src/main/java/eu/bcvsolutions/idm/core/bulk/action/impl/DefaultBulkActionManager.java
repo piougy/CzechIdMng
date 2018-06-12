@@ -25,11 +25,11 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
@@ -43,26 +43,22 @@ public class DefaultBulkActionManager implements BulkActionManager {
 
 	private final PluginRegistry<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>, Class<? extends BaseEntity>> pluginExecutors;
 	private final LongRunningTaskManager taskManager;
-	private final ModuleService moduleService;
+	private final EnabledEvaluator enabledEvaluator;
 	
 	@Autowired
 	public DefaultBulkActionManager(
 			List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> actions,
 			LongRunningTaskManager taskManager,
-			ModuleService moduleService) {
+			EnabledEvaluator enabledEvaluator) {
 		pluginExecutors = OrderAwarePluginRegistry.create(actions);
 		//
 		this.taskManager = taskManager;
-		this.moduleService = moduleService;
+		this.enabledEvaluator = enabledEvaluator;
 	}
 	
 	@Override
 	public IdmBulkActionDto processAction(IdmBulkActionDto action) {
 		AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> executor = getOperationForDto(action);
-		// check if action is available
-		if (!moduleService.isEnabled(executor.getModule())) {
-			throw new ResultCodeException(CoreResultCode.BULK_ACTION_MODULE_DISABLED, ImmutableMap.of("action", action.getName(), "module", executor.getModule()));
-		}
 		//
 		executor = (AbstractBulkAction<?, ?>) AutowireHelper.createBean(executor.getClass());
 		//
@@ -89,7 +85,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		List<IdmBulkActionDto> result = new ArrayList<>();
 		for (IdmBulkAction<? extends BaseDto, ? extends BaseFilter> action : actions) {
 			// skip disabled modules 
-			if (!moduleService.isEnabled(action.getModule())) {
+			if (!enabledEvaluator.isEnabled(action)) {
 				continue;
 			}
 			IdmBulkActionDto actionDto = new IdmBulkActionDto();

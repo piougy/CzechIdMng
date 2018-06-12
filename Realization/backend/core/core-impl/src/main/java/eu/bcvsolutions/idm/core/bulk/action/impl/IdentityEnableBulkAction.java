@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -12,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
@@ -21,6 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  *
  */
 
+@Enabled(CoreModuleDescriptor.MODULE_ID)
 @Component("identityEnableBulkAction")
 @Description("Enable given identities.")
 public class IdentityEnableBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {

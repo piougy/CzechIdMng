@@ -16,7 +16,9 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 
 /**
  * Example bulk action. The action iterate over identities and log their
@@ -26,6 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  *
  */
 
+@Enabled(ExampleModuleDescriptor.MODULE_ID)
 @Component("identityLogExampleBulkAction")
 @Description("Log idetity to info/warn log in bulk action.")
 public class IdentityLogExampleBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -40,6 +41,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
@@ -50,6 +52,8 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
+
+@Enabled(CoreModuleDescriptor.MODULE_ID)
 @Component("identityAddRoleBulkAction")
 @Description("Add role to idetity in bulk action.")
 public class IdentityAddRoleBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {

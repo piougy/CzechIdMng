@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [8.1.1]
+
+- [#1128](https://redmine.czechidm.com/issues/1128) - Event processing - check parent event type for duplicates.
+- [#1129](https://redmine.czechidm.com/issues/1129) - Boolean eav attribute with default value.
+
+
 ## [[8.1.0](https://github.com/bcvsolutions/CzechIdMng/releases/tag/8.1.0)]
 
 - Bulk action for identities - More about bulk backend actions you can find [here](https://wiki.czechidm.com/devel/documentation/bulk_actions).
@@ -8,9 +14,6 @@ All notable changes to this project will be documented in this file.
 - Password history - More about password history you can find [here](https://wiki.czechidm.com/8.0/documentation/security/dev/password-policies#standard_policy_for_validation).
 - [#1076](https://redmine.czechidm.com/issues/1076) -  Extended form value - added support for ``org.joda.time.LocalDate`` and string in ISO 8601 format as value for DATE or DATETIME persistent type. Persistent type INT, LONG, BOOLEAN - supports setting string value now (default conversions from string representation added ~ the same meaning as``#valueOf(String)``).
 - [#853](https://redmine.czechidm.com/issues/853) - Extended form values without filled values (``null``) are not saved.
-
-
-
 
 ## [8.0.0]
 

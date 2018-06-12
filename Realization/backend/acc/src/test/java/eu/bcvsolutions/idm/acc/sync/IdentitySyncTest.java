@@ -78,6 +78,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -92,9 +94,11 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class IdentitySyncTest extends AbstractIntegrationTest {
 
 	private static final String IDENTITY_ONE = "identityOne";
+	private static final String IDENTITY_ONE_EMAIL = "email@test.cz";
 	private static final String SYNC_CONFIG_NAME = "syncConfigNameContract";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String ATTRIBUTE_EMAIL = "email";
+	private static final String ATTRIBUTE_EMAIL_TWO = "emailTwo";
 
 	@Autowired
 	private TestHelper helper;
@@ -136,6 +140,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private IdmScriptService scriptService;
 	@Autowired
 	private TestIdentityProcessor testIdentityProcessor;
+	@Autowired
+	private FormService formService;
 	
 	private SynchronizationService synchornizationService;
 
@@ -185,6 +191,40 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, identities.size());
 		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identities.get(0).getId());
 		Assert.assertEquals(0, roles.size());
+
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void mappingTwoAttributesOnSchemaAttributeTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		IdmIdentityDto identity = identities.get(0);
+		List<IdmFormValueDto> emailValues = formService.getValues(identity, ATTRIBUTE_EMAIL_TWO);
+		Assert.assertEquals(1, emailValues.size());
+		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
+		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
 
 		// Delete log
 		syncLogService.delete(log);
@@ -753,6 +793,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		resourceUserOne.setFirstname(IDENTITY_ONE);
 		resourceUserOne.setLastname(IDENTITY_ONE);
 		resourceUserOne.setEavAttribute("1");
+		resourceUserOne.setEmail(IDENTITY_ONE_EMAIL);
 		entityManager.persist(resourceUserOne);
 
 	}
@@ -791,11 +832,19 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 			} else if (ATTRIBUTE_EMAIL.equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
-				attributeMapping.setIdmPropertyName("email");
+				attributeMapping.setIdmPropertyName(ATTRIBUTE_EMAIL);
 				attributeMapping.setName(schemaAttr.getName());
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);
+				SysSystemAttributeMappingDto attributeMappingTwo = new SysSystemAttributeMappingDto();
+				attributeMappingTwo.setIdmPropertyName(ATTRIBUTE_EMAIL_TWO);
+				attributeMappingTwo.setEntityAttribute(false);
+				attributeMappingTwo.setExtendedAttribute(true);
+				attributeMappingTwo.setName(ATTRIBUTE_EMAIL_TWO);
+				attributeMappingTwo.setSchemaAttribute(schemaAttr.getId());
+				attributeMappingTwo.setSystemMapping(entityHandlingResult.getId());
+				schemaAttributeMappingService.save(attributeMappingTwo);
 
 			}
 		});

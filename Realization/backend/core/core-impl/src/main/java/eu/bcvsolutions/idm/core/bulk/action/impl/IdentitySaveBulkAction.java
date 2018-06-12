@@ -6,11 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -25,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 @Component("identitySaveBulkAction")
 @Description("Bulk action save identity.")
-public class IdentitySaveBulkAction extends AbstractIdentityBulkAction {
+public class IdentitySaveBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {
 
 	public static final String NAME = "identity-save-bulk-action";
 	
@@ -37,7 +40,7 @@ public class IdentitySaveBulkAction extends AbstractIdentityBulkAction {
 	private EntityEventManager entityEventManager;
 	
 	@Override
-	protected OperationResult processIdentity(IdmIdentityDto dto) {
+	protected OperationResult processDto(IdmIdentityDto dto) {
 		if (isOnlyNotify()) {
 			entityEventManager.changedEntity(dto);
 		} else {
@@ -54,7 +57,7 @@ public class IdentitySaveBulkAction extends AbstractIdentityBulkAction {
 	}
 	
 	@Override
-	protected BasePermission[] getPermissionForIdentity() {
+	protected BasePermission[] getPermissionForEntity() {
 		BasePermission[] permissions =  {
 				IdmBasePermission.UPDATE,
 				IdmBasePermission.READ
@@ -94,5 +97,10 @@ public class IdentitySaveBulkAction extends AbstractIdentityBulkAction {
 	@Override
 	public int getOrder() {
 		return super.getOrder() + 1500;
+	}
+
+	@Override
+	public ReadWriteDtoService<IdmIdentityDto, IdmIdentityFilter> getService() {
+		return identityService;
 	}
 }

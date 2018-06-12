@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -27,13 +28,16 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -53,7 +57,7 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 @Component("identityRemoveRoleBulkAction")
 @Description("Remove role from given identities.")
-public class IdentityRemoveRoleBulkAction extends AbstractIdentityBulkAction {
+public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRemoveRoleBulkAction.class);
 
@@ -73,9 +77,11 @@ public class IdentityRemoveRoleBulkAction extends AbstractIdentityBulkAction {
 	private IdmConceptRoleRequestService conceptRoleRequestService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmIdentityService identityService;
 
 	@Override
-	protected OperationResult processIdentity(IdmIdentityDto identity) {
+	protected OperationResult processDto(IdmIdentityDto identity) {
 		List<IdmIdentityContractDto> contracts = new ArrayList<>();
 		if (this.isPrimaryContract()) {
 			IdmIdentityContractDto contract = identityContractService.getPrimeValidContract(identity.getId());
@@ -172,7 +178,7 @@ public class IdentityRemoveRoleBulkAction extends AbstractIdentityBulkAction {
 	}
 
 	@Override
-	protected BasePermission[] getPermissionForIdentity() {
+	protected BasePermission[] getPermissionForEntity() {
 		BasePermission[] permissions =  {
 				IdentityBasePermission.CHANGEPERMISSION,
 				IdmBasePermission.READ
@@ -310,5 +316,10 @@ public class IdentityRemoveRoleBulkAction extends AbstractIdentityBulkAction {
 	@Override
 	public int getOrder() {
 		return super.getOrder() + 500;
+	}
+
+	@Override
+	public ReadWriteDtoService<IdmIdentityDto, IdmIdentityFilter> getService() {
+		return identityService;
 	}
 }

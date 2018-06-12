@@ -4,10 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
@@ -20,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 @Component("identityEnableBulkAction")
 @Description("Enable given identities.")
-public class IdentityEnableBulkAction extends AbstractIdentityBulkAction {
+public class IdentityEnableBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {
 
 	public static final String NAME = "identity-enable-bulk-action";
 	
@@ -28,7 +31,7 @@ public class IdentityEnableBulkAction extends AbstractIdentityBulkAction {
 	private IdmIdentityService identityService;
 	
 	@Override
-	protected OperationResult processIdentity(IdmIdentityDto dto) {
+	protected OperationResult processDto(IdmIdentityDto dto) {
 		dto = identityService.enable(dto.getId());
 		return new OperationResult.Builder(OperationState.EXECUTED).build();
 	}
@@ -39,7 +42,7 @@ public class IdentityEnableBulkAction extends AbstractIdentityBulkAction {
 	}
 
 	@Override
-	protected BasePermission[] getPermissionForIdentity() {
+	protected BasePermission[] getPermissionForEntity() {
 		BasePermission[] permissions= {
 				IdmBasePermission.UPDATE
 		};
@@ -49,5 +52,10 @@ public class IdentityEnableBulkAction extends AbstractIdentityBulkAction {
 	@Override
 	public int getOrder() {
 		return super.getOrder() + 200;
+	}
+
+	@Override
+	public ReadWriteDtoService<IdmIdentityDto, IdmIdentityFilter> getService() {
+		return identityService;
 	}
 }

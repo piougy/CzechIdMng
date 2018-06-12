@@ -188,23 +188,6 @@ public class DefaultIdmIdentityContractService
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.state), filter.getState()));
 		}
-		// property, if is property filled and it isn't find in defined properties return disjunction
-		boolean exitsProperty = filter.getProperty() == null ? true : false;
-		if (StringUtils.equals(IdmIdentityContract_.position.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.position), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmIdentityContract_.state.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.state), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmIdentityContract_.description.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.description), filter.getValue()));
-		}
-		if (!exitsProperty) {
-			predicates.add(builder.disjunction());
-		}
 		if (StringUtils.isNotEmpty(filter.getPosition())) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.position), filter.getPosition()));
 		}

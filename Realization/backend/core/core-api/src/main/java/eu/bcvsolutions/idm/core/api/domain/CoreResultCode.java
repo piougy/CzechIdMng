@@ -51,6 +51,7 @@ public enum CoreResultCode implements ResultCode {
 	DUPLICATE_EXTERNAL_CODE(HttpStatus.CONFLICT, "Entity type [%s] with external code [%s] already exist (id: [%s])."),
 	ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external identifiable."),
 	ENTITY_TYPE_NOT_EXTERNAL_CODEABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external codeable."),
+	CORRELATION_PROPERTY_NOT_FOUND(HttpStatus.BAD_REQUEST, "Entity type [%s] does not contains the correlation property [%s]."),
 	// data
 	SEARCH_ERROR(HttpStatus.BAD_REQUEST, "Error during searching entities. Error: %s"),
 	UNMODIFIABLE_LOCKED(HttpStatus.CONFLICT, "This entity [%s] cannot be modified (is locked)!"),

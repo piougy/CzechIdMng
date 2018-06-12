@@ -7,6 +7,13 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
  */
 public interface CorrelationFilter extends BaseFilter {
 
+	
+	/**
+	 * Little dynamic search by identity property and value
+	 */
+	public static final String PARAMETER_CORRELATION_PROPERTY = "correlationProperty";
+	public static final String PARAMETER_CORRELATION_VALUE = "correlationValue";
+	
     String getProperty();
 
     void setProperty(String property);

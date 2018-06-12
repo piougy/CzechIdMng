@@ -36,14 +36,6 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
 	 */
 	public static final String PARAMETER_RECURSIVELY = "recursively";
 	public static final boolean DEFAULT_RECURSIVELY = true;
-	/**
-	 * Attribute name to search for, like 'code' or 'name'
-	 */
-	public static final String PARAMETER_PROPERTY = "property";
-	/**
-	 * Value of the attribute defined in property to search for
-	 */
-	public static final String PARAMETER_VALUE = "value";
 
     public IdmTreeNodeFilter() {
         this(new LinkedMultiValueMap<>());
@@ -93,25 +85,25 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
     	data.set(PARAMETER_RECURSIVELY, recursively);
     }
 
-    @Override
-    public String getProperty() {
-        return (String) data.getFirst(PARAMETER_PROPERTY);
-    }
+	@Override
+	public String getProperty() {
+		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
+	}
 
-    @Override
-    public void setProperty(String property) {
-    	data.set(PARAMETER_PROPERTY, property);
-    }
+	@Override
+	public void setProperty(String property) {
+		data.set(PARAMETER_CORRELATION_PROPERTY, property);
+	}
 
-    @Override
-    public String getValue() {
-    	return (String) data.getFirst(PARAMETER_VALUE);
-    }
+	@Override
+	public String getValue() {
+		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
+	}
 
-    @Override
-    public void setValue(String value) {
-    	data.set(PARAMETER_VALUE, value);
-    }
+	@Override
+	public void setValue(String value) {
+		data.set(PARAMETER_CORRELATION_VALUE, value);
+	}
     
     public String getCode() {
 		return (String) data.getFirst(PARAMETER_CODE);

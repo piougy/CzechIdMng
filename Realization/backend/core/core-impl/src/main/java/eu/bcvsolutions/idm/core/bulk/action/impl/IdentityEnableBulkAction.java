@@ -1,8 +1,12 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
@@ -12,9 +16,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
  * Bulk action for enable given identities
@@ -45,11 +48,8 @@ public class IdentityEnableBulkAction extends AbstractBulkAction<IdmIdentityDto,
 	}
 
 	@Override
-	protected BasePermission[] getPermissionForEntity() {
-		BasePermission[] permissions= {
-				IdmBasePermission.UPDATE
-		};
-		return permissions;
+	protected List<String> getPermissionForEntity() {
+		return Lists.newArrayList(CoreGroupPermission.IDENTITY_UPDATE);
 	}
 
 	@Override

@@ -1,10 +1,7 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
@@ -28,9 +25,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
-import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
  * Implementation of manager for bulk action
@@ -74,7 +69,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		action.setModule(executor.getModule());
 		action.setFormAttributes(executor.getFormAttributes());
 		//
-		action.setPermissions(toString(executor.getPermissions()));
+		action.setPermissions(executor.getPermissions());
 		return action;
 	}
 	
@@ -94,7 +89,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 			actionDto.setModule(action.getModule());
 			actionDto.setName(action.getName());
 			actionDto.setFormAttributes(action.getFormAttributes());
-			actionDto.setPermissions(toString(action.getPermissions()));
+			actionDto.setPermissions(action.getPermissions());
 			result.add(actionDto);
 		}
 		return result;
@@ -119,13 +114,5 @@ public class DefaultBulkActionManager implements BulkActionManager {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionClass", actionDto.getEntityClass()), e);
 		}
 		throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionName", actionDto.getName()));
-	}
-
-	private Map<String, String[]> toString(Map<String, BasePermission[]> permissions) {
-		Map<String, String[]> results = new HashMap<>();
-		permissions.entrySet().forEach(entry -> {
-			results.put(entry.getKey(), PermissionUtils.toString(Arrays.asList(entry.getValue())).toArray(new String[]{}));
-		});
-		return results;
 	}
 }

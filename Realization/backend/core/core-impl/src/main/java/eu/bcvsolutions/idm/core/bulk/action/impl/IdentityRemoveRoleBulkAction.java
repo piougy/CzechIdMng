@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -14,6 +13,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
@@ -43,10 +43,9 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
-import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
@@ -181,18 +180,14 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 	}
 
 	@Override
-	protected BasePermission[] getPermissionForEntity() {
-		BasePermission[] permissions =  {
-				IdentityBasePermission.CHANGEPERMISSION,
-				IdmBasePermission.READ
-		};
-		return permissions;
+	protected List<String> getPermissionForEntity() {
+		return Lists.newArrayList(CoreGroupPermission.IDENTITY_READ, CoreGroupPermission.IDENTITY_CHANGEPERMISSION);
 	}
 
 	@Override
-	public Map<String, BasePermission[]> getPermissions() {
-		Map<String, BasePermission[]> permissions = super.getPermissions();
-		permissions.put(IdmIdentityContract.class.getSimpleName(), this.getPermissionForContract());
+	public List<String> getPermissions() {
+		List<String> permissions = super.getPermissions();
+		permissions.addAll(this.getPermissionForContract());
 		return permissions;
 	}
 
@@ -203,7 +198,8 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 	 * @return
 	 */
 	private boolean checkPermissionForContract(IdmIdentityContractDto contract) {
-		return PermissionUtils.hasAnyPermission(identityContractService.getPermissions(contract), getPermissionForContract());
+		return PermissionUtils.hasAnyPermission(identityContractService.getPermissions(contract), 
+				PermissionUtils.toBasePermissions(getPermissionForContract()).toArray(new BasePermission[] {}));
 	}
 
 	/**
@@ -211,12 +207,8 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 	 *
 	 * @return
 	 */
-	private BasePermission[] getPermissionForContract() {
-		BasePermission[] permissions = {
-				IdmBasePermission.READ,
-				IdmBasePermission.AUTOCOMPLETE
-		};
-		return permissions;
+	private List<String> getPermissionForContract() {
+		return Lists.newArrayList(CoreGroupPermission.IDENTITYCONTRACT_READ, CoreGroupPermission.IDENTITYCONTRACT_AUTOCOMPLETE);
 	}
 
 	@Override

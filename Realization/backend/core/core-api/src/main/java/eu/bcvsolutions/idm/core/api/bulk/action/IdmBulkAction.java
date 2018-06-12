@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.api.bulk.action;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.core.Ordered;
 import org.springframework.plugin.core.Plugin;
@@ -12,7 +11,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Interface for bulk operation
@@ -61,6 +59,11 @@ public interface IdmBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 	 */
 	String getModule();
 	
+	/**
+	 * Return service. With the service will be executed bulk action.
+	 *
+	 * @return
+	 */
 	ReadWriteDtoService<DTO, F> getService();
 	
 	/**
@@ -70,8 +73,8 @@ public interface IdmBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 	
 	/**
 	 * Return permissions required for process one item.
-	 * Key is entity and value is array of {@link BasePermission}.
+	 *
 	 * @return
 	 */
-	Map<String, BasePermission[]> getPermissions();
+	List<String> getPermissions();
 }

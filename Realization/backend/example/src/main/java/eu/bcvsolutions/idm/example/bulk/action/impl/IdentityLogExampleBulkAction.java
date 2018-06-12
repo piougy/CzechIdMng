@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -15,9 +17,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 
 /**
@@ -185,11 +186,8 @@ public class IdentityLogExampleBulkAction extends AbstractBulkAction<IdmIdentity
 	}
 
 	@Override
-	protected BasePermission[] getPermissionForEntity() {
-		BasePermission[] permissions= {
-				IdmBasePermission.READ
-		};
-		return permissions;
+	protected List<String> getPermissionForEntity() {
+		return Lists.newArrayList(CoreGroupPermission.IDENTITY_READ);
 	}
 
 	@Override

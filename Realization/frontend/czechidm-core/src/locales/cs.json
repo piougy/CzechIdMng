@@ -260,7 +260,8 @@
     "message_5": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
     "button": {
       "execute": "Spustit"
-    }
+    },
+    "insufficientReadPermission": "Nemáte dostatečná práva pro zobrazení průběhu hromadné operace."
   },
   "environment": {
     "development": {

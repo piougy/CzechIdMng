@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.api.bulk.action;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -13,7 +12,6 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.bulk.action.IdmBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -119,10 +117,8 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	}
 	
 	@Override
-	public Map<String, BasePermission[]> getPermissions() {
-		Map<String, BasePermission[]> permissions = new HashMap<>();
-		permissions.put(getService().getEntityClass().getSimpleName(), this.getPermissionForEntity());
-		return permissions;
+	public List<String> getPermissions() {
+		return this.getPermissionForEntity();
 	}
 	
 	@Override
@@ -175,7 +171,9 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 			description.append(System.lineSeparator());
 			description.append("For filtering is used list of ID's.");
 		} else {
-			List<UUID> content = getService().findIds(this.transformFilter(action.getTransformedFilter()), null).getContent();
+			// is necessary find entities with given base permission
+			List<UUID> content = getService().findIds(this.transformFilter(action.getTransformedFilter()), null,
+					getBasePermissionForEntity()).getContent();
 
 			// it is necessary create new arraylist because return list form find is unmodifiable
 			entities = new ArrayList<UUID>(content);
@@ -290,7 +288,12 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	 * @return
 	 */
 	protected boolean checkPermissionForEntity(BaseDto entity) {
-		return PermissionUtils.hasPermission(getService().getPermissions(entity), getPermissionForEntity());
+		return PermissionUtils.hasPermission(getService().getPermissions(entity),
+				getBasePermissionForEntity());
+	}
+	
+	protected BasePermission[] getBasePermissionForEntity() {
+		return PermissionUtils.toBasePermissions(getPermissionForEntity()).toArray(new BasePermission[] {});
 	}
 
 	/**
@@ -298,7 +301,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	 *
 	 * @return
 	 */
-	protected abstract BasePermission[] getPermissionForEntity();
+	protected abstract List<String> getPermissionForEntity();
 	
 	/**
 	 * Process one of DTO in queue

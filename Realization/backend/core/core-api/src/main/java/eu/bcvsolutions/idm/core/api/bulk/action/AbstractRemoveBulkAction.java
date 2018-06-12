@@ -4,8 +4,6 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
  * Abstract class for all remove operations
@@ -23,13 +21,5 @@ public abstract class AbstractRemoveBulkAction<DTO extends AbstractDto, F extend
 	protected OperationResult processDto(DTO dto) {
 		this.getService().delete(dto);
 		return new OperationResult.Builder(OperationState.EXECUTED).build();
-	}
-
-	@Override
-	protected BasePermission[] getPermissionForEntity() {
-		BasePermission[] permissions= {
-				IdmBasePermission.DELETE
-		};
-		return permissions;
 	}
 }

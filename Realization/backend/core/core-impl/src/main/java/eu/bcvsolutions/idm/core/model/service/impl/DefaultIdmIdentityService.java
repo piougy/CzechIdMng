@@ -241,6 +241,10 @@ public class DefaultIdmIdentityService
 			exitsProperty = true;
 			predicates.add(builder.equal(root.get(IdmIdentity_.phone), filter.getValue()));
 		}
+		if (StringUtils.equals(IdmIdentity_.externalCode.getName(), filter.getProperty())) {
+			exitsProperty = true;
+			predicates.add(builder.equal(root.get(IdmIdentity_.externalCode), filter.getValue()));
+		}
 		if (!exitsProperty) {
 			predicates.add(builder.disjunction());
 		}

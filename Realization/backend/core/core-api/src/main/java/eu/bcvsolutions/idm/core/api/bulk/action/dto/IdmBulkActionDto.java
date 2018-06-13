@@ -13,8 +13,8 @@ import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -45,7 +45,7 @@ public class IdmBulkActionDto implements Serializable {
 	private transient BaseFilter transformedFilter;
 	private Map<String, Object> properties;
 	@JsonProperty(access = Access.READ_ONLY)
-	private Map<String, String[]> permissions;
+	private List<String> permissions;
 	private Map<String, Object> filter;
 	@JsonProperty(access = Access.READ_ONLY)
 	private UUID longRunningTaskId;
@@ -154,14 +154,14 @@ public class IdmBulkActionDto implements Serializable {
 		this.formAttributes = formAttributes;
 	}
 	
-	public Map<String, String[]> getPermissions() {
+	public List<String> getPermissions() {
 		if (permissions == null) {
-			permissions = new HashMap<>();
+			permissions = new ArrayList<>();
 		}
 		return permissions;
 	}
 
-	public void setPermissions(Map<String, String[]> permissions) {
+	public void setPermissions(List<String> permissions) {
 		this.permissions = permissions;
 	}
 }

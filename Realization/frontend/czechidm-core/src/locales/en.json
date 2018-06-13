@@ -230,7 +230,8 @@
     "message_plural": "Performing the bulk action on {{count}} records: <b>[{{entities}}]</b>",
     "button": {
       "execute": "Execute"
-    }
+    },
+    "insufficientReadPermission": "You don't have sufficient rights to view the progress of the bulk operation."
   },
   "environment": {
     "development": {

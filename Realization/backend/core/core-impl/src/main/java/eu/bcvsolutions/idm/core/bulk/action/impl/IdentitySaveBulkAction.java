@@ -6,15 +6,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Bulk operation for save identity
@@ -23,9 +29,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  *
  */
 
+@Enabled(CoreModuleDescriptor.MODULE_ID)
 @Component("identitySaveBulkAction")
 @Description("Bulk action save identity.")
-public class IdentitySaveBulkAction extends AbstractIdentityBulkAction {
+public class IdentitySaveBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {
 
 	public static final String NAME = "identity-save-bulk-action";
 	
@@ -37,7 +44,7 @@ public class IdentitySaveBulkAction extends AbstractIdentityBulkAction {
 	private EntityEventManager entityEventManager;
 	
 	@Override
-	protected OperationResult processIdentity(IdmIdentityDto dto) {
+	protected OperationResult processDto(IdmIdentityDto dto) {
 		if (isOnlyNotify()) {
 			entityEventManager.changedEntity(dto);
 		} else {
@@ -54,12 +61,8 @@ public class IdentitySaveBulkAction extends AbstractIdentityBulkAction {
 	}
 	
 	@Override
-	protected BasePermission[] getPermissionForIdentity() {
-		BasePermission[] permissions =  {
-				IdmBasePermission.UPDATE,
-				IdmBasePermission.READ
-		};
-		return permissions;
+	protected List<String> getPermissionForEntity() {
+		return Lists.newArrayList(CoreGroupPermission.IDENTITY_READ, CoreGroupPermission.IDENTITY_UPDATE);
 	}
 
 	@Override
@@ -94,5 +97,10 @@ public class IdentitySaveBulkAction extends AbstractIdentityBulkAction {
 	@Override
 	public int getOrder() {
 		return super.getOrder() + 1500;
+	}
+
+	@Override
+	public ReadWriteDtoService<IdmIdentityDto, IdmIdentityFilter> getService() {
+		return identityService;
 	}
 }

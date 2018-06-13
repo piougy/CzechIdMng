@@ -11,7 +11,7 @@ import Filter from '../Filter/Filter';
 import SearchParameters from '../../../domain/SearchParameters';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import RefreshButton from './RefreshButton';
-import { DataManager, FormAttributeManager, LongRunningTaskManager } from '../../../redux/data';
+import { DataManager, FormAttributeManager, LongRunningTaskManager, SecurityManager } from '../../../redux';
 import EavAttributeForm from '../Form/EavAttributeForm';
 import LongRunningTask from '../LongRunningTask/LongRunningTask';
 
@@ -407,20 +407,40 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
     let modalContent = null;
     if (backendBulkAction && backendBulkAction.longRunningTaskId) {
-      modalContent = (
-        <Basic.Modal.Body style={ {padding: 0, marginBottom: -20} }>
-          <LongRunningTask
-            entityIdentifier={ backendBulkAction.longRunningTaskId }
-            header={ this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label')}
-            footerButtons={
+      if (SecurityManager.hasAuthority('SCHEDULER_READ')) {
+        modalContent = (
+          <Basic.Modal.Body style={ {padding: 0, marginBottom: -20} }>
+            <LongRunningTask
+              entityIdentifier={ backendBulkAction.longRunningTaskId }
+              header={ this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label')}
+              footerButtons={
+                <Basic.Button
+                  level="link"
+                  onClick={this.showBulkActionDetail.bind(this)}>
+                  {this.i18n('button.close')}
+                </Basic.Button>
+              }/>
+            </Basic.Modal.Body>
+          );
+      } else {
+        modalContent = (
+          <div>
+            <Basic.Modal.Header text={ this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label') }/>
+            <Basic.Modal.Body>
+              <Basic.Alert
+                level="info"
+                text={this.i18n('bulkAction.insufficientReadPermission')}/>
+            </Basic.Modal.Body>
+            <Basic.Modal.Footer>
               <Basic.Button
                 level="link"
                 onClick={this.showBulkActionDetail.bind(this)}>
                 {this.i18n('button.close')}
               </Basic.Button>
-            }/>
-        </Basic.Modal.Body>
-      );
+            </Basic.Modal.Footer>
+          </div>
+        );
+      }
     } else if (backendBulkAction) {
       modalContent = (
         <form onSubmit={this.processBulkAction.bind(this, backendBulkAction)}>
@@ -650,7 +670,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           _actions.push({
             value: backendBulkAction.name,
             niceLabel: this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label'),
-            action: this.showBulkActionDetail.bind(this, backendBulkAction)
+            action: this.showBulkActionDetail.bind(this, backendBulkAction),
+            disabled: !SecurityManager.hasAllAuthorities(backendBulkAction.permissions)
           });
         }
       }

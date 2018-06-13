@@ -1,15 +1,21 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import com.google.common.collect.Lists;
+
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.bulk.action.AbstractRemoveBulkAction;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Delete given identities
@@ -18,9 +24,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  *
  */
 
+@Enabled(module = CoreModuleDescriptor.MODULE_ID, property = "idm.pub.core.identity.delete")
 @Component("identityDeleteBulkAction")
 @Description("Delete given identities.")
-public class IdentityDeleteBulkAction extends AbstractIdentityBulkAction {
+public class IdentityDeleteBulkAction extends AbstractRemoveBulkAction<IdmIdentityDto, IdmIdentityFilter> {
 
 	public static final String NAME = "identity-delete-bulk-action";
 
@@ -28,26 +35,22 @@ public class IdentityDeleteBulkAction extends AbstractIdentityBulkAction {
 	private IdmIdentityService identityService;
 
 	@Override
-	protected OperationResult processIdentity(IdmIdentityDto dto) {
-		identityService.delete(dto);
-		return new OperationResult.Builder(OperationState.EXECUTED).build();
-	}
-
-	@Override
 	public String getName() {
 		return NAME;
 	}
 
 	@Override
-	protected BasePermission[] getPermissionForIdentity() {
-		BasePermission[] permissions= {
-				IdmBasePermission.DELETE
-		};
-		return permissions;
+	public int getOrder() {
+		return super.getOrder() + 300;
 	}
 
 	@Override
-	public int getOrder() {
-		return super.getOrder() + 300;
+	protected List<String> getPermissionForEntity() {
+		return Lists.newArrayList(CoreGroupPermission.IDENTITY_DELETE);
+	}
+
+	@Override
+	public ReadWriteDtoService<IdmIdentityDto, IdmIdentityFilter> getService() {
+		return identityService;
 	}
 }

@@ -186,7 +186,7 @@ public class IdentityLogExampleBulkAction extends AbstractBulkAction<IdmIdentity
 	}
 
 	@Override
-	protected List<String> getPermissionForEntity() {
+	protected List<String> getAuthoritiesForEntity() {
 		return Lists.newArrayList(CoreGroupPermission.IDENTITY_READ);
 	}
 

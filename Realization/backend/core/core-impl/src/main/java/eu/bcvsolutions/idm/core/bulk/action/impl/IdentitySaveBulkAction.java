@@ -61,7 +61,7 @@ public class IdentitySaveBulkAction extends AbstractBulkAction<IdmIdentityDto, I
 	}
 	
 	@Override
-	protected List<String> getPermissionForEntity() {
+	protected List<String> getAuthoritiesForEntity() {
 		return Lists.newArrayList(CoreGroupPermission.IDENTITY_READ, CoreGroupPermission.IDENTITY_UPDATE);
 	}
 

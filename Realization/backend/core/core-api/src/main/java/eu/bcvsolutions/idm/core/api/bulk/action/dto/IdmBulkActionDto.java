@@ -45,7 +45,7 @@ public class IdmBulkActionDto implements Serializable {
 	private transient BaseFilter transformedFilter;
 	private Map<String, Object> properties;
 	@JsonProperty(access = Access.READ_ONLY)
-	private List<String> permissions;
+	private List<String> authorities;
 	private Map<String, Object> filter;
 	@JsonProperty(access = Access.READ_ONLY)
 	private UUID longRunningTaskId;
@@ -154,14 +154,14 @@ public class IdmBulkActionDto implements Serializable {
 		this.formAttributes = formAttributes;
 	}
 	
-	public List<String> getPermissions() {
-		if (permissions == null) {
-			permissions = new ArrayList<>();
+	public List<String> getAuthorities() {
+		if (authorities == null) {
+			authorities = new ArrayList<>();
 		}
-		return permissions;
+		return authorities;
 	}
 
-	public void setPermissions(List<String> permissions) {
-		this.permissions = permissions;
+	public void setAuthorities(List<String> authorities) {
+		this.authorities = authorities;
 	}
 }

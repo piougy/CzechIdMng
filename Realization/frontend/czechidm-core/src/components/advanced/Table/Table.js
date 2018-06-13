@@ -671,7 +671,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             value: backendBulkAction.name,
             niceLabel: this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label'),
             action: this.showBulkActionDetail.bind(this, backendBulkAction),
-            disabled: !SecurityManager.hasAllAuthorities(backendBulkAction.permissions)
+            disabled: !SecurityManager.hasAllAuthorities(backendBulkAction.authorities)
           });
         }
       }

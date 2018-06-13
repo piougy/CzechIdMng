@@ -45,7 +45,7 @@ public class IdentityDeleteBulkAction extends AbstractRemoveBulkAction<IdmIdenti
 	}
 
 	@Override
-	protected List<String> getPermissionForEntity() {
+	protected List<String> getAuthoritiesForEntity() {
 		return Lists.newArrayList(CoreGroupPermission.IDENTITY_DELETE);
 	}
 

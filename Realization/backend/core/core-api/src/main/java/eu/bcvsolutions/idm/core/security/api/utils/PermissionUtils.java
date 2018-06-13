@@ -90,27 +90,27 @@ public abstract class PermissionUtils {
 	 * @param permissions
 	 * @return BasePermission list 
 	 */
-	public static Collection<BasePermission> toBasePermissions(Collection<String> permissions) {
-		if (permissions == null) {
+	public static Collection<BasePermission> toPermissions(Collection<String> authorities) {
+		if (authorities == null) {
 			return Collections.<BasePermission>emptySet();
 		}
 		Set<BasePermission> result = new HashSet<>();
-		for (String permission : permissions) {
-			if (permission.contains(BasePermission.SEPARATOR)) {
-				String[] split = permission.split(BasePermission.SEPARATOR);
+		for (String authority : authorities) {
+			if (authority.contains(BasePermission.SEPARATOR)) {
+				String[] split = authority.split(BasePermission.SEPARATOR);
 				// permission is on last place
-				permission = split[split.length - 1];
+				authority = split[split.length - 1];
 			}
 			// Base permission may be child from IdmBasePermission or from IdentityBasePermission
-			BasePermission basePermission = EnumUtils.getEnum(IdmBasePermission.class, permission);
-			if (basePermission == null) {
-				basePermission = EnumUtils.getEnum(IdentityBasePermission.class, permission);
+			BasePermission permission = EnumUtils.getEnum(IdmBasePermission.class, authority);
+			if (permission == null) {
+				permission = EnumUtils.getEnum(IdentityBasePermission.class, authority);
 			}
 			//
-			if (basePermission == null) {
-				throw new CoreException(MessageFormat.format("For permission {0} was not found enum!", permission));
+			if (permission == null) {
+				throw new CoreException(MessageFormat.format("For permission {0} was not found enum!", authority));
 			}
-			result.add(basePermission);
+			result.add(permission);
 		}
 		return result;
 	}

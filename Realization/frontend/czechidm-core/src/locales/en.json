@@ -222,7 +222,7 @@
     }
   },
   "bulkAction": {
-    "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on currently filtered items. To this date [{{date}}] is actual count [{{count}}]. Processed items may be different.",
+    "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on currently filtered items. To this date <strong>{{date}}</strong> is actual count <strong class=\"highlight\">{{count}}</strong>. Processed items may be different.",
     "removedRecord": "The following entity will not be counted in the bulk job processing: <b>[{{entities}}]</b>.",
     "removedRecord_plural": "The following entities will not be included in the bulk job processing: <b>[{{entities}}]</b>.",
     "created": "Bulk action [{{name}}] was successfully run in a long running task id: [{{longRunningTaskId}}]",

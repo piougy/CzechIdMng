@@ -117,8 +117,8 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	}
 	
 	@Override
-	public List<String> getPermissions() {
-		return this.getPermissionForEntity();
+	public List<String> getAuthorities() {
+		return this.getAuthoritiesForEntity();
 	}
 	
 	@Override
@@ -173,7 +173,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		} else {
 			// is necessary find entities with given base permission
 			List<UUID> content = getService().findIds(this.transformFilter(action.getTransformedFilter()), null,
-					getBasePermissionForEntity()).getContent();
+					getPermissionForEntity()).getContent();
 
 			// it is necessary create new arraylist because return list form find is unmodifiable
 			entities = new ArrayList<UUID>(content);
@@ -289,11 +289,11 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	 */
 	protected boolean checkPermissionForEntity(BaseDto entity) {
 		return PermissionUtils.hasPermission(getService().getPermissions(entity),
-				getBasePermissionForEntity());
+				getPermissionForEntity());
 	}
 	
-	protected BasePermission[] getBasePermissionForEntity() {
-		return PermissionUtils.toBasePermissions(getPermissionForEntity()).toArray(new BasePermission[] {});
+	protected BasePermission[] getPermissionForEntity() {
+		return PermissionUtils.toPermissions(getAuthoritiesForEntity()).toArray(new BasePermission[] {});
 	}
 
 	/**
@@ -301,7 +301,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	 *
 	 * @return
 	 */
-	protected abstract List<String> getPermissionForEntity();
+	protected abstract List<String> getAuthoritiesForEntity();
 	
 	/**
 	 * Process one of DTO in queue

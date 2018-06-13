@@ -69,7 +69,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		action.setModule(executor.getModule());
 		action.setFormAttributes(executor.getFormAttributes());
 		//
-		action.setPermissions(executor.getPermissions());
+		action.setAuthorities(executor.getAuthorities());
 		return action;
 	}
 	
@@ -89,7 +89,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 			actionDto.setModule(action.getModule());
 			actionDto.setName(action.getName());
 			actionDto.setFormAttributes(action.getFormAttributes());
-			actionDto.setPermissions(action.getPermissions());
+			actionDto.setAuthorities(action.getAuthorities());
 			result.add(actionDto);
 		}
 		return result;

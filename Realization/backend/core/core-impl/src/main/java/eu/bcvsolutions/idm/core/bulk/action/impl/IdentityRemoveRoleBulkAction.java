@@ -180,14 +180,14 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 	}
 
 	@Override
-	protected List<String> getPermissionForEntity() {
+	protected List<String> getAuthoritiesForEntity() {
 		return Lists.newArrayList(CoreGroupPermission.IDENTITY_READ, CoreGroupPermission.IDENTITY_CHANGEPERMISSION);
 	}
 
 	@Override
-	public List<String> getPermissions() {
-		List<String> permissions = super.getPermissions();
-		permissions.addAll(this.getPermissionForContract());
+	public List<String> getAuthorities() {
+		List<String> permissions = super.getAuthorities();
+		permissions.addAll(this.getAuthoritiesForContract());
 		return permissions;
 	}
 
@@ -199,7 +199,7 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 	 */
 	private boolean checkPermissionForContract(IdmIdentityContractDto contract) {
 		return PermissionUtils.hasAnyPermission(identityContractService.getPermissions(contract), 
-				PermissionUtils.toBasePermissions(getPermissionForContract()).toArray(new BasePermission[] {}));
+				PermissionUtils.toPermissions(getAuthoritiesForContract()).toArray(new BasePermission[] {}));
 	}
 
 	/**
@@ -207,7 +207,7 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 	 *
 	 * @return
 	 */
-	private List<String> getPermissionForContract() {
+	private List<String> getAuthoritiesForContract() {
 		return Lists.newArrayList(CoreGroupPermission.IDENTITYCONTRACT_READ, CoreGroupPermission.IDENTITYCONTRACT_AUTOCOMPLETE);
 	}
 

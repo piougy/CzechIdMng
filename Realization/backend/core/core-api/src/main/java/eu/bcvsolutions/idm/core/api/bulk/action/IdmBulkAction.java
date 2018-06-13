@@ -72,9 +72,9 @@ public interface IdmBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 	void validate();
 	
 	/**
-	 * Return permissions required for process one item.
+	 * Return authorities required for process one item.
 	 *
 	 * @return
 	 */
-	List<String> getPermissions();
+	List<String> getAuthorities();
 }

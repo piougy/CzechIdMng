@@ -80,9 +80,7 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
@@ -623,11 +621,6 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	@Override
 	protected IdmContractSliceService getService() {
 		return sliceService;
-	}
-
-	@Override
-	protected Class<? extends FormableEntity> getEntityClass() {
-		return IdmContractSlice.class;
 	}
 
 	@Override

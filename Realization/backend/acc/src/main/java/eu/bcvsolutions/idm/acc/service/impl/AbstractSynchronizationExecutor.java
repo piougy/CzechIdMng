@@ -99,7 +99,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -1383,8 +1382,11 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		} else if (attribute.isExtendedAttribute()) {
 			try {
 				Serializable serializableValue = Serializable.class.cast(value);
+				SystemEntityType entityType = context.getEntityType();
+				Assert.notNull(entityType, "Entity type is requierd!");
+				
 				List<? extends BaseDto> entities = formService
-						.findOwners(getEntityClass(), attribute.getIdmPropertyName(), serializableValue, null)
+						.findOwners(entityType.getExtendedAttributeOwnerType(), attribute.getIdmPropertyName(), serializableValue, null)
 						.getContent();
 				if (CollectionUtils.isEmpty(entities)) {
 					return null;
@@ -1403,13 +1405,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 		return null;
 	}
-
-	/**
-	 * Return entity class for synchronization.
-	 * 
-	 * @return
-	 */
-	protected abstract Class<? extends FormableEntity> getEntityClass();
 
 	/**
 	 * Return specific correlation filter
@@ -1535,7 +1530,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
 						ImmutableMap.of("uid", uid, "message", message));
 			}
-			IdmFormAttributeDto defAttribute = formService.getDefinition(dto.getClass())
+			SystemEntityType entityType = context.getEntityType();
+			Assert.notNull(entityType, "Entity type is requierd!");
+
+			IdmFormAttributeDto defAttribute = formService.getDefinition(entityType.getExtendedAttributeOwnerType())
 					.getMappedAttributeByCode(attributeProperty);
 			if (defAttribute == null) {
 				// eav definition could be changed
@@ -1561,6 +1559,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		});
 		return dto;
 	}
+	
 
 	/**
 	 * Update confidential attribute for given entity. Entity must be persisted
@@ -1680,6 +1679,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 		cache.put(key, value);
 	}
+	
 
 	private Cache getCache() {
 		if (cacheManager == null) {
@@ -1687,6 +1687,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 		return cacheManager.getCache(CACHE_NAME);
 	}
+	
 
 	private AccAccountDto findAccount(SynchronizationContext context) {
 

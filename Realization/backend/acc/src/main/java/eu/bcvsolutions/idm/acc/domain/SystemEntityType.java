@@ -35,9 +35,23 @@ public enum SystemEntityType {
 	}
 
 	public Class<? extends AbstractDto> getEntityType() {
+		
 		return entityType;
 	}
 	
+	/**
+	 * Returns class using as owner of extended attributes. By default is same as
+	 * entity type. Only for contract slices is using EAV definition form the
+	 * contracts.
+	 * 
+	 * @return
+	 */
+	public Class<? extends AbstractDto> getExtendedAttributeOwnerType() {
+		if (this == CONTRACT_SLICE) {
+			return CONTRACT.entityType;
+		}
+		return entityType;
+	}
 
 	public static SystemEntityType getByClass(Class<? extends AbstractDto> clazz) {
 		for(SystemEntityType systemEntityType : SystemEntityType.values()){

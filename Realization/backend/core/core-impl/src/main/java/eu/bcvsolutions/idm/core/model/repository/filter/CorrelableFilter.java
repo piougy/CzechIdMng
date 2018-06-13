@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import java.lang.reflect.Field;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -15,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.CorrelationPropertyNotExistsException;
+import eu.bcvsolutions.idm.core.api.exception.CorrelationPropertyUnsupportedTypeException;
 import eu.bcvsolutions.idm.core.api.repository.filter.BaseFilterBuilder;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
@@ -42,7 +45,12 @@ public class CorrelableFilter<E extends AbstractEntity> extends BaseFilterBuilde
 		CorrelationFilter correlationFilter = (CorrelationFilter) filter;
 		try {
 			// Check if the property exists in the entity
-			EntityUtils.getFirstFieldInClassHierarchy(root.getJavaType(), correlationFilter.getProperty());
+			Field field = EntityUtils.getFirstFieldInClassHierarchy(root.getJavaType(), correlationFilter.getProperty());
+			// Only search by String is supported now
+			if (String.class != field.getType()) {
+				throw new CorrelationPropertyUnsupportedTypeException(root.getJavaType().getCanonicalName(),
+						correlationFilter.getProperty());
+			}
 		} catch (NoSuchFieldException e) {
 			throw new CorrelationPropertyNotExistsException(root.getJavaType().getCanonicalName(),
 					correlationFilter.getProperty());

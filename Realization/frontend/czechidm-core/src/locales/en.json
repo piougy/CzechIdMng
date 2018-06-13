@@ -4365,6 +4365,14 @@
     "DUPLICATE_EXTERNAL_CODE": {
       "title": "Record already exists",
       "message": "Record with personal number [{{externalCode}}] already exists."
+    },
+    "CORRELATION_PROPERTY_NOT_FOUND": {
+      "title": "Correlation filter doesn't work",
+      "message": "Correlation filter doesn't work, because the property [{{property}}] not exists!"
+    },
+    "CORRELATION_PROPERTY_WRONG_TYPE": {
+      "title": "Correlation filter doesn't work",
+      "message": "Correlation filter doesn't work, because the property [{{property}}] is not String!"
     }
   },
   "validationError": {

@@ -5,6 +5,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +34,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -201,5 +210,40 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		Page<IdmRoleDto> result = roleService.find(filter,null);
 		assertEquals("Wrong catalogue", 1, result.getTotalElements());
 		assertTrue("Wrong catalogue id #1", result.getContent().contains(role));
+	}
+	
+	@Test
+	/**
+	 * Test find role by all string fields
+	 */
+	public void testCorrelableFilter() {
+		IdmRoleDto role = helper.createRole();
+		role.setExternalId(UUID.randomUUID().toString());
+		role.setName((UUID.randomUUID().toString()));
+		role.setDescription(UUID.randomUUID().toString());
+		IdmRoleDto roleFull = roleService.save(role);
+
+		ArrayList<Field> fields = Lists.newArrayList(IdmIdentity_.class.getFields());
+		IdmRoleFilter filter = new IdmRoleFilter();
+
+		fields.forEach(field -> {
+			filter.setProperty(field.getName());
+
+			try {
+				Object value = EntityUtils.getEntityValue(roleFull, field.getName());
+				if (value == null || !(value instanceof String)) {
+					return;
+				}
+				filter.setValue(value.toString());
+				List<IdmRoleDto> identities = roleService.find(filter, null).getContent();
+				assertTrue(identities.contains(roleFull));
+
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+					| IntrospectionException e) {
+				e.printStackTrace();
+			}
+
+		});
+
 	}
 }

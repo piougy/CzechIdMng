@@ -4408,6 +4408,14 @@
     "DUPLICATE_EXTERNAL_CODE": {
       "title": "Záznam již existuje",
       "message": "Záznam s osobním číslem [{{externalCode}}] již existuje."
+    },
+    "CORRELATION_PROPERTY_NOT_FOUND": {
+      "title": "Korelační filtr nefunguje",
+      "message": "Korelační filtr není možné použít, protože požadovaný atribut [{{property}}] neexistuje!"
+    },
+    "CORRELATION_PROPERTY_WRONG_TYPE": {
+      "title": "Korelační filtr nefunguje",
+      "message": "Korelační filtr není možné použít, protože požadovaný atribut [{{property}}] není typu String!"
     }
   },
   "validationError": {

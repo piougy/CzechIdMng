@@ -1629,17 +1629,21 @@
       "title": "Can not set attribute",
       "message": "Can not set IdM attribute [{{attr}}] for entity [{{entity}}]."
     },
-    "SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND": {
-      "title": "Account not found",
-      "message": "No tree account for parent UID: [{{uid}}] on system [{{system}}] with acc account: [{{account}}] was found."
-    },
     "SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND": {
       "title": "Account not found",
-      "message": "No parent account for parent UID: [{{uid}}] on system [{{system}}] was found."
+      "message": "No tree account for parent UID: [{{parentUid}}] on system [{{systemId}}] with acc account: [{{parentAccount}}] was found."
+    },
+    "SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "No parent account for parent UID: [{{parentUid}}] on system [{{systemId}}] was found."
     },
     "PROVISIONING_BREAK_RECIPIENT_CONFLICT": {
       "title": "More attributes for recipient",
       "message": "There is setting in role and identity for recipient. Allowed is only single setting."
+    },
+    "PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING": {
+      "title": "Mapping attribute is duplicated",
+      "message": "Schema attribute can be mapped only once (in provisioning mapping)!"
     }
   },
   "processor": {

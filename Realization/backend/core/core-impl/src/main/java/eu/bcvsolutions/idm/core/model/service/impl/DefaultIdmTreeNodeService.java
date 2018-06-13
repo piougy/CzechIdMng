@@ -10,6 +10,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -70,7 +70,6 @@ public class DefaultIdmTreeNodeService
 	private final IdmTreeTypeService treeTypeService;
 	private final ConfigurationService configurationService;
 	private final LongRunningTaskManager longRunningTaskManager;
-	private final IdmIdentityContractRepository identityContractRepository;
 	private final DefaultBaseTreeService<IdmTreeNode> baseTreeService;
 	private final IdmTreeNodeForestContentService forestContentService;
 	//
@@ -84,7 +83,7 @@ public class DefaultIdmTreeNodeService
 		LongRunningTaskManager longRunningTaskManager,
 		FormService formService,
 		EntityEventManager entityEventManager,
-		IdmIdentityContractRepository identityContractRepository,
+		IdmIdentityContractRepository identityContractRepository, // TODO: should be removed, referential integrity is solved in processor (backward compatibility ...)
 		DefaultBaseTreeService<IdmTreeNode> baseTreeService,
 		IdmTreeNodeForestContentService forestContentService) {
 		super(treeNodeRepository, entityEventManager, formService);
@@ -92,7 +91,6 @@ public class DefaultIdmTreeNodeService
 		Assert.notNull(treeTypeService);
 		Assert.notNull(configurationService);
 		Assert.notNull(longRunningTaskManager);
-		Assert.notNull(identityContractRepository);
 		Assert.notNull(baseTreeService);
 		Assert.notNull(forestContentService);
 		//
@@ -100,7 +98,6 @@ public class DefaultIdmTreeNodeService
 		this.treeTypeService = treeTypeService;
 		this.configurationService = configurationService;
 		this.longRunningTaskManager = longRunningTaskManager;
-		this.identityContractRepository = identityContractRepository;
 		this.baseTreeService = baseTreeService;
 		this.forestContentService = forestContentService;
 	}
@@ -148,9 +145,6 @@ public class DefaultIdmTreeNodeService
 		Page<IdmTreeNode> nodes = repository.findChildren(null, treeNode.getId(), new PageRequest(0, 1));
 		if (nodes.getTotalElements() > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CHILDREN,  ImmutableMap.of("treeNode", treeNode.getName()));
-		}		
-		if (this.identityContractRepository.countByWorkPosition_Id(treeNode.getId()) > 0) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeNode", treeNode.getName()));
 		}
 		//
 		forestContentService.deleteIndex(treeNode.getId());
@@ -249,12 +243,13 @@ public class DefaultIdmTreeNodeService
 		}
 		//
 		// dyn property
-		if (filter.getProperty() != null) {
-			if (IdmTreeNode_.name.getName().equals(filter.getProperty())) {
+		String property = filter.getProperty();
+		if (StringUtils.isNotEmpty(property)) {
+			if (IdmTreeNode_.name.getName().equals(property)) {
 				predicates.add(builder.equal(root.get(IdmTreeNode_.name), filter.getValue()));
-			} else if(IdmTreeNode_.code.getName().equals(filter.getProperty())) {
+			} else if(IdmTreeNode_.code.getName().equals(property)) {
 				predicates.add(builder.equal(root.get(IdmTreeNode_.code), filter.getValue()));
-			} else if(IdmTreeNode_.externalId.getName().equals(filter.getProperty())) {
+			} else if(IdmTreeNode_.externalId.getName().equals(property)) {
 				predicates.add(builder.equal(root.get(IdmTreeNode_.externalId), filter.getValue()));
 			}
 		}
@@ -306,7 +301,7 @@ public class DefaultIdmTreeNodeService
 	
 	private void checkTreeType(UUID treeTypeId) {
 		IdmTreeTypeDto treeType = treeTypeService.get(treeTypeId);
-		if (StringUtils.hasLength(configurationService.getValue(treeTypeService.getConfigurationPropertyName(treeType.getCode(), IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD)))) {
+		if (StringUtils.isNotBlank(configurationService.getValue(treeTypeService.getConfigurationPropertyName(treeType.getCode(), IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD)))) {
 			throw new ResultCodeException(CoreResultCode.FOREST_INDEX_RUNNING, ImmutableMap.of("treeType", treeType.getCode()));
 		}
 	}

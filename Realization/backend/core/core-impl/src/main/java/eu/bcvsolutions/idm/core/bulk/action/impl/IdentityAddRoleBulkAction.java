@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.joda.time.LocalDate;
@@ -13,7 +12,10 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -25,18 +27,21 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
@@ -46,9 +51,11 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
+
+@Enabled(CoreModuleDescriptor.MODULE_ID)
 @Component("identityAddRoleBulkAction")
 @Description("Add role to idetity in bulk action.")
-public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
+public class IdentityAddRoleBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityAddRoleBulkAction.class);
 
@@ -68,6 +75,8 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	private IdmRoleService roleService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptRoleRequestService;
+	@Autowired
+	private IdmIdentityService identityService;
 
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
@@ -86,7 +95,7 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	}
 
 	@Override
-	protected OperationResult processIdentity(IdmIdentityDto identity) {
+	protected OperationResult processDto(IdmIdentityDto identity) {
 		List<IdmIdentityContractDto> contracts = new ArrayList<>();
 		if (this.isPrimaryContract()) {
 			IdmIdentityContractDto contract = identityContractService.getPrimeValidContract(identity.getId());
@@ -155,9 +164,9 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	}
 	
 	@Override
-	public Map<String, BasePermission[]> getPermissions() {
-		Map<String, BasePermission[]> permissions = super.getPermissions();
-		permissions.put(IdmIdentityContract.class.getSimpleName(), this.getPermissionForContract());
+	public List<String> getAuthorities() {
+		List<String> permissions = super.getAuthorities();
+		permissions.addAll(this.getAuthoritiesForContract());
 		return permissions;
 	}
 
@@ -168,7 +177,8 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	 * @return
 	 */
 	private boolean checkPermissionForContract(IdmIdentityContractDto contract) {
-		return PermissionUtils.hasAnyPermission(identityContractService.getPermissions(contract), getPermissionForContract());
+		return PermissionUtils.hasAnyPermission(identityContractService.getPermissions(contract), 
+				PermissionUtils.toPermissions(getAuthoritiesForContract()).toArray(new BasePermission[] {}));
 	}
 
 	/**
@@ -176,21 +186,13 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	 *
 	 * @return
 	 */
-	private BasePermission[] getPermissionForContract() {
-		BasePermission[] permissions = {
-				IdmBasePermission.READ,
-				IdmBasePermission.AUTOCOMPLETE
-		};
-		return permissions;
+	private List<String> getAuthoritiesForContract() {
+		return Lists.newArrayList(CoreGroupPermission.IDENTITYCONTRACT_READ, CoreGroupPermission.IDENTITYCONTRACT_AUTOCOMPLETE);
 	}
 
 	@Override
-	protected BasePermission[] getPermissionForIdentity() {
-		BasePermission[] permissions= {
-				IdentityBasePermission.CHANGEPERMISSION,
-				IdmBasePermission.READ
-		};
-		return permissions;
+	protected List<String> getAuthoritiesForEntity() {
+		return Lists.newArrayList(CoreGroupPermission.IDENTITY_READ, CoreGroupPermission.IDENTITY_CHANGEPERMISSION);
 	}
 
 	/**
@@ -332,5 +334,10 @@ public class IdentityAddRoleBulkAction extends AbstractIdentityBulkAction {
 	@Override
 	public int getOrder() {
 		return super.getOrder() + 400;
+	}
+
+	@Override
+	public ReadWriteDtoService<IdmIdentityDto, IdmIdentityFilter> getService() {
+		return identityService;
 	}
 }

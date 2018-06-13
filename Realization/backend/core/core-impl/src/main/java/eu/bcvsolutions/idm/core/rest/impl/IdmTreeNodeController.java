@@ -389,7 +389,8 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	@ApiOperation(
 			value = "Search sub tree nodes", 
 			nickname = "searchChildrenTreeNodes", 
-			tags = { IdmRoleCatalogueController.TAG })
+			tags = { IdmRoleCatalogueController.TAG },
+			notes = "Finds direct chilren by given parent node uuid identifier.")
 	@ApiImplicitParams({
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
@@ -520,11 +521,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	@Override
 	protected IdmTreeNodeFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmTreeNodeFilter filter = new IdmTreeNodeFilter(parameters);
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeTypeId"));
-		filter.setTreeNode(getParameterConverter().toUuid(parameters, "treeNodeId"));
-		filter.setDefaultTreeType(getParameterConverter().toBoolean(parameters, "defaultTreeType"));
- 		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
+		//
 		return filter;
 	}	
 }

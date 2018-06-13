@@ -6,9 +6,9 @@ import classNames from 'classnames';
 //
 import Footer from './Footer';
 import { Basic, Advanced, Managers } from 'czechidm-core';
-//
-
 import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
+//
+const securityManager = new Managers.SecurityManager();
 
 /**
  * Application entry point
@@ -19,7 +19,6 @@ export class App extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.securityManager = new Managers.SecurityManager();
   }
 
   getChildContext() {
@@ -72,14 +71,14 @@ export class App extends Basic.AbstractContent {
     }
     const formData = this.refs.form.getData();
     // refresh login
-    this.context.store.dispatch(this.securityManager.login(formData.username, formData.password));
+    this.context.store.dispatch(securityManager.login(formData.username, formData.password));
   }
 
   logout(event) {
     if (event) {
       event.preventDefault();
     }
-    this.context.store.dispatch(this.securityManager.logout(() => {
+    this.context.store.dispatch(securityManager.logout(() => {
       this.context.router.replace('/login');
     }));
   }
@@ -88,7 +87,7 @@ export class App extends Basic.AbstractContent {
     const { userContext } = this.props;
     // handle expiration
     if (userContext && userContext.isTryRemoteLogin) {
-      this.context.store.dispatch(this.securityManager.remoteLogin());
+      this.context.store.dispatch(securityManager.remoteLogin());
     }
   }
 
@@ -96,7 +95,7 @@ export class App extends Basic.AbstractContent {
     const { userContext } = this.props;
     // handle token expiration extension
     if (userContext) {
-      this.context.store.dispatch(this.securityManager.checkRefreshedToken());
+      this.context.store.dispatch(securityManager.checkRefreshedToken());
     }
   }
 

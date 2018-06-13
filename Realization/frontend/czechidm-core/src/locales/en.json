@@ -222,7 +222,7 @@
     }
   },
   "bulkAction": {
-    "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on currently filtered items. To this date [{{date}}] is actual count [{{count}}]. Processed items may be different.",
+    "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on currently filtered items. To this date <strong>{{date}}</strong> is actual count <strong class=\"highlight\">{{count}}</strong>. Processed items may be different.",
     "removedRecord": "The following entity will not be counted in the bulk job processing: <b>[{{entities}}]</b>.",
     "removedRecord_plural": "The following entities will not be included in the bulk job processing: <b>[{{entities}}]</b>.",
     "created": "Bulk action [{{name}}] was successfully run in a long running task id: [{{longRunningTaskId}}]",
@@ -230,7 +230,8 @@
     "message_plural": "Performing the bulk action on {{count}} records: <b>[{{entities}}]</b>",
     "button": {
       "execute": "Execute"
-    }
+    },
+    "insufficientReadPermission": "You don't have sufficient rights to view the progress of the bulk operation."
   },
   "environment": {
     "development": {
@@ -2571,7 +2572,8 @@
       "titleAfter": "Titles after",
       "state": {
         "label": "State",
-        "help": "Identity state. It's controlled by contracted positions or can be manually deactivated from the table actions."
+        "help": "Identity state. It's controlled by contracted positions or can be manually deactivated from the table actions.",
+        "title": "$t(entity.Identity.state.help)"
       },
       "disabledReadonly": {
         "label": "$t(label.disabled)",
@@ -2824,7 +2826,8 @@
       "description": "Note",
       "main": {
         "label": "Main position",
-        "help": "Main / prime work position. It's created automatically when the user is created."
+        "help": "Main / prime work position. It's created automatically when the user is created.",
+        "title": "Main position"
       },
       "state": {
         "label": "State",
@@ -2866,7 +2869,8 @@
       "description": "$t(entity.IdentityContract.description)",
       "main": {
         "label": "$t(entity.IdentityContract.main.label)",
-        "help": "$t(entity.IdentityContract.main.help)"
+        "help": "$t(entity.IdentityContract.main.help)",
+        "title": "$t(entity.IdentityContract.main.title)"
       },
       "state": {
         "label": "$t(entity.IdentityContract.state.label)",
@@ -2945,7 +2949,7 @@
       "name": "Task name",
       "startTime": "Creation date",
       "endTime": "Ends on",
-      "assignee": "Assignee",
+      "assignee": "Assigned (resolved)",
       "deleteReason": "Completed",
       "id": "Id",
       "priority": "Priority",

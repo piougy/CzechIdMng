@@ -47,7 +47,7 @@ export default class RestApiService {
    */
   static action(method, path, json, token = null) {
     const fetchConfig = this._getFetchConfig(method ? method : 'put', json, token);
-    return fetch(this.getUrl(path), fetchConfig);
+    return fetch(this.getUrl(path), fetchConfig).then(this.processHeaders);
   }
 
   static upload(path, formData) {

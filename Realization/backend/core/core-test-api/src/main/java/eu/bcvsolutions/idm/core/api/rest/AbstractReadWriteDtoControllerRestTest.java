@@ -14,7 +14,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
@@ -28,11 +30,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
@@ -520,6 +525,16 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	}
 	
 	/**
+	 * Find dtos by given filter. DataFilter should be fully implemented - only properties mapped in DATA will be used.
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	public List<DTO> find(DataFilter filter) {
+		return find(toQueryParams(filter));
+	}
+	
+	/**
 	 * Login as admin
 	 * 
 	 * @return
@@ -571,6 +586,11 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		}
 	}
 	
+	/**
+	 * Entry point url
+	 * 
+	 * @return
+	 */
 	protected String getBaseUrl() {
 		Class<?> clazz = AopUtils.getTargetClass(getController());
 	 
@@ -600,6 +620,57 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		return String.format("%s/%s/permissions", getBaseUrl(), backendId);
 	}
 	
+	protected String getBulkActionsUrl() {
+		return String.format("%s/bulk/actions", getBaseUrl());
+	}
+	
+	protected String getBulkActionUrl() {
+		return String.format("%s/bulk/action", getBaseUrl());
+	}
+	
+	/**
+	 * Converts path (relative url) and filter parameters to string
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	protected String toUrl(String path, DataFilter filter) {
+		UriComponents uriComponents = UriComponentsBuilder.fromPath(path).queryParams(toQueryParams(filter)).build();
+		//
+		return uriComponents.toString();
+	}
+	
+	/**
+	 * Converts filter parameters to string
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	protected MultiValueMap<String, String> toQueryParams(DataFilter filter) {
+		MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
+		if (filter == null) {
+			return queryParams;
+		}
+		//
+		filter.getData().entrySet().forEach(entry -> {
+			queryParams.put(
+					entry.getKey(), 
+					entry
+						.getValue()
+						.stream()
+						.filter(Objects::nonNull)
+						.map(Objects::toString)
+						.collect(Collectors.toList())
+						);
+		});
+		return queryParams;
+	}
+	
+	/**
+	 * Returns dto's resource name defined by {@link Relation} annotation.
+	 * 
+	 * @return
+	 */
 	protected String getResourcesName() {
 		Relation mapping = getController().getDtoClass().getAnnotation(Relation.class);
 		if (mapping == null) {
@@ -676,6 +747,61 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 			return results;
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed parse entities from list response", ex);
+		}
+	}
+	
+	protected DTO toDto(String response) {
+		try {
+			JsonNode json = getController().getMapper().readTree(response);
+			//
+			return getController().getMapper().convertValue(json, getController().getDtoClass());
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed parse entity from response", ex);
+		}
+	}
+	
+	/**
+	 * Returns available bulk actions for admin
+	 * 
+	 * @return
+	 */
+	protected List<IdmBulkActionDto> getAvailableBulkActions() {
+		try {
+			String response = getMockMvc().perform(get(getBulkActionsUrl())
+	        		.with(authentication(getAdminAuthentication()))
+	        		.contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			return getController().getMapper().readValue(response, new TypeReference<List<IdmBulkActionDto>>(){});
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to get available bulk actions", ex);
+		}
+	}
+	
+	/**
+	 * Execute bulk action
+	 * 
+	 * @param action
+	 * @return
+	 */
+	protected IdmBulkActionDto bulkAction(IdmBulkActionDto action) {
+		try {
+			String response = getMockMvc().perform(post(getBulkActionUrl())
+	        		.with(authentication(getAdminAuthentication()))
+	        		.content(getController().getMapper().writeValueAsString(action))
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isCreated())
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			return getController().getMapper().readValue(response, IdmBulkActionDto.class);
+			// TODO: look out - READ_ONLY fields are not mapped
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to execute bulk action [" + action.getName() + "]", ex);
 		}
 	}
 }

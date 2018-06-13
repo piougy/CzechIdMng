@@ -260,7 +260,8 @@
     "message_5": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
     "button": {
       "execute": "Spustit"
-    }
+    },
+    "insufficientReadPermission": "Nemáte dostatečná práva pro zobrazení průběhu hromadné operace."
   },
   "environment": {
     "development": {
@@ -2615,7 +2616,8 @@
       "titleAfter": "Titul za",
       "state": {
         "label": "Stav",
-        "help": "Stav uživatele. Stav je řízen pracovně právními vztahy. Uživatele lze manuálně deaktivovat (akce nad tabulkou uživatelů)."
+        "help": "Stav uživatele. Stav je řízen pracovně právními vztahy. Uživatele lze manuálně deaktivovat (akce nad tabulkou uživatelů).",
+        "title": "$t(entity.Identity.state.help)"
       },
       "disabledReadonly": {
         "label": "$t(label.disabled)",
@@ -2868,7 +2870,8 @@
       "description": "Popis",
       "main": {
         "label": "Hlavní pozice",
-        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele."
+        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele.",
+        "title": "Hlavní pozice"
       },
       "state": {
         "label": "Stav",
@@ -2909,7 +2912,8 @@
       "description": "$t(entity.IdentityContract.description)",
       "main": {
         "label": "$t(entity.IdentityContract.main.label)",
-        "help": "$t(entity.IdentityContract.main.help)"
+        "help": "$t(entity.IdentityContract.main.help)",
+        "title": "$t(entity.IdentityContract.main.title)"
       },
       "state": {
         "label": "$t(entity.IdentityContract.state.label)",

@@ -1637,17 +1637,21 @@
       "title": "Nelze nastavit atribut",
       "message": "IdM atribut [{{attr}}] pro entitu [{{entity}}] nelze nastavit."
     },
+    "SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND": {
+      "title": "Nebyl nalezen účet",
+      "message": "Pro nadřezené UID: [{{parentUid}}] na systému [{{systemId}}] a účtu  [{{parentAccount}}] nebyl nalezen účet stromové struktury."
+    },
     "SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND": {
       "title": "Nebyl nalezen účet",
-      "message": "Pro nadřezené UID: [{{uid}}] na systému [{{system}}] a s acc account: [{{account}}] nebyl nalezen účet stromové struktury."
-    },
-    "SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND": {
-      "title": "=Nebyů nalezen účet",
-      "message": "Pro nadřezené UID: [{{uid}}] na systému [{{system}}] nebyl nalezen rodičovský účet."
+      "message": "Pro nadřezené UID: [{{parentUid}}] na systému [{{systemId}}] nebyl nalezen rodičovský účet."
     },
     "PROVISIONING_BREAK_RECIPIENT_CONFLICT": {
       "title": "Více atributů pro příjemce",
       "message": "Pro příjemce existuje nastavení role a identity. Povolená je pouze jedna hodnota."
+    },
+    "PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING": {
+      "title": "Duplicitní atributu mapování",
+      "message": "Provisioning mapování může obsahovat pouze jeden atribut, mapující stejný schéma atribut!"
     }
   },
   "processor": {

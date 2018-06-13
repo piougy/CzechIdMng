@@ -27,12 +27,15 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.core.rest.impl.IdmTreeNodeControllerRestTest;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 /**
  * Tree nodes endpoint tests
+ * 
+ * TODO: move to {@link IdmTreeNodeControllerRestTest}
  * 
  * @author Ondřej Kopr
  *

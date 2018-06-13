@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.core.api.bulk.action.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,20 +12,23 @@ import java.util.UUID;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Basic DTO for bulk actions. The DTO contains information about bulk
  * actions, filter and parameters.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
+@JsonInclude(Include.NON_NULL)
 @Relation(collectionRelation = "bulkOperations")
 public class IdmBulkActionDto implements Serializable {
 
@@ -37,17 +43,13 @@ public class IdmBulkActionDto implements Serializable {
 	private String filterClass;
 	@JsonIgnore
 	private transient BaseFilter transformedFilter;
-	@JsonProperty(access = Access.WRITE_ONLY)
 	private Map<String, Object> properties;
 	@JsonProperty(access = Access.READ_ONLY)
-	private Map<String, BasePermission[]> permissions;
-	@JsonProperty(access = Access.WRITE_ONLY)
+	private List<String> authorities;
 	private Map<String, Object> filter;
 	@JsonProperty(access = Access.READ_ONLY)
 	private UUID longRunningTaskId;
-	@JsonProperty(access = Access.WRITE_ONLY)
 	private Set<UUID> identifiers;
-	@JsonProperty(access = Access.WRITE_ONLY)
 	private Set<UUID> removeIdentifiers;
 	@JsonProperty(access = Access.READ_ONLY)
 	private List<IdmFormAttributeDto> formAttributes;
@@ -77,6 +79,9 @@ public class IdmBulkActionDto implements Serializable {
 	}
 
 	public Map<String, Object> getProperties() {
+		if (properties == null) {
+			properties = new HashMap<>();
+		}
 		return properties;
 	}
 
@@ -117,6 +122,9 @@ public class IdmBulkActionDto implements Serializable {
 	}
 
 	public Set<UUID> getIdentifiers() {
+		if (identifiers == null) {
+			identifiers = new HashSet<>();
+		}
 		return identifiers;
 	}
 
@@ -125,6 +133,9 @@ public class IdmBulkActionDto implements Serializable {
 	}
 
 	public Set<UUID> getRemoveIdentifiers() {
+		if (removeIdentifiers == null) {
+			removeIdentifiers = new HashSet<>();
+		}
 		return removeIdentifiers;
 	}
 
@@ -133,6 +144,9 @@ public class IdmBulkActionDto implements Serializable {
 	}
 
 	public List<IdmFormAttributeDto> getFormAttributes() {
+		if (formAttributes == null) {
+			formAttributes = new ArrayList<>();
+		}
 		return formAttributes;
 	}
 
@@ -140,11 +154,14 @@ public class IdmBulkActionDto implements Serializable {
 		this.formAttributes = formAttributes;
 	}
 	
-	public Map<String, BasePermission[]> getPermissions() {
-		return permissions;
+	public List<String> getAuthorities() {
+		if (authorities == null) {
+			authorities = new ArrayList<>();
+		}
+		return authorities;
 	}
 
-	public void setPermissions(Map<String, BasePermission[]> permissions) {
-		this.permissions = permissions;
+	public void setAuthorities(List<String> authorities) {
+		this.authorities = authorities;
 	}
 }

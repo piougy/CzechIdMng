@@ -1,16 +1,16 @@
 package eu.bcvsolutions.idm.core.api.bulk.action;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.core.Ordered;
 import org.springframework.plugin.core.Plugin;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
-import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Interface for bulk operation
@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 
-public interface IdmBulkAction<DTO extends BaseDto>
+public interface IdmBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 		extends Plugin<Class<? extends BaseEntity>>, Ordered {
 
 	int DEFAULT_ORDER = 0;
@@ -53,20 +53,6 @@ public interface IdmBulkAction<DTO extends BaseDto>
 	void setAction(IdmBulkActionDto action);
 	
 	/**
-	 * Get filter class
-	 *
-	 * @return
-	 */
-	String getFilterClass();
-	
-	/**
-	 * Get entity class
-	 *
-	 * @return
-	 */
-	String getEntityClass();
-	
-	/**
 	 * Get module
 	 *
 	 * @return
@@ -74,14 +60,21 @@ public interface IdmBulkAction<DTO extends BaseDto>
 	String getModule();
 	
 	/**
+	 * Return service. With the service will be executed bulk action.
+	 *
+	 * @return
+	 */
+	ReadWriteDtoService<DTO, F> getService();
+	
+	/**
 	 * Validate given bulk action. Is necessary specify the action by setter {@link IdmBulkAction#setAction(IdmBulkActionDto)}
 	 */
 	void validate();
 	
 	/**
-	 * Return permissions required for process one item.
-	 * Key is entity and value is array of {@link BasePermission}.
+	 * Return authorities required for process one item.
+	 *
 	 * @return
 	 */
-	Map<String, BasePermission[]> getPermissions();
+	List<String> getAuthorities();
 }

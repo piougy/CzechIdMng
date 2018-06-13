@@ -44,7 +44,6 @@ import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionExcepti
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleExpirationTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Scheduler tests
@@ -55,7 +54,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private ApplicationContext context;
-	@Autowired private TestHelper helper;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	@Autowired private IdmLongRunningTaskService longRunningTaskService;
@@ -67,12 +65,12 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@Before
 	public void init() {		
 		manager = context.getAutowireCapableBeanFactory().createBean(DefaultSchedulerManager.class);
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 	}
 	
 	@After
 	public void after() {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 	}
 	
 	@Test
@@ -110,7 +108,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		//
 		manager.createTrigger(task.getId(), getSimpleTrigger(task));
 		//
-		helper.waitForResult(getContinueFunction());
+		getHelper().waitForResult(getContinueFunction());
 		//
 		List<FutureTask<?>> taskList = getFutureTaskList(TestSchedulableTask.class);
 		assertEquals(result, taskList.get(0).get());
@@ -124,7 +122,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		//
 		manager.createTrigger(task.getId(), getSimpleTrigger(task));
 		//
-		helper.waitForResult(getContinueFunction());
+		getHelper().waitForResult(getContinueFunction());
 		//
 		List<FutureTask<?>> taskList = getFutureTaskList(IdentityRoleExpirationTaskExecutor.class);
 		assertEquals(Boolean.TRUE, taskList.get(0).get());
@@ -184,14 +182,14 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		// initiator = dependent task => circular execution
 		manager.createTrigger(task.getId(), trigger);
 		manager.runTask(task.getId());
-		helper.waitForResult(getContinueFunction());
+		getHelper().waitForResult(getContinueFunction());
 		createdLrts = longRunningTaskService.find(filter, null).getContent();
 		Assert.assertEquals(1L, createdLrts.size());
 		// execute first task
 		LongRunningFutureTask<String> futureTask = (LongRunningFutureTask<String>) longRunningTaskManager.processCreated(createdLrts.get(0).getId());
 		Assert.assertEquals(resultValue, futureTask.getFutureTask().get());
 		//
-		helper.waitForResult(getContinueFunction());
+		getHelper().waitForResult(getContinueFunction());
 		createdLrts = longRunningTaskService.find(filter, null).getContent();
 		Assert.assertEquals(1L, longRunningTaskService.find(filter, null).getTotalElements());
 		//
@@ -219,7 +217,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		// initiator = dependent task => circular execution
 		manager.createTrigger(task.getId(), trigger);
 		manager.runTask(task.getId());
-		helper.waitForResult(getContinueFunction());
+		getHelper().waitForResult(getContinueFunction());
 		createdLrts = longRunningTaskService.find(filter, null).getContent();
 		Assert.assertEquals(1L, createdLrts.size());
 		
@@ -276,7 +274,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		// initiator = dependent task => circular execution
 		manager.createTrigger(task.getId(), trigger);
 		manager.runTask(task.getId(), true);
-		helper.waitForResult(getContinueFunction());
+		getHelper().waitForResult(getContinueFunction());
 		createdLrts = longRunningTaskService.find(filter, null).getContent();
 		Assert.assertEquals(1L, createdLrts.size());
 		Assert.assertTrue(createdLrts.get(0).isDryRun());
@@ -285,7 +283,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		LongRunningFutureTask<String> futureTask = (LongRunningFutureTask<String>) longRunningTaskManager.processCreated(createdLrts.get(0).getId());
 		Assert.assertEquals(resultValue, futureTask.getFutureTask().get());
 		//
-		helper.waitForResult(getContinueFunction());
+		getHelper().waitForResult(getContinueFunction());
 		createdLrts = longRunningTaskService.find(filter, null).getContent();
 		Assert.assertEquals(1L, longRunningTaskService.find(filter, null).getTotalElements());
 		Assert.assertTrue(createdLrts.get(0).isDryRun());

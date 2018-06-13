@@ -439,7 +439,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "")})
 				})
-	public Resource<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.bulkAction(bulkAction);
 	}
 

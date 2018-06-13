@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 - [#1128](https://redmine.czechidm.com/issues/1128) - Event processing - check parent event type for duplicates.
 - [#1129](https://redmine.czechidm.com/issues/1129) - Boolean eav attribute with default value.
+- [#1135](https://redmine.czechidm.com/issues/1135) - Bulk actions evaluates permission on frontend in select box. Problem with filtering and selecting identities was fixed (permission are now evaluated correctly). AbstractBulkAction is now part of api, AbstractIdentityBulkAction was removed from impl package and functionality was moved to api. For all bulk action is now used Enabled annotation for check if action is enabled/disabled.
 
 
 ## [[8.1.0](https://github.com/bcvsolutions/CzechIdMng/releases/tag/8.1.0)]

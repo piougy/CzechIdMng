@@ -635,8 +635,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		if(schemaAttribute.isMultivalued() && icValueTransformed instanceof Collection && ((Collection<?>)icValueTransformed).isEmpty() && idmValue == null) {
 			return true;
 		}
-		
-		
+				
 		return Objects.equals(idmValue, icValueTransformed);
 	}
 

@@ -87,6 +87,12 @@ public class DefaultSysSystemMappingService
 		if (SystemOperationType.PROVISIONING == dto.getOperationType() && !entityType.isSupportsProvisioning()) {
 			throw new ResultCodeException(AccResultCode.PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE, ImmutableMap.of("entityType", entityType));
 		}
+		
+		// Validate all sub attributes
+		getAttributeMappingService()
+				.findBySystemMapping(dto).forEach(attribute -> {
+					getAttributeMappingService().validate(attribute, dto);
+				});
 		return super.save(dto, permission);
 	}
 

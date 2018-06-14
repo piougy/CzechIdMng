@@ -3,12 +3,17 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -24,8 +31,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
@@ -53,6 +62,62 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	@After
 	public void logout() {
 		super.logout();
+	}
+	
+	@Test
+	/**
+	 * Test find identity by all string fields
+	 */
+	public void testCorrelableFilter() {
+		IdmIdentityDto identity = helper.createIdentity();
+		identity.setTitleAfter(UUID.randomUUID().toString());
+		identity.setTitleBefore(UUID.randomUUID().toString());
+		identity.setDescription(UUID.randomUUID().toString());
+		identity.setExternalCode(UUID.randomUUID().toString());
+		identity.setExternalId(UUID.randomUUID().toString());
+		identity.setPhone(UUID.randomUUID().toString().substring(0, 29));
+		identity.setRealmId(UUID.randomUUID());
+		identity.setBlockLoginDate(DateTime.now());
+		IdmIdentityDto identityFull = identityService.save(identity);
+
+		ArrayList<Field> fields = Lists.newArrayList(IdmIdentity_.class.getFields());
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+
+		fields.forEach(field -> {
+			filter.setProperty(field.getName());
+
+			try {
+				Object value = EntityUtils.getEntityValue(identityFull, field.getName());
+				if (value == null || !(value instanceof String)) {
+					return;
+				}
+				filter.setValue(value.toString());
+				List<IdmIdentityDto> identities = identityService.find(filter, null).getContent();
+				assertTrue(identities.contains(identityFull));
+
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+					| IntrospectionException e) {
+				e.printStackTrace();
+			}
+
+		});
+	}
+
+	@Test(expected = ResultCodeException.class)
+	public void testCorrelableFilterWrongField() {
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setProperty("notExistsField");
+		filter.setValue(UUID.randomUUID().toString());
+		identityService.find(filter, null).getContent();
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testCorrelableFilterWrongType() {
+		// Only search by String is supported
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setProperty(IdmIdentity_.realmId.getName());
+		filter.setValue(UUID.randomUUID().toString());
+		identityService.find(filter, null).getContent();
 	}
 
 	@Test

@@ -242,18 +242,6 @@ public class DefaultIdmTreeNodeService
 			}
 		}
 		//
-		// dyn property
-		String property = filter.getProperty();
-		if (StringUtils.isNotEmpty(property)) {
-			if (IdmTreeNode_.name.getName().equals(property)) {
-				predicates.add(builder.equal(root.get(IdmTreeNode_.name), filter.getValue()));
-			} else if(IdmTreeNode_.code.getName().equals(property)) {
-				predicates.add(builder.equal(root.get(IdmTreeNode_.code), filter.getValue()));
-			} else if(IdmTreeNode_.externalId.getName().equals(property)) {
-				predicates.add(builder.equal(root.get(IdmTreeNode_.externalId), filter.getValue()));
-			}
-		}
-		//
 		return predicates;
 	}
 	

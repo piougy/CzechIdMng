@@ -136,10 +136,6 @@ public class DefaultIdmRoleService
 		if (filter.getRoleType() != null) {
 			predicates.add(builder.equal(root.get(IdmRole_.roleType), filter.getRoleType()));
 		}
-		// property
-		if (StringUtils.equals(IdmRole_.name.getName(), filter.getProperty())) {
-			predicates.add(builder.equal(root.get(IdmRole_.name), filter.getValue()));
-		}
 		// guarantee	
 		if (filter.getGuaranteeId() != null) {
 			Subquery<IdmRoleGuarantee> subquery = query.subquery(IdmRoleGuarantee.class);

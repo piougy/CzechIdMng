@@ -33,11 +33,6 @@ public class IdmIdentityContractFilter
 	private ContractState state;
 	private String position;
 
-	/**
-	 * Little dynamic search by role property and value
-	 */
-	private String property;
-	private String value;
 
 	public IdmIdentityContractFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -125,22 +120,22 @@ public class IdmIdentityContractFilter
 
 	@Override
 	public String getProperty() {
-		return property;
+		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
 	}
 
 	@Override
 	public void setProperty(String property) {
-		this.property = property;
+		data.set(PARAMETER_CORRELATION_PROPERTY, property);
 	}
 
 	@Override
 	public String getValue() {
-		return value;
+		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
 	}
-	
+
 	@Override
 	public void setValue(String value) {
-		this.value = value;
+		data.set(PARAMETER_CORRELATION_VALUE, value);
 	}
 
 	@Override

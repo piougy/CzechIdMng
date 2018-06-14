@@ -179,24 +179,6 @@ public class DefaultIdmContractSliceService
 						);
 			}
 		}
-		
-		// property, if is property filled and it isn't find in defined properties return disjunction
-		boolean exitsProperty = filter.getProperty() == null ? true : false;
-		if (StringUtils.equals(IdmContractSlice_.position.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmContractSlice_.position), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmContractSlice_.state.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmContractSlice_.state), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmContractSlice_.description.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmContractSlice_.description), filter.getValue()));
-		}
-		if (!exitsProperty) {
-			predicates.add(builder.disjunction());
-		}
 		//
 		return predicates;
 	}

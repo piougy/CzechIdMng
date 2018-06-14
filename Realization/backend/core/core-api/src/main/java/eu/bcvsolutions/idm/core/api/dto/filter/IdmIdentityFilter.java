@@ -65,16 +65,12 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	 * Identifiers filter in externalCode, username
 	 */
 	public static final String PARAMETER_IDENTIFIERS = "identifiers";
-	
+
 	/**
 	 * roles - OR
 	 */
 	private List<UUID> roles;	
-	/**
-	 * Little dynamic search by identity property and value
-	 */
-	private String property;
-	private String value;
+	
 	/**
 	 * Identities for tree structure (by identity contract)
 	 */
@@ -169,22 +165,22 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 
 	@Override
 	public String getProperty() {
-		return property;
+		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
 	}
 
 	@Override
 	public void setProperty(String property) {
-		this.property = property;
+		data.set(PARAMETER_CORRELATION_PROPERTY, property);
 	}
 
 	@Override
 	public String getValue() {
-		return value;
+		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
 	}
 
 	@Override
 	public void setValue(String value) {
-		this.value = value;
+		data.set(PARAMETER_CORRELATION_VALUE, value);
 	}
 	
 	public UUID getTreeNode() {

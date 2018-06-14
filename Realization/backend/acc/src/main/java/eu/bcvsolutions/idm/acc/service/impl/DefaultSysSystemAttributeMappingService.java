@@ -218,7 +218,8 @@ public class DefaultSysSystemAttributeMappingService extends
 		Assert.notNull(dto, "Attribute is mandatory!");
 		Assert.notNull(dto.getSystemMapping(), "System mapping is mandatory!");
 		SysSystemMappingDto systemMappingDto = systemMappingService.get(dto.getSystemMapping());
-		validate(dto, systemMappingDto);
+		
+		(dto, systemMappingDto);
 
 		// Check if exist some else attribute which is defined like unique identifier
 		// If exists, then we will set they to uid = false. Only currently saving
@@ -261,7 +262,7 @@ public class DefaultSysSystemAttributeMappingService extends
 
 			long count = this.find(systemAttributeMappingFilter, null).getContent() //
 					.stream() //
-					.filter(attribute -> !attribute.getId().equals(systemMappingDto.getId())) //
+					.filter(attribute -> !attribute.getId().equals(dto.getId())) //
 					.count(); //
 
 			if (count > 0) {

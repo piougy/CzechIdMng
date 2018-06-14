@@ -99,4 +99,11 @@ public interface LongRunningTaskManager {
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	IdmLongRunningTaskDto getLongRunningTask(LongRunningFutureTask<?> futureTask, BasePermission... permission);
+	
+	/**
+	 * Returns true, if asynchronous long running task processing is enabled
+	 * 
+	 * @return
+	 */
+	boolean isAsynchronous();
 }

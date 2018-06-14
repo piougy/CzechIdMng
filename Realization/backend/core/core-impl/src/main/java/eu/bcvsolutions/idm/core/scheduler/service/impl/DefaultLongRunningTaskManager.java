@@ -319,6 +319,13 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		return getLongRunningTask(futureTask.getExecutor(), permission);
 	}
 	
+	@Override
+	public boolean isAsynchronous() {
+		return configurationService.getBooleanValue(
+				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, 
+				SchedulerConfiguration.DEFAULT_TASK_ASYNCHRONOUS_ENABLED);
+	}
+	
 	/**
 	 * Prepares executor's LRT
 	 * 
@@ -422,16 +429,5 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 						"instanceId", task.getInstanceId()));			
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
 		service.saveInternal(task);
-	}
-	
-	/**
-	 * Returns true, if asynchronous event processing is enabled
-	 * 
-	 * @return
-	 */
-	private boolean isAsynchronous() {
-		return configurationService.getBooleanValue(
-				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, 
-				SchedulerConfiguration.DEFAULT_TASK_ASYNCHRONOUS_ENABLED);
 	}
 }

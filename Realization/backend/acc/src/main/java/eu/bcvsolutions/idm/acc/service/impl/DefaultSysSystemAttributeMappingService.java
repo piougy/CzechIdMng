@@ -233,7 +233,7 @@ public class DefaultSysSystemAttributeMappingService extends
 		if (dto.getTransformToResourceScript() != null) {
 			groovyScriptService.validateScript(dto.getTransformToResourceScript());
 		}
-		
+
 		Class<? extends Identifiable> entityType = systemMappingDto.getEntityType().getExtendedAttributeOwnerType();
 		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
 			createExtendedAttributeDefinition(dto, entityType);
@@ -249,7 +249,7 @@ public class DefaultSysSystemAttributeMappingService extends
 	 */
 	@Override
 	public void validate(SysSystemAttributeMappingDto dto, SysSystemMappingDto systemMappingDto) {
-		
+
 		/**
 		 * When provisioning is set, then can be schema attribute mapped only once.
 		 */
@@ -259,9 +259,14 @@ public class DefaultSysSystemAttributeMappingService extends
 			systemAttributeMappingFilter.setSchemaAttributeId(dto.getSchemaAttribute());
 			systemAttributeMappingFilter.setSystemMappingId(systemMappingDto.getId());
 
-			if (this.find(systemAttributeMappingFilter, null).getTotalElements() > 0) {
-				throw new ResultCodeException(AccResultCode.PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING, ImmutableMap
-						.of("schemaAttribute", dto.getSchemaAttribute()));
+			long count = this.find(systemAttributeMappingFilter, null).getContent() //
+					.stream() //
+					.filter(attribute -> !attribute.getId().equals(systemMappingDto.getId())) //
+					.count(); //
+
+			if (count > 0) {
+				throw new ResultCodeException(AccResultCode.PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING,
+						ImmutableMap.of("schemaAttribute", dto.getSchemaAttribute()));
 			}
 		}
 	}

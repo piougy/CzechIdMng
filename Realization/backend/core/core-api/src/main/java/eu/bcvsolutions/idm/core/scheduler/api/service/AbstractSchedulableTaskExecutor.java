@@ -75,7 +75,11 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 		longRunningTask.setStateful(isStateful());
 		longRunningTask.setDryRun(context.getMergedJobDataMap().getBoolean(PARAMETER_DRY_RUN));
 		//
-		return longRunningTaskService.save(longRunningTask);
+		longRunningTask = longRunningTaskService.save(longRunningTask);
+		//
+		// TODO: execute, if async processing is disabled
+		//
+		return longRunningTask;
 	}
 	
 	private IdmScheduledTaskDto getScheduledTask(JobExecutionContext context) {

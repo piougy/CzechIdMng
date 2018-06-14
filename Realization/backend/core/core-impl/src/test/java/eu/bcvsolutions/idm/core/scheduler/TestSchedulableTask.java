@@ -31,7 +31,7 @@ public class TestSchedulableTask extends AbstractSchedulableTaskExecutor<String>
 		//
 		count = 5L;
 		counter = 0L;
-		result = (String) properties.get(DefaultSchedulerManagerIntegrationTest.RESULT_PROPERTY);
+		result = (String) properties.get(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY);
 	}
 	
 	@Override

@@ -5,11 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 import java.util.function.Function;
 
 import org.joda.time.DateTime;
@@ -60,7 +58,6 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@Autowired private IdmScheduledTaskService scheduledTaskService;
 	//
 	private DefaultSchedulerManager manager;
-	protected final static String RESULT_PROPERTY = "result";
 	
 	@Before
 	public void init() {		
@@ -71,6 +68,11 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@After
 	public void after() {
 		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+	}
+	
+	@Test
+	public void testAsynchronousTasks() {
+		Assert.assertTrue(longRunningTaskManager.isAsynchronous());
 	}
 	
 	@Test
@@ -106,28 +108,35 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		String result = "TEST_SCHEDULER_TWO";
 		Task task = createTask(result);
 		//
+		ObserveLongRunningTaskEndProcessor.listenTask(task.getId());
+		//
 		manager.createTrigger(task.getId(), getSimpleTrigger(task));
 		//
-		getHelper().waitForResult(getContinueFunction());
+		ObserveLongRunningTaskEndProcessor.waitForEnd(task.getId());
 		//
-		List<FutureTask<?>> taskList = getFutureTaskList(TestSchedulableTask.class);
-		assertEquals(result, taskList.get(0).get());
+		assertEquals(OperationState.EXECUTED, ObserveLongRunningTaskEndProcessor.getResult(task.getId()).getState());
+		assertEquals(result, ObserveLongRunningTaskEndProcessor.getResultValue(task.getId()));
 		//
-		checkScheduledTask(task);
+		IdmScheduledTaskDto scheduledTask = scheduledTaskService.findByQuartzTaskName(task.getId());
+		assertNotNull(scheduledTask);
+		assertEquals(task.getId(), scheduledTask.getQuartzTaskName());
 	}
 
 	@Test
 	public void testCreateAndRunRoleExpirationTask() throws Exception {
 		Task task = createRoleExpirationTask();
 		//
+		ObserveLongRunningTaskEndProcessor.listenTask(task.getId());
+		//
 		manager.createTrigger(task.getId(), getSimpleTrigger(task));
 		//
-		getHelper().waitForResult(getContinueFunction());
+		ObserveLongRunningTaskEndProcessor.waitForEnd(task.getId());
 		//
-		List<FutureTask<?>> taskList = getFutureTaskList(IdentityRoleExpirationTaskExecutor.class);
-		assertEquals(Boolean.TRUE, taskList.get(0).get());
+		assertEquals(OperationState.EXECUTED, ObserveLongRunningTaskEndProcessor.getResult(task.getId()).getState());
 		//
-		checkScheduledTask(task);
+		IdmScheduledTaskDto scheduledTask = scheduledTaskService.findByQuartzTaskName(task.getId());
+		assertNotNull(scheduledTask);
+		assertEquals(task.getId(), scheduledTask.getQuartzTaskName());
 	}
 
 	@Test
@@ -300,7 +309,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		task.setInstanceId(configurationService.getInstanceId());
 		task.setTaskType(TestSchedulableTask.class);
 		task.setDescription("test");
-		task.getParameters().put(RESULT_PROPERTY, result);
+		task.getParameters().put(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY, result);
 		//
 		return manager.createTask(task);
 	}
@@ -310,7 +319,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		task.setInstanceId(configurationService.getInstanceId());
 		task.setTaskType(TestSchedulableDryRunTask.class);
 		task.setDescription("test");
-		task.getParameters().put(RESULT_PROPERTY, result);
+		task.getParameters().put(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY, result);
 		//
 		return manager.createTask(task);
 	}
@@ -323,17 +332,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		//
 		return manager.createTask(task);
 	}
-
-	private List<FutureTask<?>> getFutureTaskList(Class<?> clazz) {
-		List<FutureTask<?>> taskList = new ArrayList<>();
-		for (LongRunningFutureTask<?> longRunningFutureTask : longRunningTaskManager.processCreated()) {
-			if (longRunningFutureTask.getExecutor().getClass().equals(clazz)) {
-				taskList.add(longRunningFutureTask.getFutureTask());
-			}
-		}
-		return taskList;
-	}
-
+	
 	private SimpleTaskTrigger getSimpleTrigger(Task task) {
 		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
 		trigger.setTaskId(task.getId());
@@ -347,12 +346,5 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 					OperationState.CREATED).size() == 0;
 		};
 		return continueFunction;
-	}
-	
-	private void checkScheduledTask(Task task) {
-		IdmScheduledTaskDto scheduledTask = scheduledTaskService.findByQuartzTaskName(task.getId());
-		assertNotNull(scheduledTask);
-		assertEquals(task.getId(), scheduledTask.getQuartzTaskName());
-	}
-	
+	}	
 }

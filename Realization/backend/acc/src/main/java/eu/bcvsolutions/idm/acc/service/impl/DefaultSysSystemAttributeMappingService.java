@@ -226,7 +226,7 @@ public class DefaultSysSystemAttributeMappingService
 			groovyScriptService.validateScript(dto.getTransformToResourceScript());
 		}
 		SysSystemMappingDto systemMappingDto = systemMappingService.get(dto.getSystemMapping());
-		Class<? extends Identifiable> entityType = systemMappingDto.getEntityType().getEntityType();
+		Class<? extends Identifiable> entityType = systemMappingDto.getEntityType().getExtendedAttributeOwnerType();
 		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
 			createExtendedAttributeDefinition(dto, entityType);
 		}

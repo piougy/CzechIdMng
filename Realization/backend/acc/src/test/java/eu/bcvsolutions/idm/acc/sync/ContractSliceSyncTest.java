@@ -73,7 +73,11 @@ import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -91,6 +95,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	private static final String CONTRACT_LEADER_ONE = "contractLeaderOne";
 	private static final String SYNC_CONFIG_NAME = "syncConfigNameContractSlice";
 	private static final String WORK_POSITION_CODE = "workPositionOne";
+	private static final String EXTENDED_ATTRIBUTE = "extendedAttribute";
 
 	@Autowired
 	private TestHelper helper;
@@ -128,6 +133,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	private AccContractSliceAccountService contractSliceAccountService;
 	@Autowired
 	private ContractSliceManager contractSliceManager;
+	@Autowired
+	private FormService formService;
 
 	private SynchronizationService synchornizationService;
 
@@ -205,6 +212,61 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("4");
 		Assert.assertEquals(1, contractSliceService.find(contractFilter, null).getTotalElements());
 
+		// Delete log
+		syncLogService.delete(log);
+
+	}
+	
+	/**
+	 * Contract slices EAV use definition from the contracts
+	 */
+	@Test
+	public void createContractSlicesEavTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		helper.createIdentity(CONTRACT_OWNER_ONE);
+		helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+
+		IdmTreeTypeDto treeType = helper.createTreeType();
+		IdmTreeNodeDto defaultNode = helper.createTreeNode(treeType, null);
+
+		((SysSyncContractConfigDto) config).setDefaultTreeType(treeType.getId());
+		((SysSyncContractConfigDto) config).setDefaultTreeNode(defaultNode.getId());
+		config = syncConfigService.save(config);
+
+		IdmContractSliceFilter contractFilter = new IdmContractSliceFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue("1");
+		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
+		contractFilter.setValue("2");
+		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
+
+		synchornizationService.setSynchronizationConfigId(config.getId());
+		synchornizationService.process();
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractFilter.setValue("1");
+		List<IdmContractSliceDto> slices = contractSliceService.find(contractFilter, null).getContent();
+		
+		Assert.assertEquals(1, slices.size());
+		IdmContractSliceDto slice = slices.get(0);
+		
+		// Contract slices use EAV definition from the contracts
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentityContract.class,
+				FormService.DEFAULT_DEFINITION_CODE);
+	
+		List<IdmFormValueDto> values = formService.getValues(slice, formDefinition, EXTENDED_ATTRIBUTE);
+		Assert.assertEquals(1, values.size());
+		Assert.assertEquals(slice.getPosition(), values.get(0).getValue());
+		
 		// Delete log
 		syncLogService.delete(log);
 
@@ -940,13 +1002,16 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("description".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
-				attributeHandlingName.setIdmPropertyName("description");
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
-				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
-				schemaAttributeMappingService.save(attributeHandlingName);
+				SysSystemAttributeMappingDto extendedAttribute = new SysSystemAttributeMappingDto();
+				extendedAttribute.setUid(false);
+				extendedAttribute.setEntityAttribute(false);
+				extendedAttribute.setExtendedAttribute(true);
+				extendedAttribute.setName(EXTENDED_ATTRIBUTE);
+				extendedAttribute.setSchemaAttribute(schemaAttr.getId());
+				extendedAttribute.setSystemMapping(entityHandlingResult.getId());
+				extendedAttribute.setIdmPropertyName(EXTENDED_ATTRIBUTE);
+				schemaAttributeMappingService.save(extendedAttribute);
+				
 			} else if ("contract_code".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName(IdmContractSlice_.contractCode.getName());

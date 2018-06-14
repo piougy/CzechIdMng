@@ -51,9 +51,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -205,12 +203,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected IdmRoleService getService() {
 		return roleService;
 	}
-
-	@Override
-	protected Class<? extends FormableEntity> getEntityClass() {
-		return IdmRole.class;
-	}
-
+	
 	@Override
 	protected CorrelationFilter getEntityFilter() {
 		return new IdmRoleFilter();

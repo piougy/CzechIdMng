@@ -79,9 +79,7 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
@@ -639,11 +637,6 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected IdmIdentityContractService getService() {
 		return contractService;
-	}
-
-	@Override
-	protected Class<? extends FormableEntity> getEntityClass() {
-		return IdmIdentityContract.class;
 	}
 
 	@Override

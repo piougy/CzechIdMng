@@ -65,9 +65,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -388,11 +386,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected IdmIdentityService getService() {
 		return identityService;
-	}
-
-	@Override
-	protected Class<? extends FormableEntity> getEntityClass() {
-		return IdmIdentity.class;
 	}
 
 	@Override

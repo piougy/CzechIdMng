@@ -193,14 +193,15 @@ public class DefaultSysRoleSystemAttributeService extends
 		return provisioningService;
 	}
 	
+	@Override
 	public void addRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName, String transformationScript,
-			String objectClassName) { // ObjectClassName "__ACCOUNT__"
+			String objectClassName, SysRoleSystemAttributeDto attribute) { // ObjectClassName "__ACCOUNT__"
 		Assert.notNull(systemId, "SystemId cannot be null!");
 		Assert.notNull(roleId, "RoleId cannot be null!");
 		Assert.notNull(attributeName, "Attribute name cannot be null");
 		Assert.hasLength(attributeName, "Attribute name cannot be blank");
 
-		SysRoleSystemAttributeDto attr = new SysRoleSystemAttributeDto();
+		SysRoleSystemAttributeDto attr = attribute;
 		UUID roleSystemId = getSysRoleSystem(systemId, roleId, objectClassName);
 		UUID systemAttributeMappingId = getSystemAttributeMapping(systemId, attributeName, objectClassName);
 		//
@@ -208,8 +209,6 @@ public class DefaultSysRoleSystemAttributeService extends
 		attr.setName(attributeName);
 		attr.setRoleSystem(roleSystemId);
 		attr.setSystemAttributeMapping(systemAttributeMappingId);
-		attr.setEntityAttribute(false);
-		attr.setStrategyType(AttributeMappingStrategyType.MERGE);
 		//
 		if (transformationScript != null) {
 			attr.setTransformScript(transformationScript);
@@ -221,9 +220,7 @@ public class DefaultSysRoleSystemAttributeService extends
 
 	}
 
-	// changes transformation script and returns Boolean.TRUE if script is changed,
-	// Boolean.FALSE if script is not changed and null if there is not
-	// transformation script
+	@Override
 	public Boolean isChangedRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName,
 			String transformationScript) {
 		Assert.notNull(systemId, "SystemId cannot be null!");

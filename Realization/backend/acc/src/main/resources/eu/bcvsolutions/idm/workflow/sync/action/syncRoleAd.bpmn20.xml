@@ -48,8 +48,8 @@ Input variables:
       </extensionElements>
     </dataObject>
     <scriptTask id="scripttask1" name="Missing entity" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>
-        <![CDATA[
+      <script><![CDATA[
+
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto
@@ -140,33 +140,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 
 @Field final static Logger LOG = LoggerFactory.getLogger("sync-roles-from-ad");
 
-UUID getAccount(UUID accountId, AccAccountService accService) {
-    LOG.info(String.format("getAccount %s %s", accountId, accService));
-    AccAccountFilter accFilter = new AccAccountFilter();
-    accFilter.setUid(accountId.toString());
-
-    Page<AccAccountDto> accs = accService.find(accFilter, null);
-    if (accs.getTotalElements() != 1) {
-        LOG.error("Returned wrong number of accounts: [{}]. Exiting.", accs.getTotalElements());
-        return null;
-    }
-    return UUID.fromString(accs.getContent().get(0).getUid());
-}
-
-UUID getRoleId(UUID account, AccRoleAccountService accService) {
-    LOG.info(String.format("getRoleId %s %s", account, accService));
-    AccRoleAccountFilter accountFilter = new AccRoleAccountFilter();
-    accountFilter.setAccountId(account);
-    accountFilter.setOwnership(Boolean.TRUE);
-
-    List<AccRoleAccountDto> roleAccounts = accService.find(accountFilter, null).getContent();
-    if (roleAccounts.isEmpty()) {
-        throw new RuntimeException("No role Id found");
-    }
-
-    return roleAccounts.get(0).getRole();
-}
-
 boolean roleAlreadyHasCatalogue(List<IdmRoleCatalogueRoleDto> actualCatalogues, IdmRoleCatalogueRoleDto catRoleDto) {
     for (def cat in actualCatalogues) {
         if (cat.getRole().equals(catRoleDto.getRole()) && cat.getRoleCatalogue().equals(catRoleDto.getRoleCatalogue())) {
@@ -203,7 +176,7 @@ def addAutomaticRoleOrganization(String name, IdmRoleDto role){
   treeNode.setName(name);
   treeNode.setRole(role.getId());
 
-  automaticRoleManager.createAutomaticRoleByTree(treeNode, false); // vytvoreni automaticke role by organization structure
+  automaticRoleManager.createAutomaticRoleByTree(treeNode, false); // create automatic role by organization structure
 }
 
 def removeAutoAttRoles(IdmRoleDto role){
@@ -222,7 +195,7 @@ def addAutomaticRoles(String uid, IdmRoleDto role){ // automatic roles by attrib
     LOG.info("Automatic role attributes not found, aborting: addAutomaticRoles");
     return;
   }
-  	IdmAutomaticRoleAttributeDto autoRole = new IdmAutomaticRoleAttributeDto(); // vytvoreni automaticke role a dvou atributu (nize)
+  	IdmAutomaticRoleAttributeDto autoRole = new IdmAutomaticRoleAttributeDto(); // create automatic role with two attributes
   	autoRole.setRole(role.getId());
   	autoRole.setName(role.getName());
   	autoRole.setConcept(true);
@@ -263,44 +236,44 @@ def addAutoRoleId (IdmAutomaticRoleAttributeDto autoRole, IdmAutomaticRoleAttrib
 // transformationScript - what will be put into eav as value (return "cn=..,ou=..,dn=.."")
 // objectClassName - name of schema (__ACCOUNT__)
 def addResource(UUID systemId, UUID roleId, String attributeName, String transformationScript, String objectClassName) {
-    defaultSysRoleSystemAttributeService.addRoleMappingAttribute(systemId, roleId, attributeName, transformationScript, objectClassName);
+  SysRoleSystemAttributeDto attr = new SysRoleSystemAttributeDto();
+  attr.setEntityAttribute(false);
+  attr.setStrategyType(AttributeMappingStrategyType.MERGE);
+  defaultSysRoleSystemAttributeService.addRoleMappingAttribute(systemId, roleId, attributeName, transformationScript, objectClassName, attr);
 }
 
 // ------------------------------------------------------------------------------------------------------------
 
-LOG.info("DEBUG-distinguishedName " + distinguishedName);
-LOG.info("DEBUG-name " + name);
+LOG.info("distinguishedName " + distinguishedName);
+LOG.info("name " + name);
 
 SysSyncItemLogDto log;
 UUID account;
 
     log = defaultSynchronizationService.resolveMissingEntitySituation(uid, entityType, icAttributes, syncConfigId, actionType);
-    AccAccountFilter accFilter = new AccAccountFilter();
-    accFilter.setUid(uid);
-    Page<AccAccountDto> accs = accAccountService.find(accFilter, new PageRequest(0, 1));
-    if (accs.getTotalElements() != 1) {
-        LOG.error("Returned wrong number of accounts: [{}]. Exiting.", accs.getTotalElements());
-        return log;
+    account = accAccountService.getAccount(uid, null); // TODO ?? funkcional?
+    if (account == null) {
+      LOG.error("Returned wrong number of accounts: [{}]. Exiting.", accs.getTotalElements());
+      return log;
     }
-    account = accs.getContent().get(0).getId();
 
 LOG.info("SYNC finished, now for the guarantees and catalogues");
 
-UUID roleId = getRoleId(account, defaultAccRoleAccountService);
+UUID roleId = accService.getRoleId(account);
 
 IdmRoleDto role = roleService.get(roleId);
-role.setCanBeRequested(canBeRequested) // nastavení role, jestli může být podaná žádost uživateli
+role.setCanBeRequested(canBeRequested) // set option, if role can be requested by identity/user
 roleService.save(role)
 
 //
 UUID systemID = UUID.fromString(SYSTEM_FOR_ROLE_MAPPING_ID);
-addResource(systemID, roleId, MEMBER_OF_ATTRIBUTE_NAME, TRANSFORMATION_SCRIPT, OBJECT_CLASS_NAME); // pridani do role- system, mapovani a transformace do k atributu 'memberOf' - Distinguished Name. | pri linked situaci kontrola zmeny DN, jestlize se dn nezmenilo, neni potreba automaticke role ani katalog
+addResource(systemID, roleId, MEMBER_OF_ATTRIBUTE_NAME, TRANSFORMATION_SCRIPT, OBJECT_CLASS_NAME); // add to role- system, mapping and transformation to attribute 'memberOf' - Distinguished Name.
 
-addAutomaticRoleOrganization(name, role); // vytvoreni automatickych roli by organization structure
+addAutomaticRoleOrganization(name, role); // create automatic role by organization structure
 
-addAutomaticRoles(name, role);// vytvoreni automatickych roli by attribute
+addAutomaticRoles(name, role);// reate automatic role  by attribute
 
-addCtg(role); // pridani role do katalogu
+addCtg(role); // add role to catalog
 //
 
 LOG.info("SYNC ${roleId} DONE");
@@ -310,8 +283,8 @@ return log;
 </script>
     </scriptTask>
     <scriptTask id="scripttask2" name="Linked" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>
-<![CDATA[
+      <script><![CDATA[
+
         import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType
         import eu.bcvsolutions.idm.acc.domain.SystemOperationType
         import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto
@@ -401,33 +374,6 @@ return log;
 
         @Field final static Logger LOG = LoggerFactory.getLogger("sync-roles-from-ad");
 
-        UUID getAccount(UUID accountId, AccAccountService accService) {
-        LOG.info(String.format("getAccount %s %s", accountId, accService));
-        AccAccountFilter accFilter = new AccAccountFilter();
-        accFilter.setUid(accountId.toString());
-
-        Page<AccAccountDto> accs = accService.find(accFilter, null);
-        if (accs.getTotalElements() != 1) {
-          LOG.error("Returned wrong number of accounts: [{}]. Exiting.", accs.getTotalElements());
-          return null;
-        }
-        return UUID.fromString(accs.getContent().get(0).getUid());
-        }
-
-        UUID getRoleId(UUID account, AccRoleAccountService accService) {
-        LOG.info(String.format("getRoleId %s %s", account, accService));
-        AccRoleAccountFilter accountFilter = new AccRoleAccountFilter();
-        accountFilter.setAccountId(account);
-        accountFilter.setOwnership(Boolean.TRUE);
-
-        List<AccRoleAccountDto> roleAccounts = accService.find(accountFilter, null).getContent();
-        if (roleAccounts.isEmpty()) {
-          throw new RuntimeException("No role Id found");
-        }
-
-        return roleAccounts.get(0).getRole();
-        }
-
         boolean roleAlreadyHasCatalogue(List<IdmRoleCatalogueRoleDto> actualCatalogues, IdmRoleCatalogueRoleDto catRoleDto) {
         for (def cat in actualCatalogues) {
           if (cat.getRole().equals(catRoleDto.getRole()) && cat.getRoleCatalogue().equals(catRoleDto.getRoleCatalogue())) {
@@ -478,12 +424,12 @@ return log;
           def list = roleTreeNodeService.find(filter, null).getContent();
           if (list.size() == 1) {
             UUID treeId = list.get(0).getTreeNode();
-            if (eav.getId() == treeId){ // jestlize se organizace nezmenila, neni potreba menit automatickou roli
+            if (eav.getId() == treeId){ // if organization is unchanged, it is not necessary change automatic role
               return;
             }
           }
           for (IdmRoleTreeNodeDto treeNode : list){
-            automaticRoleManager.deleteAutomaticRole(treeNode, true); // pres requesty odstranovani automaticke role
+            automaticRoleManager.deleteAutomaticRole(treeNode, true); // delete automatic role by request
             }
 
           IdmRoleTreeNodeDto treeNode = new IdmRoleTreeNodeDto();
@@ -491,7 +437,7 @@ return log;
           treeNode.setName(name);
           treeNode.setRole(role.getId());
 
-          automaticRoleManager.createAutomaticRoleByTree(treeNode, false); // vytvoreni automaticke role by organization structure
+          automaticRoleManager.createAutomaticRoleByTree(treeNode, false); // create automatic role by organization structure
         }
 
         def addAutomaticRoles(String uid, IdmRoleDto role){ // automatic roles by attribute
@@ -538,7 +484,10 @@ return log;
             def isCompleted = null;
             isCompleted = defaultSysRoleSystemAttributeService.isChangedRoleMappingAttribute(systemId, roleId, attributeName, transformationScript);
             if (isCompleted == null) {
-              defaultSysRoleSystemAttributeService.addRoleMappingAttribute(systemId, roleId, attributeName, transformationScript, objectClassName); //sysRoleSystemAttributeService
+              SysRoleSystemAttributeDto attr = new SysRoleSystemAttributeDto();
+              attr.setEntityAttribute(false);
+		          attr.setStrategyType(AttributeMappingStrategyType.MERGE);
+              defaultSysRoleSystemAttributeService.addRoleMappingAttribute(systemId, roleId, attributeName, transformationScript, objectClassName, attr); //sysRoleSystemAttributeService
             }
         }
 
@@ -556,30 +505,31 @@ return log;
         LOG.info("SYNC finished, now for the guarantees and catalogues");
 
         if(actionType.equals("UPDATE_ENTITY")) {
-        UUID roleId = getRoleId(account, defaultAccRoleAccountService);
+        UUID roleId = accService.getRoleId(account);
 
         IdmRoleDto role = roleService.get(roleId);
-        role.setCanBeRequested(canBeRequested) // nastavení role, jestli může být podaná žádost uživateli
+        role.setCanBeRequested(canBeRequested) // set option, if identity can request this role
         roleService.save(role)
 
         //
         UUID systemID = UUID.fromString(SYSTEM_FOR_ROLE_MAPPING_ID);
-        addResource(systemID, roleId, MEMBER_OF_ATTRIBUTE_NAME, TRANSFORMATION_SCRIPT, OBJECT_CLASS_NAME); // pridani do role- system, mapovani a transformace do k atributu 'memberOf' - Distinguished Name. | pri linked situaci kontrola zmeny DN, jestlize se dn nezmenilo, neni potreba automaticke role ani katalog
+        addResource(systemID, roleId, MEMBER_OF_ATTRIBUTE_NAME, TRANSFORMATION_SCRIPT, OBJECT_CLASS_NAME); // add to role- system, mapping and transformation to attribute 'memberOf' - Distinguished Name. | in linked situation if DN is not changed, it is not necessary change even automatic role
 
-        addAutomaticRoleOrganization(name, role); // vytvoreni automatickych roli by organization structure
+        addAutomaticRoleOrganization(name, role); // create automatic roles by organization structure
 
-        addAutomaticRoles(name, role);// vytvoreni automatickych roli by attribute
+        addAutomaticRoles(name, role);// create automatic roles by attribute
 
-        addCtg(role); // pridani role do katalogu
+        addCtg(role); // add role to catalog
         //
         //
         LOG.info("SYNC ${roleId} DONE");
       }
 
-        return log;]]>
+        return log;
+        ]]>
 </script>
     </scriptTask>
-    <scriptTask id="scripttask3" name="Missing account" scriptFormat="javascript" activiti:autoStoreVariables="false">
+    <scriptTask id="scripttask3" name="Missing account" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script><![CDATA[
   import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
   import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
@@ -593,20 +543,6 @@ return log;
 
   @Field final static Logger LOG = LoggerFactory.getLogger("sync-roles-from-ad");
 
-        UUID getRoleId(UUID account, AccRoleAccountService accService) {
-            LOG.info(String.format("getRoleId %s %s", account, accService));
-            AccRoleAccountFilter accountFilter = new AccRoleAccountFilter();
-            accountFilter.setAccountId(account);
-            accountFilter.setOwnership(Boolean.TRUE);
-
-            List<AccRoleAccountDto> roleAccounts = accService.find(accountFilter, null).getContent();
-            if (roleAccounts.isEmpty()) {
-                throw new RuntimeException("No role Id found");
-            }
-
-            return roleAccounts.get(0).getRole();
-        }
-
         def removeAutoAttRoles(IdmRoleDto role){
         	LOG.info("Starting with removeAutoAttRoles");
         	IdmAutomaticRoleFilter filter = new IdmAutomaticRoleFilter();
@@ -619,14 +555,14 @@ return log;
 
         if (actionType.equals("DELETE_ENTITY")) {
           account = accAccountService.get(accountId).getId();
-          UUID roleId = getRoleId(account, defaultAccRoleAccountService);
+          UUID roleId = accService.getRoleId(account);
           IdmRoleDto role = roleService.get(roleId);
           removeAutoAttRoles(role);
         }
         log = defaultSynchronizationService.resolveMissingAccountSituation(uid, entityType, accountId, syncConfigId, actionType);
 
-return log;]]>
-      </script>
+return log;
+      ]]></script>
     </scriptTask>
     <endEvent id="endevent1" name="End"></endEvent>
     <sequenceFlow id="flow1" sourceRef="scripttask3" targetRef="endevent1"></sequenceFlow>
@@ -650,8 +586,8 @@ return log;]]>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${situation.equals("MISSING_ACCOUNT")}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="scripttask4" name="set attributes" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>
-<![CDATA[
+      <script><![CDATA[
+
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -767,7 +703,7 @@ UUID resolveCatalogue(String distinguishedName){ // TODO overwrite- edit creatin
   //_____________________________________________________________________
 
 
-final String roleName = "name"; // název role
+final String roleName = "name"; // name of role
 String nameV = null;
 
 if (icAttributes != null){
@@ -784,7 +720,7 @@ if (icAttributes != null){
 	}
 }
 
-final String dn = "distinguishedname"; // ziskavani DN
+final String dn = "distinguishedname"; // getting DN of role
 Object distinguishedNameV = null;
 
 if (icAttributes != null){

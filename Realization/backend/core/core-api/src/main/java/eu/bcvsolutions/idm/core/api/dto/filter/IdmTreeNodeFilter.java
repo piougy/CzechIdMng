@@ -36,6 +36,21 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
 	 */
 	public static final String PARAMETER_RECURSIVELY = "recursively";
 	public static final boolean DEFAULT_RECURSIVELY = true;
+	
+	/**
+	 * Attribute name to search for, like 'code' or 'name'
+	 * 
+	 * @deprecated @since 8.2.0 use PARAMETER_CORRELATION_PROPERTY
+	 */
+	@Deprecated
+	public static final String PARAMETER_PROPERTY = PARAMETER_CORRELATION_PROPERTY;
+	/**
+	 * Value of the attribute defined in property to search for
+	 * 
+	 * @deprecated @since 8.2.0 use PARAMETER_CORRELATION_VALUE
+	 */
+	@Deprecated
+	public static final String PARAMETER_VALUE = PARAMETER_CORRELATION_VALUE;
 
     public IdmTreeNodeFilter() {
         this(new LinkedMultiValueMap<>());

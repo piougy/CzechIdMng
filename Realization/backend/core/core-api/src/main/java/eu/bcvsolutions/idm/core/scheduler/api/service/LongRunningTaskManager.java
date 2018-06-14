@@ -101,9 +101,12 @@ public interface LongRunningTaskManager {
 	IdmLongRunningTaskDto getLongRunningTask(LongRunningFutureTask<?> futureTask, BasePermission... permission);
 	
 	/**
-	 * Returns true, if asynchronous long running task processing is enabled
+	 * Returns true, if asynchronous long running task processing is enabled.
+	 * Asynchronous long running tasks can be turned off mainly for testing purposes.
+	 * Synchronous task are executed on the same instance as initiator runs (e.g. as scheduler runs).
 	 * 
 	 * @return
+	 * @since 8.2.0
 	 */
 	boolean isAsynchronous();
 }

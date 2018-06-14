@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.exception.ConcurrentExecutionExcep
 public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningTaskExecutor<V> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractLongRunningTaskExecutor.class);
+	//
 	@Autowired private IdmLongRunningTaskService longRunningTaskService;
 	@Autowired private LookupService entityLookupService;
 	@Autowired private EntityEventManager entityEventManager;

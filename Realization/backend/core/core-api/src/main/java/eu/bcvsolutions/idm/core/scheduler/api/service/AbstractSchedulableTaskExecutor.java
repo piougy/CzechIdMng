@@ -10,9 +10,6 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
-import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -31,6 +28,7 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 
 	@Autowired protected SecurityService securityService;
 	@Autowired protected IdmLongRunningTaskService longRunningTaskService;
+	@Autowired protected LongRunningTaskManager longRunningTaskManager;
 	@Autowired protected IdmScheduledTaskService scheduledTaskService;
 	//
 	private UUID scheduledTaskId;
@@ -77,7 +75,10 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 		//
 		longRunningTask = longRunningTaskService.save(longRunningTask);
 		//
-		// TODO: execute, if async processing is disabled
+		if (!longRunningTaskManager.isAsynchronous()) {
+			longRunningTaskManager.processCreated(longRunningTask.getId());
+			longRunningTask = longRunningTaskService.get(longRunningTask.getId());
+		}
 		//
 		return longRunningTask;
 	}

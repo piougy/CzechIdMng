@@ -36,6 +36,7 @@ public class ObserveLongRunningTaskEndProcessor
 	private static Map<String, CountDownLatch> listenTasks = new ConcurrentHashMap<>();
 	private static Map<String, OperationResult> results = new ConcurrentHashMap<>();
 	private static Map<String, String> resultValues = new ConcurrentHashMap<>();
+	private static Map<String, IdmLongRunningTaskDto> longRunningTasks = new ConcurrentHashMap<>();
 		
 	@Override
 	public EventResult<IdmLongRunningTaskDto> process(EntityEvent<IdmLongRunningTaskDto> event) {
@@ -44,9 +45,14 @@ public class ObserveLongRunningTaskEndProcessor
 		// TODO: event result should contain result value
 		String resultValue = (String) event.getContent().getTaskProperties().get(RESULT_PROPERTY);
 		//
-		listenTasks.get(taskId).countDown();
+		longRunningTasks.put(taskId, event.getContent());
 		results.put(taskId, result);
-		resultValues.put(taskId, resultValue);
+		if (resultValue != null) {
+			resultValues.put(taskId, resultValue);
+		}
+		//
+		// has to be at the end - waiting has to be ended after results are set
+		listenTasks.get(taskId).countDown();
 		//
 		// TODO: event result should contain result value, it's too important, so I'm saying it twice :)
 		return null;
@@ -78,6 +84,7 @@ public class ObserveLongRunningTaskEndProcessor
 		listenTasks.put(taskId, new CountDownLatch(1));
 		results.remove(taskId);
 		resultValues.remove(taskId);
+		longRunningTasks.remove(taskId);
 	}
 	
 	public static OperationResult getResult(String taskId) {
@@ -86,6 +93,10 @@ public class ObserveLongRunningTaskEndProcessor
 	
 	public static String getResultValue(String taskId) {
 		return resultValues.get(taskId);
+	}
+	
+	public static IdmLongRunningTaskDto getLongRunningTask(String taskId) {
+		return longRunningTasks.get(taskId);
 	}
 	
 	/**

@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [8.1.2]
+
+- [#1137](https://redmine.czechidm.com/issues/1137) - Sync of slices does not use contract EAV definition
+
 ## [8.1.1]
 
 - [#1128](https://redmine.czechidm.com/issues/1128) - Event processing - check parent event type for duplicates.

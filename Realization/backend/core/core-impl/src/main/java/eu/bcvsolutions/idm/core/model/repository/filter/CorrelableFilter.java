@@ -53,7 +53,7 @@ public class CorrelableFilter<E extends AbstractEntity> extends BaseFilterBuilde
 			}
 		} catch (NoSuchFieldException e) {
 			throw new CorrelationPropertyNotExistsException(root.getJavaType().getCanonicalName(),
-					correlationFilter.getProperty());
+					correlationFilter.getProperty(), e);
 		}
 
 		return builder.equal(root.get(correlationFilter.getProperty()), correlationFilter.getValue());

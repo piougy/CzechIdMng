@@ -50,9 +50,7 @@ public class InitAccApplicationData implements ApplicationListener<ContextRefres
 	
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		if (configurationService.getBooleanValue(InitDemoData.PARAMETER_DEMO_DATA_ENABLED, false)) {
 			init();
-		}
 	}
 	
 	/**
@@ -62,14 +60,16 @@ public class InitAccApplicationData implements ApplicationListener<ContextRefres
 		securityService.setSystemAuthentication();
 		//
 		try {
-			if (!configurationService.getBooleanValue(InitDemoData.PARAMETER_DEMO_DATA_CREATED, false)) {
+			if (configurationService.getBooleanValue(InitDemoData.PARAMETER_DEMO_DATA_ENABLED, false)
+					&& !configurationService.getBooleanValue(InitDemoData.PARAMETER_DEMO_DATA_CREATED, false)) {
 				LOG.info("Creating demo data for [{}] module...", AccModuleDescriptor.MODULE_ID);
 				// check if exist user role
 				IdmRoleDto defaultRole = createDefaultRole();
 				//
 				// create default evaluators for acc module
 				//
-				LOG.info("Crea authorization [{}] for default user role.", IdentityAccountByAccountEvaluator.class.getSimpleName());
+				LOG.info("Crea authorization [{}] for default user role.",
+						IdentityAccountByAccountEvaluator.class.getSimpleName());
 				IdmAuthorizationPolicyDto identityAccountByAccount = new IdmAuthorizationPolicyDto();
 				identityAccountByAccount.setAuthorizableType(AccIdentityAccount.class.getCanonicalName());
 				identityAccountByAccount.setEvaluator(IdentityAccountByAccountEvaluator.class);
@@ -77,7 +77,8 @@ public class InitAccApplicationData implements ApplicationListener<ContextRefres
 				identityAccountByAccount.setRole(defaultRole.getId());
 				identityAccountByAccount = authorizationPolicyService.save(identityAccountByAccount);
 				//
-				LOG.info("Create authorization [{}] for default user role.", ReadAccountByIdentityEvaluator.class.getSimpleName());
+				LOG.info("Create authorization [{}] for default user role.",
+						ReadAccountByIdentityEvaluator.class.getSimpleName());
 				IdmAuthorizationPolicyDto accountByIdentity = new IdmAuthorizationPolicyDto();
 				accountByIdentity.setAuthorizableType(AccAccount.class.getCanonicalName());
 				accountByIdentity.setEvaluator(ReadAccountByIdentityEvaluator.class);
@@ -85,12 +86,12 @@ public class InitAccApplicationData implements ApplicationListener<ContextRefres
 				accountByIdentity.setRole(defaultRole.getId());
 				accountByIdentity = authorizationPolicyService.save(accountByIdentity);
 				//
-				// 
+				//
 			}
 			//
 			// Cancels all previously ran tasks
 			synchronizationService.init();
-		} catch(Exception ex) {
+		} catch (Exception ex) {
 			LOG.warn("Init data for ACC module, was not created!", ex);
 		} finally {
 			SecurityContextHolder.clearContext();

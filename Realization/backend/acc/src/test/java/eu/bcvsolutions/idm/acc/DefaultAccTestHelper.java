@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -15,9 +16,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
@@ -32,8 +36,10 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
+import eu.bcvsolutions.idm.acc.scheduler.task.impl.SynchronizationSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -48,6 +54,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import joptsimple.internal.Strings;
 
 /**
@@ -72,6 +79,8 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 	@Autowired private AccAccountService accountService;
 	@Autowired private AccIdentityAccountService identityAccountService;
 	@Autowired private DefaultSysSystemMappingService mappingService;
+	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	@Autowired private ApplicationContext context;
 	
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public TestResource findResource(String uid) {
@@ -332,5 +341,14 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		mapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		//
 		return mappingService.save(mapping);
+	}
+
+	@Override
+	public void startSynchronization(AbstractSysSyncConfigDto config) {
+		Assert.notNull(config);
+		SynchronizationSchedulableTaskExecutor lrt = context.getAutowireCapableBeanFactory()
+		.createBean(SynchronizationSchedulableTaskExecutor.class);
+		lrt.init(ImmutableMap.of(SynchronizationService.PARAMETER_SYNCHRONIZATION_ID, config.getId().toString()));
+		lrt.process();
 	}
 }

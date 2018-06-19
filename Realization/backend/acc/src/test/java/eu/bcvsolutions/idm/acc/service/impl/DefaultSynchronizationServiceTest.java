@@ -224,8 +224,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		//
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//		
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -278,8 +278,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(IDENTITY_USERNAME_TWO,
 				identityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getLastName());
 
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -348,8 +348,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		syncConfigCustom.setFilterOperation(IcFilterOperationType.ENDS_WITH); // We don`t use custom filter. This option will be not used.
 		syncConfigService.save(syncConfigCustom);
 
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -409,8 +409,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		syncConfigCustom.setFilterOperation(IcFilterOperationType.LESS_THAN);
 		syncConfigService.save(syncConfigCustom);
 		//
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -464,8 +464,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		syncConfigCustom.setReconciliation(true);
 		syncConfigService.save(syncConfigCustom);
 		//
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -523,8 +523,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, identityAccoutnService.find(identityAccountFilterTwo, null).getTotalElements());
 
 		// Start synchronization
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -588,8 +588,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, identityAccoutnService.find(identityAccountFilterTwo, null).getTotalElements());
 
 		// Start synchronization
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -672,8 +672,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME_TWO).getLastname());
 
 		// Start synchronization
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -753,8 +753,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertNull(entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME_THREE));
 
 		// Start synchronization
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -812,8 +812,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(identityService.getByUsername("x" + IDENTITY_USERNAME_THREE));
 
 		// Start synchronization
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -898,8 +898,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertNull(identityService.getByUsername("x" + IDENTITY_USERNAME_TWO));
 
 		// Start synchronization
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -936,8 +936,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		this.getBean().changeResourceData();
 		
 		// Start synchronization aging
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -1027,8 +1027,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 
 		// Start synchronization
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -1113,8 +1113,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 
 		// Start synchronization
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -1181,8 +1181,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, identityAccoutnService.find(identityAccountFilterTwo, null).getTotalElements());
 
 		// Start synchronization
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -1241,8 +1241,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		formService.saveValues(identityOne.getId(), IdmIdentity.class, EAV_ATTRIBUTE, list);
 		
 		// Start synchronization
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());

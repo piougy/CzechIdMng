@@ -175,8 +175,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
 		Assert.assertEquals(0, identities.size());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		// Have to be in the warning state, because default role cannot be assigned for
 		// new identity, because sync do not creates the default contract. See
@@ -209,8 +209,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
 		Assert.assertEquals(0, identities.size());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
 				OperationResultType.SUCCESS);
@@ -246,8 +246,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
 		identityFilter.setUsername(IDENTITY_ONE);
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK, 1, OperationResultType.SUCCESS);
 
@@ -283,8 +283,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
 		identityFilter.setUsername(IDENTITY_ONE);
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK, 1, OperationResultType.WARNING);
 
@@ -322,8 +322,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
 		identityFilter.setUsername(IDENTITY_ONE);
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK, 1, OperationResultType.SUCCESS);
 
@@ -436,8 +436,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		firstNameAttribute.setCached(true);
 		firstNameAttribute = schemaAttributeMappingService.save(firstNameAttribute);
 		
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2,
 				OperationResultType.WARNING);
@@ -486,8 +486,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		IdmAutomaticRoleAttributeDto automaticRole = helper.createAutomaticRole(role1.getId());
 		helper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS, AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.username.getName(), null, user1);
 		
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 		
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3,
 				OperationResultType.WARNING);
@@ -516,8 +516,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		
 		// enable test processor
 		testIdentityProcessor.enable();
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 		
 		identityRoles1 = identityRoleService.findAllByIdentity(identity1.getId());
 		identityRoles2 = identityRoleService.findAllByIdentity(identity2.getId());
@@ -569,8 +569,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		IdmAutomaticRoleAttributeDto automaticRole = helper.createAutomaticRole(role1.getId());
 		helper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS, AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.username.getName(), null, user1);
 		
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 		
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3,
 				OperationResultType.WARNING);
@@ -599,8 +599,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		
 		// enable test processor
 		testIdentityProcessor.enable();
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 		
 		identityRoles1 = identityRoleService.findAllByIdentity(identity1.getId());
 		identityRoles2 = identityRoleService.findAllByIdentity(identity2.getId());
@@ -653,8 +653,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		assertNotEquals(testLastName, identity3.getLastName());
 		
 		testIdentityProcessor.enable();
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 		
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK_AND_UPDATE_ENTITY, 3,
 				OperationResultType.SUCCESS);

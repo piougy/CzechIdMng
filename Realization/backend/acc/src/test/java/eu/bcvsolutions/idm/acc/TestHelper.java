@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
@@ -148,5 +149,7 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	SysSystemMappingDto createMappingSystem(SystemEntityType type, SysSchemaObjectClassDto objectClass);
+
+	void startSynchronization(AbstractSysSyncConfigDto syncConfigCustom);
 
 }

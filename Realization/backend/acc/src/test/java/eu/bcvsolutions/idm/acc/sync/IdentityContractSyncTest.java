@@ -196,8 +196,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -237,8 +237,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -292,8 +292,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		// transaction
 		this.getBean().initContractCheckExcludeTest();
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -348,8 +348,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		// transaction
 		this.getBean().initContractCheckDisableTest();
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -412,8 +412,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		// Change resources (set to invalid) .. must be call in transaction
 		this.getBean().initContractCheckInvalidTest();
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2);
 
@@ -498,8 +498,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		// Change resources (set to invalid) .. must be call in transaction
 		this.getBean().initContractCheckInvalidTest();
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2);
 
@@ -550,8 +550,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -617,8 +617,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setProperty(IdmIdentityContract_.position.getName());
 
 		// Start sync
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -649,8 +649,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		this.getBean().initContractDefaultTreeTest();
 
 		// Start sync again (we want to see some work positions)
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 3);
 
@@ -713,8 +713,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setProperty(IdmIdentityContract_.position.getName());
 
 		// Start sync
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -802,8 +802,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		this.getBean().createContractData(position3, identity3.getUsername(), leader.getUsername(), Boolean.TRUE.toString(), workPosition.getId().toString(), "10", Boolean.FALSE.toString());
 
 		// Start sync
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 		
 		contractService.findAllByIdentity(identity1.getId());
 

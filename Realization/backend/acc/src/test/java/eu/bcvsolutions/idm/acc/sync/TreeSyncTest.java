@@ -108,13 +108,10 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 	private FormService formService;
 
 	private SysSystemDto system;
-	private SynchronizationService synchornizationService;
 
 	@Before
 	public void init() {
 		loginAsAdmin("admin");
-		synchornizationService = context.getAutowireCapableBeanFactory()
-				.createBean(DefaultSynchronizationService.class);
 	}
 
 	@After
@@ -149,8 +146,7 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 		syncConfigService.save(syncConfigCustom);
 
 		//
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());

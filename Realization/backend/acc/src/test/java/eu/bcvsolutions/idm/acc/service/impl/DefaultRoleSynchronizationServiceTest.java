@@ -189,8 +189,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		//
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
 		//		
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -262,8 +261,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		roleFilter.setValue("1");
 		Assert.assertEquals("1", roleService.find(roleFilter, null).getContent().get(0).getDescription());
 
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -323,8 +321,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		IdmRoleDto roleOne = roleService.find(roleFilter, null).getContent().get(0);
 		Assert.assertNotNull(roleOne);
 		
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -387,8 +384,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
 		syncConfigService.save(syncConfigCustom);
 		//
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
 		//		
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());

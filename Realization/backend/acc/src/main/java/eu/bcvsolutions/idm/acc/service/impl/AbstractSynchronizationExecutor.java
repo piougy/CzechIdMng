@@ -100,7 +100,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -153,7 +153,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	private final FormService formService;
 	protected final EntityEventManager entityEventManager;
 	private final EntityManager entityManager;
-	protected AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> longRunningTaskExecutor;
+	protected AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor;
 	protected final SysSystemMappingService systemMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSchemaAttributeService schemaAttributeService;
@@ -2077,7 +2077,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	@Override
 	public void setLongRunningTaskExecutor(
-			AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> longRunningTaskExecutor) {
+			AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor) {
 		this.longRunningTaskExecutor = longRunningTaskExecutor;
 	}
 

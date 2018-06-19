@@ -186,8 +186,8 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		//
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -250,8 +250,8 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		IdmTreeNodeDto treeNode = treeNodeService.find(nodeFilter, null).getContent().get(0);
 		Assert.assertEquals("111", treeNode.getCode());
 
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -313,8 +313,8 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		IdmTreeNodeDto treeNode = treeNodeService.find(nodeFilter, null).getContent().get(0);
 		Assert.assertNotNull(treeNode.getCode());
 
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -369,8 +369,8 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
 		syncConfigService.save(syncConfigCustom);
 		//
-		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
-		synchornizationService.process();
+		helper.startSynchronization(syncConfigCustom);
+	
 		//
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());

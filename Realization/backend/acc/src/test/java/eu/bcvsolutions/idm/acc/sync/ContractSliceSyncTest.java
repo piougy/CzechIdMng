@@ -184,8 +184,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -245,8 +244,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -290,8 +289,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -346,8 +345,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -386,8 +385,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		config.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
 
 		config = syncConfigService.save(config);
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ACCOUNT, 4);
 
@@ -421,8 +420,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -455,8 +454,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		config.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
 
 		config = syncConfigService.save(config);
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		log = checkSyncLog(config, SynchronizationActionType.UNLINK, 4);
 
@@ -495,8 +494,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractSliceFilter.setValue("2");
 		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -546,8 +545,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractSliceFilter.setValue("2");
 		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -580,8 +578,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		// Slice with id "2" reassign from contract ONE to TWO
 		this.getBean().changeContractData();
 
-		synchornizationService.process();
-
+		helper.startSynchronization(config);
 		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 4);
 
 		Assert.assertFalse(log.isRunning());
@@ -629,8 +626,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractSliceFilter.setValue("2");
 		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -695,8 +692,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractSliceFilter.setValue("2");
 		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -727,8 +724,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractSliceFilter.setValue("2");
 		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 

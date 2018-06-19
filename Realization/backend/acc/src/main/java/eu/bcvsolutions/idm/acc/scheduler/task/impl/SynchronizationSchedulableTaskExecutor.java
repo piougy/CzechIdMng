@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,11 +19,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
- * Synchronization start
- * 
- * TODO: prevent to execute dependent task before sync ends (fix starting another LRT)
+ * Synchronization schedule task
  * 
  * @author Radek Tomiška
+ * @author svandav
  *
  */
 @Service
@@ -35,24 +35,33 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	private SysSyncConfigService service;
 	//
 	private UUID synchronizationId;
-	
+
+	public SynchronizationSchedulableTaskExecutor() {
+		super();
+	}
+
+	public SynchronizationSchedulableTaskExecutor(UUID synchronizationId) {
+		this.synchronizationId = synchronizationId;
+	}
+
 	@Override
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		//
-		synchronizationId = getParameterConverter().toUuid(properties, SynchronizationService.PARAMETER_SYNCHRONIZATION_ID);
+		synchronizationId = getParameterConverter().toUuid(properties,
+				SynchronizationService.PARAMETER_SYNCHRONIZATION_ID);
 		//
 		// validation only
 		getConfig();
 	}
-	
+
 	@Override
 	public Boolean process() {
-		synchronizationService.startSynchronizationEvent(getConfig());	
-		// 
+		synchronizationService.startSynchronization(getConfig(), this);
+		//
 		return Boolean.TRUE;
 	}
-	
+
 	private AbstractSysSyncConfigDto getConfig() {
 		AbstractSysSyncConfigDto config = service.get(synchronizationId);
 		//
@@ -62,12 +71,30 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 		}
 		return config;
 	}
-	
+
 	@Override
 	public List<String> getPropertyNames() {
 		List<String> params = super.getPropertyNames();
 		params.add(SynchronizationService.PARAMETER_SYNCHRONIZATION_ID);
 		return params;
+	}
+
+	@Override
+	public String getDescription() {
+		AbstractSysSyncConfigDto config = service.get(synchronizationId);
+		if (config == null) {
+			return "Synchronization long running task";
+		}
+		return MessageFormat.format("Run synchronization name: [{0}] - system mapping id: [{1}]", config.getName(),
+				config.getSystemMapping());
+	}
+
+	@Override
+	public Map<String, Object> getProperties() {
+		Map<String, Object> props = super.getProperties();
+		props.put(SynchronizationService.PARAMETER_SYNCHRONIZATION_ID, synchronizationId);
+		//
+		return props;
 	}
 
 }

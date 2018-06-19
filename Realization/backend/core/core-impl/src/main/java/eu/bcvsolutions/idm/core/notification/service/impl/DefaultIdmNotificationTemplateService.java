@@ -207,8 +207,15 @@ public class DefaultIdmNotificationTemplateService extends
 		velocityContext.put("display", new DisplayTool());
 		velocityContext.put("date", new DateTool());
 		//
-		velocityEngine.evaluate(velocityContext, bodyHtml, template.getCode(), html);
-		velocityEngine.evaluate(velocityContext, bodyText, template.getCode(), text);
+		// html and text may not exists, evaluate only if exists
+		if (html != null) {
+			velocityEngine.evaluate(velocityContext, bodyHtml, template.getCode(), html);
+		}
+		//
+		if (text != null) {
+			velocityEngine.evaluate(velocityContext, bodyText, template.getCode(), text);
+		}
+		// subject must exists
 		velocityEngine.evaluate(velocityContext, subject, template.getCode(), subjectString);
 		//
 		IdmMessageDto newMessage;

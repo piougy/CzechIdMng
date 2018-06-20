@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
+import javax.validation.ConstraintViolationException;
+
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -22,6 +24,7 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -220,5 +223,44 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 			assertEquals(resultCode.getError().getError().getStatusEnum(),
 					CoreResultCode.NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND.name());
 		}
+	}
+
+	@Test
+	public void evaluateEmptyHtmlText() {
+		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
+		template.setCode(getHelper().createName());
+		template.setName(getHelper().createName());
+		template.setSubject(getHelper().createName());
+		template.setBodyText(getHelper().createName());
+		template = notificationTemplateService.save(template);
+
+		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
+
+		notificationTemplateService.buildMessage(message);
+	}
+
+	@Test
+	public void evaluateEmptyText() {
+		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
+		template.setCode(getHelper().createName());
+		template.setName(getHelper().createName());
+		template.setSubject(getHelper().createName());
+		template.setBodyHtml(getHelper().createName());
+		template = notificationTemplateService.save(template);
+
+		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
+
+		notificationTemplateService.buildMessage(message);
+	}
+
+	@Test(expected = ConstraintViolationException.class)
+	public void evaluateEmptySubject() {
+		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
+		template.setCode(getHelper().createName());
+		template.setName(getHelper().createName());
+		template.setBodyText(getHelper().createName());
+		template.setBodyHtml(getHelper().createName());
+		// throw error subject can't be null
+		template = notificationTemplateService.save(template);
 	}
 }

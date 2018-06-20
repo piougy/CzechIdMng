@@ -58,7 +58,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -105,62 +104,42 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private TestHelper helper;
-	
-	@Autowired
-	private ApplicationContext context;
-	
 	@Autowired
 	private SysSystemService systemService;
-	
 	@Autowired
 	private IdmIdentityService identityService;
-
 	@Autowired
 	private AccIdentityAccountService identityAccoutnService;
-
 	@Autowired
 	private AccAccountService accountService;
-
 	@Autowired
 	private SysSystemMappingService systemMappingService;
-
 	@Autowired
 	private SysSystemAttributeMappingService schemaAttributeMappingService;
-
 	@Autowired
 	private SysSchemaObjectClassService schemaObjectClassService;
-	
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
-
 	@Autowired
 	private SysSyncConfigService syncConfigService;
-
 	@Autowired
 	private SysSyncLogService syncLogService;
-
 	@Autowired
 	private SysSyncItemLogService syncItemLogService;
-
 	@Autowired
 	private SysSyncActionLogService syncActionLogService;
-
 	@Autowired
 	private EntityManager entityManager;
-
 	@Autowired
 	private ApplicationContext applicationContext;
-	
 	@Autowired
 	private FormService formService;
 
 	private SysSystemDto system;
-	private SynchronizationService synchornizationService;
 
 	@Before
 	public void init() {
 		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
-		synchornizationService = context.getAutowireCapableBeanFactory().createBean(DefaultSynchronizationService.class);
 	}
 
 	@After
@@ -308,7 +287,6 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 				identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getFirstName());
 		Assert.assertEquals(ATTRIBUTE_VALUE_CHANGED,
 				identityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getLastName());
-
 		// Delete log
 		syncLogService.delete(log);
 

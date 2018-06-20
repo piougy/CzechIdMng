@@ -156,6 +156,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 				synchronizationLogService.save(sync);
 			}
 		});
+		// Clear the executor cache
+		this.getCache().clear();
 	}
 
 	@Override
@@ -166,10 +168,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	}
 
 	/**
-	 * Prepare and execute long running task
+	 * Prepare and execute sync executor
 	 */
 	@Override
-	// @Transactional
 	public void startSynchronization(AbstractSysSyncConfigDto config,
 			AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor) {
 

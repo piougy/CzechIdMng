@@ -50,7 +50,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestContractSliceResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractSliceAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -60,7 +59,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.ContractSynchronizationExecutor;
-import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -100,8 +98,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	@Autowired
 	private TestHelper helper;
 	@Autowired
-	private ApplicationContext context;
-	@Autowired
 	private SysSystemService systemService;
 	@Autowired
 	private SysSystemMappingService systemMappingService;
@@ -136,13 +132,9 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	@Autowired
 	private FormService formService;
 
-	private SynchronizationService synchornizationService;
-
 	@Before
 	public void init() {
 		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
-		synchornizationService = context.getAutowireCapableBeanFactory()
-				.createBean(DefaultSynchronizationService.class);
 	}
 
 	@After
@@ -215,7 +207,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 
 	}
-	
+
 	/**
 	 * Contract slices EAV use definition from the contracts
 	 */
@@ -245,7 +237,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
 
 		helper.startSynchronization(config);
-	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -254,18 +245,18 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 		contractFilter.setValue("1");
 		List<IdmContractSliceDto> slices = contractSliceService.find(contractFilter, null).getContent();
-		
+
 		Assert.assertEquals(1, slices.size());
 		IdmContractSliceDto slice = slices.get(0);
-		
+
 		// Contract slices use EAV definition from the contracts
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentityContract.class,
 				FormService.DEFAULT_DEFINITION_CODE);
-	
+
 		List<IdmFormValueDto> values = formService.getValues(slice, formDefinition, EXTENDED_ATTRIBUTE);
 		Assert.assertEquals(1, values.size());
 		Assert.assertEquals(slice.getPosition(), values.get(0).getValue());
-		
+
 		// Delete log
 		syncLogService.delete(log);
 
@@ -290,7 +281,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
 
 		helper.startSynchronization(config);
-	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -346,7 +336,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
 
 		helper.startSynchronization(config);
-	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -386,7 +375,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 		config = syncConfigService.save(config);
 		helper.startSynchronization(config);
-	
 
 		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ACCOUNT, 4);
 
@@ -421,7 +409,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
 
 		helper.startSynchronization(config);
-	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -455,7 +442,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 		config = syncConfigService.save(config);
 		helper.startSynchronization(config);
-	
 
 		log = checkSyncLog(config, SynchronizationActionType.UNLINK, 4);
 
@@ -495,7 +481,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
 
 		helper.startSynchronization(config);
-	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -627,7 +612,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
 
 		helper.startSynchronization(config);
-	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -693,7 +677,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
 
 		helper.startSynchronization(config);
-	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -709,7 +692,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 
 	}
-	
+
 	@Test
 	public void sliceWithNoExistsLeaderTest() {
 		SysSystemDto system = initData();
@@ -725,7 +708,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
 
 		helper.startSynchronization(config);
-	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
 
@@ -866,8 +848,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 				LocalDate.now().minusDays(1), "ONE"));
 		entityManager.persist(this.createContract("3", CONTRACT_OWNER_ONE, null, "true", null, null, null, null, null,
 				LocalDate.now().plusDays(10), "ONE"));
-		entityManager.persist(this.createContract("4", CONTRACT_OWNER_ONE, null, "true", null, null,
-				null, null, null, LocalDate.now(), "TWO"));
+		entityManager.persist(this.createContract("4", CONTRACT_OWNER_ONE, null, "true", null, null, null, null, null,
+				LocalDate.now(), "TWO"));
 
 	}
 
@@ -1008,7 +990,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 				extendedAttribute.setSystemMapping(entityHandlingResult.getId());
 				extendedAttribute.setIdmPropertyName(EXTENDED_ATTRIBUTE);
 				schemaAttributeMappingService.save(extendedAttribute);
-				
+
 			} else if ("contract_code".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName(IdmContractSlice_.contractCode.getName());

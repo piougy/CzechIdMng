@@ -54,7 +54,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import joptsimple.internal.Strings;
 
 /**
@@ -79,7 +78,6 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 	@Autowired private AccAccountService accountService;
 	@Autowired private AccIdentityAccountService identityAccountService;
 	@Autowired private DefaultSysSystemMappingService mappingService;
-	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	@Autowired private ApplicationContext context;
 	
 	@Transactional(propagation = Propagation.REQUIRES_NEW)

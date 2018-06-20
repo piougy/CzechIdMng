@@ -49,7 +49,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -58,7 +57,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationServiceTest;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
@@ -103,8 +101,6 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	@Autowired
 	private TestHelper helper;
 	@Autowired
-	private ApplicationContext context;
-	@Autowired
 	private SysSystemService systemService;
 	@Autowired
 	private SysSystemMappingService systemMappingService;
@@ -142,13 +138,10 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private TestIdentityProcessor testIdentityProcessor;
 	@Autowired
 	private FormService formService;
-	
-	private SynchronizationService synchornizationService;
 
 	@Before
 	public void init() {
 		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
-		synchornizationService = context.getAutowireCapableBeanFactory().createBean(DefaultSynchronizationService.class);
 	}
 
 	@After

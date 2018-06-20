@@ -48,7 +48,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
 import eu.bcvsolutions.idm.acc.entity.TestTreeResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -90,8 +89,6 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Autowired
 	private TestHelper helper;
 	@Autowired
-	private ApplicationContext context;
-	@Autowired
 	private SysSystemService systemService;
 	@Autowired
 	private SysSystemMappingService systemMappingService;
@@ -121,13 +118,10 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	private SysSchemaObjectClassService schemaObjectClassService;
 
 	private SysSystemDto system;
-	private SynchronizationService synchornizationService;
 
 	@Before
 	public void init() {
 		loginAsAdmin("admin");
-		synchornizationService = context.getAutowireCapableBeanFactory()
-				.createBean(DefaultSynchronizationService.class);
 	}
 
 	@After

@@ -47,7 +47,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestRoleResource;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -90,8 +89,6 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Autowired
 	private TestHelper helper;
 	@Autowired
-	private ApplicationContext context;
-	@Autowired
 	private SysSystemService systemService;
 	@Autowired
 	private SysSystemMappingService systemMappingService;
@@ -119,12 +116,9 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	private FormService formService;
 
 	private SysSystemDto system;
-	private SynchronizationService synchornizationService;
-
 	@Before
 	public void init() {
 		loginAsAdmin("admin");
-		synchornizationService = context.getAutowireCapableBeanFactory().createBean(DefaultSynchronizationService.class);
 	}
 
 	@After

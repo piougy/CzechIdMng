@@ -76,6 +76,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -87,9 +88,9 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
-import eu.bcvsolutions.idm.core.scheduler.TestSchedulableTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -154,6 +155,10 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private DefaultSchedulerManager manager;
 	@Autowired
 	private ConfigurationService configurationService;
+	@Autowired
+	private SynchronizationService synchronizationService;
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
 
 	@Before
 	public void init() {
@@ -725,7 +730,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Delete log
 		syncLogService.delete(log);
 	}
-	
+
 	@Test
 	public void testDependentTaskExecution() throws InterruptedException {
 		SysSystemDto system = initData();
@@ -733,7 +738,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
 
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
-		
+
 		SysSystemDto systemTwo = initData();
 		Assert.assertNotNull(systemTwo);
 		SysSyncIdentityConfigDto configTwo = doCreateSyncConfig(systemTwo);
@@ -742,17 +747,17 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		Task initiatorTask = createSyncTask(config.getId());
 		Task dependentTask = createSyncTask(configTwo.getId());
-		
+
 		ObserveLongRunningTaskEndProcessor.listenTask(initiatorTask.getId());
 		ObserveLongRunningTaskEndProcessor.listenTask(dependentTask.getId());
-		
+
 		DependentTaskTrigger trigger = new DependentTaskTrigger();
 		trigger.setInitiatorTaskId(initiatorTask.getId());
 		//
 		// execute initiator
 		manager.createTrigger(dependentTask.getId(), trigger);
 		manager.runTask(initiatorTask.getId());
-		
+
 		DateTime startOne = DateTime.now();
 		ObserveLongRunningTaskEndProcessor.waitForEnd(initiatorTask.getId());
 		DateTime endOne = DateTime.now();
@@ -760,27 +765,25 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		DateTime endTwo = DateTime.now();
 		long durationOne = endOne.getMillis() - startOne.getMillis();
 		long durationTwo = endTwo.getMillis() - endOne.getMillis();
-		
+
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
 				OperationResultType.SUCCESS);
-		
-		SysSyncLogDto logTwo = checkSyncLog(configTwo, SynchronizationActionType.LINK, 1,
-				OperationResultType.SUCCESS);
-		
-		long syncDurationOne = log.getEnded().toDateTime().getMillis() - log.getStarted().toDateTime().getMillis();
-		long syncDurationTwo = logTwo.getEnded().toDateTime().getMillis() - logTwo.getStarted().toDateTime().getMillis();
 
-		// We want to check if was the task ended after sync end. 
+		SysSyncLogDto logTwo = checkSyncLog(configTwo, SynchronizationActionType.LINK, 1, OperationResultType.SUCCESS);
+
+		long syncDurationOne = log.getEnded().toDateTime().getMillis() - log.getStarted().toDateTime().getMillis();
+		long syncDurationTwo = logTwo.getEnded().toDateTime().getMillis()
+				- logTwo.getStarted().toDateTime().getMillis();
+
+		// We want to check if was the task ended after sync end.
 		assertTrue(durationOne > syncDurationOne);
 		assertTrue(durationTwo > syncDurationTwo);
-		
+
 		//
 		assertEquals(OperationState.EXECUTED,
 				ObserveLongRunningTaskEndProcessor.getResult(initiatorTask.getId()).getState());
 		assertEquals(OperationState.EXECUTED,
 				ObserveLongRunningTaskEndProcessor.getResult(dependentTask.getId()).getState());
-		
-
 
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
@@ -788,9 +791,47 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertFalse(logTwo.isRunning());
 		Assert.assertFalse(logTwo.isContainsError());
 
-
 		// Delete log
 		syncLogService.delete(logTwo);
+	}
+
+	@Test
+	public void testStopSync() throws InterruptedException {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// Delete and generate target system data
+		this.getBean().deleteAllResourceData();
+		for (int i = 0; i < 10; i++) {
+			this.getBean().setTestData(getHelper().createName(), getHelper().createName(), getHelper().createName());
+		}
+		Task initiatorTask = createSyncTask(config.getId());
+		ObserveLongRunningTaskEndProcessor.listenTask(initiatorTask.getId());
+		// Execute LRT
+		manager.runTask(initiatorTask.getId());
+
+		// We have to wait, before stop
+		Thread.sleep(2000);
+		// Stop sync
+		synchronizationService.stopSynchronization(config);
+		ObserveLongRunningTaskEndProcessor.waitForEnd(initiatorTask.getId());
+		SysSyncLogDto log = null;
+		try {
+			log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 10, OperationResultType.SUCCESS);
+			throw new CoreException("Sync was cancelled, there cannot be 10 created entities!");
+		} catch (AssertionError ex) {
+			// OK - sync was cancelled, there cannot be 10 created entities.
+		}
+		
+		log = checkSyncLog(config, null, 0, null);
+		Assert.assertNotNull(log);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// Delete log
+		syncLogService.delete(log);
 	}
 
 	private Task createSyncTask(UUID syncConfId) {
@@ -810,6 +851,9 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
 		SysSyncLogDto log = logs.get(0);
+		if (actionType == null) {
+			return log;
+		}
 
 		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());

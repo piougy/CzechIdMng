@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -15,8 +14,6 @@ import eu.bcvsolutions.idm.core.api.event.processor.LongRunningTaskProcessor;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask_;
-import eu.bcvsolutions.idm.core.scheduler.event.processor.LongRunningTaskEndProcessor;
 
 /**
  * Listen LongRunningTask ends
@@ -29,9 +26,8 @@ public class ObserveLongRunningTaskEndProcessor
 		extends CoreEventProcessor<IdmLongRunningTaskDto> 
 		implements LongRunningTaskProcessor {
 
-	protected final static String RESULT_PROPERTY = "result";
+	public final static String RESULT_PROPERTY = "result";
 	//
-	@Autowired private LongRunningTaskEndProcessor endProcessor;
 	// observe task id = quartz task id
 	private static Map<String, CountDownLatch> listenTasks = new ConcurrentHashMap<>();
 	private static Map<String, OperationResult> results = new ConcurrentHashMap<>();
@@ -72,7 +68,7 @@ public class ObserveLongRunningTaskEndProcessor
 	}
 	
 	private String getTaskId(IdmLongRunningTaskDto longRunningTask) {
-		IdmScheduledTaskDto scheduledTask = DtoUtils.getEmbedded(longRunningTask, IdmLongRunningTask_.scheduledTask, (IdmScheduledTaskDto) null);
+		IdmScheduledTaskDto scheduledTask = DtoUtils.getEmbedded(longRunningTask, "scheduledTask", (IdmScheduledTaskDto) null);
 		if (scheduledTask == null) {
 			// not schedulable
 			return null;
@@ -109,10 +105,10 @@ public class ObserveLongRunningTaskEndProcessor
 	}
 
 	/**
-	 * Before provisioning
+	 * Must be after 'LongRunningTaskEndProcessor' processor!
 	 */
 	@Override
 	public int getOrder() {
-		return endProcessor.getOrder() + 1;
+		return super.getOrder() + 1;
 	}
 }

@@ -102,6 +102,44 @@ function selectStageAndProfile() {
   process.env.NODE_PROFILE = profile;
 }
 
+/**
+ * Function print stdout to util.log
+ */
+function printCommandLineOutput(err, stdout) {
+  util.log(stdout);
+}
+
+function iterateOverModulesAndExec(command) {
+  // model array
+  const moduleList = [];
+  //
+  const exec = require('child_process').exec;
+  //
+  gulp.src(['../czechidm-*', '!../czechidm-app'])
+    .pipe(flatmap(function iterateModules(stream, file) {
+      const modulePathSplit = file.path.split('/');
+      const moduleName = modulePathSplit[modulePathSplit.length - 1];
+      util.log('Product module found:', moduleName);
+      // update version to release, publish and then upload version to development
+      exec(command, { cwd: file.path }, printCommandLineOutput);
+      moduleList.push(moduleName);
+      return stream;
+    })
+  )
+  .on('finish', function releaseApp() {
+    gulp.src(['../czechidm-app'])
+    .pipe(flatmap(function iterateModules(stream, file) {
+      // just safety check
+      if (file.path.endsWith('czechidm-app')) {
+        util.log('APP module will be released.');
+        //
+        exec(command, { cwd: file.path }, printCommandLineOutput);
+      }
+      return stream;
+    }));
+  });
+}
+
 gulp.task('makeModules', () => {
   return vfs.src('./czechidm-modules/czechidm-*')
   .pipe(vfs.symlink('./node_modules', {useJunctions: true}));
@@ -128,64 +166,55 @@ gulp.task('makeProductModules', () => {
 });
 
 /**
- * Function print stdout to util.log
- */
-function printCommandLineOutput(err, stdout) {
-  util.log(stdout);
-}
-
-/**
  * Gulp task for relase module.
- * Has two parameters:
+ * Has three parameters:
  * --releaseVersion (may not be defined)
  * --developmentVersion
+ * --onlyPublish (when is defined, change version will be skipped)
  */
 gulp.task('release', () => {
   // prepare arguments from comand line
   const argv = yargs.argv;
   const releaseVersionCommand = argv.releaseVersion === undefined ? 'npm version patch' : 'npm version ' + argv.releaseVersion;
   const developmentVersionCommand = argv.developmentVersion === undefined ? '' : '&& npm version ' + argv.developmentVersion;
+  const onlyPublish = argv.onlyPublish === undefined ? false : true;
   //
-  if (argv.releaseVersion === undefined) {
-    util.log('As release version will be used generated version');
-  } else {
-    util.log('As release version will be used version: ', util.colors.magenta(argv.releaseVersion));
+  if (!onlyPublish) {
+    if (argv.releaseVersion === undefined) {
+      util.log('As release version will be used generated version');
+    } else {
+      util.log('As release version will be used version: ', util.colors.magenta(argv.releaseVersion));
+    }
+    //
+    if (argv.developmentVersion === undefined) {
+      util.log('Parameter "developmentVersion" isnt set. New development version will not be aplied.');
+    } else {
+      util.log('As new development version will be used version: ', util.colors.magenta(argv.developmentVersion));
+    }
   }
   //
-  if (argv.developmentVersion === undefined) {
-    util.log('Parameter "developmentVersion" isnt set. New development version will not be aplied.');
+  if (onlyPublish) {
+    iterateOverModulesAndExec('npm publish');
   } else {
-    util.log('As new development version will be used version: ', util.colors.magenta(argv.developmentVersion));
+    iterateOverModulesAndExec(releaseVersionCommand + ' && npm publish ' + developmentVersionCommand);
   }
+});
+
+/**
+ * Gulp task for path/set version of all modules.
+ * Has one parameters:
+ * --version (required, specific version)
+ */
+gulp.task('versionSet', () => {
+  const argv = yargs.argv;
+  if (argv.version === undefined) {
+    util.log('Parameter version isnt defined.');
+    return;
+  }
+  const versionCommand = 'npm version ' + argv.version;
   //
-  // model array
-  const moduleList = [];
-  //
-  const exec = require('child_process').exec;
-  //
-  gulp.src(['../czechidm-*', '!../czechidm-app'])
-    .pipe(flatmap(function iterateModules(stream, file) {
-      const modulePathSplit = file.path.split('/');
-      const moduleName = modulePathSplit[modulePathSplit.length - 1];
-      util.log('Product module found:', moduleName);
-      // update version to release, publish and then upload version to development
-      exec(releaseVersionCommand + ' && npm publish ' + developmentVersionCommand, { cwd: file.path }, printCommandLineOutput);
-      moduleList.push(moduleName);
-      return stream;
-    })
-  )
-  .on('finish', function releaseApp() {
-    gulp.src(['../czechidm-app'])
-    .pipe(flatmap(function iterateModules(stream, file) {
-      // just safety check
-      if (file.path.endsWith('czechidm-app')) {
-        util.log('APP module will be released.');
-        //
-        exec(releaseVersionCommand + ' && npm publish ' + developmentVersionCommand, { cwd: file.path }, printCommandLineOutput);
-      }
-      return stream;
-    }));
-  });
+  util.log('Version will be set: ', util.colors.magenta(argv.version));
+  iterateOverModulesAndExec(versionCommand);
 });
 
 gulp.task('removeAppLink', cb => {

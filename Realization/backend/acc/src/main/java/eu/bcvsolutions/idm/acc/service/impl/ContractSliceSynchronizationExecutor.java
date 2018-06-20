@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.LocalDateTime;
@@ -40,20 +38,9 @@ import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractSliceAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
@@ -66,10 +53,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
@@ -80,7 +64,6 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
@@ -100,23 +83,30 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAtt
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
-import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component
 public class ContractSliceSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmContractSliceDto>
 		implements SynchronizationEntityExecutor {
 
-	private final IdmContractSliceService sliceService;
-	private final AccContractSliceAccountService contractAccoutnService;
-	private final IdmTreeNodeService treeNodeService;
-	private final LookupService lookupService;
-	private final LongRunningTaskManager longRunningTaskManager;
-	private final SchedulerManager schedulerService;
-	private final IdmLongRunningTaskService longRunningTaskService;
-	private final IdmScheduledTaskService scheduledTaskService;
-	private final IdmConfigurationService configurationService;
+	@Autowired
+	private IdmContractSliceService sliceService;
+	@Autowired
+	private AccContractSliceAccountService contractAccoutnService;
+	@Autowired
+	private IdmTreeNodeService treeNodeService;
+	@Autowired
+	private LookupService lookupService;
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
+	@Autowired
+	private SchedulerManager schedulerService;
+	@Autowired
+	private IdmLongRunningTaskService longRunningTaskService;
+	@Autowired
+	private IdmScheduledTaskService scheduledTaskService;
+	@Autowired
+	private IdmConfigurationService configurationService;
 	@Autowired
 	private ContractSliceManager contractSliceManager;
 	@Autowired
@@ -130,48 +120,6 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	public final static String CONTRACT_VALID_TILL_FIELD = IdmContractSlice_.validTill.getName();
 	public final static String SYNC_CONTRACT_FIELD = "sync_contract";
 	public final static String DEFAULT_TASK = "Default";
-
-	@Autowired
-	public ContractSliceSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
-			SysSystemAttributeMappingService attributeHandlingService,
-			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
-			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
-			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
-			FormService formService, IdmContractSliceService contractService,
-			AccContractSliceAccountService contractAccoutnService, SysSyncItemLogService syncItemLogService,
-			EntityEventManager entityEventManager, GroovyScriptService groovyScriptService,
-			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
-			SysSystemMappingService systemMappingService, SysSchemaObjectClassService schemaObjectClassService,
-			SysSchemaAttributeService schemaAttributeService, LookupService lookupService,
-			IdmTreeNodeService treeNodeService, LongRunningTaskManager longRunningTaskManager,
-			SchedulerManager schedulerService, IdmLongRunningTaskService longRunningTaskService,
-			IdmScheduledTaskService scheduledTaskService, IdmConfigurationService configurationService) {
-		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
-				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
-				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager, systemMappingService, schemaObjectClassService,
-				schemaAttributeService);
-		//
-		Assert.notNull(contractService, "Contract service is mandatory!");
-		Assert.notNull(contractAccoutnService, "Contract-slice-account service is mandatory!");
-		Assert.notNull(lookupService, "Lookup service is mandatory!");
-		Assert.notNull(treeNodeService, "Tree node service is mandatory!");
-		Assert.notNull(longRunningTaskManager, "Long runing task manager is mandatory!");
-		Assert.notNull(schedulerService, "Scheduler service is mandatory!");
-		Assert.notNull(longRunningTaskService, "LRT service is mandatory!");
-		Assert.notNull(scheduledTaskService, "Scheduled task service is mandatory!");
-		Assert.notNull(configurationService, "Configuration service is mandatory!");
-		//
-		this.sliceService = contractService;
-		this.contractAccoutnService = contractAccoutnService;
-		this.lookupService = lookupService;
-		this.treeNodeService = treeNodeService;
-		this.longRunningTaskManager = longRunningTaskManager;
-		this.schedulerService = schedulerService;
-		this.longRunningTaskService = longRunningTaskService;
-		this.scheduledTaskService = scheduledTaskService;
-		this.configurationService = configurationService;
-	}
 
 	@Override
 	protected SynchronizationContext validate(UUID synchronizationConfigId) {

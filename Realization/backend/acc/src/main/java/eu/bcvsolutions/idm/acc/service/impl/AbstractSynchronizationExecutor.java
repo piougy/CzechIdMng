@@ -28,7 +28,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -139,78 +138,46 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			.getLogger(AbstractSynchronizationExecutor.class);
 
 	private static final String CACHE_NAME = "acc-sync-transformed-attribute";
-	private final WorkflowProcessInstanceService workflowProcessInstanceService;
-	protected final IcConnectorFacade connectorFacade;
-	protected final SysSystemService systemService;
-	protected final SysSystemAttributeMappingService systemAttributeMappingService;
-	protected final SysSyncConfigService synchronizationConfigService;
-	protected final SysSyncLogService synchronizationLogService;
-	protected final SysSyncItemLogService syncItemLogService;
-	protected final SysSyncActionLogService syncActionLogService;
-	protected final SysSystemEntityService systemEntityService;
-	protected final AccAccountService accountService;
-	protected final GroovyScriptService groovyScriptService;
-	private final ConfidentialStorage confidentialStorage;
-	private final FormService formService;
-	protected final EntityEventManager entityEventManager;
-	private final EntityManager entityManager;
-	protected AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor;
-	protected final SysSystemMappingService systemMappingService;
-	private final SysSchemaObjectClassService schemaObjectClassService;
-	private final SysSchemaAttributeService schemaAttributeService;
-
+	@Autowired
+	private WorkflowProcessInstanceService workflowProcessInstanceService;
+	@Autowired
+	protected IcConnectorFacade connectorFacade;
+	@Autowired
+	protected SysSystemService systemService;
+	@Autowired
+	protected SysSystemAttributeMappingService systemAttributeMappingService;
+	@Autowired
+	protected SysSyncConfigService synchronizationConfigService;
+	@Autowired
+	protected SysSyncLogService synchronizationLogService;
+	@Autowired
+	protected SysSyncItemLogService syncItemLogService;
+	@Autowired
+	protected SysSyncActionLogService syncActionLogService;
+	@Autowired
+	protected SysSystemEntityService systemEntityService;
+	@Autowired
+	protected AccAccountService accountService;
+	@Autowired
+	protected GroovyScriptService groovyScriptService;
+	@Autowired
+	private ConfidentialStorage confidentialStorage;
+	@Autowired
+	private FormService formService;
+	@Autowired
+	protected EntityEventManager entityEventManager;
+	@Autowired
+	private EntityManager entityManager;
+	@Autowired
+	protected SysSystemMappingService systemMappingService;
+	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
+	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired(required = false)
 	private CacheManager cacheManager;
-
-	//
-	@Autowired
-	public AbstractSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
-			SysSystemAttributeMappingService attributeHandlingService,
-			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
-			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
-			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
-			FormService formService, SysSyncItemLogService syncItemLogService, EntityEventManager entityEventManager,
-			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager, SysSystemMappingService systemMappingService,
-			SysSchemaObjectClassService schemaObjectClassService, SysSchemaAttributeService schemaAttributeService) {
-		Assert.notNull(connectorFacade);
-		Assert.notNull(systemService);
-		Assert.notNull(attributeHandlingService);
-		Assert.notNull(synchronizationConfigService);
-		Assert.notNull(synchronizationLogService);
-		Assert.notNull(syncActionLogService);
-		Assert.notNull(accountService);
-		Assert.notNull(systemEntityService);
-		Assert.notNull(confidentialStorage);
-		Assert.notNull(formService);
-		Assert.notNull(syncItemLogService);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(groovyScriptService);
-		Assert.notNull(workflowProcessInstanceService);
-		Assert.notNull(entityManager);
-		Assert.notNull(systemMappingService);
-		Assert.notNull(schemaObjectClassService);
-		Assert.notNull(schemaAttributeService);
-		//
-		this.connectorFacade = connectorFacade;
-		this.systemService = systemService;
-		this.systemAttributeMappingService = attributeHandlingService;
-		this.synchronizationConfigService = synchronizationConfigService;
-		this.synchronizationLogService = synchronizationLogService;
-		this.accountService = accountService;
-		this.systemEntityService = systemEntityService;
-		this.confidentialStorage = confidentialStorage;
-		this.formService = formService;
-		this.syncItemLogService = syncItemLogService;
-		this.entityEventManager = entityEventManager;
-		this.groovyScriptService = groovyScriptService;
-		this.workflowProcessInstanceService = workflowProcessInstanceService;
-		this.entityManager = entityManager;
-		this.syncActionLogService = syncActionLogService;
-		this.systemMappingService = systemMappingService;
-		this.schemaObjectClassService = schemaObjectClassService;
-		this.schemaAttributeService = schemaAttributeService;
-	}
+	// Instance of LRT
+	protected AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor;
 
 	/**
 	 * Returns entity type for this synchronization executor
@@ -227,7 +194,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	@Override
-	@Transactional
 	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {
 		// Clear cache
 		this.clearCache();
@@ -488,7 +454,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	protected boolean handleIcObject(SynchronizationContext itemContext) {
 		Assert.notNull(itemContext);
-		
+
 		IcConnectorObject icObject = itemContext.getIcObject();
 		AbstractSysSyncConfigDto config = itemContext.getConfig();
 		SysSyncLogDto log = itemContext.getLog();
@@ -1386,10 +1352,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				Serializable serializableValue = Serializable.class.cast(value);
 				SystemEntityType entityType = context.getEntityType();
 				Assert.notNull(entityType, "Entity type is requierd!");
-				
-				List<? extends BaseDto> entities = formService
-						.findOwners(entityType.getExtendedAttributeOwnerType(), attribute.getIdmPropertyName(), serializableValue, null)
-						.getContent();
+
+				List<? extends BaseDto> entities = formService.findOwners(entityType.getExtendedAttributeOwnerType(),
+						attribute.getIdmPropertyName(), serializableValue, null).getContent();
 				if (CollectionUtils.isEmpty(entities)) {
 					return null;
 				}
@@ -1561,7 +1526,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		});
 		return dto;
 	}
-	
 
 	/**
 	 * Update confidential attribute for given entity. Entity must be persisted
@@ -1681,7 +1645,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 		cache.put(key, value);
 	}
-	
 
 	private Cache getCache() {
 		if (cacheManager == null) {
@@ -1689,7 +1652,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 		return cacheManager.getCache(CACHE_NAME);
 	}
-	
 
 	private AccAccountDto findAccount(SynchronizationContext context) {
 
@@ -2078,8 +2040,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	@Override
-	public void setLongRunningTaskExecutor(
-			AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor) {
+	public void setLongRunningTaskExecutor(AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor) {
 		this.longRunningTaskExecutor = longRunningTaskExecutor;
 	}
 

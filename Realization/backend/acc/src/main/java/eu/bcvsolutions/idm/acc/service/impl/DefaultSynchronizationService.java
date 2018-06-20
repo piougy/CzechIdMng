@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.LocalDateTime;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
@@ -388,7 +389,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			throw new UnsupportedOperationException(MessageFormat
 					.format("Synchronization executor for SystemEntityType {0} is not supported!", entityType));
 		}
-		SynchronizationEntityExecutor prototypeExecutor = AutowireHelper.createBean(executor.getClass());
+		@SuppressWarnings("unchecked")
+		Class<SynchronizationEntityExecutor> targetClass = (Class<SynchronizationEntityExecutor>) AopUtils.getTargetClass(executor);
+		SynchronizationEntityExecutor prototypeExecutor = AutowireHelper.createBean(targetClass);
 		this.setCachedValue(syncConfigId, prototypeExecutor);
 
 		return (SynchronizationEntityExecutor) this.getCachedValue(syncConfigId).get();

@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,33 +42,20 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -80,7 +65,6 @@ import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcLoginAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
-import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
  * Default implementation of tree sync
@@ -96,41 +80,16 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	public final static String PARENT_FIELD = "parent";
 	public final static String CODE_FIELD = "code";
 
-	private final IdmTreeNodeService treeNodeService;
-	private final AccTreeAccountService treeAccountService;
-	private final SysSystemMappingService systemMappingService;
-	private final SysSystemAttributeMappingService attributeHandlingService;
-	private final SysSchemaObjectClassService schemaObjectClassService;
-
 	@Autowired
-	public TreeSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
-			SysSystemAttributeMappingService attributeHandlingService,
-			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
-			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
-			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
-			FormService formService, AccTreeAccountService treeAccountService, SysSyncItemLogService syncItemLogService,
-			EntityEventManager entityEventManager, GroovyScriptService groovyScriptService,
-			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
-			IdmTreeNodeService treeNodeService, SysSystemMappingService systemMappingService,
-			SysSchemaObjectClassService schemaObjectClassService, SysSchemaAttributeService schemaAttributeService) {
-		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
-				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
-				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager, systemMappingService, schemaObjectClassService,
-				schemaAttributeService);
-
-		Assert.notNull(treeNodeService, "Tree node service is mandatory!");
-		Assert.notNull(treeAccountService, "Tree account service is mandatory!");
-		Assert.notNull(systemMappingService);
-		Assert.notNull(attributeHandlingService);
-		Assert.notNull(schemaObjectClassService);
-
-		this.treeNodeService = treeNodeService;
-		this.treeAccountService = treeAccountService;
-		this.systemMappingService = systemMappingService;
-		this.attributeHandlingService = attributeHandlingService;
-		this.schemaObjectClassService = schemaObjectClassService;
-	}
+	private IdmTreeNodeService treeNodeService;
+	@Autowired
+	private AccTreeAccountService treeAccountService;
+	@Autowired
+	private SysSystemMappingService systemMappingService;
+	@Autowired
+	private SysSystemAttributeMappingService attributeHandlingService;
+	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
 
 	@Override
 	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {

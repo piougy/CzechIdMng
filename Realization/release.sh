@@ -78,7 +78,7 @@ function updateVersionReleaseBackend() {
 function updateVersionReleaseFrontend() {
   # update version on all frontend modules
   cd "$FRONTEND_APP_PATH"
-  gulp versionSet --version ${RELEASE_VERSION}
+  gulp versionSet --version ${RELEASE_VERSION,,}
   cd "$ORIGINAL_PATH"
 }
 
@@ -133,7 +133,7 @@ function updateVersionDevelopBackend() {
 function updateVersionDevelopFrontend() {
   # update version on all frontend modules
   cd "$FRONTEND_APP_PATH"
-  gulp versionSet --version ${NEW_DEVELOPMENT_VERSION}
+  gulp versionSet --version ${NEW_DEVELOPMENT_VERSION,,}
   cd "$ORIGINAL_PATH"
 }
 
@@ -173,7 +173,7 @@ function completeRelease() {
 # MAIN CONTEXT
 
 # MENU
-CHOICE=$(whiptail --backtitle "${BACKTITLE}" --title "Menu example" --menu "Choose an option" 25 78 16 \
+CHOICE=$(whiptail --backtitle "${BACKTITLE}" --title "Release menu" --menu "Choose an option" 25 78 16 \
   "1" "Complete release for all modules" \
   "2" "Update version (all)" \
   "3" "Update version (only backend)" \

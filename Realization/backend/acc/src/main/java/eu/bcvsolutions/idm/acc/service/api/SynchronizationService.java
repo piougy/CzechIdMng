@@ -147,7 +147,7 @@ public interface SynchronizationService {
 	 * @return
 	 */
 	SysSyncItemLogDto resolveUnlinkedSituation(String uid, SystemEntityType entityType, UUID entityId, UUID configId,
-			String actionType);
+			String actionType, List<IcAttribute> icAttributes);
 
 	/**
 	 * Public method for resolve missing account situation for one item. This method

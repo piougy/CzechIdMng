@@ -305,7 +305,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	@Override
 	public SysSyncItemLogDto resolveUnlinkedSituation(String uid, SystemEntityType entityType, UUID entityId,
-			UUID configId, String actionType) {
+			UUID configId, String actionType, List<IcAttribute> icAttributes) {
 		Assert.notNull(uid);
 		Assert.notNull(entityType);
 		Assert.notNull(configId);
@@ -320,13 +320,27 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		SysSystemEntityDto systemEntity = findSystemEntity(uid, system, entityType);
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 
+		SysSystemAttributeMappingFilter attributeHandlingFilter = new SysSystemAttributeMappingFilter();
+		attributeHandlingFilter.setSystemMappingId(mapping.getId());
+		List<SysSystemAttributeMappingDto> mappedAttributes = attributeHandlingService
+				.find(attributeHandlingFilter, null).getContent();
+		
+		// Little workaround, we have only IcAttributes ... we create IcObject manually
+				IcConnectorObjectImpl icObject = new IcConnectorObjectImpl();
+				icObject.setAttributes(icAttributes);
+				icObject.setUidValue(uid);
+
 		SynchronizationContext context = new SynchronizationContext();
 		context.addUid(uid) //
 				.addSystem(system) //
 				.addConfig(config) //
 				.addEntityType(entityType) //
 				.addEntityId(entityId) //
-				.addSystemEntity(systemEntity); //
+				.addLogItem(itemLog) //
+				.addSystemEntity(systemEntity) //
+				.addIcObject(icObject) //
+				.addMappedAttributes(mappedAttributes); //
+
 
 		getSyncExecutor(entityType, configId)
 				.resolveUnlinkedSituation(SynchronizationUnlinkedActionType.valueOf(actionType), context);

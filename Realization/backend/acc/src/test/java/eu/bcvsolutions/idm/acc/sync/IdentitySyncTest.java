@@ -801,6 +801,87 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Stop sync - Sync is not running, so exception will be throw
 		synchronizationService.stopSynchronization(config);
 	}
+	
+	@Test
+	public void testSyncWithWfSituationMissingEntity() {
+		
+		final String wfExampleKey =  "syncActionExampl";
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setLinkedActionWfKey(wfExampleKey);
+		config.setMissingAccountActionWfKey(wfExampleKey);
+		config.setMissingEntityActionWfKey(wfExampleKey);
+		config.setUnlinkedActionWfKey(wfExampleKey);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+
+		// Start sync
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.MISSING_ENTITY, 1,
+				OperationResultType.WF);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		IdmIdentityDto identity = identities.get(0);
+		List<IdmFormValueDto> emailValues = formService.getValues(identity, ATTRIBUTE_EMAIL_TWO);
+		Assert.assertEquals(1, emailValues.size());
+		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
+		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void testSyncWithWfSituationUnlinkEntity() {
+		
+		final String wfExampleKey =  "syncActionExampl";
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setLinkedActionWfKey(wfExampleKey);
+		config.setMissingAccountActionWfKey(wfExampleKey);
+		config.setMissingEntityActionWfKey(wfExampleKey);
+		config.setUnlinkedActionWfKey(wfExampleKey);
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+		getHelper().createIdentity(IDENTITY_ONE);
+
+		// Start sync
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.UNLINKED, 1,
+				OperationResultType.WF);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		IdmIdentityDto identity = identities.get(0);
+		List<IdmFormValueDto> emailValues = formService.getValues(identity, ATTRIBUTE_EMAIL_TWO);
+		Assert.assertEquals(1, emailValues.size());
+		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
+		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+
+		// Delete log
+		syncLogService.delete(log);
+	}
+
 
 	private Task createSyncTask(UUID syncConfId) {
 		Task task = new Task();

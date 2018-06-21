@@ -437,7 +437,7 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
+	@RequestMapping(value = "/{backendId}/form-values", method = { RequestMethod.POST, RequestMethod.PATCH } )
 	@ApiOperation(
 			value = "Role form definition - save values", 
 			nickname = "postRoleFormValues", 

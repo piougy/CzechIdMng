@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [8.2.0]
+
+- [#1125](https://redmine.czechidm.com/issues/1125) - Identity extended attributes supports authorization policies, read [more](https://wiki.czechidm.com/devel/documentation/security/dev/authorization#secure_identity_form_extended_attribute_values).
+- ``Configurable`` interface contains form definition now. ``Configurable`` instances can be configured by eav form on frontend (the richer ui). **Methods ``getFormDefinition`` and ``getFormAttributes`` were moved to ``Configurable`` interface from ``AbstractReportExecutor`` super class. Make sure you are using ``public`` modifier on this methods in your reports**.
+
+
 ## [8.1.2]
 
 - [#1137](https://redmine.czechidm.com/issues/1137) - Sync of slices does not use contract EAV definition

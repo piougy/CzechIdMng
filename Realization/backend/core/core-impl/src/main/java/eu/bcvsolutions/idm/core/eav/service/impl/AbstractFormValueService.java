@@ -11,12 +11,13 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.Lists;
-
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -77,8 +78,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		// secured internally by value owner
-		return null;
+		return null; // each implementation should be secured itself
 	}
 	
 	@Override
@@ -127,11 +127,6 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		return toDto(formValue);
 	}
 	
-	@Override
-	public IdmFormValueDto save(IdmFormValueDto entity) {
-		return this.save(entity, (BasePermission) null);
-	}
-	
 	/**
 	 * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the
 	 * entity instance completely.
@@ -171,6 +166,19 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	}
 	
 	@Override
+	@Transactional
+	public void deleteInternal(IdmFormValueDto dto) {
+		Assert.notNull(dto);
+		//
+		LOG.debug("FormValue [{}] will be removed", dto.getId());
+		if (dto.isConfidential()) {
+			LOG.debug("FormValue [{}] will be removed from confidential storage", dto.getId());
+			confidentialStorage.delete(dto.getId(), toEntity(dto).getClass(), getConfidentialStorageKey(dto.getFormAttribute()));
+		}
+		super.deleteInternal(dto);
+	}
+	
+	@Override
 	protected List<Predicate> toPredicates(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			IdmFormValueFilter<O> filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
@@ -184,7 +192,8 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		}
 		//
 		if (filter.getOwner() != null) {
-			predicates.add(builder.equal(root.get("owner"), filter.getOwner()));
+			// by id - owner doesn't need to be persisted
+			predicates.add(builder.equal(root.get(FormValueService.PROPERTY_OWNER).get(BaseEntity.PROPERTY_ID), filter.getOwner().getId()));
 		}
 		//
 		return predicates;
@@ -192,63 +201,51 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmFormValueDto> getValues(O owner, IdmFormDefinitionDto formDefiniton) {
+	public List<IdmFormValueDto> getValues(O owner, IdmFormDefinitionDto formDefiniton, BasePermission... permission) {
 		Assert.notNull(owner);
 		Assert.notNull(owner.getId());
 		//
-		if (formDefiniton == null) {
-			return toDtos(Lists.newArrayList(getRepository().findByOwner_Id(owner.getId())), false);
+		IdmFormValueFilter<O> filter = new IdmFormValueFilter<>();
+		filter.setOwner(owner);
+		if (formDefiniton != null) {
+			filter.setDefinitionId(formDefiniton.getId());
 		}
-		return toDtos(getRepository().findByOwner_IdAndFormAttribute_FormDefinition_IdOrderBySeqAsc(owner.getId(), formDefiniton.getId()), false);
+		return find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(AbstractFormValue_.seq.getName())), permission).getContent();
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmFormValueDto> getValues(O owner, IdmFormAttributeDto attribute) {
+	public List<IdmFormValueDto> getValues(O owner, IdmFormAttributeDto attribute, BasePermission... permission) {
 		Assert.notNull(owner);
 		Assert.notNull(owner.getId());
 		Assert.notNull(attribute, "Form attribute definition is required!");
 		//
-		return toDtos(getRepository().findByOwner_IdAndFormAttribute_IdOrderBySeqAsc(owner.getId(), attribute.getId()), false);
+		IdmFormValueFilter<O> filter = new IdmFormValueFilter<>();
+		filter.setOwner(owner);
+		filter.setAttributeId(attribute.getId());
+		//
+		return find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(AbstractFormValue_.seq.getName())), permission).getContent();
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmFormValueDto> find(IdmFormValueFilter<O> filter, Pageable pageable) {
-		return super.find(filter, pageable, (BasePermission) null);
-	}
-	
-	@Override
-	public void delete(IdmFormValueDto value) {
-		this.delete(value, (BasePermission) null);
-	}
-	
-	@Override
-	@Transactional
-	public void deleteInternal(IdmFormValueDto dto) {
-		Assert.notNull(dto);
-		//
-		LOG.debug("FormValue [{}] will be removed", dto.getId());
-		if (dto.isConfidential()) {
-			LOG.debug("FormValue [{}] will be removed from confidential storage", dto.getId());
-			confidentialStorage.delete(dto.getId(), dto.getClass(), getConfidentialStorageKey(dto.getFormAttribute()));
-		}
-		super.deleteInternal(dto);
+	public Page<IdmFormValueDto> find(IdmFormValueFilter<O> filter, Pageable pageable, BasePermission... permission) {
+		return super.find(filter, pageable, permission);
 	}
 	
 	@Transactional
-	public void deleteValues(O owner, IdmFormDefinitionDto formDefiniton) {
+	public void deleteValues(O owner, IdmFormDefinitionDto formDefiniton, BasePermission... permission) {
 		getValues(owner, formDefiniton).forEach(formValue -> {
-			delete(formValue);
+			delete(formValue, permission);
 		});
 	}
 	
 	@Transactional
-	public void deleteValues(O owner, IdmFormAttributeDto attribute) {
+	public void deleteValues(O owner, IdmFormAttributeDto attribute, BasePermission... permission) {
 		Assert.notNull(attribute, "Form attribute definition is required!");
 		//
 		getValues(owner, attribute).forEach(formValue -> {
-			delete(formValue);
+			delete(formValue, permission);
 		});
 	}
 	

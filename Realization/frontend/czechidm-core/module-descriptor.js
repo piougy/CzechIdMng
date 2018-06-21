@@ -40,7 +40,7 @@ module.exports = {
             'order': 11,
             'priority': 0,
             'path': '/identity/:entityId/eav',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+            'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['IDENTITY_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
           },
           {
             'id': 'profile-password',
@@ -95,7 +95,7 @@ module.exports = {
                 'labelKey': 'content.identity-contract.eav.label',
                 'order': 20,
                 'path': '/identity/:identityId/identity-contract/:entityId/eav',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
+                'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['IDENTITYCONTRACT_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ],
               },
               {
                 'id': 'identity-contract-guarantees',
@@ -128,7 +128,7 @@ module.exports = {
                     'labelKey': 'content.contract-slice.eav.label',
                     'order': 20,
                     'path': '/identity/:identityId/contract-slice/:entityId/eav',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ],
+                    'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['CONTRACTSLICE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
                   },
                   {
                     'id': 'contract-slice-guarantees',
@@ -286,6 +286,7 @@ module.exports = {
                 'order': 110,
                 'priority': 0,
                 'path': '/role/:entityId/eav',
+                'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
               },
               {
                 'id': 'role-authorization-policies',
@@ -837,7 +838,7 @@ module.exports = {
                     'labelKey': 'content.tree.node.eav.title',
                     'order': 20,
                     'path': '/tree/nodes/:entityId/eav',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
                   },
                   {
                     'id': 'tree-node-roles',

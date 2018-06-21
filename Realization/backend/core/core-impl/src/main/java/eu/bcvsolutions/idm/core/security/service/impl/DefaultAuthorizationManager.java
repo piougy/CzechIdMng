@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -35,6 +34,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
  * Provides authorization evaluators to target read / write services.
@@ -51,7 +51,6 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	private final ModuleService moduleService;
 	// cache
 	private final Map<String, AuthorizationEvaluator<?>> evaluators = new HashMap<>();
-	private Set<AuthorizableType> authorizableTypes = null;
 	
 	public DefaultAuthorizationManager(
 			ApplicationContext context,
@@ -87,7 +86,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			} else {
 				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
 				if (evaluator != null && evaluator.supports(root.getJavaType())) {
-					Predicate predicate = evaluator.getPredicate(root, query, builder, policy, permission);
+					Predicate predicate = evaluator.getPredicate(root, query, builder, policy, PermissionUtils.trimNull(permission));
 					if (predicate != null) {
 						predicates.add(predicate);
 					}
@@ -188,7 +187,9 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			return true;
 		}
 		//
-		for (IdmAuthorizationPolicyDto policy : service.getEnabledPolicies(securityService.getCurrentId(), entity.getClass())) {
+		List<IdmAuthorizationPolicyDto> enabledPolicies = service.getEnabledPolicies(securityService.getCurrentId(), entity.getClass());
+		LOG.debug("Found [{}] enabled authorization policies for authorizable type [{}]", enabledPolicies.size(), entity.getClass());
+		for (IdmAuthorizationPolicyDto policy : enabledPolicies) {
 			if (!supportsEntityType(policy, entity.getClass())) {
 				// TODO: compatibility issues - agendas without authorization support
 				continue;
@@ -236,22 +237,23 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		for(Entry<String, AuthorizationEvaluator> entry : context.getBeansOfType(AuthorizationEvaluator.class).entrySet()) {
 			AuthorizationEvaluator<?> evaluator = entry.getValue();
 			AuthorizationEvaluatorDto evaluatorDto = new AuthorizationEvaluatorDto();
+			evaluatorDto.setId(entry.getKey());
+			evaluatorDto.setName(evaluator.getName());
 			evaluatorDto.setEntityType(evaluator.getEntityClass().getCanonicalName());
 			evaluatorDto.setEvaluatorType(evaluator.getClass().getCanonicalName());
 			evaluatorDto.setModule(evaluator.getModule());
-			evaluatorDto.setParameters(evaluator.getParameterNames());
+			evaluatorDto.setParameters(evaluator.getPropertyNames());
 			evaluatorDto.setSupportsPermissions(evaluator.supportsPermissions());
-			// resolve documentation
-			evaluatorDto.setDescription(AutowireHelper.getBeanDescription(entry.getKey()));
+			evaluatorDto.setDescription(evaluator.getDescription());
+			evaluatorDto.setFormDefinition(evaluator.getFormDefinition());
 			evaluators.add(evaluatorDto);
 		}
 		return evaluators;
 	}
 	
 	/**
-	 * Returns true, when given policy supports given entityType.
-	 * 
-	 * TODO: remove after all agendas will be rewritten to authorization policy support (authorizableType could be empty now).
+	 * Returns true, when given policy supports given entityType. 
+	 * AuthorizableType could be empty - we want to use predicates, but we don't want to support authorization policies.
 	 * 
 	 * @param policy
 	 * @param entityType
@@ -284,27 +286,30 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Services authorization policies support can be enabled / disabled dynamically
+	 */
 	@Override
 	public Set<AuthorizableType> getAuthorizableTypes() {
-		//if (authorizableTypes == null) {
-			authorizableTypes = new HashSet<>();
-			// types with authorization evaluators support
-			context.getBeansOfType(AuthorizableService.class).values().forEach(service -> {
-				if (service.getAuthorizableType() != null) {
-					authorizableTypes.add(service.getAuthorizableType());
-				}
+		Set<AuthorizableType> authorizableTypes = new HashSet<>();
+		// types with authorization evaluators support
+		context.getBeansOfType(AuthorizableService.class).values().forEach(service -> {
+			if (service.getAuthorizableType() != null) {
+				authorizableTypes.add(service.getAuthorizableType());
+			}
+		});
+		// add default - doesn't supports authorization evaluators
+		moduleService.getAvailablePermissions().forEach(groupPermission -> {
+			boolean exists = authorizableTypes.stream().anyMatch(authorizableType -> {
+				// equals by group permission name only - name is identifier, base permission can be added in custom module
+				return authorizableType.getGroup().getName().equals(groupPermission.getName());
 			});
-			// add default - doesn't supports authorization evaluators
-			moduleService.getAvailablePermissions().forEach(groupPermission -> {
-				boolean exists = authorizableTypes.stream().anyMatch(authorizableType -> {
-					// equals by group permission name only - name is identifier, base permission can be added in custom module
-					return authorizableType.getGroup().getName().equals(groupPermission.getName());
-				});
-				if (!exists) {
-					authorizableTypes.add(new AuthorizableType(groupPermission, null));
-				}
-			});
-		// }
+			if (!exists) {
+				authorizableTypes.add(new AuthorizableType(groupPermission, null));
+			}
+		});
 		return authorizableTypes;
 	}
 }

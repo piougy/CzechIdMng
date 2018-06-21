@@ -100,6 +100,11 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 	}
 	
 	@Override
+	public Set<String> getPermissions(DTO dto) {
+		return null;
+	}
+	
+	@Override
 	public Class<? extends BaseEntity> getEntityClass() {
 		return null;
 	}

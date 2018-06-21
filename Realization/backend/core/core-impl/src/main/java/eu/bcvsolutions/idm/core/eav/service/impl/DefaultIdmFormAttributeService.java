@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -163,8 +164,10 @@ public class DefaultIdmFormAttributeService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormAttributeDto findAttribute(String definitionType, String definitionCode, String attributeName) {
-		return toDto(repository.findOneByFormDefinition_typeAndFormDefinition_codeAndCode(definitionType, definitionCode, attributeName));
+	public IdmFormAttributeDto findAttribute(String definitionType, String definitionCode, String attributeName, BasePermission... permission) {
+		IdmFormAttribute attribute = repository.findOneByFormDefinition_typeAndFormDefinition_codeAndCode(definitionType, definitionCode, attributeName);
+		//
+		return toDto(checkAccess(attribute, permission));
 	}
 
 }

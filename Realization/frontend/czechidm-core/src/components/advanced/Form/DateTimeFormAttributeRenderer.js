@@ -20,6 +20,9 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
    */
   fillFormValue(formValue, rawValue) {
     formValue.dateValue = rawValue;
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.dateValue;
+    //
     return formValue;
   }
 

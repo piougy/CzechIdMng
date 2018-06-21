@@ -228,6 +228,15 @@ module.exports = {
       'manager': require('./src/redux').RoleManager
     },
     {
+      'id': 'form-definition-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'FORM-DEFINITION-SELECT',
+      'component': require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.FORM-DEFINITION-SELECT',
+      'manager': require('./src/redux').FormDefinitionManager
+    },
+    {
       'id': 'boolean-select-form-value',
       'type': 'form-attribute-renderer',
       'persistentType': 'BOOLEAN',

@@ -30,6 +30,9 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
     } else {
       formValue.booleanValue = rawValue;
     }
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.booleanValue;
+    //
     return formValue;
   }
 

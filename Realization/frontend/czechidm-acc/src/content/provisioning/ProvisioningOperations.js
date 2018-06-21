@@ -1,10 +1,9 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 import moment from 'moment';
 //
-import { Basic, Advanced, Managers } from 'czechidm-core';
+import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
 import ProvisioningOperationTableComponent, { ProvisioningOperationTable } from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
@@ -114,12 +113,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
    * @return {string}
    */
   _toPropertyValue(objectValue) {
-    if (_.isArray(objectValue)) {
-      return objectValue.join(', ');
-    } else if (_.isObject(objectValue)) {
-      return JSON.stringify(objectValue);
-    }
-    return objectValue + '';
+    return Utils.Ui.toStringValue(objectValue);
   }
 
   render() {

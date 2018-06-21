@@ -33,7 +33,7 @@ public interface IdmFormDefinitionService extends
 	 * Returns form definition by given type and code (unique).
 	 * 
 	 * @param type required
-	 * @param code [optional] if code is {@code null}, then main definition for given type is used.
+	 * @param code [optional] if code is {@code null}, then "default" code for given type is used.
 	 * @return
 	 */
 	IdmFormDefinitionDto findOneByTypeAndCode(String type, String code);

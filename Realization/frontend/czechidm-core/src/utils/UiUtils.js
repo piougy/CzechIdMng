@@ -155,7 +155,6 @@ export default class UiUtils {
     }
   }
 
-
   /**
    * Return simple class name
    *
@@ -283,6 +282,7 @@ export default class UiUtils {
 
   /**
    * Parse given text and search localization parameter. This paramaters are wrapped in {{value}}.
+   *
    * @param  {String} text
    * @return {Ordered array, withs parsed values}
    */
@@ -313,8 +313,9 @@ export default class UiUtils {
   /**
    * Spinal case string transformation
    *
-   * @param  {[type]} text [description]
-   * @return {[type]}      [description]
+   * @param  {string} text
+   * @return {string}
+   * @since 8.1.2
    */
   static spinalCase(text) {
     if (!text) {
@@ -326,12 +327,33 @@ export default class UiUtils {
 
   /**
    * Escapes all occurencesof double quotes
+   *
+   * @param  {string} text
+   * @return {string}
+   * @since 8.1.2
    */
   static escapeDoubleQuotes(text) {
     if (!text) {
       return null;
     }
     return text.split('"').join('\\"');
+  }
+
+
+  /**
+   * Transforma object value into string - can be rendered
+   *
+   * @param  {object} objectValue
+   * @return {string}
+   * @since 8.2.0
+   */
+  static toStringValue(objectValue) {
+    if (_.isArray(objectValue)) {
+      return objectValue.join(', ');
+    } else if (_.isObject(objectValue)) {
+      return JSON.stringify(objectValue);
+    }
+    return objectValue + '';
   }
 }
 

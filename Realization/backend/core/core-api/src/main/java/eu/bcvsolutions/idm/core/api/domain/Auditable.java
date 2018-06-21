@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import org.joda.time.DateTime;
 
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+
 /**
  * Base audit information
  * 
@@ -11,6 +13,7 @@ import org.joda.time.DateTime;
  */
 public interface Auditable {
 	
+	String PROPERTY_ID = BaseEntity.PROPERTY_ID;
 	String PROPERTY_CREATED = "created";
 	String PROPERTY_CREATOR = "creator";
 	String PROPERTY_CREATOR_ID = "creatorId";

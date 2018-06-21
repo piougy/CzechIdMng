@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
 
 /**
- * Permissions to contracts by identity
+ * Permissions to form attribute by form definition
  * 
  * @author Radek Tomiška
  *

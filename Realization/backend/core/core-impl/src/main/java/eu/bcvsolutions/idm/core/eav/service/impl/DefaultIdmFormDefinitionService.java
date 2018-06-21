@@ -12,7 +12,6 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -103,15 +102,17 @@ public class DefaultIdmFormDefinitionService
 		if (dto != null) {
 			if (!dto.isTrimmed()) {
 				// set mapped attributes
+				// TODO: this is dangerous ... permission are not propagated lower - AUTOCOMPLETE permission on attributes by default?
 				IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
 				filter.setDefinitionId(dto.getId());
 				dto.setFormAttributes(
 						formAttributeService
-						.find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
+						.find(filter, getPageableAll(new Sort(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
 						.getContent());
 			}
 			// set module
 			try {
+				// TODO: #1140
 				dto.setModule(EntityUtils.getModule(Class.forName(dto.getType())));
 			} catch (ClassNotFoundException e) {
 				LOG.warn("Owner type: {}, wasn't found. Form definition module will be empty", dto.getType(), e);

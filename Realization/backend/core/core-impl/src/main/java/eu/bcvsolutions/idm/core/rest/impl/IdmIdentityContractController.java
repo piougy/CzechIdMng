@@ -333,7 +333,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
+	@RequestMapping(value = "/{backendId}/form-values", method = { RequestMethod.POST, RequestMethod.PATCH })
 	@ApiOperation(
 			value = "Identity contract form definition - save values", 
 			nickname = "postIdentityContractFormValues", 

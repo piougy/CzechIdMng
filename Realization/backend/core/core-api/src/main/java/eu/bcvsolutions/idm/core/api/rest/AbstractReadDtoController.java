@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 //import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
@@ -246,7 +247,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * 
 	 * @param filter
 	 * @param pageable
-	 * @param permission
+	 * @param permission base permissions to evaluate (AND)
 	 * @return
 	 */
 	public Page<DTO> find(F filter, Pageable pageable, BasePermission permission) {
@@ -362,6 +363,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @param dto
 	 * @param permission
 	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	protected DTO checkAccess(DTO dto, BasePermission... permission) {
 		return getService().checkAccess(dto, permission);

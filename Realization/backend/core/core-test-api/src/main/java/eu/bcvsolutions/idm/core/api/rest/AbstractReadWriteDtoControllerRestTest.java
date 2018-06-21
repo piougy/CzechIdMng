@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.core.Relation;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
@@ -45,9 +47,15 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
+import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -60,6 +68,8 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * - find by codeable (if dto supports {@link Codeable})
  * - find by id (if service supports {@link DataFilter})
  * - permissions
+ * - get form definitions
+ * - save form values
  * 
  * Make sure controller support all methods. Add methods implementation instead skipping tests.
  * Controller's service should support {@link DataFilter} - methods which requires it are skipped internally (see log), but
@@ -74,6 +84,9 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends AbstractDto> extends AbstractRestTest {	
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadWriteDtoControllerRestTest.class);
+	//
+	@Autowired private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
+	@Autowired private FormService formService;
 	
 	@Before
 	public void setup() throws Exception {
@@ -161,14 +174,14 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		//
 		String response = getMockMvc().perform(post(getBaseUrl())
         		.with(authentication(getAdminAuthentication()))
-        		.content(getController().getMapper().writeValueAsString(dto))
+        		.content(getMapper().writeValueAsString(dto))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isCreated())
                 .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-		DTO createdDto = (DTO) getController().getMapper().readValue(response, dto.getClass());
+		DTO createdDto = (DTO) getMapper().readValue(response, dto.getClass());
 		Assert.assertNotNull(createdDto);
 		Assert.assertNotNull(createdDto.getId());
 		//
@@ -187,7 +200,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		//
 		getMockMvc().perform(put(getDetailUrl(dto.getId()))
         		.with(authentication(getAdminAuthentication()))
-        		.content(getController().getMapper().writeValueAsString(dto))
+        		.content(getMapper().writeValueAsString(dto))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isOk())
                 .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE));
@@ -210,7 +223,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		//
 		getMockMvc().perform(patch(getDetailUrl(dto.getId()))
         		.with(authentication(getAdminAuthentication()))
-        		.content(getController().getMapper().writeValueAsString(dto))
+        		.content(getMapper().writeValueAsString(dto))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isOk())
                 .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE));
@@ -311,7 +324,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		//
 		getMockMvc().perform(post(getBaseUrl())
         		.with(authentication(getAdminAuthentication()))
-        		.content(getController().getMapper().writeValueAsString(dto))
+        		.content(getMapper().writeValueAsString(dto))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isConflict());
 	}
@@ -376,7 +389,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		//
 		getMockMvc().perform(post(getBaseUrl())
         		.with(authentication(getAdminAuthentication()))
-        		.content(getController().getMapper().writeValueAsString(dto))
+        		.content(getMapper().writeValueAsString(dto))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isConflict());
 	}
@@ -514,7 +527,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	                .getContentAsString();
 			//
 			// convert embedded object to list of strings
-			permissions = getController().getMapper().readValue(response, new TypeReference<List<String>>(){});
+			permissions = getMapper().readValue(response, new TypeReference<List<String>>(){});
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed to find entities", ex);
 		}
@@ -522,6 +535,44 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		Assert.assertNotNull(permissions);
 		Assert.assertFalse(permissions.isEmpty());
 		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.ADMIN.getName())));
+	}
+	
+	@Test
+	public void testSaveFormDefinition() throws Exception {
+		if(!formService.isFormable(getController().getDtoClass())) {
+			LOG.info("Controller [{}] doesn't support extended attributes. Method will not be tested.", getController().getClass());
+			return;
+		}
+		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(getHelper().createName());
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(getController().getDtoClass(), getHelper().createName(), Lists.newArrayList(formAttribute));
+		formAttribute = formDefinition.getFormAttributes().get(0);
+		//
+		DTO owner = createDto();
+		//
+		// form definition is available
+		List<IdmFormDefinitionDto> formDefinitions = getFormDefinitions(owner.getId(), TestHelper.ADMIN_USERNAME);
+		Assert.assertTrue(formDefinitions.stream().anyMatch(d -> d.getId().equals(formDefinition.getId())));
+		//
+		// test get values - empty
+		IdmFormInstanceDto formInstance = getFormInstance(owner.getId(), TestHelper.ADMIN_USERNAME, formDefinition.getCode());
+		Assert.assertEquals(owner.getId().toString(), formInstance.getOwnerId());
+		Assert.assertEquals(formDefinition.getId().toString(), formInstance.getFormDefinition().getId().toString());
+		Assert.assertEquals(formDefinition.getFormAttributes().get(0).getId().toString(), formInstance.getFormDefinition().getFormAttributes().get(0).getId().toString());
+		Assert.assertTrue(formInstance.getValues().isEmpty());
+		//
+		// save values
+		IdmFormValueDto formValue = new IdmFormValueDto(formAttribute);
+		formValue.setValue(getHelper().createName());
+		List<IdmFormValueDto> formValues = Lists.newArrayList(formValue);
+		saveFormValues(owner.getId(), TestHelper.ADMIN_USERNAME, formDefinition.getCode(), formValues);
+		
+		// get saved values
+		formInstance = getFormInstance(owner.getId(), TestHelper.ADMIN_USERNAME, formDefinition.getCode());
+		Assert.assertEquals(owner.getId().toString(), formInstance.getOwnerId());
+		Assert.assertEquals(formDefinition.getId().toString(), formInstance.getFormDefinition().getId().toString());
+		Assert.assertEquals(formDefinition.getFormAttributes().get(0).getId().toString(), formInstance.getFormDefinition().getFormAttributes().get(0).getId().toString());
+		Assert.assertEquals(1, formInstance.getValues().size());
+		Assert.assertEquals(formValue.getShortTextValue(), formInstance.getValues().get(0).getShortTextValue());
 	}
 	
 	/**
@@ -535,15 +586,36 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	}
 	
 	/**
+	 * Returns json object mapper.
+	 * Mapper is asociated by configured controller, but can be used for common json mapping.
+	 * 
+	 * @return
+	 */
+	protected ObjectMapper getMapper() {
+		return getController().getMapper();
+	}
+	
+	/**
 	 * Login as admin
 	 * 
 	 * @return
 	 */
 	protected Authentication getAdminAuthentication() {
+		return getAuthentication(TestHelper.ADMIN_USERNAME);
+	}
+	
+	/**
+	 * Login identity
+	 * 
+	 * TODO: move to test helper
+	 * 
+	 * @return
+	 */
+	protected Authentication getAuthentication(String username) {
 		return new IdmJwtAuthentication(
-				getHelper().getService(IdmIdentityService.class).getByUsername(TestHelper.ADMIN_USERNAME), 
+				getHelper().getService(IdmIdentityService.class).getByUsername(username), 
 				null, 
-				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), 
+				grantedAuthoritiesFactory.getGrantedAuthorities(username), 
 				"test");
 	}
 	
@@ -628,6 +700,14 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		return String.format("%s/bulk/action", getBaseUrl());
 	}
 	
+	protected String getFormDefinitionsUrl(Serializable backendId) {
+		return String.format("%s/%s/form-definitions", getBaseUrl(), backendId);
+	}
+	
+	protected String getFormValuesUrl(Serializable backendId) {
+		return String.format("%s/%s/form-values", getBaseUrl(), backendId);
+	}
+	
 	/**
 	 * Converts path (relative url) and filter parameters to string
 	 * 
@@ -672,13 +752,29 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 * @return
 	 */
 	protected String getResourcesName() {
-		Relation mapping = getController().getDtoClass().getAnnotation(Relation.class);
+		return this.getResourcesName(getController().getDtoClass());
+	}
+	
+	/**
+	 * Returns dto's resource name defined by {@link Relation} annotation.
+	 * 
+	 * @param dtoClass
+	 * @return
+	 */
+	protected String getResourcesName(Class<? extends AbstractDto> dtoClass) {
+		Relation mapping = dtoClass.getAnnotation(Relation.class);
 		if (mapping == null) {
-			throw new CoreException("Dto class [" + getController().getDtoClass() + "] not have @Relation annotation! Configure dto annotation properly.");
+			throw new CoreException("Dto class [" + dtoClass + "] not have @Relation annotation! Configure dto annotation properly.");
 		}
 		return mapping.collectionRelation();
 	}
 	
+	/**
+	 * Find dtos
+	 * 
+	 * @param parameters
+	 * @return
+	 */
 	protected List<DTO> find(MultiValueMap<String, String> parameters) {
 		try {
 			String response = getMockMvc().perform(get(getBaseUrl())
@@ -697,6 +793,12 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		}
 	}
 	
+	/**
+	 * Autocomplete dtos
+	 * 
+	 * @param parameters
+	 * @return
+	 */
 	protected List<DTO> autocomplete(MultiValueMap<String, String> parameters) {
 		try {
 			String response = getMockMvc().perform(get(getAutocompleteUrl())
@@ -715,6 +817,12 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		}
 	}
 	
+	/**
+	 * Count records
+	 * 
+	 * @param parameters
+	 * @return
+	 */
 	protected long count(MultiValueMap<String, String> parameters) {
 		try {
 			String response = getMockMvc().perform(get(getCountUrl())
@@ -732,16 +840,22 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		}
 	}
 	
+	/**
+	 * Transform response with embedded dto list to dtos
+	 * 
+	 * @param listResponse
+	 * @return
+	 */
 	protected List<DTO> toDtos(String listResponse) {
 		try {
-			JsonNode json = getController().getMapper().readTree(listResponse);
+			JsonNode json = getMapper().readTree(listResponse);
 			JsonNode jsonEmbedded = json.get("_embedded"); // by convention
 			JsonNode jsonResources = jsonEmbedded.get(getResourcesName());
 			//
 			// convert embedded object to target DTO classes
 			List<DTO> results = new ArrayList<>();
 			jsonResources.forEach(jsonResource -> {
-				results.add(getController().getMapper().convertValue(jsonResource, getController().getDtoClass()));
+				results.add(getMapper().convertValue(jsonResource, getController().getDtoClass()));
 			});
 			//
 			return results;
@@ -750,11 +864,17 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		}
 	}
 	
+	/**
+	 * Transform response into single dto
+	 * 
+	 * @param response
+	 * @return
+	 */
 	protected DTO toDto(String response) {
 		try {
-			JsonNode json = getController().getMapper().readTree(response);
+			JsonNode json = getMapper().readTree(response);
 			//
-			return getController().getMapper().convertValue(json, getController().getDtoClass());
+			return getMapper().convertValue(json, getController().getDtoClass());
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed parse entity from response", ex);
 		}
@@ -775,7 +895,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	                .getResponse()
 	                .getContentAsString();
 			//
-			return getController().getMapper().readValue(response, new TypeReference<List<IdmBulkActionDto>>(){});
+			return getMapper().readValue(response, new TypeReference<List<IdmBulkActionDto>>(){});
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed to get available bulk actions", ex);
 		}
@@ -791,17 +911,114 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		try {
 			String response = getMockMvc().perform(post(getBulkActionUrl())
 	        		.with(authentication(getAdminAuthentication()))
-	        		.content(getController().getMapper().writeValueAsString(action))
+	        		.content(getMapper().writeValueAsString(action))
 	                .contentType(TestHelper.HAL_CONTENT_TYPE))
 					.andExpect(status().isCreated())
 	                .andReturn()
 	                .getResponse()
 	                .getContentAsString();
 			//
-			return getController().getMapper().readValue(response, IdmBulkActionDto.class);
+			return getMapper().readValue(response, IdmBulkActionDto.class);
 			// TODO: look out - READ_ONLY fields are not mapped
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed to execute bulk action [" + action.getName() + "]", ex);
 		}
+	}
+	
+	/**
+	 * Transform response with embedded dto list to dtos
+	 * 
+	 * @param response
+	 * @return
+	 */
+	protected List<IdmFormDefinitionDto> toFormDefinitions(String response) {
+		try {
+			JsonNode json = getMapper().readTree(response);
+			JsonNode jsonEmbedded = json.get("_embedded"); // by convention
+			JsonNode jsonResources = jsonEmbedded.get(getResourcesName(IdmFormDefinitionDto.class));
+			//
+			// convert embedded object to target DTO classes
+			List<IdmFormDefinitionDto> results = new ArrayList<>();
+			jsonResources.forEach(jsonResource -> {
+				results.add(getMapper().convertValue(jsonResource, IdmFormDefinitionDto.class));
+			});
+			//
+			return results;
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to read form definitioons from response [" + response + "]", ex);
+		}
+	}
+	
+	/**
+	 * Transform response with embedded dto list to dtos
+	 * 
+	 * @param response
+	 * @return
+	 */
+	protected IdmFormInstanceDto toFormInstance(String response) {
+		try {
+			return getMapper().readValue(response, IdmFormInstanceDto.class);
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to read form instance from response [" + response + "]", ex);
+		}
+	}
+	
+	/**
+	 * Get available form definitions for given owner under logged loginAs identity.
+	 * 
+	 * @param forOwner
+	 * @param loginAs
+	 * @return
+	 * @throws Exception
+	 */
+	protected List<IdmFormDefinitionDto> getFormDefinitions(UUID forOwner, String loginAs) throws Exception {
+		String response = getMockMvc().perform(get(getFormDefinitionsUrl(forOwner))
+        		.with(authentication(getAuthentication(loginAs)))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		return toFormDefinitions(response);
+	}
+	
+	/**
+	 * Save form values
+	 * 
+	 * @param forOwner
+	 * @param loginAs
+	 * @param definitionCode
+	 * @param formValues
+	 * @throws Exception
+	 */
+	protected void saveFormValues(UUID forOwner, String loginAs, String definitionCode, List<IdmFormValueDto> formValues) throws Exception {
+		getMockMvc().perform(patch(getFormValuesUrl(forOwner))
+        		.with(authentication(getAuthentication(loginAs)))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, definitionCode)
+        		.content(getMapper().writeValueAsString(formValues))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isOk());
+	}
+	
+	/**
+	 * Get form values
+	 * 
+	 * @param forOwner
+	 * @param loginAs
+	 * @param definitionCode
+	 * @return
+	 * @throws Exception
+	 */
+	protected IdmFormInstanceDto getFormInstance(UUID forOwner, String loginAs, String definitionCode) throws Exception {
+		String response = getMockMvc().perform(get(getFormValuesUrl(forOwner))
+        		.with(authentication(getAuthentication(loginAs)))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, definitionCode)
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		return toFormInstance(response);
 	}
 }

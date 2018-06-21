@@ -422,10 +422,11 @@
           "RICHTEXTAREA": "WYSIWYG editor",
           "IDENTITY-SELECT": "Select identity (SelectBox)",
           "ROLE-SELECT": "Select role (SelectBox)",
+          "FORM-DEFINITION-SELECT": "Select form definition (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)"
         },
         "attributes": {
-          "empty": "Form definition was found, but doesn't contain attributes."
+          "empty": "Form definition was found, but doesn't contain editable attributes."
         }
       },
       "Recaptcha": {
@@ -751,8 +752,9 @@
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
       "SCRIPT": "Scripts",
-      "FORMATTRIBUTE": "Forms - attributes",
       "FORMDEFINITION": "Forms - definitions",
+      "FORMATTRIBUTE": "Forms - attributes",
+      "FORMVALUE": "Forms - values",
       "NOTIFICATIONCONFIGURATION": "Notifications - configuration",
       "NOTIFICATIONTEMPLATE": "Notifications - templates",
       "PASSWORDPOLICY": "Password policy",
@@ -3668,6 +3670,35 @@
           "onlynotify": {
             "label": "Throw only NOTIFY event",
             "help": "After selecting, the user's classic save will not be invoked, but only NOTIFY event will be thrown. This event is also processed asynchronously."
+          }
+        }
+      }
+    },
+    "authorization-evaluator": {
+      "identity-form-value-evaluator": {
+        "help": "Permissions to identity form attribute values. By definition (main if not specified) and attrinute codes (all if not specified).",
+        "attributes": {
+          "form-definition": {
+            "label": "Form definition",
+            "help": "Select definition, which contains attributes. Main definition will be used as default.",
+            "placeholder": "Main definition for identities or select ..."
+          },
+          "attributes": {
+            "label": "Attributes",
+            "help": "Add permission to attributes. All attributes from selected form definition will be used as default.",
+            "placeholder": "All attributes or attribute codes (use comma as separator)"
+          },
+          "self-only": {
+            "label": "Logged user only",
+            "help": "Add permission to currently logged user only. Logged user doesn't get permissions to other users attributes."
+          },
+          "owner-update": {
+            "label": "By permission to update user",
+            "help": "Add permission to attributes of users, which can be updated by the logged user (for example, when logged user can update identity, then he can update attributes too)."
+          },
+          "owner-read": {
+            "label": "By permission to read user",
+            "help": "Add permission to attributes of users, which can be read by the logged user (for example, when logged user can read identity, then he can update attributes)."
           }
         }
       }

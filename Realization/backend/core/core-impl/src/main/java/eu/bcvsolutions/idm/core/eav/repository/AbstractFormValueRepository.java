@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
@@ -35,16 +36,19 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 	 * @param owner
 	 * @return
 	 * @deprecated owner needs to be persisted - use {@link #findByOwner_Id(Serializable)}
+	 * @deprecated @since 8.2.0 use {@link FormValueService#find(eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter, Pageable))}
 	 */
 	@Deprecated
-	List<E> findByOwner(@Param("owner") O owner);
+	List<E> findByOwner(@Param(FormValueService.PROPERTY_OWNER) O owner);
 	
 	/**
 	 * Returns all form values by given owner (from all definitions)
 	 * 
 	 * @param ownerId
 	 * @return
+	 * @deprecated @since 8.2.0 use {@link FormValueService#find(eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter, Pageable))}
 	 */
+	@Deprecated
 	List<E> findByOwner_Id(Serializable ownerId);
 	
 	/**
@@ -54,9 +58,10 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 	 * @param formDefiniton
 	 * @return
 	 * @deprecated owner needs to be persisted - use {@link #findByOwner_IdAndFormAttribute_FormDefinition_IdOrderBySeqAsc(Serializable, UUID)}
+	 * @deprecated @since 8.2.0 use {@link FormValueService#find(eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter, Pageable))}
 	 */
 	@Deprecated
-	List<E> findByOwnerAndFormAttribute_FormDefinitionOrderBySeqAsc(@Param("owner") O owner, @Param("formDefinition") IdmFormDefinition formDefiniton);
+	List<E> findByOwnerAndFormAttribute_FormDefinitionOrderBySeqAsc(@Param(FormValueService.PROPERTY_OWNER) O owner, @Param("formDefinition") IdmFormDefinition formDefiniton);
 	
 	/**
 	 * Returns form values by given owner and definition ordered by seq
@@ -65,9 +70,10 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 	 * @param formDefinitonId
 	 * @return
 	 * @deprecated owner needs to be persisted - use {@link #findByOwner_IdAndFormAttribute_FormDefinition_IdOrderBySeqAsc(Serializable, UUID)}
+	 * @deprecated @since 8.2.0 use {@link FormValueService#find(eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter, Pageable))}
 	 */
 	@Deprecated
-	List<E> findByOwnerAndFormAttribute_FormDefinition_IdOrderBySeqAsc(@Param("owner") O owner, @Param("formDefinitionId") UUID formDefinitonId);
+	List<E> findByOwnerAndFormAttribute_FormDefinition_IdOrderBySeqAsc(@Param(FormValueService.PROPERTY_OWNER) O owner, @Param("formDefinitionId") UUID formDefinitonId);
 	
 	/**
 	 * Returns form values by given owner and definition ordered by seq
@@ -75,7 +81,9 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 	 * @param ownerId
 	 * @param formDefinitonId
 	 * @return
+	 * @deprecated @since 8.2.0 use {@link FormValueService#find(eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter, Pageable))}
 	 */
+	@Deprecated
 	List<E> findByOwner_IdAndFormAttribute_FormDefinition_IdOrderBySeqAsc(Serializable ownerId, UUID formDefinitonId);
 	
 	/**
@@ -85,9 +93,10 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 	 * @param attribute
 	 * @return
 	 * @deprecated owner needs to be persisted - use {@link #findByOwner_IdAndFormAttribute_IdOrderBySeqAsc(Serializable, UUID)}
+	 * @deprecated @since 8.2.0 use {@link FormValueService#find(eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter, Pageable))}
 	 */
 	@Deprecated
-	List<E> findByOwner_IdAndFormAttributeOrderBySeqAsc(@Param("owner") O owner, @Param("attribute") IdmFormAttribute attribute);
+	List<E> findByOwner_IdAndFormAttributeOrderBySeqAsc(@Param(FormValueService.PROPERTY_OWNER) O owner, @Param("attribute") IdmFormAttribute attribute);
 	
 	/**
 	 * Returns form values by given owner and attribute ordered by seq
@@ -95,7 +104,9 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 	 * @param ownerId
 	 * @param attributeId
 	 * @return
+	 * @deprecated @since 8.2.0 use {@link FormValueService#find(eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter, Pageable))}
 	 */
+	@Deprecated
 	List<E> findByOwner_IdAndFormAttribute_IdOrderBySeqAsc(Serializable ownerId, UUID attributeId);
 	
 	/**

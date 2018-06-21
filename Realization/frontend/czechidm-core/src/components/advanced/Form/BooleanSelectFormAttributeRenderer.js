@@ -20,6 +20,9 @@ export default class BooleanSelectFormAttributeRenderer extends BooleanFormAttri
    */
   fillFormValue(formValue, rawValue) {
     formValue.booleanValue = rawValue;
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.booleanValue;
+    //
     return formValue;
   }
 

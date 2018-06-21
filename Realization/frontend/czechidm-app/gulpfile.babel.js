@@ -131,7 +131,7 @@ function iterateOverModulesAndExec(command) {
     .pipe(flatmap(function iterateModules(stream, file) {
       // just safety check
       if (file.path.endsWith('czechidm-app')) {
-        util.log('APP module will be released.');
+        util.log('APP module: czechidm-app, found');
         //
         exec(command, { cwd: file.path }, printCommandLineOutput);
       }

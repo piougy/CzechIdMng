@@ -51,6 +51,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.SynchronizationSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
@@ -76,7 +77,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -90,7 +90,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -157,8 +156,6 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private ConfigurationService configurationService;
 	@Autowired
 	private SynchronizationService synchronizationService;
-	@Autowired
-	private LongRunningTaskManager longRunningTaskManager;
 
 	@Before
 	public void init() {
@@ -795,43 +792,14 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(logTwo);
 	}
 
-	@Test
-	public void testStopSync() throws InterruptedException {
+	@Test(expected = ProvisioningException.class)
+	public void testStopSync() {
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
-
-		// Delete and generate target system data
-		this.getBean().deleteAllResourceData();
-		for (int i = 0; i < 10; i++) {
-			this.getBean().setTestData(getHelper().createName(), getHelper().createName(), getHelper().createName());
-		}
-		Task initiatorTask = createSyncTask(config.getId());
-		ObserveLongRunningTaskEndProcessor.listenTask(initiatorTask.getId());
-		// Execute LRT
-		manager.runTask(initiatorTask.getId());
-
-		// We have to wait, before stop
-		Thread.sleep(2000);
-		// Stop sync
+		// Stop sync - Sync is not running, so exception will be throw
 		synchronizationService.stopSynchronization(config);
-		ObserveLongRunningTaskEndProcessor.waitForEnd(initiatorTask.getId());
-		SysSyncLogDto log = null;
-		try {
-			log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 10, OperationResultType.SUCCESS);
-			throw new CoreException("Sync was cancelled, there cannot be 10 created entities!");
-		} catch (AssertionError ex) {
-			// OK - sync was cancelled, there cannot be 10 created entities.
-		}
-		
-		log = checkSyncLog(config, null, 0, null);
-		Assert.assertNotNull(log);
-		Assert.assertFalse(log.isRunning());
-		Assert.assertFalse(log.isContainsError());
-
-		// Delete log
-		syncLogService.delete(log);
 	}
 
 	private Task createSyncTask(UUID syncConfId) {

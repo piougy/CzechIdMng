@@ -125,9 +125,10 @@ class EavContent extends Basic.AbstractContent {
 
               <Basic.Alert
                 icon="info-sign"
-                text={ formDefinitionManager.getLocalization(_formInstance.getDefinition(), 'help', _formInstance.getDefinition().description) } />
+                text={ formDefinitionManager.getLocalization(_formInstance.getDefinition(), 'help', _formInstance.getDefinition().description) }
+                style={{ marginBottom: 0 }}/>
 
-              <Basic.PanelBody style={{ paddingTop: _formInstance.getAttributes().size === 0 ? 0 : 15, paddingBottom: 0 }}>
+              <Basic.PanelBody style={{ paddingTop: 15, paddingBottom: 0 }}>
                 <EavForm
                   ref={ this._createFormRef(_formInstance.getDefinition().code) }
                   formInstance={ _formInstance }

@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 ## [8.1.3]
 
 - ``Configurable`` interface contains form definition now. ``Configurable`` instances can be configured by eav form on frontend (the richer ui). **Methods ``getFormDefinition`` and ``getFormAttributes`` were moved to ``Configurable`` interface from ``AbstractReportExecutor`` super class. Make sure you are using ``public`` modifier on this methods in your reports**.
+- [#1153](https://redmine.czechidm.com/issues/1153) - Add event support for ``IdmPasswordDto`` (create, update, delete)
 
 ## [8.1.2]
 

@@ -10,6 +10,8 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 
 /**
  * Configurable object by {@link ConfigurationService}.
@@ -250,5 +252,47 @@ public interface Configurable {
 	default public Long getConfigurationLongValue(String key) {
 		String value = getConfigurationValue(key);
 		return value == null ? null : Long.valueOf(value);
+	}
+	
+
+	/**
+	 * Returns dform definition for this configurable object by defined property names.
+	 * Override, when form definition should be persisted.
+	 * 
+	 * @return
+	 */
+	default IdmFormDefinitionDto getFormDefinition() {
+		IdmFormDefinitionDto formDefinition = new IdmFormDefinitionDto();
+		formDefinition.setType(getConfigurableType());
+		formDefinition.setCode(getName());
+		formDefinition.setName(getName());
+		formDefinition.setModule(getModule());
+		formDefinition.setDescription(getDescription());
+		formDefinition.setFormAttributes(getFormAttributes());
+		return formDefinition;
+	}
+	
+	/**
+	 * Returns form definition attributes.
+	 * Override, when properties will be defined with persistentType, face, etc.
+	 * 
+	 * @return
+	 */
+	default List<IdmFormAttributeDto> getFormAttributes() {
+		List<IdmFormAttributeDto> attributes = new ArrayList<>();
+		//
+		for(short index = 0; index < getPropertyNames().size(); index ++) {
+			String propertyName = getPropertyNames().get(index);
+			if (propertyName.equals(ConfigurationService.PROPERTY_ENABLED)
+					|| propertyName.equals(ConfigurationService.PROPERTY_ORDER)) {
+				// internal base props
+				continue;
+			}
+			IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(propertyName);
+			formAttribute.setSeq(index);
+			attributes.add(formAttribute);
+		}
+		//
+		return attributes;
 	}
 }

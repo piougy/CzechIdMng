@@ -6,7 +6,6 @@ import org.springframework.plugin.core.Plugin;
 
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 
@@ -48,15 +47,6 @@ public interface ReportExecutor extends Configurable, Plugin<String>, LongRunnin
 		// TODO: form definition will be used
 		return Configurable.super.getPropertyNames();
 	}
-	
-	/**
-	 * Returns form definition for report filter
-	 * 
-	 * TODO: move to schedulable task executor
-	 * 
-	 * @return
-	 */
-	IdmFormDefinitionDto getFormDefinition();
 	
 	/**
 	 * Generate report for given event content

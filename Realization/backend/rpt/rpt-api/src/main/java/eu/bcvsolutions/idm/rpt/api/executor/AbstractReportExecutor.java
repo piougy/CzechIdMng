@@ -2,8 +2,6 @@ package eu.bcvsolutions.idm.rpt.api.executor;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
@@ -135,22 +132,14 @@ public abstract class AbstractReportExecutor
 	
 	@Override
 	public IdmFormDefinitionDto getFormDefinition() {
-		if (getFormAttributes().isEmpty()) {
+		IdmFormDefinitionDto formDefinition = ReportExecutor.super.getFormDefinition();
+		if (formDefinition.getFormAttributes().isEmpty()) {
 			return null;
 		}
 		// check form definition for given executor
 		// incompatible changes has to be solved by change script or by adding new executor
 		// adding parameter is compatible change
-		return formDefinitionService.updateDefinition(RptReportDto.class, getName(), getFormAttributes());
-	}
-	
-	/**
-	 * Returns form definition attributes
-	 * 
-	 * @return
-	 */
-	protected List<IdmFormAttributeDto> getFormAttributes() {
-		return new ArrayList<>();
+		return formDefinitionService.updateDefinition(RptReportDto.class, getName(), formDefinition.getFormAttributes());
 	}
 	
 	/**

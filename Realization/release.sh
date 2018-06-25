@@ -102,11 +102,13 @@ function commitAndPushRelease() {
 function deployBackend() {
   # deploy BE
   cd "$AGGREGATOR_MODULE_PATH"
-  if (whiptail --backtitle "${BACKTITLE}" --title "Skip tests?" --yesno --defaultno "Now will be process deploy to nexus, skip tests?" 8 78) then
-      mvn clean deploy -Prelease -DdocumentationOnly=true -DskipTests=true
-  else
-      mvn clean deploy -Prelease -DdocumentationOnly=true
-  fi
+  mvn clean deploy -Prelease -DdocumentationOnly=true
+  # TODO: debug mode, in production is required tests
+  # if (whiptail --backtitle "${BACKTITLE}" --title "Skip tests?" --yesno --defaultno "Now will be process deploy to nexus, skip tests?" 8 78) then
+  #   mvn clean deploy -Prelease -DdocumentationOnly=true -DskipTests=true
+  # else
+  #     mvn clean deploy -Prelease -DdocumentationOnly=true
+  # fi
   cd "$ORIGINAL_PATH"
 }
 
@@ -121,6 +123,7 @@ function mergeToMaster() {
   branchForMerge=$(whiptail --backtitle "${BACKTITLE}" --inputbox "Branch for merge release" 8 78 "${MASTER_BRANCH}" --title "Master branch" --nocancel 3>&1 1>&2 2>&3)
   git checkout $branchForMerge
   git merge $CURRENT_BRANCH
+  git push
   git checkout $CURRENT_BRANCH
 }
 

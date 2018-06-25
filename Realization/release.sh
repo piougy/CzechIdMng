@@ -84,8 +84,12 @@ function updateVersionReleaseFrontend() {
 
 function commitAndPushRelease() {
   commitMessage=$(whiptail --backtitle "${BACKTITLE}" --inputbox "Commit message with new version:" 8 78 "Release version ${RELEASE_VERSION} (FE+BE)" --title "Commit message" --nocancel 3>&1 1>&2 2>&3)
-  tagName=$(whiptail --backtitle "${BACKTITLE}" --inputbox "Tag name for new version" 8 78 "${RELEASE_VERSION}" --title "Tag name" --nocancel 3>&1 1>&2 2>&3)
+  tagName=$(whiptail --backtitle "${B
+  ACKTITLE}" --inputbox "Tag name for new version" 8 78 "${RELEASE_VERSION}" --title "Tag name" --nocancel 3>&1 1>&2 2>&3)
   tagMessage=$(whiptail --backtitle "${BACKTITLE}" --inputbox "Tag message for new version" 8 78 "Version ${RELEASE_VERSION}" --title "Tag message" --nocancel 3>&1 1>&2 2>&3)
+
+  # add all changes to commit
+  git add .
 
   # create commit and tag
   git commit -m "$commitMessage"
@@ -139,6 +143,9 @@ function updateVersionDevelopFrontend() {
 
 function commitAndPushDevelop() {
   commitMessage=$(whiptail --backtitle "${BACKTITLE}" --inputbox "Commit message with new develop version:" 8 78 "New develop version ${NEW_DEVELOPMENT_VERSION} (FE+BE)" --title "Commit message" --nocancel 3>&1 1>&2 2>&3)
+
+  # add all changes to commit
+  git add .
 
   # create commit and tag
   git commit -m "$commitMessage"

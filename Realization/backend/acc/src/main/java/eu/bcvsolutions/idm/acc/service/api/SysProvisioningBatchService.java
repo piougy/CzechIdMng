@@ -52,6 +52,16 @@ public interface SysProvisioningBatchService extends ReadWriteDtoService<SysProv
 	 * @param entityIdentifier
 	 * @param systemEntity
 	 * @return
+	 * @deprecated @since 8.2.0 use {@link #findBatch(UUID)}
 	 */
+	@Deprecated
 	SysProvisioningBatchDto findBatch(UUID systemId, UUID entityIdentifier, UUID systemEntity);
+	
+	/**
+	 * Finds batch for given system entity
+	 * 
+	 * @param systemEntity
+	 * @return
+	 */
+	SysProvisioningBatchDto findBatch(UUID systemEntity);
 }

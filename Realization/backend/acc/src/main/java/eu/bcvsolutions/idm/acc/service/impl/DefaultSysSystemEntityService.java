@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
@@ -23,6 +24,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -46,6 +48,8 @@ public class DefaultSysSystemEntityService
 	private final AccAccountRepository accountRepository;
 	private final SysProvisioningOperationRepository provisioningOperationRepository;
 	private final SysSystemService systemService;
+	//
+	@Autowired private SysProvisioningBatchService batchService;
 
 	@Autowired
 	public DefaultSysSystemEntityService(SysSystemEntityRepository systemEntityRepository,
@@ -89,6 +93,12 @@ public class DefaultSysSystemEntityService
 		//
 		// clear accounts - only link, can be rebuild
 		accountRepository.clearSystemEntity(systemEntityDto.getId());
+		//
+		// clear batches
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntityDto.getId());
+		if (batch != null) {
+			batchService.delete(batch);
+		}
 		//
 		super.delete(systemEntityDto, permission);
 	}

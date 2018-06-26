@@ -118,7 +118,7 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 	 * @param oldBatch
 	 * @return
 	 */
-	@Modifying
+	@Modifying(clearAutomatically = true)
 	@Query("update SysProvisioningOperation o set o.batch = :newBatch where o.batch = :oldBatch")
 	int mergeBatch(@Param("oldBatch") SysProvisioningBatch oldBatch, @Param("newBatch") SysProvisioningBatch newBatch);
 }

@@ -69,6 +69,22 @@ public interface EntityEventManager {
 	List<EntityEventProcessorDto> find(EntityEventProcessorFilter filter);
 	
 	/**
+	 * Get registered event processor by id
+	 * 
+	 * @param processorId
+	 * @return
+	 */
+	EntityEventProcessorDto get(String processorId);
+	
+	/**
+	 * Get registered event processor by id
+	 * 
+	 * @param processorId
+	 * @return
+	 */
+	EntityEventProcessor<?> getProcessor(String processorId);
+	
+	/**
 	 * Publish common event to all listeners
 	 * 
 	 * @param event
@@ -206,4 +222,26 @@ public interface EntityEventManager {
 			EntityEvent<E> event, 
 			List<IdmEntityStateDto> previousStates,
 			EventResult<E> result);
+	
+	/**
+	 * Enable given processor. Throws {@link IllegalArgumentException} when processorId is not installed.
+	 * 
+	 * @param processorId
+	 */
+	void enable(String processorId);
+
+	/**
+	 * Disable given module. Throws {@link IllegalArgumentException} when processorId is not installed.
+	 * 
+	 * @param processorId
+	 */
+	void disable(String processorId);
+
+	/**
+	 * Enable / disable given processor.
+	 *
+	 * @param processorId
+	 * @param enabled
+	 */
+	void setEnabled(String processorId, boolean enabled);
 }

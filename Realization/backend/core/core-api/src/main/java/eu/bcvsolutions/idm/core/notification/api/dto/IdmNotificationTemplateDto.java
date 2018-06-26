@@ -21,6 +21,7 @@ public class IdmNotificationTemplateDto extends AbstractDto {
     private String parameter;
     private boolean unmodifiable = false;
     private String module;
+    private String sender;
 
     public IdmNotificationTemplateDto(IdmNotificationTemplateDto template) {
         super(template);
@@ -32,6 +33,7 @@ public class IdmNotificationTemplateDto extends AbstractDto {
         parameter = template.getParameter();
         unmodifiable = template.isUnmodifiable();
         module = template.getModule();
+        sender = template.getSender();
     }
 
     public IdmNotificationTemplateDto() {
@@ -101,4 +103,11 @@ public class IdmNotificationTemplateDto extends AbstractDto {
         this.module = module;
     }
 
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
 }

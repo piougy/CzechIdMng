@@ -13,6 +13,7 @@ import ModalProgressBar from './ModalProgressBar/ModalProgressBar';
 import EavForm from './Form/EavForm';
 import EavContent from './Form/EavContent';
 import AbstractFormAttributeRenderer from './Form/AbstractFormAttributeRenderer';
+import SelectBoxFormAttributeRenderer from './Form/SelectBoxFormAttributeRenderer';
 import PasswordField from './PasswordField/PasswordField';
 import ProgressBar from './ProgressBar/ProgressBar';
 import RichTextArea from './RichTextArea/RichTextArea';
@@ -42,6 +43,8 @@ import ImageDropzone from './ImageDropzone/ImageDropzone';
 import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
 import ImageCropper from './ImageCropper/ImageCropper';
+import LongRunningTask from './LongRunningTask/LongRunningTask';
+import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
 
 const Components = {
   Table,
@@ -62,6 +65,7 @@ const Components = {
   EavForm,
   EavContent,
   AbstractFormAttributeRenderer,
+  SelectBoxFormAttributeRenderer,
   PasswordField,
   RichTextArea,
   AbstractTableContent,
@@ -89,7 +93,9 @@ const Components = {
   WorkflowTaskInfo,
   TreeTypeInfo,
   TreeNodeInfo,
-  ImageCropper
+  ImageCropper,
+  LongRunningTask,
+  CreatableSelectBox
 };
 
 Components.version = '0.0.1';

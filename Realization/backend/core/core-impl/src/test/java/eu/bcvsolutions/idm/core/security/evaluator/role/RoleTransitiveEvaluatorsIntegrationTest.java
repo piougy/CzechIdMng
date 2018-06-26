@@ -245,13 +245,17 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 			authorizationPolicyService.save(readAuthoritiesPolicy);
 		}
 		
+		GuardedString password = new GuardedString("heslo");
+		
 		// prepare identity
 		IdmIdentityDto identity = helper.createIdentity();
-		identity.setPassword(new GuardedString("heslo"));
+		identity.setPassword(password);
 		identity = identityService.save(identity);
 		// assign role
 		helper.createIdentityRole(identity, role);
 		logout();
+		// password is transient, some test except password back in identity
+		identity.setPassword(password);
 		//
 		return identity;
 	}

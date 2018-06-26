@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.eav.api.service;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -23,6 +24,6 @@ public interface IdmFormAttributeService extends
 	 * @param attributeCode
 	 * @return
 	 */
-	IdmFormAttributeDto findAttribute(String definitionType, String definitionCode, String attributeCode);
+	IdmFormAttributeDto findAttribute(String definitionType, String definitionCode, String attributeCode, BasePermission... permission);
 
 }

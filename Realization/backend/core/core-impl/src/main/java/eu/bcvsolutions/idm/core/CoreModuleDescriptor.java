@@ -8,7 +8,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityMonitoredFieldsProcessor;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
@@ -48,6 +50,7 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String TOPIC_PASSWORD_CHANGED = String.format("%s:passwordChanged", MODULE_ID);
 	public static final String TOPIC_EVENT = String.format("%s:event", MODULE_ID);
 	public static final String TOPIC_LOGIN_BLOCKED = String.format("%s:loginBlocked", MODULE_ID);
+	public static final String TOPIC_BULK_ACTION_END = String.format("%s:bulkActionEnd", MODULE_ID);
 
 	@Override
 	public String getId() {
@@ -173,11 +176,23 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"Login is blocked.", 
 				getNotificationTemplateId(AuthenticationManager.TEMPLATE_LOGIN_IS_BLOCKED)));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_BULK_ACTION_END, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Bulk action ended.", 
+				getNotificationTemplateId("bulkActionEnd")));
 		return configs;
 	}
 	
 	@Override
 	public boolean isDocumentationAvailable() {
 		return true;
+	}
+
+	@Override
+	public List<ResultCode> getResultCodes() {
+		return Arrays.asList(CoreResultCode.values());
 	}
 }

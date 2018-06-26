@@ -122,7 +122,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	
 	@Override
 	protected boolean start() {
-		IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role, IdmRoleDto.class);
+		IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role);
 		LOG.debug("Remove role [{}] by automatic role [{}]", role.getCode(), getAutomaticRole().getId());
 		//
 		return super.start();
@@ -143,8 +143,8 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch(Exception ex) {
 			IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
-			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
-			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role, IdmRoleDto.class);
+			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
+			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role);
 			//
 			LOG.error("Remove role [{}] by automatic role [{}] failed", role.getCode(), getAutomaticRole().getId(), ex);
 			//
@@ -166,7 +166,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		Boolean ended = super.end(result, ex);
 		//
 		if (BooleanUtils.isTrue(ended)) {
-			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role, IdmRoleDto.class);
+			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role);
 			//
 			long assignedRoles = identityRoleService.findByAutomaticRole(getAutomaticRoleId(), new PageRequest(0, 1)).getTotalElements();
 			if (assignedRoles != 0) {

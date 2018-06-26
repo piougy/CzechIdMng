@@ -143,7 +143,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	@ApiOperation(
 			value = "Autocomplete tree nodes (selectbox usage)", 
 			nickname = "autocompleteTreeNodes", 
-			tags = { IdmTreeTypeController.TAG }, 
+			tags = { IdmTreeNodeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_AUTOCOMPLETE, description = "") }),
@@ -154,6 +154,24 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countTreeNodes", 
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
 	}
 	
 	@Override
@@ -371,7 +389,8 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	@ApiOperation(
 			value = "Search sub tree nodes", 
 			nickname = "searchChildrenTreeNodes", 
-			tags = { IdmRoleCatalogueController.TAG })
+			tags = { IdmRoleCatalogueController.TAG },
+			notes = "Finds direct chilren by given parent node uuid identifier.")
 	@ApiImplicitParams({
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
@@ -398,10 +417,17 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
 	@ApiOperation(
 			value = "Tree node extended attributes form definitions", 
 			nickname = "getTreeNodeFormDefinitions", 
-			tags = { IdmTreeNodeController.TAG })
+			tags = { IdmTreeNodeController.TAG },
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "")})
+					})
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Node's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
@@ -444,7 +470,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
+	@RequestMapping(value = "/{backendId}/form-values", method = { RequestMethod.POST, RequestMethod.PATCH })
 	@ApiOperation(
 			value = "Tree node form definition - save values", 
 			nickname = "postTreeNodeFormValues", 
@@ -502,11 +528,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	@Override
 	protected IdmTreeNodeFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmTreeNodeFilter filter = new IdmTreeNodeFilter(parameters);
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeTypeId"));
-		filter.setTreeNode(getParameterConverter().toUuid(parameters, "treeNodeId"));
-		filter.setDefaultTreeType(getParameterConverter().toBoolean(parameters, "defaultTreeType"));
- 		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
+		//
 		return filter;
 	}	
 }

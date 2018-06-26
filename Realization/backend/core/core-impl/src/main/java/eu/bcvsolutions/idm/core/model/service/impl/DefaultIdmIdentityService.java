@@ -193,10 +193,6 @@ public class DefaultIdmIdentityService
 		if (StringUtils.isNotEmpty(filter.getLastName())) {
 			predicates.add(builder.equal(root.get(IdmIdentity_.lastName), filter.getLastName()));
 		}
-		// External code
-		if (StringUtils.isNotEmpty(filter.getExternalCode())) {
-			predicates.add(builder.equal(root.get(IdmIdentity_.externalCode), filter.getExternalCode()));
-		}
 		// identity with any of given role (OR)
 		List<UUID> roles = filter.getRoles();
 		if (!roles.isEmpty()) {
@@ -210,43 +206,6 @@ public class DefaultIdmIdentityService
                     		)
             );			
 			predicates.add(builder.exists(subquery));
-		}
-		// property, if is property filled and it isn't find in defined properties return disjunction
-		boolean exitsProperty = filter.getProperty() == null ? true : false;
-		if (StringUtils.equals(IdmIdentity_.username.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentity_.username), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmIdentity_.firstName.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentity_.firstName), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmIdentity_.lastName.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentity_.lastName), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmIdentity_.email.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentity_.email), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmIdentity_.description.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentity_.description), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmIdentity_.titleAfter.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentity_.titleAfter), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmIdentity_.titleBefore.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentity_.titleBefore), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmIdentity_.phone.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentity_.phone), filter.getValue()));
-		}
-		if (!exitsProperty) {
-			predicates.add(builder.disjunction());
 		}
 		//
 		// disabled
@@ -582,6 +541,7 @@ public class DefaultIdmIdentityService
 	}
 
 	@Override
+	@Transactional
 	public IdmIdentityDto enable(UUID identityId, BasePermission... permission) {
 		Assert.notNull(identityId);
 		IdmIdentityDto identity = get(identityId);
@@ -600,6 +560,7 @@ public class DefaultIdmIdentityService
 	}
 	
 	@Override
+	@Transactional
 	public IdmIdentityDto disable(UUID identityId, BasePermission... permission) {
 		Assert.notNull(identityId);
 		IdmIdentityDto identity = get(identityId);

@@ -39,7 +39,12 @@ class ContractAccountsContent extends Advanced.AbstractTableContent {
   }
 
   getNavigationKey() {
-    return 'contract-accounts';
+    return 'identity-contract-accounts';
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    this.selectSidebarItem('identity-contract-accounts');
   }
 
   showDetail(entity) {

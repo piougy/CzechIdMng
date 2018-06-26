@@ -9,8 +9,9 @@ import * as Basic from '../../basic';
 
 /**
  * Based on Draf.js and react draft wysiwyg editor
- * TODO: export to markdown and json, custom upload image
- * onFocus and onBlur.
+ * TODO: export to markdown and json
+ * TODO: custom upload image
+ * TODO: onFocus and onBlur.
  *
  * All potions for props can be found at
  * https://jpuri.github.io/react-draft-wysiwyg/#/docs

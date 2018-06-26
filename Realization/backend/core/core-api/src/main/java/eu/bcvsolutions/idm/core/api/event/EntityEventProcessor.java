@@ -17,12 +17,12 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
  * Look out processors with the same order is sorted randomly (respectively in the same order, 
  * when beans were registered into spring context and this cannot be determined, when event is processed / published).
  * 
- * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
+ * @param <T> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  * @author Radek Tomiška
  * @see {@link ApplicationListener}
  * @see {@link Ordered}
  */
-public interface EntityEventProcessor<E extends Serializable> extends Ordered, Configurable {
+public interface EntityEventProcessor<T extends Serializable> extends Ordered, Configurable {
 	
 	String CONFIGURABLE_TYPE = "processor";
 	
@@ -54,7 +54,7 @@ public interface EntityEventProcessor<E extends Serializable> extends Ordered, C
 	 * 
 	 * @return
 	 */
-	Class<E> getEntityClass();
+	Class<T> getEntityClass();
 	
 	/**
 	 * Returns event types, which supports this processor
@@ -78,7 +78,7 @@ public interface EntityEventProcessor<E extends Serializable> extends Ordered, C
 	 * @return true, when processor can process given event.
 	 * @since 7.7.0
 	 */
-	boolean conditional(EntityEvent<E> event);
+	boolean conditional(EntityEvent<T> event);
 	
 	/**
 	 * Process entity event without context.
@@ -86,7 +86,7 @@ public interface EntityEventProcessor<E extends Serializable> extends Ordered, C
 	 * @param event
 	 * @return
 	 */
-	EventResult<E> process(EntityEvent<E> event);
+	EventResult<T> process(EntityEvent<T> event);
 	
 	/**
 	 * Returns true, when processor could close event (only documentation purpose now)

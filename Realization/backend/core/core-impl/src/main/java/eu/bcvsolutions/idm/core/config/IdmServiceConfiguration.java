@@ -16,6 +16,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
+import eu.bcvsolutions.idm.core.api.config.domain.ContractSliceConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
@@ -47,6 +48,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.config.domain.DefaultContractSliceConfiguration;
 import eu.bcvsolutions.idm.core.config.domain.DefaultRoleConfiguration;
 import eu.bcvsolutions.idm.core.config.domain.DefaultTreeConfiguration;
 import eu.bcvsolutions.idm.core.eav.api.service.CommonFormService;
@@ -376,6 +378,17 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
+	 * Configuration for contract slice agenda
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(ContractSliceConfiguration.class)
+	public ContractSliceConfiguration contractSliceConfiguration() {
+		return new DefaultContractSliceConfiguration();
+	}
+	
+	/**
 	 * Role service
 	 * 
 	 * @return
@@ -458,7 +471,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmPasswordService.class)
 	public IdmPasswordService passwordService() {
-		return new DefaultIdmPasswordService(passwordRepository, passwordPolicyRepository, passwordHistoryService(), lookupService());
+		return new DefaultIdmPasswordService(passwordRepository, passwordPolicyRepository, passwordHistoryService(), lookupService(), entityEventManager());
 	}
 
 	@Bean

@@ -74,7 +74,7 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 		if (identityContract != null) {
 			LOG.info("[IdentityRoleValidRequestProvisioningProcessor] Start with provisioning for identity role valid request id : [{}]", event.getContent().getId());
 			//
-			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
+			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
 			boolean requiredProvisioning = getProvisioningService().accountManagement(identity);
 			if (requiredProvisioning) {
 				// do provisioning, for newly valid role

@@ -54,7 +54,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestContractResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -64,7 +63,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.ContractSynchronizationExecutor;
-import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -112,8 +110,6 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	@Autowired
 	private TestHelper helper;
 	@Autowired
-	private ApplicationContext context;
-	@Autowired
 	private SysSystemService systemService;
 	@Autowired
 	private SysSystemMappingService systemMappingService;
@@ -152,13 +148,9 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	@Autowired
 	private AccAccountService accountService;
 
-	private SynchronizationService synchornizationService;
-
 	@Before
 	public void init() {
 		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
-		synchornizationService = context.getAutowireCapableBeanFactory()
-				.createBean(DefaultSynchronizationService.class);
 	}
 
 	@After
@@ -196,8 +188,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -237,8 +229,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -292,8 +284,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		// transaction
 		this.getBean().initContractCheckExcludeTest();
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -348,8 +340,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		// transaction
 		this.getBean().initContractCheckDisableTest();
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -412,8 +404,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		// Change resources (set to invalid) .. must be call in transaction
 		this.getBean().initContractCheckInvalidTest();
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2);
 
@@ -498,8 +490,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		// Change resources (set to invalid) .. must be call in transaction
 		this.getBean().initContractCheckInvalidTest();
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2);
 
@@ -550,8 +542,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("2");
 		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
 
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -565,8 +557,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		guaranteeFilter.setIdentityContractId(contractsOne.get(0).getId());
 		List<IdmContractGuaranteeDto> gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
 		Assert.assertEquals(1, gurantees.size());
-		IdmIdentityDto guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee,
-				IdmIdentityDto.class);
+		IdmIdentityDto guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee);
 		// Direct leader from resource
 		Assert.assertEquals(CONTRACT_LEADER_ONE, guarantee.getUsername());
 
@@ -576,7 +567,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		guaranteeFilter.setIdentityContractId(contractsTwo.get(0).getId());
 		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
 		Assert.assertEquals(1, gurantees.size());
-		guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee, IdmIdentityDto.class);
+		guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee);
 		// Default leader
 		Assert.assertEquals(CONTRACT_LEADER_TWO, guarantee.getUsername());
 
@@ -586,7 +577,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		guaranteeFilter.setIdentityContractId(contractsThree.get(0).getId());
 		gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
 		Assert.assertEquals(1, gurantees.size());
-		guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee, IdmIdentityDto.class);
+		guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee);
 		// Default leader
 		Assert.assertEquals(CONTRACT_LEADER_TWO, guarantee.getUsername());
 
@@ -618,8 +609,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setProperty(IdmIdentityContract_.position.getName());
 
 		// Start sync
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -650,8 +641,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		this.getBean().initContractDefaultTreeTest();
 
 		// Start sync again (we want to see some work positions)
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 3);
 
@@ -662,8 +653,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setValue("1");
 		contractsOne = contractService.find(contractFilter, null).getContent();
 		Assert.assertEquals(1, contractsOne.size());
-		IdmTreeNodeDto workposition = DtoUtils.getEmbedded(contractsOne.get(0), IdmIdentityContract_.workPosition,
-				IdmTreeNodeDto.class);
+		IdmTreeNodeDto workposition = DtoUtils.getEmbedded(contractsOne.get(0), IdmIdentityContract_.workPosition);
 		Assert.assertEquals("one", workposition.getCode());
 
 		// For contract Two must not be found workposition (WRONG node is not in
@@ -715,8 +705,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contractFilter.setProperty(IdmIdentityContract_.position.getName());
 
 		// Start sync
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
@@ -804,8 +794,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		this.getBean().createContractData(position3, identity3.getUsername(), leader.getUsername(), Boolean.TRUE.toString(), workPosition.getId().toString(), "10", Boolean.FALSE.toString());
 
 		// Start sync
-		synchornizationService.setSynchronizationConfigId(config.getId());
-		synchornizationService.process();
+		helper.startSynchronization(config);
+	
 		
 		contractService.findAllByIdentity(identity1.getId());
 

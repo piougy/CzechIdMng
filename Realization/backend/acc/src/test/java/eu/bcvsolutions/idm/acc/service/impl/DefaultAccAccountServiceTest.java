@@ -274,6 +274,46 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(userOneName, connectorObject.getUidValue());
 		// EAV attribute must be null, because we deleted the schema definition
 		Assert.assertNull(connectorObject.getAttributeByName(eavAttributeName));
+	}
+	
+	@Test
+	public void targetEntityTest() {
+		String userOneName = "UserOne";
+		SysSystemDto system = initData();
+		AccAccountDto account = new AccAccountDto();
+		account.setEntityType(SystemEntityType.IDENTITY);
+		account.setSystem(system.getId());
+		account.setAccountType(AccountType.PERSONAL);
+		account.setUid(userOneName);
+		account = accountService.save(account);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		AccIdentityAccountDto accountIdentityOne = new AccIdentityAccountDto();
+		accountIdentityOne.setIdentity(identity.getId());
+		accountIdentityOne.setOwnership(true);
+		accountIdentityOne.setAccount(account.getId());
+		accountIdentityOne = identityAccountService.save(accountIdentityOne);
+
+		// Create role with evaluator
+		IdmRoleDto role = helper.createRole();
+		IdmAuthorizationPolicyDto policyAccount = new IdmAuthorizationPolicyDto();
+		policyAccount.setRole(role.getId());
+		policyAccount.setGroupPermission(AccGroupPermission.ACCOUNT.getName());
+		policyAccount.setAuthorizableType(AccAccount.class.getCanonicalName());
+		policyAccount.setEvaluator(ReadAccountByIdentityEvaluator.class);
+		authorizationPolicyService.save(policyAccount);
+
+		// Assign role with evaluator
+		helper.createIdentityRole(identity, role);
+
+		logout();
+		loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
+		
+		account = accountService.get(account.getId());
+		
+		Assert.assertEquals(identity.getId(), account.getTargetEntityId());
+		Assert.assertEquals(IdmIdentityDto.class.getName(), account.getTargetEntityType());
 
 	}
 

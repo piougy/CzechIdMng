@@ -11,6 +11,9 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
  */
 public interface BaseEntity extends Identifiable, Serializable {
 	
+	String PROPERTY_ID = "id";
+	
+	
 	/**
 	 * Returns indentifier
 	 *

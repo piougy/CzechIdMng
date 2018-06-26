@@ -132,6 +132,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
     if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT)) {
       formEntity._type = 'SysSyncContractConfigDto';
+    } else if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT_SLICE)) {
+      formEntity._type = 'SysSyncContractConfigDto';
     } else if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
       formEntity._type = 'SysSyncIdentityConfigDto';
     } else {
@@ -390,6 +392,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     }
     if (finalEntityType) {
       if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT)) {
+        specificConfiguration = <SyncContractConfig ref="formSpecific" synchronizationConfig={synchronizationConfig} showLoading={innerShowLoading} isNew={isNew} className="panel-body"/>;
+      } else if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT_SLICE)) {
         specificConfiguration = <SyncContractConfig ref="formSpecific" synchronizationConfig={synchronizationConfig} showLoading={innerShowLoading} isNew={isNew} className="panel-body"/>;
       } else if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
         specificConfiguration = <SyncIdentityConfig ref="formSpecific" synchronizationConfig={synchronizationConfig} showLoading={innerShowLoading} isNew={isNew} className="panel-body"/>;

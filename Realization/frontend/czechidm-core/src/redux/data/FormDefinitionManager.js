@@ -1,6 +1,7 @@
 import EntityManager from './EntityManager';
-import { FormDefinitionService } from '../../services';
+import { FormDefinitionService, LocalizationService } from '../../services';
 import DataManager from './DataManager';
+import * as Utils from '../../utils';
 
 export default class FormDefinitionManager extends EntityManager {
 
@@ -43,5 +44,36 @@ export default class FormDefinitionManager extends EntityManager {
         dispatch(this.receiveError({}, uiKey, error, cb));
       });
     };
+  }
+
+  getLocalization(formDefinition, property, defaultValue = null) {
+    if (!formDefinition) {
+      return defaultValue;
+    }
+    const key = `${ FormDefinitionManager.getLocalizationPrefix(formDefinition, false) }.${ property }`;
+    const keyWithModule = `${ FormDefinitionManager.getLocalizationPrefix(formDefinition, true) }.${ property }`;
+    const localizeMessage = this.i18n(keyWithModule);
+    //
+    // if localized message is exactly same as key, that means message isn't localized
+    if (key === null || key === localizeMessage || keyWithModule === localizeMessage) {
+      return defaultValue;
+    }
+    return localizeMessage;
+  }
+
+  /**
+   * Returns prefix for localization
+   *
+   * @param  {object} formDefinition
+   * @return {string}
+   */
+  static getLocalizationPrefix(formDefinition, withModule = true) {
+    if (!formDefinition) {
+      return undefined;
+    }
+    const formType = Utils.Ui.spinalCase(formDefinition.type);
+    const formCode = Utils.Ui.spinalCase(formDefinition.code);
+    //
+    return `${withModule ? formDefinition.module + ':' : ''}eav.${formType}.${formCode}`;
   }
 }

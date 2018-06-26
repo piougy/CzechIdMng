@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
@@ -14,9 +15,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.acc.DefaultTestHelper;
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -26,6 +28,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -33,16 +36,24 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Searching entities, using filters
  *
  * @author Petr Hanák
+ * @author Vít Švanda
  *
  */
 @Transactional
 public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegrationTest {
 
-	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
-	@Autowired private SysSchemaAttributeService attributeService;
-	@Autowired private SysSystemService systemService;
-	@Autowired private DefaultSysSystemAttributeMappingService attributeMappingService;
-	@Autowired private DefaultTestHelper testHelper;
+	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
+	private SysSchemaAttributeService attributeService;
+	@Autowired
+	private SysSystemService systemService;
+	@Autowired
+	private DefaultSysSystemAttributeMappingService attributeMappingService;
+	@Autowired
+	private TestHelper testHelper;
+	@Autowired
+	private DefaultSysSystemMappingService mappingService;
 
 	@Before
 	public void init() {
@@ -52,6 +63,93 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 	@After
 	public void logout() {
 		super.logout();
+	}
+
+	@Test
+	public void moreAttributesOnSchemaAttributeSyncTest() {
+		SystemEntityType entityType = SystemEntityType.IDENTITY;
+		AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.SET;
+
+		SysSystemDto system = createSystem();
+		SysSchemaObjectClassDto objectClass = createObjectClass(system);
+		SysSystemMappingDto systemMapping = testHelper.createMappingSystem(entityType, objectClass);
+		// For synchronization is enabled more mapped attributes for one schema
+		// attribute
+		systemMapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		systemMapping = mappingService.save(systemMapping);
+		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
+
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping, strategyType,
+				schemaAttribute.getId());
+		attributeMapping1.setName("attributeOne");
+		attributeMapping1 = attributeMappingService.save(attributeMapping1);
+
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping, strategyType,
+				schemaAttribute.getId());
+		attributeMapping2.setName("attributeTwo");
+		attributeMapping2 = attributeMappingService.save(attributeMapping2);
+
+		assertNotNull(attributeMapping1.getId());
+		assertNotNull(attributeMapping2.getId());
+	}
+
+	@Test(expected = ResultCodeException.class)
+	public void moreAttributesOnSchemaAttributeProvTest() {
+		SystemEntityType entityType = SystemEntityType.IDENTITY;
+		AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.SET;
+
+		SysSystemDto system = createSystem();
+		SysSchemaObjectClassDto objectClass = createObjectClass(system);
+		SysSystemMappingDto systemMapping = testHelper.createMappingSystem(entityType, objectClass);
+		// For provisioning is NOT enabled more mapped attributes for one schema
+		// attribute
+		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
+		systemMapping = mappingService.save(systemMapping);
+		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
+
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping, strategyType,
+				schemaAttribute.getId());
+		attributeMapping1.setName("attributeOne");
+		attributeMapping1 = attributeMappingService.save(attributeMapping1);
+
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping, strategyType,
+				schemaAttribute.getId());
+		attributeMapping2.setName("attributeTwo");
+		attributeMapping2 = attributeMappingService.save(attributeMapping2);
+	}
+
+	@Test(expected = ResultCodeException.class)
+	public void moreAttributesOnSchemaAttChangeMappingTypeTest() {
+		SystemEntityType entityType = SystemEntityType.IDENTITY;
+		AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.SET;
+
+		SysSystemDto system = createSystem();
+		SysSchemaObjectClassDto objectClass = createObjectClass(system);
+		SysSystemMappingDto systemMapping = testHelper.createMappingSystem(entityType, objectClass);
+		// For synchronization is enabled more mapped attributes for one schema
+		// attribute
+		systemMapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		systemMapping = mappingService.save(systemMapping);
+		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
+
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping, strategyType,
+				schemaAttribute.getId());
+		attributeMapping1.setName("attributeOne");
+		attributeMapping1 = attributeMappingService.save(attributeMapping1);
+
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping, strategyType,
+				schemaAttribute.getId());
+		attributeMapping2.setName("attributeTwo");
+		attributeMapping2 = attributeMappingService.save(attributeMapping2);
+
+		assertNotNull(attributeMapping1.getId());
+		assertNotNull(attributeMapping2.getId());
+
+		// For provisioning is NOT enabled more mapped attributes for one schema
+		// attribute. On change operation type form SYNC to PROVISIONING, has to be
+		// throw exception!
+		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
+		systemMapping = mappingService.save(systemMapping);
 	}
 
 	@Test
@@ -65,11 +163,13 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SysSystemMappingDto systemMapping = testHelper.createMappingSystem(entityType, objectClass);
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
 
-		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping, strategyType, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping, strategyType,
+				schemaAttribute.getId());
 		attributeMapping1.setName("OriginalName01");
 		attributeMappingService.save(attributeMapping1);
 
-		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping, AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping,
+				AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
 		attributeMapping2.setName("OriginalName21");
 		attributeMappingService.save(attributeMapping2);
 
@@ -95,8 +195,10 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
 		SysSchemaAttributeDto schemaAttribute2 = createSchemaAttribute(objectClass);
 
-		SysSystemAttributeMappingDto attributeMapping = createAttributeMappingSystem(systemMapping, strategyType, schemaAttribute.getId());
-		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping, strategyType, schemaAttribute2.getId());
+		SysSystemAttributeMappingDto attributeMapping = createAttributeMappingSystem(systemMapping, strategyType,
+				schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping, strategyType,
+				schemaAttribute2.getId());
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSchemaAttributeId(schemaAttribute.getId());
@@ -119,8 +221,10 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SysSystemMappingDto systemMapping2 = testHelper.createMappingSystem(entityType, objectClass);
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
 
-		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping1, strategyType, schemaAttribute.getId());
-		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping2, strategyType, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping1, strategyType,
+				schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping2, strategyType,
+				schemaAttribute.getId());
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSystemMappingId(systemMapping1.getId());
@@ -147,8 +251,10 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SysSchemaAttributeDto schemaAttribute1 = createSchemaAttribute(objectClass1);
 		SysSchemaAttributeDto schemaAttribute2 = createSchemaAttribute(objectClass2);
 
-		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping1, strategyType, schemaAttribute1.getId());
-		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping2, strategyType, schemaAttribute2.getId());
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping1, strategyType,
+				schemaAttribute1.getId());
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping2, strategyType,
+				schemaAttribute2.getId());
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSystemId(system1.getId());
@@ -171,10 +277,12 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SysSystemMappingDto systemMapping = testHelper.createMappingSystem(entityType, objectClass);
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
 
-		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping, strategyType, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping, strategyType,
+				schemaAttribute.getId());
 		attributeMapping1.setIdmPropertyName("PropName31");
 		attributeMappingService.save(attributeMapping1);
-		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping, AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping,
+				AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
 		attributeMapping2.setIdmPropertyName("PropName42");
 		attributeMappingService.save(attributeMapping2);
 
@@ -199,8 +307,10 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SysSystemMappingDto systemMapping2 = testHelper.createMappingSystem(entityType, objectClass);
 		SysSchemaAttributeDto schemaAttribute = createSchemaAttribute(objectClass);
 
-		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping1, AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
-		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping2, strategyType, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping1 = createAttributeMappingSystem(systemMapping1,
+				AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
+		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping2, strategyType,
+				schemaAttribute.getId());
 		attributeMapping2.setUid(true);
 		attributeMappingService.save(attributeMapping2);
 		createAttributeMappingSystem(systemMapping1, AttributeMappingStrategyType.SET, schemaAttribute.getId());
@@ -236,7 +346,8 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		return attributeService.save(schemaAttribute);
 	}
 
-	private SysSystemAttributeMappingDto createAttributeMappingSystem(SysSystemMappingDto systemMapping, AttributeMappingStrategyType mappingStrategyType, UUID schemaAttribute) {
+	private SysSystemAttributeMappingDto createAttributeMappingSystem(SysSystemMappingDto systemMapping,
+			AttributeMappingStrategyType mappingStrategyType, UUID schemaAttribute) {
 		SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 		attributeMapping.setName("Name" + UUID.randomUUID());
 		attributeMapping.setSystemMapping(systemMapping.getId());

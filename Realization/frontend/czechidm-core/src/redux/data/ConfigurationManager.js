@@ -6,6 +6,8 @@ import { ConfigurationService } from '../../services';
 import DataManager from './DataManager';
 import { Actions, Properties } from '../config/constants';
 
+export const EMPTY = 'VOID_ACTION'; // dispatch cannot return null
+
 export default class ConfigurationManager extends EntityManager {
 
   constructor() {
@@ -117,6 +119,33 @@ export default class ConfigurationManager extends EntityManager {
       return false;
     }
     return configurationName.lastIndexOf('idm.sec.', 0) === 0;
+  }
+
+  /**
+   * create entities
+   *
+   * @param  {String} entities - Entities to add
+   * @param  {func} cb - function will be called after entity is updated or error occured
+   */
+  addMoreEntities(entities, uiKey = null, cb = null) {
+    if (!entities) {
+      return {
+        type: EMPTY
+      };
+    }
+    uiKey = this.resolveUiKey(uiKey);
+    return (dispatch) => {
+      this.getService().addMoreEntities(entities)
+        .then(json => {
+          if (cb) {
+            cb(json, null, uiKey);
+          }
+        })
+        .catch(error => {
+          // TODO: data uiKey
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
+    };
   }
 
   /**

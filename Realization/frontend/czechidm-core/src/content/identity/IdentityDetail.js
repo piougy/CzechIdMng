@@ -117,7 +117,7 @@ class IdentityDetail extends Basic.AbstractContent {
    * @param  {file} file File to upload
    */
   _upload(file) {
-    const { identity } = this.props;
+    // const { identity } = this.props;
     if (!file.name.endsWith('.jpg') && !file.name.endsWith('.jpeg') && !file.name.endsWith('.png') && !file.name.endsWith('.gif')) {
       this.addMessage({
         message: this.i18n('fileRejected', {name: file.name}),

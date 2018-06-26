@@ -8,8 +8,8 @@ package eu.bcvsolutions.idm.core.eav.api.domain;
 public enum PersistentType {
 
 	CHAR,
-	SHORTTEXT,
-	TEXT,
+	SHORTTEXT, // use this persistent type mainly (length 2000, indexed by default) - TEXT is used for long texts and is not indexed by default
+	TEXT, // long texts - not indexed by default
 	INT,
 	LONG, 
 	DOUBLE, 

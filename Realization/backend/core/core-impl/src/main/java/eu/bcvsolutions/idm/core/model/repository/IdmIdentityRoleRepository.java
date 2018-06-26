@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.api.repository.ExternalIdentifiableRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -21,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  * 
  * @author Radek Tomiška
  */
-public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmIdentityRole>, ExternalIdentifiableRepository<IdmIdentityRole, UUID> {
+public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmIdentityRole> {
 	
 	Page<IdmIdentityRole> findByIdentityContract_Identity(@Param("identity") IdmIdentity identity, Pageable pageable);
 	

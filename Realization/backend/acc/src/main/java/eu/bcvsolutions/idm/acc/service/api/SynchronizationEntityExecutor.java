@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
-import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
  * API for synchronization executor
@@ -36,7 +36,7 @@ public interface SynchronizationEntityExecutor extends Plugin<SystemEntityType> 
 	 */
 	boolean doItemSynchronization(SynchronizationContext itemContext);
 
-	void setLongRunningTaskExecutor(AbstractLongRunningTaskExecutor<AbstractSysSyncConfigDto> longRunningTaskExecutor);
+	void setLongRunningTaskExecutor(AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor);
 
 	/**
 	 * Method for resolve missing account situation for one item.
@@ -57,5 +57,12 @@ public interface SynchronizationEntityExecutor extends Plugin<SystemEntityType> 
 	 * Method for resolve linked situation for one item.
 	 */
 	void resolveLinkedSituation(SynchronizationLinkedActionType action, SynchronizationContext context);
+
+	/**
+	 * Find target entity by accountId
+	 * @param accountId
+	 * @return
+	 */
+	UUID getEntityByAccount(UUID accountId);
 
 }

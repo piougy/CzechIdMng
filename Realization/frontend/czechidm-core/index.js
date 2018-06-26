@@ -1,3 +1,10 @@
+/**
+ * Module API
+ *
+ * import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
+ *
+ * @author Radek Tomiška
+ */
 import * as Basic from './src/components/basic';
 import * as Advanced from './src/components/advanced';
 import * as Services from './src/services';
@@ -19,6 +26,7 @@ import ScriptCategoryEnum from './src/enums/ScriptCategoryEnum';
 import ApiOperationTypeEnum from './src/enums/ApiOperationTypeEnum';
 import IdentityAttributeEnum from './src/enums/IdentityAttributeEnum';
 import ContractAttributeEnum from './src/enums/ContractAttributeEnum';
+import ContractSliceAttributeEnum from './src/enums/ContractSliceAttributeEnum';
 //
 import ValidationMessage from './src/components/advanced/ValidationMessage/ValidationMessage';
 
@@ -44,7 +52,8 @@ const ModuleRoot = {
     ScriptCategoryEnum,
     ApiOperationTypeEnum,
     IdentityAttributeEnum,
-    ContractAttributeEnum
+    ContractAttributeEnum,
+    ContractSliceAttributeEnum
   },
   Content: {
     ValidationMessage // backward compatibility

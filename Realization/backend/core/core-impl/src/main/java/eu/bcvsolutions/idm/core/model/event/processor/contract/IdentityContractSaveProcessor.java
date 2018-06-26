@@ -55,7 +55,7 @@ public class IdentityContractSaveProcessor
 		//
 		// check identity state
 		IdmIdentityContractDto previousContract = event.getOriginalSource();
-		IdmIdentityDto identity = DtoUtils.getEmbedded(contract, IdmIdentityContract_.identity.getName(), IdmIdentityDto.class);
+		IdmIdentityDto identity = DtoUtils.getEmbedded(contract, IdmIdentityContract_.identity.getName());
 		if ((identity.getState() == IdentityState.CREATED || identity.isDisabled()) 
 				&& contractChanged(previousContract, contract)) {
 			// synchronize identity states, which has no effect on HR processes

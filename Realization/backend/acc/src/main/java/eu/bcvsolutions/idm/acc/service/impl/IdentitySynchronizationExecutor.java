@@ -4,8 +4,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.LocalDateTime;
@@ -32,20 +30,9 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -54,9 +41,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -65,16 +49,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAttributeTaskExecutor;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
-import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
  * Identity sync executor
@@ -86,51 +65,20 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 public class IdentitySynchronizationExecutor extends AbstractSynchronizationExecutor<IdmIdentityDto>
 		implements SynchronizationEntityExecutor {
 
-	private final IdmIdentityService identityService;
-	private final AccIdentityAccountService identityAccoutnService;
-	private final IdmIdentityRoleService identityRoleService;
-	private final IdmRoleRequestService roleRequestService;
-	private final IdmConceptRoleRequestService conceptRoleRequestService;
-	private final IdmIdentityContractService identityContractService;
-	private final LongRunningTaskManager longRunningTaskManager;
-
 	@Autowired
-	public IdentitySynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
-			SysSystemAttributeMappingService attributeHandlingService,
-			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
-			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
-			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
-			FormService formService, IdmIdentityService identityService,
-			AccIdentityAccountService identityAccoutnService, SysSyncItemLogService syncItemLogService,
-			IdmIdentityRoleService identityRoleService, EntityEventManager entityEventManager,
-			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager, SysSystemMappingService systemMappingService,
-			SysSchemaObjectClassService schemaObjectClassService, SysSchemaAttributeService schemaAttributeService,
-			IdmRoleRequestService roleRequestService, IdmIdentityContractService identityContractService,
-			IdmConceptRoleRequestService conceptRoleRequestService, LongRunningTaskManager longRunningTaskManager) {
-		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
-				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
-				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager, systemMappingService, schemaObjectClassService,
-				schemaAttributeService);
-		//
-		Assert.notNull(identityService, "Identity service is mandatory!");
-		Assert.notNull(identityAccoutnService, "Identity account service is mandatory!");
-		Assert.notNull(identityRoleService, "Identity role service is mandatory!");
-		Assert.notNull(roleRequestService, "Role-request service is mandatory!");
-		Assert.notNull(formService, "Form service is mandatory!");
-		Assert.notNull(identityContractService, "Identity contract service is mandatory!");
-		Assert.notNull(conceptRoleRequestService, "Concept role request service is mandatory!");
-		Assert.notNull(longRunningTaskManager, "Long running taks manager is mandatory!");
-		//
-		this.identityService = identityService;
-		this.identityAccoutnService = identityAccoutnService;
-		this.identityRoleService = identityRoleService;
-		this.roleRequestService = roleRequestService;
-		this.identityContractService = identityContractService;
-		this.conceptRoleRequestService = conceptRoleRequestService;
-		this.longRunningTaskManager = longRunningTaskManager;
-	}
+	private IdmIdentityService identityService;
+	@Autowired
+	private AccIdentityAccountService identityAccoutnService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmRoleRequestService roleRequestService;
+	@Autowired
+	private IdmConceptRoleRequestService conceptRoleRequestService;
+	@Autowired
+	private IdmIdentityContractService identityContractService;
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
 
 	/**
 	 * Delete entity linked with given account
@@ -149,40 +97,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			identity = identityService.get(entityId);
 		}
 		if (identity == null) {
-			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! -Identity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
 		// Delete identity
 		identityService.delete(identity);
-	}
-
-	/**
-	 * Call provisioning for given account
-	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	@Override
-	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmIdentityDto identity = null;
-		if (entityId != null) {
-			identity = identityService.get(entityId);
-		}
-		if (identity == null) {
-			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-		// Call provisioning for this entity
-		callProvisioningForEntity(identity, entityType, logItem);
 	}
 
 	/**
@@ -201,7 +122,8 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 						entity.getId(), entity.getUsername()));
 		//
 		IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, entity);
-		// We don't want recalculate automatic role by attribute recalculation for every contract.
+		// We don't want recalculate automatic role by attribute recalculation for every
+		// contract.
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
@@ -209,8 +131,8 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	/**
-	 * Save entity
-	 * In the identity sync are creation of the default contract skipped.
+	 * Save entity In the identity sync are creation of the default contract
+	 * skipped.
 	 * 
 	 * @param entity
 	 * @param skipProvisioning
@@ -221,11 +143,12 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		EntityEvent<IdmIdentityDto> event = new IdentityEvent(
 				identityService.isNew(entity) ? IdentityEventType.CREATE : IdentityEventType.UPDATE, entity,
 				ImmutableMap.of( //
-						ProvisioningService.SKIP_PROVISIONING, skipProvisioning,//
+						ProvisioningService.SKIP_PROVISIONING, skipProvisioning, //
 						// In the identity sync are creation of the default contract skipped.
 						IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, Boolean.TRUE));
 		//
-		// We don't want recalculate automatic role by attribute recalculation for every contract.
+		// We don't want recalculate automatic role by attribute recalculation for every
+		// contract.
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
@@ -276,12 +199,14 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 				logItem.setDisplayName(identity.getUsername());
 			}
 
-			// Call provisioning for entity
-			this.callProvisioningForEntity(identity, entityType, logItem);
+			if (this.isProvisioningImplemented(entityType, logItem)) {
+				// Call provisioning for this entity
+				callProvisioningForEntity(identity, entityType, logItem);
+			}
 
 			return;
 		} else {
-			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Identity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -306,7 +231,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		List<AccIdentityAccountDto> identityAccounts = identityAccoutnService
 				.find((AccIdentityAccountFilter) identityAccountFilter, null).getContent();
 		if (identityAccounts.isEmpty()) {
-			addToItemLog(logItem, "Identity account relation was not found!");
+			addToItemLog(logItem, "Warning! - Identity account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -348,7 +273,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			return identityAccount;
 		}
 		// Default role is defines
-		IdmRoleDto defaultRole = DtoUtils.getEmbedded(config, SysSyncIdentityConfig_.defaultRole, IdmRoleDto.class);
+		IdmRoleDto defaultRole = DtoUtils.getEmbedded(config, SysSyncIdentityConfig_.defaultRole);
 		context.getLogItem()
 				.addToLog(MessageFormat.format(
 						"Default role [{1}] is defines and will be assigned to the identity [{0}].", entity.getCode(),
@@ -381,9 +306,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			// Same IdentityAccount had to be created by assigned default role!
 			context.getLogItem().addToLog(MessageFormat.format(
 					"This identity-account (identity-role id: {2}) is new and duplicated, "
-					+ "we do not want create duplicated relation! "
-					+ "We will reusing already persisted identity-account [{3}]. "
-					+ "Probable reason: Same  identity-account had to be created by assigned default role!",
+							+ "we do not want create duplicated relation! "
+							+ "We will reusing already persisted identity-account [{3}]. "
+							+ "Probable reason: Same  identity-account had to be created by assigned default role!",
 					identityAccount.getAccount(), identityAccount.getIdentity(), identityAccount.getIdentityRole(),
 					duplicate.getId()));
 			// Reusing duplicate
@@ -416,11 +341,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	@Override
-	protected Class<? extends FormableEntity> getEntityClass() {
-		return IdmIdentity.class;
-	}
-
-	@Override
 	protected CorrelationFilter getEntityFilter() {
 		return new IdmIdentityFilter();
 	}
@@ -449,38 +369,38 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	protected IdmIdentityDto createEntityDto() {
 		return new IdmIdentityDto();
 	}
-	
+
 	@Override
 	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
 		log = super.syncCorrectlyEnded(log, context);
 
 		if (getConfig(context).isStartAutoRoleRec()) {
 			log = executeAutomaticRoleRecalculation(log);
-		} else { 
-			log.addToLog(MessageFormat.format(
-					"Start automatic role recalculation (after sync) isn't allowed [{0}]",
+		} else {
+			log.addToLog(MessageFormat.format("Start automatic role recalculation (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
 		}
 
 		return log;
 	}
-	
+
 	/**
 	 * Start automatic role by attribute recalculation synchronously.
 	 *
 	 * @param log
 	 * @return
 	 */
-	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) { 
+	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) {
 		ProcessAllAutomaticRoleByAttributeTaskExecutor executor = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
-		
+
 		log.addToLog(MessageFormat.format(
 				"After success sync have to be run Automatic role by attribute recalculation. We start him (synchronously) now [{0}].",
 				LocalDateTime.now()));
 		Boolean executed = longRunningTaskManager.executeSync(executor);
 
 		if (BooleanUtils.isTrue(executed)) {
-			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].", LocalDateTime.now()));
+			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].",
+					LocalDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
 		}
@@ -495,8 +415,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	/**
-	 * Search duplicate for given identity-account relation.
-	 * If some duplicate is found, then is returned first.
+	 * Search duplicate for given identity-account relation. If some duplicate is
+	 * found, then is returned first.
+	 * 
 	 * @param identityAccount
 	 * @return
 	 */

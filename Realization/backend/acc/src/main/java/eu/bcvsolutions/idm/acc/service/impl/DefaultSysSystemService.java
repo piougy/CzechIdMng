@@ -229,8 +229,8 @@ public class DefaultSysSystemService
 
 		// load filled form values
 		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(system.getConnectorInstance());
-		IdmFormInstanceDto formValues = getFormService().getFormInstance(system, formDefinition);
-		Map<String, List<IdmFormValueDto>> attributeValues = formValues.toValueMap();
+		IdmFormInstanceDto formInstance = getFormService().getFormInstance(system, formDefinition);
+		Map<String, List<IdmFormValueDto>> attributeValues = formInstance.toValueMap();
 
 		// fill connector configuration from form values
 		IcConnectorConfigurationImpl icConf = null;
@@ -248,7 +248,7 @@ public class DefaultSysSystemService
 			IcConfigurationProperty propertyConfig = connectorConfig.getConfigurationProperties().getProperties()
 					.get(seq);
 
-			IdmFormAttributeDto formAttribute = formDefinition.getMappedAttributeByCode(propertyConfig.getName());
+			IdmFormAttributeDto formAttribute = formInstance.getMappedAttributeByCode(propertyConfig.getName());
 			List<IdmFormValueDto> eavAttributeValues = attributeValues.get(formAttribute.getCode());
 
 			// create property instance from configuration

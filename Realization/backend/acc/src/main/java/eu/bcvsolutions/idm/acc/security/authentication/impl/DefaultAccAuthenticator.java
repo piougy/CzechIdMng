@@ -171,7 +171,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 
 		for (AccAccountDto account : accounts) {
 			SysSchemaAttributeDto schemaAttribute = schemaAttributeService.get(attribute.getSchemaAttribute());
-			SysSchemaObjectClassDto schemaObjectClassDto = DtoUtils.getEmbedded(schemaAttribute, SysSchemaAttribute_.objectClass, SysSchemaObjectClassDto.class);
+			SysSchemaObjectClassDto schemaObjectClassDto = DtoUtils.getEmbedded(schemaAttribute, SysSchemaAttribute_.objectClass);
 			SysSystemEntityDto systemEntityDto = systemEntityService.get(account.getSystemEntity());
 			IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
 			

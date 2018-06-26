@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.core.security.evaluator;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,8 +30,6 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * Abstract authorization evaluator template.
  * 
  * @author Radek Tomiška
- * 
- * TODO: move @Autowire to @Configuration bean post processor
  *
  * @param <E> evaluated {@link Identifiable} type - evaluator is designed for one domain type. 
  */
@@ -74,15 +70,6 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 		Assert.notNull(authorizableType);
 		//
 		return entityClass.isAssignableFrom(authorizableType);
-	}
-	
-	/**
-	 * Returns universal configuration parameters. Don't forget to override this method additively.
-	 */
-	@Override
-	public List<String> getParameterNames() {
-		// any parameter for now
-		return new ArrayList<>();
 	}
 	
 	/**

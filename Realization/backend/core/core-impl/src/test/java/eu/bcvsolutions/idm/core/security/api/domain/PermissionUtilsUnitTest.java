@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.security.api.domain;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -7,6 +8,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
@@ -103,5 +105,16 @@ public class PermissionUtilsUnitTest extends AbstractUnitTest {
 		Set<BasePermission> permissions = Sets.newHashSet(IdmBasePermission.ADMIN);
 		//
 		Assert.assertTrue(PermissionUtils.hasAnyPermission(PermissionUtils.toString(permissions), IdmBasePermission.READ, IdmBasePermission.DELETE));
+	}
+	
+	@Test
+	public void testToPermissions() {
+		Set<String> pelMel = Sets.newHashSet(CoreGroupPermission.AUTHORIZATIONPOLICY_AUTOCOMPLETE, IdmBasePermission.CREATE.getName());
+		//
+		Collection<BasePermission> permissions = PermissionUtils.toPermissions(pelMel);
+		//
+		Assert.assertEquals(2, permissions.size());
+		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.CREATE)));
+		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE)));
 	}
 }

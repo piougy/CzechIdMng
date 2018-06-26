@@ -1,6 +1,8 @@
 import EntityManager from './EntityManager';
 import { FormAttributeService } from '../../services';
 import ComponentService from '../../services/ComponentService';
+import FormDefinitionManager from './FormDefinitionManager';
+import * as Utils from '../../utils';
 
 /**
  * Eav form attributes
@@ -51,5 +53,49 @@ export default class FormAttributeManager extends EntityManager {
       return attribute.persistentType.toLowerCase() === component.persistentType.toLowerCase()
           && _attributeFaceType.toLowerCase() === _componentFaceType.toLowerCase();
     });
+  }
+
+  getLocalization(formDefinition, formAttribute, property, defaultValue = null) {
+    const _formDefinition = formDefinition || (formAttribute._embedded ? formAttribute._embedded.formDefinition : null);
+    //
+    let key = null;
+    let keyWithModule = null;
+    let localizeMessage = null;
+    if (_formDefinition) {
+      key = `${ FormAttributeManager.getLocalizationPrefix(_formDefinition, formAttribute, false) }.${ property }`;
+      keyWithModule = `${ FormAttributeManager.getLocalizationPrefix(_formDefinition, formAttribute, true) }.${ property }`;
+      localizeMessage = this.i18n(keyWithModule);
+    }
+    //
+    // if localized message is exactly same as key, that means message isn't localized
+    if (key === null || key === localizeMessage || keyWithModule === localizeMessage) {
+      return defaultValue;
+    }
+    return localizeMessage;
+  }
+
+  /**
+   * Returns prefix for localization
+   * ''
+   * @param  {object} formDefinition
+   * @param  {string} formAttribute optional - if attribute is not given, then formDefinition prefix is returned
+   * @return {string}
+   */
+  static getLocalizationPrefix(formDefinition, formAttribute, withModule = true) {
+    if (!formDefinition && !formAttribute) {
+      return undefined;
+    }
+    const _formDefinition = formDefinition || (formAttribute._embedded ? formAttribute._embedded.formDefinition : null);
+    if (!_formDefinition) {
+      return undefined;
+    }
+    //
+    const definitionPrefix = FormDefinitionManager.getLocalizationPrefix(_formDefinition, withModule);
+    if (!formAttribute) {
+      // definition prefix only
+      return definitionPrefix;
+    }
+    //
+    return `${definitionPrefix}.attributes.${Utils.Ui.spinalCase(formAttribute.code)}`;
   }
 }

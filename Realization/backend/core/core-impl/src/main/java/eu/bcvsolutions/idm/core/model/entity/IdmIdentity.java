@@ -14,7 +14,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -25,9 +24,6 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
@@ -40,8 +36,6 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.ecm.entity.IdmAttachment;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 
 /**
  * Identity
@@ -74,11 +68,6 @@ public class IdmIdentity extends AbstractEntity
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
 	private String externalId;
-
-	@Transient // passwords are saved to confidental storage
-	@JsonProperty(access = Access.WRITE_ONLY)
-	@JsonDeserialize(using = GuardedStringDeserializer.class)
-	private transient GuardedString password;
 
 	@Version
 	@JsonIgnore
@@ -174,14 +163,6 @@ public class IdmIdentity extends AbstractEntity
 
 	public void setUsername(String username) {
 		this.username = username;
-	}
-
-	public GuardedString getPassword() {
-		return password;
-	}
-
-	public void setPassword(GuardedString password) {
-		this.password = password;
 	}
 
 	public String getFirstName() {
@@ -305,6 +286,7 @@ public class IdmIdentity extends AbstractEntity
 		return externalCode;
 	}
 
+	@Override
 	public void setExternalCode(String externalCode) {
 		this.externalCode = externalCode;
 	}

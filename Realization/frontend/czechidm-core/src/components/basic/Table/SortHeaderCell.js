@@ -42,24 +42,24 @@ class SortHeaderCell extends AbstractComponent {
   }
 
   render() {
-    const { header, headerTitle, property, sortHandler, showLoading, className } = this.props;
+    const { header, title, property, sortHandler, showLoading, className } = this.props;
     const active = this._activeSort();
-    const title = header || property;
+    const content = header || property;
     const classNames = classnames(
       'sort-header-cell',
       className
     );
     return (
-      <div className={classNames}>
+      <div className={ classNames } title={ title }>
         {
           sortHandler
           ?
-          <a href="#" onClick={this._handleSort.bind(this, active === 'ASC' ? 'DESC' : 'ASC')} title={headerTitle}>
-            {title}
+          <a href="#" onClick={this._handleSort.bind(this, active === 'ASC' ? 'DESC' : 'ASC')}>
+            { content }
             <SortIcon active={active} showLoading={showLoading}/>
           </a>
           :
-          <span>{title}</span>
+          <span>{ content }</span>
         }
       </div>
     );

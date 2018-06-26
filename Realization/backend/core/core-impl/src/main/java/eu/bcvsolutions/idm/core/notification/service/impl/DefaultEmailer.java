@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplate
 @Component("emailer")
 public class DefaultEmailer implements Emailer {
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultEmailer.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEmailer.class);
 	
 	@Autowired private CamelContext camelContext;
 	@Autowired private IdmEmailLogService emailLogService;
@@ -52,13 +52,12 @@ public class DefaultEmailer implements Emailer {
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private EntityEventManager entityEventManager;
 
-	
 	@Transactional
 	public boolean send(IdmEmailLogDto emailLog) {
-		log.debug("Sending email [{}]", emailLog);
+		LOG.debug("Sending email [{}]", emailLog);
 		
 		if (ObjectUtils.isEmpty(emailLog.getRecipients())) {
-			log.info("Email recipiets is empty. Email [{}] is logged only.", emailLog);
+			LOG.info("Email recipiets is empty. Email [{}] is logged only.", emailLog);
 			emailLogService.setEmailSentLog(emailLog.getId(), "Email recipients is empty. Email was logged only.");
 			return false;
 		}
@@ -88,21 +87,26 @@ public class DefaultEmailer implements Emailer {
 			
 			return true;
 		} catch(Exception ex) {
-			log.error("Sending email [{}] failed: [{}]", emailLog, ex);
+			LOG.error("Sending email [{}] failed: [{}]", emailLog, ex);
 			emailLogService.setEmailSentLog(emailLog.getId(), StringUtils.abbreviate(ex.toString(), DefaultFieldLengths.LOG));
 			return false;
 		}
 
 	}
 	
+	/**
+	 * Email will be send by event after original transaction ends
+	 * 
+	 * @param sendOperation
+	 */
 	@TransactionalEventListener
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void sendInternal(SendOperation sendOperation) {
 		if (configuration.isTestEnabled()) {
-			log.info("Test mode for emailer is enabled. Email [{}] will be logged only.", sendOperation.getEmailLog());
+			LOG.info("Test mode for emailer is enabled. Email [{}] will be logged only.", sendOperation.getEmailLog());
 			emailLogService.setEmailSentLog(sendOperation.getEmailLog().getId(), "Test mode for emailer was enabled. Email was logged only.");
 		} else {
-			log.debug("Email was registered to producer [{}]", sendOperation.getEmailLog());
+			LOG.debug("Email was registered to producer [{}]", sendOperation.getEmailLog());
 			producerTemplate.asyncCallback(sendOperation.getEndpoint(), sendOperation.getExchange(), new EmailCallback(sendOperation.getEmailLog().getId(), emailLogService));
 		}
 	}
@@ -130,8 +134,12 @@ public class DefaultEmailer implements Emailer {
 		Map<String, Object> headers = new HashMap<String, Object>();		
 		// resolve recipients
 		headers.put("To", getRecipiets(emailLog));	
-		
-		String from = configuration.getFrom();
+
+		String from = (emailLog.getMessage().getTemplate() != null) ? emailLog.getMessage().getTemplate().getSender() : null;
+		if (StringUtils.isBlank(from)) {
+			from = configuration.getFrom();
+		}
+
 		if (StringUtils.isNotBlank(from)) {
 			headers.put("From", from);
 		}
@@ -209,18 +217,18 @@ public class DefaultEmailer implements Emailer {
 		
 		@Override
 	    public void onFailure(Exchange exchange) {			
-			log.error("Sending email [id:{}] failed: [{}]", emailLogId, exchange.getException()); // exception cannot be null here
+			LOG.error("Sending email [id:{}] failed: [{}]", emailLogId, exchange.getException()); // exception cannot be null here
 			emailLogService.setEmailSentLog(emailLogId, StringUtils.abbreviate(exchange.getException().toString(), DefaultFieldLengths.LOG));
 		}		
 		
 	    @Override
 	    public void onComplete(Exchange exchange) {
 	    	try {
-		    	log.info("Sending email [id:{}] succeeded", emailLogId);
+	    		LOG.info("Sending email [id:{}] succeeded", emailLogId);
 		    	emailLogService.setEmailSent(emailLogId, new DateTime());
-	    	} catch (Exception e) {
-	    		log.error("Unspecified error while save emailLog, with id: [{}].", emailLogId, e);
-	    		throw e;
+	    	} catch (Exception ex) {
+	    		LOG.error("Unspecified error while save emailLog, with id: [{}].", emailLogId, ex);
+	    		throw ex;
 	    	}
 	    }
 	}

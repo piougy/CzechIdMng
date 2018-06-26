@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.example.rest.impl;
 
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,8 +23,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 import eu.bcvsolutions.idm.example.domain.ExampleGroupPermission;
@@ -48,7 +50,7 @@ import io.swagger.annotations.AuthorizationScope;
 		value = ExampleProductController.TAG, 
 		description = "Example products", 
 		tags = { ExampleProductController.TAG })
-public class ExampleProductController extends DefaultReadWriteDtoController<ExampleProductDto, ExampleProductFilter> {
+public class ExampleProductController extends AbstractReadWriteDtoController<ExampleProductDto, ExampleProductFilter> {
 
 	protected static final String TAG = "Example products";
 	
@@ -116,6 +118,24 @@ public class ExampleProductController extends DefaultReadWriteDtoController<Exam
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
 	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + ExampleGroupPermission.EXAMPLE_PRODUCT_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countExampleProducts", 
+			tags = { ExampleProductController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = ExampleGroupPermission.EXAMPLE_PRODUCT_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = ExampleGroupPermission.EXAMPLE_PRODUCT_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
 
 	@Override
 	@ResponseBody
@@ -179,6 +199,29 @@ public class ExampleProductController extends DefaultReadWriteDtoController<Exam
 			@PathVariable @NotNull String backendId, 
 			@Valid @RequestBody ExampleProductDto dto) {
 		return super.put(backendId, dto);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + ExampleGroupPermission.EXAMPLE_PRODUCT_UPDATE + "')")
+	@ApiOperation(
+			value = "Update example product", 
+			nickname = "patchExampleProduct", 
+			response = ExampleProductDto.class, 
+			tags = { ExampleProductController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = ExampleGroupPermission.EXAMPLE_PRODUCT_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = ExampleGroupPermission.EXAMPLE_PRODUCT_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Example product's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
+			throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest);
 	}
 
 	@Override

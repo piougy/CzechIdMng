@@ -1,0 +1,244 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- Notification with result WF that change identity roles parameters: - 
+	addedRoles - changedRoles - removedRoles - identity - from -->
+
+<template xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>bulkActionEnd</code>
+	<name>Send result Bulk Action</name>
+	<subject>CzechIdM - hromadná akce [$action.Name] byla dokončena</subject>
+	<bodyHtml>
+<![CDATA[
+
+<html>
+	<head>
+	<style>
+	dt { 
+		float: left; clear: left; width: 25em; font-weight: bold;
+	}
+	dd { 
+		float: left;
+	}
+	td {
+		padding: 5px
+	}
+	.label {
+		font-weight: 700;
+		line-height: 1;
+		vertical-align: baseline;
+		white-space: nowrap;
+		text-align: center;
+		display: inline;
+		padding: .2em .6em .3em;
+		font-size: 75%;
+		color: #fff;
+		border-radius: .25em;
+	}
+	</style>
+	</head>
+	<body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+		<!-- Macros for Apache velocity -->
+		#macro( printState $state $loc )
+			#if($loc == "cs")
+			#if( $state == "CREATED" )
+			Vytvořeno
+				#elseif( $state == "RUNNING" )
+			Zpracovává se
+				#elseif( $state == "EXECUTED" )
+			Provedeno
+				#elseif($state == "EXCEPTION")
+			Chyba
+				#elseif($state == "NOT_EXECUTED")
+			Neprovedeno
+				#elseif($state == "BLOCKED")
+			Blokováno
+				#elseif($state == "CANCELED")
+			Zrušeno
+				#else
+				#end
+				#else
+					#if( $state == "CREATED" )
+				Created
+					#elseif( $state == "RUNNING" )
+				Running
+					#elseif( $state == "EXECUTED" )
+				Executed
+					#elseif($state == "EXCEPTION")
+				Exception
+					#elseif($state == "NOT_EXECUTED")
+				Not executed
+					#elseif($state == "BLOCKED")
+				Blocked
+					#elseif($state == "CANCELED")
+				Canceled
+					#else
+				#end
+			#end
+		#end
+
+		#set( $loc = "cs" )
+		Dobrý den,<br />
+		hromadná akce [$action.Name] byla dokončena. Blížší informace a výsledek úlohy:<br />
+		<br />
+		
+		<div style="display: block;">
+			<dl>
+				<dt>Název akce</dt>
+				<dd>$action.Name</dd>
+				<dt>Hromadnou akci spustil</dt>
+				<dd>$owner.Username</dd>
+				<dt>Počet celkově zpracovaných položek</dt>
+				<dd>$task.Counter/$task.Count</dd>
+				<dt>Celkový výsledek</dt>
+				<dd>#printState( $result.State $loc )</dd>
+				<dt>Detail úlohy</dt>
+				<dd><a href="$detailUrl">detail</a></dd>
+				<dt>Přehled zpracovaných položek</dt>
+				<dd><a href="$processItemslUrl">položky</a></dd>
+			</dl>
+		</div>
+
+		<br />
+		<br />
+		<br />
+		<div style="display: block; clear:both;">
+			<table style="border: solid 0px; margin: 30px auto; max-width: 1500px;">
+				<thead>
+					<tr>
+						<td>
+					    	<div>Výsledek</div>
+						</td>
+						<td>
+							<div>Počet</div>
+						</td>
+					</tr>
+				</thead>
+				<tbody>
+				#if( $task.SuccessItemCount > 0 )
+				<tr>
+					<td>
+						<div><span class="label" style="background-color: #5cb85c;"><span>Úspěšně dokončeno</span></span></div>
+					</td>
+					<td>
+						<div>$task.SuccessItemCount</div>
+					</td>
+				</tr>
+				#end
+				#if( $task.FailedItemCount > 0 )
+				<tr>
+					<td>
+						<div><span class="label" style="background-color: #d9534f;"><span>Neúspěšně dokončeno</span></span></div>
+					</td>
+					<td>
+						<div>$task.FailedItemCount</div>
+					</td>
+				</tr>
+				#end
+				#if( $task.WarningItemCount > 0 )
+				<tr>
+					<td>
+						<div><span class="label" style="background-color: #f0ad4e;"><span>Varování</span></span></div>
+					</td>
+					<td>
+						<div>$task.WarningItemCount</div>
+					</td>
+				</tr>
+				#end
+				</tbody>
+			</table>
+			#if( $task.WarningItemCount > 0 )
+			<i>Položky označené jako <b>Varování</b> mohou být položky, které například prochází schvalováním, nebo dalším procesesem.</i>
+			#end
+		</div>
+		<br/>
+		<br/>
+		<hr />
+		#set( $loc = "en" )
+		Hello,<br />
+		bulk action [$action.Name] was completed. Next information and result of the task:<br />
+		<br />
+		
+		<div style="display: block;">
+			<dl>
+				<dt>Action name</dt>
+				<dd>$action.Name</dd>
+				<dt>Bulk action started</dt>
+				<dd>$owner.Username</dd>
+				<dt>Number of total processed items</dt>
+				<dd>$task.Counter/$task.Count</dd>
+				<dt>Final result</dt>
+				<dd>#printState( $result.State $loc )</dd>
+				<dt>Task detail</dt>
+				<dd><a href="$detailUrl">detail</a></dd>
+				<dt>Overview of processed items</dt>
+				<dd><a href="$processItemslUrl">items</a></dd>
+			</dl>
+		</div>
+
+		<br />
+		<br />
+		<br />
+		<div style="display: block; clear:both;">
+			<table style="border: solid 0px; margin: 30px auto; max-width: 1500px;">
+				<thead>
+					<tr>
+						<td>
+					    	<div>Result</div>
+						</td>
+						<td>
+							<div>Count</div>
+						</td>
+					</tr>
+				</thead>
+				<tbody>
+				#if( $task.SuccessItemCount > 0 )
+				<tr>
+					<td>
+						<div><span class="label" style="background-color: #5cb85c;"><span>Successfully completed</span></span></div>
+					</td>
+					<td>
+						<div>$task.SuccessItemCount</div>
+					</td>
+				</tr>
+				#end
+				#if( $task.FailedItemCount > 0 )
+				<tr>
+					<td>
+						<div><span class="label" style="background-color: #d9534f;"><span>Unsuccessfully completed</span></span></div>
+					</td>
+					<td>
+						<div>$task.FailedItemCount</div>
+					</td>
+				</tr>
+				#end
+				#if( $task.WarningItemCount > 0 )
+				<tr>
+					<td>
+						<div><span class="label" style="background-color: #f0ad4e;"><span>Warning</span></span></div>
+					</td>
+					<td>
+						<div>$task.WarningItemCount</div>
+					</td>
+				</tr>
+				#end
+				</tbody>
+			</table>
+			#if( $task.WarningItemCount > 0 )
+			<i>Items marked as <b>Warning</b> can be items, for example, passing through approval or another process.</i>
+			#end
+		</div>
+		<br/>
+		<br/>
+		<div style="display: block; margin: 30px auto; max-width: 400px; text-align: center;">
+			CzechIdM © 2017&nbsp;BCV Solutions s.r.o.&nbsp;
+		</div>
+	</body>
+</html>
+
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>action, task, owner, result, detailUrl, processItemslUrl</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

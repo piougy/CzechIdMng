@@ -55,13 +55,43 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	public IdmFormAttributeDto() {
 	}
 	
+	/**
+	 * Creates simple short text attribute with same na as code
+	 * 
+	 * @param code
+	 */
+	public IdmFormAttributeDto(String code) {
+		this(code, code);
+	}
+	
+	/**
+	 * Creates simple short text attribute 
+	 * 
+	 * @param code
+	 * @param name
+	 */
+	public IdmFormAttributeDto(String code, String name) {
+		this(code, name, PersistentType.SHORTTEXT);
+	}
+	
+	/**
+	 * Creates attribute with give persistent type and default face
+	 * @param code
+	 * @param name
+	 * @param persistentType
+	 */
 	public IdmFormAttributeDto(String code, String name, PersistentType persistentType) {
+		this(code, name, persistentType, null);
+	}
+	
+	public IdmFormAttributeDto(String code, String name, PersistentType persistentType, String faceType) {
 		Assert.notNull(code);
 		Assert.notNull(persistentType);
 		//
 		this.code = code;
 		this.name = name;
 		this.persistentType = persistentType;
+		this.faceType = faceType;
 	}
 
 	public UUID getFormDefinition() {

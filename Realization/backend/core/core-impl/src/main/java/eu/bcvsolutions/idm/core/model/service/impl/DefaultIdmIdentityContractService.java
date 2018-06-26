@@ -26,10 +26,12 @@ import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -60,6 +62,8 @@ public class DefaultIdmIdentityContractService
 	private final IdmIdentityContractRepository repository;
 	private final TreeConfiguration treeConfiguration;
 	private final IdmTreeNodeRepository treeNodeRepository;
+	@Autowired
+	private IdmContractSliceService contractSliceService;
 	
 	@Autowired
 	public DefaultIdmIdentityContractService(
@@ -90,6 +94,22 @@ public class DefaultIdmIdentityContractService
 			contract.setDisabled(dto.isDisabled()); // redundant attribute for queries
 		}
 		return contract;
+	}
+	
+	@Override
+	protected IdmIdentityContractDto toDto(IdmIdentityContract entity, IdmIdentityContractDto dto) {
+		IdmIdentityContractDto resultDto = super.toDto(entity, dto);
+		// Set attribute if that contract was created by slices
+		if(resultDto != null && resultDto.getId() != null && !resultDto.isTrimmed()) {
+			IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+			sliceFilter.setParentContract(resultDto.getId());
+			if(contractSliceService.find(sliceFilter, null).getTotalElements() > 0) {
+				resultDto.setControlledBySlices(Boolean.TRUE);
+			}else {
+				resultDto.setControlledBySlices(Boolean.FALSE);
+			}
+		}
+		return resultDto;
 	}
 	
 	@Override
@@ -168,22 +188,11 @@ public class DefaultIdmIdentityContractService
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.state), filter.getState()));
 		}
-		// property, if is property filled and it isn't find in defined properties return disjunction
-		boolean exitsProperty = filter.getProperty() == null ? true : false;
-		if (StringUtils.equals(IdmIdentityContract_.position.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.position), filter.getValue()));
+		if (StringUtils.isNotEmpty(filter.getPosition())) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.position), filter.getPosition()));
 		}
-		if (StringUtils.equals(IdmIdentityContract_.state.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.state), filter.getValue()));
-		}
-		if (StringUtils.equals(IdmIdentityContract_.description.getName(), filter.getProperty())) {
-			exitsProperty = true;
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.description), filter.getValue()));
-		}
-		if (!exitsProperty) {
-			predicates.add(builder.disjunction());
+		if (filter.getWorkPosition() != null) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.id), filter.getWorkPosition()));
 		}
 		//
 		return predicates;
@@ -296,7 +305,7 @@ public class DefaultIdmIdentityContractService
 	public List<IdmIdentityContractDto> findAllValidForDate(UUID identityId, LocalDate date, Boolean onlyExterne) {
 		return toDtos(this.repository.findAllValidContracts(identityId, date, onlyExterne), false);
 	}
-	
+
 	/**
 	 * Returns contracts sorted by priority:
 	 * - 1. main

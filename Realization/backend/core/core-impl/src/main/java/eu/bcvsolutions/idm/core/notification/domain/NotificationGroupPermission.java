@@ -16,9 +16,25 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  */
 public enum NotificationGroupPermission implements GroupPermission {
 	
-	NOTIFICATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
-	NOTIFICATIONCONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	NOTIFICATIONTEMPLATE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
+	NOTIFICATION(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE),
+	NOTIFICATIONCONFIGURATION(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	NOTIFICATIONTEMPLATE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -31,6 +47,8 @@ public enum NotificationGroupPermission implements GroupPermission {
 	public static final String NOTIFICATIONCONFIGURATION_UPDATE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String NOTIFICATIONCONFIGURATION_DELETE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String NOTIFICATIONTEMPLATE_COUNT = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String NOTIFICATIONTEMPLATE_AUTOCOMPLETE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String NOTIFICATIONTEMPLATE_READ = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "READ";
 	public static final String NOTIFICATIONTEMPLATE_CREATE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String NOTIFICATIONTEMPLATE_UPDATE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "UPDATE";

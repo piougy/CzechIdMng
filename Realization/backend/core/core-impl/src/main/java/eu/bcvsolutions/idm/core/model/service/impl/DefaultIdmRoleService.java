@@ -89,6 +89,9 @@ public class DefaultIdmRoleService
 	@Override
 	protected IdmRole toEntity(IdmRoleDto dto, IdmRole entity) {
 		entity = super.toEntity(dto, entity);
+		if (entity == null) {
+			return null;
+		}
 		// fill lists references
 		for (IdmRoleGuarantee guarantee : entity.getGuarantees()) {
 			guarantee.setRole(entity);
@@ -132,10 +135,6 @@ public class DefaultIdmRoleService
 		// role type
 		if (filter.getRoleType() != null) {
 			predicates.add(builder.equal(root.get(IdmRole_.roleType), filter.getRoleType()));
-		}
-		// property
-		if (StringUtils.equals(IdmRole_.name.getName(), filter.getProperty())) {
-			predicates.add(builder.equal(root.get(IdmRole_.name), filter.getValue()));
 		}
 		// guarantee	
 		if (filter.getGuaranteeId() != null) {

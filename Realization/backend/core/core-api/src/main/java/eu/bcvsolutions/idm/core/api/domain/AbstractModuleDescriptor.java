@@ -157,5 +157,9 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 		}
 		return notificationTemplate.getId();
 	}
+
+	public List<ResultCode> getResultCodes() {
+		return Collections.emptyList();
+	}
 	
 }

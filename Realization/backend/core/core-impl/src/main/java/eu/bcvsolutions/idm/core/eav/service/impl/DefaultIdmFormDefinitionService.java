@@ -12,7 +12,6 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -22,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
@@ -45,6 +45,9 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 public class DefaultIdmFormDefinitionService 
 		extends AbstractReadWriteDtoService<IdmFormDefinitionDto, IdmFormDefinition, IdmFormDefinitionFilter> 
 		implements IdmFormDefinitionService {
+
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
+			.getLogger(DefaultIdmFormDefinitionService.class);
 
 	private final IdmFormDefinitionRepository formDefinitionRepository;
 	private final IdmFormAttributeService formAttributeService;
@@ -96,14 +99,24 @@ public class DefaultIdmFormDefinitionService
 	@Override
 	protected IdmFormDefinitionDto toDto(IdmFormDefinition entity, IdmFormDefinitionDto dto) {
 		dto = super.toDto(entity, dto);
-		if (dto != null && !dto.isTrimmed()) {
-			// set mapped attributes
-			IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
-			filter.setDefinitionId(dto.getId());
-			dto.setFormAttributes(
-					formAttributeService
-					.find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
-					.getContent());
+		if (dto != null) {
+			if (!dto.isTrimmed()) {
+				// set mapped attributes
+				// TODO: this is dangerous ... permission are not propagated lower - AUTOCOMPLETE permission on attributes by default?
+				IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
+				filter.setDefinitionId(dto.getId());
+				dto.setFormAttributes(
+						formAttributeService
+						.find(filter, getPageableAll(new Sort(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
+						.getContent());
+			}
+			// set module
+			try {
+				// TODO: #1140
+				dto.setModule(EntityUtils.getModule(Class.forName(dto.getType())));
+			} catch (ClassNotFoundException e) {
+				LOG.warn("Owner type: {}, wasn't found. Form definition module will be empty", dto.getType(), e);
+			}
 		}
 		return dto;
 	}

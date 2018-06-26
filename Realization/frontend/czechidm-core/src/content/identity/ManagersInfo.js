@@ -45,15 +45,16 @@ class ManagersInfo extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { identityContractId, _showLoading} = this.props;
+    const { identityContractId, _showLoading, _ui, detailLink } = this.props;
     if (!identityContractId) {
       return null;
     }
-
+    const managers = this.getAllManagers();
+    //
     return (
       <span>
         {
-          this.getAllManagers().map(identity => {
+          managers.map(identity => {
             return (
               <Advanced.EntityInfo
                 entityType="identity"
@@ -69,6 +70,15 @@ class ManagersInfo extends Basic.AbstractContextComponent {
           ||
           <Basic.Icon value="refresh" showLoading />
         }
+        {
+          (!detailLink || _showLoading || !_ui || managers.length >= _ui.total)
+          ||
+          <small title={ this.i18n('entity.IdentityContract.managers.total') } style={{ whiteSpace: 'nowrap' }}>
+            <a href="#" onClick={ (event) => { event.preventDefault(); detailLink(); } }>
+              ... ({ _ui.total })
+            </a>
+          </small>
+        }
       </span>
     );
   }
@@ -78,11 +88,18 @@ ManagersInfo.propTypes = {
   identityContractId: PropTypes.string.required,
   managersFor: PropTypes.string.required,
   _showLoading: PropTypes.bool,
-  _managers: PropTypes.arrayOf(PropTypes.object)
+  _managers: PropTypes.arrayOf(PropTypes.object),
+  /**
+   * link to contract detail
+   *
+   * @type {[type]}
+   */
+  detailLink: PropTypes.func
 };
 ManagersInfo.defaultProps = {
   _managers: [],
-  _showLoading: false
+  _showLoading: false,
+  detailLink: null
 };
 
 function select(state, component) {
@@ -92,6 +109,7 @@ function select(state, component) {
   const uiKeyId = `${uiKey}-${component.identityContractId}`;
   return {
     _showLoading: Utils.Ui.isShowLoading(state, uiKeyId),
+    _ui: Utils.Ui.getUiState(state, uiKeyId),
     _managers: Utils.Ui.getEntities(state, uiKeyId)
   };
 }

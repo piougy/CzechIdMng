@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
@@ -14,11 +15,14 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 
 /**
- * Used as value holder for form service - form definition + their values by owner
+ * Used as value holder for form service - form definition + their values by owner.
  *
  * @author Radek Tomiška
  */
@@ -28,6 +32,7 @@ public class IdmFormInstanceDto implements Serializable {
 	//
 	@NotNull
 	private IdmFormDefinitionDto formDefinition;
+	@JsonDeserialize(as = String.class)
 	private Serializable ownerId;
 	@NotNull
 	private Class<? extends Identifiable> ownerType;
@@ -55,6 +60,8 @@ public class IdmFormInstanceDto implements Serializable {
 	}
 
 	public void setFormDefinition(IdmFormDefinitionDto formDefinition) {
+		Assert.notNull(formDefinition);
+		//
 		this.formDefinition = formDefinition;
 	}
 
@@ -97,6 +104,9 @@ public class IdmFormInstanceDto implements Serializable {
 		Map<String, List<IdmFormValueDto>> results = new HashMap<>();
 		for(IdmFormValueDto value : values) {
 			IdmFormAttributeDto attribute = formDefinition.getMappedAttribute(value.getFormAttribute());
+			if (attribute == null) {
+				throw new CoreException("Form attribute with code [" + value.getFormAttribute() + "] not found in definition [" + formDefinition.getId() + "]");
+			}
 			String key = attribute.getCode();
 			if (!results.containsKey(key)) {
 				results.put(key, new ArrayList<>());
@@ -114,9 +124,11 @@ public class IdmFormInstanceDto implements Serializable {
 	 * @return
 	 */
 	public Map<String, List<Serializable>> toPersistentValueMap() {
-		Assert.notNull(values);
-		//
 		Map<String, List<Serializable>> results = new HashMap<>();
+		if (values == null) {
+			return results;
+		}
+		//
 		for(IdmFormValueDto value : values) {
 			IdmFormAttributeDto attribute = formDefinition.getMappedAttribute(value.getFormAttribute());
 			String key = attribute.getCode();
@@ -177,5 +189,27 @@ public class IdmFormInstanceDto implements Serializable {
 			results.add(key, value.getValue());
 		}		
 		return results;
+	}
+	
+	/**
+	 * Returns attribute definition by identifier.
+	 *
+	 * @param formAttributeId
+	 * @return
+	 * @since 8.2.0
+	 */
+	public IdmFormAttributeDto getMappedAttribute(UUID formAttributeId) {
+		return getFormDefinition().getMappedAttribute(formAttributeId);
+	}
+	
+	/**
+	 * Returns attribute definition by code.
+	 *
+	 * @param attributeCode
+	 * @return
+	 * @since 8.2.0
+	 */
+	public IdmFormAttributeDto getMappedAttributeByCode(String attributeCode) {
+		return getFormDefinition().getMappedAttributeByCode(attributeCode);
 	}
 }

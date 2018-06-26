@@ -40,7 +40,7 @@ public class TestFilterReportExecutor extends AbstractReportExecutor {
 	}
 	
 	@Override
-	protected List<IdmFormAttributeDto> getFormAttributes() {
+	public List<IdmFormAttributeDto> getFormAttributes() {
 		return Lists.newArrayList(new IdmFormAttributeDto(IdmIdentity_.username.getName(), "Username", PersistentType.TEXT));
 	}
 	

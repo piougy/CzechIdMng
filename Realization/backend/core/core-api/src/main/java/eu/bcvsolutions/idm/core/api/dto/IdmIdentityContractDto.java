@@ -22,128 +22,138 @@ import io.swagger.annotations.ApiModelProperty;
 @Relation(collectionRelation = "identityContracts")
 public class IdmIdentityContractDto extends AbstractDto implements ValidableEntity, ExternalIdentifiable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Size(max = DefaultFieldLengths.NAME)
+	@Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(notes = "Unique external identifier.")
 	private String externalId;
-    @Embedded(dtoClass = IdmIdentityDto.class)
-    private UUID identity;
-    private LocalDate validFrom;
-    private LocalDate validTill;
-    private String position;
-    private boolean externe;
-    private boolean disabled;
+	@Embedded(dtoClass = IdmIdentityDto.class)
+	private UUID identity;
+	private LocalDate validFrom;
+	private LocalDate validTill;
+	private String position;
+	private boolean externe;
+	private boolean disabled;
 	private ContractState state;
-    private boolean main;
-    @Embedded(dtoClass = IdmTreeNodeDto.class)
-    private UUID workPosition;
-    private String description;
-    
-    public IdmIdentityContractDto() {
+	private boolean main;
+	@Embedded(dtoClass = IdmTreeNodeDto.class)
+	private UUID workPosition;
+	private String description;
+	private Boolean controlledBySlices; // Is true only if contract has some slice. Contract created by slice, cannot be
+										// updated directly! Is sets only if DTO is not trimmed!
+
+	public IdmIdentityContractDto() {
 	}
-    
-    public IdmIdentityContractDto(UUID id) {
+
+	public IdmIdentityContractDto(UUID id) {
 		super(id);
 	}
 
-    public UUID getIdentity() {
-        return identity;
-    }
+	public UUID getIdentity() {
+		return identity;
+	}
 
-    public void setIdentity(UUID identity) {
-        this.identity = identity;
-    }
+	public void setIdentity(UUID identity) {
+		this.identity = identity;
+	}
 
-    @Override
-    public LocalDate getValidFrom() {
-        return validFrom;
-    }
+	@Override
+	public LocalDate getValidFrom() {
+		return validFrom;
+	}
 
-    public void setValidFrom(LocalDate validFrom) {
-        this.validFrom = validFrom;
-    }
+	public void setValidFrom(LocalDate validFrom) {
+		this.validFrom = validFrom;
+	}
 
-    @Override
-    public LocalDate getValidTill() {
-        return validTill;
-    }
+	@Override
+	public LocalDate getValidTill() {
+		return validTill;
+	}
 
-    public void setValidTill(LocalDate validTill) {
-        this.validTill = validTill;
-    }
+	public void setValidTill(LocalDate validTill) {
+		this.validTill = validTill;
+	}
 
-    public String getPosition() {
-        return position;
-    }
+	public String getPosition() {
+		return position;
+	}
 
-    public void setPosition(String position) {
-        this.position = position;
-    }
+	public void setPosition(String position) {
+		this.position = position;
+	}
 
-    public boolean isExterne() {
-        return externe;
-    }
+	public boolean isExterne() {
+		return externe;
+	}
 
-    public void setExterne(boolean externe) {
-        this.externe = externe;
-    }
-    
-    public boolean isDisabled() {
-        return state == null ? disabled : state.isDisabled();
-    }
-    
-    public boolean isExcluded() {
-        return state == ContractState.EXCLUDED;
-    }
+	public void setExterne(boolean externe) {
+		this.externe = externe;
+	}
 
-    public void setMain(boolean main) {
-        this.main = main;
-    }
+	public boolean isDisabled() {
+		return state == null ? disabled : state.isDisabled();
+	}
 
-    public boolean isMain() {
-        return main;
-    }
+	public boolean isExcluded() {
+		return state == ContractState.EXCLUDED;
+	}
 
-    public void setWorkPosition(UUID workPosition) {
-        this.workPosition = workPosition;
-    }
+	public void setMain(boolean main) {
+		this.main = main;
+	}
 
-    public UUID getWorkPosition() {
-        return workPosition;
-    }
+	public boolean isMain() {
+		return main;
+	}
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	public void setWorkPosition(UUID workPosition) {
+		this.workPosition = workPosition;
+	}
 
-    public String getDescription() {
-        return description;
-    }
-    
-    public void setState(ContractState state) {
+	public UUID getWorkPosition() {
+		return workPosition;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setState(ContractState state) {
 		this.state = state;
 	}
-    
-    public ContractState getState() {
+
+	public ContractState getState() {
 		return state;
 	}
-    
-    @Override
-    public boolean isValid(LocalDate targetDate) {
-    	return ValidableEntity.super.isValid(targetDate) && !isDisabled();
-    }
-    
-    @Override
-    public boolean isValidNowOrInFuture() {
-    	return ValidableEntity.super.isValidNowOrInFuture() && !isDisabled();
-    }
-    
-    @Override
+
+	public Boolean getControlledBySlices() {
+		return controlledBySlices;
+	}
+
+	public void setControlledBySlices(Boolean controlledBySlices) {
+		this.controlledBySlices = controlledBySlices;
+	}
+
+	@Override
+	public boolean isValid(LocalDate targetDate) {
+		return ValidableEntity.super.isValid(targetDate) && !isDisabled();
+	}
+
+	@Override
+	public boolean isValidNowOrInFuture() {
+		return ValidableEntity.super.isValidNowOrInFuture() && !isDisabled();
+	}
+
+	@Override
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
 	}
-	
+
 	@Override
 	public String getExternalId() {
 		return externalId;

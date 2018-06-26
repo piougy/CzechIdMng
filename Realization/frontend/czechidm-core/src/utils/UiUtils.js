@@ -1,5 +1,6 @@
 import EntityUtils from './EntityUtils';
 import Joi from 'joi';
+import _ from 'lodash';
 
 /**
  * Helper methods for ui state
@@ -154,7 +155,6 @@ export default class UiUtils {
     }
   }
 
-
   /**
    * Return simple class name
    *
@@ -282,6 +282,7 @@ export default class UiUtils {
 
   /**
    * Parse given text and search localization parameter. This paramaters are wrapped in {{value}}.
+   *
    * @param  {String} text
    * @return {Ordered array, withs parsed values}
    */
@@ -307,6 +308,52 @@ export default class UiUtils {
     // Set default value (original text without [{{}}])
     results.defaultValue = text.replace(/{{/g, '').replace(/}}/g, '');
     return results;
+  }
+
+  /**
+   * Spinal case string transformation
+   *
+   * @param  {string} text
+   * @return {string}
+   * @since 8.1.2
+   */
+  static spinalCase(text) {
+    if (!text) {
+      return null;
+    }
+    //
+    return _.kebabCase(text.toLowerCase());
+  }
+
+  /**
+   * Escapes all occurencesof double quotes
+   *
+   * @param  {string} text
+   * @return {string}
+   * @since 8.1.2
+   */
+  static escapeDoubleQuotes(text) {
+    if (!text) {
+      return null;
+    }
+    return text.split('"').join('\\"');
+  }
+
+
+  /**
+   * Transforma object value into string - can be rendered
+   *
+   * @param  {object} objectValue
+   * @return {string}
+   * @since 8.2.0
+   */
+  static toStringValue(objectValue) {
+    if (_.isArray(objectValue)) {
+      return objectValue.join(', ');
+    } else if (_.isObject(objectValue)) {
+      return JSON.stringify(objectValue);
+    }
+    return objectValue + '';
   }
 }
 

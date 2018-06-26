@@ -51,12 +51,11 @@ import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 @Rollback(true)
 public abstract class AbstractIntegrationTest {
 	
-	@Autowired
-	private PlatformTransactionManager platformTransactionManager;
-	@Autowired
-	private LookupService lookupService;
-	@Autowired
-	private ModuleService moduleService;
+	@Autowired private TestHelper helper;
+	@Autowired private PlatformTransactionManager platformTransactionManager;
+	@Autowired private LookupService lookupService;
+	@Autowired private ModuleService moduleService;
+	//
 	private TransactionTemplate template;
 	
 	@BeforeClass
@@ -71,7 +70,12 @@ public abstract class AbstractIntegrationTest {
 	}
 	
 	/**
-	 * Log in as "boss" with all authorities
+	 * Log in as "boss" with all authorities.
+	 * Look out - identity (with id) is not set. Authorities will be added only => authorization policies will not be initialized. 
+	 * Use {@link #getHelper()} login method to login as exists identity. 
+	 * 
+	 * TODO: add deprecated? - Use {@link #getHelper()} login method to login as exists identity. This method is confusing (creates mock context).
+	 * 
 	 * @param username
 	 */
 	public void loginAsAdmin(String username) {
@@ -90,11 +94,31 @@ public abstract class AbstractIntegrationTest {
 		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(user);
 		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authorities, "test"));
 	}
+
+	/**
+	 * Login as user without authorities given in parameter authorities
+	 *
+	 * @param user
+	 * @param authorities
+	 */
+	public void loginWithout(String user, String ...authorities) {
+		Collection<GrantedAuthority> authoritiesWithout = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
+			for (String auth: authorities) {
+				if (auth.equals(authority.getAuthority())) {
+					return false;
+				}
+			}
+			return true;
+		}).collect(Collectors.toList());
+		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(user);
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authoritiesWithout, "test"));
+	}
+
 	/**
 	 * Clears security context
 	 */
 	public void logout(){
-		SecurityContextHolder.clearContext();
+		getHelper().logout();
 	}
 	
 	/**
@@ -139,5 +163,14 @@ public abstract class AbstractIntegrationTest {
 				return repository.save(object);
 			}
 		});
+	}
+	
+	/**
+	 * Test helper with useful test utilities
+	 * 
+	 * @return
+	 */
+	protected TestHelper getHelper() {
+		return helper;
 	}
 }

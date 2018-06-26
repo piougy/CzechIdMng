@@ -109,13 +109,13 @@ public class IdmIdentityContract
 	@OneToMany(mappedBy = "identityContract")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<IdmIdentityRole> roles; // only for hibernate mappnig - we dont want lazy lists (many roles)
+	private List<IdmIdentityRole> roles; // only for hibernate mapping - we don't want lazy lists (many roles)
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "identityContract")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<IdmContractGuarantee> guarantees; // only for hibernate mappnig - we dont want lazy lists (many roles)
+	private List<IdmContractGuarantee> guarantees; // only for hibernate mapping - we don't want lazy lists (many roles)
 	
 	public IdmIdentityContract() {
 	}

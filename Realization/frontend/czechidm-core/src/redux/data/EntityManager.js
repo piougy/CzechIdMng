@@ -244,6 +244,33 @@ export default class EntityManager {
     };
   }
 
+  /**
+   * Load data from server
+   */
+  fetchEntitiesCount(searchParameters = null, uiKey = null, cb = null) {
+    return (dispatch, getState) => {
+      if (getState().security.userContext.isExpired) {
+        return dispatch({
+          type: EMPTY
+        });
+      }
+      searchParameters = this.getSearchParameters(searchParameters);
+      searchParameters = searchParameters.setName(SearchParameters.NAME_COUNT);
+      uiKey = this.resolveUiKey(uiKey);
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().count(searchParameters)
+      .then(count => {
+        this.dataManager.receiveData(uiKey, count, cb);
+        if (cb) {
+          cb(count, null, uiKey);
+        }
+      })
+      .catch(error => {
+        dispatch(this.receiveError({}, uiKey, error, cb));
+      });
+    };
+  }
+
   /*
   * Request data
   */

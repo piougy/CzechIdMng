@@ -436,7 +436,8 @@ public class DefaultConfigurationService
 		// get url of application
 		String allowedOrigins = getValue(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN);
 		if (StringUtils.isBlank(allowedOrigins) || allowedOrigins.equals("*")) {
-			return null;
+			// relative url is returned, when allowed origin is not configured
+			return path;
 		}
 		//
 		List<String> urls = Arrays.asList(allowedOrigins.replaceAll("\\s*", "").split(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN_SEPARATOR));
@@ -457,6 +458,12 @@ public class DefaultConfigurationService
 	@Transactional(readOnly = true)
 	public String getDateTimeFormat() {
 		return getValue(PROPERTY_APP_DATETIME_FORMAT, DEFAULT_APP_DATETIME_FORMAT);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getDateTimeSecondsFormat() {
+		return getValue(PROPERTY_APP_DATETIME_WITH_SECONDS_FORMAT, DEFAULT_APP_DATETIME_WITH_SECONDS_FORMAT);
 	}
 	
 	private static IdmConfigurationDto toConfigurationDto(String key, Object value) {

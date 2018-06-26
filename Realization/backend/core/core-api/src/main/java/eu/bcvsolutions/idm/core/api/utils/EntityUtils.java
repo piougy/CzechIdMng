@@ -172,16 +172,17 @@ public class EntityUtils {
 	
 	/**
 	 * Check if is string convertible to {@link UUID} 
+	 * 
 	 * @param uuid
 	 * @return true if is given string convertible to {@link UUID}
 	 */
 	public static boolean isUuid(String uuid){
-		if(uuid == null){
+		if( uuid == null){
 			return false;
 		}
-		try{
+		try {
 			UUID.fromString(uuid);
-		}catch(IllegalArgumentException ex){
+		} catch(IllegalArgumentException ex){
 			// Simple is not UUID
 			return false;
 		}
@@ -262,6 +263,10 @@ public class EntityUtils {
 		if (value != null && String.class.equals(parameterClass) && !(value instanceof String)) {
 			value = String.valueOf(value);
 		}
+		// When is target LocalDate and value not, then we try create instance of LocalDate first
+		if (value != null && LocalDate.class.equals(parameterClass) && !(value instanceof LocalDate)) {
+			value = new LocalDate(value);
+		}
 		if (value != null && !parameterClass.isAssignableFrom(value.getClass()) && !(value.getClass().isPrimitive() || parameterClass.isPrimitive())) {
 			throw new IllegalAccessException(
 					MessageFormat.format("Wrong type of value [{0}]. Value must be instance of [{1}] type, but has type [{2}]!",
@@ -289,5 +294,28 @@ public class EntityUtils {
 		auditable.setOriginalModifier(null);
 		auditable.setOriginalModifierId(null);
 		auditable.setTransactionId(null);
+	}
+	
+	/**
+	 * Sets target audit fields by given source
+	 * 
+	 * @param auditableSource entity or dto
+	 * @param auditableTarget entity or dto
+	 */
+	public static void copyAuditFields(Auditable source, Auditable target) {
+		Asserts.notNull(target, "Entity must be not null!");
+		Asserts.notNull(source, "Entity must be not null!");
+		//
+		target.setCreated(source.getCreated());
+		target.setCreator(source.getCreator());
+		target.setCreatorId(source.getCreatorId());
+		target.setModified(source.getModified());
+		target.setModifier(source.getModifier());
+		target.setModifierId(source.getModifierId());
+		target.setOriginalCreator(source.getOriginalCreator());
+		target.setOriginalCreatorId(source.getOriginalCreatorId());
+		target.setOriginalModifier(source.getModifier());
+		target.setOriginalModifierId(source.getOriginalModifierId());
+		target.setTransactionId(source.getTransactionId());
 	}
 }

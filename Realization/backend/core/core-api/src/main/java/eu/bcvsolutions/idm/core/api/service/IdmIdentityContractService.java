@@ -116,4 +116,5 @@ public interface IdmIdentityContractService extends
 	 * @return
 	 */
 	IdmIdentityContractDto getPrimeValidContract(UUID identityId);
+
 }

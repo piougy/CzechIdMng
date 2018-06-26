@@ -46,15 +46,19 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 	
 	private IdmIdentityDto prepareIdentityProfile() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		GuardedString password = new GuardedString("heslo");
 		// get default role
 		IdmRoleDto role = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
 		// prepare identity
 		IdmIdentityDto identity = helper.createIdentity();
-		identity.setPassword(new GuardedString("heslo"));
+		identity.setPassword(password);
 		identity = identityService.save(identity);
 		// assign role
 		helper.createIdentityRole(identity, role);
 		logout();
+		//
+		// password is transient, some test except password back in identity
+		identity.setPassword(password);
 		//
 		return identity;
 	}

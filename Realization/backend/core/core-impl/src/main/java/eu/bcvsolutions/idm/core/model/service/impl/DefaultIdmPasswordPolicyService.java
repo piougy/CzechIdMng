@@ -123,6 +123,7 @@ public class DefaultIdmPasswordPolicyService
 	public IdmPasswordPolicyDto save(IdmPasswordPolicyDto dto, BasePermission... permission) {
 		Assert.notNull(dto);
 		//
+		// TODO: this should be moved to save internal, can be bypassed by event publishing
 		if (!ObjectUtils.isEmpty(permission)) {
 			IdmPasswordPolicy persistEntity = null;
 			if (dto.getId() != null) {
@@ -133,6 +134,12 @@ public class DefaultIdmPasswordPolicyService
 				}
 			}
 			checkAccess(toEntity(dto, persistEntity), permission); // TODO: remove one checkAccess?
+		}
+		// Check, if max attempts attribute is defined, then time of blocking must have defined too
+		Integer maxAttempts = dto.getMaxUnsuccessfulAttempts();
+		Integer blockLogin = dto.getBlockLoginTime();
+		if (maxAttempts != null && maxAttempts.intValue() > 0 && (blockLogin == null || blockLogin <= 0)) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED, ImmutableMap.of("definition", dto.getName()));
 		}
 		//
 		LOG.debug("Saving entity [{}]", dto.getName());
@@ -308,9 +315,7 @@ public class DefaultIdmPasswordPolicyService
 					: passwordPolicy.getMinRulesToFulfill().intValue();
 
 			// check to max password length
-			if (!isNull(passwordPolicy.getMaxPasswordLength())
-					&& password.length() > passwordPolicy.getMaxPasswordLength()
-					|| !isNull(passwordPolicy.getMaxPasswordLength()) && prevalidation) {
+			if (!isNull(passwordPolicy.getMaxPasswordLength()) && (password.length() > passwordPolicy.getMaxPasswordLength() ||  prevalidation)) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MAX_LENGTH,
 							Math.min(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));
@@ -418,7 +423,8 @@ public class DefaultIdmPasswordPolicyService
 
 			// TODO: weak words
 		}
-		if (!specialCharBase.isEmpty()) {
+		
+		if (!specialCharBase.isEmpty() && prevalidation) {
 			errors.put(SPECIAL_CHARACTER_BASE, specialCharBase); 
 		}
 
@@ -431,9 +437,9 @@ public class DefaultIdmPasswordPolicyService
 			errors.put(COINTAIN_PROHIBITED, prohibitedChar.toString());
 		}
 		
-		// password history. Skip for administrators, when doesn't exists settings, or identity isn't saved
+		// password history. Skip when doesn't exists settings, or identity isn't saved
 		// in some case (tests) are save identity in one transaction and id doesn't exist
-		if (defaultPolicy != null && !securityService.isAdmin()) {
+		if (!prevalidation && defaultPolicy != null) {
 			Integer maxHistorySimilar = defaultPolicy.getMaxHistorySimilar();
 			IdmIdentityDto identity = passwordValidationDto.getIdentity();
 			if (maxHistorySimilar != null && identity != null && identity.getId() != null) {
@@ -556,6 +562,11 @@ public class DefaultIdmPasswordPolicyService
 	 */
 	private boolean isNull(Integer number) {
 		return number == null;
+	}
+	
+	@Override
+	public IdmPasswordPolicyDto getByCode(String code) {
+		return findOneByName(code);
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
@@ -26,7 +27,7 @@ public class DataFilter extends QuickFilter {
 	/**
 	 * Dto uuid identifier
 	 */
-	public static final String PARAMETER_ID = "id";
+	public static final String PARAMETER_ID = BaseEntity.PROPERTY_ID;
 	
 	/**
 	 * Codeable identifier - uuid or code

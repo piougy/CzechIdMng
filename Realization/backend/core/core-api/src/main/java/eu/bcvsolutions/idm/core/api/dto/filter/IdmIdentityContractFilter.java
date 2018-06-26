@@ -8,6 +8,7 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
@@ -16,11 +17,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
  *
  * @author Radek Tomiška
  */
-public class IdmIdentityContractFilter 
-		extends DataFilter 
+public class IdmIdentityContractFilter
+		extends DataFilter
 		implements CorrelationFilter, ExternalIdentifiable {
 
 	private UUID identity;
+	private UUID workPosition;
 	private LocalDate validFrom;
 	private LocalDate validTill;
 	private Boolean externe;
@@ -29,11 +31,8 @@ public class IdmIdentityContractFilter
 	private Boolean main;
 	private Boolean validNowOrInFuture;
 	private ContractState state;
-	/**
-	 * Little dynamic search by role property and value
-	 */
-	private String property;
-	private String value;
+	private String position;
+
 
 	public IdmIdentityContractFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -41,6 +40,10 @@ public class IdmIdentityContractFilter
 
 	public IdmIdentityContractFilter(MultiValueMap<String, Object> data) {
 		super(IdmIdentityContractDto.class, data);
+	}
+
+	public IdmIdentityContractFilter(Class<? extends BaseDto> dtoClass, MultiValueMap<String, Object> data) {
+		super(dtoClass, data);
 	}
 
 	public UUID getIdentity() {
@@ -98,50 +101,66 @@ public class IdmIdentityContractFilter
 	public void setMain(Boolean main) {
 		this.main = main;
 	}
-	
+
 	public void setValidNowOrInFuture(Boolean validNowOrInFuture) {
 		this.validNowOrInFuture = validNowOrInFuture;
 	}
-	
+
 	public Boolean getValidNowOrInFuture() {
 		return validNowOrInFuture;
 	}
-	
+
 	public void setState(ContractState state) {
 		this.state = state;
 	}
-	
+
 	public ContractState getState() {
 		return state;
 	}
 
 	@Override
 	public String getProperty() {
-		return property;
+		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
 	}
 
 	@Override
 	public void setProperty(String property) {
-		this.property = property;
+		data.set(PARAMETER_CORRELATION_PROPERTY, property);
 	}
 
 	@Override
 	public String getValue() {
-		return value;
+		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
 	}
 
 	@Override
 	public void setValue(String value) {
-		this.value = value;
+		data.set(PARAMETER_CORRELATION_VALUE, value);
 	}
-	
+
 	@Override
 	public String getExternalId() {
 		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
 	}
-	
+
 	@Override
 	public void setExternalId(String externalId) {
 		data.set(PROPERTY_EXTERNAL_ID, externalId);
+	}
+	
+	public void setPosition(String position) {
+		this.position = position;
+	}
+	
+	public String getPosition() {
+		return position;
+	}
+	
+	public void setWorkPosition(UUID workPosition) {
+		this.workPosition = workPosition;
+	}
+	
+	public UUID getWorkPosition() {
+		return workPosition;
 	}
 }

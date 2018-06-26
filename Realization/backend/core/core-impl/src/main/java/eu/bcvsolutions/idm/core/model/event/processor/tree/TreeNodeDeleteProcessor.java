@@ -9,12 +9,13 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
@@ -35,6 +36,8 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 	private final IdmTreeNodeService service;
 	private final IdmRoleTreeNodeService roleTreeNodeService;
 	private final IdmIdentityContractRepository identityContractRepository;
+	@Autowired
+	private IdmContractSliceService contractSliceService;
 	
 	@Autowired
 	public TreeNodeDeleteProcessor(
@@ -60,24 +63,25 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 	@Override
 	public EventResult<IdmTreeNodeDto> process(EntityEvent<IdmTreeNodeDto> event) {
 		IdmTreeNodeDto treeNode = event.getContent();
+		Assert.notNull(treeNode);
+		Assert.notNull(treeNode.getId());
 		//
 		if (identityContractRepository.countByWorkPosition_Id(treeNode.getId()) > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS, ImmutableMap.of("treeNode", treeNode.getName()));
 		}
-		// remove related automatic roles
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setTreeNode(treeNode.getId());
+		if(contractSliceService.find(sliceFilter, null).getTotalElements() > 0) {
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES, ImmutableMap.of("treeNode", treeNode.getName()));
+		}
+		//
+		// check related automatic roles
 		IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
 		filter.setTreeNodeId(treeNode.getId());
-		roleTreeNodeService.find(filter, null).forEach(roleTreeNode -> {
-			try {
-				roleTreeNodeService.delete(roleTreeNode);
-			} catch (AcceptedException ex) {
-				throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_ROLE, 
-						ImmutableMap.of(
-								"treeNode", treeNode.getName(),
-								"roleTreeNode", roleTreeNode.getId()
-								));
-			}
-		});
+		if(roleTreeNodeService.find(filter, null).getTotalElements() > 0) {
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_ROLE, 
+					ImmutableMap.of("treeNode", treeNode.getName()));
+		}
 		//		
 		service.deleteInternal(treeNode);
 		//

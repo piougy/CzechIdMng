@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.security.api.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -49,8 +50,20 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered,
 	 * Returns form parameter names for this task
 	 * 
 	 * @return
+	 * @deprecated @since 8.2.0 use {@link #getFormDefinition()}
 	 */
-	List<String> getParameterNames();
+	@Deprecated 
+	default List<String> getParameterNames() {
+		return new ArrayList<>();
+	}
+	
+	/**
+	 * Returns configuration property names for this configurable object
+	 */
+	@Override
+	default List<String> getPropertyNames() {
+		return this.getParameterNames();
+	}
 	
 	/**
 	 * Returns jpa criteria predicate for given policy and all permissions, which can be used in queries - adds security on entities. 

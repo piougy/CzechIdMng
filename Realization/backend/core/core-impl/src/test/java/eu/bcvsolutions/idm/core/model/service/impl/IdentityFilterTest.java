@@ -3,11 +3,17 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -23,8 +31,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
@@ -46,12 +56,68 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		getHelper().loginAdmin();
 	}
 	
 	@After
-	public void deleteIdentity() {
-		logout();
+	public void logout() {
+		super.logout();
+	}
+	
+	@Test
+	/**
+	 * Test find identity by all string fields
+	 */
+	public void testCorrelableFilter() {
+		IdmIdentityDto identity = helper.createIdentity();
+		identity.setTitleAfter(UUID.randomUUID().toString());
+		identity.setTitleBefore(UUID.randomUUID().toString());
+		identity.setDescription(UUID.randomUUID().toString());
+		identity.setExternalCode(UUID.randomUUID().toString());
+		identity.setExternalId(UUID.randomUUID().toString());
+		identity.setPhone(UUID.randomUUID().toString().substring(0, 29));
+		identity.setRealmId(UUID.randomUUID());
+		identity.setBlockLoginDate(DateTime.now());
+		IdmIdentityDto identityFull = identityService.save(identity);
+
+		ArrayList<Field> fields = Lists.newArrayList(IdmIdentity_.class.getFields());
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+
+		fields.forEach(field -> {
+			filter.setProperty(field.getName());
+
+			try {
+				Object value = EntityUtils.getEntityValue(identityFull, field.getName());
+				if (value == null || !(value instanceof String)) {
+					return;
+				}
+				filter.setValue(value.toString());
+				List<IdmIdentityDto> identities = identityService.find(filter, null).getContent();
+				assertTrue(identities.contains(identityFull));
+
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+					| IntrospectionException e) {
+				e.printStackTrace();
+			}
+
+		});
+	}
+
+	@Test(expected = ResultCodeException.class)
+	public void testCorrelableFilterWrongField() {
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setProperty("notExistsField");
+		filter.setValue(UUID.randomUUID().toString());
+		identityService.find(filter, null).getContent();
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testCorrelableFilterWrongType() {
+		// Only search by String is supported
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setProperty(IdmIdentity_.realmId.getName());
+		filter.setValue(UUID.randomUUID().toString());
+		identityService.find(filter, null).getContent();
 	}
 
 	@Test
@@ -98,7 +164,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		Page<IdmIdentityDto> result = identityService.find(filter, null);
 		person.setState(IdentityState.DISABLED);
 		identityService.save(person);
-		filter.setDisabled(false);
+		//
 		Page<IdmIdentityDto> result2 = identityService.find(filter, null);
 		int changed = (int) (result.getTotalElements() - result2.getTotalElements());
 		assertEquals("Wrong Disabled",1, changed);
@@ -430,34 +496,86 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		identity = identityService.save(identity);
 		//
 		IdmIdentityDto identity2 = helper.createIdentity();
-		identity2.setExternalCode(testExternalCode);
+		identity2.setExternalCode(getHelper().createName());
 		identity2 = identityService.save(identity2);
 		//
 		IdmIdentityFilter filter = new IdmIdentityFilter();
-		filter.setExternalCode("nonExistingCode" + System.currentTimeMillis());
+		filter.setExternalCode(getHelper().createName());
 		List<IdmIdentityDto> content = identityService.find(filter, null).getContent();
 		//
 		assertEquals(0, content.size());
 		filter.setExternalCode(testExternalCode);
 		content = identityService.find(filter, null).getContent();
-		assertEquals(2, content.size());
+		assertEquals(1, content.size());
 		//
 		IdmIdentityDto founded = content.get(0);
-		IdmIdentityDto founded2 = content.get(1);
 		//
 		assertEquals(testExternalCode, founded.getExternalCode());
-		assertEquals(testExternalCode, founded2.getExternalCode());
-		assertNotEquals(founded.getId(), founded2.getId());
+		assertNotEquals(identity2.getId(), founded.getId());
 	}
 
+	@Test
+	public void testIdentifiers() {
+		List<IdmIdentityDto> identities = createIdentities(10);
+		
+		IdmIdentityDto identityOne = identities.get(1);
+		IdmIdentityDto identityTwo = identities.get(2);
+		IdmIdentityDto identityFive = identities.get(5);
+		IdmIdentityDto identityNine = identities.get(9);
+		
+		identityOne.setExternalCode("identityOneExternalCode" + System.currentTimeMillis());
+		
+		identityTwo.setUsername("identityTwoUsername" + System.currentTimeMillis());
+		
+		identityFive.setUsername("identityFiveUsername" + System.currentTimeMillis());
+		identityFive.setExternalCode("identityFiveExternalCode" + System.currentTimeMillis());
+		
+		identityNine.setExternalCode("identityNineExternalCode" + System.currentTimeMillis());
+		identityNine.setUsername("identityNineUsername" + System.currentTimeMillis());
+		
+		identityOne = identityService.save(identityOne);
+		identityTwo = identityService.save(identityTwo);
+		identityFive = identityService.save(identityFive);
+		identityNine = identityService.save(identityNine);
+		
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		List<String> identifiers = new ArrayList<>();
+		
+		identifiers.add(identityOne.getExternalCode());
+		identifiers.add(identityTwo.getUsername());
+		identifiers.add(identityFive.getExternalCode());
+		identifiers.add(identityFive.getUsername());
+		identifiers.add(identityNine.getExternalCode());
+		identifiers.add(identityNine.getUsername());
+		
+		filter.setIdentifiers(identifiers);
+		
+		List<IdmIdentityDto> result = identityService.find(filter, null).getContent();
+		assertEquals(4, result.size());
+	}
+
+	/**
+	 * Create X identities without password
+	 *
+	 * @param count
+	 * @return
+	 */
+	private List<IdmIdentityDto> createIdentities(int count) {
+		List<IdmIdentityDto> identities = new ArrayList<>();
+		for (int index = 0; index < count; index++) {
+			identities.add(getHelper().createIdentity(getHelper().createName(), null));
+		}
+		return identities;
+	}
 	private IdmIdentityDto getIdmIdentity(String firstName, String lastName, String email, String phone, boolean disabled){
-		IdmIdentityDto identity2 = helper.createIdentity();
-		identity2.setFirstName(firstName);
-		identity2.setLastName(lastName);
-		identity2.setEmail(email);
-		identity2.setState(disabled ? IdentityState.DISABLED : IdentityState.VALID);
-		identity2.setPhone(phone);
-		return identityService.save(identity2);
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(getHelper().createName());
+		identity.setFirstName(firstName);
+		identity.setLastName(lastName);
+		identity.setEmail(email);
+		identity.setState(disabled ? IdentityState.DISABLED : IdentityState.VALID);
+		identity.setPhone(phone);
+		return identityService.save(identity);
 	}
 
 }

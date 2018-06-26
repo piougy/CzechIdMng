@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
  */
 
 @XmlRootElement(name = "template") // root element
-@XmlType(propOrder = { "code", "name", "subject", "bodyHtml", "bodyText", "parameter", "systemTemplate", "moduleId" }) // order
+@XmlType(propOrder = { "code", "name", "subject", "bodyHtml", "bodyText", "parameter", "systemTemplate", "moduleId", "sender"}) // order
 public class IdmNotificationTemplateType {
 
 	private String code;
@@ -27,6 +27,7 @@ public class IdmNotificationTemplateType {
 	private String parameter;
 	private boolean systemTemplate;
 	private String moduleId;
+	private String sender;
 
 	@XmlElement(required = true, type = String.class)
 	public String getCode() {
@@ -101,4 +102,12 @@ public class IdmNotificationTemplateType {
 		this.moduleId = moduleId;
 	}
 
+	@XmlElement(type = String.class)
+	public String getSender() {
+		return sender;
+	}
+
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
 }

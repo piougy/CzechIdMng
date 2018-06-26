@@ -46,9 +46,12 @@ import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConceptRoleRequestRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 
 /**
  * Default implementation of concept role request service
@@ -57,21 +60,22 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  * @author Radek Tomiška
  */
 @Service("conceptRoleRequestService")
-public class DefaultIdmConceptRoleRequestService
-		extends AbstractReadWriteDtoService<IdmConceptRoleRequestDto, IdmConceptRoleRequest, IdmConceptRoleRequestFilter>
+public class DefaultIdmConceptRoleRequestService extends
+		AbstractReadWriteDtoService<IdmConceptRoleRequestDto, IdmConceptRoleRequest, IdmConceptRoleRequestFilter>
 		implements IdmConceptRoleRequestService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmConceptRoleRequestService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
+			.getLogger(DefaultIdmConceptRoleRequestService.class);
 	private final IdmConceptRoleRequestRepository repository;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final LookupService lookupService;
 	private final IdmAutomaticRoleRepository automaticRoleRepository;
-	
 	@Autowired
-	public DefaultIdmConceptRoleRequestService(
-			IdmConceptRoleRequestRepository repository, 
-			WorkflowProcessInstanceService workflowProcessInstanceService,
-			LookupService lookupService,
+	private WorkflowTaskInstanceService workflowTaskInstanceService;
+
+	@Autowired
+	public DefaultIdmConceptRoleRequestService(IdmConceptRoleRequestRepository repository,
+			WorkflowProcessInstanceService workflowProcessInstanceService, LookupService lookupService,
 			IdmAutomaticRoleRepository automaticRoleRepository) {
 		super(repository);
 		//
@@ -84,25 +88,26 @@ public class DefaultIdmConceptRoleRequestService
 		this.lookupService = lookupService;
 		this.automaticRoleRepository = automaticRoleRepository;
 	}
-	
+
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		// secured internally by role requests
 		return null;
 	}
-	
+
 	@Override
 	public IdmConceptRoleRequest checkAccess(IdmConceptRoleRequest entity, BasePermission... permission) {
 		if (entity == null) {
 			// nothing to check
 			return null;
 		}
-		if (!ObjectUtils.isEmpty(permission) && !getAuthorizationManager().evaluate(entity.getRoleRequest(), permission)) {
+		if (!ObjectUtils.isEmpty(permission)
+				&& !getAuthorizationManager().evaluate(entity.getRoleRequest(), permission)) {
 			throw new ForbiddenEntityException(entity.getId(), permission);
 		}
 		return entity;
 	}
-	
+
 	@Override
 	protected IdmConceptRoleRequestDto toDto(IdmConceptRoleRequest entity, IdmConceptRoleRequestDto dto) {
 		dto = super.toDto(entity, dto);
@@ -110,8 +115,9 @@ public class DefaultIdmConceptRoleRequestService
 			return null;
 		}
 		//
-		// Contract from identity role has higher priority then contract ID in concept role
-		if (entity != null && entity.getIdentityRole() != null){
+		// Contract from identity role has higher priority then contract ID in concept
+		// role
+		if (entity != null && entity.getIdentityRole() != null) {
 			dto.setIdentityContract(entity.getIdentityRole().getIdentityContract().getId());
 		}
 		//
@@ -127,7 +133,8 @@ public class DefaultIdmConceptRoleRequestService
 			} else {
 				baseDto = lookupService.getDtoService(IdmRoleTreeNodeDto.class).get(automaticRole.getId());
 			}
-			embedded.put("roleTreeNode", baseDto); // roleTreeNode must be placed there as string, in meta model isn't any attribute like this
+			embedded.put("roleTreeNode", baseDto); // roleTreeNode must be placed there as string, in meta model isn't
+													// any attribute like this
 			dto.setEmbedded(embedded);
 		}
 		return dto;
@@ -158,12 +165,13 @@ public class DefaultIdmConceptRoleRequestService
 		}
 		//
 		// field automatic role exists in entity but not in dto
-		TypeMap<IdmConceptRoleRequestDto, IdmConceptRoleRequest> typeMap = modelMapper.getTypeMap(getDtoClass(), getEntityClass());
+		TypeMap<IdmConceptRoleRequestDto, IdmConceptRoleRequest> typeMap = modelMapper.getTypeMap(getDtoClass(),
+				getEntityClass());
 		if (typeMap == null) {
 			modelMapper.createTypeMap(getDtoClass(), getEntityClass());
 			typeMap = modelMapper.getTypeMap(getDtoClass(), getEntityClass());
 			typeMap.addMappings(new PropertyMap<IdmConceptRoleRequestDto, IdmConceptRoleRequest>() {
-				
+
 				@Override
 				protected void configure() {
 					this.skip().setAutomaticRole(null);
@@ -189,50 +197,44 @@ public class DefaultIdmConceptRoleRequestService
 		}
 		return entity;
 	}
-	
+
+	@Override
+	@Transactional
+	public IdmConceptRoleRequestDto cancel(IdmConceptRoleRequestDto dto) {
+		cancelWF(dto);
+		dto.setState(RoleRequestState.CANCELED);
+		return this.save(dto);
+	}
+
 	@Override
 	public void deleteInternal(IdmConceptRoleRequestDto dto) {
-		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
-			WorkflowFilterDto filter = new WorkflowFilterDto();
-			filter.setProcessInstanceId(dto.getWfProcessId());
-
-			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
-					.searchInternal(filter, false).getResources();
-			if (resources.isEmpty()) {
-				// Process with this ID not exist ... maybe was ended
-				this.addToLog(dto, MessageFormat.format(
-						"Workflow process with ID [{0}] was not deleted, because was not found. Maybe was ended before.",
-						dto.getWfProcessId()));
-			} else {
-				workflowProcessInstanceService.delete(dto.getWfProcessId(),
-						"Role concept use this WF, was deleted. This WF was deleted too.");
-				this.addToLog(dto,
-						MessageFormat.format(
-								"Workflow process with ID [{0}] was deleted, because this concept is deleted/canceled",
-								dto.getWfProcessId()));
-			}
-		}
+		this.cancelWF(dto);
 		super.deleteInternal(dto);
 	}
-	
+
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmConceptRoleRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmConceptRoleRequestFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmConceptRoleRequest> root, CriteriaQuery<?> query,
+			CriteriaBuilder builder, IdmConceptRoleRequestFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		if (filter.getRoleRequestId() != null) {
-			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.roleRequest).get(IdmRoleRequest_.id), filter.getRoleRequestId()));
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.roleRequest).get(IdmRoleRequest_.id),
+					filter.getRoleRequestId()));
 		}
 		if (filter.getIdentityRoleId() != null) {
-			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.identityRole).get(IdmIdentityRole_.id), filter.getIdentityRoleId()));
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.identityRole).get(IdmIdentityRole_.id),
+					filter.getIdentityRoleId()));
 		}
 		if (filter.getRoleId() != null) {
 			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.role).get(IdmRole_.id), filter.getRoleId()));
 		}
 		if (filter.getIdentityContractId() != null) {
-			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.identityContract).get(IdmIdentityContract_.id), filter.getIdentityContractId()));
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.identityContract).get(IdmIdentityContract_.id),
+					filter.getIdentityContractId()));
 		}
 		if (filter.getAutomaticRole() != null) {
-			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.automaticRole).get(IdmAutomaticRole_.id), filter.getAutomaticRole()));
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.automaticRole).get(IdmAutomaticRole_.id),
+					filter.getAutomaticRole()));
 		}
 		if (filter.getOperation() != null) {
 			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.operation), filter.getOperation()));
@@ -243,7 +245,7 @@ public class DefaultIdmConceptRoleRequestService
 		//
 		return predicates;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmConceptRoleRequestDto> findAllByRoleRequest(UUID roleRequestId) {
@@ -259,5 +261,57 @@ public class DefaultIdmConceptRoleRequestService
 		text = sb.toString();
 		logItem.addToLog(text);
 		LOG.info(text);
+	}
+
+	private void cancelWF(IdmConceptRoleRequestDto dto) {
+		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
+			WorkflowFilterDto filter = new WorkflowFilterDto();
+			filter.setProcessInstanceId(dto.getWfProcessId());
+
+			@SuppressWarnings("deprecation")
+			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
+					.searchInternal(filter, false).getResources();
+			if (resources.isEmpty()) {
+				// Process with this ID not exist ... maybe was ended
+				this.addToLog(dto, MessageFormat.format(
+						"Workflow process with ID [{0}] was not deleted, because was not found. Maybe was ended before.",
+						dto.getWfProcessId()));
+			} else {
+				// Before delete/cancel process we try to finish process as disapprove. Cancel
+				// process does not trigger the parent process. That means without correct
+				// ending of process, parent process will be frozen!
+
+				// Find active task for this process.
+				WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+				taskFilter.setProcessInstanceId(dto.getWfProcessId());
+				List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+				if (tasks.size() == 1) {
+					WorkflowTaskInstanceDto task = tasks.get(0);
+					DecisionFormTypeDto disapprove = task.getDecisions() //
+							.stream() //
+							.filter(decision -> WorkflowTaskInstanceService.WORKFLOW_DECISION_DISAPPROVE
+									.equals(decision.getId()))
+							.findFirst() //
+							.orElse(null);
+					if (disapprove != null) {
+						// Active task exists and has decision for 'disapprove'. Complete task (process)
+						// with this decision.
+						workflowTaskInstanceService.completeTask(task.getId(), disapprove.getId(), null, null, null);
+						this.addToLog(dto,
+								MessageFormat.format(
+										"Workflow process with ID [{0}] was disapproved, because this concept is deleted/canceled",
+										dto.getWfProcessId()));
+						return;
+					}
+				}
+				// We wasn't able to disapprove this process, we cancel him now.
+				workflowProcessInstanceService.delete(dto.getWfProcessId(),
+						"Role concept use this WF, was deleted. This WF was deleted too.");
+				this.addToLog(dto,
+						MessageFormat.format(
+								"Workflow process with ID [{0}] was deleted, because this concept is deleted/canceled",
+								dto.getWfProcessId()));
+			}
+		}
 	}
 }

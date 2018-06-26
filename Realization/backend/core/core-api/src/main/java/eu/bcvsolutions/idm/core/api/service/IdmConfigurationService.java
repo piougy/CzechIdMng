@@ -18,5 +18,5 @@ public interface IdmConfigurationService extends
 		CodeableService<IdmConfigurationDto>, 
 		ConfigurationService {
 	
-	static final String CONFIDENTIAL_PROPERTY_VALUE = "config:value";	
+	String CONFIDENTIAL_PROPERTY_VALUE = "config:value";	
 }

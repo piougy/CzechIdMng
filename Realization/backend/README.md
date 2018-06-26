@@ -21,6 +21,7 @@ Java application deployable to Tomcat 8 application server.
 
 ### Application modules [optional]
 * `acc` - Account management module
+* `rpt` - Report module
 * `module-example` - Example application module / skeleton
 
 ### Maven modules [optional]
@@ -71,14 +72,14 @@ Note: If you don't set metamodel generation, you will see Java problems like `Ex
 
 ## Configuration
 
-Default profile is using h2 database. It is not nessesary a configuration for first start.
+Default profile is using h2 database. It is not necessary a configuration for first start.
 
-All configuration properties can be found in [documentation](https://wiki.czechidm.com/7.3/dev/configuration/backend).
+All configuration properties can be found in [documentation](https://wiki.czechidm.com/devel/documentation/application_configuration/dev/backend).
 
 ## Known issues
 
 To prevent application startup fails due to Flyway error, property **``-Djava.util.Arrays.useLegacyMergeSort=true``** has to be added into environment properties. If property is not set, then application can fail on error:
 ```
-Error creating bean with name 'flywayCore' defined in class path resource [eu/bcvsolutions/idm/core/config/flyway/CoreFlywayConfig.class]: 
+Error creating bean with name 'flywayCore' defined in class path resource [eu/bcvsolutions/idm/core/config/flyway/CoreFlywayConfig.class]:
 Initialization of bean failed; nested exception is java.lang.IllegalArgumentException: Comparison method violates its general contract!
 ```

@@ -135,20 +135,25 @@ class Table extends AbstractComponent {
   }
 
   selectRow(rowIndex, selected) {
+    const { selectRowCb } = this.props;
     let newSelectedRows;
-    if (rowIndex !== undefined && rowIndex !== null && rowIndex > -1) {
-      const recordId = this.getIdentifier(rowIndex);
-      newSelectedRows = (selected ? this.state.selectedRows.add(recordId) : this.state.selectedRows.remove(recordId));
-    } else { // de/select all
-      newSelectedRows = this.state.selectedRows;
-      const { data } = this.props;
-      //
-      for (let i = 0; i < data.length; i++) {
-        if (this._showRowSelection({ ...this.props, rowIndex: i })) {
-          if (selected) {
-            newSelectedRows = newSelectedRows.add(this.getIdentifier(i));
-          } else {
-            newSelectedRows = newSelectedRows.remove(this.getIdentifier(i));
+    if (selectRowCb != null) {
+      newSelectedRows = selectRowCb(rowIndex, selected);
+    } else {
+      if (rowIndex !== undefined && rowIndex !== null && rowIndex > -1) {
+        const recordId = this.getIdentifier(rowIndex);
+        newSelectedRows = (selected ? this.state.selectedRows.add(recordId) : this.state.selectedRows.remove(recordId));
+      } else { // de/select all
+        newSelectedRows = this.state.selectedRows;
+        const { data } = this.props;
+        //
+        for (let i = 0; i < data.length; i++) {
+          if (this._showRowSelection({ ...this.props, rowIndex: i })) {
+            if (selected) {
+              newSelectedRows = newSelectedRows.add(this.getIdentifier(i));
+            } else {
+              newSelectedRows = newSelectedRows.remove(this.getIdentifier(i));
+            }
           }
         }
       }
@@ -180,8 +185,11 @@ class Table extends AbstractComponent {
   }
 
   _isAllRowsSelected() {
-    const { data } = this.props;
+    const { data, isAllRowsSelectedCb } = this.props;
     const { selectedRows } = this.state;
+    if (isAllRowsSelectedCb) {
+      return isAllRowsSelectedCb();
+    }
     if (!data || data.length === 0) {
       return false;
     }
@@ -245,7 +253,7 @@ class Table extends AbstractComponent {
   }
 
   renderRow(columns, rowIndex) {
-    const { onRowClick, onRowDoubleClick, showRowSelection, rowClass } = this.props;
+    const { onRowClick, onRowDoubleClick, showRowSelection, rowClass, isRowSelectedCb } = this.props;
     const key = 'row_' + rowIndex;
     return (
        <Row
@@ -255,7 +263,7 @@ class Table extends AbstractComponent {
          rowIndex={rowIndex}
          showRowSelection={showRowSelection}
          onRowSelect={showRowSelection ? this.selectRow.bind(this) : null}
-         selected={this.state.selectedRows.has(this.getIdentifier(rowIndex))}
+         selected={isRowSelectedCb === null ? this.state.selectedRows.has(this.getIdentifier(rowIndex)) : isRowSelectedCb(this.getIdentifier(rowIndex))}
          onClick={onRowClick}
          onDoubleClick={onRowDoubleClick}
          rowClass={rowClass}/>
@@ -394,7 +402,19 @@ Table.propTypes = {
   /**
    * Enable hover table class
    */
-  hover: PropTypes.bool
+  hover: PropTypes.bool,
+  /**
+   * Function that is called after de/select row/s
+   */
+  selectRowCb: PropTypes.func,
+  /**
+   * Function that is called for check if row is selcted
+   */
+  isRowSelectedCb: PropTypes.func,
+  /**
+   * Function that is called for check if all row are selected
+   */
+  isAllRowsSelectedCb: PropTypes.func
 };
 Table.defaultProps = {
   ...AbstractComponent.defaultProps,
@@ -404,7 +424,12 @@ Table.defaultProps = {
   noData: 'No record found',
   hover: true,
   condensed: false,
-  noHeader: false
+  noHeader: false,
+  selectRowCb: null,
+  isRowSelectedCb: null,
+  isAllRowsSelectedCb: null
 };
+
+Table.SELECT_ALL = 'select-all-rows';
 
 export default Table;

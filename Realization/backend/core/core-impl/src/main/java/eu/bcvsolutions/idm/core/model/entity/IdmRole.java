@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Entity
 @Table(name = "idm_role", indexes = { 
 		@Index(name = "ux_idm_role_name", columnList = "name", unique = true),
-		@Index(name = "idx_idm_identity_external_id", columnList = "external_id")})
+		@Index(name = "idx_idm_role_external_id", columnList = "external_id")})
 public class IdmRole extends AbstractEntity implements Codeable, FormableEntity, Disableable, ExternalIdentifiable {
 	
 	private static final long serialVersionUID = -3099001738101202320L;

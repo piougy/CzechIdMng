@@ -72,7 +72,7 @@ class ImageCropper extends Basic.AbstractContextComponent {
           src={src}
           viewMode={3}
           dragMode="move"
-          style={{maxHeight: '550px'}}
+          style={{maxHeight: '568px'}}
           autoCropArea={0.6}
           aspectRatio={1 / 1} />
 

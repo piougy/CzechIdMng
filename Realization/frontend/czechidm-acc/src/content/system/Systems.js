@@ -41,7 +41,7 @@ export default class Systems extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <SystemTable uiKey="system_table" manager={this.systemManager} filterOpened={false}/>
+          <SystemTable uiKey="system_table" manager={this.systemManager} filterOpened/>
         </Basic.Panel>
       </div>
     );

@@ -2,13 +2,13 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import * as Utils from '../../../utils';
-import { IdentityContractManager, SecurityManager, IdentityManager, TreeTypeManager} from '../../../redux/';
+import * as Basic from '../../basic';
+import { IdentityContractManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import DateValue from '../DateValue/DateValue';
+import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new IdentityContractManager();
-const identityManager = new IdentityManager();
-const treeTypeManager = new TreeTypeManager();
 
 
 /**
@@ -27,11 +27,19 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     return manager;
   }
 
+  getNiceLabel() {
+    const _entity = this.getEntity();
+    const { showIdentity } = this.props;
+    //
+    return this.getManager().getNiceLabel(_entity, showIdentity);
+  }
+
   showLink() {
     if (!super.showLink()) {
       return false;
     }
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ']})) {
+    const { _permissions } = this.props;
+    if (!this.getManager().canRead(this.getEntity(), _permissions)) {
       return false;
     }
     return true;
@@ -77,36 +85,51 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     return this.i18n('entity.IdentityContract._type');
   }
 
+  getTableChildren() {
+    // component are used in #getPopoverContent => skip default column resolving
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value"/>
+    ];
+  }
+
   /**
    * Returns popover info content
    *
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    // idenity nice label
-    let identityNiceLabel = '';
-    if (entity && entity._embedded) {
-      identityNiceLabel = identityManager.getNiceLabel(entity._embedded.identity);
-    }
-
-    // working position nice label
-    let workingPositionNiceLable = '';
-    if (entity && entity._embedded && entity._embedded.workPosition
-        && entity._embedded.workPosition._embedded) {
-      workingPositionNiceLable = treeTypeManager.getNiceLabel(entity._embedded.workPosition._embedded.treeType);
-    }
     return [
       {
         label: this.i18n('entity.Identity._type'),
-        value: identityNiceLabel
+        value: !entity._embedded ||
+          <EntityInfo
+            entityType="identity"
+            entity={ entity._embedded.identity }
+            entityIdentifier={ entity.identity }
+            face="link" />
       },
       {
         label: this.i18n('entity.IdentityContract.position'),
-        value: manager.getNiceLabel(entity, false)
+        value: entity.position
+      },
+      {
+        label: this.i18n('entity.IdentityContract.workPosition'),
+        value: !entity._embedded || !entity._embedded.workPosition ||
+          <EntityInfo
+            entityType="treeNode"
+            entity={ entity._embedded.workPosition }
+            entityIdentifier={ entity._embedded.workPosition.id }
+            face="link" />
       },
       {
         label: this.i18n('entity.TreeType._type'),
-        value: workingPositionNiceLable
+        value: !entity._embedded || !entity._embedded.workPosition ||
+          <EntityInfo
+            entityType="treeType"
+            entity={ entity._embedded.workPosition._embedded.treeType }
+            entityIdentifier={ entity._embedded.workPosition.treeType }
+            face="link" />
       },
       {
         label: this.i18n('entity.validFrom'),
@@ -136,6 +159,7 @@ IdentityContractInfo.propTypes = {
   showIdentity: PropTypes.bool,
   //
   _showLoading: PropTypes.bool,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 IdentityContractInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
@@ -146,9 +170,11 @@ IdentityContractInfo.defaultProps = {
 };
 
 function select(state, component) {
+  const entity = manager.getEntity(state, component.entityIdentifier);
   return {
-    _entity: manager.getEntity(state, component.entityIdentifier),
-    _showLoading: manager.isShowLoading(state, null, component.entityIdentifier)
+    _entity: entity,
+    _showLoading: manager.isShowLoading(state, null, component.entityIdentifier),
+    _permissions: manager.getPermissions(state, null, entity)
   };
 }
 export default connect(select)(IdentityContractInfo);

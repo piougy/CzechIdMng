@@ -7,6 +7,15 @@
     "menu" : {
     }
   },
+  "component" : {
+    "advanced": {
+      "EavForm": {
+        "faceType": {
+          "SYSTEM-SELECT": "Výběr systémů (SelectBox)"
+        }
+      }
+    }
+  },
   "content": {
     "dashboard": {
     },
@@ -344,6 +353,10 @@
           "success": "Atribut [{{name}}] IdM byl úspěšně vytvořen",
           "header": "Nový atribut IdM"
         }
+      },
+      "roles": {
+        "title" : "Role",
+        "header" : "Role <small>přiřazené role</small>"
       }
     },
     "role": {
@@ -358,6 +371,16 @@
         },
         "save": {
           "success": "Systém [{{system}}] pro roli {{role}} byl úspěšně uložen"
+        },
+        "filter": {
+          "system": {
+            "label": "Systém",
+            "placeholder": "Systém"
+          },
+          "role": {
+            "label": "Role",
+            "placeholder": "Role"
+          }
         }
       },
       "roleSystemDetail": {
@@ -448,6 +471,27 @@
       }
     },
     "contract": {
+      "accounts": {
+        "header": "Účty na koncovém systému",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
+    "contract-slice": {
       "accounts": {
         "header": "Účty na koncovém systému",
         "title": "Účty na systému",
@@ -579,6 +623,10 @@
         "success": "Příjemce byl úspěšně vytvořen"
       }
     },
+    "systemRoles": {
+      "title": "Role",
+      "header": "Role <small>Role přiřazuje účet na systémech</small>"
+    },
     "passwordPolicy": {
       "system": {
         "tab": "Navázané systémy",
@@ -648,7 +696,11 @@
       "type": "Typ přiřazení",
       "role": "Role",
       "system": "Systém",
-      "systemMapping": "Název mapování"
+      "systemMapping": "Název mapování",
+      "forwardAccountManagemen": {
+        "label": "Dopředná správa účtů",
+        "help": "Pokud je zaškrtnuto, pak bude účet na tomto systému vytvořen i v případě, že přířazní této role uživateli bude platné až v budoucnu."
+      }
     },
     "SystemEntity": {
       "_type": "Entita na systému",
@@ -779,10 +831,11 @@
       "_type": "Účet na koncovém systému",
       "accountType": "Typ účtu",
       "system": "Systém",
-      "systemEntity": "Navázaná entita na systému",
+      "systemEntity": "Entita (systém)",
       "uid": "Identifikátor účtu",
       "inProtection": "Je chráněn před smazáním",
-      "endOfProtection": "Chráněn do"
+      "endOfProtection": "Chráněn do",
+      "targetEntity": "Entita (IdM)"
     },
     "IdentityAccount": {
       "_type": "Účet identity na koncovém systému",
@@ -1006,7 +1059,8 @@
       "ROLE": "Role",
       "TREE": "Strom",
       "ROLE_CATALOGUE": "Katalog rolí",
-      "CONTRACT": "Vztah identity"
+      "CONTRACT": "Pracovní pozice",
+      "CONTRACT_SLICE": "Časové řezy pozic"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -1120,7 +1174,162 @@
       "TREEACCOUNT": "Účty pro prvky stromu",
       "IDENTITYACCOUNT": "Účty pro identity",
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
+      "CONTRACTSLICEACCOUNT": "Účty pro časové řezy vztahů identity",
+      "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
       "PROVISIONINGBREAK": "Brzda provisioningu"
+    }
+  },
+  "eav": {
+    "eu-bcvsolutions-idm-acc-entity-syssystem": {
+      "connid-net-tirasa-connid-bundles-db-table-databasetableconnector-net-tirasa-connid-bundles-db-table-2-2-4": {
+        "attributes": {
+          "quoting": {
+            "label": "Doplnit uvozovky",
+            "help": "Zvolte, zda mají být uvedeny názvy sloupců databáze pro tento zdroj v uvozovkách. Ve výchozím nastavení nejsou názvy sloupců databáze v uvozovkách. U jiných výběrů (jednoduhé, dvojité, zpětné uvozovky, nebo závorky) se názvy sloupců objeví s uvozovkami nebo závorkami v SQL vygenerovaném pro přístup k databázi.",
+            "placeholder": ""
+          },
+          "host": {
+            "label": "Host",
+            "help": "Zadejte název serveru, na kterém je vystavena databáze.",
+            "placeholder": ""
+          },
+          "port": {
+            "label": "Port",
+            "help": "Zadejte číslo portu TCP, na kterém je vystavena databáze.",
+            "placeholder": ""
+          },
+          "user": {
+            "label": "Uživatel",
+            "help": "Uživatel databáze s oprávněním pracovat s tabulkou.",
+            "placeholder": ""
+          },
+          "password": {
+            "label": "Heslo",
+            "help": "Heslo uživatele s oprávněním pracovat s tabulkou",
+            "placeholder": ""
+          },
+          "database": {
+            "label": "Databáze",
+            "help": "Zadejte název databáze na databázovém serveru, který obsahuje tabulku.",
+            "placeholder": ""
+          },
+          "table": {
+            "label": "Tabulka",
+            "help": "Zadejte název tabulky do databáze, která obsahuje účty, se kterými bude konektor pracovat (synchronizace, provisioning).",
+            "placeholder": ""
+          },
+          "keycolumn": {
+            "label": "Sloupec s klíčem",
+            "help": "Název sloupce s unikátním identifikátorem řádku v tabulce (většinou shodný s primárním klíčem).",
+            "placeholder": ""
+          },
+          "passwordcolumn": {
+            "label": "Sloupec s heslem",
+            "help": "Název sloupce, který bude obsahovat hesla k účtům. Ponechte prázdné, pokud není třeba pracovat s hesly (provisioning)",
+            "placeholder": ""
+          },
+          "statuscolumn": {
+            "label": "Sloupec se stavem",
+            "help": "Název sloupce, který bude obsahovat stavy účtů. Ponechte prázdné, pokud není třeba pracovat se stavem.",
+            "placeholder": ""
+          },
+          "disabledstatusvalue": {
+            "label": "Hodnota stavu - neaktivní",
+            "help": "Hodnota, která udává, že účet není aktivní. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "enabledstatusvalue": {
+            "label": "Hodnota stavu - aktivní",
+            "help": "Hodnota, která udává, že účet je aktivní. Výchozí hodnota je \"true\".",
+            "placeholder": ""
+          },
+          "defaultstatusvalue": {
+            "label": "Hodnota stavu - výchozí",
+            "help": "Hodnota, která udává stav účtu, pokud není stav vyplněn. Výchozí hodnota je \"true\".",
+            "placeholder": ""
+          },
+          "jdbcdriver": {
+            "label": "JDBC Driver",
+            "help": "Zadejte implementaci JDBC driveru (class name). Pro Oracle <strong>oracle.jdbc.driver.OracleDriver</strong>. Pro <strong>MySQL org.gjt.mm.mysql.Driver</strong>. Může být prázdný, pokud je využíván poskytovaný datasource.",
+            "placeholder": ""
+          },
+          "jdbcurltemplate": {
+            "label": "JDBC Connection URL",
+            "help": "Zadejte JDBC Driver Connection URL. Pro Oracle je šablona jdbc:oracle:thin:@[host]:[port(1521)]:[DB]. Pro MySQL je šablona jdbc:mysql://[host]:[port(3306)]/[db], více informací naleznete v dokumentaci dané implementace JDBC driveru. Může být prázdný, pokud je využíván poskytovaný datasource.",
+            "placeholder": ""
+          },
+          "enableemptystring": {
+            "label": "Povolit zadání prázdných řetězců",
+            "help": "Povolit zadání prázdných řetězců místo NULL hodnot pro sloupce pracující s řetězci. Pokud je mapovaný sloupec poviný, pošle místo NULL hodnoty prázdný řetězec. Tato volba neovlivňuje způsob zápisu řetězců na databázi Oracle. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "rethrowallsqlexceptions": {
+            "label": "Vrať všechny SQL výjimky (SQLExceptions)",
+            "help": "Pokud není zaškrtnuto, SQL výrazy, které vrací SQL výjimky (SQLExceptions) s návratovým kódem 0 (ErrorCode 0) budou odchyceny a nebudou zpropagovány dále. Výchozí hodnota je \"true\".",
+            "placeholder": ""
+          },
+          "nativetimestamps": {
+            "label": "Nativní Timestampy ",
+            "help": "Načítání nativního datového typu Timestamp pro sloupce typu java.sql.Timestamp z databázové tabulky. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "allnative": {
+            "label": "Všechny nativní",
+            "help": "Načítání nativního datového typu u všech sloupců s nativním formátem z databázové tabulky. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "validconnectionquery": {
+            "label": "Dotaz pro validaci připojení",
+            "help": "Lze zadat dotaz pro ověření spojení (Validate Connection Query). Pokud je prázdná, implicitní implementace otestuje pomocí přepínače zapnutí / vypnutí autokommitu. Některé vybrané položky 1 ze stolu by mohly být efektivnější.",
+            "placeholder": ""
+          },
+          "changelogcolumn": {
+            "label": "Sloupec s časem modifikace (Sync)",
+            "help": "Sloupec, který obsahuje čas poslední modifikace záznamu. Sloupce je povinný pro možnost synchronizace záznamů.",
+            "placeholder": ""
+          },
+          "datasource": {
+            "label": "Datasource (path)",
+            "help": "Zadejte JDBC Data Source Name/Path pro připojení k Oracle serveru. Je-li zadán, konektor se pokusí připojit pouze pomocí tohoto datasourcu a ignoruje další zadané parametry (JDBC Driver, JDBC Connection URL). Příklad hodnoty je: <CODE>jdbc/SampleDataSourceName</CODE>",
+            "placeholder": ""
+          },
+          "jndiproperties": {
+            "label": "Výchozí konfigurace JNDI",
+            "help": "Zadejte výchozí konfiguraci kontextu JNDI (pro inicializaci context factory i context providera) ve formátu: key = value. Nebo ponechte nevyplněné.",
+            "placeholder": ""
+          },
+          "cipheralgorithm": {
+            "label": "Algoritmus pro šifrování hesla",
+            "help": "Šifrovací algoritmus bude použitý pro ukládání hesel do databázové tabulky (sloupce s heslem). Dostupné algoritmy <strong>CLEARTEXT,AES, MD5, SHA1, SHA256</strong>. Je možné implementovat vlastní algoritmus, pak zde uveďte implementační třídu (class name). Výchozí hodnota je \"CLEARTEXT\".",
+            "placeholder": ""
+          },
+          "pwdencodetouppercase": {
+            "label": "Vynucení kódování hesla na velká písmena",
+            "help": "Vynucení kódování hesla na velká písmena. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "cipherkey": {
+            "label": "Heslo šifrovacího klíče",
+            "help": "Zadejte klíč v případě reverzibilního algoritmu.",
+            "placeholder": ""
+          },
+          "pwdencodetolowercase": {
+            "label": "Vynutit kódování hesla do malých písmen",
+            "help": "Vynutit kódování hesla do malých písmen. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "retrievepassword": {
+            "label": "Načítat heslo",
+            "help": "Nastavit povinné načítání hesla jako výchozí. Výchozí hodnota je \"false\".",
+            "placeholder": ""
+          },
+          "passwordcharset": {
+            "label": "Znaková sada hesla",
+            "help": "Nastavit znakovou sadu pouzitou pro textové heslo (ve variantě bez šifrování - CLEARTEXT). Výchozí hodnota je \"UTF-8\".",
+            "placeholder": ""
+          }
+        }
+      }
     }
   },
   "error": {
@@ -1347,6 +1556,102 @@
     "SYSTEM_MAPPING_VALIDATION": {
       "title": "Validace mapování pro systém [{{name}}] byla neúspěšná",
       "message": "Validace mapování pro systém [{{name}}] byla neúspěšná. Zkontrolujte nastavení mapování pro tento systém."
+    },
+    "PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE": {
+      "title": "Provisioning není podporován",
+      "message": "Provisioning není podporován pro type entity [{{entityType}}]"
+    },
+    "ACCOUNT_CANNOT_BE_READ_FROM_TARGET": {
+      "title": "Účet se nepodařilo načíst",
+      "message": "Účet [{{account}}] se nepodařilo načíst z koncového systému [{{system}}]!"
+    },
+    "PROVISIONING_NEW_PASSWORD_FOR_ACCOUNT": {
+      "title": "Heslo bylo změněno",
+      "message": "Pro objekt s uid [{{uid}}] na systému [{{system}}] bylo nastaveno heslo: [{{password}}]."
+    },
+    "AUTHENTICATION_AGAINST_SYSTEM_FAILED": {
+      "title": "Přihlášení se nezdařilo",
+      "message": "Přihlášení uživatele [{{user}}] na systém [{{system}}] se nezdařilo."
+    },
+    "AUTHENTICATION_AUTHENTICATION_ATTRIBUTE_DONT_SET": {
+      "title": "Přihlášení se nezdařilo",
+      "message": "Nelze se přihlásit na systém [{{system}}], protože nemé nastaven atribut pro autentifikaci."
+    },
+    "AUTHENTICATION_USERNAME_DONT_EXISTS": {
+      "title": "Přihlášení se nezdařilo",
+      "message": "Uživatel [{{user}}] nebyl na systému [{{system}}] nalezen."
+    },
+    "CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND": {
+      "title": "Klíč nebyl nalezen",
+      "message": "Klíč konektoru pro systém [{{system}}] nebyl nalezen."
+    },
+    "CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND": {
+      "title": "Schéma nebylo nalezeno",
+      "message": "Schéma konektoru pro systém [{{system}}] nebylo nalezeno."
+    },
+    "PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND": {
+      "title": "Schéma nebylo nalezeno",
+      "message": "Atribut schématu [{{attr}}] nebyl nalezen."
+    },
+    "PROVISIONING_SCRIPT_CAN_BE_ACC_CREATED_MUST_RETURN_BOOLEAN": {
+      "title": "Špatná návratová hodnota",
+      "message": "Script 'Can be account created' na systému [{{system}}] musí vracet hodnotu 'boolean'."
+    },
+    "SYNCHRONIZATION_CORRELATION_BAD_VALUE": {
+      "title": "Špatná hodnota atributu",
+      "message": "Synchronizace - hodnotu [{{value}}] pro najití korelace nebylo možné zkonvertovat."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL": {
+      "title": "Špatná hodnota atributu",
+      "message": "IDM atribut [{{attr}}] nesmí být null."
+    },
+    "SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST": {
+      "title": "Mapovaný atribut neexistuje",
+      "message": "Mapovaný atribut pro IdM pole [{{property}}] musí existovat v mapování systému."
+    },
+    "SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE": {
+      "title": "Špatná hodnota filtru",
+      "message": "Hodnota filtru pro kořen stromu je null, ale musí být typu Boolean."
+    },
+    "PROVISIONING_GENERATED_UID_IS_NULL": {
+      "title": "UID nesmí být null",
+      "message": "Generované UID je null pro systém [{{system}}]. UID účtu musí být hodnota typu String."
+    },
+    "PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Účet nebyl nalezen",
+      "message": "Účet pro rodičovský prvek [{{node}}] nebyl nalezen."
+    },
+    "PROVISIONING_TREE_TOO_MANY_PARENT_ACCOUNTS": {
+      "title": "Příliš mnoho účtů pro rodičovských prvek",
+      "message": "Bylo nalezeno příliš mnoho účtů pro rodičovských prvek [{{node}}]. Očekává se pouze jeden účet pro stejný systém."
+    },
+    "SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND": {
+      "title": "Atribut nenalezen",
+      "message": "IDM atribut [{{attr}}] nebyl nalezen."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_NOT_GET": {
+      "title": "Nelze získat atribut",
+      "message": "IdM atribut [{{attr}}] pro entitu [{{entity}}] nelze získat."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_NOT_SET": {
+      "title": "Nelze nastavit atribut",
+      "message": "IdM atribut [{{attr}}] pro entitu [{{entity}}] nelze nastavit."
+    },
+    "SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND": {
+      "title": "Nebyl nalezen účet",
+      "message": "Pro nadřezené UID: [{{parentUid}}] na systému [{{systemId}}] a účtu  [{{parentAccount}}] nebyl nalezen účet stromové struktury."
+    },
+    "SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Nebyl nalezen účet",
+      "message": "Pro nadřezené UID: [{{parentUid}}] na systému [{{systemId}}] nebyl nalezen rodičovský účet."
+    },
+    "PROVISIONING_BREAK_RECIPIENT_CONFLICT": {
+      "title": "Více atributů pro příjemce",
+      "message": "Pro příjemce existuje nastavení role a identity. Povolená je pouze jedna hodnota."
+    },
+    "PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING": {
+      "title": "Duplicitní atributu mapování",
+      "message": "Provisioning mapování může obsahovat pouze jeden atribut, mapující stejný schéma atribut!"
     }
   },
   "processor": {

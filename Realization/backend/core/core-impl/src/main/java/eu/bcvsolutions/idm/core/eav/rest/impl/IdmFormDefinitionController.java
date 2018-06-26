@@ -32,17 +32,20 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormDefinitionFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -113,6 +116,26 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.findQuick(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.FORM_DEFINITION_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete form definitions (selectbox usage)", 
+			nickname = "autocompleteFormDefinitions", 
+			tags = { IdmFormAttributeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_DEFINITION_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_DEFINITION_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
 	}
 	
 	@Override
@@ -295,19 +318,36 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * 
 	 * @param ownerClass
 	 * @return
+	 * @throws ForbiddenEntityException if authorization policy AUTOCOMPLETE for form definition doesn't met
 	 */
-	public ResponseEntity<?> getDefinition(Class<? extends Identifiable> ownerClass) {
-		return new ResponseEntity<>(toResource(getDefinition(ownerClass, (IdmFormDefinitionDto) null)), HttpStatus.OK);
+	public ResponseEntity<?> getDefinition(Class<? extends Identifiable> ownerClass, BasePermission... permission) {
+		IdmFormDefinitionDto definition = getDefinition(ownerClass, (IdmFormDefinitionDto) null, permission);
+		//
+		return new ResponseEntity<>(toResource(definition), HttpStatus.OK);
 	}
 	
 	/**
-	 * Returns all definitions for given ownerClass
+	 * Returns all definitions for given ownerClass. Permission will not be evaluated. 
 	 * 
 	 * @param ownerClass
 	 * @return
 	 */
-	public ResponseEntity<?> getDefinitions(Class<? extends FormableEntity> ownerClass) {
-		return new ResponseEntity<>(toResources(formService.getDefinitions(ownerClass), getDtoClass()), HttpStatus.OK);
+	public ResponseEntity<?> getDefinitions(Class<? extends FormableEntity> ownerType) {
+		return getDefinitions(ownerType, null);
+	}
+	
+	/**
+	 * Returns all definitions for given ownerClass.
+	 * 
+	 * @param ownerClass
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 */
+	public ResponseEntity<?> getDefinitions(Class<? extends FormableEntity> ownerType, BasePermission permission) {
+		IdmFormDefinitionFilter filter = new IdmFormDefinitionFilter();
+		filter.setType(formService.getDefaultDefinitionType(ownerType));
+		//
+		return new ResponseEntity<>(toResources(find(filter, null, permission), getDtoClass()), HttpStatus.OK);
 	}
 	
 	
@@ -316,15 +356,16 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * 
 	 * @param ownerClass
 	 * @param formDefinitionId [optional]
+	 * @param permission base permissions to evaluate (AND)
 	 * @return
 	 */
-	private IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerClass, IdmFormDefinitionDto formDefinition) {
+	private IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerClass, IdmFormDefinitionDto formDefinition, BasePermission... permission) {
 		Assert.notNull(ownerClass);
 		//
 		if (formDefinition != null) {
 			return formDefinition;
 		}
-		formDefinition = formService.getDefinition(ownerClass);
+		formDefinition = formService.getDefinition(ownerClass, permission);
 		if (formDefinition == null) {			
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("formDefinition", ownerClass));
 		}
@@ -336,12 +377,13 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * 
 	 * @param ownerClass owner type
 	 * @param definitionCode [optional] definition code, default definition will be returned, if no code is given
+	 * @param permission base permissions to evaluate (AND)
 	 * @return
 	 */
-	public IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerClass, String definitionCode) {
+	public IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerClass, String definitionCode, BasePermission... permission) {
 		IdmFormDefinitionDto formDefinition = null; // default will be used
 		if (StringUtils.isNotEmpty(definitionCode)) {
-			formDefinition = formService.getDefinition(ownerClass, definitionCode);
+			formDefinition = formService.getDefinition(ownerClass, definitionCode, permission);
 			if (formDefinition == null) {
 				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of(
 						"formDefinition", ownerClass.getSimpleName(),
@@ -349,7 +391,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 			}
 		}
 		if (formDefinition == null) {
-			formDefinition = formService.getDefinition(ownerClass);
+			formDefinition = formService.getDefinition(ownerClass, permission);
 		}
 		if (formDefinition == null) {			
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("formDefinition", ownerClass));
@@ -362,12 +404,13 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * 
 	 * @param owner
 	 * @param formDefinitionId 
+	 * @param permission base permissions to evaluate (AND)
 	 * @return
 	 */
-	public Resource<?> getFormValues(Identifiable owner, IdmFormDefinitionDto formDefinition) {
-		Assert.notNull(owner); 
+	public Resource<IdmFormInstanceDto> getFormValues(Identifiable owner, IdmFormDefinitionDto formDefinition, BasePermission... permission) {
+		Assert.notNull(owner);
 		//
-		return new Resource<>(formService.getFormInstance(owner, getDefinition(owner.getClass(), formDefinition)));
+		return new Resource<>(formService.getFormInstance(owner, getDefinition(owner.getClass(), formDefinition, permission), permission));
 	}
 	
 	/**
@@ -375,12 +418,14 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * 
 	 * @param owner
 	 * @param formDefinitionId
-	 * @param formValuesr
+	 * @param formValues
+	 * @param permission base permissions to evaluate (AND)
 	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	public Resource<?> saveFormValues(Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> formValues) {		
+	public Resource<?> saveFormValues(Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> formValues, BasePermission... permission) {		
 		formDefinition = getDefinition(owner.getClass(), formDefinition); 
 		//
-		return new Resource<>(formService.saveFormInstance(owner, formDefinition, formValues));
+		return new Resource<>(formService.saveFormInstance(owner, formDefinition, formValues, permission));
 	}	
 }

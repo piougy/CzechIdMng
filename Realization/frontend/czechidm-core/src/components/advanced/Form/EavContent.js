@@ -5,8 +5,10 @@ import classnames from 'classnames';
 //
 import * as Basic from '../../../components/basic';
 import * as Utils from '../../../utils';
-import { DataManager } from '../../../redux';
+import { DataManager, FormDefinitionManager } from '../../../redux';
 import EavForm from './EavForm';
+
+const formDefinitionManager = new FormDefinitionManager();
 
 /**
  * Content with eav form
@@ -78,17 +80,32 @@ class EavContent extends Basic.AbstractContent {
     if (error) {
       // loading eav definition failed
       content = (
-        <Basic.Alert level="info" text={this.i18n('error.notFound')}/>
+        <div style={{ paddingTop: 15 }}>
+          <Basic.Alert level="info" text={this.i18n('error.notFound')} className="no-margin"/>
+        </div>
       );
     } else if (!_formInstances || _showLoading) {
       // connector eav form is loaded from BE
       content = (
         <Basic.Loading isStatic showLoading/>
       );
+    } else if (_formInstances.size === 0) {
+      content = (
+        <div style={{ paddingTop: 15 }}>
+          <Basic.Alert level="info" text={this.i18n('error.notFound')} className="no-margin"/>
+        </div>
+      );
     } else {
       // form instances are ready
       let index = 0;
       content = _formInstances.map(_formInstance => {
+        let _showSaveButton = false; // some attribute is editable
+        _formInstance.getAttributes().forEach(attribute => {
+          if (!attribute.readonly) { // TODO: hidden
+            _showSaveButton = true;
+          }
+        });
+
         return (
           <form className="abstract-form" onSubmit={ this.save.bind(this, _formInstance.getDefinition().code) }>
             <Basic.Panel className={
@@ -98,18 +115,27 @@ class EavContent extends Basic.AbstractContent {
               }>
 
               {/* RT: back compatibilty header */}
-              <Basic.PanelHeader text={ _formInstance.getDefinition().name === 'default' ? this.i18n('header') : _formInstance.getDefinition().name }/>
+              <Basic.PanelHeader
+                text={
+                  _formInstance.getDefinition().name === 'default'
+                  ?
+                  this.i18n('header')
+                  :
+                  formDefinitionManager.getLocalization(_formInstance.getDefinition(), 'label', _formInstance.getDefinition().name) }/>
 
-              <Basic.Alert icon="info-sign" text={ _formInstance.getDefinition().description } />
+              <Basic.Alert
+                icon="info-sign"
+                text={ formDefinitionManager.getLocalization(_formInstance.getDefinition(), 'help', _formInstance.getDefinition().description) }
+                style={{ marginBottom: 0 }}/>
 
-              <Basic.PanelBody>
+              <Basic.PanelBody style={{ paddingTop: 15, paddingBottom: 0 }}>
                 <EavForm
                   ref={ this._createFormRef(_formInstance.getDefinition().code) }
                   formInstance={ _formInstance }
                   readOnly={ !showSaveButton }/>
               </Basic.PanelBody>
 
-              <Basic.PanelFooter rendered={ showSaveButton && _formInstance.getAttributes().size > 0 }>
+              <Basic.PanelFooter rendered={ _showSaveButton && showSaveButton && _formInstance.getAttributes().size > 0 }>
                 <Basic.Button
                   type="submit"
                   level="success"

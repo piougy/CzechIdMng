@@ -1781,7 +1781,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_UID, uid);
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_ENTITY_TYPE, entityType);
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_SYNC_SITUATION, situation.name());
-		variables.put(SynchronizationService.WF_VARIABLE_KEY_IC_ATTRIBUTES, context.getIcObject().getAttributes());
+		variables.put(SynchronizationService.WF_VARIABLE_KEY_IC_ATTRIBUTES, context.getIcObject() != null ? context.getIcObject().getAttributes() : null);
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_ACTION_TYPE, action.name());
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_ENTITY_ID, dto != null ? dto.getId() : null);
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_ACC_ACCOUNT_ID, account != null ? account.getId() : null);

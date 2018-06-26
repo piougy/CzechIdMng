@@ -881,6 +881,82 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Delete log
 		syncLogService.delete(log);
 	}
+	
+	@Test
+	public void testSyncWithWfSituationLinkedEntity() {
+		SysSystemDto system = initData();
+		
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+		
+		// Create identity and account
+		IdmIdentityDto identity = getHelper().createIdentity(IDENTITY_ONE);
+		helper.createIdentityAccount(system, identity);
+		Assert.assertNotEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+		
+		final String wfExampleKey =  "syncActionExampl";
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setLinkedActionWfKey(wfExampleKey);
+		config.setMissingAccountActionWfKey(wfExampleKey);
+		config.setMissingEntityActionWfKey(wfExampleKey);
+		config.setUnlinkedActionWfKey(wfExampleKey);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// Start sync
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINKED, 1,
+				OperationResultType.WF);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		identity = identities.get(0);
+		List<IdmFormValueDto> emailValues = formService.getValues(identity, ATTRIBUTE_EMAIL_TWO);
+		Assert.assertEquals(1, emailValues.size());
+		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
+		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void testSyncWithWfSituationMissingAccount() {
+		SysSystemDto system = initData();
+		
+		// Create identity and account (this account is not on the target system)
+		// We need remove test from the name of identity ... because the WF create approving task for identity begins with 'test'.
+		IdmIdentityDto identity = getHelper().createIdentity(getHelper().createName().substring(5));
+		helper.createIdentityAccount(system, identity);
+		// Delete all data on the target system
+		this.getBean().deleteAllResourceData();
+		
+		final String wfExampleKey =  "syncActionExampl";
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setMissingAccountActionWfKey(wfExampleKey);
+		config.setMissingAccountAction(ReconciliationMissingAccountActionType.CREATE_ACCOUNT);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// Start sync
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.MISSING_ACCOUNT, 1,
+				OperationResultType.WF);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// Delete log
+		syncLogService.delete(log);
+	}
+
 
 
 	private Task createSyncTask(UUID syncConfId) {

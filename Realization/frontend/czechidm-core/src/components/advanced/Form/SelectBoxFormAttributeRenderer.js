@@ -40,6 +40,9 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
    */
   fillFormValue(formValue, rawValue) {
     formValue.uuidValue = rawValue;
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.uuidValue;
+    //
     // TODO: validations for uuid
     return formValue;
   }

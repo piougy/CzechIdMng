@@ -17,7 +17,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordHistoryDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -35,7 +36,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Radek Tomiška
  */
 public class DefaultIdmPasswordService
-		extends AbstractReadWriteDtoService<IdmPasswordDto, IdmPassword, IdmPasswordFilter>
+		extends AbstractEventableDtoService<IdmPasswordDto, IdmPassword, IdmPasswordFilter>
 		implements IdmPasswordService {
 
 	private final IdmPasswordRepository repository;
@@ -46,8 +47,9 @@ public class DefaultIdmPasswordService
 	public DefaultIdmPasswordService(IdmPasswordRepository repository,
 									 IdmPasswordPolicyRepository policyRepository,
 									 IdmPasswordHistoryService passwordHistoryService,
-									 LookupService lookupService) {
-		super(repository);
+									 LookupService lookupService,
+									 EntityEventManager entityEventManager) {
+		super(repository, entityEventManager);
 		//
 		this.repository = repository;
 		this.passwordHistoryService = passwordHistoryService;

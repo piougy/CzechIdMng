@@ -4,6 +4,8 @@ import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import { FormAttributeManager } from '../../../redux';
 
+const formAttributeManager = new FormAttributeManager();
+
 /**
  * Abstract form value component
  * - supper class for all face type renderers
@@ -144,7 +146,8 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   }
 
   /**
-   * Fill form value field by persistent type from input value
+   * Fill form value field by persistent type from input value.
+   * Don't forget to set both values: by persistent type (e.g. 'shortTextValue') and common 'value'.
    *
    * @param  {FormValue} formValue - form value
    * @param  {object} formComponent value
@@ -212,22 +215,8 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
 
   _getLocalization(property, defaultValue = null) {
     const { attribute, formDefinition } = this.props;
-    const _formDefinition = formDefinition || attribute._embedded.formDefinition;
-
-    let key = null;
-    let keyWithModule = null;
-    let localizeMessage = null;
-    if (_formDefinition) {
-      key = `${ FormAttributeManager.getLocalizationPrefix(_formDefinition, attribute, false) }.${ property }`;
-      keyWithModule = `${ FormAttributeManager.getLocalizationPrefix(_formDefinition, attribute, true) }.${ property }`;
-      localizeMessage = this.i18n(keyWithModule);
-    }
     //
-    // if localized message is exactly same as key, that means message isn't localized
-    if (key === null || key === localizeMessage || keyWithModule === localizeMessage) {
-      return defaultValue;
-    }
-    return localizeMessage;
+    return formAttributeManager.getLocalization(formDefinition, attribute, property, defaultValue);
   }
 
   /**

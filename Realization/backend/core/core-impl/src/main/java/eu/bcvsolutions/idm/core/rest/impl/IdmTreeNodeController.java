@@ -417,10 +417,17 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
 	@ApiOperation(
 			value = "Tree node extended attributes form definitions", 
 			nickname = "getTreeNodeFormDefinitions", 
-			tags = { IdmTreeNodeController.TAG })
+			tags = { IdmTreeNodeController.TAG },
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "")})
+					})
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Node's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
@@ -463,7 +470,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
+	@RequestMapping(value = "/{backendId}/form-values", method = { RequestMethod.POST, RequestMethod.PATCH })
 	@ApiOperation(
 			value = "Tree node form definition - save values", 
 			nickname = "postTreeNodeFormValues", 

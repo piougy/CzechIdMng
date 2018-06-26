@@ -113,12 +113,20 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	boolean isNew(DTO dto);
 	
 	/**
-	 * Returns, what currently logged identity can do with given dto / entity
+	 * Returns, what currently logged identity can do with given dto
 	 * 
 	 * @param backendId
 	 * @return
 	 */
 	Set<String> getPermissions(Serializable id);
+	
+	/**
+	 * Returns, what currently logged identity can do with given dto
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	Set<String> getPermissions(DTO dto);
 	
 	/**
 	 * Evaluates authorization permission on given dto.

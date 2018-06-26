@@ -335,7 +335,20 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		E entity = getEntity(id);
 		Assert.notNull(entity);
 		//
-		return getAuthorizationManager().getPermissions(entity); // null is for create
+		return getPermissions(entity);
+	}
+	
+	@Override
+	public Set<String> getPermissions(DTO dto) {
+		E entity = toEntity(dto); // TODO: read entity?
+		//
+		return getPermissions(entity);
+	}
+	
+	protected Set<String> getPermissions(E entity) {
+		Assert.notNull(entity);
+		//
+		return getAuthorizationManager().getPermissions(entity);
 	}
 
 	/**
@@ -497,5 +510,15 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	
 	protected void setModelMapper(ModelMapper modelMapper) {
 		this.modelMapper = modelMapper;
+	}
+	
+	/**
+	 * Return {@link Pageable} to find all sorted records.
+	 * 
+	 * @param sort
+	 * @return
+	 */
+	protected Pageable getPageableAll(Sort sort) {
+		return new PageRequest(0, Integer.MAX_VALUE, sort);
 	}
 }

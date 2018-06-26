@@ -76,6 +76,9 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
       // empty string is sent as null => value will not be saved on BE
       formValue.stringValue = null;
     }
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.stringValue;
+    //
     return formValue;
   }
 

@@ -92,8 +92,7 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
         <Basic.Alert level="info" text={ this.i18n('attributes.empty') } className="no-margin"/>
       );
     }
-
-
+    //
     // values are not initialized
     return (
       <span>

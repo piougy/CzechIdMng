@@ -65,7 +65,7 @@ public class IdentityReportExecutor extends AbstractReportExecutor {
 	 * - enabled / disabled identities
 	 */
 	@Override
-	protected List<IdmFormAttributeDto> getFormAttributes() {
+	public List<IdmFormAttributeDto> getFormAttributes() {
 		return Lists.newArrayList(getDisabledAttribute());
 	}
 	

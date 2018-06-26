@@ -8,6 +8,7 @@ import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
@@ -297,6 +298,25 @@ public interface TestHelper {
 			GroupPermission groupPermission, 
 			Class<? extends AbstractEntity> authorizableType, 
 			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluatorType, 
+		    BasePermission... permission);
+	
+	/**
+	 * Creates authorization policy
+	 * 
+	 * @param role
+	 * @param groupPermission
+	 * @param authorizableType
+	 * @param evaluatorType
+	 * @param evaluatorProperties
+	 * @param permission
+	 * @return
+	 */
+	IdmAuthorizationPolicyDto createAuthorizationPolicy(
+			UUID role, 
+			GroupPermission groupPermission, 
+			Class<? extends AbstractEntity> authorizableType, 
+			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluatorType, 
+			ConfigurationMap evaluatorProperties,
 		    BasePermission... permission);
 
 	/**

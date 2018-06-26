@@ -143,19 +143,27 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.EXECUTE),
 	AUTOMATICROLEREQUEST(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE, 
-			IdmBasePermission.EXECUTE,
-			IdmBasePermission.AUTOCOMPLETE),
+			IdmBasePermission.EXECUTE),
 	FORMDEFINITION(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
 	FORMATTRIBUTE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	FORMVALUE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
@@ -333,6 +341,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String AUTOMATIC_ROLE_REQUEST_DELETE = "AUTOMATICROLEREQUEST" + BasePermission.SEPARATOR + "DELETE";
 	public static final String AUTOMATIC_ROLE_REQUEST_AUTOCOMPLETE = "AUTOMATICROLEREQUEST" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	//
+	public static final String FORM_DEFINITION_AUTOCOMPLETE = "FORMDEFINITION" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String FORM_DEFINITION_READ = "FORMDEFINITION" + BasePermission.SEPARATOR + "READ";
 	public static final String FORM_DEFINITION_CREATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String FORM_DEFINITION_UPDATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "UPDATE";
@@ -343,6 +352,9 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String FORM_ATTRIBUTE_CREATE = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String FORM_ATTRIBUTE_UPDATE = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String FORM_ATTRIBUTE_DELETE = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String FORM_VALUE_READ = "FORMVALUE" + BasePermission.SEPARATOR + "READ";
+	public static final String FORM_VALUE_UPDATE = "FORMVALUE" + BasePermission.SEPARATOR + "UPDATE";
 	//
 	public static final String WORKFLOW_DEFINITION_READ = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "READ";
 	public static final String WORKFLOW_DEFINITION_CREATE = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "CREATE";

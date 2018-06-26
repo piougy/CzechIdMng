@@ -471,7 +471,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmPasswordService.class)
 	public IdmPasswordService passwordService() {
-		return new DefaultIdmPasswordService(passwordRepository, passwordPolicyRepository, passwordHistoryService(), lookupService());
+		return new DefaultIdmPasswordService(passwordRepository, passwordPolicyRepository, passwordHistoryService(), lookupService(), entityEventManager());
 	}
 
 	@Bean

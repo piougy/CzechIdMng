@@ -52,7 +52,6 @@ public class IdmFormValueDto extends AbstractDto {
 	@Embedded(dtoClass = IdmFormAttributeDto.class)
 	private UUID formAttribute;
 	@NotNull
-	@JsonProperty(access = Access.READ_ONLY)
 	private PersistentType persistentType;
 	private boolean confidential;
 	private String stringValue;

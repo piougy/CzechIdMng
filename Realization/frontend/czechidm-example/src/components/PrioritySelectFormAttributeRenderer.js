@@ -32,6 +32,9 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
    */
   fillFormValue(formValue, rawValue) {
     formValue.longValue = rawValue;
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.longValue;
+    //
     // TODO: validations for numbers
     return formValue;
   }

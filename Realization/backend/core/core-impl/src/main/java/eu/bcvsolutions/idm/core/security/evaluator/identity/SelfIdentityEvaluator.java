@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
 @Description("Currently logged user - self permissions.")
 public class SelfIdentityEvaluator extends AbstractAuthorizationEvaluator<IdmIdentity> {
 
-	private SecurityService securityService;
+	private final SecurityService securityService;
 	
 	@Autowired
 	public SelfIdentityEvaluator(SecurityService securityService) {

@@ -12,9 +12,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
@@ -295,15 +298,29 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmAuthorizationPolicyDto createAuthorizationPolicy(UUID role, GroupPermission groupPermission,
+	public IdmAuthorizationPolicyDto createAuthorizationPolicy(
+			UUID role, 
+			GroupPermission groupPermission,
 			Class<? extends AbstractEntity> authorizableType,
 			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluator,
+			BasePermission... permission) {
+		return createAuthorizationPolicy(role, groupPermission, authorizableType, evaluator, null, permission);
+	}
+	
+	@Override
+	public IdmAuthorizationPolicyDto createAuthorizationPolicy(
+			UUID role, 
+			GroupPermission groupPermission,
+			Class<? extends AbstractEntity> authorizableType,
+			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluator,
+		    ConfigurationMap evaluatorProperties,
 			BasePermission... permission) {
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role);
 		dto.setEvaluator(evaluator);
 		dto.setGroupPermission(groupPermission == null ? null : groupPermission.getName());
 		dto.setAuthorizableType(authorizableType == null ? null : authorizableType.getCanonicalName());
+		dto.setEvaluatorProperties(evaluatorProperties);
 		dto.setPermissions(permission);
 		//
 		return authorizationPolicyService.save(dto);
@@ -318,7 +335,7 @@ public class DefaultTestHelper implements TestHelper {
 	public IdmAuthorizationPolicyDto createUuidPolicy(UUID role, UUID authorizableEntity, BasePermission... permission){
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role);
-		dto.setEvaluatorType("eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator");
+		dto.setEvaluatorType("eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator"); // ouch: evaluator is in core-impl 
 		dto.getEvaluatorProperties().put("uuid", authorizableEntity);
 		dto.setPermissions(permission);
 		return authorizationPolicyService.save(dto);
@@ -583,7 +600,7 @@ public class DefaultTestHelper implements TestHelper {
 			Serializable value, PersistentType type) {
 		UUID ownerId = UUID.fromString(owner.getId().toString());
 		IdmFormDefinitionDto main = formDefinitionService.findOneByMain(clazz.getName());
-		List<IdmFormValueDto> values = formService.getValues(ownerId, clazz, attribute);
+		List<IdmFormValueDto> values = Lists.newArrayList(formService.getValues(ownerId, clazz, attribute));
 		
 		if (values.isEmpty()) {
 			IdmFormValueDto newValue = new IdmFormValueDto();

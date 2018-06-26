@@ -16,6 +16,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
  */
 public class IdmFormAttributeFilter extends DataFilter {
 
+	public static final String PARAMETER_FORM_DEFINITION_CODE = "definitionCode";
+	
 	private String code;
 	//
 	private UUID definitionId;

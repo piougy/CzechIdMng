@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
 import { FormAttributeManager } from '../../../redux';
+import FormInstance from '../../../domain/FormInstance';
 //
 const attributeManager = new FormAttributeManager();
 
@@ -76,6 +77,19 @@ export default class EavForm extends Basic.AbstractContextComponent {
       filledFormValues = filledFormValues.concat(formComponent.getValues());
     });
     return filledFormValues;
+  }
+
+  /**
+   * Returns filled values as properties object (ConfigurationMap on BE is preferred)
+   *
+   * TODO: multiple properties
+   *
+   * @return {object} [description]
+   */
+  getProperties() {
+    const formInstance = new FormInstance(this.props.formInstance.getDefinition(), this.getValues());
+    //
+    return formInstance.getProperties();
   }
 
   render() {

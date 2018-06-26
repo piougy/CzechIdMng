@@ -87,6 +87,9 @@ function commitAndPushRelease() {
   tagName=$(whiptail --backtitle "${BACKTITLE}" --inputbox "Tag name for new version" 8 78 "${RELEASE_VERSION}" --title "Tag name" --nocancel 3>&1 1>&2 2>&3)
   tagMessage=$(whiptail --backtitle "${BACKTITLE}" --inputbox "Tag message for new version" 8 78 "Version ${RELEASE_VERSION}" --title "Tag message" --nocancel 3>&1 1>&2 2>&3)
 
+  # add all changes to commit
+  git add .
+
   # create commit and tag
   git commit -m "$commitMessage"
   git tag -a $tagName -m "$tagMessage"
@@ -99,11 +102,13 @@ function commitAndPushRelease() {
 function deployBackend() {
   # deploy BE
   cd "$AGGREGATOR_MODULE_PATH"
-  if (whiptail --backtitle "${BACKTITLE}" --title "Skip tests?" --yesno --defaultno "Now will be process deploy to nexus, skip tests?" 8 78) then
-      mvn clean deploy -Prelease -DdocumentationOnly=true -DskipTests=true
-  else
-      mvn clean deploy -Prelease -DdocumentationOnly=true
-  fi
+  mvn clean deploy -Prelease -DdocumentationOnly=true
+  # TODO: debug mode, in production is required tests
+  # if (whiptail --backtitle "${BACKTITLE}" --title "Skip tests?" --yesno --defaultno "Now will be process deploy to nexus, skip tests?" 8 78) then
+  #   mvn clean deploy -Prelease -DdocumentationOnly=true -DskipTests=true
+  # else
+  #     mvn clean deploy -Prelease -DdocumentationOnly=true
+  # fi
   cd "$ORIGINAL_PATH"
 }
 
@@ -118,6 +123,7 @@ function mergeToMaster() {
   branchForMerge=$(whiptail --backtitle "${BACKTITLE}" --inputbox "Branch for merge release" 8 78 "${MASTER_BRANCH}" --title "Master branch" --nocancel 3>&1 1>&2 2>&3)
   git checkout $branchForMerge
   git merge $CURRENT_BRANCH
+  git push
   git checkout $CURRENT_BRANCH
 }
 
@@ -139,6 +145,9 @@ function updateVersionDevelopFrontend() {
 
 function commitAndPushDevelop() {
   commitMessage=$(whiptail --backtitle "${BACKTITLE}" --inputbox "Commit message with new develop version:" 8 78 "New develop version ${NEW_DEVELOPMENT_VERSION} (FE+BE)" --title "Commit message" --nocancel 3>&1 1>&2 2>&3)
+
+  # add all changes to commit
+  git add .
 
   # create commit and tag
   git commit -m "$commitMessage"

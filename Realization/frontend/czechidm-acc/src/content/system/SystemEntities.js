@@ -148,7 +148,6 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
               sort />
             <Advanced.Column
               property="wish"
-              header={this.i18n('acc:entity.SystemEntity.wish')}
               sort
               face="boolean" />
           </Advanced.Table>
@@ -187,7 +186,8 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                   required/>
                 <Basic.Checkbox
                   ref="wish"
-                  label={this.i18n('acc:entity.SystemEntity.wish')}/>
+                  label={ this.i18n('acc:entity.SystemEntity.wish.label') }
+                  helpBlock={ this.i18n('acc:entity.SystemEntity.wish.help', { escape: false }) }/>
               </Basic.AbstractForm>
 
               <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') } rendered={ !Utils.Entity.isNew(detail.entity) }/>

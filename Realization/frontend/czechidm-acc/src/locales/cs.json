@@ -707,7 +707,10 @@
       "entityType": "Typ entity",
       "uid": "Identifikátor na systému",
       "system": "Napojený systém",
-      "wish": "Přání",
+      "wish": {
+        "label": "Přání",
+        "help": "Určuje, zda již je entita na koncový systém propsána či přilinkována. Pokud je entita ve stavu přání (zaškrtnuto), tak CzechIdM zatím není o entitě na koncovém systému."
+      },
       "attributes": "Atributy na koncovém systému"
     },
     "SchemaObjectClass": {

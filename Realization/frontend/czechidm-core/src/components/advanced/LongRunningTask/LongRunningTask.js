@@ -44,13 +44,13 @@ class LongRunningTask extends Basic.AbstractContent {
       identifier = entity ? entity.id : _entity.id;
     }
 
-    const { updateIntervalId } = this.state;
+    if (this._calledComponentWillUnmount) {
+      this.safelyClearInterval();
+    }
+
     this.context.store.dispatch(manager.fetchEntity(identifier, null, (task) => {
       if (task && OperationStateEnum.findSymbolByKey(task.resultState) !== OperationStateEnum.RUNNING) {
-        clearInterval(updateIntervalId);
-        this.setState({
-          updateIntervalId: null
-        });
+        this.safelyClearInterval();
       }
     }));
   }
@@ -60,8 +60,18 @@ class LongRunningTask extends Basic.AbstractContent {
   }
 
   componentWillUnmount() {
-    const { updateIntervalId } = this.state;
-    clearInterval(updateIntervalId);
+    this.safelyClearInterval();
+  }
+
+  /**
+   * Safely clear interval - check if exists value (updateIntervalId) and
+   * call clearInterval. Method also clear value.
+   */
+  safelyClearInterval() {
+    if (this.updateIntervalId !== undefined && this.updateIntervalId !== null) {
+      clearInterval(this.updateIntervalId);
+      this.updateIntervalId = null;
+    }
   }
 
   /**
@@ -120,10 +130,7 @@ class LongRunningTask extends Basic.AbstractContent {
    setRefresh(task) {
      const { updateInterval } = this.props;
      if (task && OperationStateEnum.findSymbolByKey(task.resultState) === OperationStateEnum.RUNNING) {
-       const updateIntervalId = setInterval(this.updateLrtState.bind(this), updateInterval);
-       this.setState({
-         updateIntervalId
-       });
+       this.updateIntervalId = setInterval(this.updateLrtState.bind(this), updateInterval);
      }
    }
 

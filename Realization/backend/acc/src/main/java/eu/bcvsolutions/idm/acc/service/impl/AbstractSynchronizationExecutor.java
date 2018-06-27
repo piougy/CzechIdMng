@@ -658,17 +658,17 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Start export item (entity) to target resource
 	 * 
-	 * @param itemBuilder
+	 * @param context
 	 * @param uidAttribute
 	 * @param entity
 	 */
-	protected void exportEntity(SynchronizationContext itemBuilder, SysSystemAttributeMappingDto uidAttribute,
+	protected void exportEntity(SynchronizationContext context, SysSystemAttributeMappingDto uidAttribute,
 			AbstractDto entity) {
-		SystemEntityType entityType = itemBuilder.getEntityType();
-		AbstractSysSyncConfigDto config = itemBuilder.getConfig();
-		SysSyncLogDto log = itemBuilder.getLog();
-		List<SysSyncActionLogDto> actionsLog = itemBuilder.getActionLogs();
-		SysSystemDto system = itemBuilder.getSystem();
+		SystemEntityType entityType = context.getEntityType();
+		AbstractSysSyncConfigDto config = context.getConfig();
+		SysSyncLogDto log = context.getLog();
+		List<SysSyncActionLogDto> actionsLog = context.getActionLogs();
+		SysSystemDto system = context.getSystem();
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 		try {
 			// Default setting for log item
@@ -693,7 +693,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// Do export for one item (produces event)
 			// Start in new Transaction
 
-			itemBuilder.addUid(uid) //
+			context.addUid(uid) //
 					.addConfig(config) //
 					.addSystem(system) //
 					.addEntityType(entityType) //
@@ -704,7 +704,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 			CoreEvent<SysSyncItemLogDto> event = new CoreEvent<SysSyncItemLogDto>(SynchronizationEventType.START_ITEM,
 					itemLog);
-			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemBuilder);
+			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, context);
 			EventResult<SysSyncItemLogDto> lastResult = entityEventManager.process(event).getLastResult();
 			boolean result = false;
 			if (lastResult != null

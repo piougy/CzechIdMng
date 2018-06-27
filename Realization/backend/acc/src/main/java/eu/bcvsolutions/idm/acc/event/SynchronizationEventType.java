@@ -9,7 +9,5 @@ import eu.bcvsolutions.idm.core.api.event.EventType;
  */
 public enum SynchronizationEventType implements EventType {
 	
-	START,
-	START_ITEM,
-	CANCEL;
+	START_ITEM
 }

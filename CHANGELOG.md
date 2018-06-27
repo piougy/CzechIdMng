@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 ## [8.2.0]
 
 - [#1125](https://redmine.czechidm.com/issues/1125) - Identity extended attributes supports authorization policies, read [more](https://wiki.czechidm.com/devel/documentation/security/dev/authorization#secure_identity_form_extended_attribute_values).
+- [#1121](https://redmine.czechidm.com/issues/1121) - Execute synchronization asynchronously
+ - SynchronizationService is no longer LRT (Long Running Task).
+ - Event types and processors to start and cancel sync has been removed.
 
 ## [8.1.3]
 

@@ -39,7 +39,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
-import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.SynchronizationSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -52,9 +51,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -81,7 +78,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	private final SysSyncLogService synchronizationLogService;
 	private final SysSystemEntityService systemEntityService;
 	private final AccAccountService accountService;
-	private final EntityEventManager entityEventManager;
 	private final PluginRegistry<SynchronizationEntityExecutor, SystemEntityType> pluginExecutors;
 	private final SysSystemMappingService systemMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
@@ -92,12 +88,13 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	private IdmLongRunningTaskService longRunningTaskService;
 	@Autowired
 	private CacheManager cacheManager;
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
 
 	@Autowired
 	public DefaultSynchronizationService(SysSystemAttributeMappingService attributeHandlingService,
 			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
-			AccAccountService accountService, SysSystemEntityService systemEntityService,
-			EntityEventManager entityEventManager, LongRunningTaskManager longRunningTaskManager,
+			AccAccountService accountService, SysSystemEntityService systemEntityService, LongRunningTaskManager longRunningTaskManager,
 			List<SynchronizationEntityExecutor> executors, SysSystemMappingService systemMappingService,
 			SysSystemService systemService, SysSchemaObjectClassService schemaObjectClassService) {
 		Assert.notNull(attributeHandlingService);
@@ -105,7 +102,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		Assert.notNull(synchronizationLogService);
 		Assert.notNull(accountService);
 		Assert.notNull(systemEntityService);
-		Assert.notNull(entityEventManager);
 		Assert.notNull(longRunningTaskManager);
 		Assert.notNull(executors);
 		Assert.notNull(systemMappingService);
@@ -117,7 +113,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		this.synchronizationLogService = synchronizationLogService;
 		this.accountService = accountService;
 		this.systemEntityService = systemEntityService;
-		this.entityEventManager = entityEventManager;
 		this.systemMappingService = systemMappingService;
 		this.schemaObjectClassService = schemaObjectClassService;
 		//
@@ -162,10 +157,12 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	}
 
 	@Override
-	public AbstractSysSyncConfigDto startSynchronizationEvent(AbstractSysSyncConfigDto config) {
-		CoreEvent<AbstractSysSyncConfigDto> event = new CoreEvent<AbstractSysSyncConfigDto>(
-				SynchronizationEventType.START, config, null, null, AbstractSysSyncConfigDto.class);
-		return (AbstractSysSyncConfigDto) entityEventManager.process(event).getContent();
+	public AbstractSysSyncConfigDto startSynchronization(AbstractSysSyncConfigDto config) {
+		Assert.notNull(config);
+		Assert.notNull(config.getId(), "Id of sync config is required!");
+		SynchronizationSchedulableTaskExecutor lrt = new SynchronizationSchedulableTaskExecutor(config.getId());
+		longRunningTaskManager.execute(lrt);
+		return config;
 	}
 
 	/**
@@ -185,13 +182,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		SynchronizationEntityExecutor executor = getSyncExecutor(entityType, syncConfigId);
 		executor.setLongRunningTaskExecutor(longRunningTaskExecutor);
 		executor.process(config.getId());
-	}
-
-	@Override
-	public AbstractSysSyncConfigDto stopSynchronizationEvent(AbstractSysSyncConfigDto config) {
-		CoreEvent<AbstractSysSyncConfigDto> event = new CoreEvent<AbstractSysSyncConfigDto>(
-				SynchronizationEventType.CANCEL, config, null, null, AbstractSysSyncConfigDto.class);
-		return (AbstractSysSyncConfigDto) entityEventManager.process(event).getContent();
 	}
 
 	@Override

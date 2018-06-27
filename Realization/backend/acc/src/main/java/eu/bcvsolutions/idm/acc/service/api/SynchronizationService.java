@@ -8,9 +8,6 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
-import eu.bcvsolutions.idm.acc.event.processor.provisioning.ProvisioningStartProcessor;
-import eu.bcvsolutions.idm.acc.event.processor.synchronization.SynchronizationCancelProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
@@ -42,27 +39,15 @@ public interface SynchronizationService {
 	void init();
 
 	/**
-	 * Main method for start synchronization by given configuration. This method
-	 * produces event {@link SynchronizationEventType.START}.
+	 * Main method for start synchronization by given configuration.
 	 * 
 	 * @param config
 	 * @return
 	 */
-	AbstractSysSyncConfigDto startSynchronizationEvent(AbstractSysSyncConfigDto config);
+	AbstractSysSyncConfigDto startSynchronization(AbstractSysSyncConfigDto config);
 
 	/**
-	 * Main method for cancel running synchronization by given configuration. This
-	 * method produces event {@link SynchronizationEventType.CANCEL}.
-	 * 
-	 * @param config
-	 * @return
-	 */
-	AbstractSysSyncConfigDto stopSynchronizationEvent(AbstractSysSyncConfigDto config);
-
-	/**
-	 * Default implementation of synchronization. By default is call from
-	 * {@link ProvisioningStartProcessor} as reaction on
-	 * {@link SynchronizationEventType.START} event.
+	 * Default implementation of start synchronization.
 	 * 
 	 * @param config
 	 * @return
@@ -70,9 +55,7 @@ public interface SynchronizationService {
 	void startSynchronization(AbstractSysSyncConfigDto config, AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor);
 
 	/**
-	 * Default implementation cancel running synchronization. By default is call
-	 * from {@link SynchronizationCancelProcessor} as reaction on
-	 * {@link SynchronizationEventType.CANCEL} event.
+	 * Default implementation cancel running synchronization.
 	 * 
 	 * @param config
 	 * @return

@@ -215,7 +215,7 @@ public class SysSyncConfigController
 	public ResponseEntity<?> startSynchronization(
 			@ApiParam(value = "Config's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId)  {
-		return new ResponseEntity<>(toResource(this.synchronizationService.startSynchronizationEvent(this.getService().get(backendId))), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(this.synchronizationService.startSynchronization(this.getService().get(backendId))), HttpStatus.OK);
 	}
 	
 	/**
@@ -242,7 +242,7 @@ public class SysSyncConfigController
 	public ResponseEntity<?> cancelSynchronization(
 			@ApiParam(value = "Config's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return new ResponseEntity<>(toResource(this.synchronizationService.stopSynchronizationEvent(this.getService().get(backendId))), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(this.synchronizationService.stopSynchronization(this.getService().get(backendId))), HttpStatus.OK);
 	}
 	
 	/**

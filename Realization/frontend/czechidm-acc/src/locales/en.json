@@ -700,7 +700,10 @@
       "entityType": "Entity type",
       "uid": "Identifier in system",
       "system": "Connected system",
-      "wish": "Wish",
+      "wish": {
+        "label": "Wish",
+        "help": "If <strong>wish</strong> is checked, then IdM doesn't know about entity on target system yet (not provisioned or linked)."
+      },
       "attributes": "Attributes on the target system"
     },
     "SchemaObjectClass": {

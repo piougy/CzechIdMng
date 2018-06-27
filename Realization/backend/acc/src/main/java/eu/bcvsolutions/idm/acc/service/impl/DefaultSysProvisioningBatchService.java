@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
  * @author Filip Mestanek
  *
  */
-@Service
+@Service("provisioningBatchService")
 public class DefaultSysProvisioningBatchService
 		extends AbstractReadWriteDtoService<SysProvisioningBatchDto, SysProvisioningBatch, EmptyFilter> 
 		implements SysProvisioningBatchService {
@@ -83,8 +83,34 @@ public class DefaultSysProvisioningBatchService
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional
 	public SysProvisioningBatchDto findBatch(UUID systemId, UUID entityIdentifier, UUID systemEntity) {
-		return toDto(repository.findBatch(systemId, entityIdentifier, systemEntity));
+		return findBatch(systemEntity);
+	}
+	
+	@Override
+	@Transactional
+	public SysProvisioningBatchDto findBatch(UUID systemEntity) {
+		List<SysProvisioningBatch> batches = repository.findAllBySystemEntity_IdOrderByCreatedAsc(systemEntity);
+		//
+		if (batches.isEmpty()) {
+			return null;
+		}
+		//
+		if (batches.size() == 1) {
+			// consistent state
+			return  toDto(batches.get(0));
+		}
+		//
+		// merge batches together - use the first as target
+		SysProvisioningBatch firstBatch = batches.get(0);
+		for (int index = 1; index < batches.size(); index ++) {
+			// update batch for other provisioning operations 
+			SysProvisioningBatch oldBatch = batches.get(index);
+			repository.mergeBatch(oldBatch, firstBatch);
+			deleteById(oldBatch.getId());
+		}
+		//
+		return toDto(firstBatch);
 	}
 }

@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -26,7 +28,7 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 	 * 
 	 * @param operation
 	 * @return
-	 * @deprecated use {@link #findBatch(UUID, UUID, String)}
+	 * @deprecated @since 7.7.0 use {@link #findAllBySystemEntity_IdOrderByCreatedAsc(UUID)}
 	 */
 	@Deprecated
 	@Query(value = "select distinct(o.batch) from SysProvisioningOperation o"
@@ -45,6 +47,8 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 	 * @param entityIdentifier
 	 * @param systemEntity
 	 * @return
+	 * 
+	 * @deprecated @since 8.2.0 use {@link #findAllBySystemEntity_IdOrderByCreatedAsc(UUID)}
 	 */
 	@Query(value = "select distinct(o.batch) from SysProvisioningOperation o"
 			+ " where"
@@ -57,6 +61,16 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 			@Param("systemId") UUID systemId,
 			@Param("entityIdentifier") UUID entityIdentifier, 
 			@Param("systemEntity") UUID systemEntity);
+	
+	/**
+	 * Returns all batches for given system entity
+	 * 
+	 * One system entity should have just one batch (batches are merged by provisioning batch service)
+	 * 
+	 * @param systemEntityId
+	 * @return
+	 */
+	List<SysProvisioningBatch> findAllBySystemEntity_IdOrderByCreatedAsc(UUID systemEntityId);
 	
 	/**
 	 * Returns batches by their request's state
@@ -96,4 +110,15 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 	 * @return
 	 */
 	Page<SysProvisioningBatch> findByNextAttemptLessThanEqual(@Param("nextAttempt") DateTime date, Pageable pageable);
+	
+	/**
+	 * Merge batches for provisioning operations
+	 * 
+	 * @param newBatch
+	 * @param oldBatch
+	 * @return
+	 */
+	@Modifying(clearAutomatically = true)
+	@Query("update SysProvisioningOperation o set o.batch = :newBatch where o.batch = :oldBatch")
+	int mergeBatch(@Param("oldBatch") SysProvisioningBatch oldBatch, @Param("newBatch") SysProvisioningBatch newBatch);
 }

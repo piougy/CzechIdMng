@@ -11,11 +11,13 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
@@ -30,8 +32,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
 public class CancelProvisioningQueueTaskExecutor
 		extends AbstractSchedulableStatefulExecutor<SysProvisioningOperationDto> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(CancelProvisioningQueueTaskExecutor.class);
-	//
 	@Autowired private SysProvisioningBatchService provisioningBatchService;
 	@Autowired private SysProvisioningOperationService provisioningOperationService;
 	@Autowired private ProvisioningExecutor provisioningExecutor;
@@ -54,16 +54,19 @@ public class CancelProvisioningQueueTaskExecutor
 	@Override
 	public Optional<OperationResult> processItem(SysProvisioningOperationDto dto) {
 		//
-		SysProvisioningBatchDto batch = provisioningBatchService.get(dto.getBatch());
-		//
-		if (batch != null) {
-			provisioningExecutor.cancel(batch);
+		if (dto.getBatch() == null) {
+			// cancel single operation - batch was deleted for some reason (previously saved operations without batch, truncate in database ...)
+			provisioningExecutor.cancel(dto);
 			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}
+		SysProvisioningBatchDto batch = DtoUtils.getEmbedded(dto, SysProvisioningOperation_.batch, (SysProvisioningBatchDto) null);
+	    if (batch == null) {
+	    	batch = provisioningBatchService.get(dto.getBatch());
+	    }
 		//
-		LOG.debug("Batch [{}] not found, cannot be cancelled twice.", dto.getBatch());
-		// TODO: not executed with appropriate code
+		provisioningExecutor.cancel(batch);
+		//
 		return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 	}
 }

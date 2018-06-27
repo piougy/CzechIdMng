@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,11 +103,16 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		//
 		// save new operation to provisioning log / queue
 		String uid = systemEntityService.getByProvisioningOperation(provisioningOperation).getUid();
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), provisioningOperation.getEntityIdentifier(), provisioningOperation.getSystemEntity());
+		// look out - system entity uid can be changed - we need to use system entity id
+		SysProvisioningBatchDto batch = batchService.findBatch(provisioningOperation.getSystemEntity());
 		if (batch == null) {
-			batch = batchService.save(new SysProvisioningBatchDto());
+			// new batch
+			batch = batchService.save(new SysProvisioningBatchDto(provisioningOperation));
 			provisioningOperation.setResult(new OperationResult.Builder(OperationState.CREATED).build());
-		} else {				
+		} else if (provisioningOperationService.findByBatchId(batch.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {
+			// batch is completed (no operations in queue)
+			provisioningOperation.setResult(new OperationResult.Builder(OperationState.CREATED).build());			
+		} else {
 			// put to queue, if previous
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
 					ImmutableMap.of(

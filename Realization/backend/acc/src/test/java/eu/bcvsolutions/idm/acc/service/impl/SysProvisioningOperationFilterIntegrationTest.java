@@ -44,7 +44,6 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 	@Autowired private SysProvisioningOperationService operationService;
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysProvisioningBatchService batchService;
-	@Autowired private TestHelper helper;
 
 	@Before
 	public void init() {
@@ -149,10 +148,9 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 		SysSystemDto system = createSystem();
 
-		SysProvisioningBatchDto provisioningBatch = new SysProvisioningBatchDto();
-		provisioningBatch = batchService.save(provisioningBatch);
-
 		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system);
+		SysProvisioningBatchDto provisioningBatch = new SysProvisioningBatchDto(provisioningOperation1);
+		provisioningBatch = batchService.save(provisioningBatch);
 		provisioningOperation1.setBatch(provisioningBatch.getId());
 		provisioningOperation1 = operationService.save(provisioningOperation1);
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);
@@ -226,7 +224,7 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 
 		createProvisioningOperation(entityType, system);
 
-		helper.waitForResult(null, null, 1);
+		getHelper().waitForResult(null, null, 1);
 		
 		DateTime dateTime = DateTime.now();
 
@@ -265,8 +263,9 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
 		provisioningOperation.setProvisioningContext(new ProvisioningContext());
 		provisioningOperation.setSystem(system.getId());
+		provisioningOperation.setEntityIdentifier(UUID.randomUUID());
 
-		SysSystemEntityDto systemEntity = helper.createSystemEntity(system);
+		SysSystemEntityDto systemEntity = ((TestHelper) getHelper()).createSystemEntity(system);
 		provisioningOperation.setSystemEntity(systemEntity.getId());
 
 		OperationResult result = new OperationResult();

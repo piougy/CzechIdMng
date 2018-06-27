@@ -171,17 +171,18 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	@SuppressWarnings("unchecked")
 	public void testPost() throws Exception {
 		DTO dto = prepareDto();
+		ObjectMapper mapper = getMapper();
 		//
 		String response = getMockMvc().perform(post(getBaseUrl())
         		.with(authentication(getAdminAuthentication()))
-        		.content(getMapper().writeValueAsString(dto))
+        		.content(mapper.writeValueAsString(dto))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isCreated())
                 .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-		DTO createdDto = (DTO) getMapper().readValue(response, dto.getClass());
+		DTO createdDto = (DTO) mapper.readValue(response, dto.getClass());
 		Assert.assertNotNull(createdDto);
 		Assert.assertNotNull(createdDto.getId());
 		//
@@ -871,10 +872,11 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 * @return
 	 */
 	protected DTO toDto(String response) {
+		ObjectMapper mapper = getMapper();
 		try {
-			JsonNode json = getMapper().readTree(response);
+			JsonNode json = mapper.readTree(response);
 			//
-			return getMapper().convertValue(json, getController().getDtoClass());
+			return mapper.convertValue(json, getController().getDtoClass());
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed parse entity from response", ex);
 		}

@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -20,7 +19,6 @@ import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.api.service.ReportManager;
 import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Reports crud tests
@@ -32,7 +30,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  */
 public class DefaultRptReportServiceIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	@Autowired private CommonFormService commonFormService;
 	@Autowired private AttachmentManager attachmentManager;
@@ -61,10 +58,6 @@ public class DefaultRptReportServiceIntegrationTest extends AbstractIntegrationT
 		report = reportManager.generate(report);
 		final UUID reportId = report.getId();
 		Assert.assertNotNull(reportId);
-		
-		helper.waitForResult(res -> {
-			return OperationState.isRunnable(reportService.get(reportId).getResult().getState());
-		});
 		
 		Assert.assertNotNull(report.getData());
 		Assert.assertNotNull(report.getFilter());

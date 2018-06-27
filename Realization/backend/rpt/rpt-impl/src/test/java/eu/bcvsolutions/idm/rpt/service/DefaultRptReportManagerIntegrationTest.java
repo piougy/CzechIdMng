@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -26,15 +25,11 @@ import eu.bcvsolutions.idm.rpt.api.dto.RptRenderedReportDto;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportExecutorDto;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportRendererDto;
-import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
-	@Autowired private RptReportService reportService;
 	@Qualifier("objectMapper")
 	@Autowired private ObjectMapper mapper;
 	@Autowired private AttachmentManager attachmentManager; 
@@ -83,10 +78,6 @@ public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationT
 		final UUID reportId = report.getId();
 		Assert.assertNotNull(reportId);
 		
-		helper.waitForResult(res -> {
-			return OperationState.isRunnable(reportService.get(reportId).getResult().getState());
-		});
-		
 		Assert.assertNotNull(report.getData());
 		Assert.assertEquals(mapper.writeValueAsString(TestReportExecutor.identities), IOUtils.toString(attachmentManager.getAttachmentData(report.getData())));
 		
@@ -109,10 +100,6 @@ public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationT
 		report = manager.generate(report);
 		final UUID reportId = report.getId();
 		Assert.assertNotNull(reportId);
-		
-		helper.waitForResult(res -> {
-			return OperationState.isRunnable(reportService.get(reportId).getResult().getState());
-		});
 		
 		Assert.assertNotNull(report.getData());
 		Assert.assertEquals(

@@ -1,5 +1,5 @@
 import EntityManager from './EntityManager';
-import { FormDefinitionService, LocalizationService } from '../../services';
+import { FormDefinitionService } from '../../services';
 import DataManager from './DataManager';
 import * as Utils from '../../utils';
 

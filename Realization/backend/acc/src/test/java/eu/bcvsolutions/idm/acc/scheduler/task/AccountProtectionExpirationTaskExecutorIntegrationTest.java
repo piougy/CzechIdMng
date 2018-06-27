@@ -43,12 +43,10 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
 	public void logout() {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 	

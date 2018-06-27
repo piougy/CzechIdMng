@@ -247,7 +247,7 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 				attributeMapping.setEntityAttribute(true);
 				attributeMapping.setIdmPropertyName("disabled");
 				attributeMapping.setTransformToResourceScript("return String.valueOf(!attributeValue);");
-				attributeMapping.setTransformFromResourceScript("return !attributeValue;");
+				attributeMapping.setTransformFromResourceScript("return String.valueOf(attributeValue);");
 				attributeMapping.setName(schemaAttr.getName());
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setSystemMapping(systemMapping.getId());

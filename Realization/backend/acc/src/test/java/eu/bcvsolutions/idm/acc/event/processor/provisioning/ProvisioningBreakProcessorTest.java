@@ -466,8 +466,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity); // create block
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
 		//
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), identity.getId(),
-				systemEntity.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
 		//
 		List<SysProvisioningOperationDto> content = provisioningOperationService.findByBatchId(batch.getId(), null)
 				.getContent();
@@ -491,17 +490,17 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity); // create
 		//
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), identity.getId(),
-				systemEntity.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
+		List<SysProvisioningOperationDto> content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
 		//
-		assertNull(batch);
+		assertTrue(content.isEmpty());
 		//
 		provisioningService.doProvisioning(identity);
 		provisioningService.doProvisioning(identity); // block
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		batch = batchService.findBatch(system.getId(), identity.getId(), systemEntity.getId());
-		List<SysProvisioningOperationDto> content = provisioningOperationService.findByBatchId(batch.getId(), null)
+		batch = batchService.findBatch(systemEntity.getId());
+		content = provisioningOperationService.findByBatchId(batch.getId(), null)
 				.getContent();
 		assertEquals(1, content.size());
 		//
@@ -528,10 +527,10 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity);
 		//
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), identity.getId(),
-				systemEntity.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
+		List<SysProvisioningOperationDto> content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
 		//
-		assertNull(batch);
+		assertTrue(content.isEmpty());
 		//
 		SysProvisioningBreakItems cacheProcessedItems = provisioningBreakConfig.getCacheProcessedItems(system.getId());
 		//
@@ -547,9 +546,10 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity);
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		batch = batchService.findBatch(system.getId(), identity.getId(), systemEntity.getId());
+		batch = batchService.findBatch(systemEntity.getId());
+		content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
 		//
-		assertNull(batch);
+		assertTrue(content.isEmpty());
 	}
 
 	@Test
@@ -581,8 +581,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity); // block
 		//
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), identity.getId(),
-				systemEntity.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
 		//
 		assertNotNull(batch);
 		//
@@ -604,16 +603,21 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		//
 		this.createAccount(system, identity);
 		//
-		//
 		provisioningService.doProvisioning(identity); // create
-		provisioningService.doProvisioning(identity);
-		provisioningService.doProvisioning(identity);
 		//
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), identity.getId(),
-				systemEntity.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
+		List<SysProvisioningOperationDto> content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
 		//
-		assertNull(batch);
+		provisioningService.doProvisioning(identity);
+		//
+		content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
+		//
+		provisioningService.doProvisioning(identity);
+		//
+		content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
+		//
+		assertTrue(content.isEmpty());
 		//
 		SysBlockedOperationDto blockedOperation = new SysBlockedOperationDto();
 		blockedOperation.blockUpdate();
@@ -629,9 +633,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity);
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		batch = batchService.findBatch(system.getId(), identity.getId(), systemEntity.getId());
+		batch = batchService.findBatch(systemEntity.getId());
 		//
-		assertNull(batch);
+		assertEquals(0, provisioningOperationService.findByBatchId(batch.getId(), null).getTotalElements());
 	}
 
 	@Test

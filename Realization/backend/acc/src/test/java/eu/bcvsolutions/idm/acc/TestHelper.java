@@ -121,6 +121,16 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	TestResource findResource(String uid);
+	
+	/**
+	 * Saves resource on target system
+	 * 
+	 * TODO: support merge (persist only now) 
+	 * 
+	 * @param uid
+	 * @return
+	 */
+	TestResource saveResource(TestResource testResource);
 
 	/**
 	 * Creates system entity (IDENTITY) with random name on given system

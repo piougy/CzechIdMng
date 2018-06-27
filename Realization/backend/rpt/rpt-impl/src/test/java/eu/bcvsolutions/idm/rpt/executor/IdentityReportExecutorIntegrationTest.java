@@ -29,7 +29,6 @@ import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.renderer.IdentityReportXlsxRenderer;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Identity report tests
@@ -39,7 +38,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  */
 public class IdentityReportExecutorIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private TestHelper helper;
 	@Autowired private IdentityReportExecutor reportExecutor;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private AttachmentManager attachmentManager;
@@ -63,8 +61,8 @@ public class IdentityReportExecutorIntegrationTest extends AbstractIntegrationTe
 	@Transactional
 	public void testDisabledIdentity() throws IOException {
 		// prepare test identities
-		IdmIdentityDto identityOne = helper.createIdentity();
-		IdmIdentityDto identityDisabled = helper.createIdentity();
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityDisabled =getHelper().createIdentity((GuardedString) null);
 		identityService.disable(identityDisabled.getId());
 		//
 		// prepare report filter
@@ -95,7 +93,7 @@ public class IdentityReportExecutorIntegrationTest extends AbstractIntegrationTe
 	@Test
 	@Transactional
 	public void testRenderers() {
-		helper.createIdentity();
+		getHelper().createIdentity((GuardedString) null);
 		//
 		// prepare report filter
 		RptReportDto report = new RptReportDto(UUID.randomUUID());

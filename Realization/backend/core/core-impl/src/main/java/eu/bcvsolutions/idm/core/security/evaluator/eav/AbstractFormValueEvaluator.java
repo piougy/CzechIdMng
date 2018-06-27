@@ -93,8 +93,9 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 		//
 		// owner read or update - reuse the same subquery
 		if (isOwnerRead(policy) || isOwnerUpdate(policy)) {
-			Subquery subquery = query.subquery(getOwnerType());
-			Root subRoot = subquery.from(getOwnerType());
+			Class<? extends FormableEntity> ownerType = getOwnerType();
+			Subquery subquery = query.subquery(ownerType);
+			Root subRoot = subquery.from(ownerType);
 			subquery.select(subRoot);		
 			subquery.where(builder.and(
 					authorizationManager.getPredicate(subRoot, query, builder, 

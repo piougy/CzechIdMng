@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
-import org.apache.http.util.Asserts;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -78,10 +77,10 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		IcObjectClass objectClass = connectorObject.getObjectClass();
-		String uid = systemEntityService.getByProvisioningOperation(provisioningOperation).getUid();
+		SysSystemEntityDto systemEntity = systemEntityService.getByProvisioningOperation(provisioningOperation);
 		LOG.debug("Start provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
 				provisioningOperation.getOperationType(),
-				uid,
+				systemEntity.getUid(),
 				objectClass.getType());
 		//
 		// Find connector identification persisted in system
@@ -105,14 +104,14 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			IcUidAttribute resultUid = processInternal(provisioningOperation, connectorConfig);
 			// update system entity, when identifier on target system differs
 			if (resultUid != null && resultUid.getUidValue() != null) {
-				SysSystemEntityDto systemEntity = systemEntityService.getByProvisioningOperation(provisioningOperation);
-				// If system entity was not found, we try found system entity by returned UID
-				if(systemEntity == null) {
-					systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, provisioningOperation.getEntityType(), resultUid.getUidValue());
-				}
-				Asserts.notNull(systemEntity, "Systeme entity cannot be null!");
 				if(!systemEntity.getUid().equals(resultUid.getUidValue()) || systemEntity.isWish()) {
 					systemEntity.setUid(resultUid.getUidValue());
+					systemEntity.setWish(false);
+					systemEntity = systemEntityService.save(systemEntity);
+					LOG.info("UID was changed. System entity with uid [{}] was updated", systemEntity.getUid());
+				}
+			} else { // e.g. update doesn't return
+				if (systemEntity.isWish()) {
 					systemEntity.setWish(false);
 					systemEntity = systemEntityService.save(systemEntity);
 					LOG.info("UID was changed. System entity with uid [{}] was updated", systemEntity.getUid());

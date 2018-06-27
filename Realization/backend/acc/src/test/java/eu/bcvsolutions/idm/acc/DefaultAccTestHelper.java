@@ -80,9 +80,18 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 	@Autowired private DefaultSysSystemMappingService mappingService;
 	@Autowired private ApplicationContext context;
 	
+	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public TestResource findResource(String uid) {
 		return entityManager.find(TestResource.class, uid);
+	}
+	
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public TestResource saveResource(TestResource testResource) {
+		entityManager.persist(testResource);
+		//
+		return testResource;
 	}
 	
 	/**

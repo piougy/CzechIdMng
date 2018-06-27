@@ -279,9 +279,10 @@ public interface Configurable {
 	 */
 	default List<IdmFormAttributeDto> getFormAttributes() {
 		List<IdmFormAttributeDto> attributes = new ArrayList<>();
+		List<String> propertyNames = getPropertyNames();
 		//
-		for(short index = 0; index < getPropertyNames().size(); index ++) {
-			String propertyName = getPropertyNames().get(index);
+		for(short index = 0; index < propertyNames.size(); index ++) {
+			String propertyName = propertyNames.get(index);
 			if (propertyName.equals(ConfigurationService.PROPERTY_ENABLED)
 					|| propertyName.equals(ConfigurationService.PROPERTY_ORDER)) {
 				// internal base props

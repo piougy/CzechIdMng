@@ -34,7 +34,7 @@ export default class TextAreaFormAttributeRenderer extends TextFormAttributeRend
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         validation={ this.getInputValidation() }
-        required={ attribute.required }/>
+        required={ this.isRequired() }/>
     );
   }
 

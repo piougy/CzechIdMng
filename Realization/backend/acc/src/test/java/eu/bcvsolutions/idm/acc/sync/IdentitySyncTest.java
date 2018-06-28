@@ -88,6 +88,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
@@ -693,39 +694,44 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testTaskExecution() throws InterruptedException {
-		SysSystemDto system = initData();
-		Assert.assertNotNull(system);
-		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
-
-		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
-
-		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
-		identityFilter.setUsername(IDENTITY_ONE);
-		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
-		Assert.assertEquals(0, identities.size());
-
-		Task initiatorTask = createSyncTask(config.getId());
-		ObserveLongRunningTaskEndProcessor.listenTask(initiatorTask.getId());
-		// Execute
-		manager.runTask(initiatorTask.getId());
-		ObserveLongRunningTaskEndProcessor.waitForEnd(initiatorTask.getId());
-
-		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
-				OperationResultType.SUCCESS);
-
-		Assert.assertFalse(log.isRunning());
-		Assert.assertFalse(log.isContainsError());
-
-		identities = identityService.find(identityFilter, null).getContent();
-		Assert.assertEquals(1, identities.size());
-		IdmIdentityDto identity = identities.get(0);
-		List<IdmFormValueDto> emailValues = formService.getValues(identity, ATTRIBUTE_EMAIL_TWO);
-		Assert.assertEquals(1, emailValues.size());
-		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
-		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
-
-		// Delete log
-		syncLogService.delete(log);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		try {
+			SysSystemDto system = initData();
+			Assert.assertNotNull(system);
+			SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+	
+			config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+	
+			IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+			identityFilter.setUsername(IDENTITY_ONE);
+			List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+			Assert.assertEquals(0, identities.size());
+	
+			Task initiatorTask = createSyncTask(config.getId());
+			ObserveLongRunningTaskEndProcessor.listenTask(initiatorTask.getId());
+			// Execute
+			manager.runTask(initiatorTask.getId());
+			ObserveLongRunningTaskEndProcessor.waitForEnd(initiatorTask.getId());
+	
+			SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
+					OperationResultType.SUCCESS);
+	
+			Assert.assertFalse(log.isRunning());
+			Assert.assertFalse(log.isContainsError());
+	
+			identities = identityService.find(identityFilter, null).getContent();
+			Assert.assertEquals(1, identities.size());
+			IdmIdentityDto identity = identities.get(0);
+			List<IdmFormValueDto> emailValues = formService.getValues(identity, ATTRIBUTE_EMAIL_TWO);
+			Assert.assertEquals(1, emailValues.size());
+			Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
+			Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+	
+			// Delete log
+			syncLogService.delete(log);
+		} finally {
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		}
 	}
 
 	@Test

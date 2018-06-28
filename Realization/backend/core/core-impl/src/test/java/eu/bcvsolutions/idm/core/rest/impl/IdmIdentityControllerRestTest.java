@@ -474,4 +474,55 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 			Assert.assertFalse(identityConfiguration.isFormAttributesSecured());
 		}
 	}
+	
+	@Test
+	public void testSaveFormValueWithAttributeIdOnly() throws Exception {
+		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(getHelper().createName());
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(prepareDto().getClass(), getHelper().createName(), Lists.newArrayList(formAttribute));
+		formAttribute = formDefinition.getFormAttributes().get(0);
+		//
+		IdmIdentityDto owner = createDto();
+		//
+		String value = getHelper().createName();
+		//
+		// save values		
+		getMockMvc().perform(patch(getFormValuesUrl(owner))
+        		.with(authentication(getAuthentication(TestHelper.ADMIN_USERNAME)))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
+        		.content("[{ \"formAttribute\": \"" + formAttribute.getId() + "\", \"shortTextValue\": \"" + value + "\" }]")
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isOk());
+		
+		// get saved values
+		IdmFormInstanceDto formInstance = getFormInstance(owner.getId(), TestHelper.ADMIN_USERNAME, formDefinition.getCode());
+		Assert.assertEquals(owner.getId().toString(), formInstance.getOwnerId());
+		Assert.assertEquals(1, formInstance.getValues().size());
+		Assert.assertEquals(value, formInstance.getValues().get(0).getShortTextValue());
+		Assert.assertEquals(formAttribute.getId(), formInstance.getValues().get(0).getFormAttribute());
+	}
+	
+	@Test
+	public void testSaveFormValueWithValueOnlyIsNotPossible() throws Exception {
+		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(getHelper().createName());
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(prepareDto().getClass(), getHelper().createName(), Lists.newArrayList(formAttribute));
+		formAttribute = formDefinition.getFormAttributes().get(0);
+		//
+		IdmIdentityDto owner = createDto();
+		//
+		String value = getHelper().createName();
+		//
+		// save values
+		// if value is given only, then no value is saved => value is null => shortTextValue has to be given
+		getMockMvc().perform(patch(getFormValuesUrl(owner))
+        		.with(authentication(getAuthentication(TestHelper.ADMIN_USERNAME)))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
+        		.content("[{ \"formAttribute\": \"" + formAttribute.getId() + "\", \"value\": \"" + value + "\" }]")
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isOk());
+		
+		// get saved values
+		IdmFormInstanceDto formInstance = getFormInstance(owner.getId(), TestHelper.ADMIN_USERNAME, formDefinition.getCode());
+		Assert.assertEquals(owner.getId().toString(), formInstance.getOwnerId());
+		Assert.assertEquals(0, formInstance.getValues().size());
+	}
 }

@@ -3701,6 +3701,16 @@
             "help": "Add permission to attributes of users, which can be read by the logged user (for example, when logged user can read identity, then he can update attributes)."
           }
         }
+      },
+      "form-definition-uuid-evaluator": {
+        "help": "Permissions for form definition.",
+        "attributes": {
+          "uuid": {
+            "label": "Form definition",
+            "help": "",
+            "placeholder": "Select form definition ..."
+          }
+        }
       }
     }
   },

@@ -3744,6 +3744,16 @@
             "help": "Nastaví oprávnění pro atributy uživatelů, které aktuálně přihlášený uživatel může číst (například pokud může číst uživatele, může editovat vyjmenované atributy)."
           }
         }
+      },
+      "form-definition-uuid-evaluator": {
+        "help": "Oprávnění pro formuláře definující rozšířené atributy",
+        "attributes": {
+          "uuid": {
+            "label": "Definice formuláře",
+            "help": "Definice formuláře, které bude nastaveno oprávnění.",
+            "placeholder": "Vyberte definici ..."
+          }
+        }
       }
     }
   },

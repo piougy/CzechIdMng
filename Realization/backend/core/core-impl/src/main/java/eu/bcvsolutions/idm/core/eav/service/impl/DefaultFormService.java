@@ -136,13 +136,19 @@ public class DefaultFormService implements FormService {
 	public IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerType, BasePermission... permission) {
 		return getDefinition(ownerType, null, permission);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmFormDefinitionDto> getDefinitions(Identifiable owner, BasePermission... permission) {
+		return getDefinitions(owner.getClass(), permission);
+	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormDefinitionDto> getDefinitions(Class<? extends Identifiable> ownerType, BasePermission... permission) {
 		return getDefinitions(getDefaultDefinitionType(ownerType), permission);
 	}
-
+	
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerType, String code, BasePermission... permission) {

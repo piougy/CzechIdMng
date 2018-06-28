@@ -121,7 +121,7 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
         value={ !attribute.multiple ? this.toInputValue(values) : this.toInputValues(values) }
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
-        required={ attribute.required }
+        required={ this.isRequired() }
         multiSelect={ attribute.multiple }/>
     );
   }

@@ -99,10 +99,8 @@ public class IdmFormInstanceDto implements Serializable {
 	 * @return
 	 */
 	public Map<String, List<IdmFormValueDto>> toValueMap() {
-		Assert.notNull(values);
-		//
 		Map<String, List<IdmFormValueDto>> results = new HashMap<>();
-		for(IdmFormValueDto value : values) {
+		for(IdmFormValueDto value : getValues()) {
 			IdmFormAttributeDto attribute = formDefinition.getMappedAttribute(value.getFormAttribute());
 			if (attribute == null) {
 				throw new CoreException("Form attribute with code [" + value.getFormAttribute() + "] not found in definition [" + formDefinition.getId() + "]");
@@ -125,11 +123,8 @@ public class IdmFormInstanceDto implements Serializable {
 	 */
 	public Map<String, List<Serializable>> toPersistentValueMap() {
 		Map<String, List<Serializable>> results = new HashMap<>();
-		if (values == null) {
-			return results;
-		}
 		//
-		for(IdmFormValueDto value : values) {
+		for(IdmFormValueDto value : getValues()) {
 			IdmFormAttributeDto attribute = formDefinition.getMappedAttribute(value.getFormAttribute());
 			String key = attribute.getCode();
 			if (!results.containsKey(key)) {

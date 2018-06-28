@@ -45,6 +45,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	CONTRACTSLICE(
 			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
@@ -243,6 +244,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITYCONTRACT_UPDATE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITYCONTRACT_DELETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String CONTRACTSLICE_COUNT = "CONTRACTSLICE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String CONTRACTSLICE_AUTOCOMPLETE = "CONTRACTSLICE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String CONTRACTSLICE_READ = "CONTRACTSLICE" + BasePermission.SEPARATOR + "READ";
 	public static final String CONTRACTSLICE_CREATE = "CONTRACTSLICE" + BasePermission.SEPARATOR + "CREATE";

@@ -20,9 +20,12 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Custom form value service (and repository) can be registered by spring plugin.
+ * Use {@link FormService} in your code. {@link FormService} uses form value services internally.
  * 
  * TODO: Support identifiable owner? Or owner just by id?
  * 
+ * @see FormService
+ * @see CommonFormService
  * @author Radek Tomiška
  *
  * @param <O> values owner

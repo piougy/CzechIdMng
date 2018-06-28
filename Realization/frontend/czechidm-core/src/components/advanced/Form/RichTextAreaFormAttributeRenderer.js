@@ -39,7 +39,7 @@ export default class RichTextAreaFormAttributeRenderer extends TextFormAttribute
         placeholder={ this.getPlaceholder() }
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
-        required={ attribute.required }/>
+        required={ this.isRequired() }/>
     );
   }
 

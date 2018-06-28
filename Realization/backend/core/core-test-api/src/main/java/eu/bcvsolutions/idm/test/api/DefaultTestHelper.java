@@ -120,7 +120,12 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public LoginDto login(String username, String password) {
-		return loginService.login(new LoginDto(username, new GuardedString(password)));
+		return login(username, new GuardedString(password));
+	}
+	
+	@Override
+	public LoginDto login(String username, GuardedString password) {
+		return loginService.login(new LoginDto(username, password));
 	}
 	
 	@Override
@@ -302,7 +307,7 @@ public class DefaultTestHelper implements TestHelper {
 			UUID role, 
 			GroupPermission groupPermission,
 			Class<? extends AbstractEntity> authorizableType,
-			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluator,
+			Class<? extends AuthorizationEvaluator<? extends Identifiable>> evaluator,
 			BasePermission... permission) {
 		return createAuthorizationPolicy(role, groupPermission, authorizableType, evaluator, null, permission);
 	}
@@ -312,7 +317,7 @@ public class DefaultTestHelper implements TestHelper {
 			UUID role, 
 			GroupPermission groupPermission,
 			Class<? extends AbstractEntity> authorizableType,
-			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluator,
+			Class<? extends AuthorizationEvaluator<? extends Identifiable>> evaluator,
 		    ConfigurationMap evaluatorProperties,
 			BasePermission... permission) {
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();

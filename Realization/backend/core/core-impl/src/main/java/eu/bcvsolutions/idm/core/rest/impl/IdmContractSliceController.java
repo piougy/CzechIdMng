@@ -118,6 +118,24 @@ public class IdmContractSliceController
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
 	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONTRACTSLICE_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countContractSlices", 
+			tags = { IdmIdentityContractController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONTRACTSLICE_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONTRACTSLICE_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
 
 	@Override
 	@ResponseBody
@@ -257,7 +275,7 @@ public class IdmContractSliceController
 	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONTRACTSLICE_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
+	@RequestMapping(value = "/{backendId}/form-values", method = { RequestMethod.POST, RequestMethod.PATCH } )
 	@ApiOperation(value = "Contract slice form definition - save values", nickname = "postIdentityContractFormValues", tags = {
 			IdmContractSliceController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {

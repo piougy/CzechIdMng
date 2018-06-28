@@ -73,6 +73,16 @@ public interface TestHelper {
 	LoginDto login(String username, String password);
 	
 	/**
+	 * Login as given identity.
+	 * Identity has to exists, assigned identity roles and permissions will be used.
+	 * 
+	 * @param username
+	 * @param password
+	 * @return
+	 */
+	LoginDto login(String username, GuardedString password);
+	
+	/**
 	 * Logout current logged identity ~ clear secutity context
 	 */
 	void logout();
@@ -297,7 +307,7 @@ public interface TestHelper {
 			UUID role, 
 			GroupPermission groupPermission, 
 			Class<? extends AbstractEntity> authorizableType, 
-			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluatorType, 
+			Class<? extends AuthorizationEvaluator<? extends Identifiable>> evaluatorType, 
 		    BasePermission... permission);
 	
 	/**
@@ -315,7 +325,7 @@ public interface TestHelper {
 			UUID role, 
 			GroupPermission groupPermission, 
 			Class<? extends AbstractEntity> authorizableType, 
-			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluatorType, 
+			Class<? extends AuthorizationEvaluator<? extends Identifiable>> evaluatorType, 
 			ConfigurationMap evaluatorProperties,
 		    BasePermission... permission);
 

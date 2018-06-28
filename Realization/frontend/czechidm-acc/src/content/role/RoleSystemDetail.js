@@ -181,14 +181,15 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
 
   render() {
     const { _showLoading, _roleSystem } = this.props;
+    const { entityId } = this.props.params;
     const { systemId } = this.state;
     //
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem & _roleSystem.id ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const roleSystem = isNew ? this.state.roleSystem : _roleSystem;
     const forceSearchMappings = new Domain.SearchParameters()
-     .setFilter('operationType', SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING))
-     .setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
+      .setFilter('operationType', SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING))
+      .setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
     const linkMenu = this._isSystemMenu() ? `/system/${roleSystem.system}/roles/${roleSystem}/attributes` : `/role/${roleSystem.role}/systems/${roleSystem}/attributes`;
     //
     return (
@@ -253,13 +254,13 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('roleSystemAttributesHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={roleSystem && !isNew} className="no-border last">
+        <Basic.Panel rendered={ roleSystem && !isNew } className="no-border last">
           <Advanced.Table
             ref="table"
-            uiKey={uiKeyAttributes}
-            manager={roleSystemAttributeManager}
-            forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])}
+            uiKey={ `${uiKeyAttributes}-${entityId}` }
+            manager={ roleSystemAttributeManager }
+            forceSearchParameters={ forceSearchParameters }
+            showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE']) }
             actions={
               Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])
               ?

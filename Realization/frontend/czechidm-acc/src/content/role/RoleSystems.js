@@ -39,7 +39,7 @@ export default class RoleSystems extends Basic.AbstractContent {
 
         <Basic.Panel className="no-border last">
           <RoleSystemTableComponent
-            uiKey={ this.getUiKey() }
+            uiKey={ `${this.getUiKey()}-${entityId}` }
             columns={ _.difference(RoleSystemTable.defaultProps.columns, ['role']) }
             forceSearchParameters={ forceSearchParameters }
             params={ this.props.params }/>

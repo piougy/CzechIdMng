@@ -185,6 +185,7 @@ class RoleTable extends Advanced.AbstractTableContent {
             manager={roleManager}
             rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
             filterOpened={filterOpened}
+            useBackendBulkAction
             forceSearchParameters={forceSearchParameters}
             showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
             style={!showTree ? {} : { borderLeft: '1px solid #ddd' }}

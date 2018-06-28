@@ -1,5 +1,5 @@
 import FormableEntityManager from './FormableEntityManager';
-import { RoleService } from '../../services';
+import { RoleService, BulkActionService} from '../../services';
 import DataManager from './DataManager';
 
 /**
@@ -13,6 +13,7 @@ export default class RoleManager extends FormableEntityManager {
     super();
     this.service = new RoleService();
     this.dataManager = new DataManager();
+    this.bulkActionService = new BulkActionService(this.service.getApiPath());
   }
 
   getService() {
@@ -73,6 +74,49 @@ export default class RoleManager extends FormableEntityManager {
             dispatch(this.receiveError(null, uiKey, error));
           });
       }
+    };
+  }
+
+  getUiKeyForBulkActions() {
+    return BulkActionService.UI_KEY_PREFIX + this.getCollectionType();
+  }
+
+  prevalidateBulkAction(action, cb) {
+    return (dispatch) => {
+      this.bulkActionService.prevalidateBulkAction(action, cb)
+      .then(json => {
+        return json;
+      })
+      .catch(error => {
+        dispatch(this.receiveError(null, null, error, cb));
+      });
+    };
+  }
+
+  processBulkAction(action, cb) {
+    return (dispatch) => {
+      this.bulkActionService.processBulkAction(action, cb)
+      .then(json => {
+        return json;
+      })
+      .catch(error => {
+        dispatch(this.receiveError(null, null, error, cb));
+      });
+    };
+  }
+
+  fetchAvailableBulkActions() {
+    const uiKey = this.getUiKeyForBulkActions();
+    //
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.bulkActionService.getAvailableBulkActions()
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
     };
   }
 }

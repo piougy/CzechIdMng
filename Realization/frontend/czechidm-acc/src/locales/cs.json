@@ -1333,6 +1333,12 @@
           }
         }
       }
+    },
+    "bulk-action": {
+      "role-acm-bulk-action": {
+        "label": "Provést přepočet účtů",
+        "help": "Tato operace vyvolá pro každou vybranou roli <strong>přepočet účtů</strong>. Přepočet bude proveden pro všechny uživatele s danou rolí. Samotný přepočet i následný provisioning je prováděn <strong>asynchroně</strong>. Postup můžete sledovat v agendě spravující <strong>Události</strong>."
+      }
     }
   },
   "error": {
@@ -1655,6 +1661,10 @@
     "PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING": {
       "title": "Duplicitní atributu mapování",
       "message": "Provisioning mapování může obsahovat pouze jeden atribut, mapující stejný schéma atribut!"
+    },
+    "ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES": {
+      "message": "Role <strong>{{role}}</strong> obsahuje  <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele.",
+      "title": ""
     }
   },
   "processor": {

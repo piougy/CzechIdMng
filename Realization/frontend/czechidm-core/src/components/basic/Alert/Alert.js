@@ -31,7 +31,7 @@ class Alert extends AbstractComponent {
   }
 
   render() {
-    const { level, title, text, className, icon, onClose, rendered, showLoading, children, style, buttons } = this.props;
+    const { level, title, text, className, icon, onClose, rendered, showLoading, children, style, buttons, showHtmlText } = this.props;
     const { closed } = this.state;
     if (!rendered || closed || (!text && !title && !children)) {
       return null;
@@ -69,7 +69,7 @@ class Alert extends AbstractComponent {
             ||
             <div className="alert-title">{title}</div>
           }
-          {text}
+          {showHtmlText ? <span dangerouslySetInnerHTML={{ __html: text}}/> : text}
           {children}
           {
             (!buttons || buttons.length === 0)
@@ -115,14 +115,19 @@ Alert.propTypes = {
   /**
    * Alert action buttons
    */
-  buttons: PropTypes.arrayOf(PropTypes.node)
+  buttons: PropTypes.arrayOf(PropTypes.node),
+  /**
+   * Show text as html (dangerouslySetInnerHTML)
+   */
+  showHtmlText: PropTypes.bool
 };
 
 Alert.defaultProps = {
   ...AbstractComponent.defaultProps,
   level: 'info',
   onClose: null,
-  buttons: []
+  buttons: [],
+  showHtmlText: false
 };
 
 export default Alert;

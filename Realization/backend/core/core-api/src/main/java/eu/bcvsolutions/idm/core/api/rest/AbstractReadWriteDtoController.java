@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
@@ -238,8 +239,39 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @param bulkAction
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public ResponseEntity<IdmBulkActionDto> bulkAction(IdmBulkActionDto bulkAction) {
+		initBulkAction(bulkAction);
+		return new ResponseEntity<IdmBulkActionDto>(bulkActionManager.processAction(bulkAction), HttpStatus.CREATED);
+	}
+	
+	/**
+	 * Start prevalidation for given bulk action
+	 * @param bulkAction
+	 * @return
+	 */
+	public ResponseEntity<ResultModels> preValidateBulkAction(IdmBulkActionDto bulkAction) {
+		initBulkAction(bulkAction);
+		ResultModels result = bulkActionManager.preValidate(bulkAction);
+		if(result == null) {
+			return new ResponseEntity<ResultModels>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<ResultModels>(result, HttpStatus.OK);
+	}
+
+	/**
+	 * Returns DTO service configured to current controller
+	 */
+	@Override
+	protected ReadWriteDtoService<DTO, F> getService() {
+		return (ReadWriteDtoService<DTO, F>) super.getService();
+	}
+	
+	/**
+	 * Init bulk action
+	 * @param bulkAction
+	 */
+	@SuppressWarnings("unchecked")
+	private void initBulkAction(IdmBulkActionDto bulkAction) {
 		// TODO: use MultiValueMap in object if is possible?
 		if (bulkAction.getFilter() != null) {
 			MultiValueMap<String, Object> multivaluedMap = new LinkedMultiValueMap<>();
@@ -258,14 +290,5 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 		}
 		bulkAction.setEntityClass(getService().getEntityClass().getName());
 		bulkAction.setFilterClass(this.getFilterClass().getName());
-		return new ResponseEntity<IdmBulkActionDto>(bulkActionManager.processAction(bulkAction), HttpStatus.CREATED);
-	}
-
-	/**
-	 * Returns DTO service configured to current controller
-	 */
-	@Override
-	protected ReadWriteDtoService<DTO, F> getService() {
-		return (ReadWriteDtoService<DTO, F>) super.getService();
 	}
 }

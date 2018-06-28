@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -109,6 +110,11 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	}
 	
 	@Override
+	public ResultModels preValidate() {
+		return null;
+	}
+	
+	@Override
 	public Map<String, Object> getProperties() {
 		if (this.getAction() == null) {
 			return super.getProperties();
@@ -164,6 +170,26 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		IdmLongRunningTaskDto longRunningTask = this.getLongRunningTaskService().get(this.getLongRunningTaskId());
 		description.append(longRunningTask.getTaskDescription());
 		//
+		List<UUID> entities = getEntities(action, description);
+		//
+		this.count = Long.valueOf(entities.size());
+		this.counter = 0l;
+		//
+		// update description
+		longRunningTask.setTaskDescription(description.toString());
+		this.getLongRunningTaskService().save(longRunningTask);
+		//
+		return processEntities(entities);
+	}
+
+	/**
+	 * Obtains the all UUIDs of entities to processing
+	 * 
+	 * @param action
+	 * @param description
+	 * @return
+	 */
+	protected List<UUID> getEntities(IdmBulkActionDto action, StringBuilder description) {
 		List<UUID> entities = null;
 		if (!action.getIdentifiers().isEmpty()) {
 			entities = new ArrayList<UUID>(action.getIdentifiers());
@@ -189,15 +215,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		if (!action.getRemoveIdentifiers().isEmpty()) {
 			entities.removeAll(action.getRemoveIdentifiers());
 		}
-		//
-		this.count = Long.valueOf(entities.size());
-		this.counter = 0l;
-		//
-		// update description
-		longRunningTask.setTaskDescription(description.toString());
-		this.getLongRunningTaskService().save(longRunningTask);
-		//
-		return processEntities(entities);
+		return entities;
 	}
 
 	/**

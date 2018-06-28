@@ -28,6 +28,23 @@ export default class BulkActionService {
       });
   }
 
+  prevalidateBulkAction(action, cb) {
+    return RestApiService
+      .post(this.getApiPath() + `/bulk/prevalidate`, action)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (cb) {
+          cb(json);
+        }
+        return json;
+      });
+  }
+
   /**
    * Returns all bulk actions in given api path
    *

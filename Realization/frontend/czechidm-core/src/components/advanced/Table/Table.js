@@ -191,6 +191,56 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
   }
 
+  prevalidateBulkAction(bulkAction, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this.refs.bulkActionAttributes.isValid()) {
+      return;
+    }
+    const _searchParameters = this._mergeSearchParameters(this.props._searchParameters);
+
+    const { selectedRows, removedRows } = this.state;
+
+    if (bulkAction) {
+      const bulkActionToProcess = {
+        ...bulkAction
+      };
+      const { manager } = this.props;
+      // remove unnecessary attributes
+      delete bulkActionToProcess.formAttributes;
+      delete bulkActionToProcess.longRunningTaskId;
+      delete bulkActionToProcess.permissions;
+      //
+      bulkActionToProcess.properties = this.refs.bulkActionAttributes.getValues();
+      if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
+        bulkActionToProcess.filter = _searchParameters.getFilters().toJSON();
+        bulkActionToProcess.removeIdentifiers = removedRows.toArray();
+      } else {
+        bulkActionToProcess.identifiers = selectedRows;
+      }
+      //
+      this.setState({
+        bulkActionShowLoading: true
+      });
+      this.context.store.dispatch(manager.prevalidateBulkAction(bulkActionToProcess, (resultModel, error) => {
+        if (error) {
+          this.addErrorMessage({}, error);
+          this.setState({
+            bulkActionShowLoading: false
+          });
+        } else {
+          const backendBulkAction = this.state.backendBulkAction;
+          backendBulkAction.prevalidateResult = resultModel;
+          this.setState({
+            bulkActionShowLoading: false,
+            backendBulkAction
+          });
+        }
+      }));
+    }
+  }
+
   /**
    * Merge hard, default and user deffined search parameters
    */
@@ -378,8 +428,26 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         showBulkActionDetail: !showBulkActionDetail,
         backendBulkAction,
         now: moment(new Date()).format(this.i18n('format.datetime'))
+      }, () => {
+        this.prevalidateBulkAction(backendBulkAction);
       });
     }
+  }
+
+  renderPrevalidateMessages(backendBulkAction) {
+    if (!backendBulkAction.prevalidateResult) {
+      return null;
+    }
+    if (!backendBulkAction.prevalidateResult._infos) {
+      return null;
+    }
+
+    const result = [];
+    for (const model of backendBulkAction.prevalidateResult._infos) {
+      result.push(<Basic.FlashMessage showHtmlText
+        message={ this.getFlashManager().convertFromResultModel(model) }/>);
+    }
+    return result;
   }
 
   _renderBulkActionDetail() {
@@ -442,6 +510,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         );
       }
     } else if (backendBulkAction) {
+      const helpKey = backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.help';
+      const help = this.i18n(helpKey);
       modalContent = (
         <form onSubmit={this.processBulkAction.bind(this, backendBulkAction)}>
           <Basic.Modal.Header text={ this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label') }/>
@@ -468,6 +538,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   count: removedEnties.length,
                   entities: manager.getNiceLabels(removedEnties).join(', ') }) }}/>
               </Basic.Row>
+              <Basic.Alert
+                level="info"
+                showHtmlText
+                text={help}
+                rendered={help !== helpKey} />
+              {this.renderPrevalidateMessages(backendBulkAction)}
               <EavAttributeForm
                 ref="bulkActionAttributes"
                 localizationKey={backendBulkAction.name}

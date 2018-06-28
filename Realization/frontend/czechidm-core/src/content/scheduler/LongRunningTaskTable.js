@@ -254,8 +254,11 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                 const entity = data[rowIndex];
                 const propertyValue = entity[property];
                 return _.keys(propertyValue).map(propertyName => {
+                  if (Utils.Ui.isEmpty(propertyValue[propertyName])) {
+                    return null;
+                  }
                   return (
-                    <div>{ propertyName }: { '' + propertyValue[propertyName] }</div>
+                    <div>{ propertyName }: { Utils.Ui.toStringValue(propertyValue[propertyName]) }</div>
                   );
                 });
               }

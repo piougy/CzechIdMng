@@ -343,7 +343,10 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   if (parameterName.lastIndexOf('core:', 0) === 0) {
                     return null;
                   }
-                  return (<div>{parameterName}: {entity.parameters[parameterName]}</div>);
+                  if (Utils.Ui.isEmpty(entity.parameters[parameterName])) {
+                    return null;
+                  }
+                  return (<div>{parameterName}: { Utils.Ui.toStringValue(entity.parameters[parameterName]) }</div>);
                 });
               }
             }/>

@@ -355,6 +355,28 @@ export default class UiUtils {
     }
     return objectValue + '';
   }
+
+  /**
+   * Returns true, if given value is filled - usable for boolean values - false is not empty.
+   *
+   * @param  {object}  objectValue
+   * @return {Boolean}
+   */
+  static isEmpty(objectValue) {
+    // null value
+    if (objectValue === null) {
+      return true;
+    }
+    // undefined value
+    if (objectValue === undefined) {
+      return true;
+    }
+    // empty string
+    if (objectValue === '') {
+      return true;
+    }
+    return false;
+  }
 }
 
 UiUtils.MAX_VALUE_INTEGER = 2147483647;

@@ -413,6 +413,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             <LongRunningTask
               entityIdentifier={ backendBulkAction.longRunningTaskId }
               header={ this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label')}
+              showProperties={ false }
               footerButtons={
                 <Basic.Button
                   level="link"

@@ -173,6 +173,14 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
               width={75}
               sort
               face="text"
+              cell={
+                ({ rowIndex, data, property }) => {
+                  const javaType = data[rowIndex][property];
+                  return (
+                    <span title={ javaType }>{ Utils.Ui.getSimpleJavaType(javaType) }</span>
+                  );
+                }
+              }
             />
             <Advanced.Column
               property="created"

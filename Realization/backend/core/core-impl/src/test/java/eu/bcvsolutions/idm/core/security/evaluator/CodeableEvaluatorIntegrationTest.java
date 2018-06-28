@@ -12,36 +12,28 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
- * Codeable evvaluator tests
+ * Codeable evaluator tests
  * 
  * @author Radek Tomiška
  *
  */
 public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
-	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
-	@Autowired private LoginService loginService;
 	
 	@Test
 	public void testPermissionByWrongUuid() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// prepare role
-		IdmRoleDto role = helper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role.getId());
@@ -52,18 +44,16 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 		dto.setPermissions(IdmBasePermission.READ);
 		authorizationPolicyService.save(dto);
 		// prepare identity
-		IdmIdentityDto identity = helper.createIdentity();
-		identity.setPassword(new GuardedString("heslo"));
-		identityService.save(identity);
+		IdmIdentityDto identity = getHelper().createIdentity();
 		// assign role
-		helper.createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, role);
 		logout();
 		//
 		try {			
-			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
+			getHelper().login(identity.getUsername(), identity.getPassword());
 			//
 			// evaluate	access
-			assertEquals(0, roleService.find(null, IdmBasePermission.READ).getTotalElements());;			
+			assertEquals(0, roleService.find(null, IdmBasePermission.READ).getTotalElements());		
 		} finally {
 			logout();
 		}
@@ -73,7 +63,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 	public void testPermissionByUuid() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// prepare role
-		IdmRoleDto role = helper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role.getId());
@@ -84,15 +74,13 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 		dto.setPermissions(IdmBasePermission.READ);
 		authorizationPolicyService.save(dto);
 		// prepare identity
-		IdmIdentityDto identity = helper.createIdentity();
-		identity.setPassword(new GuardedString("heslo"));
-		identityService.save(identity);
+		IdmIdentityDto identity = getHelper().createIdentity();
 		// assign role
-		helper.createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, role);
 		logout();
 		//
 		try {
-			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
+			getHelper().login(identity.getUsername(), identity.getPassword());
 			//
 			// evaluate	access
 			List<IdmRoleDto> roles = roleService.find(null, IdmBasePermission.READ).getContent();
@@ -107,7 +95,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 	public void testPermissionByCode() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// prepare role
-		IdmRoleDto role = helper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role.getId());
@@ -118,15 +106,13 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 		dto.setPermissions(IdmBasePermission.READ);
 		authorizationPolicyService.save(dto);
 		// prepare identity
-		IdmIdentityDto identity = helper.createIdentity();
-		identity.setPassword(new GuardedString("heslo"));
-		identityService.save(identity);
+		IdmIdentityDto identity = getHelper().createIdentity();
 		// assign role
-		helper.createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, role);
 		logout();
 		//
 		try {
-			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
+			getHelper().login(identity.getUsername(), identity.getPassword());
 			//
 			// evaluate	access
 			List<IdmRoleDto> roles = roleService.find(null, IdmBasePermission.READ).getContent();

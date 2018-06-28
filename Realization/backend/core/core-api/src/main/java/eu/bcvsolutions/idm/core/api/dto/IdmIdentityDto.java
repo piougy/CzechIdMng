@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
@@ -33,7 +34,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Relation(collectionRelation = "identities")
 @ApiModel(description = "Identity domain object")
-public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable, ExternalCodeable {
+public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable, ExternalCodeable, ExternalIdentifiable {
 
 	private static final long serialVersionUID = 1L;
 	@NotEmpty
@@ -41,8 +42,11 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	@ApiModelProperty(required = true, notes = "Unique identity username. Could be used as identifier in rest endpoints")
 	private String username;	
 	@Size(max = DefaultFieldLengths.NAME)
-	@ApiModelProperty(notes = "Unique external code.")
+	@ApiModelProperty(notes = "External code.")
 	private String externalCode;
+	@Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(notes = "Unique external identifier.")
+	private String externalId;
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@JsonDeserialize(using = GuardedStringDeserializer.class)
 	private transient GuardedString password;	
@@ -216,7 +220,18 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 		return externalCode;
 	}
 
+	@Override
 	public void setExternalCode(String externalCode) {
 		this.externalCode = externalCode;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
 	}
 }

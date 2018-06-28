@@ -79,8 +79,8 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	public Optional<OperationResult> processItem(IdmIdentityContractDto identityContract) {
 		try {
 			if (!identityContract.isValidNowOrInFuture()) {
-				IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
-				IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role, IdmRoleDto.class);
+				IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
+				IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role);
 				return Optional.of(new OperationResult
 						.Builder(OperationState.NOT_EXECUTED)
 						.setModel(new DefaultResultModel(
@@ -96,8 +96,8 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			// skip already assigned automatic roles
 			for (IdmIdentityRoleDto roleByContract : allByContract) {
 				if (ObjectUtils.equals(roleByContract.getRoleTreeNode(), getRoleTreeNode().getId())) {
-					IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
-					IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role, IdmRoleDto.class);
+					IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
+					IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role);
 					return Optional.of(new OperationResult
 							.Builder(OperationState.NOT_EXECUTED)
 							.setModel(new DefaultResultModel(
@@ -116,8 +116,8 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			automaticRoleAttributeService.addAutomaticRoles(identityContract, Sets.newHashSet(getRoleTreeNode()));
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch(Exception ex) {
-			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity, IdmIdentityDto.class);
-			IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role, IdmRoleDto.class);
+			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
+			IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role);
 			//
 			LOG.error("Adding role [{}] by automatic role [{}] for identity [{}] failed",
 					role.getCode(), getRoleTreeNode().getId(), identity.getUsername(), ex);

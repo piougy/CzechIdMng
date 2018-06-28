@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.api.dto.filter;
 
+import java.util.UUID;
+
 import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -23,6 +25,7 @@ public class IdmLongRunningTaskFilter extends DataFilter {
 	private Boolean running;
 	private Boolean stateful;
 	private String instanceId;
+	private UUID creatorId;
 	
 	public IdmLongRunningTaskFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -86,5 +89,13 @@ public class IdmLongRunningTaskFilter extends DataFilter {
 	
 	public String getInstanceId() {
 		return instanceId;
+	}
+
+	public UUID getCreatorId() {
+		return creatorId;
+	}
+
+	public void setCreatorId(UUID creatorId) {
+		this.creatorId = creatorId;
 	}
 }

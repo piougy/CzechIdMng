@@ -42,7 +42,7 @@ public class LoginController {
 	@ResponseBody
 	@ApiOperation(
 			value = "Login an get the CIDMST token", 
-			notes= "Login an get the CIDMST token",
+			notes= "Login an get the CIDMST token. Use returned token attribute value as \"CIDMST\" http header in next requests.",
 			response = LoginDto.class,
 			tags = { LoginController.TAG } )
 	@RequestMapping(method = RequestMethod.POST)
@@ -57,7 +57,7 @@ public class LoginController {
 	
 	@ApiOperation(
 			value = "Login with remote token", 
-			notes= "Login with remote token an get the CIDMST token",
+			notes= "Login with remote token an get the CIDMST token. Remote token can be obtained by external authentication system (e.g. OpenAM, OAuth)",
 			response = LoginDto.class,
 			tags = { LoginController.TAG })
 	@RequestMapping(path = REMOTE_AUTH_PATH, method = RequestMethod.GET)

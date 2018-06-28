@@ -1,4 +1,4 @@
-# CzechIdM 7
+# CzechIdM 8
 
 CzechIdM is an opensource identity management tool for user accounts that automates the operations associated with establishing and managing identities.
 

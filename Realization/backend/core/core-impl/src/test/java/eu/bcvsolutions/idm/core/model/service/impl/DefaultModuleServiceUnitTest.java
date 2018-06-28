@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -19,7 +17,9 @@ import org.springframework.plugin.core.SimplePluginRegistry;
 
 import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -38,11 +38,15 @@ import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 public class DefaultModuleServiceUnitTest extends AbstractVerifiableUnitTest {
 
 	private static final List<List<GroupPermission>> ALL_PERMISSIONS;
+	private static final List<List<ResultCode>> ALL_RESULT_CODES;
 
 	static {
 		ALL_PERMISSIONS = new ArrayList<>();
 		ALL_PERMISSIONS.add(Arrays.asList(CoreGroupPermission.values()));
 		ALL_PERMISSIONS.add(Arrays.asList(NotificationGroupPermission.values()));
+		//
+		ALL_RESULT_CODES = new ArrayList<>();
+		ALL_RESULT_CODES.add(Arrays.asList(CoreResultCode.values()));
 	}
 
 	@Mock
@@ -66,7 +70,7 @@ public class DefaultModuleServiceUnitTest extends AbstractVerifiableUnitTest {
 			allPermissions.addAll(permissions);
 		});
 
-		assertTrue(allPermissions.containsAll(defaultModuleService.getAvailablePermissions()));
+		Assert.assertTrue(allPermissions.containsAll(defaultModuleService.getAvailablePermissions()));
 		verify(configurationService).getBooleanValue(any(String.class), any(Boolean.class));
 	}
 
@@ -74,7 +78,7 @@ public class DefaultModuleServiceUnitTest extends AbstractVerifiableUnitTest {
 	public void testAvailablePermissionOneEnabled() {
 		when(configurationService.getBooleanValue(any(String.class), any(Boolean.class))).thenReturn(false);
 
-		assertTrue(ALL_PERMISSIONS.get(0).containsAll(defaultModuleService.getAvailablePermissions()));
+		Assert.assertTrue(ALL_PERMISSIONS.get(0).containsAll(defaultModuleService.getAvailablePermissions()));
 		verify(configurationService).getBooleanValue(any(String.class), any(Boolean.class));
 	}
 
@@ -87,7 +91,7 @@ public class DefaultModuleServiceUnitTest extends AbstractVerifiableUnitTest {
 	public void testEnabledModules() {
 		when(configurationService.getBooleanValue(any(String.class), any(Boolean.class))).thenReturn(true);
 
-		assertEquals(2, defaultModuleService.getEnabledModules().size());
+		Assert.assertEquals(2, defaultModuleService.getEnabledModules().size());
 		verify(configurationService).getBooleanValue(any(String.class), any(Boolean.class));
 	}
 
@@ -95,14 +99,26 @@ public class DefaultModuleServiceUnitTest extends AbstractVerifiableUnitTest {
 	public void testDisabledModules() {
 		when(configurationService.getBooleanValue(any(String.class), any(Boolean.class))).thenReturn(false);
 
-		assertEquals(1, defaultModuleService.getEnabledModules().size());
-		assertEquals(2, defaultModuleService.getInstalledModules().size());
+		Assert.assertEquals(1, defaultModuleService.getEnabledModules().size());
+		Assert.assertEquals(2, defaultModuleService.getInstalledModules().size());
 		verify(configurationService).getBooleanValue(any(String.class), any(Boolean.class));
 	}
 
 	@Test
 	public void testUninstalledModule() {
-		assertFalse(defaultModuleService.isEnabled("not_exists"));
+		Assert.assertFalse(defaultModuleService.isEnabled("not_exists"));
+	}
+	
+	@Test
+	public  void testResultCodes() {
+		// TODO: move result codes into manager - move filter from rest to service
+		Assert.assertTrue(new ModuleDescriptorOne().getResultCodes().isEmpty());
+		//
+		List<ResultCode> allResultCodes = new ArrayList<>();
+		ALL_RESULT_CODES.stream().forEach((resultCodes) -> {
+			allResultCodes.addAll(resultCodes);
+		});
+		Assert.assertTrue(allResultCodes.containsAll(new ModuleDescriptorTwo().getResultCodes()));
 	}
 
 	private class ModuleDescriptorOne extends AbstractModuleDescriptor {
@@ -137,6 +153,11 @@ public class DefaultModuleServiceUnitTest extends AbstractVerifiableUnitTest {
 		@Override
 		public List<GroupPermission> getPermissions() {
 			return ALL_PERMISSIONS.get(1);
+		}
+		
+		@Override
+		public List<ResultCode> getResultCodes() {
+			return ALL_RESULT_CODES.get(0);
 		}
 	}
 }

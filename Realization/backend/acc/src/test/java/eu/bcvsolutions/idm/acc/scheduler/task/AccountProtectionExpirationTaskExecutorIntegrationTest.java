@@ -20,21 +20,18 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * LRT integration test
- * 
- * TODO: provisioning helper (DRY - initialized methods, createSystem, mapping, find test accounts ...)
  * 
  * @author Radek Tomiška
  *
  */
 public class AccountProtectionExpirationTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
 	@Autowired private AccAccountService accountService;
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
@@ -43,31 +40,29 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
 	public void logout() {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 	
 	@Test
 	public void testRemoveExpiredAccount() {
-		IdmIdentityDto identity = helper.createIdentity();
-		IdmRoleDto role = helper.createRole();
-		SysSystemDto system = helper.createTestResourceSystem(true);
-		SysSystemMappingDto mapping = helper.getDefaultMapping(system);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		SysSystemMappingDto mapping = getHelper().getDefaultMapping(system);
 		mapping.setProtectionInterval(1);
 		mapping.setProtectionEnabled(true);
 		systemMappingService.save(mapping);
-		helper.createRoleSystem(role, system);
-		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		getHelper().createRoleSystem(role, system);
+		IdmIdentityRoleDto identityRole = getHelper().createIdentityRole(identity, role);
 		//
 		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
-		TestResource createdAccount = helper.findResource(account.getUid());
+		TestResource createdAccount = getHelper().findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 		//
@@ -78,7 +73,7 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNotNull(account.getEndOfProtection());
-		createdAccount = helper.findResource(account.getUid());
+		createdAccount = getHelper().findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 		//
@@ -90,7 +85,7 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNotNull(account.getEndOfProtection());
-		createdAccount = helper.findResource(account.getUid());
+		createdAccount = getHelper().findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 		
@@ -104,7 +99,12 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 		
 		AccAccountDto removedAccount = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNull(removedAccount);
-		createdAccount = helper.findResource(account.getUid());
+		createdAccount = getHelper().findResource(account.getUid());
 		Assert.assertNull(createdAccount);
+	}
+	
+	@Override
+	protected TestHelper getHelper() {
+		return (TestHelper) super.getHelper();
 	}
 }

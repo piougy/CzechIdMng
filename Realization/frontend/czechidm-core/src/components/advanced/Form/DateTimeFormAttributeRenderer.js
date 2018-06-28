@@ -20,6 +20,9 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
    */
   fillFormValue(formValue, rawValue) {
     formValue.dateValue = rawValue;
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.dateValue;
+    //
     return formValue;
   }
 
@@ -40,11 +43,11 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
       <Basic.DateTimePicker
         ref={ AbstractFormAttributeRenderer.INPUT }
         mode={ attribute.persistentType.toLowerCase() }
-        required={ attribute.required }
-        label={ attribute.name }
-        placeholder={ attribute.placeholder }
+        required={ this.isRequired() }
+        label={ this.getLabel() }
+        placeholder={ this.getPlaceholder() }
         value={ this.toInputValue(values) }
-        helpBlock={ attribute.description }
+        helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }/>
     );
   }

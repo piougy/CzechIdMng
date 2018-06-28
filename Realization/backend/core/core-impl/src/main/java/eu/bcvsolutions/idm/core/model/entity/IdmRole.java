@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -38,8 +39,9 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
  */
 @Entity
 @Table(name = "idm_role", indexes = { 
-		@Index(name = "ux_idm_role_name", columnList = "name", unique = true)})
-public class IdmRole extends AbstractEntity implements Codeable, FormableEntity, Disableable {
+		@Index(name = "ux_idm_role_name", columnList = "name", unique = true),
+		@Index(name = "idx_idm_role_external_id", columnList = "external_id")})
+public class IdmRole extends AbstractEntity implements Codeable, FormableEntity, Disableable, ExternalIdentifiable {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
@@ -48,6 +50,11 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
+	private String externalId;
 	
 	@Version
 	@JsonIgnore
@@ -239,5 +246,15 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 
 	public void setCanBeRequested(boolean canBeRequested) {
 		this.canBeRequested = canBeRequested;
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
 	}
 }

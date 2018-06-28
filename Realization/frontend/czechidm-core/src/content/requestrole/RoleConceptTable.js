@@ -424,6 +424,24 @@ export class RoleConceptTable extends Basic.AbstractContent {
     );
   }
 
+  /**
+   * Pre-fill valid-from by contract validity
+   */
+  _onChangeSelectOfContract(value) {
+    const{detail} = this.state;
+    let validFrom = value ? value.validFrom : null;
+    const now = moment().utc().valueOf();
+    if (validFrom && moment(validFrom).isBefore(now)) {
+      validFrom = now;
+    }
+    const entityFormData = _.merge({}, detail.entity);
+    entityFormData.validFrom = validFrom;
+    entityFormData.identityContract = value;
+    this._showDetail(entityFormData, detail.edit, detail.add);
+
+    return false;
+  }
+
   render() {
     const { showLoading, identityUsername, readOnly, className } = this.props;
     const { conceptData, detail, showRoleCatalogue } = this.state;
@@ -472,6 +490,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data }) => {
                 const role = data[rowIndex]._embedded.role;
+                if (!role) {
+                  return '';
+                }
                 return (
                   <Advanced.EntityInfo
                     entityType="role"
@@ -487,8 +508,11 @@ export class RoleConceptTable extends Basic.AbstractContent {
             cell={
               ({rowIndex, data}) => {
                 const contract = data[rowIndex]._embedded.identityContract;
+                if (!contract) {
+                  return '';
+                }
                 return (
-                  <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" showLink={ false } />
+                  <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" />
                 );
               }
             }/>
@@ -555,7 +579,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
                   returnProperty={false}
                   readOnly={!detail.entity._added}
+                  onChange={this._onChangeSelectOfContract.bind(this)}
                   hidden={showRoleCatalogue}
+                  niceLabel={ (contract) => { return identityContractManager.getNiceLabel(contract, false); }}
                   required
                   useFirst/>
 

@@ -19,6 +19,13 @@ export default class AbstractContent extends AbstractContextComponent {
     super(props, context);
   }
 
+  /**
+   * Don't forget to call super.componentDidMount() in subclass
+   * - solves selected navigation by defined navigation key
+   * - solves hide footer
+   *
+   * @return
+   */
   componentDidMount() {
     if (this.getNavigationKey()) {
       this.selectNavigationItem(this.getNavigationKey());
@@ -28,6 +35,12 @@ export default class AbstractContent extends AbstractContextComponent {
     }
   }
 
+  /**
+   * Don't forget to call super.componentWillUnmount() in subclass
+   * - solves hide footer
+   *
+   * @return
+   */
   componentWillUnmount() {
     if (this.hideFooter()) {
       this.context.store.dispatch(hideFooter(false));

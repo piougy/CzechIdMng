@@ -1,10 +1,9 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 import moment from 'moment';
 //
-import { Basic, Advanced, Managers } from 'czechidm-core';
+import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
 import ProvisioningOperationTableComponent, { ProvisioningOperationTable } from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
@@ -114,12 +113,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
    * @return {string}
    */
   _toPropertyValue(objectValue) {
-    if (_.isArray(objectValue)) {
-      return objectValue.join(', ');
-    } else if (_.isObject(objectValue)) {
-      return JSON.stringify(objectValue);
-    }
-    return objectValue + '';
+    return Utils.Ui.toStringValue(objectValue);
   }
 
   render() {
@@ -253,15 +247,15 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
                 <Advanced.OperationResult value={ detail.entity.result } face="full"/>
 
-                {
-                  (!detail.entity.nextAttempt)
+                { // look out - archive doesn't have batch
+                  (!detail.entity._embedded || !detail.entity._embedded.batch || !detail.entity._embedded.batch.nextAttempt)
                   ||
                   <div style={{ marginBottom: 15 }}>
                     <Basic.ContentHeader text={ this.i18n('detail.nextAttempt.header') }/>
                     <span dangerouslySetInnerHTML={{__html: this.i18n('detail.nextAttempt.label', {
                       currentAttempt: detail.entity.currentAttempt,
                       maxAttempts: detail.entity.maxAttempts,
-                      nextAttempt: moment(detail.entity.nextAttempt).format(this.i18n('format.datetime'))
+                      nextAttempt: moment(detail.entity._embedded.batch.nextAttempt).format(this.i18n('format.datetime'))
                     })}}/>
                   </div>
                 }

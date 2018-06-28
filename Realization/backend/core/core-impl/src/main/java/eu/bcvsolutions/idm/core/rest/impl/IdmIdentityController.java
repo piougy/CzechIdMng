@@ -22,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,6 +35,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
@@ -45,6 +46,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -54,7 +56,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -89,41 +93,21 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 
 	protected static final String TAG = "Identities";
 	//
-	private final IdmIdentityService identityService;
-	private final GrantedAuthoritiesFactory grantedAuthoritiesFactory;
-	private final IdmIdentityContractService identityContractService;
-	private final IdmIdentityRoleService identityRoleService;
-	private final IdmAuditService auditService; 	
-	private final IdmTreeNodeService treeNodeService;
+	@Autowired private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmAuditService auditService; 	
+	@Autowired private IdmTreeNodeService treeNodeService;
+	@Autowired private IdmFormDefinitionController formDefinitionController;
+	@Autowired private PrivateIdentityConfiguration identityConfiguration;
 	//
-	private final IdmFormDefinitionController formDefinitionController;
+	private final IdmIdentityService identityService;
 	
 	@Autowired
-	public IdmIdentityController(
-			IdmIdentityService identityService, 
-			IdmFormDefinitionController formDefinitionController,
-			GrantedAuthoritiesFactory grantedAuthoritiesFactory,
-			IdmIdentityContractService identityContractService,
-			IdmIdentityRoleService identityRoleService,
-			IdmAuditService auditService,
-			IdmTreeNodeService treeNodeService) {
+	public IdmIdentityController(IdmIdentityService identityService) {
 		super(identityService);
 		//
-		Assert.notNull(identityService);
-		Assert.notNull(formDefinitionController);
-		Assert.notNull(grantedAuthoritiesFactory);
-		Assert.notNull(identityContractService);
-		Assert.notNull(identityRoleService);
-		Assert.notNull(auditService);
-		Assert.notNull(treeNodeService);
-		//
 		this.identityService = identityService;
-		this.formDefinitionController = formDefinitionController;
-		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
-		this.identityContractService = identityContractService;
-		this.identityRoleService = identityRoleService;
-		this.auditService = auditService;
-		this.treeNodeService = treeNodeService;
 	}
 	
 	@Override
@@ -184,6 +168,24 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countIdentities", 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
 	}
 
 	@Override
@@ -377,6 +379,52 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
 	}
+	
+	/**
+	 * Get available bulk actions for identity
+	 *
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@ApiOperation(
+			value = "Get available bulk actions", 
+			nickname = "availableBulkAction", 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
+				})
+	public List<IdmBulkActionDto> getAvailableBulkActions() {
+		return super.getAvailableBulkActions();
+	}
+	
+	/**
+	 * Process bulk action for identities
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
+	@ApiOperation(
+			value = "Process bulk action for identity", 
+			nickname = "bulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "")})
+				})
+	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.bulkAction(bulkAction);
+	}
 
 	/**
 	 * Returns given identity's granted authorities
@@ -553,14 +601,18 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_DEFINITION_AUTOCOMPLETE, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_DEFINITION_AUTOCOMPLETE, description = "")})
 				})
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return formDefinitionController.getDefinitions(IdmIdentity.class);
+		return formDefinitionController.getDefinitions(
+				IdmIdentity.class, 
+				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.AUTOCOMPLETE : null);
 	}
 	
 	/**
@@ -578,23 +630,42 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "")})
 				})
 	public Resource<?> getFormValues(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
-			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
+			@RequestParam(name = IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, required = false) String definitionCode) {
 		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(
+				IdmIdentity.class, 
+				definitionCode, 
+				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.AUTOCOMPLETE : null);
 		//
-		return formDefinitionController.getFormValues(entity, formDefinition);
+		Resource<IdmFormInstanceDto> formValues = formDefinitionController.getFormValues(
+				entity,
+				formDefinition,
+				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.READ : null);	
+		//
+		if (!identityConfiguration.isFormAttributesSecured()) {
+			// we need to iterate through attributes and make them read only, if identity cannot be updated
+			try {
+				checkAccess(entity, IdmBasePermission.UPDATE);
+			} catch (ForbiddenEntityException ex) {
+				formValues.getContent().getFormDefinition().getFormAttributes().forEach(formAttribute -> {
+					formAttribute.setReadonly(true);
+				});
+			}
+		}
+		//
+		return formValues;
 	}
 	
 	/**
@@ -605,42 +676,55 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')"
+			+ "or hasAuthority('" + CoreGroupPermission.FORM_VALUE_UPDATE + "')")
+	@RequestMapping(value = "/{backendId}/form-values", method = { RequestMethod.POST, RequestMethod.PATCH })
 	@ApiOperation(
 			value = "Identity form definition - save values", 
 			nickname = "postIdentityFormValues", 
 			tags = { IdmIdentityController.TAG }, 
+			notes = "Only given form attributes by the given values will be saved.",
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_VALUE_UPDATE, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_VALUE_UPDATE, description = "")})
 				})
 	public Resource<?> saveFormValues(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId,
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
-			@RequestParam(name = "definitionCode", required = false) String definitionCode,
+			@RequestParam(name = IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, required = false) String definitionCode,
 			@ApiParam(value = "Filled form data.", required = true)
 			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
 		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		checkAccess(entity, IdmBasePermission.UPDATE);
+		if (!identityConfiguration.isFormAttributesSecured()) {
+			// if eav form value are not secured by authorization policies => check security by identity
+			checkAccess(entity, IdmBasePermission.UPDATE);
+		}
 		//
-		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(
+				IdmIdentity.class, 
+				definitionCode, 
+				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.AUTOCOMPLETE : null);
 		//
-		return formDefinitionController.saveFormValues(entity, formDefinition, formValues);
+		return formDefinitionController.saveFormValues(
+				entity, 
+				formDefinition, 
+				formValues, 
+				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.UPDATE : null);
 	}
-	
 	
 	@Override
 	protected IdmIdentityDto validateDto(IdmIdentityDto dto) {
 		dto = super.validateDto(dto);
 		//
-		// state is reded only
+		// state is read only
 		if (!getService().isNew(dto)) {
 			IdmIdentityDto previous = getDto(dto.getId());
 			dto.setState(previous.getState());

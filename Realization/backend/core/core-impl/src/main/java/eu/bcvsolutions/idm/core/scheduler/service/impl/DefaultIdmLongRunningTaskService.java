@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
@@ -62,7 +63,20 @@ public class DefaultIdmLongRunningTaskService
 		this.repository = repository;
 		this.itemService = itemService;
 	}
+
+	@Override
+	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity, IdmLongRunningTaskDto dto) {
+		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity, dto);
+		return setFailedAndSuccessItems(longRunningTaskDto);
+	}
 	
+	@Override
+	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity) {
+		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity);
+		//
+		return setFailedAndSuccessItems(longRunningTaskDto);
+	}
+
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.SCHEDULER, getEntityClass());
@@ -100,6 +114,9 @@ public class DefaultIdmLongRunningTaskService
 		}
 		if (filter.getStateful() != null) {
 			predicates.add(builder.equal(root.get(IdmLongRunningTask_.stateful), filter.getStateful()));
+		}
+		if (filter.getCreatorId() != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.creatorId), filter.getCreatorId()));
 		}
 		//
 		return predicates;
@@ -148,5 +165,33 @@ public class DefaultIdmLongRunningTaskService
 		//
 		itemService.deleteAllByLongRunningTask(get(dto.getId()));
 		super.deleteInternal(dto);
+	}
+	
+	/**
+	 * Method defensively set up failed and success items count into dto.
+	 * When is given dto null, return null.
+	 *
+	 * @param longRunningTaskDto
+	 * @return
+	 */
+	private IdmLongRunningTaskDto setFailedAndSuccessItems(IdmLongRunningTaskDto longRunningTaskDto) {
+		if (longRunningTaskDto == null) {
+			return null;
+		}
+		//
+		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
+		filter.setLongRunningTaskId(longRunningTaskDto.getId());
+		long totalElements = itemService.findIds(filter, null).getTotalElements();
+		//
+		filter.setOperationState(OperationState.EXECUTED);
+		longRunningTaskDto.setSuccessItemCount(itemService.findIds(filter, null).getTotalElements());
+		//
+		filter.setOperationState(OperationState.EXCEPTION);
+		longRunningTaskDto.setFailedItemCount(itemService.findIds(filter, null).getTotalElements());
+		//
+		// warning items is all another items except executed and exception (eq. not_executed, ...)
+		totalElements = totalElements - (longRunningTaskDto.getFailedItemCount() + longRunningTaskDto.getSuccessItemCount());
+		longRunningTaskDto.setWarningItemCount(totalElements);
+		return longRunningTaskDto;
 	}
 }

@@ -27,6 +27,8 @@ class Role extends Basic.AbstractContent {
     return (
       <div>
         <Basic.PageHeader showLoading={!entity && showLoading}>
+        <Basic.Icon value="fa:universal-access"/>
+        {' '}
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
         </Basic.PageHeader>
 

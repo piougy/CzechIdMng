@@ -58,6 +58,7 @@
   "button": {
     "activate": "Aktivovat",
     "add": "Přidat",
+    "addMore": "Přidat více",
     "back": "Zpět",
     "cancel": "Zrušit",
     "close": "Zavřít",
@@ -105,6 +106,10 @@
         "header": "Filtrování",
         "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chceme hledat samotné speciální znaky přidáme zpětné lomítko <strong>\\\\%,\\\\.</strong></div>"
       }
+    },
+    "module": {
+      "label": "Modul",
+      "placeholder": "Modul"
     }
   },
   "action": {
@@ -243,6 +248,20 @@
       "accepted_2": "Vybrané záznamy [{{record}}] budou zpracovány asynchronně (vyžadují schválení nebo spouští dlouhotrvající úlohu).",
       "accepted_5": "Vybrané záznamy [{{record}}] budou zpracovány asynchronně (vyžadují schválení nebo spouští dlouhotrvající úlohu)."
     }
+  },
+  "bulkAction": {
+    "selectAllRecordsWarning": "Provadíte hromadnou operaci [{{action}}] nad právě vyfiltrovanými položkami.<br />K tomuto datu <strong>{{date}}</strong> je aktuální počet <strong class=\"highlight\">{{count}}</strong>. Zpracované položky se mohou lišit.",
+    "removedRecord_1": "Do zpracování hromadné úlohy nebude započítána tato entita: <b>[{{entities}}]</b>.",
+    "removedRecord_2": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
+    "removedRecord_5": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
+    "created": "Hromadná úloha [{{name}}] byla úspěšně spuštěna v dlouhotrvající úloze s id: [{{longRunningTaskId}}]",
+    "message_1": "Provádíte hromadnou úlohu [{{name}}] nad vybráným záznamem: <b>[{{entities}}]</b>.",
+    "message_2": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
+    "message_5": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
+    "button": {
+      "execute": "Spustit"
+    },
+    "insufficientReadPermission": "Nemáte dostatečná práva pro zobrazení průběhu hromadné operace."
   },
   "environment": {
     "development": {
@@ -434,10 +453,11 @@
           "RICHTEXTAREA": "WYSIWYG editor",
           "IDENTITY-SELECT": "Výběr identit (SelectBox)",
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
+          "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)"
         },
         "attributes": {
-          "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky."
+          "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
         }
       },
       "Recaptcha": {
@@ -470,6 +490,11 @@
           "header": "Výsledek",
           "code": "Kód"
         }
+      },
+      "CreatableSelectBox": {
+        "textCreator": "Vytvořit novou filtrovací hodnotu: [{{value}}]?",
+        "noResultsText": "Vytvořte nové hodnoty pro filtrování",
+        "searchPromptText": "Začněte psát pro vytvoření nových filtrovacích hodnot ..."
       }
     }
   },
@@ -686,6 +711,21 @@
       "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
       "STATE": "Stav (ContractState - String)"
     },
+    "ContractSliceAttributeEnum": {
+      "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
+      "VALID_FROM": "Platnost od časového řezu (LocalDate)",
+      "CONTRACT_VALID_FROM": "Platnost od kontraktu (LocalDate)",
+      "CONTRACT_VALID_TILL": "Platnost do kontraktu (LocalDate)",
+      "WORK_POSITION": "Pracovní pozice (IdmTreeNode - Id nebo kód)",
+      "POSITION": "Název pozice (String)",
+      "EXTERNE": "Externista (boolean)",
+      "MAIN": "Hlavní vztah (boolean)",
+      "DESCRIPTION": "Popis (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
+      "STATE": "Stav (ContractState - String)",
+      "CONTRACT_CODE": "Kód nadřazeného kontraktu (String - stejný pro všechny řezy)"
+    },
     "IdentityStateEnum": {
       "CREATED": "Vytvořen(a)",
       "NO_CONTRACT": "Bez úvazku",
@@ -706,11 +746,15 @@
     "profileDashboard" : {
       "header": "Vaše základní údaje",
       "goToProfil": "Přejít na detail profilu"
+    },
+    "longRunningTaskDashboard": {
+      "header": "Vaše dlouhotrvající úlohy"
     }
   },
   "permission": {
     "base" : {
       "ADMIN": "Administrace (vše)",
+      "COUNT": "Počet záznamů",
       "AUTOCOMPLETE": "Zobrazení v našeptávačích, výběrech",
       "READ": "Čtení",
       "CREATE": "Vytvoření",
@@ -728,7 +772,9 @@
       "IDENTITY": "Uživatelé",
       "IDENTITYROLE": "Přiřazené role uživatelům",
       "IDENTITYCONTRACT": "Pracovně právní vztahy",
+      "CONTRACTSLICE": "Časové řezy",
       "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
+      "CONTRACTSLICEGUARANTEE": "Garanti časových řezů PPV",
       "MODULE": "Moduly",
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
@@ -737,8 +783,9 @@
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
       "SCRIPT": "Pravidla",
-      "FORMATTRIBUTE": "Formuláře - atributy",
       "FORMDEFINITION": "Formuláře - definice",
+      "FORMATTRIBUTE": "Formuláře - atributy",
+      "FORMVALUE": "Formuláře - hodnoty",
       "NOTIFICATIONCONFIGURATION": "Notifikace - konfigurace",
       "NOTIFICATIONTEMPLATE": "Notifikace - šablony",
       "PASSWORDPOLICY": "Politiky hesel",
@@ -902,11 +949,11 @@
         "date": "Heslo není možné nyní změnit, zkuste to znovu: {{0}}",
         "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku.",
         "specialCharacterBase": "Seznam speciálních znaků pro politiky hesel: {{0}}",
-        "passwordSimilarUsernamePreValidate": "Heslo nesmí být podobné uživatelskému jménu",
-        "passwordSimilarEmailPreValidate": "Heslo nesmí být podobné emailu",
-        "passwordSimilarFirstNamePreValidate": "Heslo nesmí být podobné jménu",
-        "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení",
-        "maxHistorySimilar": "Heslo se musí lišit od posledních {{0}} hesel"
+        "passwordSimilarUsernamePreValidate": "Heslo nesmí být podobné uživatelskému jménu.",
+        "passwordSimilarEmailPreValidate": "Heslo nesmí být podobné emailu.",
+        "passwordSimilarFirstNamePreValidate": "Heslo nesmí být podobné jménu.",
+        "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení.",
+        "maxHistorySimilar": "Heslo se musí lišit od posledních {{0}} hesel."
       },
       "save": {
         "success": "Politika [{{name}}] byla úspěšně uložena."
@@ -922,7 +969,15 @@
         "header": "Nová konfigurační položka"
       },
       "save": {
-        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena"
+        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena",
+        "sucessBulk": "Položky konfigurace byly úspěšně uloženy."
+      },
+      "addMore":{
+        "header": "Přidat více konfiguračních položek",
+        "configurationArea": {
+          "header": "Konfigurační položky",
+          "helpBlock": "Je možné vložení více konfiguračních položek. Komentáře za znakem '#' jsou ignorovány."
+        }
       },
       "configurable": "Konfigurovatelné položky <small>měnitelné, mohou přetěžovat statické položky</small>",
       "environment": "Statické konfigurační položky prostředí <small>pouze pro čtení</small>",
@@ -936,7 +991,11 @@
         "notAllowed": "Nemáte oprávnění pro editaci systémové konfigurace",
         "help": "Veřejné nastavení aplikace lze načíst bez přihlášení. Tajné nastavení nemůže být zároveň veřejným."
       },
-      "nameDoesntContainPrefixAlert": "Pozor, pravděpodobně vkládáte konfigurační volbu, která neobsahuje prefix <strong>'{{prefix}}'</strong>. Tato volba nemusí správně fungovat. Pro více informací navštivte stránku <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'>konfigurace aplikace</a>."
+      "nameDoesntContainPrefixAlert": "Pozor, pravděpodobně vkládáte konfigurační volbu, která neobsahuje prefix <strong>'{{prefix}}'</strong>. Tato volba nemusí správně fungovat. Pro více informací navštivte stránku <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'>konfigurace aplikace</a>.",
+      "forceSave": {
+        "header": "Přepsání konfigurovatelné položky",
+        "message": "Konfigurovatelná položka [<strong>{{name}}</strong>] již existuje s hodnotou [<strong>{{value}}</strong>]. Chcete ji přepsat?"
+      }
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",
@@ -1042,7 +1101,6 @@
           "taskState": "$t(entity.ApprovalTask.taskState)",
           "approve": "Schválit",
           "disapprove": "Zamítnout",
-          "approvers": "Schvalovatelé tohoto úkolu",
           "messages": {
             "approved":"Úkol byl úspěšně schválen",
             "disapproved": "Úkol byl úspěšně zamítnut",
@@ -1121,6 +1179,15 @@
         "disabled": {
           "label": "Neaktivní",
           "placeholder": "Aktivita uživatele"
+        },
+        "identifiers": {
+          "label": "Identifikátory",
+          "placeholder": "Identifikátory - uživatelská jména nebo osobní čísla. $t(content.identities.filter.identifiers.tooltip)",
+          "tooltip": "Vkládejte jednotlivé hodnoty oddělené čárkou."
+        },
+        "state": {
+          "label": "Stav",
+          "placeholder": "Stav uživatele"
         }
       },
       "action": {
@@ -1370,6 +1437,19 @@
       },
       "save": {
         "success": "Definice [{{name}}] byla úspěšně uložena"
+      },
+      "localization": {
+        "header": "Lokalizace formuláře",
+        "title": "Lokalizace formuláře",
+        "check": {
+          "found": "Lokalizace formuláře existuje. Lokalizace nalezena v lokalizačním souboru.",
+          "not-found": "Lokalizace formuláře neexistuje, definovat ji můžete dle příkladu níže v lokalizačních souborech.",
+          "attributes-not-found": "Atributy definice <strong class=\"highlight\">{{attributes}}</strong> nejsou lokalizovány, doplňte je do lokalizačních souborů."
+        },
+        "how-to": {
+          "header": "How to",
+          "message": "Lokalizaci pro formulář je možné definovat v modulu <strong class=\"highlight\">{{name}}</strong> (v sekci <strong>eav</strong>):"
+        }
       }
     },
     "formAttributes": {
@@ -1702,7 +1782,6 @@
         "profile": "Osobní údaje",
         "password": "Změna hesla",
         "roles": "Přiřazené role",
-        "approve": "Schvaluji role",
         "subordinates": "Podřízení",
         "positions": "Pracovně právní vztahy",
         "approve": "Schvalovatelem pro role"
@@ -1884,6 +1963,16 @@
           "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
         }
       },
+      "contractSlices": {
+        "header": "Časové řezy pracovně právních vztahů",
+        "title": "$t(content.identity.contractSlices.header)",
+        "contractSlices": {
+          "empty": "Nenalezeny žádné časové řezy pracovně právních vztahů."
+        },
+        "delete": {
+          "success": "Pozice (časový řez) [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
+        }
+      },
       "approve": {
         "header": "Schvalovatel pro role",
         "title": "$t(content.identity.approve.header)"
@@ -1969,6 +2058,9 @@
         },
         "save": {
           "success": "PPV [{{name}}] byl úspěšně uložen"
+        },
+        "alert": {
+          "controlledBySlices": "Tento právní vztah je řízen časovými řezy. Není možné ho upravovat napřímo!"
         }
       },
       "eav": {
@@ -2006,6 +2098,66 @@
         }
       }
     },
+    "contract-slice": {
+      "detail": {
+        "header": "Detail časového řezu (PPV)",
+        "title": "Detail časového řezu PPV",
+        "label": "Základní údaje",
+        "labelContract": "Základní údaje - pracovní pozice",
+        "labelSlice": "Základní údaje - časového řezu",
+        "invalidContract":"Detail neplatného PPV",
+        "validContract":"Detail PPV",
+        "edit": {
+          "title": "Detail PPV",
+          "header": "{{position}} <small>detail přiřazené pozice</small>",
+          "success": "Pozice [{{position}}] byla úspěšně upravena.",
+          "notEditable": "Časové řezy není možné ručně upravovat ani přidávat!"
+        },
+        "create": {
+          "title": "Přiřazení nové pozice",
+          "header": "Přiřazení nové pozice",
+          "success": "Pozice [{{position}}] byla úspěšně přidána.",
+          "accepted": "Pozice [{{position}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
+        },
+        "save": {
+          "success": "PPV [{{name}}] byl úspěšně uložen"
+        }
+      },
+      "eav": {
+        "header": "Další údaje",
+        "title": "Další údaje",
+        "label": "Další údaje",
+        "save": {
+          "success": "Údaje PPV [{{name}}] byly úspěšně uloženy."
+        },
+        "error" : {
+          "notFound": "Definice dalších atributů pro PPV nebyla nalezena."
+        }
+      },
+      "guarantees": {
+        "header": "Vedoucí a garanti",
+        "title": "Vedoucí",
+        "label": "Vedoucí",
+        "guarantees": {
+          "direct": "Nastavení garanti <small>přímo pro tento časový řez vztahu</small>",
+          "byTree": "Vedoucí <small>dle stromových struktur</small>"
+        },
+        "edit": {
+          "title": "Detail garanta",
+          "header": "Detail garanta"
+        },
+        "create": {
+          "title": "Nový garant",
+          "header": "Nový garant"
+        },
+        "action": {
+          "save": {
+            "success_0": "N/A",
+            "success_1": "Pro časový řez byl úspěšně uložen garant [{{record}}]"
+          }
+        }
+      }
+    },
     "organizations": {
       "header": "Organizační struktura",
       "title": "Organizační struktura",
@@ -2016,11 +2168,6 @@
           "button": "Definovat výchozí strukturu"
         }
       }
-    },
-    "audit": {
-      "header": "Audit",
-      "headerSmall": "záznamy auditních logů",
-      "title": "Audit"
     },
     "system": {
       "modules": {
@@ -2043,7 +2190,19 @@
       },
       "be-modules": {
         "header": "Moduly <small>backend</small>",
-        "title": "Moduly (backend)"
+        "title": "Moduly (backend)",
+        "result-codes": {
+          "button-show": "Stavové kódy",
+          "title": "Seznam stavových kódů pro modul [{{moduleName}}]",
+          "status": "Stav",
+          "code": "Kód",
+          "message": "Zpráva",
+          "filter": {
+            "text": {
+              "placeholder": "Kód"
+            }
+          }
+        }
       },
       "entity-event-processors": {
         "header": "Processory",
@@ -2144,10 +2303,6 @@
         "header": "Všechny úlohy",
         "title": "Všechny úlohy",
         "filter": {
-          "text": {
-            "label": "Klíč / Typ",
-            "placeholder": "Klíč nebo typ úlohy"
-          },
           "text": {
             "label": "Typ / Popis",
             "placeholder": "Typ nebo popis úlohy"
@@ -2287,7 +2442,6 @@
         "category": "Kategorie",
         "diagramResourceName": "Název schéma",
         "deploymentId": "ID deploymentu",
-        "resourceName": "Název zdroje",
         "id":"Identifikátor",
         "diagram": "Náhled procesu",
         "fullscreenDiagram": "Diagram procesu"
@@ -2464,11 +2618,12 @@
       "titleAfter": "Titul za",
       "state": {
         "label": "Stav",
-        "help": "Stav uživatele."
+        "help": "Stav uživatele. Stav je řízen pracovně právními vztahy. Uživatele lze manuálně deaktivovat (akce nad tabulkou uživatelů).",
+        "title": "$t(entity.Identity.state.help)"
       },
       "disabledReadonly": {
         "label": "$t(label.disabled)",
-        "help": "Neaktivní identitě není povoleno přihlášení."
+        "help": "Neaktivní uživatel se nemůže přihlásit. Aktivita je řízena stavem uživatele."
       }
     },
     "RoleCatalogue": {
@@ -2655,7 +2810,7 @@
       }
     },
     "IdentityRole": {
-      "role" : "Role",
+      "role" : "Název role",
       "identityContract": {
         "label": "PPV",
         "title": "Pracovně právní vztah",
@@ -2699,7 +2854,7 @@
       "id": "Interní id pozice",
       "treeType": "Typ struktury",
       "workPosition": "Pozice",
-      "position": "Pracovní pozice",
+      "position": "Název pozice",
       "identity": "Uživatel",
       "validFrom": "$t(entity.validFrom)",
       "validTill": "$t(entity.validTill)",
@@ -2707,7 +2862,8 @@
       "externe": "Externista",
       "managers": {
         "label": "Garant / Vedoucí",
-        "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře"
+        "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře",
+        "total": "Celkový počet garantů a vedoucí"
       },
       "disabled": {
         "label": "Neaktivní",
@@ -2716,11 +2872,54 @@
       "description": "Popis",
       "main": {
         "label": "Hlavní pozice",
-        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele."
+        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele.",
+        "title": "Hlavní pozice"
       },
       "state": {
         "label": "Stav",
         "help": "Stav pracovní pozice."
+      }
+    },
+    "ContractSlice": {
+      "_type": "Časové řezy",
+      "parentContract": "Nadřízený smluvní vztah",
+      "contractCode": "Kód smluvního vztahu",
+      "usingAsContract": {
+        "label": "Aktuálně používaný",
+        "help": "Pokud je zaškrtnuto, tak je tento časový řez aktuálně používaný, jako zdroj dat nadřazeného smluvního vztahu (hodnoty vztahu jsou zkopírované z tohoto řezu)."
+      },
+      "code": {
+        "label": "Kód řezu",
+        "help": "Identifikátor časového řezu (typicky externí identifikátor zdrojového systému)."
+      },
+      "id": "$t(entity.IdentityContract.id)",
+      "treeType": "$t(entity.IdentityContract.treeType)",
+      "workPosition": "$t(entity.IdentityContract.workPosition)",
+      "position": "$t(entity.IdentityContract.position)",
+      "identity": "$t(entity.IdentityContract.identity)",
+      "contractValidFrom": "$t(entity.validFrom)",
+      "contractValidTill": "$t(entity.validTill)",
+      "validFrom": "Platnost řezu od",
+      "validTill": "Platnost řezu do",
+      "guarantee": "$t(entity.IdentityContract.guarantee)",
+      "externe": "$t(entity.IdentityContract.externe)",
+      "managers": {
+        "label": "$t(entity.IdentityContract.managers.label)",
+        "title": "$t(entity.IdentityContract.managers.title)"
+      },
+      "disabled": {
+        "label": "$t(entity.IdentityContract.disabled.label)",
+        "help": "$t(entity.IdentityContract.disabled.help)"
+      },
+      "description": "$t(entity.IdentityContract.description)",
+      "main": {
+        "label": "$t(entity.IdentityContract.main.label)",
+        "help": "$t(entity.IdentityContract.main.help)",
+        "title": "$t(entity.IdentityContract.main.title)"
+      },
+      "state": {
+        "label": "$t(entity.IdentityContract.state.label)",
+        "help": "$t(entity.IdentityContract.state.help)"
       }
     },
     "TreeNode": {
@@ -2826,6 +3025,7 @@
       "_type": "Notifikační šablona",
       "name": "Název",
       "code": "Kód",
+      "sender": "Adresa odesílatele",
       "subject": "Předmět",
       "parameter": {
         "name": "Parametry",
@@ -2856,7 +3056,6 @@
         "subject": "$t(entity.Notification.message.subject)",
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
-        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
         "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
         "model": "$t(entity.Notification.message.model)",
         "level": "$t(entity.Notification.message.level)"
@@ -2985,7 +3184,7 @@
       "specialCharBase": "Povolené speciální znaky",
       "identityAttributeCheck": "Atributy identity pro kontrolu",
       "help": {
-        "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IdM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
+        "defaultPolicy": "Standardní politika je použita pro CzechIdM a všechny systémy, kde není určena jiná politika.",
         "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
         "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
         "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla.",
@@ -3120,6 +3319,13 @@
       "state": "Stav",
       "created": "Vytvořeno",
       "modified": "Upraveno"
+    },
+    "ContractSliceGuarantee": {
+      "contractSliceId": "Časový řez právního vztahu",
+      "guarantee": {
+        "label": "Garant",
+        "help": "Garant na přímo přiřazený k časovému řezu pracovně právního vztahu"
+      }
     },
     "ContractGuarantee": {
       "identityContractId": "Pracovně právní vztah",
@@ -3448,6 +3654,109 @@
       }
     }
   },
+  "eav": {
+    "bulk-action": {
+      "identity-disable-bulk-action": {
+        "label": "Deaktivovat - (manuálně)"
+      },
+      "identity-enable-bulk-action": {
+        "label": "Aktivovat - (manuálně)"
+      },
+      "identity-delete-bulk-action": {
+        "label": "Odebrat"
+      },
+      "identity-add-role-bulk-action": {
+        "label": "Přidělení rolí",
+        "attributes": {
+          "role": {
+            "label": "Role",
+            "help": ""
+          },
+          "approve": {
+            "label": "Schvalovat",
+            "help": "Po zakrtnutí bude přidělení role schvalováno"
+          },
+          "maincontract": {
+            "label": "Přiřadit pouze na hlavní kontrakt",
+            "help": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt."
+          },
+          "validfrom": {
+            "label": "Platnost od",
+            "help": ""
+          },
+          "validtill": {
+            "label": "Platnost do",
+            "help": ""
+          }
+        }
+      },
+      "identity-remove-role-bulk-action": {
+        "label": "Odebrání rolí",
+        "attributes": {
+          "role": {
+            "label": "Role",
+            "help": ""
+          },
+          "approve": {
+            "label": "Schvalovat",
+            "help": "Po zakrtnutí bude odebrání role schvalováno"
+          },
+          "maincontract": {
+            "label": "Odebrat pouze z hlavního kontraktu",
+            "help": "Odebrání role/í bude provedeno pouze z hlavního kontraktu."
+          }
+        }
+      },
+      "identity-save-bulk-action": {
+        "label": "Přeuložit uživatele",
+        "attributes": {
+          "onlynotify": {
+            "label": "Vyvolat pouze událost NOTIFY",
+            "help": "Po zaškrtnutí nebude vyvoláno klasické uložení uživatele, ale pouze vyvolání události NOTIFY. Tato událost je také zpracovávána asynchronně."
+          }
+        }
+      }
+    },
+    "authorization-evaluator": {
+      "identity-form-value-evaluator": {
+        "help": "Oprávnění pro hodnoty rozšiřujících atributů uživatele (eav). Oprávnění je možné přidat pouze pro vybranou definici (hlavní je použita jako výchozí) a vybrané atributy (všechny atributy jsou použity jako výchozí).",
+        "attributes": {
+          "form-definition": {
+            "label": "Definice formuláře",
+            "help": "Vyberte definici, která obsahuje atributy, kterým bude nastaveno oprávnění. Hlavní definice bude použita jako výchozí.",
+            "placeholder": "Hlavní definice pro identity nebo vyberte ..."
+          },
+          "attributes": {
+            "label": "Atributy definice",
+            "help": "Atributy, kterým bude nastaveno oprávnění. Pokud ponecháte atributy prázdné, bude oprávnění nastaveno pro všechny atributy dané definice.",
+            "placeholder": "Všechny atributy dané definice nebo zadejte kódy atributů oddělené čárkou"
+          },
+          "self-only": {
+            "label": "Pouze pro aktuálního uživatele",
+            "help": "Nastaví oprávnění pouze pro atributy aktuálně přihlášeného uživatele. Přihlášený uživatel nedostane oprávnění na atributy jiných uživatelů."
+          },
+          "owner-update": {
+            "label": "Dle oprávnění editovatovat uživatele",
+            "help": "Nastaví oprávnění pro atributy uživatelů, které aktuálně přihlášený uživatel může editovat (například pokud může editovat uživatele, může editovat i vyjmenované atributy)."
+          },
+          "owner-read": {
+            "label": "Dle oprávnění číst uživatele",
+            "help": "Nastaví oprávnění pro atributy uživatelů, které aktuálně přihlášený uživatel může číst (například pokud může číst uživatele, může editovat vyjmenované atributy)."
+          }
+        }
+      },
+      "form-definition-uuid-evaluator": {
+        "help": "Oprávnění pro formuláře definující rozšířené atributy",
+        "attributes": {
+          "uuid": {
+            "label": "Definice formuláře",
+            "help": "Definice formuláře, které bude nastaveno oprávnění.",
+            "placeholder": "Vyberte definici ..."
+          }
+        }
+      }
+    }
+  },
   "error": {
     "AUTH_FAILED": {
       "title": "Chybné přihlašovací údaje",
@@ -3533,10 +3842,6 @@
       "title": "V politice hesel se nemohou vyskytovat záporné hodnoty",
       "message": "Attribut [{{attribute}}] je záporný."
     },
-    "PASSWORD_POLICY_NEGATIVE_VALUE": {
-      "title": "V politice hesel se nemohou vyskytovat záporné hodnoty",
-      "message": "Attribut [{{attribute}}] je záporný."
-    },
     "PASSWORD_POLICY_VALIDATION": {
       "title": "Politika hesel nebyla uložena",
       "message": "Problém s validací politiky."
@@ -3617,6 +3922,10 @@
     "TREE_NODE_DELETE_FAILED_HAS_CONTRACTS": {
       "title": "Prvek struktury nelze odebrat",
       "message": "Prvek struktury [{{treeNode}}] je již použit v pracovně právních vztazích. Před odebráním tohoto prvku upravte všechny vztahy."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES": {
+      "title": "Prvek struktury nelze odebrat",
+      "message": "Prvek struktury [{{treeNode}}] je již použit v časových řezech pracovně právních vztahů. Před odebráním tohoto prvku upravte všechny vztahy."
     },
     "TREE_NODE_BAD_TYPE": {
       "title": "Špatný typ prvku",
@@ -3780,11 +4089,11 @@
     },
     "ROLE_DELETE_FAILED_HAS_TREE_NODE": {
       "title": "Role nelze odebrat",
-      "message": "Role [{{role}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné roli odebrat."
+      "message": "Role [{{role}}] obsahuje konfiguraci automatických rolí. Odeberte automatické role, poté bude možné roli odebrat."
     },
     "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
       "title": "Prvek stromové struktury nelze odebrat",
-      "message": "Prvek [{{treeNode}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné prvek odebrat."
+      "message": "Prvek [{{treeNode}}] obsahuje konfiguraci automatických rolí. Odeberte automatické role, poté bude možné prvek odebrat."
     },
     "ROLE_TREE_NODE_TYPE_EXISTS": {
       "title": "Podobná definice automatické role již existuje",
@@ -3857,6 +4166,298 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Událost nelze smazat",
       "message": "Událost nelze smazat. Na událost navazují další události, odeberte nejprve navazující události. Při odebrání poslední z navazujících událostí bude smazána i tato událost."
+    },
+    "BULK_ACTION_REQUIRED_PROPERTY": {
+      "title": "Nebyla vyplněna povinná položka",
+      "message": "Položka [{{attributeCode}}] nebyla vyplněna."
+    },
+    "BULK_ACTION_ROLE_NOT_FOUND": {
+      "title": "Nebyly/a nalezena role",
+      "message": "Role pro identitu [{{identity}}], nebyla nalezeny/a."
+    },
+    "BULK_ACTION_CONTRACT_NOT_FOUND": {
+      "title": "Nebyl nalezen kontrakt",
+      "message": "Pro identitu [{{identity}}] nebyl nalezen kontrakt."
+    },
+    "BULK_ACTION_ONLY_ONE_FILTER_CAN_BE_APPLIED": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Lze použít pouze jednu možnost filtrování."
+    },
+    "BULK_ACTION_MODULE_DISABLED": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Hromadnou akci: [{{action}}] nelze spustit, modul [{{module}}] je neaktivní."
+    },
+    "BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Hromadná akce nemá definové entity pro zpracování, nebo filtr."
+    },
+    "BULK_ACTION_BAD_FILTER": {
+      "title": "Hromadnou akci nelze spustit",
+      "message": "Špatná třída filtru. Je požadována třída [{{filter}}]. Obdržená třída [{{givenFilter}}]."
+    },
+    "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
+      "title": "Pracovní pozici není možné odstranit.",
+      "message": "Pracovní pozici není možné odstranit, protože je kontrolována časovým řezem! Pracovní pozice bude odstraněna, po odstranění jejího posledního časového řezu. (Identifikátor pozice [{{contractId}}])"
+    },
+    "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
+      "title": "Politika [{{definition}}], nemá definovaný interval blokování!",
+      "message": "Politika [{{definition}}], definuje maximální počet pokusů přihlášení, ale nemá definovaný časový interval blokování uživatele!"
+    },
+    "PASSWORD_CHANGE_ACCOUNT_SUCCESS": {
+      "title": "Změna hesla provedena",
+      "message": "Změna hesla pro účet [{{account}}] byla úspěšná."
+    },
+    "OK": {
+      "title": "Operace proběhla úspěšně",
+      "message": "Požadavek byl úspěšně dokončen."
+    },
+    "AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE": {
+      "title": "Není vyplněn atribut 'groupPermission'",
+      "message": "V případě vyplnění typu autorizace musíte vyplnit i atribut 'groupPermission'."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE": {
+      "title": "Role nebyla přiřazena",
+      "message": "Role [{{role}}] nebyla přiřazena automatickou rolí [{{autoRole}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING": {
+      "title": "Role je využívána jiným procesem",
+      "message": "Automatická role [{{autoRole}}] je využívána souběžně úlohou [{{task}}], počkejta na dokončení."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE": {
+      "title": "Role nebyla smazána",
+      "message": "Role [{{role}}] nebyla smazána automatickou rolí [{{autoRole}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
+    },
+    "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
+      "title": "Role je využívána jiným procesem",
+      "message": "Automatická role [{{autoRole}}] je mazána souběžnou úlohou [{{task}}]."
+    },
+    "AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY": {
+      "title": "Nejsou vyplněny potřebné atributy",
+      "message": "Pravidlo pro automatickou roli nevyplnilo potřebné atributy: [{{attrs}}]."
+    },
+    "AUTOMATIC_ROLE_TASK_EMPTY": {
+      "title": "Chybí 'id' automatické role",
+      "message": "Id automatické role je povinné."
+    },
+    "BACKUP_FAIL": {
+      "title": "Záloha nebyla provedena",
+      "message": "Záloha pro script [{{script}}] selhala z důvodu: [{{error}}]."
+    },
+    "DEPLOY_ERROR": {
+      "title": "Nezdařené nahrání entity",
+      "message": "Nepodařilo se nahrát entitu z umístění [{{path}}]."
+    },
+    "FORM_VALUE_WRONG_TYPE": {
+      "title": "Špatný formát atributu",
+      "message": "Hodnota [{{value}}] atributu [{{attr}}] musí být typu [{{type}}] místo [{{currentType}}]."
+    },
+    "GROOVY_SCRIPT_EXCEPTION": {
+      "title": "Chyba ve scriptu",
+      "message": "Script obsahuje následující chyby: [{{errors}}]."
+    },
+    "GROOVY_SCRIPT_INVALID_CATEGORY": {
+      "title": "Špatná kategorie pro script",
+      "message": "Script používá script ze špatné kategorie [{{category}}]."
+    },
+    "GROOVY_SCRIPT_NOT_ACCESSIBLE_CLASS": {
+      "title": "Třída není přístupná",
+      "message": "Třída [{{class}}] není přístupná!"
+    },
+    "GROOVY_SCRIPT_NOT_ACCESSIBLE_SERVICE": {
+      "title": "Služba není přístupná",
+      "message": "Služba [{{service}}] není přístupná!"
+    },
+    "LONG_RUNNING_TASK_DIFFERENT_INSTANCE": {
+      "title": "Úloha má více instancí",
+      "message": "Úloha [{{task}}] má jinou instanci {{instance}}], proto není dostupná z této instance {{thisInstance}}]."
+    },
+    "LONG_RUNNING_TASK_NOT_FOUND": {
+      "title": "Nelze vytvořit instanci",
+      "message": "Nelze vytvořit instanci pro typ úlohy [{{taskType}}]."
+    },
+    "NOTIFICATION_TEMPLATE_ERROR_XML_SCHEMA": {
+      "title": "Nelze načíst šablonu",
+      "message": "Nepodařilo se načíst šablonu [{{template}}], chyba v XML schématu."
+    },
+    "NULL_ATTRIBUTE": {
+      "title": "Atribut je NULL",
+      "message": "Atribut 'null' je NULL."
+    },
+    "ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED": {
+      "title": "Špatná hodnota",
+      "message": "Atribut 'requested by' v žádosti [{{request}}] nemůže mít hodnotu 'AUTOMATICALLY' při volání přes REST API."
+    },
+    "ROLE_REQUEST_EXECUTE_WRONG_STATE": {
+      "title": "Nepovolený stav žádosti",
+      "message": "Žádost je ve stavu [{{state}}], pouze stavy APPROVED a CONCEPT mohou být provedeny."
+    },
+    "SCHEDULER_UNSUPPORTED_TASK_TRIGGER": {
+      "title": "Nepodporovaný trigger",
+      "message": "Úlohový trigger [{{trigger}}] není podporován."
+    },
+    "TREE_NODE_BAD_CHILDREN": {
+      "title": "Chybný potomek",
+      "message": "Prvek stromu [{{node}}] má špatného potomka."
+    },
+    "SEARCH_ERROR": {
+      "title": "Chyba během vyhledávání",
+      "message": "Došlo k chybě během vyhledávání entit. Chyba: [{{error}}]."
+    },
+    "WF_WARNING": {
+      "title": "Problém při běhu workflow",
+      "message": "Při běhu workflow došlo k následujícímu problému: [{{warning}}]."
+    },
+    "XML_JAXB_INIT_ERROR": {
+      "title": "Chyba při inicializaci instance JAXB",
+      "message": "Nepodařilo se inicializovat instanci JAXB."
+    },
+    "AUTH_EXPIRED": {
+      "title": "Vypršela doba platnosti přihlášení",
+      "message": "Došlo ke skončení platnosti přihlášení."
+    },
+    "ATTACHMENT_DATA_NOT_FOUND": {
+      "title": "Nenalezena data pro přílohu",
+      "message": "Binární data pro přílohu: [{{one}}:{{two}}] - [{{three}}] nebyla nalezena."
+    },
+    "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
+      "title": "Šablona nebyla nalezena",
+      "message": "XML soubor pro šablonu [{{template}}] nebyl nalezen."
+    },
+    "SCRIPT_XML_FILE_NOT_FOUND": {
+      "title": "Soubor nebyl nalezen",
+      "message": "XML soubor pro script [{{script}}] nebyl nalezen."
+    },
+    "METHOD_NOT_ALLOWED": {
+      "title": "Metoda není povolena",
+      "message": "Daná metoda není povolena!"
+    },
+    "FILTER_IMPLEMENTATION_NOT_FOUND": {
+      "title": "Filter nebyl nalezen",
+      "message": "Filter [{{filter}}] pro atribut [{{property}}] nebyl nalezen. Opravte konfigurační atribut [{{repairProperty}}]."
+    },
+    "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
+      "title": "Definici formuláře nelze aktualizovat",
+      "message": "Definici formuláře [{{form}}][{{form1}}] nelze aktualizovat. Nelze automaticky aktualizovat vlastnost [{{property}}] atributu [{{attr}}]. Použijte change script pro aktualizaci formuláře nebo definujte nový."
+    },
+    "NOTIFICATION_SENDER_IMPLEMENTATION_NOT_FOUND": {
+      "title": "Odesílač nebyl nalezen",
+      "message": "Odesílač [{{sender}}] pro typ [{{type}}] nebyl nalezen. Opravte konfigurační atribut [{{repairProperty}}]."
+    },
+    "NOTIFICATION_TEMPLATE_MORE_CODE_FOUND": {
+      "title": "Nalezeno více šablon",
+      "message": "Více než jedna šablona byla nalezena pro kód: [{{code}}]."
+    },
+    "PASSWORD_CHANGE_ACCOUNT_FAILED": {
+      "title": "Chyba při změně hesla",
+      "message": "Změna hesla selhala na následujících účtech: [{{accounts}}]."
+    },
+    "ROLE_DELETE_FAILED_IDENTITY_ASSIGNED": {
+      "title": "Role nelze smazat",
+      "message": "Roli [{{role}}] nelze smazat, protože jí májí stále přiřazeny nějaké identity."
+    },
+    "SCRIPT_MORE_CODE_FOUND": {
+      "title": "Nalezeno více scriptů",
+      "message": "Více než jednen script byl nalezen pro kód: [{{code}}]."
+    },
+    "UNMODIFIABLE_LOCKED": {
+      "title": "Nelze upravit entitu",
+      "message": "Entita [{{entity}}] nemůže být změněna, protože je uzamčena."
+    },
+    "ATTACHMENT_CREATE_FAILED": {
+      "title": "Chyba při tvorbě přílohy",
+      "message": "Tvorba přílohy [{{attachment}}] s vlastníkem [{{owner}}][{{owner1}}] selhala."
+    },
+    "ATTACHMENT_CREATE_TEMP_FILE_FAILED": {
+      "title": "Chyba při tvorbě dočasného souboru",
+      "message": "Tvorba dočasného souboru [{{file}}] ve dočasné složce [{{folder}}] selhala."
+    },
+    "ATTACHMENT_INIT_DEFAULT_STORAGE_FAILED": {
+      "title": "Nelze vytvořit výchozí uložiště",
+      "message": "Tvorba složky pro výchozí uložiště [{{storage}}] v dočasné složce selhala."
+    },
+    "ATTACHMENT_INIT_DEFAULT_TEMP_FAILED": {
+      "title": "Nelze vytvořit dočasné výchozí uložiště",
+      "message": "Tvorba složky pro dočasné výchozí uložiště [{{storage}}] v dočasné složce selhala."
+    },
+    "ATTACHMENT_UPDATE_FAILED": {
+      "title": "Chyba při aktualizaci přílohy",
+      "message": "Aktualizace přílohy [{{attachment}}] s vlastníkem [{{owner}}][{{owner1}}] selhala."
+    },
+    "INTERNAL_SERVER_ERROR": {
+      "title": "Chyba serveru",
+      "message": "Na serveru se vyskytla chyba."
+    },
+    "NOT_IMPLEMENTED": {
+      "title": "Není implementováno",
+      "message": "Funkce [{{function}}] není implementována."
+    },
+    "NOT_SUPPORTED": {
+      "title": "Není podporována",
+      "message": "Funkce [{{function}}] není podporována."
+    },
+    "RECAPTCHA_SECRET_KEY_MISSING": {
+      "title": "Chyba v konfiguraci Recaptcha",
+      "message": "Recaptcha je chybně nastavena. Atribut [{{attr}}] chybí, prosím nastavte jej."
+    },
+    "SCHEDULER_CREATE_TASK_FAILED": {
+      "title": "Chyba při tvorbě úlohy",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_CREATE_TRIGGER_FAILED": {
+      "title": "Chyba pro tvorbě triggeru",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_DELETE_TASK_FAILED": {
+      "title": "Chyba při mazání úlohy",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_DELETE_TRIGGER_FAILED": {
+      "title": "Chyba při mazáná triggeru",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_INTERRUPT_TASK_FAILED": {
+      "title": "Chyba při přerušení úlohy",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_PAUSE_TRIGGER_FAILED": {
+      "title": "Chyba při pozastavení úlohy",
+      "message": "[{{error}}]."
+    },
+    "SCHEDULER_RESUME_TRIGGER_FAILED": {
+      "title": "Chyba při znovuzpuštění úlohy",
+      "message": "[{{error}}]."
+    },
+    "WF_ERROR": {
+      "title": "Chyba při provádění workflow",
+      "message": "Při provádění workflow došlo k chybě: [{{error}}]."
+    },
+    "WRONG_PROXY_CONFIG": {
+      "title": "Špatná kofigurace proxy",
+      "message": "Chybná konfigurace http proxy. Požadovaný formát je '[IP]:[PORT]'. Například: '153.25.16.8:1234'."
+    },
+    "ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE": {
+      "title": "Typ entity nepodporuje externí identifikátor",
+      "message": "Typ entity [{{entityType}}] nepodporuje externí identifikátor."
+    },
+    "ENTITY_TYPE_NOT_EXTERNAL_CODEABLE": {
+      "title": "Typ entity nepodporuje externí kód",
+      "message": "Typ entity [{{entityType}}] nepodporuje externí kód."
+    },
+    "DUPLICATE_EXTERNAL_ID": {
+      "title": "Záznam již existuje",
+      "message": "Záznam s externím identifikátorem [{{externalId}}] již existuje."
+    },
+    "DUPLICATE_EXTERNAL_CODE": {
+      "title": "Záznam již existuje",
+      "message": "Záznam s osobním číslem [{{externalCode}}] již existuje."
+    },
+    "CORRELATION_PROPERTY_NOT_FOUND": {
+      "title": "Korelační filtr nefunguje",
+      "message": "Korelační filtr není možné použít, protože požadovaný atribut [{{property}}] neexistuje!"
+    },
+    "CORRELATION_PROPERTY_WRONG_TYPE": {
+      "title": "Korelační filtr nefunguje",
+      "message": "Korelační filtr není možné použít, protože požadovaný atribut [{{property}}] není typu String!"
     }
   },
   "validationError": {

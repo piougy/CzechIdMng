@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 
@@ -37,12 +38,20 @@ import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 @Table(name = "idm_role_catalogue", indexes = {
 		@Index(name = "ux_role_catalogue_code", columnList = "code", unique = true),
 		@Index(name = "ux_role_catalogue_name", columnList = "name"),
-		@Index(name = "idx_idm_role_cat_parent", columnList = "parent_id")})
-public class IdmRoleCatalogue extends AbstractEntity implements Codeable, BaseTreeEntity<IdmRoleCatalogue>, ForestContent<IdmForestIndexEntity, UUID> {
+		@Index(name = "idx_idm_role_cat_parent", columnList = "parent_id"),
+		@Index(name = "idx_idm_role_cat_ext_id", columnList = "external_id")})
+public class IdmRoleCatalogue 
+		extends AbstractEntity 
+		implements Codeable, BaseTreeEntity<IdmRoleCatalogue>, ForestContent<IdmForestIndexEntity, UUID>, ExternalIdentifiable {
 
 	private static final long serialVersionUID = 1883443149941011579L;
 	public static final String FOREST_TREE_TYPE = "role-catalogue";
-
+	//
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
+	private String externalId;
+	
 	@Audited
 	@NotNull
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
@@ -190,5 +199,15 @@ public class IdmRoleCatalogue extends AbstractEntity implements Codeable, BaseTr
 	@JsonIgnore
 	public String getForestTreeType() {
 		return FOREST_TREE_TYPE;
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
 	}
 }

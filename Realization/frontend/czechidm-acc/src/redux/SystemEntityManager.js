@@ -13,6 +13,10 @@ export default class SystemEntityManager extends Managers.EntityManager {
     return service;
   }
 
+  getModule() {
+    return 'acc';
+  }
+
   getEntityType() {
     return 'SystemEntity'; // TODO: constant or enumeration
   }

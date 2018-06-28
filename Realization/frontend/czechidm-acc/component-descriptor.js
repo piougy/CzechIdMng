@@ -16,6 +16,15 @@ module.exports = {
       'entityType': ['system', 'SysSystem'],
       'component': require('./src/components/SystemInfo/SystemInfo').default,
       'manager': require('./src/redux').SystemManager
-    }
+    },
+    {
+      'id': 'system-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'SYSTEM-SELECT',
+      'component': require('czechidm-core/src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'acc:component.advanced.EavForm.faceType.SYSTEM-SELECT',
+      'manager': require('./src/redux').SystemManager
+    },
   ]
 };

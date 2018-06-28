@@ -20,6 +20,9 @@ import org.identityconnectors.framework.common.exceptions.ConnectorIOException;
 import org.identityconnectors.framework.common.exceptions.InvalidCredentialException;
 import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.spi.ConnectorClass;
+import org.jboss.vfs.VFS;
+import org.jboss.vfs.VFSUtils;
+import org.jboss.vfs.VirtualFile;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
@@ -46,6 +50,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
 
 /**
  * Configuration connector service for ConnId framework
+ * 
  * @author svandav
  *
  */
@@ -59,6 +64,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	private List<String> localConnectorsPackages;
 
 	final private static String IMPLEMENTATION_TYPE = "connId";
+	final private static String URL_PROTOCOL_FILE = "file";
+	final private static String URL_PROTOCOL_VFS = "vfs";
 
 	/**
 	 * Return key defined IC implementation
@@ -80,6 +87,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		LOG.info("Get Available local connectors - ConnId");
 		Set<IcConnectorInfo> localConnectorInfos = new HashSet<>();
 		List<ConnectorInfoManager> managers = findAllLocalConnectorManagers();
+		LOG.info(MessageFormat.format("Managers of local ConnId connectors [{0}]", managers));
 
 		for (ConnectorInfoManager manager : managers) {
 			List<ConnectorInfo> infos = manager.getConnectorInfos();
@@ -116,20 +124,20 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		} else {
 			i = getConnIdConnectorInfo(connectorInstance);
 		}
-		
+
 		if (i != null) {
 			APIConfiguration apiConf = i.createDefaultAPIConfiguration();
 			return ConnIdIcConvertUtil.convertConnIdConnectorConfiguration(apiConf);
 		}
 		return null;
 	}
-	
+
 	private List<ConnectorInfo> getAllRemoteConnectors(IcConnectorServer server) {
 		ConnectorInfoManager remoteInfoManager = findRemoteConnectorManager(server);
 		//
 		return remoteInfoManager.getConnectorInfos();
 	}
-	
+
 	@Override
 	public Set<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server) {
 		Assert.notNull(server);
@@ -142,7 +150,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 			ConnectorKey key = info.getConnectorKey();
 			if (key == null) {
 				continue;
-			}			
+			}
 			// transform
 			IcConnectorKeyImpl keyDto = new IcConnectorKeyImpl(getFramework(), key.getBundleName(),
 					key.getBundleVersion(), key.getConnectorName());
@@ -151,10 +159,10 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 			result.add(infoDto);
 		}
-		
+
 		return result;
 	}
-	
+
 	@Override
 	public IcConnectorConfiguration getRemoteConnectorConfiguration(IcConnectorInstance connectorInstance) {
 		Assert.notNull(connectorInstance.getConnectorKey());
@@ -169,12 +177,12 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		//
 		return null;
 	}
-	
+
 	private ConnectorInfo getRemoteConnIdConnectorInfo(IcConnectorInstance connectorInstance) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorInstance.getConnectorServer());
 		ConnectorInfoManager remoteInfoManager = findRemoteConnectorManager(connectorInstance.getConnectorServer());
-		
+
 		for (ConnectorInfo info : remoteInfoManager.getConnectorInfos()) {
 			ConnectorKey connectorKey = info.getConnectorKey();
 			if (connectorKey == null) {
@@ -183,7 +191,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 				return info;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -194,8 +202,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 			return getRemoteConnIdConnectorInfo(connectorInstance);
 		} else {
 			for (ConnectorInfoManager manager : findAllLocalConnectorManagers()) {
-				ConnectorInfo i = manager.findConnectorInfo(
-						ConnIdIcConvertUtil.convertConnectorKeyFromDto(connectorInstance.getConnectorKey(), this.getFramework()));
+				ConnectorInfo i = manager.findConnectorInfo(ConnIdIcConvertUtil
+						.convertConnectorKeyFromDto(connectorInstance.getConnectorKey(), this.getFramework()));
 				if (i != null) {
 					return i;
 				}
@@ -203,7 +211,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public void validate(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(connectorInstance.getConnectorKey());
@@ -216,11 +224,11 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		}
 		// Validation is in getConnectorFacade method
 		getConnectorFacade(connectorInstance, connectorConfiguration);
-				
+
 	}
-	
+
 	@Override
-	public void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration){
+	public void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
@@ -232,7 +240,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		}
 		// Validation is in getConnectorFacade method
 		getConnectorFacade(connectorInstance, connectorConfiguration).test();
-				
+
 	}
 
 	@Override
@@ -240,7 +248,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
-			LOG.info(MessageFormat.format("Get Schema of remote connector - ConnId ({0})", 
+			LOG.info(MessageFormat.format("Get Schema of remote connector - ConnId ({0})",
 					connectorInstance.getConnectorServer().getFullServerName()));
 		} else {
 			LOG.info(MessageFormat.format("Get Schema - ConnId ({0})", connectorInstance.getConnectorKey().toString()));
@@ -250,15 +258,14 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Schema schema = conn.schema();
 		return ConnIdIcConvertUtil.convertConnIdSchema(schema);
 	}
-	
+
 	private ConnectorInfoManager findRemoteConnectorManager(IcConnectorServer server) {
 		// get all saved remote connector servers
-		RemoteFrameworkConnectionInfo info = new RemoteFrameworkConnectionInfo(
-				server.getHost(), server.getPort(),
+		RemoteFrameworkConnectionInfo info = new RemoteFrameworkConnectionInfo(server.getHost(), server.getPort(),
 				new org.identityconnectors.common.security.GuardedString(server.getPassword().asString().toCharArray()),
 				server.isUseSsl(), null, server.getTimeout());
-		
-		ConnectorInfoManager manager = null; 
+
+		ConnectorInfoManager manager = null;
 		try {
 			// flush remote cache
 			ConnectorInfoManagerFactory.getInstance().clearRemoteCache();
@@ -272,7 +279,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		} catch (Exception e) {
 			throw new IcRemoteServerException(server.getHost(), server.getPort(), e);
 		}
-		
+
 		return manager;
 	}
 
@@ -288,11 +295,12 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 			});
 
 			LOG.info(MessageFormat.format("Found annotated classes with IcConnectorClass [{0}]", annotated));
-
 			for (Class<?> clazz : annotated) {
 				URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
+				// Transformation the Url to standard Java Url (for the JBoss VFS problem)
+				URL resultUrl = toStandardJavaUrl(url);
 				ConnectorInfoManagerFactory fact = ConnectorInfoManagerFactory.getInstance();
-				ConnectorInfoManager manager = fact.getLocalManager(url);
+				ConnectorInfoManager manager = fact.getLocalManager(resultUrl);
 				managers.add(manager);
 			}
 			LOG.info(MessageFormat.format("Found all local connector managers [{0}]", managers.toString()));
@@ -300,7 +308,39 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		return managers;
 	}
 
-	private ConnectorFacade getConnectorFacade(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+	/**
+	 * Transformation the Url to standard Java Url (for the JBoss VFS problem)
+	 * 
+	 * We have to create new instance of URL, because we don't want use the URL with
+	 * 'vfs' protocol. This happens on the WildFly server (where are connectors
+	 * copied to temp folder -> problem with non exists MANIFEST in the ConnId).
+	 * 
+	 * @param url
+	 * @return
+	 */
+	private URL toStandardJavaUrl(URL url) {
+		if (url == null) {
+			return null;
+		}
+		if (URL_PROTOCOL_VFS.equals(url.getProtocol())) {
+			try {
+				VirtualFile vf = VFS.getChild(url.toURI());
+
+				URL physicalUrl = VFSUtils.getPhysicalURL(vf);
+				// Workaround ... replace contents folder with name of file
+				URL resultUrl = new URL(URL_PROTOCOL_FILE, physicalUrl.getHost(),
+						physicalUrl.getFile().replace("/contents/", "/" + vf.getName()));
+
+				return resultUrl;
+			} catch (Exception e) {
+				throw new CoreException("JBoss VFS URL transformation failed", e);
+			}
+		}
+		return url;
+	}
+
+	private ConnectorFacade getConnectorFacade(IcConnectorInstance connectorInstance,
+			IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {

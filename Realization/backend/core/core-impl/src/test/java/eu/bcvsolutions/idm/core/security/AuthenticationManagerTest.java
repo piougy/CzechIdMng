@@ -118,7 +118,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		passwordPolicy.setDefaultPolicy(true);
 		passwordPolicy.setType(IdmPasswordPolicyType.VALIDATE);
 		passwordPolicy.setBlockLoginTime(2);
-		passwordPolicy.setMaxUnsuccessfulAttempts(3);
+		passwordPolicy.setMaxUnsuccessfulAttempts(4);
 		passwordPolicy = passwordPolicyService.save(passwordPolicy);
 
 		IdmIdentityDto identity = testHelper.createIdentity(new GuardedString(testPassword));

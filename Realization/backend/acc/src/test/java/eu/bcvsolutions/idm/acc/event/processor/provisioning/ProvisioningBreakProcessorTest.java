@@ -49,6 +49,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -59,9 +60,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 
 public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
-
-	@Autowired
-	private TestHelper testHelper;
 
 	@Autowired
 	private SysProvisioningBreakRecipientService provisioningBreakRecipient;
@@ -75,8 +73,6 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 	@Autowired
 	private IdmIdentityService identityService;
 
-	@Autowired
-	private IdmRoleService roleService;
 	@Autowired
 	private AccAccountService accountService;
 
@@ -117,11 +113,11 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testRecipientIdentityIntegrity() {
-		SysSystemDto systemDto = testHelper.createSystem(TestResource.TABLE_NAME);
+		SysSystemDto systemDto = getHelper().createSystem(TestResource.TABLE_NAME);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, null, null,
 				ProvisioningEventType.CREATE, systemDto.getId());
 		//
-		IdmIdentityDto identityDto = testHelper.createIdentity();
+		IdmIdentityDto identityDto = getHelper().createIdentity((GuardedString) null);
 		//
 		this.createRecipient(breakConfig.getId(), identityDto.getId(), null);
 		//
@@ -136,18 +132,18 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testRecipientRoleIntegrity() {
-		SysSystemDto systemDto = testHelper.createSystem(TestResource.TABLE_NAME);
+		SysSystemDto systemDto = getHelper().createSystem(TestResource.TABLE_NAME);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, null, null,
 				ProvisioningEventType.CREATE, systemDto.getId());
 		//
-		IdmRoleDto roleDto = testHelper.createRole();
+		IdmRoleDto roleDto = getHelper().createRole();
 		//
 		this.createRecipient(breakConfig.getId(), null, roleDto.getId());
 		//
 		int size = provisioningBreakRecipient.findAllByBreakConfig(breakConfig.getId()).size();
 		assertEquals(1, size);
 		//
-		roleService.delete(roleDto);
+		getHelper().getService(IdmRoleService.class).delete(roleDto);
 		//
 		size = provisioningBreakRecipient.findAllByBreakConfig(breakConfig.getId()).size();
 		assertEquals(0, size);
@@ -155,7 +151,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testRecipientSystemntegrity() {
-		SysSystemDto systemDto = testHelper.createSystem(TestResource.TABLE_NAME);
+		SysSystemDto systemDto = getHelper().createSystem(TestResource.TABLE_NAME);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, null, null,
 				ProvisioningEventType.CREATE, systemDto.getId());
 		//
@@ -170,11 +166,11 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testWarningUpdateOperation() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, null, 2, ProvisioningEventType.UPDATE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -199,11 +195,11 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testDisableUpdateOperation() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, 2, null, ProvisioningEventType.UPDATE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -228,11 +224,11 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testWarningUpdateOperationZeroLimit() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, null, 0, ProvisioningEventType.UPDATE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -255,11 +251,11 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testDisableUpdateOperationWithZeroLimit() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, 0, null, ProvisioningEventType.UPDATE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -282,13 +278,13 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testWarningCreateOperation() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
-		IdmIdentityDto identity2 = testHelper.createIdentity();
-		IdmIdentityDto identity3 = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity2 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity3 = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, null, 2, ProvisioningEventType.CREATE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -313,13 +309,13 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testDisableCreateOperation() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
-		IdmIdentityDto identity2 = testHelper.createIdentity();
-		IdmIdentityDto identity3 = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity2 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity3 = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, 2, null, ProvisioningEventType.CREATE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -344,13 +340,13 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testWarningDeleteOperation() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
-		IdmIdentityDto identity2 = testHelper.createIdentity();
-		IdmIdentityDto identity3 = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity2 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity3 = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, null, 2, ProvisioningEventType.DELETE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -379,13 +375,13 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testDisableDeleteOperation() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
-		IdmIdentityDto identity2 = testHelper.createIdentity();
-		IdmIdentityDto identity3 = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity2 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity3 = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, 2, null, ProvisioningEventType.DELETE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -414,11 +410,11 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testUpdateOperationCombination() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, 3, 1, ProvisioningEventType.UPDATE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -456,13 +452,13 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testBlockSystemCreate() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
 		SysBlockedOperationDto blockedOperationDto = new SysBlockedOperationDto();
 		blockedOperationDto.blockCreate();
 		system.setBlockedOperation(blockedOperationDto);
 		system = systemService.save(system);
 		//
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		createProvisioningBreak(20l, 3, 2, ProvisioningEventType.CREATE, system.getId());
 		//
 		this.createAccount(system, identity);
@@ -470,8 +466,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity); // create block
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
 		//
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), identity.getId(),
-				systemEntity.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
 		//
 		List<SysProvisioningOperationDto> content = provisioningOperationService.findByBatchId(batch.getId(), null)
 				.getContent();
@@ -484,9 +479,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testBlockSystemUpdateCombination() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
 		//
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		createProvisioningBreak(20l, 1, null, ProvisioningEventType.UPDATE, system.getId());
 		//
 		this.createAccount(system, identity);
@@ -495,17 +490,17 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity); // create
 		//
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), identity.getId(),
-				systemEntity.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
+		List<SysProvisioningOperationDto> content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
 		//
-		assertNull(batch);
+		assertTrue(content.isEmpty());
 		//
 		provisioningService.doProvisioning(identity);
 		provisioningService.doProvisioning(identity); // block
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		batch = batchService.findBatch(system.getId(), identity.getId(), systemEntity.getId());
-		List<SysProvisioningOperationDto> content = provisioningOperationService.findByBatchId(batch.getId(), null)
+		batch = batchService.findBatch(systemEntity.getId());
+		content = provisioningOperationService.findByBatchId(batch.getId(), null)
 				.getContent();
 		assertEquals(1, content.size());
 		//
@@ -517,11 +512,11 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testPeriodOld() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, 3, null, ProvisioningEventType.UPDATE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -532,10 +527,10 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity);
 		//
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), identity.getId(),
-				systemEntity.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
+		List<SysProvisioningOperationDto> content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
 		//
-		assertNull(batch);
+		assertTrue(content.isEmpty());
 		//
 		SysProvisioningBreakItems cacheProcessedItems = provisioningBreakConfig.getCacheProcessedItems(system.getId());
 		//
@@ -551,18 +546,19 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity);
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		batch = batchService.findBatch(system.getId(), identity.getId(), systemEntity.getId());
+		batch = batchService.findBatch(systemEntity.getId());
+		content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
 		//
-		assertNull(batch);
+		assertTrue(content.isEmpty());
 	}
 
 	@Test
 	public void testPeriod() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, 2, null, ProvisioningEventType.UPDATE,
 				system.getId());
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -585,8 +581,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity); // block
 		//
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), identity.getId(),
-				systemEntity.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
 		//
 		assertNotNull(batch);
 		//
@@ -602,22 +597,27 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testClearCache() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		createProvisioningBreak(20l, 3, null, ProvisioningEventType.UPDATE, system.getId());
 		//
 		this.createAccount(system, identity);
 		//
-		//
 		provisioningService.doProvisioning(identity); // create
-		provisioningService.doProvisioning(identity);
-		provisioningService.doProvisioning(identity);
 		//
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		SysProvisioningBatchDto batch = batchService.findBatch(system.getId(), identity.getId(),
-				systemEntity.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
+		List<SysProvisioningOperationDto> content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
 		//
-		assertNull(batch);
+		provisioningService.doProvisioning(identity);
+		//
+		content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
+		//
+		provisioningService.doProvisioning(identity);
+		//
+		content = provisioningOperationService.findByBatchId(batch.getId(), null).getContent();
+		//
+		assertTrue(content.isEmpty());
 		//
 		SysBlockedOperationDto blockedOperation = new SysBlockedOperationDto();
 		blockedOperation.blockUpdate();
@@ -633,16 +633,16 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identity);
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, identity.getUsername());
-		batch = batchService.findBatch(system.getId(), identity.getId(), systemEntity.getId());
+		batch = batchService.findBatch(systemEntity.getId());
 		//
-		assertNull(batch);
+		assertEquals(0, provisioningOperationService.findByBatchId(batch.getId(), null).getTotalElements());
 	}
 
 	@Test
 	public void testGlobalConfigurationSettings() {
-		IdmIdentityDto recipient = testHelper.createIdentity();
-		IdmIdentityDto recipient2 = testHelper.createIdentity();
-		IdmRoleDto roleRecipient = testHelper.createRole();
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto recipient2 = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleRecipient = getHelper().createRole();
 		//
 		createGlobalConfiguration(ProvisioningBreakConfiguration.GLOBAL_BREAK_DELETE_OPERATION, false, 2, 3, 20l, null,
 				roleRecipient);
@@ -695,9 +695,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testGlobalConfigurationDisable() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		//
 		// create global configuration
 		createGlobalConfiguration(ProvisioningBreakConfiguration.GLOBAL_BREAK_UPDATE_OPERATION, false, null, 2, 20l,
@@ -724,9 +724,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testGlobalConfigurationDisabled() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		//
 		// create global configuration
 		createGlobalConfiguration(ProvisioningBreakConfiguration.GLOBAL_BREAK_UPDATE_OPERATION, true, null, 2, 20l,
@@ -753,9 +753,9 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testGlobalConfigurationOverride() {
-		SysSystemDto system = testHelper.createTestResourceSystem(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
-		IdmIdentityDto recipient = testHelper.createIdentity();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
 		//
 		// create global configuration
 		createGlobalConfiguration(ProvisioningBreakConfiguration.GLOBAL_BREAK_UPDATE_OPERATION, false, null, 1, 20l,
@@ -763,7 +763,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		//
 		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, 3, null, ProvisioningEventType.UPDATE,
 				system.getId());
-		IdmIdentityDto recipient2 = testHelper.createIdentity();
+		IdmIdentityDto recipient2 = getHelper().createIdentity((GuardedString) null);
 		createRecipient(breakConfig.getId(), recipient2.getId(), null);
 		//
 		this.createAccount(system, identity);
@@ -940,5 +940,10 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		configurationService.deleteValue(prefix + ProvisioningBreakConfiguration.PROPERTY_TEMPLATE_DISABLE);
 		configurationService.deleteValue(prefix + ProvisioningBreakConfiguration.PROPERTY_TEMPLATE_WARNING);
 		configurationService.deleteValue(prefix + ProvisioningBreakConfiguration.PROPERTY_WARNING_LIMIT);
+	}
+	
+	@Override
+	protected TestHelper getHelper() {
+		return (TestHelper) super.getHelper();
 	}
 }

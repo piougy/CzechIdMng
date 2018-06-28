@@ -121,12 +121,12 @@ export default class OperationResult extends Basic.AbstractContextComponent {
    * Renders full info card (with exception stacktrace etc.)
    */
   _renderFull() {
-    const { value, stateLabel } = this.props;
+    const { value, stateLabel, header } = this.props;
     const message = this.getFlashManager().convertFromResultModel(value.model);
     //
     return (
       <div>
-        <Basic.ContentHeader text={ this.i18n('result.header') }/>
+        <Basic.ContentHeader text={ header === null ? this.i18n('result.header') : header }/>
 
         <div style={{ marginBottom: 15 }}>
           <Basic.EnumValue
@@ -137,7 +137,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
           {
             (!value || !value.code)
             ||
-            <span style={{ marginLeft: 15 }}>
+            <span style={{ marginLeft: value.state ? 15 : 0 }}>
               { this.i18n('result.code') }: { value.code }
             </span>
           }
@@ -205,6 +205,11 @@ OperationResult.propTypes = {
     PropTypes.string,
     PropTypes.func
   ]),
+  /**
+   * Header text
+   * @type {[type]}
+   */
+  header: PropTypes.string
 };
 OperationResult.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
@@ -212,5 +217,6 @@ OperationResult.defaultProps = {
   face: 'popover',
   stateLabel: null,
   rendered: true,
-  detailLink: null
+  detailLink: null,
+  header: null // default text from component locale will be used
 };

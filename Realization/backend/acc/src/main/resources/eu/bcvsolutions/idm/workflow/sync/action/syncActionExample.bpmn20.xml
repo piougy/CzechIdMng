@@ -13,7 +13,7 @@ Input variables:
 + accountId(UUID),
 + entityId(UUID)</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <endEvent id="endevent" name="End" activiti:async="false"></endEvent>
+    <endEvent id="endevent" name="End"></endEvent>
     <serviceTask id="servicetaskRealization" name="Realization (missing entity)" activiti:expression="#{defaultSynchronizationService.resolveMissingEntitySituation(uid, entityType, icAttributes, syncConfigId, actionType).getLog()}" activiti:resultVariableName="logItem"></serviceTask>
     <sequenceFlow id="flow36" sourceRef="servicetaskRealization" targetRef="endevent"></sequenceFlow>
     <sequenceFlow id="flow37" sourceRef="startevent1" targetRef="servicetask1"></sequenceFlow>
@@ -89,7 +89,7 @@ Input variables:
         <activiti:value>"aa"</activiti:value>
       </extensionElements>
     </dataObject>
-    <serviceTask id="servicetask3" name="Realization (unlinked)" activiti:expression="#{defaultSynchronizationService.resolveUnlinkedSituation(uid, entityType, entityId, syncConfigId, actionType).getLog()}" activiti:resultVariableName="logItem"></serviceTask>
+    <serviceTask id="servicetask3" name="Realization (unlinked)" activiti:expression="#{defaultSynchronizationService.resolveUnlinkedSituation(uid, entityType, entityId, syncConfigId, actionType, icAttributes).getLog()}" activiti:resultVariableName="logItem"></serviceTask>
     <sequenceFlow id="flow48" sourceRef="exclusivegateway3" targetRef="servicetask3">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${situation.equals("UNLINKED")}]]></conditionExpression>
     </sequenceFlow>

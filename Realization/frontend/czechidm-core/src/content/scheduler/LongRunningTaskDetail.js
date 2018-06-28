@@ -69,8 +69,11 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                   <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskProperties.label')}>
                     {
                       _.keys(entity.taskProperties).map(propertyName => {
+                        if (Utils.Ui.isEmpty(entity.taskProperties[propertyName])) {
+                          return null;
+                        }
                         return (
-                          <div>{ propertyName }: { '' + entity.taskProperties[propertyName] }</div>
+                          <div>{ propertyName }: { Utils.Ui.toStringValue(entity.taskProperties[propertyName]) }</div>
                         );
                       })
                     }

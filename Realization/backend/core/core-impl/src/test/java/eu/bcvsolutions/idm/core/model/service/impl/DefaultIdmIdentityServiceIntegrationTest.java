@@ -51,7 +51,6 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Basic identity service operations
@@ -61,7 +60,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  */
 public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	@Autowired private FormService formService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
@@ -87,7 +85,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 
 	@Test
 	public void testReferentialIntegrity() {
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		String username = identity.getUsername();
 		// eav
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
@@ -104,13 +102,13 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		role.setGuarantees(Lists.newArrayList(roleGuarantee));
 		role = roleService.save(role);
 		// contract
-		IdmIdentityContractDto contract = helper.createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
 		// contract guarantee
-		IdmIdentityContractDto contract2 = helper.createIdentityContact(identityService.getByUsername(InitTestData.TEST_USER_1));
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identityService.getByUsername(InitTestData.TEST_USER_1));
 		
 		contractGuaranteeService.save(new IdmContractGuaranteeDto(contract2.getId(), identity.getId()));
 		// assigned role
-		helper.createIdentityRole(contract, role);
+		getHelper().createIdentityRole(contract, role);
 		IdmIdentityRoleFilter identityRolefilter = new IdmIdentityRoleFilter();
 		identityRolefilter.setIdentityId(identity.getId());
 
@@ -142,7 +140,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	
 	@Test
 	public void testReferentialRoleRequestIntegrity() {
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		String username = identity.getUsername();
 		
 		// role with guarantee
@@ -151,7 +149,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		role.setName(roleName);
 		role = roleService.save(role);
 		// assigned role
-		IdmRoleRequestDto request = helper.assignRoles(helper.getPrimeContract(identity.getId()), false, role);
+		IdmRoleRequestDto request = getHelper().assignRoles(getHelper().getPrimeContract(identity.getId()), false, role);
 		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
 		conceptFilter.setRoleRequestId(request.getId());
 		
@@ -249,7 +247,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testModifiedAfterUpdateIdentity() {
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		Assert.assertNull(identity.getModified());
 		//
 		identity.setDescription("update");
@@ -260,7 +258,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testDisableAndEnableIdentity() {
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		Assert.assertFalse(identity.isDisabled());
 		Assert.assertEquals(IdentityState.CREATED, identity.getState());
 		identity = identityService.get(identity.getId());
@@ -280,8 +278,8 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testEnableIdentityByContract() {
-		IdmIdentityDto identity = helper.createIdentity();
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		contract.setValidFrom(new LocalDate().plusDays(1));
 		identityContractService.save(contract);
 		identity = identityService.get(identity.getId());
@@ -299,14 +297,14 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testIdentityFutureContract() {
-		IdmIdentityDto identity = helper.createIdentity();
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		identityContractService.delete(contract);
 		identity = identityService.get(identity.getId());
 		Assert.assertTrue(identity.isDisabled());
 		Assert.assertEquals(IdentityState.NO_CONTRACT, identity.getState());
 		//
-		contract = helper.createIdentityContact(identity, null, new LocalDate().plusDays(1), null);
+		contract = getHelper().createIdentityContact(identity, null, new LocalDate().plusDays(1), null);
 		//
 		identity = identityService.get(identity.getId());
 		Assert.assertTrue(identity.isDisabled());
@@ -316,15 +314,15 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testFindByRole() {
-		IdmIdentityDto identity = helper.createIdentity();
-		IdmRoleDto role = helper.createRole();
-		helper.createIdentityRole(identity, role);
-		helper.createIdentityRole(identity, role);
-		helper.createIdentityRole(identity, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
-		IdmIdentityContractDto contract = helper.createIdentityContact(identity);
-		helper.createIdentityRole(contract, role);
-		helper.createIdentityRole(contract, role);
-		helper.createIdentityRole(contract, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		getHelper().createIdentityRole(contract, role);
+		getHelper().createIdentityRole(contract, role);
+		getHelper().createIdentityRole(contract, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
 		//
 		List<IdmIdentityDto> identities = identityService.findAllByRole(role.getId());
 		//
@@ -340,46 +338,46 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testFindValidByRole() {
-		IdmIdentityDto validIdentity = helper.createIdentity();
-		IdmRoleDto role = helper.createRole();
-		helper.createIdentityRole(validIdentity, role, new LocalDate().plusDays(1), null);
-		IdmIdentityContractDto contract = helper.createIdentityContact(validIdentity, null, new LocalDate().minusDays(1), null);
-		helper.createIdentityRole(contract, role);
-		helper.createIdentityRole(contract, role);
-		helper.createIdentityRole(contract, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
+		IdmIdentityDto validIdentity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createIdentityRole(validIdentity, role, new LocalDate().plusDays(1), null);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(validIdentity, null, new LocalDate().minusDays(1), null);
+		getHelper().createIdentityRole(contract, role);
+		getHelper().createIdentityRole(contract, role);
+		getHelper().createIdentityRole(contract, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
 		//
 		// disabled identity
-		IdmIdentityDto identityDisabled = helper.createIdentity();
+		IdmIdentityDto identityDisabled = getHelper().createIdentity((GuardedString) null);
 		identityDisabled.setState(IdentityState.DISABLED);
 		identityDisabled = identityService.save(identityDisabled);
-		helper.createIdentityRole(identityDisabled, role);
+		getHelper().createIdentityRole(identityDisabled, role);
 		//
 		// left identity
-		IdmIdentityDto identityLeft = helper.createIdentity();
+		IdmIdentityDto identityLeft = getHelper().createIdentity((GuardedString) null);
 		identityLeft.setState(IdentityState.LEFT);
 		identityLeft = identityService.save(identityLeft);
-		helper.createIdentityRole(identityLeft, role);
+		getHelper().createIdentityRole(identityLeft, role);
 		//
 		// disabled contract
-		IdmIdentityDto identityDisabledContract = helper.createIdentity();
-		IdmIdentityContractDto disabledContract = helper.getPrimeContract(identityDisabledContract.getId());
+		IdmIdentityDto identityDisabledContract = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto disabledContract = getHelper().getPrimeContract(identityDisabledContract.getId());
 		disabledContract.setState(ContractState.DISABLED);
 		identityContractService.save(disabledContract);
-		helper.createIdentityRole(identityDisabledContract, role);
+		getHelper().createIdentityRole(identityDisabledContract, role);
 		//
 		// expired contract
-		IdmIdentityDto identityInvalidContract = helper.createIdentity();
-		IdmIdentityContractDto invalidContract = helper.getPrimeContract(identityInvalidContract.getId());
+		IdmIdentityDto identityInvalidContract = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto invalidContract = getHelper().getPrimeContract(identityInvalidContract.getId());
 		invalidContract.setValidFrom(new LocalDate().plusDays(1));
 		identityContractService.save(invalidContract);
-		helper.createIdentityRole(identityInvalidContract, role);
+		getHelper().createIdentityRole(identityInvalidContract, role);
 		//
 		// excluded contract
-		IdmIdentityDto identityExcludedContract = helper.createIdentity();
-		IdmIdentityContractDto excludedContract = helper.getPrimeContract(identityExcludedContract.getId());
+		IdmIdentityDto identityExcludedContract = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto excludedContract = getHelper().getPrimeContract(identityExcludedContract.getId());
 		excludedContract.setState(ContractState.EXCLUDED);
 		identityContractService.save(excludedContract);
-		helper.createIdentityRole(identityExcludedContract, role);
+		getHelper().createIdentityRole(identityExcludedContract, role);
 		//
 		List<IdmIdentityDto> identities = identityService.findValidByRole(role.getId());
 		//

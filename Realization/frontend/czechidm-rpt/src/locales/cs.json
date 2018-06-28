@@ -79,6 +79,10 @@
     "REPORT_GENERATE_FAILED": {
       "title": "Report selhal",
       "message": "Generování reportu [{{reportName}}] selhalo. Důvod selhání naleznete v agendě reportů."
+    },
+    "REPORT_RENDER_FAILED": {
+      "title": "Report selhal",
+      "message": "Vykreslení reportu [{{reportName}}] selhalo."
     }
   }
 }

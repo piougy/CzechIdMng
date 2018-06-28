@@ -8,6 +8,8 @@ const MAX_UUID_LENGTH = 7;
 /**
  * Shows uuid - shorten by default - full view in popover for copy
  *
+ * TODO: readonly textfiled with selected uuid value - for copy / paste
+ *
  * @author Radek Tomiška
  */
 export default class UuidInfo extends Basic.AbstractContextComponent {

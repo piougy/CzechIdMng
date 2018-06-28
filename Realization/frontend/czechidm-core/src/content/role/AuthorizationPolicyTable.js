@@ -7,12 +7,14 @@ import Immutable from 'immutable';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
+import * as Domain from '../../domain';
 //
-import { RoleManager, AuthorizationPolicyManager, DataManager } from '../../redux';
+import { RoleManager, AuthorizationPolicyManager, DataManager, FormAttributeManager } from '../../redux';
 
 const DEFAULT_EVALUATOR_TYPE = 'eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator';
 const manager = new AuthorizationPolicyManager();
 const roleManager = new RoleManager();
+const formAttributeManager = new FormAttributeManager();
 
 /**
 * Table of role's granted permissions
@@ -66,11 +68,6 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       role: entity._embedded && entity._embedded.role ? entity._embedded.role : roleId,
       basePermissions: entity.basePermissions ? entity.basePermissions.split(',') : null
     });
-    if (entity.evaluatorProperties) {
-      _.keys(entity.evaluatorProperties).map(parameterName => {
-        entityFormData[`parameter-${parameterName}`] = entity.evaluatorProperties[parameterName];
-      });
-    }
     //
     let authorizableType = null;
     const _authorizableType = !entity.groupPermission ? null : authorizableTypes.find(type => { return type.group === entity.groupPermission; });
@@ -87,7 +84,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
         show: true,
         entity: entityFormData
       },
-      evaluatorType: supportedEvaluators.has(entity.evaluatorType) ? supportedEvaluators.get(entity.evaluatorType) : null,
+      evaluatorType: supportedEvaluators.has(entity.evaluatorType) ? this._toEvaluatorOption(supportedEvaluators.get(entity.evaluatorType)) : null,
       authorizableType
     }, () => {
       this.refs.form.setData(entityFormData);
@@ -113,15 +110,16 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
+    if (this.refs.formInstance) {
+      if (!this.refs.formInstance.isValid()) {
+        return;
+      }
+    }
     const formEntity = this.refs.form.getData();
-    const { evaluatorType } = this.state;
     //
-    // transform parameters
-    if (evaluatorType.parameters) {
-      formEntity.evaluatorProperties = {};
-      evaluatorType.parameters.map(parameterName => {
-        formEntity.evaluatorProperties[parameterName] = this.refs[`parameter-${parameterName}`].getValue();
-      });
+    // transform properties
+    if (this.refs.formInstance) {
+      formEntity.evaluatorProperties = this.refs.formInstance.getProperties();
     }
     // transform base permissions
     if (formEntity.basePermissions) {
@@ -229,6 +227,36 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     return _uniqueBasePermissions;
   }
 
+  _getSupportedEvaluators(authorizableType = null) {
+    const { supportedEvaluators } = this.props;
+    //
+    const _supportedEvaluators = [];
+    if (!supportedEvaluators) {
+      return _supportedEvaluators;
+    }
+    //
+    supportedEvaluators.forEach(evaluator => {
+      // TODO: add filter to BE and evaluate all superclasses
+      if ((!authorizableType && (Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable') && (Utils.Ui.getSimpleJavaType(evaluator.evaluatorType) !== 'CodeableEvaluator'))
+          || (authorizableType && (authorizableType.type === evaluator.entityType || Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable'))) {
+        _supportedEvaluators.push(this._toEvaluatorOption(evaluator));
+      }
+    });
+    //
+    return _supportedEvaluators;
+  }
+
+  _toEvaluatorOption(evaluator) {
+    return {
+      niceLabel: formAttributeManager.getLocalization(evaluator.formDefinition, null, 'label', Utils.Ui.getSimpleJavaType(evaluator.evaluatorType)),
+      value: evaluator.id,
+      description: formAttributeManager.getLocalization(evaluator.formDefinition, null, 'help', evaluator.description),
+      parameters: evaluator.parameters,
+      supportsPermissions: evaluator.supportsPermissions,
+      formDefinition: evaluator.formDefinition
+    };
+  }
+
   render() {
     const {
       uiKey,
@@ -242,22 +270,13 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       _permissions } = this.props;
     const { detail, evaluatorType, authorizableType } = this.state;
     //
-    const _supportedEvaluators = [];
-    if (supportedEvaluators) {
-      supportedEvaluators.forEach(evaluator => {
-        // TODO: add filter to BE and evaluate all superclasses
-        if ((!authorizableType && (Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable') && (Utils.Ui.getSimpleJavaType(evaluator.evaluatorType) !== 'CodeableEvaluator'))
-            || (authorizableType && (authorizableType.type === evaluator.entityType || Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable'))) {
-          _supportedEvaluators.push({
-            niceLabel: Utils.Ui.getSimpleJavaType(evaluator.evaluatorType),
-            value: evaluator.id,
-            description: evaluator.description,
-            parameters: evaluator.parameters,
-            supportsPermissions: evaluator.supportsPermissions
-          });
-        }
-      });
+    let formInstance = null;
+    if (evaluatorType && evaluatorType.formDefinition && detail.entity) {
+      formInstance = new Domain.FormInstance(evaluatorType.formDefinition).setProperties(detail.entity.evaluatorProperties);
     }
+    const showProperties = formInstance && evaluatorType.formDefinition.formAttributes.length > 0;
+    //
+    const _supportedEvaluators = this._getSupportedEvaluators(authorizableType);
     const _authorizableTypes = [];
     if (authorizableTypes) {
       authorizableTypes.forEach(type => {
@@ -374,8 +393,20 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data, property }) => {
                 const propertyValue = data[rowIndex][property];
+                let _evaluatorType;
+                if (supportedEvaluators && supportedEvaluators.has(propertyValue)) {
+                  _evaluatorType = this._toEvaluatorOption(supportedEvaluators.get(propertyValue));
+                }
                 return (
-                  <span title={propertyValue}>{ Utils.Ui.getSimpleJavaType(propertyValue) }</span>
+                  <span title={propertyValue}>
+                    {
+                      _evaluatorType
+                      ?
+                      formAttributeManager.getLocalization(_evaluatorType.formDefinition, null, 'label', Utils.Ui.getSimpleJavaType(propertyValue))
+                      :
+                      Utils.Ui.getSimpleJavaType(propertyValue)
+                    }
+                  </span>
                 );
               }
             }/>
@@ -383,6 +414,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             face="text"
             header={ this.i18n('entity.AuthorizationPolicy.evaluatorProperties.label') }
             rendered={_.includes(columns, 'evaluatorProperties')}
+            width="25%"
             cell={
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data }) => {
@@ -390,16 +422,29 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 if (!entity.evaluatorProperties) {
                   return null;
                 }
+                let _evaluatorType;
+                if (supportedEvaluators && supportedEvaluators.has(entity.evaluatorType)) {
+                  _evaluatorType = this._toEvaluatorOption(supportedEvaluators.get(entity.evaluatorType));
+                }
                 return _.keys(entity.evaluatorProperties).map(parameterName => {
                   if (parameterName.lastIndexOf('core:', 0) === 0) {
                     return null;
                   }
-                  return (<div>{parameterName}: {entity.evaluatorProperties[parameterName]}</div>);
+                  if (Utils.Ui.isEmpty(entity.evaluatorProperties[parameterName])) {
+                      // not filled (false is needed to render)
+                    return null;
+                  }
+                  return (
+                    <div>
+                      { _evaluatorType ? formAttributeManager.getLocalization(_evaluatorType.formDefinition, { code: parameterName }, 'label', parameterName) : parameterName }
+                      :
+                      { Utils.Ui.toStringValue(entity.evaluatorProperties[parameterName]) }
+                    </div>
+                  );
                 });
               }
             }/>
           <Advanced.Column
-            width="25%"
             property="description"
             face="text"
             sort
@@ -432,7 +477,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 showLoading={_showLoading}
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.Row>
-                  <div className="col-lg-6">
+                  <Basic.Col lg={ 6 }>
                     <Basic.SelectBox
                       ref="role"
                       manager={ roleManager }
@@ -456,7 +501,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       helpBlock={ this.i18n('entity.AuthorizationPolicy.basePermissions.help') }
                       readOnly={ (evaluatorType && evaluatorType.supportsPermissions !== undefined) ? !evaluatorType.supportsPermissions : false }
                       searchable
-                      multiSelect/>
+                      multiSelect
+                      required={ (evaluatorType && evaluatorType.supportsPermissions !== undefined) ? evaluatorType.supportsPermissions : false }/>
                     <Basic.TextField
                       ref="seq"
                       validation={Joi.number().integer().min(0).max(9999).allow(null)}
@@ -470,8 +516,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       ref="disabled"
                       label={ this.i18n('entity.AuthorizationPolicy.disabled.label') }
                       helpBlock={ this.i18n('entity.AuthorizationPolicy.disabled.help') }/>
-                  </div>
-                  <div className="col-lg-6">
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
                     <Basic.EnumSelectBox
                       ref="evaluatorType"
                       options={ _supportedEvaluators }
@@ -483,24 +529,15 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                     <Basic.Alert
                       text={ this.i18n('evaluator.default') }
                       rendered={ authorizableType ? authorizableType.type === null : false }/>
-                    {
-                      !evaluatorType || !evaluatorType.parameters || evaluatorType.parameters.length === 0
-                      ||
-                      <div>
-                        <Basic.ContentHeader text={ this.i18n('entity.AuthorizationPolicy.evaluatorProperties.title') } />
-                        {
-                          evaluatorType.parameters.map(parameterName => {
-                            return (
-                              <Basic.TextField
-                                label={ parameterName }
-                                ref={ `parameter-${parameterName}` }
-                                max={ 255 }/>
-                            );
-                          })
-                        }
-                      </div>
-                    }
-                  </div>
+
+                    <div style={ showProperties ? {} : { display: 'none' }}>
+                      <Basic.ContentHeader text={ this.i18n('entity.AuthorizationPolicy.evaluatorProperties.title') }/>
+                      <Advanced.EavForm
+                        ref="formInstance"
+                        formInstance={ formInstance }/>
+                    </div>
+
+                  </Basic.Col>
                 </Basic.Row>
 
               </Basic.AbstractForm>

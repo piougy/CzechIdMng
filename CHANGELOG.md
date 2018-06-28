@@ -1,6 +1,37 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [8.2.0]
+
+- [#1125](https://redmine.czechidm.com/issues/1125) - Identity extended attributes supports authorization policies, read [more](https://wiki.czechidm.com/devel/documentation/security/dev/authorization#secure_identity_form_extended_attribute_values).
+- [#1121](https://redmine.czechidm.com/issues/1121) - Execute synchronization asynchronously
+ - SynchronizationService is no longer LRT (Long Running Task).
+ - Event types and processors to start and cancel sync has been removed.
+
+## [8.1.3]
+
+- ``Configurable`` interface contains form definition now. ``Configurable`` instances can be configured by eav form on frontend (the richer ui). **Methods ``getFormDefinition`` and ``getFormAttributes`` were moved to ``Configurable`` interface from ``AbstractReportExecutor`` super class. Make sure you are using ``public`` modifier on this methods in your reports**.
+- [#1153](https://redmine.czechidm.com/issues/1153) - Add event support for ``IdmPasswordDto`` (create, update, delete)
+
+## [8.1.2]
+
+- [#1137](https://redmine.czechidm.com/issues/1137) - Sync of slices does not use contract EAV definition
+
+## [8.1.1]
+
+- [#1128](https://redmine.czechidm.com/issues/1128) - Event processing - check parent event type for duplicates.
+- [#1129](https://redmine.czechidm.com/issues/1129) - Boolean eav attribute with default value.
+- [#1135](https://redmine.czechidm.com/issues/1135) - Bulk actions evaluates permission on frontend in select box. Problem with filtering and selecting identities was fixed (permission are now evaluated correctly). AbstractBulkAction is now part of api, AbstractIdentityBulkAction was removed from impl package and functionality was moved to api. For all bulk action is now used Enabled annotation for check if action is enabled/disabled.
+
+
+## [[8.1.0](https://github.com/bcvsolutions/CzechIdMng/releases/tag/8.1.0)]
+
+- Bulk action for identities - More about bulk backend actions you can find [here](https://wiki.czechidm.com/devel/documentation/bulk_actions).
+- Time slices of contracts - More about time slices you can find [here](https://wiki.czechidm.com/devel/documentation/identities#time_slices_of_the_contractual_relationship).
+- Password history - More about password history you can find [here](https://wiki.czechidm.com/8.0/documentation/security/dev/password-policies#standard_policy_for_validation).
+- [#1076](https://redmine.czechidm.com/issues/1076) -  Extended form value - added support for ``org.joda.time.LocalDate`` and string in ISO 8601 format as value for DATE or DATETIME persistent type. Persistent type INT, LONG, BOOLEAN - supports setting string value now (default conversions from string representation added ~ the same meaning as``#valueOf(String)``).
+- [#853](https://redmine.czechidm.com/issues/853) - Extended form values without filled values (``null``) are not saved.
+
 ## [8.0.0]
 
 - [#938](https://redmine.czechidm.com/issues/938) - Requests for automatic assign roles (by tree node or attributes) was implemented.

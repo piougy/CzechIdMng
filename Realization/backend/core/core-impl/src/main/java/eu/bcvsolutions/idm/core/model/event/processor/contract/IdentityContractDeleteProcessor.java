@@ -7,18 +7,23 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
@@ -42,6 +47,8 @@ public class IdentityContractDeleteProcessor
 	private final IdmConceptRoleRequestService conceptRequestService;
 	private final IdmRoleRequestService roleRequestService;
 	private final IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired
+	private IdmContractSliceService contractSliceService;
 	
 	@Autowired
 	public IdentityContractDeleteProcessor(
@@ -73,6 +80,7 @@ public class IdentityContractDeleteProcessor
 	@Override
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
 		IdmIdentityContractDto contract = event.getContent();
+		Assert.notNull(contract.getId(), "Contract must have a ID!");
 		//
 		// delete referenced roles
 		identityRoleService.findAllByContract(contract.getId()).forEach(identityRole -> {
@@ -83,7 +91,6 @@ public class IdentityContractDeleteProcessor
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setIdentityContractId(contract.getId());
 		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
-			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(
@@ -93,8 +100,10 @@ public class IdentityContractDeleteProcessor
 				message = MessageFormat.format(
 						"Request change in concept [{0}], was not executed, because requested IdentityContract [{1}] was deleted (not from this role request)!",
 						concept.getId(), contract.getId());
-				concept.setState(RoleRequestState.CANCELED);
+				// Cancel concept and WF
+				concept = conceptRequestService.cancel(concept);
 			}
+			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			roleRequestService.addToLog(request, message);
 			conceptRequestService.addToLog(concept, message);
 			concept.setIdentityContract(null);
@@ -108,6 +117,14 @@ public class IdentityContractDeleteProcessor
 		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
 			contractGuaranteeService.delete(guarantee);
 		});
+		// delete relation (from slices) on the contract
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setParentContract(contract.getId());
+		if(contractSliceService.find(sliceFilter, null).getTotalElements() > 0){
+			// This contract is controlled by some slice -> cannot be deleted
+			throw new ResultCodeException(CoreResultCode.CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED, ImmutableMap.of("contractId", contract.getId()));
+		}
+		
 		// delete identity contract
 		service.deleteInternal(contract);
 		//

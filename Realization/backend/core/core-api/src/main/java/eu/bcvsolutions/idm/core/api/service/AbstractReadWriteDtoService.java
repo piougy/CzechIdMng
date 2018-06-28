@@ -11,14 +11,21 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidatorFactory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
+import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.exception.DuplicateExternalCodeException;
+import eu.bcvsolutions.idm.core.api.exception.DuplicateExternalIdException;
+import eu.bcvsolutions.idm.core.api.exception.EntityTypeNotExternalCodeableException;
+import eu.bcvsolutions.idm.core.api.exception.EntityTypeNotExternalIdentifiableException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -159,8 +166,52 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	 * @param dto
 	 * @return
 	 */
+	@SuppressWarnings({ "unchecked" })
 	protected E validateEntity(E entity) {
-		return validate(entity);
+		entity = validate(entity);
+		// unique external id in business logic (external id can be null)
+		if (entity instanceof ExternalIdentifiable) {
+			if (!ExternalIdentifiable.class.isAssignableFrom(getFilterClass())) {
+				throw new EntityTypeNotExternalIdentifiableException(getFilterClass().getCanonicalName());
+			}
+			
+			ExternalIdentifiable externalIdentifiable = (ExternalIdentifiable) entity;
+			if (StringUtils.isNotEmpty(externalIdentifiable.getExternalId())) { // empty string are not valid external id	
+				try {
+					ExternalIdentifiable filter = (ExternalIdentifiable) getFilterClass().newInstance();
+					filter.setExternalId(externalIdentifiable.getExternalId());
+					List<DTO> dtos = find((F) filter, null).getContent();
+					DTO other = dtos.stream().filter(dto -> !dto.getId().equals(((E) externalIdentifiable).getId())).findFirst().orElse(null);
+					if (other != null) {
+						throw new DuplicateExternalIdException(getEntityClass().getCanonicalName(), externalIdentifiable.getExternalId(), other.getId());
+					}
+				} catch (InstantiationException | IllegalAccessException ex) {
+					throw new EntityTypeNotExternalIdentifiableException(getFilterClass().getCanonicalName(), ex);
+				}
+			}			
+		}
+		// unique external code in business logic (external id can be null)
+		if (entity instanceof ExternalCodeable) {
+			if (!ExternalCodeable.class.isAssignableFrom(getFilterClass())) {
+				throw new EntityTypeNotExternalCodeableException(getFilterClass().getCanonicalName());
+			}
+			
+			ExternalCodeable externalCodeable = (ExternalCodeable) entity;
+			if (StringUtils.isNotEmpty(externalCodeable.getExternalCode())) { // empty string are not valid external code	
+				try {
+					ExternalCodeable filter = (ExternalCodeable) getFilterClass().newInstance();
+					filter.setExternalCode(externalCodeable.getExternalCode());
+					List<DTO> dtos = find((F) filter, null).getContent();
+					DTO other = dtos.stream().filter(dto -> !dto.getId().equals(((E) externalCodeable).getId())).findFirst().orElse(null);
+					if (other != null) {
+						throw new DuplicateExternalCodeException(getEntityClass().getCanonicalName(), externalCodeable.getExternalCode(), other.getId());
+					}
+				} catch (InstantiationException | IllegalAccessException ex) {
+					throw new EntityTypeNotExternalCodeableException(getFilterClass().getCanonicalName(), ex);
+				}
+			}			
+		}
+		return entity;
 	}
 	
 	/**

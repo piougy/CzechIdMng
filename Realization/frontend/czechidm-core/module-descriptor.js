@@ -40,7 +40,7 @@ module.exports = {
             'order': 11,
             'priority': 0,
             'path': '/identity/:entityId/eav',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+            'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['IDENTITY_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
           },
           {
             'id': 'profile-password',
@@ -95,7 +95,7 @@ module.exports = {
                 'labelKey': 'content.identity-contract.eav.label',
                 'order': 20,
                 'path': '/identity/:identityId/identity-contract/:entityId/eav',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
+                'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['IDENTITYCONTRACT_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ],
               },
               {
                 'id': 'identity-contract-guarantees',
@@ -104,7 +104,42 @@ module.exports = {
                 'order': 30,
                 'path': '/identity/:identityId/identity-contract/:entityId/guarantees',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
-              }
+              },
+              {
+                'id': 'identity-contract-slices',
+                'type': 'TAB',
+                'labelKey': 'entity.ContractSlice._type',
+                'order': 55,
+                'path': '/identity/:identityId/identity-contract/:entityId/contract-slices',
+                'icon': 'fa:hourglass-half',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ],
+                'items': [
+                  {
+                    'id': 'contract-slice-detail',
+                    'type': 'TAB',
+                    'labelKey': 'content.contract-slice.detail.label',
+                    'order': 10,
+                    'path': '/identity/:identityId/contract-slice/:entityId/detail',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ]
+                  },
+                  {
+                    'id': 'contract-slice-eav',
+                    'type': 'TAB',
+                    'labelKey': 'content.contract-slice.eav.label',
+                    'order': 20,
+                    'path': '/identity/:identityId/contract-slice/:entityId/eav',
+                    'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['CONTRACTSLICE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
+                  },
+                  {
+                    'id': 'contract-slice-guarantees',
+                    'type': 'TAB',
+                    'labelKey': 'content.contract-slice.guarantees.label',
+                    'order': 30,
+                    'path': '/identity/:identityId/contract-slice/:entityId/guarantees',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICEGUARANTEE_READ'] } ],
+                  }
+                ]
+              },
             ]
           },
           {
@@ -251,6 +286,7 @@ module.exports = {
                 'order': 110,
                 'priority': 0,
                 'path': '/role/:entityId/eav',
+                'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
               },
               {
                 'id': 'role-authorization-policies',
@@ -802,7 +838,7 @@ module.exports = {
                     'labelKey': 'content.tree.node.eav.title',
                     'order': 20,
                     'path': '/tree/nodes/:entityId/eav',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
                   },
                   {
                     'id': 'tree-node-roles',
@@ -952,6 +988,15 @@ module.exports = {
                 'icon': '',
                 'type': 'TAB',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
+              },
+              {
+                'id': 'forms-localization',
+                'labelKey': 'content.formDefinitions.localization.title',
+                'order': 900,
+                'path': '/forms/:entityId/localization',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]
               }
             ]
           },

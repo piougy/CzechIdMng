@@ -12,7 +12,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  * @author Radek Tomiška
  *
  */
-public interface IdmTreeTypeRepository extends AbstractEntityRepository<IdmTreeType> {
+public interface IdmTreeTypeRepository extends 
+		AbstractEntityRepository<IdmTreeType> {
 	
 	/**
 	 * Finds treeType by code (unique).

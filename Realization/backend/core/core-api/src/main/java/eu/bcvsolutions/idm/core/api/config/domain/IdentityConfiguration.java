@@ -8,8 +8,9 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
- * Configuration for identity
+ * Public configuration for identity
  * 
+ * @see PrivateIdentityConfiguration
  * @author Radek Tomiška
  */	
 public interface IdentityConfiguration extends Configurable {
@@ -46,11 +47,12 @@ public interface IdentityConfiguration extends Configurable {
 	
 	/**
 	 * Creates default identity's contract, when new identity is created
+	 * 
+	 * TODO: move to private #813
 	 */
 	String PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT = 
 			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.create.defaultContract.enabled";
-	boolean DEFAULT_IDENTITY_CREATE_DEFAULT_CONTRACT = true;
-	
+	boolean DEFAULT_IDENTITY_CREATE_DEFAULT_CONTRACT = true;	
 	
 	@Override
 	default String getConfigurableType() {
@@ -80,6 +82,8 @@ public interface IdentityConfiguration extends Configurable {
 	
 	/**
 	 * Returns true, when default contract will be created with new identity
+	 * 
+	 * TODO: move to private #813
 	 * 
 	 * @return
 	 */

@@ -13,6 +13,12 @@ const roleSystemManager = new RoleSystemManager();
 const systemAttributeMappingManager = new SystemAttributeMappingManager();
 const scriptManager = new Managers.ScriptManager();
 
+/**
+ * Attribute mapping can be overriden.
+ *
+ * @author Vít Švanda
+ * @author Radek Tomiška
+ */
 class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -31,6 +37,22 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
     return 'acc:content.role.roleSystemAttributeDetail';
   }
 
+  getNavigationKey() {
+    if (this._isSystemMenu()) {
+      return 'system-roles';
+    }
+    return 'role-systems';
+  }
+
+  _isMenu(menu = 'role') {
+    // TODO: better alghoritm
+    return this.props.location.pathname.lastIndexOf(`/${menu}`, 0) === 0;
+  }
+
+  _isSystemMenu() {
+    return this._isMenu('system');
+  }
+
   componentWillReceiveProps(nextProps) {
     const { attributeId} = nextProps.params;
     if (attributeId && attributeId !== this.props.params.attributeId) {
@@ -40,6 +62,8 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
 
   // Did mount only call initComponent method
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._initComponent(this.props);
   }
 
@@ -58,7 +82,6 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
     } else {
       this.context.store.dispatch(roleSystemAttributeManager.fetchEntity(attributeId));
     }
-    this.selectNavigationItems(['roles', 'role-systems']);
   }
 
   _getIsNew(nextProps) {

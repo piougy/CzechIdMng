@@ -7,26 +7,33 @@ import java.util.List;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+import eu.bcvsolutions.idm.core.api.dto.AbstractComponentDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 
 /**
  * Evaluator dto - definition only
  * 
  * @author Radek Tomiška
  */
+@JsonInclude(Include.NON_NULL)
 @Relation(collectionRelation = "authorizationEvaluators")
-public class AuthorizationEvaluatorDto implements BaseDto {
+public class AuthorizationEvaluatorDto extends AbstractComponentDto {
 
-	private static final long serialVersionUID = -5895458403703525351L;
-	@NotEmpty
-	private String module;
+	private static final long serialVersionUID = 1L;
 	@NotEmpty
 	private String entityType;
 	@NotEmpty
 	private String evaluatorType;
+	/**
+	 * @deprecated @since 8.2.0 use form definition instead
+	 */
+	@Deprecated
 	private List<String> parameters;
-	private String description;
 	private boolean supportsPermissions;
+	private IdmFormDefinitionDto formDefinition;
 	
 	@Override
 	public String getId() {
@@ -36,14 +43,6 @@ public class AuthorizationEvaluatorDto implements BaseDto {
 	@Override
 	public void setId(Serializable id) {
 		evaluatorType = (String) id;	
-	}
-	
-	public String getModule() {
-		return module;
-	}
-	
-	public void setModule(String module) {
-		this.module = module;
 	}
 	
 	public String getEntityType() {
@@ -62,6 +61,10 @@ public class AuthorizationEvaluatorDto implements BaseDto {
 		this.evaluatorType = evaluatorType;
 	}
 	
+	/**
+	 * @deprecated @since 8.2.0 use form definition instead
+	 */
+	@Deprecated
 	public List<String> getParameters() {
 		if (parameters == null) {
 			parameters = new ArrayList<>();
@@ -69,16 +72,12 @@ public class AuthorizationEvaluatorDto implements BaseDto {
 		return parameters;
 	}
 	
+	/**
+	 * @deprecated @since 8.2.0 use form definition instead
+	 */
+	@Deprecated
 	public void setParameters(List<String> parameters) {
 		this.parameters = parameters;
-	}
-	
-	public String getDescription() {
-		return description;
-	}
-	
-	public void setDescription(String description) {
-		this.description = description;
 	}
 	
 	public void setSupportsPermissions(boolean supportsPermissions) {
@@ -87,5 +86,13 @@ public class AuthorizationEvaluatorDto implements BaseDto {
 	
 	public boolean isSupportsPermissions() {
 		return supportsPermissions;
+	}
+	
+	public void setFormDefinition(IdmFormDefinitionDto formDefinition) {
+		this.formDefinition = formDefinition;
+	}
+	
+	public IdmFormDefinitionDto getFormDefinition() {
+		return formDefinition;
 	}
 }

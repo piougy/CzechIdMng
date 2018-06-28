@@ -1,5 +1,4 @@
-import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -13,7 +12,7 @@ const manager = new IdentityManager();
  *
  * @author Radek Tomiška
  */
-class IdentityEav extends Basic.AbstractContent {
+export default class IdentityEav extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -29,7 +28,6 @@ class IdentityEav extends Basic.AbstractContent {
 
   render() {
     const { entityId } = this.props.params;
-    const { _entity, _permissions } = this.props;
     //
     return (
       <Advanced.EavContent
@@ -37,25 +35,7 @@ class IdentityEav extends Basic.AbstractContent {
         formableManager={ manager }
         entityId={ entityId }
         contentKey={ this.getContentKey() }
-        showSaveButton={ manager.canSave(_entity, _permissions) }/>
+        showSaveButton />
     );
   }
 }
-
-IdentityEav.propTypes = {
-  _entity: PropTypes.object,
-  _permissions: PropTypes.arrayOf(PropTypes.string)
-};
-IdentityEav.defaultProps = {
-  _entity: null,
-  _permissions: null
-};
-
-function select(state, component) {
-  return {
-    _entity: manager.getEntity(state, component.params.entityId),
-    _permissions: manager.getPermissions(state, null, component.params.entityId)
-  };
-}
-
-export default connect(select)(IdentityEav);

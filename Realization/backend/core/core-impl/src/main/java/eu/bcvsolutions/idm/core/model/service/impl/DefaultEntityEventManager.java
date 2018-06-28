@@ -30,7 +30,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
@@ -68,9 +67,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
-import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -84,20 +80,21 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 public class DefaultEntityEventManager implements EntityEventManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEntityEventManager.class);
+	private static final ConcurrentHashMap<UUID, UUID> runningOwnerEvents = new ConcurrentHashMap<>();
+	//
 	private final ApplicationContext context;
 	private final ApplicationEventPublisher publisher;
 	private final EnabledEvaluator enabledEvaluator;
 	private final LookupService lookupService;
-	private static final ConcurrentHashMap<UUID, UUID> runningOwnerEvents = new ConcurrentHashMap<>();
 	//
 	@Autowired private IdmEntityEventService entityEventService;
 	@Autowired private IdmEntityEventRepository entityEventRepository;
 	@Autowired private IdmEntityStateService entityStateService;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private SecurityService securityService;
-	@Autowired private NotificationManager notificationManager;
 	@Autowired private EventConfiguration eventConfiguration;
-	
+
+	@Autowired
 	public DefaultEntityEventManager(
 			ApplicationContext context, 	
 			ApplicationEventPublisher publisher,
@@ -187,6 +184,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		for(Entry<String, EntityEventProcessor> entry : processors.entrySet()) {
 			EntityEventProcessor<?> processor = entry.getValue();
 			// entity event processor depends on module - we could not call any processor method
+			// TODO: all processor should be returned - disbaled by filter
 			if (!enabledEvaluator.isEnabled(processor)) {
 				continue;
 			}
@@ -199,6 +197,28 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		}
 		LOG.debug("Returning [{}] registered entity event processors", dtos.size());
 		return dtos;
+	}
+	
+	@Override
+	public EntityEventProcessorDto get(String processorId) {
+		EntityEventProcessor<?> processor = getProcessor(processorId);
+		if (processor == null) {
+			return null;
+		}
+		return toDto(processor);
+	}
+	
+	/**
+	 * Get processor from context by id
+	 * 
+	 * @param processorId
+	 * @return
+	 */
+	@Override
+	public EntityEventProcessor<?> getProcessor(String processorId) {
+		Assert.notNull(processorId);
+		//
+		return (EntityEventProcessor<?>) context.getBean(processorId);
 	}
 
 	@Override
@@ -505,6 +525,26 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		return resurectedEvent;
 	}
 	
+	@Override
+	public void enable(String processorId) {
+		setEnabled(processorId, true);
+	}
+
+	@Override
+	public void disable(String processorId) {
+		setEnabled(processorId, false);
+	}
+
+	@Override
+	public void setEnabled(String processorId, boolean enabled) {
+		setEnabled(getProcessor(processorId), enabled);
+	}
+	
+	private void setEnabled(EntityEventProcessor<?> processor, boolean enabled) {
+		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
+		configurationService.setBooleanValue(enabledPropertyName, enabled);
+	}
+	
 	/**
 	 * Convert processor to dto.
 	 * 
@@ -577,22 +617,23 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			return;
 		}
 		//
+		// TODO: send notification only when event fails
 		// notification - info about registered (asynchronous) processors
-		Map<String, Object> parameters = new LinkedHashMap<>();
-		parameters.put("eventType", entityEvent.getEventType());
-		parameters.put("ownerId", entityEvent.getOwnerId());
-		parameters.put("instanceId", entityEvent.getInstanceId());
-		parameters.put("processors", registeredProcessors
-				.stream()
-				.map(DefaultEntityEventManager.this::toDto)
-				.collect(Collectors.toList()));
-		notificationManager.send(
-				CoreModuleDescriptor.TOPIC_EVENT, 
-				new IdmMessageDto
-					.Builder()
-					.setLevel(NotificationLevel.INFO)
-					.setModel(new DefaultResultModel(CoreResultCode.EVENT_ACCEPTED, parameters))
-					.build());
+//		Map<String, Object> parameters = new LinkedHashMap<>();
+//		parameters.put("eventType", entityEvent.getEventType());
+//		parameters.put("ownerId", entityEvent.getOwnerId());
+//		parameters.put("instanceId", entityEvent.getInstanceId());
+//		parameters.put("processors", registeredProcessors
+//				.stream()
+//				.map(DefaultEntityEventManager.this::toDto)
+//				.collect(Collectors.toList()));
+//		notificationManager.send(
+//				CoreModuleDescriptor.TOPIC_EVENT, 
+//				new IdmMessageDto
+//					.Builder()
+//					.setLevel(NotificationLevel.INFO)
+//					.setModel(new DefaultResultModel(CoreResultCode.EVENT_ACCEPTED, parameters))
+//					.build());
 		//
 		// persist event - asynchronous processing
 		entityEventService.save(entityEvent);
@@ -733,8 +774,9 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 * @param event
 	 * @return
 	 */
-	private boolean isDuplicate(IdmEntityEventDto olderEvent, IdmEntityEventDto event) {
+	protected boolean isDuplicate(IdmEntityEventDto olderEvent, IdmEntityEventDto event) {
 		return Objects.equal(olderEvent.getEventType(), event.getEventType())
+				&& Objects.equal(olderEvent.getParentEventType(), event.getParentEventType())
 				&& Objects.equal(getProperties(olderEvent), getProperties(event));
 	}
 	
@@ -751,7 +793,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		// remove internal event properties needed for processing
 		copiedProperies.remove(EVENT_PROPERTY_EVENT_ID);
 		copiedProperies.remove(EVENT_PROPERTY_EXECUTE_DATE);
-		copiedProperies.remove(EVENT_PROPERTY_PARENT_EVENT_TYPE);
 		copiedProperies.remove(EVENT_PROPERTY_PRIORITY);
 		copiedProperies.remove(EVENT_PROPERTY_SKIP_NOTIFY);
 		copiedProperies.remove(EVENT_PROPERTY_SUPER_OWNER_ID);

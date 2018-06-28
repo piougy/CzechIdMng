@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -167,12 +168,6 @@ public class DefaultSysProvisioningOperationService
 		//
 		// create archived operation
 		provisioningArchiveService.archive(provisioningOperation);	
-		
-		SysProvisioningBatchDto batch = batchService.get(provisioningOperation.getBatch());
-		
-		if (findByBatchId(batch.getId(), null).getNumberOfElements() <= 1) {
-			batchService.delete(batch);
-		}
 		//
 		super.deleteInternal(provisioningOperation);
 	}
@@ -388,6 +383,16 @@ public class DefaultSysProvisioningOperationService
 						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));
 		operation.setResult(new OperationResult.Builder(OperationState.EXECUTED).setModel(resultModel).build());
 		operation = save(operation);
+		//
+		// cleanup next attempt time - batch are not removed
+		SysProvisioningBatchDto batch = DtoUtils.getEmbedded(operation, SysProvisioningOperation_.batch, (SysProvisioningBatchDto) null);
+		if (batch == null) {
+			batch = batchService.get(operation.getBatch());
+		}
+		if (batch.getNextAttempt() != null) {
+			batch.setNextAttempt(null);
+			batch = batchService.save(batch);
+		}
 		//
 		LOG.debug(resultModel.toString());
 		if (securityService.getCurrentId() != null) { // TODO: check account owner

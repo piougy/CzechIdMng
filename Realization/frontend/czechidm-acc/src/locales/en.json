@@ -7,6 +7,15 @@
     "menu" : {
     }
   },
+  "component" : {
+    "advanced": {
+      "EavForm": {
+        "faceType": {
+          "SYSTEM-SELECT": "System select (SelectBox)"
+        }
+      }
+    }
+  },
   "content": {
     "dashboard": {
     },
@@ -141,7 +150,7 @@
         },
         "help": {
           "header": "Define a custom synchronization filter",
-          "body": "You can define a custom filter simply by selecting the <strong> Filter by attribute </strong> attribute according to which we want to search and the corresponding operations (<strong> Filter operations </strong>). <br /> <br /> If you need to create a more complex filtering criterion, you can use this script. <br /> The example below shows the situation where we want to filter by the selected attribute and operation (it enters the script as <strong > filter </strong>), but we want to limit the results to another condition. In this case, so that all results must have the attribute \"<strong>lastname</strong> \" equal to \"<strong>Doe</strong>\". <br /> <br /> <pre> import eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder; <br /> import eu.bcvsolutions.idm.ic.api.IcAttribute; <br /> import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl; <br /> <br /> IcAttribute attr = new IcAttributeImpl (\"lastname\", \"Doe\"); <br /> <br /> return IcFilterBuilder.and ( filter, IcFilterBuilder.equalTo (attr)); </pre> <h2> IcFilterBuilder provides operations </h2> <ul> <li>IcFilterBuilder.equalTo(...)</li> <li>IcFilterBuilder.contains(...)</li> <li>IcFilterBuilder.startsWith(...)</li> <li>IcFilterBuilder.endsWith(...)</li> <li>IcFilterBuilder.or(...)</li> <li>IcFilterBuilder.and(...)</li> <li>IcFilterBuilder.not(...)</li> </ul> <div> The output of this script must be <strong>IcFilter</strong>. If <strong>null</strong> is output, then the filter will not be applied and synchronization will be run over all accounts. </div>"
+          "body": "You can define a custom filter simply by selecting the <strong> Filter by attribute </strong> attribute according to which we want to search and the corresponding operations (<strong> Filter operations </strong>). <br /> <br /> If you need to create a more complex filtering criterion, you can use this script. <br /> The example below shows the situation where we want to filter by the selected attribute and operation (it enters the script as <strong > filter </strong>), but we want to limit the results to another condition. In this case, so that all results must have the attribute \"<strong>lastname</strong> \" (by schema) equal to \"<strong>Doe</strong>\". <br /> <br /> <pre> import eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder; <br /> import eu.bcvsolutions.idm.ic.api.IcAttribute; <br /> import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl; <br /> <br /> IcAttribute attr = new IcAttributeImpl (\"lastname\", \"Doe\"); <br /> <br /> return IcFilterBuilder.and ( filter, IcFilterBuilder.equalTo (attr)); </pre> <h2> IcFilterBuilder provides operations </h2> <ul> <li>IcFilterBuilder.equalTo(...)</li> <li>IcFilterBuilder.contains(...)</li> <li>IcFilterBuilder.startsWith(...)</li> <li>IcFilterBuilder.endsWith(...)</li> <li>IcFilterBuilder.or(...)</li> <li>IcFilterBuilder.and(...)</li> <li>IcFilterBuilder.not(...)</li> </ul> <div> The output of this script must be <strong>IcFilter</strong>. If <strong>null</strong> is output, then the filter will not be applied and synchronization will be run over all accounts. </div>"
         },
         "tabs": {
           "basicConfiguration": {
@@ -344,6 +353,10 @@
           "success": "IdM attribute [{{name}}] successfully created",
           "header": "New IdM attribute"
         }
+      },
+      "roles": {
+        "title" : "Roles",
+        "header" : "Roles <small>Role assigns account in systems</small>"
       }
     },
     "role": {
@@ -358,6 +371,16 @@
         },
         "save": {
           "success": "System [{{system}}] for role {{role}} successfully saved"
+        },
+        "filter": {
+          "system": {
+            "label": "System",
+            "placeholder": "System"
+          },
+          "role": {
+            "label": "Role",
+            "placeholder": "Role"
+          }
         }
       },
       "roleSystemDetail": {
@@ -448,6 +471,27 @@
       }
     },
     "contract": {
+      "accounts": {
+        "header": "Accounts in system",
+        "title": "Accounts",
+        "edit": {
+          "header": "Account details in system"
+        },
+        "create": {
+          "header": "New account in system"
+        },
+        "save": {
+          "success": "Account in system successfully saved"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifier",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
+    "contract-slice": {
       "accounts": {
         "header": "Accounts in system",
         "title": "Accounts",
@@ -572,6 +616,10 @@
         "success": "Recipient successfully created"
       }
     },
+    "systemRoles": {
+      "title" : "Roles",
+      "header": "Roles <small>connected roles</small>"
+    },
     "passwordPolicy": {
     "system": {
       "tab": "Systems",
@@ -641,14 +689,21 @@
       "type": "Assign type",
       "role": "Role",
       "system": "System",
-      "systemMapping": "Mapping"
+      "systemMapping": "Mapping",
+      "forwardAccountManagemen": {
+        "label": "Forward account management",
+        "help": "If checked, then an account on this system is created even though the assignment of this role to the user will be valid in the future."
+      }
     },
     "SystemEntity": {
       "_type": "Entity in system",
       "entityType": "Entity type",
       "uid": "Identifier in system",
       "system": "Connected system",
-      "wish": "Wish",
+      "wish": {
+        "label": "Wish",
+        "help": "If <strong>wish</strong> is checked, then IdM doesn't know about entity on target system yet (not provisioned or linked)."
+      },
       "attributes": "Attributes on the target system"
     },
     "SchemaObjectClass": {
@@ -772,10 +827,11 @@
     "_type": "Account in system",
     "accountType": "Account type",
     "system": "System",
-    "systemEntity": "Linked entity in system",
+    "systemEntity": "Entity (system)",
     "uid": "Account identifier",
     "inProtection": "Is protected from delete",
-    "endOfProtection": "Protected until"
+    "endOfProtection": "Protected until",
+    "targetEntity": "Entity (IdM)"
   },
     "IdentityAccount": {
       "_type": "Identity account in system",
@@ -999,7 +1055,8 @@
       "ROLE": "Role",
       "TREE": "Tree",
       "ROLE_CATALOGUE": "Role catalogue",
-      "CONTRACT": "Identity contract"
+      "CONTRACT": "Identity contract",
+      "CONTRACT_SLICE": "Contract time slices"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -1112,8 +1169,162 @@
       "SYNCHRONIZATION": "Synchronization",
       "TREEACCOUNT": "Tree accounts",
       "IDENTITYACCOUNT": "Identity accounts",
-      "CONTRACTACCOUNT": "Contractual relationships",
+      "CONTRACTACCOUNT": "Accounts for contractual relationships",
+      "CONTRACTSLICEACCOUNT": "Accounts for time slices of contractual relationships",
       "PROVISIONINGBREAK": "Provisioning brake"
+    }
+  },
+  "eav": {
+    "eu-bcvsolutions-idm-acc-entity-syssystem": {
+      "connid-net-tirasa-connid-bundles-db-table-databasetableconnector-net-tirasa-connid-bundles-db-table-2-2-4": {
+        "attributes": {
+          "quoting": {
+            "label": "Name Quoting",
+            "help": "Select whether database column names for this resource should be quoted, and the quoting characters. By default, database column names are not quoted (None). For other selections (Single, Double, Back, or Brackets), column names will appear between single quotes, double quotes, back quotes, or brackets in the SQL generated to access the database.",
+            "placeholder": ""
+          },
+          "host": {
+            "label": "Host",
+            "help": "Enter the name of the host where the database is running.",
+            "placeholder": ""
+          },
+          "port": {
+            "label": "Port",
+            "help": "Enter the TCP port number the database server is listening on.",
+            "placeholder": ""
+          },
+          "user": {
+            "label": "User",
+            "help": "Enter the name of the mandatory Database user with permission to account table.",
+            "placeholder": ""
+          },
+          "password": {
+            "label": "User Password",
+            "help": "Enter a user account password that has permission to access accounts table.",
+            "placeholder": ""
+          },
+          "database": {
+            "label": "Database",
+            "help": "Enter the name of the database on the database server that contains the table.",
+            "placeholder": ""
+          },
+          "table": {
+            "label": "Table",
+            "help": "Enter the name of the table in the database that contains the accounts.",
+            "placeholder": ""
+          },
+          "keycolumn": {
+            "label": "Key Column",
+            "help": "This mandatory column value will be used as the unique identifier for rows in the table.",
+            "placeholder": ""
+          },
+          "passwordcolumn": {
+            "label": "Password Column",
+            "help": "Enter the name of the column in the table that will hold the password values. If empty, no validation on resource and passwords are activated.",
+            "placeholder": ""
+          },
+          "statuscolumn": {
+            "label": "Status Column",
+            "help": "Enter the name of the column in the table that will hold the status values. If empty enabled and disabled operation wont be performed.",
+            "placeholder": ""
+          },
+          "disabledstatusvalue": {
+            "label": "Disabled Status Value",
+            "help": "Enter the value for disabled status. Default is \"false\".",
+            "placeholder": ""
+          },
+          "enabledstatusvalue": {
+            "label": "Enabled Status Value",
+            "help": "Enter the value for enabled status. Default is \"true\".",
+            "placeholder": ""
+          },
+          "defaultstatusvalue": {
+            "label": "Default Status Value",
+            "help": "Enter the value for status in case of status not specified. Default is \"true\".",
+            "placeholder": ""
+          },
+          "jdbcdriver": {
+            "label": "JDBC Driver",
+            "help": "Specify the JDBC Driver class name. Oracle is oracle.jdbc.driver.OracleDriver. MySQL is org.gjt.mm.mysql.Driver. Could be empty if datasource is provided.",
+            "placeholder": ""
+          },
+          "jdbcurltemplate": {
+            "label": "JDBC Connection URL",
+            "help": "Specify the JDBC Driver Connection URL. Oracle template is jdbc:oracle:thin:@[host]:[port(1521)]:[DB]. MySQL template is jdbc:mysql://[host]:[port(3306)]/[db], for more info, read the JDBC driver documentation. Could be empty if datasource is provided.",
+            "placeholder": ""
+          },
+          "enableemptystring": {
+            "label": "Enable writing empty string",
+            "help": "Select to enable support for writing an empty strings, instead of a NULL value, in character based columns defined as not-null in the table schema. This option does not influence the way strings are written for Oracle based tables. Default is \"false\".",
+            "placeholder": ""
+          },
+          "rethrowallsqlexceptions": {
+            "label": "Rethrow all SQLExceptions",
+            "help": "If this is not checked, SQL statements which throw SQLExceptions with a 0 ErrorCode will be have the exception caught and suppressed. Check it to have exceptions with 0 ErrorCodes rethrown. Default is \"true\".",
+            "placeholder": ""
+          },
+          "nativetimestamps": {
+            "label": "Native Timestamps ",
+            "help": "Select to retrieve Timestamp data type of the columns in java.sql.Timestamp format from the database table. Default is \"false\".",
+            "placeholder": ""
+          },
+          "allnative": {
+            "label": "All native",
+            "help": "Select to retrieve all data type of the columns in a native format from the database table. Default is \"false\".",
+            "placeholder": ""
+          },
+          "validconnectionquery": {
+            "label": "Validate Connection Query",
+            "help": "There can be specified the check connection alive query. If empty, default implementation will test it using the switch on/off the autocommit. Some select 1 from dummy table could be more efficient.",
+            "placeholder": ""
+          },
+          "changelogcolumn": {
+            "label": "Change Log Column (Sync)",
+            "help": "The change log column store the latest change time. Providing this value the Sync capabilities are activated.",
+            "placeholder": ""
+          },
+          "datasource": {
+            "label": "Datasource Path",
+            "help": "Enter the JDBC Data Source Name/Path to connect to the Oracle server. If specified, connector will only try to connect using Datasource and ignore other resource parameters specified. An the example value is: <CODE>jdbc/SampleDataSourceName</CODE>",
+            "placeholder": ""
+          },
+          "jndiproperties": {
+            "label": "Initial JNDI Properties",
+            "help": "Could be empty or enter the JDBC JNDI Initial context factory, context provider in a format: key = value.",
+            "placeholder": ""
+          },
+          "cipheralgorithm": {
+            "label": "Password cipher algorithm",
+            "help": "Cipher algorithm used to encode password before to store it onto the database table. Specify one of the values among CLEARTEXT,AES, MD5, SHA1, SHA256 or a custom implementation identified by its class name. Default is \"CLEARTEXT\".",
+            "placeholder": ""
+          },
+          "pwdencodetouppercase": {
+            "label": "Force password encoding to upper case",
+            "help": "Force password encoding to upper case. Default is \"false\".",
+            "placeholder": ""
+          },
+          "cipherkey": {
+            "label": "Password cipher key",
+            "help": "Specify key in case of reversible algorithm.",
+            "placeholder": ""
+          },
+          "pwdencodetolowercase": {
+            "label": "Force password encoding to lower case",
+            "help": "Force password encoding to lower case. Default is \"false\".",
+            "placeholder": ""
+          },
+          "retrievepassword": {
+            "label": "Retrieve password",
+            "help": "Specify if password must be retrieved by default. Default is \"false\".",
+            "placeholder": ""
+          },
+          "passwordcharset": {
+            "label": "Resource Password Charset",
+            "help": "Specify Character set used by resource to encode clear text password. Default is \"UTF-8\".",
+            "placeholder": ""
+          }
+        }
+      }
     }
   },
   "error": {
@@ -1340,6 +1551,102 @@
     "SYSTEM_MAPPING_VALIDATION": {
       "title": "Validation of system mapping {{name}} was not successful",
       "message": "Validation of system mapping {{name}} was not successful. Check this mapping settings."
+    },
+    "PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE": {
+      "title": "Provisioning does not supports this type",
+      "message": "Provisioning does not supports this entity type [{{entityType}}]"
+    },
+    "ACCOUNT_CANNOT_BE_READ_FROM_TARGET": {
+      "title": "Account cannot be read",
+      "message": "Account [{{account}}] cannot be read from the end system [{{system}}]!"
+    },
+    "PROVISIONING_NEW_PASSWORD_FOR_ACCOUNT": {
+      "title": "Password was changed",
+      "message": "For object wth UID [{{uid}}] on system [{{system}}] password was set: [{{password}}]."
+    },
+    "AUTHENTICATION_AGAINST_SYSTEM_FAILED": {
+      "title": "Authentication failed",
+      "message": "Authentication of user [{{user}}] on system [{{system}}] failed."
+    },
+    "AUTHENTICATION_AUTHENTICATION_ATTRIBUTE_DONT_SET": {
+      "title": "Authentication failed",
+      "message": "Can not authenticate to system [{{system}}], because authentication attribute is not set."
+    },
+    "AUTHENTICATION_USERNAME_DONT_EXISTS": {
+      "title": "Authentication failed",
+      "message": "User [{{user}}] on system [{{system}}] not found."
+    },
+    "CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND": {
+      "title": "Key not found",
+      "message": "Connector key for system [{{system}}] not found."
+    },
+    "CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND": {
+      "title": "Schema not found",
+      "message": "Connector schema for system [{{system}}] not found."
+    },
+    "PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND": {
+      "title": "Schema not found",
+      "message": "Schema attribute [{{attr}}] not found."
+    },
+    "PROVISIONING_SCRIPT_CAN_BE_ACC_CREATED_MUST_RETURN_BOOLEAN": {
+      "title": "Wrong return value",
+      "message": "Script 'Can be account created' on system [{{system}}] must return 'boolean' value."
+    },
+    "SYNCHRONIZATION_CORRELATION_BAD_VALUE": {
+      "title": "Wrong attribute value",
+      "message": "Synchronization - value [{{value}}] for find correlation attribute can't be converted."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL": {
+      "title": "Wrong attribute value",
+      "message": "IDM attribute [{{attr}}] can not be null."
+    },
+    "SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST": {
+      "title": "Mapped attribute not exists",
+      "message": "Mapped attribute for IdM field [{{property}}] must exists in system mapping."
+    },
+    "SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE": {
+      "title": "Wrong filter value",
+      "message": "Filter value for tree root is null, but it must be Boolean type."
+    },
+    "PROVISIONING_GENERATED_UID_IS_NULL": {
+      "title": "UID can not be null",
+      "message": "Generated UID is null for system [{{system}}]. UID of account must be String type."
+    },
+    "PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "Account for parent tree node [{{node}}] not found."
+    },
+    "PROVISIONING_TREE_TOO_MANY_PARENT_ACCOUNTS": {
+      "title": "Too many accounts for parent node",
+      "message": "Too many accounts for parent node [{{node}}]. Excepted only one for same system."
+    },
+    "SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND": {
+      "title": "Attribute not found",
+      "message": "IDM attribute [{{attr}}] not found."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_NOT_GET": {
+      "title": "Can not get attribute",
+      "message": "Can not get IdM attribute [{{attr}}] for entity [{{entity}}]."
+    },
+    "SYNCHRONIZATION_IDM_FIELD_NOT_SET": {
+      "title": "Can not set attribute",
+      "message": "Can not set IdM attribute [{{attr}}] for entity [{{entity}}]."
+    },
+    "SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "No tree account for parent UID: [{{parentUid}}] on system [{{systemId}}] with acc account: [{{parentAccount}}] was found."
+    },
+    "SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "No parent account for parent UID: [{{parentUid}}] on system [{{systemId}}] was found."
+    },
+    "PROVISIONING_BREAK_RECIPIENT_CONFLICT": {
+      "title": "More attributes for recipient",
+      "message": "There is setting in role and identity for recipient. Allowed is only single setting."
+    },
+    "PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING": {
+      "title": "Mapping attribute is duplicated",
+      "message": "Schema attribute can be mapped only once (in provisioning mapping)!"
     }
   },
   "processor": {

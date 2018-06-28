@@ -119,7 +119,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       showAddButton,
       showDetailButton,
       showFilter,
-      deleteEnabled,
       showRowSelection,
       rendered,
       treeType
@@ -151,6 +150,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={uiKey}
           manager={identityManager}
+          useBackendBulkAction
           showRowSelection={showRowSelection && (SecurityManager.hasAuthority('IDENTITY_UPDATE') || SecurityManager.hasAuthority('IDENTITY_DELETE'))}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -191,7 +191,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                       ]}/>
                   </Basic.Col>
                 </Basic.Row>
-                <Basic.Row className="last">
+                <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.BooleanSelectBox
                       ref="disabled"
@@ -204,8 +204,18 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="state"
-                      placeholder={ this.i18n('entity.Identity.state.help') }
+                      placeholder={ this.i18n('filter.state.placeholder') }
                       enum={ IdentityStateEnum }/>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 12 }>
+                    <Advanced.Filter.CreatableSelectBox
+                      ref="identifiers"
+                      manager={identityManager}
+                      useCheck
+                      placeholder={this.i18n('filter.identifiers.placeholder')}
+                      tooltip={this.i18n('filter.identifiers.tooltip')}/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -214,13 +224,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           filterOpened={ filterOpened }
           showFilter={ showFilter }
           forceSearchParameters={_forceSearchParameters}
-          actions={
-            [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), rendered: SecurityManager.hasAuthority('IDENTITY_DELETE') || !deleteEnabled },
-              { value: 'activate', niceLabel: this.i18n('action.activate.action'), action: this.onActivate.bind(this), rendered: SecurityManager.hasAuthority('IDENTITY_ADMIN') },
-              { value: 'deactivate', niceLabel: this.i18n('action.deactivate.action'), action: this.onActivate.bind(this), rendered: SecurityManager.hasAuthority('IDENTITY_ADMIN') }
-            ]
-          }
           buttons={
             [
               <Basic.Button
@@ -264,12 +267,12 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="_links.self.href" face="text" rendered={ false }/>
           <Advanced.ColumnLink to="identity/:username/profile" property="username" width="20%" sort face="text" rendered={ _.includes(columns, 'username') }/>
           <Advanced.Column property="lastName" sort face="text" rendered={ _.includes(columns, 'lastName') }/>
-          <Advanced.Column property="firstName" width="10%" face="text" rendered={ _.includes(columns, 'firstName') }/>
-          <Advanced.Column property="externalCode" width="10%" face="text" rendered={ _.includes(columns, 'externalCode') }/>
+          <Advanced.Column property="firstName" sort width="10%" face="text" rendered={ _.includes(columns, 'firstName') }/>
+          <Advanced.Column property="externalCode" sort width="10%" face="text" rendered={ _.includes(columns, 'externalCode') }/>
           <Advanced.Column property="email" width="15%" face="text" sort rendered={_ .includes(columns, 'email') }/>
           <Advanced.Column property="disabled" face="bool" sort width="100px" rendered={ _.includes(columns, 'disabled') }/>
           <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width="100px" rendered={ _.includes(columns, 'state') }/>
-          <Advanced.Column property="description" face="text" rendered={ _.includes(columns, 'description') } maxLength={ 30 }/>
+          <Advanced.Column property="description" sort face="text" rendered={ _.includes(columns, 'description') } maxLength={ 30 }/>
         </Advanced.Table>
       </div>
     );
@@ -322,7 +325,7 @@ IdentityTable.propTypes = {
 };
 
 IdentityTable.defaultProps = {
-  columns: ['username', 'lastName', 'firstName', 'externalCode', 'email', 'disabled', 'state', 'description'],
+  columns: ['username', 'lastName', 'firstName', 'externalCode', 'email', 'state', 'description'],
   filterOpened: false,
   showAddButton: true,
   showDetailButton: true,

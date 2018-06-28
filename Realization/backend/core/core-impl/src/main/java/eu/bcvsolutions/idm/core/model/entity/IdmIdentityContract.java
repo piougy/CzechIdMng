@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -39,10 +40,18 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Entity
 @Table(name = "idm_identity_contract", indexes = {
 		@Index(name = "idx_idm_identity_contract_idnt", columnList = "identity_id"),
-		@Index(name = "idx_idm_identity_contract_wp", columnList = "work_position_id")})
-public class IdmIdentityContract extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable {
+		@Index(name = "idx_idm_identity_contract_wp", columnList = "work_position_id"),
+		@Index(name = "idx_idm_contract_ext_id", columnList = "external_id")})
+public class IdmIdentityContract 
+		extends AbstractEntity 
+		implements ValidableEntity, FormableEntity, Disableable, AuditSearchable, ExternalIdentifiable {
 
 	private static final long serialVersionUID = 328041550861866181L;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
+	private String externalId;
 
 	@Audited
 	@ManyToOne(optional = false)
@@ -100,13 +109,13 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@OneToMany(mappedBy = "identityContract")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<IdmIdentityRole> roles; // only for hibernate mappnig - we dont want lazy lists (many roles)
+	private List<IdmIdentityRole> roles; // only for hibernate mapping - we don't want lazy lists (many roles)
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "identityContract")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<IdmContractGuarantee> guarantees; // only for hibernate mappnig - we dont want lazy lists (many roles)
+	private List<IdmContractGuarantee> guarantees; // only for hibernate mapping - we don't want lazy lists (many roles)
 	
 	public IdmIdentityContract() {
 	}
@@ -251,5 +260,15 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	public ContractState getState() {
 		return state;
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
 	}
 }

@@ -150,4 +150,12 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 */
 	String getUidValueFromResource(List<IcAttribute> icAttributes, List<SysSystemAttributeMappingDto> mappedAttributes,
 			SysSystemDto system);
+
+	/**
+	 * Validation. If validation does not pass, then runtime exception is throw.
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	void validate(SysSystemAttributeMappingDto dto, SysSystemMappingDto systemMappingDto);
 }

@@ -38,6 +38,9 @@ public interface ConfigurationService {
 	// datetime format
 	String PROPERTY_APP_DATETIME_FORMAT = IDM_PUBLIC_PROPERTY_PREFIX + "app.format.datetime";
 	String DEFAULT_APP_DATETIME_FORMAT = "dd.MM.yyyy HH:mm";
+	// datetime with seconds format
+	String PROPERTY_APP_DATETIME_WITH_SECONDS_FORMAT = IDM_PUBLIC_PROPERTY_PREFIX + "app.format.datetimeseconds";
+	String DEFAULT_APP_DATETIME_WITH_SECONDS_FORMAT = "dd.MM.yyyy HH:mm:ss";
 	//
 	// common properties
 	String PROPERTY_ORDER = "order";
@@ -240,4 +243,11 @@ public interface ConfigurationService {
 	 * @return
 	 */
 	String getDateTimeFormat();
+	
+	/**
+	 * Returns global datetime (with seconds) format on BE. Used in notification templates, logs, etc.
+	 * 
+	 * @return
+	 */
+	String getDateTimeSecondsFormat();
 }

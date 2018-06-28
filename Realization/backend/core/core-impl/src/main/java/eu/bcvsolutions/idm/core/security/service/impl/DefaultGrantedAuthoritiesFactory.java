@@ -78,7 +78,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	@Override
 	@Transactional(readOnly = true)
 	public Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(UUID identityId) {
-		return getGrantedAuthoritiesForValidRoles(identityId, identityRoleService.findValidRole(identityId, null).getContent());
+		return getGrantedAuthoritiesForValidRoles(identityId, identityRoleService.findValidRoles(identityId, null).getContent());
 	}
 	
 	@Override
@@ -90,7 +90,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 			.filter(EntityUtils::isValid) // valid identity role
 			.filter(ir -> { // valid role's contract
 				// TODO: jpa metamodel generation in unit tests
-				IdmIdentityContractDto contract = DtoUtils.getEmbedded(ir, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT, IdmIdentityContractDto.class);
+				IdmIdentityContractDto contract = DtoUtils.getEmbedded(ir, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT);
 				return contract.isValid() && contract.getState() != ContractState.EXCLUDED;
 			})
 			.forEach(identityRole -> {

@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.LocalDateTime;
@@ -41,20 +39,9 @@ import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
@@ -67,9 +54,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
@@ -79,9 +63,6 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
@@ -100,24 +81,32 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAtt
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
-import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component
 public class ContractSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmIdentityContractDto>
 		implements SynchronizationEntityExecutor {
 
-	private final IdmIdentityContractService contractService;
-	private final AccContractAccountService contractAccoutnService;
-	private final IdmContractGuaranteeService guaranteeService;
-	private final IdmTreeNodeService treeNodeService;
-	private final LookupService lookupService;
-	private final LongRunningTaskManager longRunningTaskManager;
-	private final SchedulerManager schedulerService;
-	private final IdmLongRunningTaskService longRunningTaskService;
-	private final IdmScheduledTaskService scheduledTaskService;
-	private final IdmConfigurationService configurationService;
+	@Autowired
+	private IdmIdentityContractService contractService;
+	@Autowired
+	private AccContractAccountService contractAccoutnService;
+	@Autowired
+	private IdmContractGuaranteeService guaranteeService;
+	@Autowired
+	private IdmTreeNodeService treeNodeService;
+	@Autowired
+	private LookupService lookupService;
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
+	@Autowired
+	private SchedulerManager schedulerService;
+	@Autowired
+	private IdmLongRunningTaskService longRunningTaskService;
+	@Autowired
+	private IdmScheduledTaskService scheduledTaskService;
+	@Autowired
+	private IdmConfigurationService configurationService;
 
 	public final static String CONTRACT_STATE_FIELD = "state";
 	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
@@ -125,51 +114,6 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	public final static String CONTRACT_WORK_POSITION_FIELD = "workPosition";
 	public final static String SYNC_CONTRACT_FIELD = "sync_contract";
 	public final static String DEFAULT_TASK = "Default";
-
-	@Autowired
-	public ContractSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
-			SysSystemAttributeMappingService attributeHandlingService,
-			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
-			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
-			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
-			FormService formService, IdmIdentityContractService contractService,
-			AccContractAccountService contractAccoutnService, SysSyncItemLogService syncItemLogService,
-			EntityEventManager entityEventManager, GroovyScriptService groovyScriptService,
-			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
-			SysSystemMappingService systemMappingService, SysSchemaObjectClassService schemaObjectClassService,
-			SysSchemaAttributeService schemaAttributeService, LookupService lookupService,
-			IdmContractGuaranteeService guaranteeService, IdmTreeNodeService treeNodeService,
-			LongRunningTaskManager longRunningTaskManager, SchedulerManager schedulerService,
-			IdmLongRunningTaskService longRunningTaskService, IdmScheduledTaskService scheduledTaskService,
-			IdmConfigurationService configurationService) {
-		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
-				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
-				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager, systemMappingService, schemaObjectClassService,
-				schemaAttributeService);
-		//
-		Assert.notNull(contractService, "Contract service is mandatory!");
-		Assert.notNull(contractAccoutnService, "Contract-account service is mandatory!");
-		Assert.notNull(lookupService, "Lookup service is mandatory!");
-		Assert.notNull(guaranteeService, "Contract guarantee service is mandatory!");
-		Assert.notNull(treeNodeService, "Tree node service is mandatory!");
-		Assert.notNull(longRunningTaskManager, "Long runing task manager is mandatory!");
-		Assert.notNull(schedulerService, "Scheduler service is mandatory!");
-		Assert.notNull(longRunningTaskService, "LRT service is mandatory!");
-		Assert.notNull(scheduledTaskService, "Scheduled task service is mandatory!");
-		Assert.notNull(configurationService, "Configuration service is mandatory!");
-		//
-		this.contractService = contractService;
-		this.contractAccoutnService = contractAccoutnService;
-		this.lookupService = lookupService;
-		this.guaranteeService = guaranteeService;
-		this.treeNodeService = treeNodeService;
-		this.longRunningTaskManager = longRunningTaskManager;
-		this.schedulerService = schedulerService;
-		this.longRunningTaskService = longRunningTaskService;
-		this.scheduledTaskService = scheduledTaskService;
-		this.configurationService = configurationService;
-	}
 
 	@Override
 	protected SynchronizationContext validate(UUID synchronizationConfigId) {
@@ -196,59 +140,30 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
 		log = super.syncCorrectlyEnded(log, context);
 		log = synchronizationLogService.save(log);
-		
+
 		if (getConfig(context).isStartOfHrProcesses()) {
 			// start all HR process with skip automatic role recalculation
 			// Enable contracts task
 			log = executeHrProcess(log, new HrEnableContractProcess(true));
-			
+
 			// End contracts task
 			log = executeHrProcess(log, new HrEndContractProcess(true));
-			
+
 			// Exclude contracts task
 			log = executeHrProcess(log, new HrContractExclusionProcess(true));
 		} else {
-			log.addToLog(MessageFormat.format(
-					"Start HR processes contracts (after sync) isn't allowed [{0}]",
+			log.addToLog(MessageFormat.format("Start HR processes contracts (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
 		}
-		
+
 		if (getConfig(context).isStartAutoRoleRec()) {
 			log = executeAutomaticRoleRecalculation(log);
-		} else { 
-			log.addToLog(MessageFormat.format(
-					"Start automatic role recalculation (after sync) isn't allowed [{0}]",
+		} else {
+			log.addToLog(MessageFormat.format("Start automatic role recalculation (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
 		}
-		
+
 		return log;
-	}
-
-
-	/**
-	 * Call provisioning for given account
-	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmIdentityContractDto entity = null;
-		if (entityId != null) {
-			entity = contractService.get(entityId);
-		}
-		if (entity == null) {
-			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-		// Call provisioning for this entity
-		callProvisioningForEntity(entity, entityType, logItem);
 	}
 
 	/**
@@ -261,10 +176,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected void callProvisioningForEntity(IdmIdentityContractDto entity, SystemEntityType entityType,
 			SysSyncItemLogDto logItem) {
-		addToItemLog(logItem,
-				MessageFormat.format(
-						"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
-						entity.getId(), entity.getPosition()));
+		addToItemLog(logItem, MessageFormat.format(
+				"Call provisioning (process IdentityContractEvent.UPDATE) for contract ({0}) with position ({1}).",
+				entity.getId(), entity.getPosition()));
 		IdentityContractEvent event = new IdentityContractEvent(IdentityContractEventType.UPDATE, entity);
 		// We do not want execute HR processes for every contract. We need start
 		// them for every identity only once.
@@ -272,7 +186,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// sync finished (by using dependent scheduled task)!
 		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
 		//
-		// We don't want recalculate automatic role by attribute recalculation for every contract.
+		// We don't want recalculate automatic role by attribute recalculation for every
+		// contract.
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
@@ -307,10 +222,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			// We will remove contract account, but without delete connected
 			// account
 			contractAccoutnService.delete(entityAccount, false);
-			addToItemLog(logItem,
-					MessageFormat.format(
-							"Contract-account relation deleted (without call delete provisioning) (contract id: {0}, contract-account id: {1})",
-							entityAccount.getContract(), entityAccount.getId()));
+			addToItemLog(logItem, MessageFormat.format(
+					"Contract-account relation deleted (without call delete provisioning) (contract id: {0}, contract-account id: {1})",
+					entityAccount.getContract(), entityAccount.getId()));
 
 		});
 		return;
@@ -370,6 +284,21 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		return dto;
 	}
 
+	/**
+	 * Check if is supported provisioning for given entity type.
+	 * 
+	 * @param entityType
+	 * @param logItem
+	 * @return
+	 */
+	@Override
+	protected boolean isProvisioningImplemented(SystemEntityType entityType, SysSyncItemLogDto logItem) {
+		// Contract does not supports provisioning, but we need publish 'save' event,
+		// because identity provisioning still should be executed.
+		return true;
+
+	}
+
 	@Override
 	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes,
 			SynchronizationContext context) {
@@ -397,10 +326,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					UUID defaultNode = ((SysSyncContractConfigDto) context.getConfig()).getDefaultTreeNode();
 					IdmTreeNodeDto node = (IdmTreeNodeDto) lookupService.lookupDto(IdmTreeNodeDto.class, defaultNode);
 					if (node != null) {
-						context.getLogItem()
-								.addToLog(MessageFormat.format(
-										"Warning! - None workposition was defined for this realtion, we use default workposition [{0}]!",
-										node.getCode()));
+						context.getLogItem().addToLog(MessageFormat.format(
+								"Warning! - None workposition was defined for this realtion, we use default workposition [{0}]!",
+								node.getCode()));
 						return node.getId();
 					}
 				}
@@ -500,11 +428,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			IdmTreeNodeDto node = (IdmTreeNodeDto) lookupService.lookupDto(IdmTreeNodeDto.class, (Serializable) value);
 
 			if (node != null) {
-				IdmTreeTypeDto treeTypeDto = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType, IdmTreeTypeDto.class);
-				context.getLogItem()
-						.addToLog(MessageFormat.format(
-								"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
-								value, node.getCode(), treeTypeDto.getCode()));
+				IdmTreeTypeDto treeTypeDto = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType);
+				context.getLogItem().addToLog(MessageFormat.format(
+						"Work position - One node [{1}] (in tree type [{2}]) was found directly by transformed value [{0}]!",
+						value, node.getCode(), treeTypeDto.getCode()));
 				return node;
 			}
 			context.getLogItem().addToLog(MessageFormat
@@ -513,17 +440,15 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				// Find by code in default tree type
 				SysSyncContractConfigDto config = this.getConfig(context);
 				if (config.getDefaultTreeType() == null) {
-					context.getLogItem()
-							.addToLog(MessageFormat.format(
-									"Warning - Work position - we cannot finding node by code [{0}], because default tree node is not set (in sync configuration)!",
-									value));
+					context.getLogItem().addToLog(MessageFormat.format(
+							"Warning - Work position - we cannot finding node by code [{0}], because default tree node is not set (in sync configuration)!",
+							value));
 					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 							context.getLog(), context.getActionLogs());
 					return null;
 				}
 				IdmTreeNodeFilter treeNodeFilter = new IdmTreeNodeFilter();
-				IdmTreeTypeDto defaultTreeType = DtoUtils.getEmbedded(config, SysSyncContractConfig_.defaultTreeType,
-						IdmTreeTypeDto.class);
+				IdmTreeTypeDto defaultTreeType = DtoUtils.getEmbedded(config, SysSyncContractConfig_.defaultTreeType);
 				treeNodeFilter.setTreeTypeId(config.getDefaultTreeType());
 				treeNodeFilter.setCode((String) value);
 				context.getLogItem()
@@ -537,15 +462,6 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 							context.getLog(), context.getActionLogs());
 					return null;
-				} else if (nodes.size() > 1) {
-					context.getLogItem()
-							.addToLog(MessageFormat.format(
-									"Warning - Work position - more then one [{0}] node found for code [{1}]!", value,
-									nodes.size()));
-					this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
-							context.getLog(), context.getActionLogs());
-					return null;
-
 				} else {
 					context.getLogItem().addToLog(MessageFormat.format(
 							"Work position - One node [{1}] was found for code [{0}]!", value, nodes.get(0).getId()));
@@ -553,10 +469,9 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				}
 			}
 		} else {
-			context.getLogItem()
-					.addToLog(MessageFormat.format(
-							"Warning! - Work position cannot be found, because transformed value [{0}] is not Serializable!",
-							value));
+			context.getLogItem().addToLog(MessageFormat.format(
+					"Warning! - Work position cannot be found, because transformed value [{0}] is not Serializable!",
+					value));
 			this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 					context.getLog(), context.getActionLogs());
 		}
@@ -593,7 +508,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// sync finished (by using dependent scheduled task)!
 		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
 		//
-		// We don't want recalculate automatic role by attribute recalculation for every contract.
+		// We don't want recalculate automatic role by attribute recalculation for every
+		// contract.
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
@@ -670,11 +586,6 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	@Override
-	protected Class<? extends FormableEntity> getEntityClass() {
-		return IdmIdentityContract.class;
-	}
-
-	@Override
 	protected CorrelationFilter getEntityFilter() {
 		return new IdmIdentityContractFilter();
 	}
@@ -700,30 +611,31 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Start automatic role by attribute recalculation synchronously.
 	 *
 	 * @param log
 	 * @return
 	 */
-	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) { 
+	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) {
 		ProcessAllAutomaticRoleByAttributeTaskExecutor executor = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
-		
+
 		log.addToLog(MessageFormat.format(
 				"After success sync have to be run Automatic role by attribute recalculation. We start him (synchronously) now [{0}].",
 				LocalDateTime.now()));
 		Boolean executed = longRunningTaskManager.executeSync(executor);
 
 		if (BooleanUtils.isTrue(executed)) {
-			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].", LocalDateTime.now()));
+			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].",
+					LocalDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
 		}
 
 		return synchronizationLogService.save(log);
 	}
-	
+
 	/**
 	 * Start HR process. Find quartz task and LRT. If some LRT for this task type
 	 * exists, then is used. If not exists, then is created new. Task is execute
@@ -776,13 +688,12 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			log = synchronizationLogService.save(log);
 			executor.setLongRunningTaskId(lrt.getId());
 			longRunningTaskManager.executeSync(executor);
-			log.addToLog(MessageFormat.format("HR task [{1}] ended in [{0}].", LocalDateTime.now(),
-					simpleName));
+			log.addToLog(MessageFormat.format("HR task [{1}] ended in [{0}].", LocalDateTime.now(), simpleName));
 			log = synchronizationLogService.save(log);
 		}
 		return log;
 	}
-	
+
 	/**
 	 * Find quartz task for given task type. If existed more then one task for same
 	 * type, then is using that with name "Default". If none with this name exists,

@@ -8,7 +8,9 @@ import Button from '../Button/Button';
 import Icon from '../Icon/Icon';
 import Modal from '../Modal/Modal';
 
-
+/**
+ * @author Vít Švanda
+ */
 class ScriptArea extends AbstractFormComponent {
 
   constructor(props) {

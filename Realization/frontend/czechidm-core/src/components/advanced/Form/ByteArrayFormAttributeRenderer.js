@@ -16,6 +16,9 @@ export default class ByteArraFormAttributeRenderer extends TextAreaFormAttribute
    */
   fillFormValue(formValue, rawValue) {
     formValue.byteValue = rawValue;
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.byteValue;
+    //
     return formValue;
   }
 

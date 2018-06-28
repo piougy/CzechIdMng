@@ -106,4 +106,10 @@ public interface ModuleDescriptor extends Plugin<String> {
 	 */
 	boolean isDocumentationAvailable();
 
+	/**
+	 * Module defined result codes
+	 * 
+	 * @return
+	 */
+	List<ResultCode> getResultCodes();
 }

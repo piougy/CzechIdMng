@@ -18,10 +18,8 @@ export default class LongFormAttributeRenderer extends TextFormAttributeRenderer
    * @return {Joi}
    */
   getInputValidation() {
-    const { attribute } = this.props;
-    //
     let validation = Joi.number().integer().min(-9223372036854775808).max(9223372036854775807);
-    if (!attribute.required) {
+    if (!this.isRequired()) {
       validation = validation.concat(Joi.number().allow(null));
     }
     return validation;
@@ -36,6 +34,9 @@ export default class LongFormAttributeRenderer extends TextFormAttributeRenderer
    */
   fillFormValue(formValue, rawValue) {
     formValue.longValue = rawValue;
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.longValue;
+    //
     // TODO: validations for numbers
     return formValue;
   }

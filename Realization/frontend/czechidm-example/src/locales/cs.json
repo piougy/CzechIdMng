@@ -92,6 +92,31 @@
       }
     }
   },
+  "eav": {
+    "bulk-action": {
+      "identity-log-example-bulk-action": {
+        "label": "Logování identit",
+        "attributes": {
+          "exampletext": {
+            "label": "Příklad vstupního textu",
+            "help": ""
+          },
+          "examplewarning": {
+            "label": "Warning log",
+            "help": "Po zaškrtnutí bude uživatelské jméno logováno do warning konzole"
+          },
+          "sleep": {
+            "label": "Prodleva mezi zpracováním (ms)",
+            "help": ""
+          },
+          "faileveryn": {
+            "label": "Selhání na každé X-té identitě",
+            "help": "Každá X-tá identita nebude provedena úspěšně"
+          }
+        }
+      }
+    }
+  },
   "error": {
     "EXAMPLE_SERVER_ERROR": {
       "title": "Ukázka chyby serveru",

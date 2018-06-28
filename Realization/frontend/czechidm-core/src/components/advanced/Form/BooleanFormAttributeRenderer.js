@@ -18,12 +18,26 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
    * @return {FormValue}
    */
   fillFormValue(formValue, rawValue) {
-    formValue.booleanValue = rawValue;
+    if (!rawValue || (typeof rawValue === 'string') && rawValue.toLowerCase() !== 'true') { // false
+      const { attribute } = this.props;
+      //
+      if (this.isRequired() || (attribute.defaultValue != null && attribute.defaultValue.toLowerCase() === 'true')) {
+        formValue.booleanValue = rawValue;
+      } else {
+        // not required and false filled - dont need to be saved at all
+        formValue.booleanValue = null;
+      }
+    } else {
+      formValue.booleanValue = rawValue;
+    }
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.booleanValue;
+    //
     return formValue;
   }
 
   /**
-   * Returns value to ipnut from given (persisted) form value
+   * Returns value to input from given (persisted) form value
    *
    * @param  {FormValue} formValue
    * @return {object} value by persistent type
@@ -38,11 +52,11 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
     return (
       <Basic.Checkbox
         ref={ AbstractFormAttributeRenderer.INPUT }
-        label={ attribute.name }
+        label={ this.getLabel() }
         value={ this.toInputValue(values) }
-        helpBlock={ attribute.description }
+        helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
-        required={ attribute.required }/>
+        required={ this.isRequired() }/>
     );
   }
 

@@ -93,6 +93,25 @@ export class AccountTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().reload();
   }
 
+  /**
+  * Method get last string of split string by dot.
+  * Used for get niceLabel for type entity.
+  */
+  _getType(name) {
+    return Utils.Ui.getSimpleJavaType(name);
+  }
+
+  renderTargetEntity({rowIndex, data}) {
+    return (
+      <Advanced.EntityInfo
+        entityType={ this._getType(data[rowIndex].targetEntityType) }
+        entityIdentifier={ data[rowIndex].targetEntityId}
+        showIcon
+        face="popover"
+        showEntityType/>
+    );
+  }
+
   render() {
     const {
       _showLoading,
@@ -162,22 +181,6 @@ export class AccountTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
-          <Advanced.Column
-            property="accountType"
-            rendered={_.includes(columns, 'accountType')}
-            header={ this.i18n('acc:entity.Account.accountType') }
-            width={ 75 }
-            sort
-            face="enum"
-            enumClass={ AccountTypeEnum } />
-          <Advanced.Column
-            property="entityType"
-            rendered={_.includes(columns, 'entityType')}
-            header={ this.i18n('acc:entity.SystemEntity.entityType') }
-            width={ 75 }
-            sort
-            face="enum"
-            enumClass={ SystemEntityTypeEnum }/>
           <Advanced.ColumnLink
             to={
               ({ rowIndex, data }) => {
@@ -187,6 +190,12 @@ export class AccountTable extends Advanced.AbstractTableContent {
             property="uid"
             header={this.i18n('acc:entity.Account.uid')}
             rendered={_.includes(columns, 'uid')}/>
+          <Advanced.Column
+            property="targetEntity"
+            rendered={_.includes(columns, 'targetEntity')}
+            header={ this.i18n('acc:entity.Account.targetEntity') }
+            cell={this.renderTargetEntity.bind(this)}
+            />
           <Advanced.Column
             header={this.i18n('acc:entity.System.name')}
             rendered={_.includes(columns, 'system')}
@@ -323,7 +332,7 @@ AccountTable.propTypes = {
   _showLoading: PropTypes.bool
 };
 AccountTable.defaultProps = {
-  columns: ['accountType', 'entityType', 'uid', 'system', 'inProtection', 'endOfProtection', 'systemEntity'],
+  columns: ['accountType', 'entityType', 'uid', 'system', 'inProtection', 'endOfProtection', 'systemEntity', 'targetEntity'],
   showAddButton: true,
   _showLoading: false,
 };

@@ -55,6 +55,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionServic
  * @author svandav
  *
  */
+@SuppressWarnings("deprecation")
 @Service
 public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseDtoService<WorkflowHistoricProcessInstanceDto, WorkflowFilterDto> implements WorkflowHistoricProcessInstanceService {
 

@@ -31,7 +31,7 @@ public interface AuthorizationManager {
 	 * @param query
 	 * @param builder
 	 * @param permission permissions to evaluate (and)
-	 * @return
+	 * @return Never returns {@code null}.
 	 */
 	<E extends Identifiable> Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, BasePermission... permission);
 	

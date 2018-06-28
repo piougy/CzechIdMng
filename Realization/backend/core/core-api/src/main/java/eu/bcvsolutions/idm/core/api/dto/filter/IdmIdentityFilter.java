@@ -1,14 +1,20 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
@@ -17,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  * @author Radek Tomiška
  *
  */
-public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
+public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, ExternalIdentifiable, ExternalCodeable {
 	
 	/**
 	 * Identity by username
@@ -55,16 +61,16 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	 * Automatic role (by tree, attribute)
 	 */
 	public static final String PARAMETER_AUTOMATIC_ROLE = "automaticRoleId";
-	
+	/**
+	 * Identifiers filter in externalCode, username
+	 */
+	public static final String PARAMETER_IDENTIFIERS = "identifiers";
+
 	/**
 	 * roles - OR
 	 */
 	private List<UUID> roles;	
-	/**
-	 * Little dynamic search by identity property and value
-	 */
-	private String property;
-	private String value;
+	
 	/**
 	 * Identities for tree structure (by identity contract)
 	 */
@@ -89,10 +95,6 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	 * Identity last name - exact match
 	 */
 	private String lastName;
-	/**
-	 * External code for identity
-	 */
-	private String externalCode;
 	
 	public IdmIdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -111,7 +113,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	}
 
 	public UUID getSubordinatesFor() {
-		return (UUID) data.getFirst(PARAMETER_SUBORDINATES_FOR);
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_FOR));
 	}
 
 	public void setSubordinatesFor(UUID subordinatesFor) {
@@ -119,7 +121,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	}
 
 	public UUID getSubordinatesByTreeType() {
-		return (UUID) data.getFirst(PARAMETER_SUBORDINATES_BY_TREE_TYPE);
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_BY_TREE_TYPE));
 	}
 
 	public void setSubordinatesByTreeType(UUID subordinatesByTreeType) {
@@ -131,7 +133,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	}
 	
 	public UUID getManagersFor() {
-		return (UUID) data.getFirst(PARAMETER_MANAGERS_FOR);
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_FOR));
 	}
 	
 	public void setManagersByTreeType(UUID managersByTreeType) {
@@ -139,11 +141,11 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	}
 	
 	public UUID getManagersByTreeType() {
-		return (UUID) data.getFirst(PARAMETER_MANAGERS_BY_TREE_TYPE);
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_BY_TREE_TYPE));
 	}
 	
 	public UUID getManagersByContract() {
-		return (UUID) data.getFirst(PARAMETER_MANAGERS_BY_CONTRACT);
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_BY_CONTRACT));
 	}
 	
 	public void setManagersByContract(UUID managersByContract) {
@@ -163,22 +165,22 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 
 	@Override
 	public String getProperty() {
-		return property;
+		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
 	}
 
 	@Override
 	public void setProperty(String property) {
-		this.property = property;
+		data.set(PARAMETER_CORRELATION_PROPERTY, property);
 	}
 
 	@Override
 	public String getValue() {
-		return value;
+		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
 	}
 
 	@Override
 	public void setValue(String value) {
-		this.value = value;
+		data.set(PARAMETER_CORRELATION_VALUE, value);
 	}
 	
 	public UUID getTreeNode() {
@@ -260,13 +262,39 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter {
 	public void setAutomaticRoleId(UUID automaticRoleId) {
 		data.set(PARAMETER_AUTOMATIC_ROLE, automaticRoleId);
 	}
-
-	public String getExternalCode() {
-		return externalCode;
+	
+	public void setIdentifiers(List<String> identifiers) {
+		data.put(PARAMETER_IDENTIFIERS, new ArrayList<Object>(identifiers));
 	}
 
+	public List<String> getIdentifiers() {
+		List<Object> identifiers = data.get(PARAMETER_IDENTIFIERS);
+		if (identifiers == null) {
+			return Collections.emptyList();
+		}
+		return identifiers.stream()
+				.map(object -> Objects.toString(object, null))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public String getExternalCode() {
+		return (String) data.getFirst(PROPERTY_EXTERNAL_CODE);
+	}
+
+	@Override
 	public void setExternalCode(String externalCode) {
-		this.externalCode = externalCode;
+		data.set(PROPERTY_EXTERNAL_CODE, externalCode);
+	}
+	
+	@Override
+	public String getExternalId() {
+		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 	
 }

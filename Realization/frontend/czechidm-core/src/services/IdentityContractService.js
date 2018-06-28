@@ -51,14 +51,17 @@ class IdentityContractService extends FormableEntityService {
     if (showIdentity && entity._embedded.identity) {
       niceLabel = this.identityService.getNiceLabel(entity._embedded.identity);
     }
-    let positionName = entity.position;
+    let positionLabel = null;
     if (entity._embedded.workPosition) {
-      positionName = this.treeNodeService.getNiceLabel(entity._embedded.workPosition);
+      positionLabel = this.treeNodeService.getNiceLabel(entity._embedded.workPosition);
     }
-    if (positionName === null) {
-      positionName = 'default'; // TODO: locale or make at least one of position / tree node required!
+    const position = entity.position ? entity.position : 'default';
+    if (positionLabel === null) {
+      positionLabel = position; // TODO: locale or make at least one of position / tree node required!
+    } else {
+      positionLabel = `${positionLabel}, ${position}`;
     }
-    return niceLabel ? `${niceLabel} - ${positionName}` : positionName;
+    return niceLabel ? `${niceLabel}, ${positionLabel}` : positionLabel;
   }
 
   /**

@@ -2,6 +2,9 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
+import { FormAttributeManager } from '../../../redux';
+
+const formAttributeManager = new FormAttributeManager();
 
 /**
  * Abstract form value component
@@ -143,7 +146,8 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   }
 
   /**
-   * Fill form value field by persistent type from input value
+   * Fill form value field by persistent type from input value.
+   * Don't forget to set both values: by persistent type (e.g. 'shortTextValue') and common 'value'.
    *
    * @param  {FormValue} formValue - form value
    * @param  {object} formComponent value
@@ -194,19 +198,73 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    * Unsupported info
    */
   _unsupportedMode(mode = 'single') {
-    const { attribute } = this.props;
-    const formDefinition = attribute._embedded.formDefinition;
+    const { attribute, formDefinition } = this.props;
+    const _formDefinition = formDefinition || attribute._embedded.formDefinition;
     //
     return (
       <Basic.LabelWrapper label={ attribute.code } >
         <Basic.Alert level="warning" className="no-margin">
           <div>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.title`, { name: attribute.persistentType, face: attribute.faceType }) }</div>
           <div>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.title`) }:</div>
-          <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.type`) }: { formDefinition.type }</div>
-          <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.code`) }: { formDefinition.code }</div>
+          <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.type`) }: { _formDefinition.type }</div>
+          <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.code`) }: { _formDefinition.code }</div>
         </Basic.Alert>
       </Basic.LabelWrapper>
     );
+  }
+
+  _getLocalization(property, defaultValue = null) {
+    const { attribute, formDefinition } = this.props;
+    //
+    return formAttributeManager.getLocalization(formDefinition, attribute, property, defaultValue);
+  }
+
+  /**
+   * Return localized label for current attribute. As key is used
+   * form definition code and attribute code.
+   * If key in localization and form name is not defined, it will be used default value.
+   */
+  getLabel(defaultValue = null) {
+    const { attribute } = this.props;
+    //
+    return this._getLocalization('label', attribute.name || attribute.code || defaultValue);
+  }
+
+  /**
+   * Return localized help block for current attribute. As key is used
+   * form definition code and attribute code.
+   * If key in localization and form name is defined, it will be used default value.
+   */
+  getHelpBlock(defaultValue = null) {
+    const { attribute } = this.props;
+    //
+    return this._getLocalization('help', attribute.description || defaultValue);
+  }
+
+  /**
+   * Return localized help block for current attribute. As key is used
+   * form definition code and attribute code.
+   * If key in localization and form name is defined, it will be used default value.
+   */
+  getPlaceholder(defaultValue = null) {
+    const { attribute } = this.props;
+    //
+    return this._getLocalization('placeholder', attribute.placeholder || defaultValue);
+  }
+
+  /**
+   * Returns true, is attribute is required. ReadOnly (+ hidden, disabled) attributes are not required.
+   *
+   * @return {Boolean} [description]
+   */
+  isRequired() {
+    const { attribute, readOnly } = this.props;
+    //
+    if (readOnly || attribute.readonly) {
+      // read only attribute cannot be required
+      return false;
+    }
+    return attribute.required;
   }
 
   /**
@@ -246,6 +304,10 @@ AbstractFormAttributeRenderer.propTypes = {
    * Form attribute
    */
   attribute: PropTypes.object.isRequired,
+  /**
+   * Form definition. Attribute embedded form definition will be used otherwise.
+   */
+  formDefinition: PropTypes.object,
   /**
    * Filled form values
    */

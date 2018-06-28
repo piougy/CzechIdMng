@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.security.api.domain;
 public enum IdmBasePermission implements BasePermission {
 	
 	ADMIN, // wildcard - all base permissions
+	COUNT, // Number of entities - count only without details
 	AUTOCOMPLETE, // SEARCH => trimmed only for autocomplete
 	READ, // SEARCH, GET => full detail
 	CREATE, // CREATE

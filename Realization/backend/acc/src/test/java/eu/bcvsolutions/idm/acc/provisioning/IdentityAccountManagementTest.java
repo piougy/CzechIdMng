@@ -169,7 +169,7 @@ public class IdentityAccountManagementTest extends AbstractIntegrationTest {
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 		
-		// Set valid from to null - Account must be created
+		// Set valid till as expired
 		irdto.setValidTill(LocalDate.now().minusDays(1));
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning

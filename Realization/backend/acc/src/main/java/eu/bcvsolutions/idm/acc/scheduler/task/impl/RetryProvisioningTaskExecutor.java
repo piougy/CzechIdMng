@@ -55,11 +55,11 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 			//
 			for(SysProvisioningBatchDto batch : batches) {
 				try {
-					provisioningExecutor.execute(batch);
+					this.logItemProcessed(batch, provisioningExecutor.execute(batch));
 					counter++;
 					canContinue = updateState();
 				} catch (Exception ex) {
-					// TODO: stateful task executor with item reselt state
+					// TODO: redesign Boolean result to OperationResult
 					LOG.error("Batch [{}] execution failed", batch.getId(), ex);
 				}
 				if (!canContinue) {

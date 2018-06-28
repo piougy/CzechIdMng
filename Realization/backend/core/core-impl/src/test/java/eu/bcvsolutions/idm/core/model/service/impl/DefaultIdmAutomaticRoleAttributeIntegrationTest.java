@@ -47,7 +47,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -57,7 +56,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractIntegrationTest {
 
 	private final String TEST_NAME = "test-name-";
@@ -78,7 +76,6 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	@Before
 	public void login() {
 		super.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		testHelper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 	}
 
 	@After
@@ -86,7 +83,6 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		automaticRoleAttributeService.find(null).forEach(autoRole -> {
 			automaticRoleAttributeService.delete(autoRole);
 		});
-		testHelper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		super.logout();
 	}
 
@@ -1522,7 +1518,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		for (IdmIdentityRoleDto identityRole : identityRoles) {
 			assertEquals(automaticRole.getId(), identityRole.getRoleTreeNode());
-			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, AbstractIdmAutomaticRoleDto.class, null);
+			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, (AbstractIdmAutomaticRoleDto) null);
 			assertEquals(automaticRole, embedded);
 			assertEquals(role.getId(), embedded.getRole());
 			assertEquals(role.getId(), identityRole.getRole());

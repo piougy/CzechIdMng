@@ -113,7 +113,16 @@ public abstract class AbstractSmsNotificationSender extends AbstractNotification
         return smsLogDto;
     }
 
-    private String getSmsNumber(IdmNotificationRecipientDto recipient) {
+    /**
+     * Resolve phone number from given identity.
+     * 
+     * TODO: move to IdmSmsLogService
+     * 
+     * @see DefaultIdmEmailLogService#getEmailAddress
+     * @param recipient
+     * @return
+     */
+    public String getSmsNumber(IdmNotificationRecipientDto recipient) {
         final IdmIdentityDto identityDto = identityService.get(recipient.getIdentityRecipient());
         if (identityDto == null) {
             return null;

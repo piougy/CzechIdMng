@@ -72,8 +72,8 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Service
-public class DefaultSysSystemAttributeMappingService
-		extends AbstractReadWriteDtoService<SysSystemAttributeMappingDto, SysSystemAttributeMapping, SysSystemAttributeMappingFilter>
+public class DefaultSysSystemAttributeMappingService extends
+		AbstractReadWriteDtoService<SysSystemAttributeMappingDto, SysSystemAttributeMapping, SysSystemAttributeMappingFilter>
 		implements SysSystemAttributeMappingService {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
@@ -86,24 +86,18 @@ public class DefaultSysSystemAttributeMappingService
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final FormPropertyManager formPropertyManager;
 	private final SysSyncConfigRepository syncConfigRepository;
-	private final PluginRegistry<AbstractScriptEvaluator, IdmScriptCategory> pluginExecutors; 
+	private final PluginRegistry<AbstractScriptEvaluator, IdmScriptCategory> pluginExecutors;
 	private final SysSchemaAttributeService schemaAttributeService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSystemMappingService systemMappingService;
-	
+
 	@Autowired
-	public DefaultSysSystemAttributeMappingService(
-			SysSystemAttributeMappingRepository repository,
-			GroovyScriptService groovyScriptService, 
-			FormService formService,
-			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
-			FormPropertyManager formPropertyManager,
-			SysSyncConfigRepository syncConfigRepository,
-			List<AbstractScriptEvaluator> evaluators,
-			ConfidentialStorage confidentialStorage,
-			SysSchemaAttributeService schemaAttributeService,
-			SysSchemaObjectClassService schemaObjectClassService,
-			SysSystemMappingService systemMappingService) {
+	public DefaultSysSystemAttributeMappingService(SysSystemAttributeMappingRepository repository,
+			GroovyScriptService groovyScriptService, FormService formService,
+			SysRoleSystemAttributeRepository roleSystemAttributeRepository, FormPropertyManager formPropertyManager,
+			SysSyncConfigRepository syncConfigRepository, List<AbstractScriptEvaluator> evaluators,
+			ConfidentialStorage confidentialStorage, SysSchemaAttributeService schemaAttributeService,
+			SysSchemaObjectClassService schemaObjectClassService, SysSystemMappingService systemMappingService) {
 		super(repository);
 		//
 		Assert.notNull(groovyScriptService);
@@ -130,9 +124,10 @@ public class DefaultSysSystemAttributeMappingService
 		//
 		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
 	}
-	
+
 	@Override
-	protected Page<SysSystemAttributeMapping> findEntities(SysSystemAttributeMappingFilter filter, Pageable pageable, BasePermission... permission) {
+	protected Page<SysSystemAttributeMapping> findEntities(SysSystemAttributeMappingFilter filter, Pageable pageable,
+			BasePermission... permission) {
 		if (filter == null) {
 			return repository.findAll(pageable);
 		}
@@ -146,7 +141,7 @@ public class DefaultSysSystemAttributeMappingService
 		//
 		return toDtos(repository.findAllBySystemMapping_Id(systemMapping.getId()), true);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public SysSystemAttributeMappingDto findBySystemMappingAndName(UUID systemMappingId, String name) {
@@ -162,14 +157,17 @@ public class DefaultSysSystemAttributeMappingService
 	}
 
 	@Override
-	public Object transformValueToResource(String uid, Object value, String script, AbstractDto entity, SysSystemDto system) {
+	public Object transformValueToResource(String uid, Object value, String script, AbstractDto entity,
+			SysSystemDto system) {
 		if (!StringUtils.isEmpty(script)) {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put(ACCOUNT_UID, uid);
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, system);
 			variables.put(ENTITY_KEY, entity);
-			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR, pluginExecutors.getPluginFor(IdmScriptCategory.TRANSFORM_TO)); // add default script evaluator, for call another scripts
+			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR,
+					pluginExecutors.getPluginFor(IdmScriptCategory.TRANSFORM_TO)); // add default script evaluator, for
+																					// call another scripts
 			//
 			// Add access for script evaluator
 			List<Class<?>> extraClass = new ArrayList<>();
@@ -199,7 +197,9 @@ public class DefaultSysSystemAttributeMappingService
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, system);
 			variables.put(IC_ATTRIBUTES_KEY, icAttributes);
-			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR, pluginExecutors.getPluginFor(IdmScriptCategory.TRANSFORM_FROM)); // add default script evaluator, for call another scripts
+			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR,
+					pluginExecutors.getPluginFor(IdmScriptCategory.TRANSFORM_FROM)); // add default script evaluator,
+																						// for call another scripts
 			// Add access for script evaluator
 			List<Class<?>> extraClass = new ArrayList<>();
 			extraClass.add(AbstractScriptEvaluator.Builder.class);
@@ -213,9 +213,16 @@ public class DefaultSysSystemAttributeMappingService
 	@Override
 	@Transactional
 	public SysSystemAttributeMappingDto save(SysSystemAttributeMappingDto dto, BasePermission... permission) {
+		Assert.notNull(dto, "Attribute is mandatory!");
+		Assert.notNull(dto.getSystemMapping(), "System mapping is mandatory!");
+		SysSystemMappingDto systemMappingDto = systemMappingService.get(dto.getSystemMapping());
+		
+		validate(dto, systemMappingDto);
+
 		// Check if exist some else attribute which is defined like unique identifier
-		// If exists, then we will set they to uid = false. Only currently saving attribute will be unique identifier
-		if (dto.isUid() && dto.getSystemMapping() != null) {			
+		// If exists, then we will set they to uid = false. Only currently saving
+		// attribute will be unique identifier
+		if (dto.isUid() && dto.getSystemMapping() != null) {
 			this.repository.clearIsUidAttribute(dto.getSystemMapping(), dto.getId());
 		}
 		// We will do script validation (on compilation errors), before save
@@ -225,8 +232,8 @@ public class DefaultSysSystemAttributeMappingService
 		if (dto.getTransformToResourceScript() != null) {
 			groovyScriptService.validateScript(dto.getTransformToResourceScript());
 		}
-		SysSystemMappingDto systemMappingDto = systemMappingService.get(dto.getSystemMapping());
-		Class<? extends Identifiable> entityType = systemMappingDto.getEntityType().getEntityType();
+
+		Class<? extends Identifiable> entityType = systemMappingDto.getEntityType().getExtendedAttributeOwnerType();
 		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
 			createExtendedAttributeDefinition(dto, entityType);
 		}
@@ -234,7 +241,39 @@ public class DefaultSysSystemAttributeMappingService
 	}
 
 	/**
-	 * Check on exists EAV definition for given attribute. If the definition not exist, then we try create it.
+	 * Validation. If validation does not pass, then runtime exception is throw.
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	@Override
+	public void validate(SysSystemAttributeMappingDto dto, SysSystemMappingDto systemMappingDto) {
+
+		/**
+		 * When provisioning is set, then can be schema attribute mapped only once.
+		 */
+		if (dto.getSchemaAttribute() != null && systemMappingDto != null
+				&& SystemOperationType.PROVISIONING == systemMappingDto.getOperationType()) {
+			SysSystemAttributeMappingFilter systemAttributeMappingFilter = new SysSystemAttributeMappingFilter();
+			systemAttributeMappingFilter.setSchemaAttributeId(dto.getSchemaAttribute());
+			systemAttributeMappingFilter.setSystemMappingId(systemMappingDto.getId());
+
+			long count = this.find(systemAttributeMappingFilter, null).getContent() //
+					.stream() //
+					.filter(attribute -> !attribute.getId().equals(dto.getId())) //
+					.count(); //
+
+			if (count > 0) {
+				throw new ResultCodeException(AccResultCode.PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING,
+						ImmutableMap.of("schemaAttribute", dto.getSchemaAttribute()));
+			}
+		}
+	}
+
+	/**
+	 * Check on exists EAV definition for given attribute. If the definition not
+	 * exist, then we try create it.
+	 * 
 	 * @param entity
 	 * @param ownerType
 	 */
@@ -247,31 +286,34 @@ public class DefaultSysSystemAttributeMappingService
 					"IdmFormAttribute for identity and property {0} not found. We will create definition now.",
 					entity.getIdmPropertyName()));
 			formService.saveAttribute(ownerType, convertMappingAttribute(entity));
-		}		
+		}
 	}
-	
+
 	@Override
 	@Transactional
-	public void delete(SysSystemAttributeMappingDto dto,  BasePermission... permission) {
+	public void delete(SysSystemAttributeMappingDto dto, BasePermission... permission) {
 		Assert.notNull(dto);
 		SysSystemAttributeMapping entity = this.getEntity(dto.getId());
 		Assert.notNull(entity);
 		//
 		if (syncConfigRepository.countByCorrelationAttribute_Id(dto.getId()) > 0) {
-			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("attribute", dto.getName()));
+			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC,
+					ImmutableMap.of("attribute", dto.getName()));
 		}
 		if (syncConfigRepository.countByFilterAttribute(entity) > 0) {
-			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("attribute", dto.getName()));
+			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC,
+					ImmutableMap.of("attribute", dto.getName()));
 		}
 		if (syncConfigRepository.countByTokenAttribute(entity) > 0) {
-			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("attribute", dto.getName()));
+			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC,
+					ImmutableMap.of("attribute", dto.getName()));
 		}
 		// delete attributes
 		roleSystemAttributeRepository.deleteBySystemAttributeMapping(entity);
 		//
 		super.delete(dto, permission);
 	}
-	
+
 	/**
 	 * Create instance of IC attribute for given name. Given idm value will be
 	 * transformed to resource.
@@ -285,28 +327,27 @@ public class DefaultSysSystemAttributeMappingService
 		// Check type of value
 		try {
 			Class<?> classType = Class.forName(schemaAttribute.getClassType());
-			
-			// If is multivalue and value is list, then we will iterate list and check every item on correct type
-			if (schemaAttribute.isMultivalued() && idmValue instanceof List){
-				((List<?>)idmValue).stream().forEachOrdered(value ->{
+
+			// If is multivalue and value is list, then we will iterate list and check every
+			// item on correct type
+			if (schemaAttribute.isMultivalued() && idmValue instanceof List) {
+				((List<?>) idmValue).stream().forEachOrdered(value -> {
 					if (value != null && !(classType.isAssignableFrom(value.getClass()))) {
 						throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
 								ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
 										schemaAttribute.getClassType(), "valueType", value.getClass().getName()));
 					}
 				});
-				
-			// Check single value on correct type
-			}else if (idmValue != null && !(classType.isAssignableFrom(idmValue.getClass()))) {
+
+				// Check single value on correct type
+			} else if (idmValue != null && !(classType.isAssignableFrom(idmValue.getClass()))) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
 						ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
 								schemaAttribute.getClassType(), "valueType", idmValue.getClass().getName()));
 			}
 		} catch (ClassNotFoundException e) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND,
-					ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
-							schemaAttribute.getClassType()),
-					e);
+			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND, ImmutableMap.of(
+					"attribute", schemaAttribute.getName(), "schemaAttributeType", schemaAttribute.getClassType()), e);
 		}
 
 		IcAttributeImpl icAttributeForUpdate = null;
@@ -315,13 +356,13 @@ public class DefaultSysSystemAttributeMappingService
 			icAttributeForUpdate = new IcPasswordAttributeImpl(schemaAttribute.getName(), (GuardedString) idmValue);
 
 		} else {
-			if(idmValue == null && schemaAttribute.isMultivalued()){
+			if (idmValue == null && schemaAttribute.isMultivalued()) {
 				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), null, true);
-			}else if(idmValue instanceof List){
+			} else if (idmValue instanceof List) {
 				@SuppressWarnings("unchecked")
-				List<Object> values = (List<Object>)idmValue;
+				List<Object> values = (List<Object>) idmValue;
 				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), values, true);
-			}else{
+			} else {
 				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), idmValue);
 			}
 			// Multivalued must be set by schema setting
@@ -329,12 +370,12 @@ public class DefaultSysSystemAttributeMappingService
 		}
 		return icAttributeForUpdate;
 	}
-	
+
 	@Override
 	public SysSystemAttributeMappingDto clone(UUID id) {
 		SysSystemAttributeMappingDto original = this.get(id);
 		Assert.notNull(original, "Schema attribute must be found!");
-		
+
 		original.setId(null);
 		EntityUtils.clearAuditFields(original);
 		return original;
@@ -372,18 +413,22 @@ public class DefaultSysSystemAttributeMappingService
 		Assert.notNull(systemId);
 		Assert.notNull(entityType);
 		// authentication attribute is only from provisioning operation type
-		SysSystemAttributeMappingDto attr = toDto(this.repository.findAuthenticationAttribute(systemId, SystemOperationType.PROVISIONING, entityType));
-		// defensive, if authentication attribute don't exists find attribute flagged as UID
+		SysSystemAttributeMappingDto attr = toDto(
+				this.repository.findAuthenticationAttribute(systemId, SystemOperationType.PROVISIONING, entityType));
+		// defensive, if authentication attribute don't exists find attribute flagged as
+		// UID
 		if (attr == null) {
 			return toDto(this.repository.findUidAttribute(systemId, SystemOperationType.PROVISIONING, entityType));
 		}
 		return attr;
 	}
-	
+
 	/**
-	 * Find value for this mapped attribute by property name. Returned value can be list of objects. Returns transformed value.
+	 * Find value for this mapped attribute by property name. Returned value can be
+	 * list of objects. Returns transformed value.
 	 * 
-	 * @param uid - Account identifier
+	 * @param uid
+	 *            - Account identifier
 	 * @param entity
 	 * @param attributeHandling
 	 * @param idmValue
@@ -402,7 +447,7 @@ public class DefaultSysSystemAttributeMappingService
 			List<IdmFormValueDto> formValues = formService.getValues(entity, attributeHandling.getIdmPropertyName());
 			if (formValues.isEmpty()) {
 				idmValue = null;
-			} else if(schemaAttributeDto.isMultivalued()){
+			} else if (schemaAttributeDto.isMultivalued()) {
 				// Multiple value extended attribute
 				List<Object> values = new ArrayList<>();
 				formValues.stream().forEachOrdered(formValue -> {
@@ -414,10 +459,12 @@ public class DefaultSysSystemAttributeMappingService
 				IdmFormValueDto formValue = formValues.get(0);
 				if (formValue.isConfidential()) {
 					Object confidentialValue = formService.getConfidentialPersistentValue(formValue);
-					// If is confidential value String and schema attribute is GuardedString type, then convert to GuardedString will be did.
-					if(confidentialValue instanceof String && schemaAttributeDto.getClassType().equals(GuardedString.class.getName())){
+					// If is confidential value String and schema attribute is GuardedString type,
+					// then convert to GuardedString will be did.
+					if (confidentialValue instanceof String
+							&& schemaAttributeDto.getClassType().equals(GuardedString.class.getName())) {
 						idmValue = new GuardedString((String) confidentialValue);
-					}else {
+					} else {
 						idmValue = confidentialValue;
 					}
 				} else {
@@ -430,28 +477,30 @@ public class DefaultSysSystemAttributeMappingService
 			if (attributeHandling.isConfidentialAttribute()) {
 				// If is attribute isConfidential, then we will find value in
 				// secured storage
-				idmValue = confidentialStorage.getGuardedString(entity.getId(), entity.getClass(), attributeHandling.getIdmPropertyName());
+				idmValue = confidentialStorage.getGuardedString(entity.getId(), entity.getClass(),
+						attributeHandling.getIdmPropertyName());
 			} else {
 				try {
 					// We will search value directly in entity by property name
 					idmValue = EntityUtils.getEntityValue(entity, attributeHandling.getIdmPropertyName());
 				} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
 						| InvocationTargetException | ProvisioningException o_O) {
-					throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
-							ImmutableMap.of("property", attributeHandling.getIdmPropertyName(), "entityType", entity.getClass()), o_O);
+					throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND, ImmutableMap.of(
+							"property", attributeHandling.getIdmPropertyName(), "entityType", entity.getClass()), o_O);
 				}
 			}
 		} else {
-			// If Attribute value is not in entity nor in extended attribute, then idmValue is null.
+			// If Attribute value is not in entity nor in extended attribute, then idmValue
+			// is null.
 			// It means attribute is static ... we will call transformation to resource.
 		}
 		return this.transformValueToResource(uid, idmValue, attributeHandling, entity);
 	}
-	
+
 	@Override
-	public String generateUid(AbstractDto entity, SysSystemAttributeMappingDto uidAttribute){
+	public String generateUid(AbstractDto entity, SysSystemAttributeMappingDto uidAttribute) {
 		Object uid = this.getAttributeValue(null, entity, uidAttribute);
-		if(uid == null) {
+		if (uid == null) {
 			SysSystemDto systemEntity = getSystemFromAttributeMapping(uidAttribute);
 			throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
 					ImmutableMap.of("system", systemEntity.getName()));
@@ -460,15 +509,15 @@ public class DefaultSysSystemAttributeMappingService
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
 					ImmutableMap.of("uid", uid));
 		}
-		return (String)uid;
+		return (String) uid;
 	}
-	
+
 	@Override
-	public SysSystemAttributeMappingDto getUidAttribute(List<SysSystemAttributeMappingDto> mappedAttributes, SysSystemDto system) {
-		List<SysSystemAttributeMappingDto> systemAttributeMappingUid = mappedAttributes.stream()
-				.filter(attribute -> {
-					return !attribute.isDisabledAttribute() && attribute.isUid();
-				}).collect(Collectors.toList());
+	public SysSystemAttributeMappingDto getUidAttribute(List<SysSystemAttributeMappingDto> mappedAttributes,
+			SysSystemDto system) {
+		List<SysSystemAttributeMappingDto> systemAttributeMappingUid = mappedAttributes.stream().filter(attribute -> {
+			return !attribute.isDisabledAttribute() && attribute.isUid();
+		}).collect(Collectors.toList());
 
 		if (systemAttributeMappingUid.size() > 1) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID,
@@ -480,7 +529,7 @@ public class DefaultSysSystemAttributeMappingService
 		}
 		return systemAttributeMappingUid.get(0);
 	}
-	
+
 	@Override
 	public Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
 		Object icValue = null;
@@ -501,11 +550,12 @@ public class DefaultSysSystemAttributeMappingService
 	}
 
 	@Override
-	public String getUidValueFromResource(List<IcAttribute> icAttributes, List<SysSystemAttributeMappingDto> mappedAttributes, SysSystemDto system){
+	public String getUidValueFromResource(List<IcAttribute> icAttributes,
+			List<SysSystemAttributeMappingDto> mappedAttributes, SysSystemDto system) {
 		SysSystemAttributeMappingDto uidAttribute = this.getUidAttribute(mappedAttributes, system);
 		Object uid = this.getValueByMappedAttribute(uidAttribute, icAttributes);
-		
-		if(uid == null) {
+
+		if (uid == null) {
 			SysSystemDto systemEntity = getSystemFromAttributeMapping(uidAttribute);
 			throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
 					ImmutableMap.of("system", systemEntity.getName()));
@@ -515,12 +565,12 @@ public class DefaultSysSystemAttributeMappingService
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
 					ImmutableMap.of("uid", uid.getClass(), "system", systemEntity.getName()));
 		}
-		return (String)uid;
+		return (String) uid;
 	}
-	
+
 	/**
-	 * Method return schema attribute from interface attribute mapping. Schema
-	 * may be null from RoleSystemAttribute
+	 * Method return schema attribute from interface attribute mapping. Schema may
+	 * be null from RoleSystemAttribute
 	 * 
 	 * @return
 	 */
@@ -529,13 +579,14 @@ public class DefaultSysSystemAttributeMappingService
 			return schemaAttributeService.get(attributeMapping.getSchemaAttribute());
 		} else {
 			// schema attribute is null = roleSystemAttribute
-			SysSystemAttributeMappingDto dto = this.get(((SysRoleSystemAttributeDto)attributeMapping).getSystemAttributeMapping());
+			SysSystemAttributeMappingDto dto = this
+					.get(((SysRoleSystemAttributeDto) attributeMapping).getSystemAttributeMapping());
 			return schemaAttributeService.get(dto.getSchemaAttribute());
 		}
 	}
-	
+
 	/**
-	 * Method return {@link SysSystemDto} from {@link AttributeMapping} 
+	 * Method return {@link SysSystemDto} from {@link AttributeMapping}
 	 * 
 	 * @param attributeMapping
 	 * @return
@@ -544,13 +595,13 @@ public class DefaultSysSystemAttributeMappingService
 		SysSchemaAttributeDto schemaAttrDto = getSchemaAttribute(attributeMapping);
 		return getSystemFromSchemaAttribute(schemaAttrDto);
 	}
-	
+
 	private SysSystemDto getSystemFromSchemaAttribute(SysSchemaAttributeDto schemaAttrDto) {
 		SysSchemaObjectClassDto schemaObject = schemaObjectClassService.get(schemaAttrDto.getObjectClass());
 		return getSystemFromSchemaObjectClass(schemaObject);
 	}
-	
+
 	private SysSystemDto getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObject) {
-		return DtoUtils.getEmbedded(schemaObject, SysSchemaObjectClass_.system, SysSystemDto.class);
+		return DtoUtils.getEmbedded(schemaObject, SysSchemaObjectClass_.system);
 	}
 }

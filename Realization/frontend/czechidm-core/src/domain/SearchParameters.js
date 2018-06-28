@@ -407,6 +407,11 @@ SearchParameters.NAME_QUICK = 'quick';
  */
 SearchParameters.NAME_AUTOCOMPLETE = 'autocomplete';
 /**
+ * Search name for count (return long how many entities was found)
+ * @type {String}
+ */
+SearchParameters.NAME_COUNT = 'count';
+/**
  * Default page size
  * @type {Number}
  */

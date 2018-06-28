@@ -127,8 +127,8 @@
         "cancel": {
           "action": "Zamítnout",
           "header_1": "Zamítnout požadavek",
-          "header_2": "Zaímtnout požadavky",
-          "header_5": "$t(action.duplicate.header_2)",
+          "header_2": "Zamítnout požadavky",
+          "header_5": "Zamítnout požadavky",
           "message_1": "Opravdu chcete požadavek [<strong>{{record}}</strong>] zamítnout?",
           "message_2": "Vybrány požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete <strong>{{count}}</strong> vybrané požadavky zamítnout?",
           "message_5": "Vybrány požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete <strong>{{count}}</strong> vybraných požadavků zamítnout?",

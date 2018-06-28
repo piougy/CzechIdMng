@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.acc.DefaultTestHelper;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -27,6 +26,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -44,7 +44,6 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 	@Autowired private SysProvisioningOperationService operationService;
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysProvisioningBatchService batchService;
-	@Autowired private DefaultTestHelper helper;
 
 	@Before
 	public void init() {
@@ -149,10 +148,9 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 		SysSystemDto system = createSystem();
 
-		SysProvisioningBatchDto provisioningBatch = new SysProvisioningBatchDto();
-		provisioningBatch = batchService.save(provisioningBatch);
-
 		SysProvisioningOperationDto provisioningOperation1 = createProvisioningOperation(entityType, system);
+		SysProvisioningBatchDto provisioningBatch = new SysProvisioningBatchDto(provisioningOperation1);
+		provisioningBatch = batchService.save(provisioningBatch);
 		provisioningOperation1.setBatch(provisioningBatch.getId());
 		provisioningOperation1 = operationService.save(provisioningOperation1);
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);
@@ -226,7 +224,7 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 
 		createProvisioningOperation(entityType, system);
 
-		helper.waitForResult(null, null, 1);
+		getHelper().waitForResult(null, null, 1);
 		
 		DateTime dateTime = DateTime.now();
 
@@ -265,8 +263,9 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
 		provisioningOperation.setProvisioningContext(new ProvisioningContext());
 		provisioningOperation.setSystem(system.getId());
+		provisioningOperation.setEntityIdentifier(UUID.randomUUID());
 
-		SysSystemEntityDto systemEntity = helper.createSystemEntity(system);
+		SysSystemEntityDto systemEntity = ((TestHelper) getHelper()).createSystemEntity(system);
 		provisioningOperation.setSystemEntity(systemEntity.getId());
 
 		OperationResult result = new OperationResult();

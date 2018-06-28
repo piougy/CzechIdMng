@@ -17,6 +17,7 @@ const IDM_CONFIGURATION_PREFIX = 'idm.';
  * Application configurations
  *
  * @author Radek Tomiška
+ * @author Patrik Stroukal
  */
 class Configurations extends Advanced.AbstractTableContent {
 
@@ -26,6 +27,7 @@ class Configurations extends Advanced.AbstractTableContent {
       filterOpened: true,
       detail: {
         show: false,
+        addMore: false,
         entity: {}
       },
       isGuarded: false,
@@ -105,6 +107,27 @@ class Configurations extends Advanced.AbstractTableContent {
     }, this.loadFilter);
   }
 
+  showAddMore(entity) {
+    this.setState({
+      detail: {
+        addMore: true,
+        showLoading: false,
+        entity
+      },
+    }, () => {
+      this.refs.area.focus();
+    });
+  }
+
+  closeAddMore() {
+    this.setState({
+      detail: {
+        addMore: false,
+        entity: {}
+      }
+    }, this.loadFilter);
+  }
+
   _filterOpen(filterOpened) {
     this.setState({
       filterOpened
@@ -129,17 +152,60 @@ class Configurations extends Advanced.AbstractTableContent {
     }
   }
 
-  _afterSave(entity, error) {
+  saveMore(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this.refs.formAddMore.isFormValid()) {
+      return;
+    }
+    const entities = this.refs.area.getValue();
+    this.context.store.dispatch(this.getManager().addMoreEntities(entities, `${uiKey}-detail`, this._afterAddMoreSave.bind(this)));
+  }
+
+  _afterAddMoreSave(entity, error) {
     if (error) {
-      this.refs.form.processEnded();
+      this.refs.formAddMore.processEnded();
       this.addError(error);
       return;
     }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.closeDetail();
+    this.addMessage({ message: this.i18n('save.sucessBulk') });
+    this.closeAddMore();
     this.refs.table.getWrappedInstance().reload();
     // reload public configurations
     this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
+  }
+
+  _forceSave(entity) {
+    this.context.store.dispatch(this.getManager().fetchEntity(entity.name, entity.name, (entityBackend) => {
+      this.refs['confirm-task-save'].show(
+        this.i18n(`content.configuration.forceSave.message`, { name: entityBackend.name, value: entityBackend.value }),
+        this.i18n(`content.configuration.forceSave.header`)
+      ).then(() => {
+        entityBackend.value = entity.value;
+        this.context.store.dispatch(this.getManager().updateEntity(entityBackend, `${uiKey}-detail`, this._afterSave.bind(this)));
+      }, () => {
+        this.closeDetail();
+      });
+    }));
+  }
+
+  _afterSave(entity, error) {
+    if (error) {
+      if (error.statusCode === 409) {
+        this._forceSave(this.refs.form.getData());
+      } else {
+        this.refs.form.processEnded();
+        this.addError(error);
+        return;
+      }
+    } else {
+      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+      this.closeDetail();
+      this.refs.table.getWrappedInstance().reload();
+      // reload public configurations
+      this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
+    }
   }
 
   _changeName(event) {
@@ -225,11 +291,13 @@ class Configurations extends Advanced.AbstractTableContent {
       isSecured,
       showPrefixWarning
     } = this.state;
-
+    const render = detail.show || detail.addMore ? true : false;
+    //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Confirm ref="confirm-task-save" level="danger"/>
 
         <Basic.PageHeader>
           <Basic.Icon value="cog"/>
@@ -237,11 +305,11 @@ class Configurations extends Advanced.AbstractTableContent {
           {this.i18n('header')}
         </Basic.PageHeader>
 
-        <Basic.ContentHeader rendered={ !detail.show }>
+        <Basic.ContentHeader rendered={ !render }>
           { this.i18n('configurable', { escape: false }) }
         </Basic.ContentHeader>
 
-        <Basic.Panel className={ detail.show ? 'hidden' : '' }>
+        <Basic.Panel className={ detail.show || detail.addMore ? 'hidden' : '' }>
           <Advanced.Table
             ref="table"
             uiKey={ uiKey }
@@ -273,16 +341,32 @@ class Configurations extends Advanced.AbstractTableContent {
             }
             buttons={
               [
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { public: true })}
-                  rendered={ manager.canSave() }>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
+                <span>
+                  <span style={{marginRight: '3px'}}>
+                  <Basic.Button
+                    level="success"
+                    key="add_button"
+                    className="btn-xs"
+                    onClick={this.showDetail.bind(this, { public: true })}
+                    rendered={ manager.canSave() }>
+                    <Basic.Icon type="fa" icon="plus"/>
+                    {' '}
+                    {this.i18n('button.add')}
+                  </Basic.Button>
+                </span>
+                <span>
+                  <Basic.Button
+                    level="success"
+                    key="addMore_button"
+                    className="btn-xs"
+                    onClick={ this.showAddMore.bind(this, { public: true }) }
+                    rendered={ manager.canSave() }>
+                    <Basic.Icon type="fa" icon="plus"/>
+                    {' '}
+                    {this.i18n('button.addMore')}
+                  </Basic.Button>
+                </span>
+                </span>
               ]
             }
             _searchParameters={ this.getSearchParameters()} >
@@ -373,16 +457,75 @@ class Configurations extends Advanced.AbstractTableContent {
           </form>
         </Basic.Modal>
 
-        <Basic.ContentHeader rendered={ !detail.show }>
+        <Basic.Modal
+          bsSize="large"
+          show={detail.addMore}
+          onHide={this.closeAddMore.bind(this)}
+          backdrop="static"
+          keyboard={!_showLoading}>
+
+          <form onSubmit={this.saveMore.bind(this)}>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('addMore.header')} rendered/>
+            <Basic.Modal.Body>
+              <Basic.AbstractForm
+                ref="formAddMore"
+                showLoading={ _showLoading }
+                readOnly={ !manager.canSave(detail.entity, _permissions) }>
+                <Basic.TextArea
+                  ref="area"
+                  label={this.i18n('addMore.configurationArea.header')}
+                  required
+                  helpBlock={this.i18n('addMore.configurationArea.helpBlock')}
+                  />
+              </Basic.AbstractForm>
+            </Basic.Modal.Body>
+
+            <Basic.Modal.Footer>
+              <Basic.Button
+                level="link"
+                onClick={ this.closeAddMore.bind(this) }
+                showLoading={ _showLoading }>
+                {this.i18n('button.close')}
+              </Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoading={ _showLoading }
+                showLoadingIcon
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ manager.canSave() }>
+                {this.i18n('button.save')}
+              </Basic.Button>
+            </Basic.Modal.Footer>
+          </form>
+        </Basic.Modal>
+
+        <Basic.ContentHeader rendered={ !render }>
           { this.i18n('environment', { escape: false }) }
         </Basic.ContentHeader>
 
-        <Basic.Panel rendered={ !detail.show }>
+        <Basic.Panel rendered={ !render }>
           <Basic.Table
             header={ this.i18n('fromFile', { escape: false }) }
             data={fileConfigurations}
             showLoading={_fileConfigurationsShowLoading}
             noData={this.i18n('component.basic.Table.noData')}>
+            <Basic.Column
+              property=""
+              header=""
+              className="edit-button"
+              width="20px"
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <Basic.Button
+                      title={this.i18n('button.edit')}
+                      className="btn-xs"
+                      icon={'fa:pencil'}
+                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                  );
+                }
+              }/>
             <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="250px"/>
             <Basic.Column property="value" header={this.i18n('entity.Configuration.value')} />
             <Basic.Column
@@ -401,7 +544,7 @@ class Configurations extends Advanced.AbstractTableContent {
         {
           !SecurityManager.hasAuthority('CONFIGURATION_ADMIN')
           ||
-          <Basic.Panel rendered={ !detail.show }>
+          <Basic.Panel rendered={ !render }>
             <Basic.Table
               data={ environmentConfigurations }
               header={ this.i18n('fromEnvironment', { escape: false } ) }

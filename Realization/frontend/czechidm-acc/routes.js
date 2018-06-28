@@ -130,6 +130,31 @@ module.exports = {
           path: 'break-configs/:configId/detail',
           component: require('./src/content/system/SystemProvisioningBreakConfigDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'roles',
+          component: require('./src/content/system/SystemRoles'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'roles/:roleSystemId/new',
+          component: require('./src/content/role/RoleSystemDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE', 'SYSTEM_READ'] } ]
+        },
+        {
+          path: 'roles/:roleSystemId/detail',
+          component: require('./src/content/role/RoleSystemDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+        },
+        {
+          path: 'roles/:roleSystemId/attributes/:attributeId/detail',
+          component: require('./src/content/role/RoleSystemAttributeDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+        },
+        {
+          path: 'roles/:roleSystemId/attributes/:attributeId/new',
+          component: require('./src/content/role/RoleSystemAttributeDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE', 'SYSTEM_READ'] } ]
         }
       ]
     },
@@ -167,6 +192,17 @@ module.exports = {
           path: 'provisioning',
           component: require('./src/content/contract/ContractProvisioningOperations'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+        }
+      ]
+    },
+    {
+      path: '/identity/:identityId/contract-slice/:entityId',
+      component: require('czechidm-core/src/content/identity/contractSlice/ContractSlice'),
+      childRoutes: [
+        {
+          path: 'accounts',
+          component: require('./src/content/contractSlice/ContractSliceAccounts'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICEACCOUNT_READ'] } ]
         }
       ]
     },

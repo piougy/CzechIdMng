@@ -18,10 +18,8 @@ export default class DoubleFormAttributeRenderer extends TextFormAttributeRender
    * @return {Joi}
    */
   getInputValidation() {
-    const { attribute } = this.props;
-    //
     let validation = Joi.number().min(-Math.pow(10, 33)).max(Math.pow(10, 33));
-    if (!attribute.required) {
+    if (!this.isRequired()) {
       validation = validation.concat(Joi.number().allow(null));
     }
     return validation;
@@ -29,6 +27,9 @@ export default class DoubleFormAttributeRenderer extends TextFormAttributeRender
 
   fillFormValue(formValue, rawValue) {
     formValue.doubleValue = rawValue;
+    // common value can be used without persistent type knowlege (e.g. conversion to properties object)
+    formValue.value = formValue.doubleValue;
+    //
     // TODO: validations for numbers
     return formValue;
   }

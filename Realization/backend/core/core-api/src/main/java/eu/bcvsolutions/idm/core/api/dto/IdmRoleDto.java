@@ -15,7 +15,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Dto for role
@@ -24,13 +26,16 @@ import eu.bcvsolutions.idm.core.api.domain.RoleType;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "roles")
-public class IdmRoleDto extends AbstractDto implements Disableable, Codeable {
+public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, ExternalIdentifiable {
 
     private static final long serialVersionUID = 1L;
 
     @NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
     private String name;
+    @Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(notes = "Unique external identifier.")
+	private String externalId;
     private boolean disabled;
     private boolean canBeRequested;
     private RoleType roleType = RoleType.TECHNICAL;
@@ -156,5 +161,15 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable {
 
 	public void setRoleCatalogues(List<IdmRoleCatalogueRoleDto> roleCatalogues) {
 		this.roleCatalogues = roleCatalogues;
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
 	}
 }

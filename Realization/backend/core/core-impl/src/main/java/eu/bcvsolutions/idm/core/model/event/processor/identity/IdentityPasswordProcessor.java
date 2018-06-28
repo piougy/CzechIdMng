@@ -66,7 +66,7 @@ public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor
 				passwordChangeDto.setMaxPasswordAge(DateTime.now().plusDays(defaultValidatePolicy.getMaxPasswordAge()));
 			} else {
 				passwordChangeDto.setMaxPasswordAge(null);
-				LOG.warn("Default validate password policy not exists or max password age is not filled."
+				LOG.info("Default validate password policy not exists or max password age is not filled."
 						+ " For identity username [{}] will be valid till null.", identity.getUsername());
 			}
 		}

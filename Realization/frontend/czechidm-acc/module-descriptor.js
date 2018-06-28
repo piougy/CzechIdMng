@@ -84,6 +84,16 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
+            'id': 'system-roles',
+            'type': 'TAB',
+            'icon': 'fa:universal-access',
+            'labelKey': 'acc:content.systemRoles.title',
+            'titleKey': 'acc:content.systemRoles.header',
+            'order': 55,
+            'path': '/system/:entityId/roles',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
             'id': 'system-synchronization-configs',
             'type': 'TAB',
             'icon': 'transfer',
@@ -134,6 +144,17 @@ module.exports = {
         'path': '/identity/:identityId/identity-contract/:entityId/accounts',
         'icon': 'fa:external-link',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTACCOUNT_READ'] } ]
+      },
+      {
+        'id': 'contract-slice-accounts',
+        'parentId': 'identity-contract-slices',
+        'type': 'TAB',
+        'labelKey': 'acc:content.contract-slice.accounts.title',
+        'order': 100,
+        'priority': 0,
+        'path': '/identity/:identityId/contract-slice/:entityId/accounts',
+        'icon': 'fa:external-link',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICEACCOUNT_READ'] } ]
       },
       // Provisioning for contract is not implemented yet
       // {

@@ -12,14 +12,13 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordHistoryDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -37,7 +36,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Radek Tomiška
  */
 public class DefaultIdmPasswordService
-		extends AbstractReadWriteDtoService<IdmPasswordDto, IdmPassword, IdmPasswordFilter>
+		extends AbstractEventableDtoService<IdmPasswordDto, IdmPassword, IdmPasswordFilter>
 		implements IdmPasswordService {
 
 	private final IdmPasswordRepository repository;
@@ -48,8 +47,9 @@ public class DefaultIdmPasswordService
 	public DefaultIdmPasswordService(IdmPasswordRepository repository,
 									 IdmPasswordPolicyRepository policyRepository,
 									 IdmPasswordHistoryService passwordHistoryService,
-									 LookupService lookupService) {
-		super(repository);
+									 LookupService lookupService,
+									 EntityEventManager entityEventManager) {
+		super(repository, entityEventManager);
 		//
 		this.repository = repository;
 		this.passwordHistoryService = passwordHistoryService;
@@ -131,6 +131,10 @@ public class DefaultIdmPasswordService
 		if (password.getPassword() == null) {
 			return false;
 		}
+		// isn't possible compare null password
+		if (passwordToCheck.asString() == null) {
+			return false;
+		}
 		return BCrypt.checkpw(passwordToCheck.asString(), password.getPassword());
 	}
 
@@ -183,11 +187,11 @@ public class DefaultIdmPasswordService
 	
 	@Override
 	@Transactional
-	public IdmPasswordDto findOrCreateByIdentity(Serializable identificator) {
-		IdmIdentityDto identityDto = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identificator);
+	public IdmPasswordDto findOrCreateByIdentity(Serializable identifier) {
+		IdmIdentityDto identityDto = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identifier);
 		//
 		if (identityDto == null) {
-			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Invalid login or password.");
+			return null;
 		}
 		//
 		UUID identityId = identityDto.getId();
@@ -202,7 +206,7 @@ public class DefaultIdmPasswordService
 		passwordDto.setMustChange(false);
 		passwordDto.setValidFrom(new LocalDate());
 		//
-		return passwordDto;
+		return this.save(passwordDto);
 	}
 
 

@@ -26,18 +26,4 @@ public interface SysRoleSystemAttributeService extends ReadWriteDtoService<SysRo
 	 */
 	public void addRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName, String transformationScript,
 			String objectClassName, SysRoleSystemAttributeDto attribute);
-	
-	/**
-	 * Method changes transformation script and returns Boolean.TRUE if script is changed,
-	 * Boolean.FALSE if script is not changed and null if it doesn't find system mapping on this role.
-	 * 
-	 * @param systemId
-	 * @param roleId
-	 * @param attributeName
-	 * @param transformationScript
-	 * @return
-	 */
-	public Boolean isChangedRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName,
-			String transformationScript);
-	
 }

@@ -2,7 +2,9 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -201,66 +203,57 @@ public class DefaultSysRoleSystemAttributeService extends
 		Assert.notNull(attributeName, "Attribute name cannot be null");
 		Assert.hasLength(attributeName, "Attribute name cannot be blank");
 
-		SysRoleSystemAttributeDto attr = attribute;
+		SysRoleSystemAttributeDto systemAttribute = attribute;
 		UUID roleSystemId = getSysRoleSystem(systemId, roleId, objectClassName);
 		UUID systemAttributeMappingId = getSystemAttributeMapping(systemId, attributeName, objectClassName);
 		//
 		//
-		attr.setName(attributeName);
-		attr.setRoleSystem(roleSystemId);
-		attr.setSystemAttributeMapping(systemAttributeMappingId);
+		systemAttribute.setName(attributeName);
+		systemAttribute.setRoleSystem(roleSystemId);
+		systemAttribute.setSystemAttributeMapping(systemAttributeMappingId);
 		//
 		if (transformationScript != null) {
-			attr.setTransformScript(transformationScript);
+			systemAttribute.setTransformScript(transformationScript);
 		}
 		//
-		if (!alreadyHasSystemAttribute(attr)) {
-			this.save(attr);
+		SysRoleSystemAttributeDto currentSystemAttribute = getSystemAttribute(roleSystemId, attributeName);
+		if (currentSystemAttribute == null) {
+			this.save(systemAttribute);
+		} else {
+			currentSystemAttribute.setTransformScript(transformationScript);
+			this.save(currentSystemAttribute);
 		}
 
 	}
-
-	@Override
-	public Boolean isChangedRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName,
-			String transformationScript) {
-		Assert.notNull(systemId, "SystemId cannot be null!");
-		Assert.notNull(roleId, "RoleId cannot be null!");
-		Assert.notNull(attributeName, "Attribute name cannot be null");
-		Assert.hasLength(attributeName, "Attribute name cannot be blank");
-
+	
+	/**
+	 * Returns existing role's system or returns newly created one. 
+	 * @param systemId
+	 * @param roleId
+	 * @param objectClassName
+	 * @return
+	 */
+	private UUID getSysRoleSystem(UUID systemId, UUID roleId, String objectClassName) {
 		SysRoleSystemFilter filter = new SysRoleSystemFilter();
 		filter.setRoleId(roleId);
 		filter.setSystemId(systemId);
-		Page<SysRoleSystemDto> roleSystem = sysRoleSystemService.find(filter, null);
-		if (roleSystem.getContent().size() == 1) {
-			SysRoleSystemAttributeFilter filt = new SysRoleSystemAttributeFilter();
-			filt.setRoleSystemId(roleSystem.getContent().get(0).getId());
-			List<SysRoleSystemAttributeDto> roleSystemAttribute = this.find(filt, null)
-					.getContent();
-			if (roleSystemAttribute.size() == 1) {
-				SysRoleSystemAttributeDto sysRoleSystemAttributeDto = roleSystemAttribute.get(0);
-				String script = sysRoleSystemAttributeDto.getTransformScript();
-				if (script.equals(transformationScript)) {
-					return Boolean.FALSE;
-				} else {
-					sysRoleSystemAttributeDto.setTransformScript(transformationScript);
-					this.save(sysRoleSystemAttributeDto);
-					return Boolean.TRUE;
-				}
-			}
+		List<SysRoleSystemDto> roleSystem = sysRoleSystemService.find(filter, null).getContent();
+		if(roleSystem.size() == 1) {
+			return roleSystem.stream().findFirst().get().getId();
 		}
-		return null;
-
+			SysRoleSystemDto sys = new SysRoleSystemDto();
+			sys.setRole(roleId);
+			sys.setSystem(systemId);
+			sys.setSystemMapping(getSystemMapping(systemId, objectClassName));
+			return sysRoleSystemService.save(sys).getId();
 	}
 
-	private UUID getSysRoleSystem(UUID systemId, UUID roleId, String objectClassName) {
-		SysRoleSystemDto sys = new SysRoleSystemDto();
-		sys.setRole(roleId);
-		sys.setSystem(systemId);
-		sys.setSystemMapping(getSystemMapping(systemId, objectClassName));
-		return sysRoleSystemService.save(sys).getId();
-	}
-
+	/**
+	 * Returns provisioning mapping of system.
+	 * @param systemId
+	 * @param objectClassName
+	 * @return
+	 */
 	private UUID getSystemMapping(UUID systemId, String objectClassName) {
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setSystemId(systemId);
@@ -274,6 +267,12 @@ public class DefaultSysRoleSystemAttributeService extends
 		return content.get(0).getId();
 	}
 
+	/**
+	 * Returns systems object's scheme
+	 * @param systemId
+	 * @param objectClassName
+	 * @return
+	 */
 	private UUID getObjectClassId(UUID systemId, String objectClassName) {
 		SysSchemaObjectClassFilter filter = new SysSchemaObjectClassFilter();
 		filter.setSystemId(systemId);
@@ -285,6 +284,13 @@ public class DefaultSysRoleSystemAttributeService extends
 		return objectClasses.get(0).getId();
 	}
 
+	/**
+	 * Returns system's attribute mapping
+	 * @param systemId
+	 * @param attributeName
+	 * @param objectClassName
+	 * @return
+	 */
 	private UUID getSystemAttributeMapping(UUID systemId, String attributeName, String objectClassName) {
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSystemId(systemId);
@@ -297,6 +303,13 @@ public class DefaultSysRoleSystemAttributeService extends
 		return content.get(0).getId();
 	}
 
+	/**
+	 * Returns schema attribute
+	 * @param systemId
+	 * @param attributeName
+	 * @param objectClassName
+	 * @return
+	 */
 	private UUID getSchemaAttr(UUID systemId, String attributeName, String objectClassName) {
 		SysSchemaAttributeFilter filter = new SysSchemaAttributeFilter();
 		filter.setObjectClassId(getObjectClassId(systemId, objectClassName));
@@ -308,10 +321,20 @@ public class DefaultSysRoleSystemAttributeService extends
 		return list.get(0).getId();
 	}
 
-	private boolean alreadyHasSystemAttribute(SysRoleSystemAttributeDto attr) {
+	/**
+	 * Returns existing system attribute or null
+	 * @param attr
+	 * @return
+	 */
+	private SysRoleSystemAttributeDto getSystemAttribute(UUID roleSystem, String attributeName) {
 		SysRoleSystemAttributeFilter filter = new SysRoleSystemAttributeFilter();
-		filter.setRoleSystemId(attr.getRoleSystem());
+		filter.setRoleSystemId(roleSystem);
 		List<SysRoleSystemAttributeDto> content = this.find(filter, null).getContent();
-		return !content.isEmpty();
+		for(SysRoleSystemAttributeDto attribute : content) {
+			if (attribute.getName().equals(attributeName)) {
+				return attribute;
+			}
+		}
+		return null;
 	}
 }

@@ -74,7 +74,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		return action;
 	}
 	
-	public ResultModels preValidate(IdmBulkActionDto action) {
+	public ResultModels prevalidate(IdmBulkActionDto action) {
 		AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> executor = getOperationForDto(action);
 		//
 		executor = (AbstractBulkAction<?, ?>) AutowireHelper.createBean(executor.getClass());

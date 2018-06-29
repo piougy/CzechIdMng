@@ -30,6 +30,6 @@ public interface BulkActionManager {
 	 */
 	IdmBulkActionDto processAction(IdmBulkActionDto actionDto);
 
-	ResultModels preValidate(IdmBulkActionDto bulkAction);
+	ResultModels prevalidate(IdmBulkActionDto bulkAction);
 	
 }

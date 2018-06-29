@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -113,6 +114,24 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 		//
 		return identites;
 	}
+	
+	/**
+	 * Create list of roles
+	 *
+	 * @param count
+	 * @return
+	 */
+	protected List<IdmRoleDto> createRoles(int count) {
+		List<IdmRoleDto> roles = new ArrayList<>();
+		//
+		for (int index = 0; index < count; index++) {
+			// create identity without password
+			roles.add(getHelper().createRole());
+		}
+		//
+		return roles;
+	}
+
 
 	/**
 	 * Return list of ids from list of identities
@@ -120,8 +139,8 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 	 * @param identites
 	 * @return
 	 */
-	protected Set<UUID> getIdFromList(List<IdmIdentityDto> identites) {
-		return identites.stream().map(IdmIdentityDto::getId).collect(Collectors.toSet());
+	protected Set<UUID> getIdFromList(List<? extends AbstractDto> identites) {
+		return identites.stream().map(AbstractDto::getId).collect(Collectors.toSet());
 	}
 	
 	/**

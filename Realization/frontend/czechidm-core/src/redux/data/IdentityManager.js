@@ -167,6 +167,21 @@ export default class IdentityManager extends FormableEntityManager {
     return BulkActionService.UI_KEY_PREFIX + this.getCollectionType();
   }
 
+  /**
+   * Executes validation of action before it starts
+   */
+  prevalidateBulkAction(action, cb) {
+    return (dispatch) => {
+      this.bulkActionService.prevalidateBulkAction(action, cb)
+      .then(json => {
+        return json;
+      })
+      .catch(error => {
+        dispatch(this.receiveError(null, null, error, cb));
+      });
+    };
+  }
+
   processBulkAction(action, cb) {
     return (dispatch) => {
       this.bulkActionService.processBulkAction(action, cb)

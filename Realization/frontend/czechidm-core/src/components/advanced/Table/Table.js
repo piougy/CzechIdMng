@@ -178,8 +178,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             bulkActionShowLoading: false
           });
         } else {
-          this.addMessage({ level: 'info', message: this.i18n('bulkAction.created', { longRunningTaskId: processBulkAction.longRunningTaskId, name: this.i18n(processBulkAction.module + ':eav.bulkAction.' + processBulkAction.name + '.label')})});
-          // this.showBulkActionDetail(null);
+          this.addMessage({ level: 'info', message: this.i18n('bulkAction.created', { longRunningTaskId: processBulkAction.longRunningTaskId, name: this.i18n(processBulkAction.module + ':eav.bulk-action.' + processBulkAction.name + '.label')})});
+
           this.setState({
             selectedRows: [],
             removedRows: new Immutable.Set(),
@@ -229,12 +229,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           this.setState({
             bulkActionShowLoading: false
           });
-        } else {
+        } else if (resultModel) {
           const backendBulkAction = this.state.backendBulkAction;
           backendBulkAction.prevalidateResult = resultModel;
           this.setState({
             bulkActionShowLoading: false,
             backendBulkAction
+          });
+        } else {
+          this.setState({
+            bulkActionShowLoading: false
           });
         }
       }));
@@ -542,7 +546,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 level="info"
                 showHtmlText
                 text={help}
-                rendered={help !== helpKey} />
+                rendered={(`${backendBulkAction.module}:${help}`) !== helpKey} />
               {this.renderPrevalidateMessages(backendBulkAction)}
               <EavAttributeForm
                 ref="bulkActionAttributes"
@@ -743,9 +747,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       for (const index in _backendBulkActions) {
         if (_backendBulkActions.hasOwnProperty(index)) {
           const backendBulkAction = _backendBulkActions[index];
+          const iconKey = backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.icon';
+          const icon = this.i18n(iconKey);
           _actions.push({
             value: backendBulkAction.name,
-            niceLabel: this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label'),
+            niceLabel: <span><Basic.Icon value={icon} rendered={backendBulkAction.module + icon !== iconKey }/> {' ' + this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label')}</span>,
             action: this.showBulkActionDetail.bind(this, backendBulkAction),
             disabled: !SecurityManager.hasAllAuthorities(backendBulkAction.authorities)
           });

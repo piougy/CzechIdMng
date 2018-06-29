@@ -249,7 +249,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @param bulkAction
 	 * @return
 	 */
-	public ResponseEntity<ResultModels> preValidateBulkAction(IdmBulkActionDto bulkAction) {
+	public ResponseEntity<ResultModels> prevalidateBulkAction(IdmBulkActionDto bulkAction) {
 		initBulkAction(bulkAction);
 		ResultModels result = bulkActionManager.preValidate(bulkAction);
 		if(result == null) {

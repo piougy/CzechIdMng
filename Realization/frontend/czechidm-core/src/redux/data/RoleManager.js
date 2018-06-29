@@ -81,6 +81,9 @@ export default class RoleManager extends FormableEntityManager {
     return BulkActionService.UI_KEY_PREFIX + this.getCollectionType();
   }
 
+  /**
+   * Executes validation of action before it starts
+   */
   prevalidateBulkAction(action, cb) {
     return (dispatch) => {
       this.bulkActionService.prevalidateBulkAction(action, cb)

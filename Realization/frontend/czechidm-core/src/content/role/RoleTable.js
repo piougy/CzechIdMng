@@ -221,11 +221,6 @@ class RoleTable extends Advanced.AbstractTableContent {
                 </Basic.AbstractForm>
               </Advanced.Filter>
             }
-            actions={
-              [
-                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-              ]
-            }
             buttons={
               [
                 <Basic.Button

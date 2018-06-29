@@ -3663,7 +3663,9 @@
         "label": "Aktivovat - (manuálně)"
       },
       "identity-delete-bulk-action": {
-        "label": "Odebrat"
+        "label": "Odebrat",
+        "help": "Odstraní vybrané uživatele.",
+        "icon": "fa:trash"
       },
       "identity-add-role-bulk-action": {
         "label": "Přidělení rolí",
@@ -3715,6 +3717,11 @@
             "help": "Po zaškrtnutí nebude vyvoláno klasické uložení uživatele, ale pouze vyvolání události NOTIFY. Tato událost je také zpracovávána asynchronně."
           }
         }
+      },
+      "role-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané role.",
+        "icon": "fa:trash"
       }
     },
     "authorization-evaluator": {
@@ -4448,6 +4455,10 @@
     "CORRELATION_PROPERTY_WRONG_TYPE": {
       "title": "Korelační filtr nefunguje",
       "message": "Korelační filtr není možné použít, protože požadovaný atribut [{{property}}] není typu String!"
+    },
+    "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
+      "message": "Role <strong>{{role}}</strong> obsahuje  <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele. <strong>Před smazáním musíte nejdříve odstranit všechny vazby na uživatele.</strong>",
+      "title": ""
     }
   },
   "validationError": {

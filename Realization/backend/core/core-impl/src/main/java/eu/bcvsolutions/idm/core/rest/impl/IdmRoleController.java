@@ -534,7 +534,7 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "")})
 				})
 	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
-		return super.preValidateBulkAction(bulkAction);
+		return super.prevalidateBulkAction(bulkAction);
 	}
 	
 	@ResponseBody

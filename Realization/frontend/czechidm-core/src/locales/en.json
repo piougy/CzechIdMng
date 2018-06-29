@@ -3620,7 +3620,9 @@
         "label": "Activate - (manually)"
       },
       "identity-delete-bulk-action": {
-        "label": "Remove"
+        "label": "Remove",
+        "help": "Remove selected users.",
+        "icon": "fa:trash"
       },
       "identity-add-role-bulk-action": {
         "label": "Roles assignment",
@@ -3672,6 +3674,11 @@
             "help": "After selecting, the user's classic save will not be invoked, but only NOTIFY event will be thrown. This event is also processed asynchronously."
           }
         }
+      },
+      "role-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected roles.",
+        "icon": "fa:trash"
       }
     },
     "authorization-evaluator": {
@@ -4405,6 +4412,10 @@
     "CORRELATION_PROPERTY_WRONG_TYPE": {
       "title": "Correlation filter doesn't work",
       "message": "Correlation filter doesn't work, because the property [{{property}}] is not String!"
+    },
+    "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
+      "message": "Role <strong>{{role}}</strong> contains  <strong class=\"highlight\">{{count}}</strong> user relationships. <strong>Remove user relationships befor role delete.</strong>",
+      "title": ""
     }
   },
   "validationError": {

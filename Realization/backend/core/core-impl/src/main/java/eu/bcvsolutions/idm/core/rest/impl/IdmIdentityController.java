@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -424,6 +425,30 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 				})
 	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.bulkAction(bulkAction);
+	}
+	
+	/**
+	 * Prevalidate bulk action for identities
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@ApiOperation(
+			value = "Prevalidate bulk action for identities", 
+			nickname = "prevalidateBulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { IdmRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "")})
+				})
+	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.prevalidateBulkAction(bulkAction);
 	}
 
 	/**

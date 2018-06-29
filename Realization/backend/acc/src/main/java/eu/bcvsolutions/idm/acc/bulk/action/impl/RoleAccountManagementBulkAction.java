@@ -118,16 +118,27 @@ public class RoleAccountManagementBulkAction extends AbstractBulkAction<IdmRoleD
 			}
 		});
 
-		// Sort by count
-		List<Entry<ResultModel, Long>> collect = models //
-				.entrySet() //
+		boolean someIdentitiesFound = models
+				.values() //
 				.stream() //
-				.sorted(Collections.reverseOrder(Map.Entry.comparingByValue())) //
-				.limit(5) //
-				.collect(Collectors.toList()); //
-		collect.forEach(entry -> {
-			result.addInfo(entry.getKey());
-		});
+				.filter(count -> count > 0) //
+				.findFirst() //
+				.isPresent(); //
+		
+		if(!someIdentitiesFound) {
+			result.addInfo(new DefaultResultModel(AccResultCode.ROLE_ACM_BULK_ACTION_NONE_IDENTITIES));
+		} else {
+			// Sort by count
+			List<Entry<ResultModel, Long>> collect = models //
+					.entrySet() //
+					.stream() //
+					.sorted(Collections.reverseOrder(Map.Entry.comparingByValue())) //
+					.limit(5) //
+					.collect(Collectors.toList()); //
+			collect.forEach(entry -> {
+				result.addInfo(entry.getKey());
+			});
+		}
 
 		return result;
 	}
@@ -144,11 +155,12 @@ public class RoleAccountManagementBulkAction extends AbstractBulkAction<IdmRoleD
 
 	@Override
 	public int getOrder() {
-		return super.getOrder() + 10;
+		return super.getOrder() + 100;
 	}
 
 	@Override
 	public ReadWriteDtoService<IdmRoleDto, IdmRoleFilter> getService() {
 		return roleService;
 	}
+
 }

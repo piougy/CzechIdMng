@@ -1325,6 +1325,12 @@
           }
         }
       }
+    },
+    "bulk-action": {
+      "role-acm-bulk-action": {
+        "label": "Invoke account management",
+        "help": "This operation invokes <strong>account management</strong> for each selected role. The account management will be invoke for all users with the role. Account management itself and subsequent provisioning are performed <strong>asynchronously</strong>.  You can see progress of this operations in the <strong>Events</strong> agenda."
+      }
     }
   },
   "error": {
@@ -1647,6 +1653,14 @@
     "PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING": {
       "title": "Mapping attribute is duplicated",
       "message": "Schema attribute can be mapped only once (in provisioning mapping)!"
+    },
+    "ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES": {
+      "message": "Role <strong>{{role}}</strong> contains  <strong class=\"highlight\">{{count}}</strong> user relationships",
+      "title": ""
+    },
+    "ROLE_ACM_BULK_ACTION_NONE_IDENTITIES": {
+      "message": "The selected roles do <strong>not</strong> contain any user relationships.",
+      "title": ""
     }
   },
   "processor": {

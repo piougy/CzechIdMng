@@ -1665,6 +1665,10 @@
     "ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "message": "Role <strong>{{role}}</strong> obsahuje  <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele.",
       "title": ""
+    },
+    "ROLE_ACM_BULK_ACTION_NONE_IDENTITIES": {
+      "message": "Žádná z vybranných rolí <strong>neobsahuje</strong> vazbu na uživatele.",
+      "title": ""
     }
   },
   "processor": {

@@ -17,8 +17,8 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -50,7 +50,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  *
  */
 
-@Enabled(CoreModuleDescriptor.MODULE_ID)
+@Enabled(AccModuleDescriptor.MODULE_ID)
 @Component("roleSaveBulkAction")
 @Description("Bulk operation to evaluate the account management for all identities of given role.")
 public class RoleAccountManagementBulkAction extends AbstractBulkAction<IdmRoleDto, IdmRoleFilter> {
@@ -118,14 +118,13 @@ public class RoleAccountManagementBulkAction extends AbstractBulkAction<IdmRoleD
 			}
 		});
 
-		boolean someIdentitiesFound = models
-				.values() //
+		boolean someIdentitiesFound = models.values() //
 				.stream() //
 				.filter(count -> count > 0) //
 				.findFirst() //
 				.isPresent(); //
-		
-		if(!someIdentitiesFound) {
+
+		if (!someIdentitiesFound) {
 			result.addInfo(new DefaultResultModel(AccResultCode.ROLE_ACM_BULK_ACTION_NONE_IDENTITIES));
 		} else {
 			// Sort by count

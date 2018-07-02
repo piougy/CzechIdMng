@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +93,15 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		entityManager.persist(testResource);
 		//
 		return testResource;
+	}
+	
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void deleteAllResourceData() {
+		// Delete all
+		Query q = entityManager.createNativeQuery("DELETE FROM " + TestResource.TABLE_NAME);
+		q.executeUpdate();
 	}
 	
 	/**

@@ -55,7 +55,7 @@ public class LongRunningTaskExecuteDependentProcessor
 		IdmLongRunningTaskDto longRunningTask = event.getContent();
 		IdmScheduledTaskDto scheduledTask = service.findByLongRunningTaskId(longRunningTask.getId());
 		if (scheduledTask == null) {
-			LOG.debug("Ecexute dependent tasks is supported for scheduled tasks. LRT [{}] does not have scheduled task.", longRunningTask.getId());
+			LOG.debug("Execute dependent tasks is supported for scheduled tasks. LRT [{}] does not have scheduled task.", longRunningTask.getId());
 			return new DefaultEventResult.Builder<IdmLongRunningTaskDto>(event, this)
 					.setResult(new OperationResult(OperationState.NOT_EXECUTED))
 					.build();

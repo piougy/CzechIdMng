@@ -259,7 +259,7 @@ public class IdentityAddRoleBulkActionTest extends AbstractBulkActionTest {
 		
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		
-		checkResultLrt(processAction, 0l, 0l, 5l);
+		checkResultLrt(processAction, 0l, 5l, 0l);
 		
 		for (UUID id : ids) {
 			IdmIdentityDto identity = identityService.get(id);
@@ -295,7 +295,7 @@ public class IdentityAddRoleBulkActionTest extends AbstractBulkActionTest {
 
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		
-		checkResultLrt(processAction, 0l, 0l, 5l);
+		checkResultLrt(processAction, 0l, 5l, 0l);
 		
 		for (UUID id : ids) {
 			IdmIdentityDto identity = identityService.get(id);

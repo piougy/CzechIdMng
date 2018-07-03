@@ -110,7 +110,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	}
 	
 	@Override
-	public ResultModels preValidate() {
+	public ResultModels prevalidate() {
 		return new ResultModels();
 	}
 	

@@ -79,5 +79,10 @@ public interface IdmBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 	 */
 	List<String> getAuthorities();
 
-	ResultModels preValidate();
+	/**
+	 * Prevalidate method is called before start the action. It used for show additional informations to the user.
+	 * 
+	 * @return
+	 */
+	ResultModels prevalidate();
 }

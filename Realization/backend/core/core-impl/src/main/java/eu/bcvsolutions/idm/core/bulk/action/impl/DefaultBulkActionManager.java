@@ -82,7 +82,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		executor.setAction(action);
 		//
 		// Prevalidate before execute
-		return executor.preValidate();
+		return executor.prevalidate();
 	}
 	
 	@Override

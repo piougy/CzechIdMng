@@ -66,7 +66,7 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 	}
 
 	@Override
-	public ResultModels preValidate() {
+	public ResultModels prevalidate() {
 		IdmBulkActionDto action = getAction();
 		List<UUID> entities = getEntities(action, new StringBuilder());
 		ResultModels result = new ResultModels();

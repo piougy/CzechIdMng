@@ -100,7 +100,7 @@ public class RoleAccountManagementBulkAction extends AbstractBulkAction<IdmRoleD
 	}
 
 	@Override
-	public ResultModels preValidate() {
+	public ResultModels prevalidate() {
 		IdmBulkActionDto action = getAction();
 		List<UUID> entities = getEntities(action, new StringBuilder());
 		ResultModels result = new ResultModels();

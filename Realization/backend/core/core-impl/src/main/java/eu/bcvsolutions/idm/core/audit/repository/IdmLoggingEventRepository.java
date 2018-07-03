@@ -32,4 +32,14 @@ public interface IdmLoggingEventRepository extends AbstractEntityRepository<IdmL
 	@Modifying
 	@Query("DELETE FROM #{#entityName} e WHERE id = :id")
 	int deleteById(@Param("id") Long id);
+	
+	/**
+	 * Removes all logging event by timestamp lower or equal than given
+	 *
+	 * @param timestmp
+	 * @return
+	 */
+	@Modifying
+	@Query("DELETE FROM #{#entityName} e WHERE e.timestmp <= :timestmp")
+	int deleteLowerOrEqual(@Param("timestmp") Long timestmp);
 }

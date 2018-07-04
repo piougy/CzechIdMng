@@ -7,6 +7,8 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 
 import javax.validation.ConstraintViolationException;
@@ -262,5 +264,55 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 		template.setBodyHtml(getHelper().createName());
 		// throw error subject can't be null
 		template = notificationTemplateService.save(template);
+	}
+
+	@Test
+	public void checkCdataTag() {
+		String testBodyText = getHelper().createName();
+		String testBodyHtml = getHelper().createName();
+		// check if exist directory and remove it with all files in
+		String backupFolder = "/tmp/idm_test_backup/";
+		//
+		File directory = new File(backupFolder);
+		if (directory.exists() && directory.isDirectory()) {
+			try {
+				FileUtils.deleteDirectory(directory);
+			} catch (IOException e) {
+				fail();
+			}
+		}
+		//
+		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, backupFolder);
+		//
+		IdmNotificationTemplateDto testTemplate = notificationTemplateService.getByCode(TEST_TEMPLATE);
+		Assert.assertNotNull(testTemplate);
+		assertEquals(TEST_TEMPLATE, testTemplate.getCode());
+		//
+		testTemplate.setBodyHtml(testBodyHtml);
+		testTemplate.setBodyText(testBodyText);
+		//
+		notificationTemplateService.backup(testTemplate);
+		//
+		DateTime date = new DateTime();
+		DecimalFormat decimalFormat = new DecimalFormat("00");
+		directory = new File(backupFolder + "templates/" + date.getYear()
+				+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
+		assertTrue(directory.exists());
+		assertTrue(directory.isDirectory());
+		//
+		File[] files = directory.listFiles();
+		assertEquals(1, files.length);
+		File backup = files[0];
+		assertTrue(backup.exists());
+
+		String content = null;
+		try {
+			content = new String(Files.readAllBytes(backup.toPath()), StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			fail(e.getLocalizedMessage());
+		}
+
+		assertTrue(content.contains("<bodyHtml><![CDATA[" + testBodyHtml + "]]></bodyHtml>"));
+		assertTrue(content.contains("<bodyText><![CDATA[" + testBodyText + "]]></bodyText>"));
 	}
 }

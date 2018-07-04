@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
@@ -30,6 +32,7 @@ public class SysSystemDto extends AbstractDto implements Codeable, Disableable {
 	private boolean readonly;
 	private boolean disabled;
 	private boolean queue;
+	@JsonProperty(access = Access.READ_ONLY)
 	private boolean virtual;
 	private Long version; // Optimistic lock - will be used with ETag
 	private boolean remote;

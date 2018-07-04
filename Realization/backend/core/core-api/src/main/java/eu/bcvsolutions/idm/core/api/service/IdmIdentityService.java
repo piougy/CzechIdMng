@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.google.common.annotations.Beta;
 
@@ -72,6 +74,18 @@ public interface IdmIdentityService extends
 	 * @since 7.7.0
 	 */
 	List<IdmIdentityDto> findValidByRole(UUID roleId);
+	
+
+	/**
+	 * Find valid identities by assigned currently valid role. Identities with valid identity roles from valid contracts only.
+	 * 
+	 * @param roleId
+	 * @param pageable
+	 * @return Page of identities with assigned currently valid role
+	 * @see {@link #findAllByRole(UUID)} when you need to return identities with invalid role assigned
+	 * @since 8.2.0
+	 */
+	Page<IdmIdentityDto> findValidByRolePage(UUID roleId, Pageable pageable);
 	
 	/**
 	 * Find all identities by assigned role name. Returns even identities with invalid roles (future valid and expired) and invalid identities.
@@ -178,4 +192,5 @@ public interface IdmIdentityService extends
 	 * @return
 	 */
 	IdentityState evaluateState(UUID identityId);
+
 }

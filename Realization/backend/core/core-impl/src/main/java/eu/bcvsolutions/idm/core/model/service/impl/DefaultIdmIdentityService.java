@@ -20,6 +20,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
@@ -378,44 +379,18 @@ public class DefaultIdmIdentityService
 	public List<IdmIdentityDto> findValidByRole(UUID roleId) {
 		Assert.notNull(roleId, "Role is required");
 		//
-		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
-			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				List<Predicate> predicates = new ArrayList<>();
-				//
-				// valid identity
-				predicates.add(builder.equal(root.get(IdmIdentity_.disabled), Boolean.FALSE));
-				//
-				// valid contract (and not excluded) and role
-				Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
-				Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
-				subquery.select(subRoot);
-				Path<IdmIdentityContract> contract = subRoot.get(IdmIdentityRole_.identityContract);
-				subquery.where(
-		                builder.and(
-		                		builder.equal(contract.get(IdmIdentityContract_.identity), root), // correlation attr
-		                		builder.equal(subRoot.get(IdmIdentityRole_.role).get(IdmRole_.id), roleId),
-		                		//
-		                		// valid contract
-		                		RepositoryUtils.getValidPredicate(contract, builder),
-		                		//
-		                		// not disabled, not excluded contract
-		                		builder.equal(contract.get(IdmIdentityContract_.disabled), Boolean.FALSE),
-		                		builder.or(
-		                				builder.notEqual(contract.get(IdmIdentityContract_.state), ContractState.EXCLUDED),
-		                				builder.isNull(contract.get(IdmIdentityContract_.state))
-		                		),
-		                		//
-		                		// valid identity role
-		                		RepositoryUtils.getValidPredicate(subRoot, builder)
-		                		)
-		        );
-				predicates.add(builder.exists(subquery));
-				// 
-				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
-			}
-		};
-		return toDtos(getRepository().findAll(criteria), false);
+		return toDtos(getRepository().findAll(findValidByRoleSpecification(roleId)), false);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentityDto> findValidByRolePage(UUID roleId, Pageable pageable) {
+		Assert.notNull(roleId, "Role is required");
+		//
+		Specification<IdmIdentity> criteria = findValidByRoleSpecification(roleId);
+		return toDtoPage(getRepository().findAll(criteria, pageable));
+	}
+
 
 	/**
 	 * Method find all managers by identity contract and return manager's
@@ -653,5 +628,51 @@ public class DefaultIdmIdentityService
 			ac.setIdentity(identity);
 			authChangeRepository.save(ac);
 		}
+	}
+	
+	/**
+	 * Specification for find valid identities by role
+	 * 
+	 * @param roleId
+	 * @return
+	 */
+	private Specification<IdmIdentity> findValidByRoleSpecification(UUID roleId) {
+		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
+			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				List<Predicate> predicates = new ArrayList<>();
+				//
+				// valid identity
+				predicates.add(builder.equal(root.get(IdmIdentity_.disabled), Boolean.FALSE));
+				//
+				// valid contract (and not excluded) and role
+				Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
+				Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
+				subquery.select(subRoot);
+				Path<IdmIdentityContract> contract = subRoot.get(IdmIdentityRole_.identityContract);
+				subquery.where(
+		                builder.and(
+		                		builder.equal(contract.get(IdmIdentityContract_.identity), root), // correlation attr
+		                		builder.equal(subRoot.get(IdmIdentityRole_.role).get(IdmRole_.id), roleId),
+		                		//
+		                		// valid contract
+		                		RepositoryUtils.getValidPredicate(contract, builder),
+		                		//
+		                		// not disabled, not excluded contract
+		                		builder.equal(contract.get(IdmIdentityContract_.disabled), Boolean.FALSE),
+		                		builder.or(
+		                				builder.notEqual(contract.get(IdmIdentityContract_.state), ContractState.EXCLUDED),
+		                				builder.isNull(contract.get(IdmIdentityContract_.state))
+		                		),
+		                		//
+		                		// valid identity role
+		                		RepositoryUtils.getValidPredicate(subRoot, builder)
+		                		)
+		        );
+				predicates.add(builder.exists(subquery));
+				// 
+				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
+			}
+		};
+		return criteria;
 	}
 }

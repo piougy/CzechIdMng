@@ -1,10 +1,13 @@
 package eu.bcvsolutions.idm.vs.rest.impl;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -22,9 +25,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
@@ -33,6 +38,7 @@ import eu.bcvsolutions.idm.vs.dto.VsConnectorObjectDto;
 import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
 import eu.bcvsolutions.idm.vs.dto.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
+import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -47,15 +53,14 @@ import io.swagger.annotations.AuthorizationScope;
  */
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/vs/requests")
-@Api(
-		value = VsRequestController.TAG, 
-		tags = { VsRequestController.TAG }, 
-		description = "Operations with requests (in virtual system)", 
-		produces = BaseController.APPLICATION_HAL_JSON_VALUE, 
-		consumes = MediaType.APPLICATION_JSON_VALUE)
+@Api(value = VsRequestController.TAG, tags = {
+		VsRequestController.TAG }, description = "Operations with requests (in virtual system)", produces = BaseController.APPLICATION_HAL_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 public class VsRequestController extends AbstractReadWriteDtoController<VsRequestDto, VsRequestFilter> {
 
 	protected static final String TAG = "Requests";
+
+	@Autowired
+	private VsSystemImplementerService requestImplementerService;
 
 	@Autowired
 	public VsRequestController(VsRequestService service) {
@@ -149,7 +154,8 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 	public ResponseEntity<?> cancel(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
 			@ApiParam(value = "Reason in request DTO. Reason must be filled!", required = true) @RequestBody(required = true) VsRequestDto reason) {
-		VsRequestDto request = ((VsRequestService) getService()).cancel(getService().get(backendId), reason.getReason());
+		VsRequestDto request = ((VsRequestService) getService()).cancel(getService().get(backendId),
+				reason.getReason());
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
 
@@ -210,8 +216,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/wish-connector-object", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_READ + "')")
-	@ApiOperation(value = "Read wish connector object. Object contains current attributes from virtual system + changed attributes from given request.",
-	nickname = "getVsConnectorObject", response = VsConnectorObjectDto.class, tags = {
+	@ApiOperation(value = "Read wish connector object. Object contains current attributes from virtual system + changed attributes from given request.", nickname = "getVsConnectorObject", response = VsConnectorObjectDto.class, tags = {
 			VsRequestController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "") }),
@@ -226,6 +231,34 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		} else {
 			return new ResponseEntity<>(new VsConnectorObjectDto(), HttpStatus.OK);
 		}
+	}
+
+	@Override
+	public VsRequestDto getDto(Serializable backendId) {
+		VsRequestDto requestDto = super.getDto(backendId);
+		// Add list of implementers
+		addImplementers(requestDto);
+
+		return requestDto;
+	}
+
+	@Override
+	public Page<VsRequestDto> find(VsRequestFilter filter, Pageable pageable, BasePermission permission) {
+		Page<VsRequestDto> page = super.find(filter, pageable, permission);
+		page.forEach(request -> addImplementers(request));
+
+		return page;
+	}
+
+	/**
+	 * Load and add implementers for that system to the request
+	 * 
+	 * @param requestDto
+	 */
+	private void addImplementers(VsRequestDto requestDto) {
+		List<IdmIdentityDto> implementers = this.requestImplementerService
+				.findRequestImplementers(requestDto.getSystem(), 10);
+		requestDto.setImplementers(implementers);
 	}
 
 	@Override

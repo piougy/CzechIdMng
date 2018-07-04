@@ -42,15 +42,11 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
-import eu.bcvsolutions.idm.ic.api.IcConnector;
-import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
-import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConfigurationService;
 import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConnectorService;
 import eu.bcvsolutions.idm.ic.exception.IcException;
-import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
@@ -77,6 +73,7 @@ import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
+import eu.bcvsolutions.idm.vs.service.api.VsSystemService;
 
 /**
  * Service for request in virtual system
@@ -92,13 +89,13 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 	private final EntityEventManager entityEventManager;
 	private final VsSystemImplementerService requestImplementerService;
-	private final CzechIdMIcConnectorService czechIdMConnectorService;
-	private final CzechIdMIcConfigurationService czechIdMConfigurationService;
 	private final SysSystemService systemService;
 	private final NotificationManager notificationManager;
 	private final IdmIdentityService identityService;
 	private final VsAccountService accountService;
 	private final ConfigurationService configurationService;
+	@Autowired
+	private VsSystemService vsSystemService;
 
 	@Autowired
 	public DefaultVsRequestService(VsRequestRepository repository, EntityEventManager entityEventManager,
@@ -120,31 +117,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		this.entityEventManager = entityEventManager;
 		this.requestImplementerService = requestImplementerService;
-		this.czechIdMConnectorService = czechIdMConnectorService;
-		this.czechIdMConfigurationService = czechIdMConfigurationService;
 		this.systemService = systemService;
 		this.notificationManager = notificationManager;
 		this.identityService = identityService;
 		this.accountService = accountService;
 		this.configurationService = configurationService;
-	}
-
-	@Override
-	protected VsRequestDto toDto(VsRequest entity, VsRequestDto dto) {
-		VsRequestDto request = super.toDto(entity, dto);
-
-		if (request == null) {
-			return null;
-		}
-
-		// Add list of implementers
-		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request.getSystem());
-		request.setImplementers(implementers);
-		if (request.isTrimmed()) {
-			// request.setConnectorObject(null);
-		}
-
-		return request;
 	}
 
 	@Override
@@ -556,33 +533,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	 * @return
 	 */
 	private VsVirtualConnector getVirtualConnector(VsRequestDto request) {
-		IcConnectorInfo connectorInfo = czechIdMConfigurationService.getAvailableLocalConnectors()//
-				.stream()//
-				.filter(info -> request.getConnectorKey().equals(info.getConnectorKey().getFullName()))//
-				.findFirst()//
-				.orElse(null);
-		if (connectorInfo == null) {
-			throw new IcException(MessageFormat.format(
-					"We cannot found connector info by connector key [{0}] from virtual system request!",
-					request.getConnectorKey()));
-		}
-
-		IcConnectorInstance connectorKeyInstance = new IcConnectorInstanceImpl(null, connectorInfo.getConnectorKey(),
-				false);
-		IcConnector connectorInstance = czechIdMConnectorService.getConnectorInstance(connectorKeyInstance,
-				request.getConfiguration());
-		if (!(connectorInstance instanceof VsVirtualConnector)) {
-			throw new IcException("Found connector instance is not virtual system connector!");
-		}
-		VsVirtualConnector virtualConnector = (VsVirtualConnector) connectorInstance;
-		return virtualConnector;
+		Assert.notNull(request.getSystem());
+		return vsSystemService.getVirtualConnector(request.getSystem(), request.getConnectorKey());
 	}
 
 	private void sendNotification(VsRequestDto request, VsRequestDto previous) {
 		Assert.notNull(request, "VS request cannot be null for send notification!");
 		final String NAME = "__NAME__";
 
-		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request.getSystem());
+		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request.getSystem(),
+				50);
 		if (implementers.isEmpty()) {
 			// We do not have any implementers ... we don`t have anyone to send
 			// notification
@@ -594,11 +554,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// We assume the request.UID is equals Identity user name!;
 		VsConnectorObjectDto wish = this.getWishConnectorObject(request);
 		IdmIdentityDto identity = this.getIdentity(request.getUid());
-		if(identity == null) {
+		if (identity == null) {
 			// Identity was not found, we try found her again with 'new' UID (__NAME__)
-			for ( VsAttributeDto att : wish.getAttributes()) {
-				if(att.getName().equals(NAME)) {
-					identity = this.getIdentity((String)att.getValue().getValue());
+			for (VsAttributeDto att : wish.getAttributes()) {
+				if (att.getName().equals(NAME)) {
+					identity = this.getIdentity((String) att.getValue().getValue());
 					break;
 				}
 			}

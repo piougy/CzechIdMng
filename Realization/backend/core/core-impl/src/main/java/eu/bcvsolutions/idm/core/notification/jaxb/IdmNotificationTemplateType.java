@@ -66,6 +66,7 @@ public class IdmNotificationTemplateType {
 		this.bodyHtml = bodyHtml;
 	}
 
+	@XmlJavaTypeAdapter(CDATAAdapter.class)
 	@XmlElement(type = String.class)
 	public String getBodyText() {
 		return bodyText;

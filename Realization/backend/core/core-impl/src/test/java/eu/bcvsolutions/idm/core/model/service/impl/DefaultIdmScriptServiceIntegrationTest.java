@@ -8,6 +8,8 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -273,6 +275,52 @@ public class DefaultIdmScriptServiceIntegrationTest extends AbstractIntegrationT
 			assertTrue(backup.getName().contains(script1.getCode()));
 		} catch (Exception e) {
 			fail();
+		}
+	}
+
+	@Test
+	public void checkCdataTag() {
+		String testDescription = getHelper().createName();
+		String testBody = getHelper().createName();
+		File directory = new File(TEST_BACKUP_FOLDER);
+		if (directory.exists() && directory.isDirectory()) {
+			try {
+				FileUtils.deleteDirectory(directory);
+			} catch (IOException e) {
+				fail();
+			}
+		}
+		//
+		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
+
+		assertNotNull(script1);
+		
+		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, TEST_BACKUP_FOLDER);
+
+		script1.setDescription(testDescription);
+		script1.setScript(testBody);
+
+		try {
+			scriptService.backup(script1);
+			//
+			DateTime date = DateTime.now();
+			DecimalFormat decimalFormat = new DecimalFormat("00");
+			directory = new File(TEST_BACKUP_FOLDER + "scripts/" + date.getYear()
+					+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
+			File[] files = directory.listFiles();
+			assertEquals(1, files.length);
+			File backup = files[0];
+			assertTrue(backup.exists());
+			assertTrue(backup.getName().contains("admin"));
+			assertTrue(backup.getName().contains(script1.getCode()));
+
+			String content = new String(Files.readAllBytes(backup.toPath()), StandardCharsets.UTF_8);
+			
+			assertTrue(content.contains("<description><![CDATA[" + testDescription + "]]></description>"));
+			assertTrue(content.contains("<body><![CDATA[" + testBody + "]]></body>"));
+			
+		} catch (Exception e) {
+			fail(e.getLocalizedMessage());
 		}
 	}
 }

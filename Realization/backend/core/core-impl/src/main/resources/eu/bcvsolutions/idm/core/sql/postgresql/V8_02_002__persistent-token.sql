@@ -4,6 +4,9 @@
 --
 -- Persistent IdM tokens
 
+-- drop table idm_authority_change
+drop table idm_authority_change;
+
 CREATE TABLE idm_token (
 	id bytea NOT NULL,
 	created timestamp NOT NULL,

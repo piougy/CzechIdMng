@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,6 +59,11 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private PasswordChangeController passwordChangeController;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
+	
+	@Before
+	public void init() {
+		this.logout();
+	}
 	
 	@After
 	public void after() {

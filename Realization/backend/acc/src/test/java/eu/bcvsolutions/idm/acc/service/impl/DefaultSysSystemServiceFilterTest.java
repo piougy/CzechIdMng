@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -32,7 +31,7 @@ public class DefaultSysSystemServiceFilterTest extends AbstractIntegrationTest {
 
 	@Before
 	public void login() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 
 	@After

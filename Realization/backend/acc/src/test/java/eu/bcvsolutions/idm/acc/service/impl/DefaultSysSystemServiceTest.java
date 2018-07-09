@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
@@ -107,7 +106,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void login() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+		loginAsAdmin();
 	}
 	
 	@After 

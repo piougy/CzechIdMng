@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -150,7 +149,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 		}
 		//
 		// disable policy
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		IdmAuthorizationPolicyFilter filter = new IdmAuthorizationPolicyFilter();
 		filter.setRoleId(role.getId());
 		filter.setAuthorizableType(IdmRole.class.getCanonicalName());
@@ -190,7 +189,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 		}
 		//
 		// disable policy
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// TODO: disable configurable api
 		CodeableEvaluator evaluator = new CodeableEvaluator();
 		configurationService.setBooleanValue(evaluator.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED), false);
@@ -206,7 +205,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 		} finally {
 			logout();
 			// enable policy
-			loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+			loginAsAdmin();
 			// TODO: disable configurable api
 			configurationService.setBooleanValue(evaluator.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED), true);
 			logout();
@@ -215,7 +214,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 	
 	private IdmIdentityDto createIdentityWithRole(boolean transitive) {
 		TEST_ROLE_ID = UUID.randomUUID();
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		IdmRoleDto role = helper.createRole(TEST_ROLE_ID, null);
 		IdmTreeNodeDto treeNode = helper.createTreeNode();
 		helper.createRoleTreeNode(role, treeNode, true);

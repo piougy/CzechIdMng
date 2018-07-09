@@ -766,8 +766,8 @@
       "AUTOMATICROLEATTRIBUTE": "Automatic roles (attributes)",
       "AUTOMATICROLEATTRIBUTERULE": "Rules for automatic roles (attributes)",
       "AUTOMATICROLEREQUEST": "Requests for automatic roles",
-      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Requests for automatic roles (rules of the attributes)"
-
+      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Requests for automatic roles (rules of the attributes)",
+      "TOKEN": "Token"
     }
   },
   "content": {

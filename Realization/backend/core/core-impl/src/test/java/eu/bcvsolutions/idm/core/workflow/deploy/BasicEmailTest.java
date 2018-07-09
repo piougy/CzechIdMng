@@ -37,7 +37,7 @@ public class BasicEmailTest extends AbstractCoreWorkflowIntegrationTest {
 	
 	@Before
 	public void login() {
-		super.loginAsAdmin(InitTestData.TEST_USER_1);
+		super.loginAsAdmin();
 	}
 	
 	@After

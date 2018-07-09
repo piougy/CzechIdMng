@@ -12,14 +12,15 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
  * TODO: method for FE find all {@link Authenticator} and create DTO.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  */
 
 public interface AuthenticationManager {
 	
-	final String TEMPLATE_LOGIN_IS_BLOCKED = "loginBlocked";
+	String TEMPLATE_LOGIN_IS_BLOCKED = "loginBlocked";
 	
 	/**
-	 * Process authenticate over all founded {@link Authenticator}
+	 * Process authenticate over all founded {@link Authenticator}.
 	 * 
 	 * @param loginDto
 	 */
@@ -34,4 +35,9 @@ public interface AuthenticationManager {
 	 * @return
 	 */
 	boolean validate(String username, GuardedString password);
+	
+	/**
+	 * Logout - process logout over all registered {@link Authenticator}. 
+	 */
+	void logout();
 }

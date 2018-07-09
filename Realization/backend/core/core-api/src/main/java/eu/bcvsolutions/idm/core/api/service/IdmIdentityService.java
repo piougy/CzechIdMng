@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
  * Operations with IdmIdentity
@@ -102,6 +103,7 @@ public interface IdmIdentityService extends
 	/**
 	 * Contains list of identities some identity with given username.
 	 * If yes, then return true.
+	 * 
 	 * @param identities
 	 * @param username
 	 * @return
@@ -129,13 +131,14 @@ public interface IdmIdentityService extends
 
 	
 	/**
-	 * Update IdmAuthorityChange for all given identities and set 
+	 * Disable tokens for all given identities and set 
 	 * it to provided value. 
 	 * 
 	 * @param identities identities to update
 	 * @param changeTime change time to set
+	 * @deprecated @since 8.2.0 - use {@link TokenManager#disableTokens(eu.bcvsolutions.idm.core.api.domain.Identifiable, BasePermission...)} 
 	 */
-	@Beta
+	@Deprecated
 	void updateAuthorityChange(List<UUID> identities, DateTime changeTime);
 	
 	/**

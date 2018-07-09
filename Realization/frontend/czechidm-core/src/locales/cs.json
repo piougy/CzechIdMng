@@ -797,7 +797,8 @@
       "AUTOMATICROLEATTRIBUTE": "Automatické role (atributy)",
       "AUTOMATICROLEATTRIBUTERULE": "Pravidla automatických rolí (atributy)",
       "AUTOMATICROLEREQUEST": "Žádosti o automatické role",
-      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)"
+      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)",
+      "TOKEN": "Token"
     }
   },
   "content": {

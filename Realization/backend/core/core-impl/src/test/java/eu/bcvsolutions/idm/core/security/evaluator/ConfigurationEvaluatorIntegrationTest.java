@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -54,7 +53,7 @@ public class ConfigurationEvaluatorIntegrationTest extends AbstractIntegrationTe
 	
 	@Test
 	public void testReadWithoutPermissions() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// prepare identity
 		IdmIdentityDto identity = helper.createIdentity();
 		identity.setPassword(new GuardedString("heslo"));
@@ -74,7 +73,7 @@ public class ConfigurationEvaluatorIntegrationTest extends AbstractIntegrationTe
 	
 	@Test
 	public void testReadWithPermissions() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// prepare role
 		IdmRoleDto role = helper.createRole();
 		//
@@ -107,7 +106,7 @@ public class ConfigurationEvaluatorIntegrationTest extends AbstractIntegrationTe
 	
 	@Test
 	public void testReadSecuredWithPermissions() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// prepare role
 		IdmRoleDto role = helper.createRole();
 		//
@@ -141,7 +140,7 @@ public class ConfigurationEvaluatorIntegrationTest extends AbstractIntegrationTe
 	
 	@Test(expected = ForbiddenEntityException.class)
 	public void testUpdateWithoutPermissions() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// prepare role
 		IdmRoleDto role = helper.createRole();
 		//
@@ -172,7 +171,7 @@ public class ConfigurationEvaluatorIntegrationTest extends AbstractIntegrationTe
 	
 	@Test(expected = ForbiddenEntityException.class)
 	public void testUpdateSecuredWithoutPermissions() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// prepare role
 		IdmRoleDto role = helper.createRole();
 		//

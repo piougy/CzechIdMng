@@ -263,7 +263,7 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 				return MessageFormat.format("{0} [code= {1}]", getClass().getCanonicalName(), code);
 			}
 		}
-		return MessageFormat.format("{0} [code= {1}]", getClass().getCanonicalName(), getId());
+		return MessageFormat.format("{0} [id= {1}]", getClass().getCanonicalName(), getId());
 	}
 
 	@Override

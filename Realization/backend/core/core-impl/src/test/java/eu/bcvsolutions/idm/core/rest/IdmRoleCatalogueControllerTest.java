@@ -52,7 +52,7 @@ public class IdmRoleCatalogueControllerTest extends AbstractRestTest {
 	
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// remove garbage from another tests
 		for (IdmRoleCatalogueDto root : roleCatalogueService.findRoots(null).getContent()) {
 			removeRecursivelyAllRoleCatalogue(root);

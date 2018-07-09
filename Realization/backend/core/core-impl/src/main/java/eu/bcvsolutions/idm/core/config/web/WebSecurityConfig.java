@@ -73,13 +73,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		// public controllers
-		web.ignoring().antMatchers( //
-				BaseDtoController.BASE_PATH, // endpoint with supported services list
-				BaseDtoController.BASE_PATH + "/authentication", // login / out
-				"/error/**",
-				BaseDtoController.BASE_PATH + "/doc", // documentation is public
-				BaseDtoController.BASE_PATH + "/doc/**"
-			);
+		web //
+			.ignoring()
+			.antMatchers(HttpMethod.HEAD, BaseDtoController.BASE_PATH + "/authentication")
+			.antMatchers(HttpMethod.OPTIONS, BaseDtoController.BASE_PATH + "/authentication")
+			.antMatchers(HttpMethod.POST, BaseDtoController.BASE_PATH + "/authentication") // login
+			.antMatchers(HttpMethod.GET, BaseDtoController.BASE_PATH + "/authentication") // remote login
+			.antMatchers( //
+					BaseDtoController.BASE_PATH, // endpoint with supported services list
+					"/error/**",
+					BaseDtoController.BASE_PATH + "/doc", // documentation is public
+					BaseDtoController.BASE_PATH + "/doc/**"
+					);
 	}
 	
 	/**

@@ -216,7 +216,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	WORKFLOWTASK(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.READ,
-			IdmBasePermission.EXECUTE);
+			IdmBasePermission.EXECUTE),
+	TOKEN(
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authorize SpEl expressions
 	

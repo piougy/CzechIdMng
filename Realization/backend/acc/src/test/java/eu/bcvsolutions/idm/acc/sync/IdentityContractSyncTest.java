@@ -150,7 +150,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 
 	@After

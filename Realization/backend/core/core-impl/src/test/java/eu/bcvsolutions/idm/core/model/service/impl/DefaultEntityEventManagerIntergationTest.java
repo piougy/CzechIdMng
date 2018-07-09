@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
@@ -71,7 +70,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+		loginAsAdmin();
 		entityEventManager = context.getAutowireCapableBeanFactory().createBean(DefaultEntityEventManager.class);
 	}
 	

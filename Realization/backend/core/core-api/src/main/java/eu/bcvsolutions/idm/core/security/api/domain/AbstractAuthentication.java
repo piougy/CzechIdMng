@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.security.api.domain;
 
+import java.util.UUID;
+
 import org.springframework.security.core.Authentication;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -12,7 +14,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 public abstract class AbstractAuthentication implements Authentication {
 
 	private static final long serialVersionUID = 896638566635125212L;
-	
+	//
+	private UUID id; // authentication id - e.g. token id
 	private final IdmIdentityDto currentIdentity;
 	private final IdmIdentityDto originalIdentity;
 	
@@ -23,6 +26,18 @@ public abstract class AbstractAuthentication implements Authentication {
 	 * @param originalIdentity (for login as)
 	 */
 	public AbstractAuthentication(IdmIdentityDto currentIdentity, IdmIdentityDto originalIdentity) {
+		this(null, currentIdentity, originalIdentity);
+	}
+	
+	/**
+	 * Creates a new instance
+	 * 
+	 * @param currentIdentity 
+	 * @param originalIdentity (for login as)
+	 * @since 8.2.0
+	 */
+	public AbstractAuthentication(UUID id, IdmIdentityDto currentIdentity, IdmIdentityDto originalIdentity) {
+		this.id = id;
 		this.currentIdentity = currentIdentity;
 		this.originalIdentity = originalIdentity;
 	}
@@ -73,4 +88,23 @@ public abstract class AbstractAuthentication implements Authentication {
 		throw new IllegalArgumentException("setAuthenticated is not supported");
 	}
 	
+	/**
+	 * Authentication id - e.g. token id
+	 * 
+	 * @return
+	 * @since 8.2.0
+	 */
+	public UUID getId() {
+		return id;
+	}
+	
+	/**
+	 * Authentication id - e.g. token id
+	 * 
+	 * @param id
+	 * @since 8.2.0
+	 */
+	public void setId(UUID id) {
+		this.id = id;
+	}	
 }

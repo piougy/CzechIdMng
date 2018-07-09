@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -90,7 +89,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	
 	@Test
 	public void testEvaluate() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+		loginAsAdmin();
 		// prepare role
 		IdmRoleDto role = helper.createRole();
 		helper.createBasePolicy(role.getId(), IdmBasePermission.READ);		
@@ -124,7 +123,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	
 	@Test
 	public void testPredicate() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+		loginAsAdmin();
 		// prepare role
 		IdmRoleDto role = helper.createRole();
 		helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
@@ -157,7 +156,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	@Test
 	public void testFindValidPolicies() {
 		try {
-			loginAsAdmin(InitTestData.TEST_USER_1);
+			loginAsAdmin();
 			// prepare role
 			IdmRoleDto role = helper.createRole();
 			IdmRoleDto role2 = helper.createRole();
@@ -179,7 +178,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	@Transactional
 	public void testFindValidPoliciesWithInvalidRole() {
 		try {
-			loginAsAdmin(InitTestData.TEST_USER_1);
+			loginAsAdmin();
 			// prepare role
 			IdmRoleDto role = helper.createRole();
 			IdmRoleDto role2 = helper.createRole();
@@ -205,7 +204,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	@Transactional
 	public void testFindValidPoliciesWithInvalidIdentityRole() {
 		try {
-			loginAsAdmin(InitTestData.TEST_USER_1);
+			loginAsAdmin();
 			// prepare role
 			IdmRoleDto role = helper.createRole();
 			IdmRoleDto role2 = helper.createRole();
@@ -230,7 +229,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	@Test
 	public void testFindValidPoliciesWithInvalidIdentityContractByDisabled() {
 		try {
-			loginAsAdmin(InitTestData.TEST_USER_1);
+			loginAsAdmin();
 			// prepare role
 			IdmRoleDto role = helper.createRole();
 			IdmRoleDto role2 = helper.createRole();
@@ -257,7 +256,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	@Transactional
 	public void testFindValidPoliciesWithInvalidIdentityContractByDates() {
 		try {
-			loginAsAdmin(InitTestData.TEST_USER_1);
+			loginAsAdmin();
 			// prepare role
 			IdmRoleDto role = helper.createRole();
 			IdmRoleDto role2 = helper.createRole();

@@ -54,7 +54,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 
 	@Before
 	public void before() {
-		this.loginAsAdmin("[DefaultIdmPasswordServiceIntegrationTest]");
+		this.loginAsAdmin();
 		removeDefaultPolicy();
 	}
 

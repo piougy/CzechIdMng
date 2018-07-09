@@ -12,13 +12,9 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
-import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
  * 
@@ -39,9 +35,6 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
 	private WorkflowDeploymentService processDeploymentService;
 	@Autowired
 	private AutowireCapableBeanFactory beanFactory;
-	@Autowired
-	private LookupService lookupService;
-
     
 	/**
 	 * Behavior injection from configuration doesn't work - we need to initialize it manually
@@ -58,9 +51,22 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
     }
 	
     @Override
-	public void loginAsAdmin(String username){
-    	IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(username);
-		SecurityContextHolder.getContext().setAuthentication(AuthenticationTestUtils.getSystemAuthentication(identity.getUsername(), identity.getId()));
+	public void loginAsAdmin() {
+    	super.loginAsAdmin();
+    	workflowIdentityService.setAuthenticatedUserId(TestHelper.ADMIN_USERNAME);
+	}
+    
+    /**
+	 *  User will be logged as APP_ADMIN
+	 *  
+	 *  Lookout: security context is mocked
+	 *  Better way is to prepare concrete identity in your test
+	 * 
+	 * @param username
+	 */
+    @Override
+	public void loginAsAdmin(String username) {
+    	super.loginAsAdmin(username);
 		workflowIdentityService.setAuthenticatedUserId(username);
 	}
 

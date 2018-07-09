@@ -30,7 +30,7 @@ public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void login() {
-		loginAsAdmin("admin");
+		loginAsAdmin();
 	}
 	
 	@After

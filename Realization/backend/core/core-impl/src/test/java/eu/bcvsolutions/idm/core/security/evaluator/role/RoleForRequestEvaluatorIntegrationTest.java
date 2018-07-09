@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -60,7 +59,7 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 
 	@Before
 	public void prepareTestData() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		evaluator = new RoleCanBeRequestedEvaluator(securityService);
 
 		hasNoRole = createUser(uniqueString(), TEST_PWD);

@@ -25,8 +25,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTokenRepository;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
@@ -40,12 +41,13 @@ public class DefaultIdmIdentityServiceUnitTest extends AbstractUnitTest {
 
 	@Mock private IdmIdentityRepository repository;
 	@Mock private IdmRoleService roleService;
-	@Mock private IdmAuthorityChangeRepository authChangeRepository;
+	@Mock private IdmTokenRepository authChangeRepository;
 	@Mock private EntityEventManager entityEventManager;
 	@Mock private RoleConfiguration roleConfiguration;
 	@Mock private FormService formService;
 	@Mock private IdmIdentityContractService identityContractService;
 	@Mock private IdmPasswordService passwordService;
+	@Mock private TokenManager tokenManager;
 	@Spy 
 	private ModelMapper modelMapper = new ModelMapper();
 	//

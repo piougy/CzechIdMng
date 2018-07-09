@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.security.api.dto;
 
-import java.util.Collection;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -14,18 +13,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class IdmJwtAuthenticationDto {
 
+	private UUID id;
 	private String currentUsername;
 	private UUID currentIdentityId;
 	private String originalUsername;
 	private UUID originalIdentityId;
-	@JsonProperty("exp")
+	@JsonProperty("exp") // by rfc7519
 	private DateTime expiration;
-	@JsonProperty("iat")
+	@JsonProperty("iat") // by rfc7519
 	private DateTime issuedAt;
-	private Collection<DefaultGrantedAuthorityDto> authorities;
 	private String fromModule;
 
 	public IdmJwtAuthenticationDto() {
+	}
+	
+	public void setId(UUID id) {
+		this.id = id;
+	}
+	
+	public UUID getId() {
+		return id;
 	}
 
 	public String getCurrentUsername() {
@@ -58,14 +65,6 @@ public class IdmJwtAuthenticationDto {
 
 	public void setIssuedAt(DateTime issuedAt) {
 		this.issuedAt = issuedAt;
-	}
-
-	public Collection<DefaultGrantedAuthorityDto> getAuthorities() {
-		return authorities;
-	}
-
-	public void setAuthorities(Collection<DefaultGrantedAuthorityDto> authorities) {
-		this.authorities = authorities;
 	}
 
 	public UUID getCurrentIdentityId() {

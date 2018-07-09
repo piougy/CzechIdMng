@@ -53,6 +53,7 @@ public interface TestHelper {
 	String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
 	String ADMIN_USERNAME = "admin";
 	String ADMIN_PASSWORD = "admin";
+	String ADMIN_ROLE = "superAdminRole";
 	String DEFAULT_PASSWORD = "password";
 	String HAL_CONTENT_TYPE = "application/hal+json";
 	

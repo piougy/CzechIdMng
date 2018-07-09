@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
-import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
@@ -149,7 +148,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void init() {
-		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 
 	@After

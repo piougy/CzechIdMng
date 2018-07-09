@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
@@ -60,7 +59,7 @@ public abstract class AbstractHrProcessIntegrationTest<E extends AbstractDto> ex
 	}
 	
 	protected void before() {
-		super.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		super.loginAsAdmin();
 		//
 		helper.disable(IdentityContractEnableProcessor.class);
 		helper.disable(IdentityContractEndProcessor.class);

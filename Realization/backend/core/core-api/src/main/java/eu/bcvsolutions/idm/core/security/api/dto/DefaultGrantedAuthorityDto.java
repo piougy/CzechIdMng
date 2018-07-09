@@ -1,9 +1,22 @@
 package eu.bcvsolutions.idm.core.security.api.dto;
 
-import com.google.common.base.Objects;
+import java.io.Serializable;
 
-public class DefaultGrantedAuthorityDto {
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+
+/**
+ * Granted authority = GROUP_BASE permission
+ * 
+ * @author Radek Tomiška
+ *
+ */
+public class DefaultGrantedAuthorityDto implements BaseDto {
 	
+	private static final long serialVersionUID = 1L;
+	//
 	private String authority;
 	
 	public DefaultGrantedAuthorityDto() {
@@ -11,6 +24,16 @@ public class DefaultGrantedAuthorityDto {
 	
 	public DefaultGrantedAuthorityDto(String authority) {
 		this.authority = authority;
+	}
+	
+	@Override
+	public String getId() {
+		return authority;
+	}
+
+	@Override
+	public void setId(Serializable id) {
+		this.authority = id == null ? null : id.toString();
 	}
 
 	public String getAuthority() {
@@ -20,20 +43,25 @@ public class DefaultGrantedAuthorityDto {
 	public void setAuthority(String authority) {
 		this.authority = authority;
 	}
-
+	
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(getAuthority());
+		return new HashCodeBuilder()
+				 .append(authority)
+				 .toHashCode();
 	}
-
+	
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj || getClass() != obj.getClass()) {
+	public boolean equals(final Object o) {
+		if (!(o instanceof DefaultGrantedAuthorityDto)) {
 			return false;
 		}
-		return Objects.equal(getAuthority(), ((DefaultGrantedAuthorityDto) obj).getAuthority());
+		DefaultGrantedAuthorityDto that = (DefaultGrantedAuthorityDto) o;
+		
+		EqualsBuilder builder = new EqualsBuilder();
+	
+		return builder
+				.append(authority, that.authority)
+				.isEquals();
 	}
-	
-	
-
 }

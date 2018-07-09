@@ -12,9 +12,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface IdmAuthenticationFilter {
 	
-	static final String AUTHORIZATION_HEADER_NAME = "Authorization";
-	
-	static final String AUTHENTICATION_TOKEN_NAME = "cidmst";
+	String AUTHORIZATION_HEADER_NAME = "Authorization";
+	String AUTHENTICATION_TOKEN_NAME = "cidmst";
 
 	/**
 	 * Authenticate user based on authorization token in HTTP header.
@@ -27,8 +26,7 @@ public interface IdmAuthenticationFilter {
 	 * @param token
 	 * @param request
 	 * @param response
-	 * @return
-	 * 		Whether the authorization was successful
+	 * @return Whether the authorization was successful
 	 */
 	boolean authorize(String token, HttpServletRequest request, HttpServletResponse response);
 	
@@ -36,8 +34,7 @@ public interface IdmAuthenticationFilter {
 	 * Return the name of HTTP header carrying the Authorization token.
 	 * Default is "Authorization".
 	 * 
-	 * @return
-	 * 		Authorization HTTP header name
+	 * @return Authorization HTTP header name
 	 */
 	default String getAuthorizationHeaderName() {
 		return AUTHORIZATION_HEADER_NAME;
@@ -59,8 +56,7 @@ public interface IdmAuthenticationFilter {
 	 * header. For example in Basic auth. scheme, the header value
 	 * is prefix with 'Basic ' string.
 	 *   
-	 * @return
-	 * 		Authorization token value prefix
+	 * @return Authorization token value prefix
 	 */
 	default String getAuthorizationHeaderPrefix() {
 		return "";

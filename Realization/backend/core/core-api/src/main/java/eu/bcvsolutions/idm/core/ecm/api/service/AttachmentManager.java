@@ -126,7 +126,6 @@ public interface AttachmentManager extends
 	 * 
 	 * @param owner
 	 * @param permission permissions to evaluate (AND)
-	 * @return
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	void deleteAttachments(Identifiable owner, BasePermission... permission);

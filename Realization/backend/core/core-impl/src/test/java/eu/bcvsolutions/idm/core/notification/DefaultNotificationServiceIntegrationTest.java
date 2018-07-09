@@ -66,7 +66,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 
 	@Before
 	public void clear() {
-		loginAsAdmin("admin");
+		loginAsAdmin();
 		// TODO: make test stateless!
 		emailLogRepository.deleteAll();
 		idmNotificationRepository.deleteAll();

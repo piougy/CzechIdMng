@@ -72,7 +72,7 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 		UUID currentId = securityService.getCurrentId();
 
 		// Find all valid roles (includes check on contract validity)
-		Set<UUID> roles = identityRoleService.findValidRole(currentId, null).getContent()//
+		Set<UUID> roles = identityRoleService.findValidRoles(currentId, null).getContent()//
 				.stream()//
 				.map(IdmIdentityRoleDto::getRole)//
 				.collect(Collectors.toSet());
@@ -99,7 +99,7 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 		}
 
 		// Find all valid roles (includes check on contract validity)
-		Set<UUID> roles = identityRoleService.findValidRole(currentId, null).getContent()//
+		Set<UUID> roles = identityRoleService.findValidRoles(currentId, null).getContent()//
 				.stream()//
 				.map(IdmIdentityRoleDto::getRole)//
 				.collect(Collectors.toSet());

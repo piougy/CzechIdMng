@@ -48,11 +48,36 @@ export default class AuthenticateService {
   }
 
   /**
+   * Clear security storage only (~logout FE)
+   */
+  clearStorage() {
+    delete localStorage['czechidm-storage'];
+  }
+
+  /**
    * Logout from BE
+   *
    * @return Returns logout promise
    */
   logout() {
-    delete localStorage['czechidm-storage'];
+    return RestApiService
+      .delete(authPath) // we want to append auth token - token will be disabled
+      .then(response => {
+        if (response.status === 204) { // no content - ok
+          return null;
+        }
+        return response.json();
+      })
+      .then(json => {
+        this.clearStorage();
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -105,23 +130,6 @@ export default class AuthenticateService {
       return;
     }
     lastToken = token;
-  }
-
-  /**
-   * Decodes given JWT token and returns the 'authorities' field
-   * mapped as an array of strings.
-   * @return {array} authorities
-   */
-  static getTokenAuthorities(token) {
-    const decoded = AuthenticateService.decodeToken(token);
-    return AuthenticateService.getAuthorities(decoded);
-  }
-
-  /**
-   * @return {array} JWT token authorities as list of strings
-   */
-  static getAuthorities(decodedToken) {
-    return decodedToken.authorities.map(authority => authority.authority);
   }
 
   /**

@@ -7,10 +7,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 
 /**
  * Security context helper methods
- * <p>
- * TODO: logout - clear authentication
  * 
  * @author svandav
+ * @author Radek Tomiška
  */
 public interface SecurityService {
 	
@@ -33,6 +32,13 @@ public interface SecurityService {
 	 * Login as system (in scheduler etc.)
 	 */
 	void setSystemAuthentication();
+	
+	/**
+	 * Logout currently authenticated identity
+	 * 
+	 * @since 8.2.0
+	 */
+	void logout();
 
 	/**
 	 * Obtains the currently authenticated principal, or an authentication request token.
@@ -48,6 +54,14 @@ public interface SecurityService {
 	 * @return
 	 */
 	boolean isAuthenticated();
+	
+	/**
+	 * Returns current authentication id (~ token id).
+	 * 
+	 * @return
+	 * @since 8.2.0
+	 */
+	UUID getId();
 	
 	/**
 	 * Returns currently logged identity's username

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 import org.activiti.engine.IdentityService;
 import org.joda.time.DateTime;
@@ -17,45 +18,40 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
+import eu.bcvsolutions.idm.core.api.service.IdmTokenService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
  * Tests authentication manager for internal Idm authentication scheme.
+ * 
  * @author Jan Helbich
+ * @author Radek Tomiška
  *
  */
 public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 	
 	public static final String USER_NAME = "test_user";
 
-	@Mock
-	private IdmIdentityService identityService;
-	
-	@Mock
-	private IdentityService workflowIdentityService;
-	
-	@Mock
-	private SecurityService securityService;
-	
-	@Mock
-	private IdmAuthorityChangeRepository acRepository;
-	
+	@Mock private IdmIdentityService identityService;
+	@Mock private IdentityService workflowIdentityService;
+	@Mock private SecurityService securityService;
+	@Mock private IdmTokenService tokenService;
+	//
+	private DefaultTokenManager tokenManager;
 	private OAuthAuthenticationManager authManager;
 	
 	
 	@Before
 	public void init() {
-		authManager = new OAuthAuthenticationManager(identityService,
-				workflowIdentityService, securityService, acRepository);
+		tokenManager = new DefaultTokenManager();
+		tokenManager.setTokenService(tokenService);
+		authManager = new OAuthAuthenticationManager(identityService, workflowIdentityService, securityService, tokenManager);
 	}
 	
 	/**
@@ -64,12 +60,13 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 	@Test
 	public void testAuthSuccess() {
 		IdmIdentityDto i = getTestIdentity();
-		IdmJwtAuthentication authentication = getAuthentication(USER_NAME,
-				DateTime.now().plusHours(1), DateTime.now());
-		
-		when(identityService.getByUsername(USER_NAME)).thenReturn(i);
+		IdmJwtAuthentication authentication = getAuthentication(UUID.randomUUID(), i, DateTime.now().plusHours(1), DateTime.now());
+		when(identityService.get(i.getId())).thenReturn(i);
 		doNothing().when(workflowIdentityService).setAuthenticatedUserId(USER_NAME);
 		doNothing().when(securityService).setAuthentication(authentication);
+		IdmTokenDto token = new IdmTokenDto(authentication.getId());
+		token.setOwnerId(i.getId());
+		when(tokenService.get(authentication.getId())).thenReturn(token);
 		
 		Authentication auth = authManager.authenticate(authentication);
 		
@@ -77,9 +74,10 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 		Assert.assertEquals(USER_NAME, auth.getPrincipal());
 		Assert.assertTrue(auth.getAuthorities().isEmpty());
 		
-		verify(identityService).getByUsername(USER_NAME);
+		verify(identityService).get(i.getId());
 		verify(workflowIdentityService).setAuthenticatedUserId(USER_NAME);
 		verify(securityService).setAuthentication(authentication);
+		verify(tokenService).get(authentication.getId());
 	}
 	
 	/**
@@ -87,14 +85,20 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testIdentityNotExists() {
-		IdmJwtAuthentication authentication = getAuthentication(USER_NAME,
+		IdmIdentityDto i = getTestIdentity(); 
+		IdmJwtAuthentication authentication = getAuthentication(
+				UUID.randomUUID(), i,
 				DateTime.now().plusHours(1), DateTime.now());
-		when(identityService.getByUsername(USER_NAME)).thenReturn(null);
+		when(identityService.getByUsername(i.getUsername())).thenReturn(null);
+		IdmTokenDto token = new IdmTokenDto(authentication.getId());
+		token.setOwnerId(UUID.randomUUID());
+		when(tokenService.get(token.getId())).thenReturn(token);
 		try {
 			authManager.authenticate(authentication);
 			Assert.fail("Cannot authenticate unknown identity.");
 		} catch (AuthenticationException e) {
-			verify(identityService).getByUsername(USER_NAME);
+			verify(identityService).get(token.getOwnerId());
+			verify(tokenService).get(token.getId());
 		}
 	}
 	
@@ -104,63 +108,42 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 	@Test(expected = ResultCodeException.class)
 	public void testAuthExpired() {
 		IdmIdentityDto i = getTestIdentity();
-		when(identityService.getByUsername(USER_NAME)).thenReturn(i);
-		IdmJwtAuthentication authentication = getAuthentication(USER_NAME,
+		IdmTokenDto token = new IdmTokenDto(UUID.randomUUID());
+		token.setExpiration(DateTime.now().minusHours(1));
+		when(identityService.get(i.getId())).thenReturn(i);
+		when(tokenService.get(token.getId())).thenReturn(token);
+		
+		IdmJwtAuthentication authentication = getAuthentication(token.getId(), i,
 				DateTime.now().minusHours(1), DateTime.now().plusHours(2));
 		
 		authManager.authenticate(authentication);
 		Assert.fail("Cannot authenticate with expired token.");
 	}
-	
-	/**
-	 * Removing a role which grants authorities results in authentication
-	 * expiration.
-	 */
-	@Test
-	public void testAuthorityModification() {
-		IdmIdentityDto i = getTestIdentity();
-		IdmAuthorityChange ac = getAuthChange(i, DateTime.now());
-		
-		IdmJwtAuthentication authentication = getAuthentication(USER_NAME,
-				DateTime.now().plusHours(1), DateTime.now().minusHours(1));
-		when(identityService.getByUsername(USER_NAME)).thenReturn(i);
-		when(acRepository.findOneByIdentity_Id(i.getId())).thenReturn(ac);
-		
-		try {
-			authManager.authenticate(authentication);
-			Assert.fail("Cannot authenticate identity with modified authorities.");
-		} catch (ResultCodeException e) {
-			Assert.assertEquals(CoreResultCode.AUTHORITIES_CHANGED.getStatus(), e.getStatus());
-			Assert.assertEquals(CoreResultCode.AUTHORITIES_CHANGED.getMessage(), e.getMessage());
-			verify(identityService).getByUsername(USER_NAME);
-			verify(acRepository).findOneByIdentity_Id(i.getId());
-		}
-	}
 
-	
 	private IdmIdentityDto getTestIdentity() {
-		IdmIdentityDto i = new IdmIdentityDto();
+		IdmIdentityDto i = new IdmIdentityDto(UUID.randomUUID());
 		i.setUsername(USER_NAME);
 		return i;
 	}
 	
-	private IdmAuthorityChange getAuthChange(IdmIdentityDto i, DateTime dt) {
-		IdmAuthorityChange c = new IdmAuthorityChange();
-		c.setIdentity(new IdmIdentity(i.getId()));
-		c.setAuthChangeTimestamp(dt);
-		return c;
-	}
-	
-	private IdmJwtAuthentication getAuthentication(String username, DateTime exp, DateTime iat) {
-		return getAuthentication(username, exp, iat, new ArrayList<>());
+	private IdmJwtAuthentication getAuthentication(UUID tokenId, IdmIdentityDto identity, DateTime exp, DateTime iat) {
+		return getAuthentication(tokenId, identity, exp, iat, new ArrayList<>());
 	}
 
-	private IdmJwtAuthentication getAuthentication(String username, DateTime exp,
-			DateTime iat, Collection<GrantedAuthority> authorities) {
-		return new IdmJwtAuthentication(
-				new IdmIdentityDto(username),
-				new IdmIdentityDto(username),
-				exp, iat, authorities, "testmodule");
+	private IdmJwtAuthentication getAuthentication(
+			UUID tokenId, 
+			IdmIdentityDto identity, 
+			DateTime exp, 
+			DateTime iat, 
+			Collection<GrantedAuthority> authorities) {
+		return new IdmJwtAuthentication( 
+				tokenId,
+				identity,
+				identity,
+				exp,
+				iat,
+				authorities,
+				"testmodule");
 	}
 
 }

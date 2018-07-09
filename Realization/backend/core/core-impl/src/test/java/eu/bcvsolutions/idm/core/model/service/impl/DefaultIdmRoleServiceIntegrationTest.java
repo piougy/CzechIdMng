@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
@@ -56,7 +55,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+		loginAsAdmin();
 	}
 	
 	@After 

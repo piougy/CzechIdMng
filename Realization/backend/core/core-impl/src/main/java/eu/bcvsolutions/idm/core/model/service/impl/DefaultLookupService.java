@@ -130,6 +130,14 @@ public class DefaultLookupService implements LookupService {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes"})
 	public Class<? extends BaseEntity> getEntityClass(Class<? extends Identifiable> identifiableType) {
+		Assert.notNull(identifiableType, "Identifiable type is required!");
+		//
+		// given identifiable type is already entity class
+		if (BaseEntity.class.isAssignableFrom(identifiableType)) {
+			return (Class<? extends BaseEntity>) identifiableType;
+		}
+		//
+		// try to find entity class by dto class
 		Object service = getService(identifiableType);
 		if (service == null) {
 			return null;

@@ -253,7 +253,7 @@ export default class FlashMessagesManager {
   // TODO: cyclic dependency in security manager
   _logoutImmediatelly() {
     const authenticateService = new AuthenticateService();
-    authenticateService.logout();
+    authenticateService.clearStorage();
     return {
       type: 'LOGOUT'
     };

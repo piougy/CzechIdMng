@@ -56,7 +56,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	@Before
 	public void before() {
-		this.loginAsAdmin("admin");
+		this.loginAsAdmin();
 	}
 
 	@After

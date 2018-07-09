@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
@@ -75,7 +74,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	
 	@Before
 	public void login() {
-		super.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		super.loginAsAdmin();
 	}
 
 	@After

@@ -121,7 +121,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin();
 	}
 
 	@After

@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.security.api.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -20,8 +23,11 @@ public class LoginDto extends LoginRequestDto {
 	@ApiModelProperty(readOnly = true, notes = "Logged identity's authentication token.")
 	private String token;
 	@JsonProperty(access = Access.READ_ONLY)
-	@ApiModelProperty(readOnly = true, notes = "Logged identity's authentication with granted authorities.")
+	@ApiModelProperty(readOnly = true, notes = "Logged identity's authentication metadata.")
 	private IdmJwtAuthenticationDto authentication;
+	@JsonProperty(access = Access.READ_ONLY)
+	@ApiModelProperty(readOnly = true, notes = "Logged identity's granted authorities.")
+	private List<DefaultGrantedAuthorityDto> authorities;
 	@JsonIgnore
 	private boolean skipMustChange = false;
 	@JsonProperty(access = Access.READ_ONLY)
@@ -71,4 +77,14 @@ public class LoginDto extends LoginRequestDto {
 		this.authenticationModule = authenticationModule;
 	}
 
+	public List<DefaultGrantedAuthorityDto> getAuthorities() {
+		if (authorities == null) {
+			authorities = new ArrayList<>();
+		}
+		return authorities;
+	}
+
+	public void setAuthorities(List<DefaultGrantedAuthorityDto> authorities) {
+		this.authorities = authorities;
+	}
 }

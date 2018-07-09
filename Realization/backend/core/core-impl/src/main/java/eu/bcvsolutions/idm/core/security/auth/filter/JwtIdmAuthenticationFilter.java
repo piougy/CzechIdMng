@@ -38,15 +38,9 @@ public class JwtIdmAuthenticationFilter implements IdmAuthenticationFilter {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(JwtIdmAuthenticationFilter.class);
 
-	@Autowired
-	protected OAuthAuthenticationManager authenticationManager;
-
-	@Autowired
-	protected JwtAuthenticationMapper jwtTokenMapper;
-
-	@Autowired
-	protected AuthenticationExceptionContext ctx;
-	
+	@Autowired private OAuthAuthenticationManager authenticationManager;
+	@Autowired private JwtAuthenticationMapper jwtTokenMapper;
+	@Autowired private AuthenticationExceptionContext ctx;
 	
 	@Override
 	public boolean authorize(String token, HttpServletRequest request, HttpServletResponse response) {

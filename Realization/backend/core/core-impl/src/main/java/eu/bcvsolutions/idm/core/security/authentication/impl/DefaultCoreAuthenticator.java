@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.security.api.authentication.AbstractAuthenticator;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
@@ -14,13 +14,20 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 
-@Component
+/**
+ * Authenticate over IdM.
+ * 
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
+ *
+ */
+@Component(DefaultCoreAuthenticator.AUTHENTICATOR_NAME)
 @Enabled(CoreModuleDescriptor.MODULE_ID)
 @Description("Default authenticator, authenticate over password saved in IdmPassword.")
 public class DefaultCoreAuthenticator extends AbstractAuthenticator implements Authenticator {
 
-	private static final String AUTHENTICATOR_NAME = "core-authenticator";
-	
+	public static final String AUTHENTICATOR_NAME = "core-authenticator";
+	//
 	private final LoginService loginService;
 	
 	@Autowired
@@ -44,13 +51,18 @@ public class DefaultCoreAuthenticator extends AbstractAuthenticator implements A
 
 	@Override
 	public String getModule() {
-		return EntityUtils.getModule(this.getClass());
+		return CoreModuleDescriptor.MODULE_ID;
 	}
 
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
 		loginDto.setAuthenticationModule(this.getModule());
 		return this.loginService.login(loginDto);
+	}
+	
+	@Override
+	public void logout(IdmTokenDto token) {
+		this.loginService.logout(token);
 	}
 
 	@Override

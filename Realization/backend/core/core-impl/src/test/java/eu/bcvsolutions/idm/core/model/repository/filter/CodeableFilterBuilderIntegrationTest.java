@@ -9,13 +9,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * UuidFilterBuilder test
@@ -25,12 +24,11 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  */
 public class CodeableFilterBuilderIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
 	@Autowired private CodeableFilter<IdmIdentity> identityFilter;
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 
 	@After
@@ -41,9 +39,9 @@ public class CodeableFilterBuilderIntegrationTest extends AbstractIntegrationTes
 	@Test
 	public void testFindIdentityByUuid() {
 		// prepare data
-		IdmIdentityDto identityOne = helper.createIdentity();
-		IdmIdentityDto identityTwo = helper.createIdentity();
-		IdmRoleDto roleOne = helper.createRole();
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleOne = getHelper().createRole();
 		//
 		DataFilter dataFilter = new DataFilter(IdmIdentityDto.class);
 		dataFilter.setCodeableIdentifier(identityOne.getId().toString());
@@ -64,9 +62,9 @@ public class CodeableFilterBuilderIntegrationTest extends AbstractIntegrationTes
 	@Test
 	public void testFindIdentityByUsername() {
 		// prepare data
-		IdmIdentityDto identityOne = helper.createIdentity();
-		IdmIdentityDto identityTwo = helper.createIdentity();
-		IdmRoleDto roleOne = helper.createRole();
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleOne = getHelper().createRole();
 		//
 		DataFilter dataFilter = new DataFilter(IdmIdentityDto.class);
 		dataFilter.setCodeableIdentifier(identityOne.getUsername());

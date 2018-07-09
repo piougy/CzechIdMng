@@ -7,10 +7,12 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.activiti.engine.impl.util.json.JSONObject;
+import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.junit.Before;
@@ -114,5 +116,16 @@ public abstract class AbstractRestTest extends AbstractIntegrationTest {
 			}
 		}
 		return pageable.toString();
+	}
+	
+	/**
+	 * Returns basic auth in base64 usable in rest header
+	 * 
+	 * @param user
+	 * @param password
+	 * @return
+	 */
+	protected String getBasicAuth(String user, String password) {
+		return Base64.encodeBase64String((user + ":" + password).getBytes(StandardCharsets.UTF_8));
 	}
 }

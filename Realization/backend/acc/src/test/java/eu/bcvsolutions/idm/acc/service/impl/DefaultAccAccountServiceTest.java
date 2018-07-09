@@ -70,7 +70,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin();
 		this.getBean().deleteAllResourceData();
 	}
 

@@ -59,6 +59,7 @@ import EntityStateService from './EntityStateService';
 import BulkActionService from './BulkActionService';
 import ContractSliceService from './ContractSliceService';
 import ContractSliceGuaranteeService from './ContractSliceGuaranteeService';
+import FormDefinitionAttributesValuesService from './FormDefinitionAttributesValuesService';
 
 const ServiceRoot = {
   RestApiService,
@@ -96,6 +97,7 @@ const ServiceRoot = {
   RoleTreeNodeService,
   FormDefinitionService,
   FormAttributeService,
+  FormDefinitionAttributesValuesService,
   AuthorizationPolicyService,
   ScriptAuthorityService,
   ContractGuaranteeService,

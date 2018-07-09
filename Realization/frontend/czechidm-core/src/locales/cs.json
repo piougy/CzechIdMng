@@ -1450,6 +1450,10 @@
           "header": "How to",
           "message": "Lokalizaci pro formulář je možné definovat v modulu <strong class=\"highlight\">{{name}}</strong> (v sekci <strong>eav</strong>):"
         }
+      },
+      "values": {
+        "header": "Hodnoty atributů",
+        "title": "Hodnoty atributů"
       }
     },
     "formAttributes": {

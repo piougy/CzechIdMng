@@ -55,6 +55,7 @@ import AutomaticRoleAttributeRuleRequestManager from './AutomaticRoleAttributeRu
 import EntityEventManager from './EntityEventManager';
 import EntityStateManager from './EntityStateManager';
 import ContractSliceManager from './ContractSliceManager';
+import FormDefinitionAttributesValuesManager from './FormDefinitionAttributesValuesManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -90,6 +91,7 @@ const ManagerRoot = {
   RoleTreeNodeManager,
   FormDefinitionManager,
   FormAttributeManager,
+  FormDefinitionAttributesValuesManager,
   AuthorizationPolicyManager,
   ScriptAuthorityManager,
   ContractGuaranteeManager,

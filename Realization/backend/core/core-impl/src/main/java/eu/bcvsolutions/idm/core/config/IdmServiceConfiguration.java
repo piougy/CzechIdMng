@@ -55,6 +55,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.CommonFormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionAttributesValuesService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
@@ -62,6 +63,7 @@ import eu.bcvsolutions.idm.core.eav.repository.IdmFormRepository;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCommonFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionAttributesValuesService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.ecm.api.config.AttachmentConfiguration;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
@@ -90,6 +92,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.core.model.repository.eav.IdmIdentityFormValueRepository;
 import eu.bcvsolutions.idm.core.model.repository.filter.DefaultFilterManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
@@ -164,6 +167,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmConfidentialStorageValueRepository confidentialStorageValueRepository;
 	@Autowired private IdmFormDefinitionRepository formDefinitionRepository;
 	@Autowired private IdmFormAttributeRepository formAttributeRepository;
+	@Autowired private IdmIdentityFormValueRepository formValueRepository;
 	@Autowired private IdmLongRunningTaskRepository longRunningTaskRepository;
 	@Autowired private IdmContractGuaranteeRepository contractGuaranteeRepository;
 	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
@@ -365,7 +369,13 @@ public class IdmServiceConfiguration {
 	public FormService formService() {
 		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager(), lookupService());
 	}
-	
+
+	@Bean
+	@ConditionalOnMissingBean(IdmFormDefinitionAttributesValuesService.class)
+	public IdmFormDefinitionAttributesValuesService formAttributeValuesService() {
+		return new DefaultIdmFormDefinitionAttributesValuesService(formValueRepository);
+	}
+
 	/**
 	 * Configuration for role agenda
 	 * 

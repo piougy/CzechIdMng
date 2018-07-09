@@ -997,6 +997,15 @@ module.exports = {
                 'icon': '',
                 'type': 'TAB',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]
+              },
+              {
+                'id': 'forms-values',
+                'labelKey': 'content.formDefinitions.values.title',
+                'order': 950,
+                'path': '/forms/:entityId/values',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
               }
             ]
           },

@@ -1410,6 +1410,10 @@
           "header": "How to",
           "message": "Form localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (in the <strong>eav</strong> section):"
         }
+      },
+      "values": {
+        "header": "Attribute's values",
+        "title": "Attribute's values"
       }
     },
     "formAttributes": {

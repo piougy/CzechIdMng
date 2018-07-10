@@ -98,7 +98,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		Assert.assertFalse(tokenDto.isDisabled());
 		//
 		getMockMvc()
-			.perform(delete(BaseController.BASE_PATH + "/authentication")
+			.perform(delete(BaseController.BASE_PATH + "/logout")
 			.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, token)
 			.contentType(InitTestData.HAL_CONTENT_TYPE))
 			.andExpect(status().isNoContent());
@@ -132,7 +132,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		Assert.assertFalse(tokenDto.isDisabled());
 		//
 		getMockMvc()
-			.perform(delete(BaseController.BASE_PATH + "/authentication")
+			.perform(delete(BaseController.BASE_PATH + "/logout")
 					.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
 			.contentType(InitTestData.HAL_CONTENT_TYPE))
 			.andExpect(status().isNoContent());

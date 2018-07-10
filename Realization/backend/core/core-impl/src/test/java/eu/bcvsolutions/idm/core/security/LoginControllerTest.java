@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.core.security.rest.impl.LoginController;
+import eu.bcvsolutions.idm.core.security.rest.impl.LogoutController;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 public class LoginControllerTest extends AbstractIntegrationTest {
 
 	@Autowired private LoginController loginController;
+	@Autowired private LogoutController logoutController;
 	@Autowired private TokenManager tokenManager;
 	
 	@Test
@@ -54,7 +56,7 @@ public class LoginControllerTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(authentication.getId());
 		Assert.assertFalse(tokenManager.getToken(authentication.getId()).isDisabled());
 		//
-		loginController.logout();
+		logoutController.logout();
 		//
 		Assert.assertTrue(tokenManager.getToken(authentication.getId()).isDisabled());
 	}

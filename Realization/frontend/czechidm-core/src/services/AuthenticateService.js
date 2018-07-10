@@ -61,7 +61,7 @@ export default class AuthenticateService {
    */
   logout() {
     return RestApiService
-      .delete(authPath) // we want to append auth token - token will be disabled
+      .delete('/logout') // we want to append auth token - token will be disabled
       .then(response => {
         if (response.status === 204) { // no content - ok
           return null;

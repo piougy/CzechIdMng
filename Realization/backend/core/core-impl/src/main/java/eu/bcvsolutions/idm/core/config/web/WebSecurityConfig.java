@@ -75,12 +75,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		// public controllers
 		web //
 			.ignoring()
-			.antMatchers(HttpMethod.HEAD, BaseDtoController.BASE_PATH + "/authentication")
-			.antMatchers(HttpMethod.OPTIONS, BaseDtoController.BASE_PATH + "/authentication")
-			.antMatchers(HttpMethod.POST, BaseDtoController.BASE_PATH + "/authentication") // login
-			.antMatchers(HttpMethod.GET, BaseDtoController.BASE_PATH + "/authentication") // remote login
 			.antMatchers( //
 					BaseDtoController.BASE_PATH, // endpoint with supported services list
+					BaseDtoController.BASE_PATH + "/authentication", // login
 					"/error/**",
 					BaseDtoController.BASE_PATH + "/doc", // documentation is public
 					BaseDtoController.BASE_PATH + "/doc/**"

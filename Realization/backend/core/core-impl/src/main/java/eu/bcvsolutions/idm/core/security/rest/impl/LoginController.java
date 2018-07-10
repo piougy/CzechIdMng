@@ -4,12 +4,10 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -65,16 +63,5 @@ public class LoginController implements BaseController {
 	@RequestMapping(path = REMOTE_AUTH_PATH, method = RequestMethod.GET)
 	public Resource<LoginDto> loginWithRemoteToken() {
 		return new Resource<LoginDto>(loginService.loginAuthenticatedUser());
-	}
-	
-	@ApiOperation(
-			value = "Logout", 
-			notes= "Logout currently logged identity and disable currently used token.",
-			response = LoginDto.class,
-			tags = { LoginController.TAG })
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@RequestMapping(method = RequestMethod.DELETE)
-	public void logout() {
-		authenticationManager.logout();
 	}
 }

@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -50,6 +52,16 @@ public class LoginControllerRestTest extends AbstractRestTest {
 	@Autowired private TokenManager tokenManager;
 	//
 	private ObjectMapper mapper = new ObjectMapper();
+	
+	@Before
+	public void init() {
+		this.logout();
+	}
+	
+	@After
+	public void after() {
+		this.logout();
+	}
 
 	@Test
 	public void testFailLoginCounter() throws Exception {
@@ -69,8 +81,6 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		loginController.login(loginDto);
 		//
 		assertEquals(0, passwordService.findOneByIdentity(identity.getUsername()).getUnsuccessfulAttempts());
-		//
-		logout();
 	}
 	
 	@Test

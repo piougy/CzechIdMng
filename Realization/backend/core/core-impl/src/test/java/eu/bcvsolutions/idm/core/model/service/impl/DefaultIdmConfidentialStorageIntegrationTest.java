@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -351,21 +352,21 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 			confidentalStorage.get(identityOne.getId(), IdmIdentity.class, identityOne.getUsername());
 			fail();
 		} catch (Exception e) {
-			assertTrue(e.getCause().getMessage().contains("bad key is used during decryption"));
+			assertTrue(e.getCause() instanceof BadPaddingException);
 		}
 		
 		try {
 			confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, identityTwo.getUsername());
 			fail();
 		} catch (Exception e) {
-			assertTrue(e.getCause().getMessage().contains("bad key is used during decryption"));
+			assertTrue(e.getCause() instanceof BadPaddingException);
 		}
 
 		try {
 			confidentalStorage.get(identityThree.getId(), IdmIdentity.class, identityThree.getUsername());
 			fail();
 		} catch (Exception e) {
-			assertTrue(e.getCause().getMessage().contains("bad key is used during decryption"));
+			assertTrue(e.getCause() instanceof BadPaddingException);
 		}
 
 		// change key in LRT

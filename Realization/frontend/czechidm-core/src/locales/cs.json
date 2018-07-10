@@ -4461,7 +4461,7 @@
       "message": "Korelační filtr není možné použít, protože požadovaný atribut [{{property}}] není typu String!"
     },
     "TOKEN_NOT_FOUND": {
-      "title": "Token nebyl nalezen",
+      "title": "Autentizační token nebyl nalezen",
       "message": "Autentizační token nebyl nalezen!"
     }
   },

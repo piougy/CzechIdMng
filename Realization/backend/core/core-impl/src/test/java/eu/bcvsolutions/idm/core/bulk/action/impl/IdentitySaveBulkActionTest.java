@@ -65,7 +65,7 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 				IdmBasePermission.READ, IdmBasePermission.UPDATE);
 
 		getHelper().createIdentityRole(identity, createRole);
-		loginAsNoAdmin(identity.getUsername());
+		getHelper().login(identity.getUsername(), identity.getPassword());
 
 		originalAsynchronousValue = eventConfiguration.isAsynchronous();
 	}

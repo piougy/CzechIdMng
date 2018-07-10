@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -35,7 +34,7 @@ public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrat
 	
 	@Before
 	public void login() {
-		super.loginAsAdmin(InitTestData.TEST_USER_1);
+		super.loginAsAdmin();
 		configurationService = context.getAutowireCapableBeanFactory().createBean(DefaultConfigurationService.class);
 	}
 	

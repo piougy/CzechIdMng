@@ -6,12 +6,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -24,18 +21,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class PreserveUuidIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired
-	private IdmConfigurationService configurationService;
-	
-	@Before
-	public void login() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
-	}
-	
-	@After 
-	public void logout() {
-		super.logout();
-	}
+	@Autowired private IdmConfigurationService configurationService;
 	
 	@Test
 	public void testCreateConfigurationWithUuid() {

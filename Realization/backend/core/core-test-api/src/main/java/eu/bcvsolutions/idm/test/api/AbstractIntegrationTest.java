@@ -32,7 +32,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
-import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
  * Test rest services will be based on spring integration tests with MockMvc / hamcrest and junit test framework
@@ -70,20 +69,31 @@ public abstract class AbstractIntegrationTest {
 	}
 	
 	/**
-	 * Log in as "boss" with all authorities.
-	 * Look out - identity (with id) is not set. Authorities will be added only => authorization policies will not be initialized. 
-	 * Use {@link #getHelper()} login method to login as exists identity. 
+	 * Log in as "boss" 
 	 * 
-	 * TODO: add deprecated? - Use {@link #getHelper()} login method to login as exists identity. This method is confusing (creates mock context).
+	 * @param username
+	 */
+	public void loginAsAdmin() {
+		getHelper().loginAdmin();
+	}
+	
+	/**
+	 *  User will be logged as APP_ADMIN
+	 *  
+	 *  Lookout: security context is mocked
 	 * 
 	 * @param username
 	 */
 	public void loginAsAdmin(String username) {
-		SecurityContextHolder.getContext().setAuthentication(AuthenticationTestUtils.getSystemAuthentication(username));
+		Collection<GrantedAuthority> authorities = IdmAuthorityUtils.toAuthorities(IdmGroupPermission.APP);
+		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(username);
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authorities, "test"));
 	}
 	
 	/**
 	 * User will be logged as user with all authorities without APP_ADMIN
+	 * 
+	 * Lookout: security context is mocked
 	 * 
 	 * @param user
 	 */
@@ -100,7 +110,9 @@ public abstract class AbstractIntegrationTest {
 	 *
 	 * @param user
 	 * @param authorities
+	 * @deprecated use {@link TestHelper#login(String, String)}
 	 */
+	@Deprecated
 	public void loginWithout(String user, String ...authorities) {
 		Collection<GrantedAuthority> authoritiesWithout = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
 			for (String auth: authorities) {

@@ -10,7 +10,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
@@ -55,7 +54,7 @@ public class DefaultAuditStressTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void login() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 	
 	@After 

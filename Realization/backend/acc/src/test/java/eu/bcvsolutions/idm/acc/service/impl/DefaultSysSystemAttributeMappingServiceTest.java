@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -57,7 +56,7 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 
 	@After

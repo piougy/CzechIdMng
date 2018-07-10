@@ -46,7 +46,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 
 	@Before
 	public void login() {
-		super.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		super.loginAsAdmin();
 	}
 
 	@After

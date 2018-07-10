@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Seconds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,8 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -29,9 +32,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.DefaultGrantedAuthorityDto;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
  * Reads authentication from token and provides conversions from / to dto and to token. 
+ * Persist / loads created tokens.
  * 
  * @author Radek Tomiška
  *
@@ -39,23 +46,21 @@ import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
 @Component
 public class JwtAuthenticationMapper {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(JwtAuthenticationMapper.class);
+	//
 	public static final String AUTHENTICATION_TOKEN_NAME = IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME.toUpperCase();
 	public static final String PROPERTY_SECRET_TOKEN = "idm.sec.security.jwt.secret.token";
 	public static final String DEFAULT_SECRET_TOKEN = "idmSecret";
+	public static final String PROPERTY_AUTHORITIES = "authorities";
+	public static final String PROPERTY_CURRENT_USERNAME = "currentUsername";
+	public static final String PROPERTY_ORIGINAL_USERNAME = "originalUsername";
+	public static final String PROPERTY_ORIGINAL_IDENTITY_ID = "originalIdentityId";
 	//
-	private final ObjectMapper mapper;
-	private final ConfigurationService configurationService;
-
-	@Autowired
-	public JwtAuthenticationMapper(
-			@Qualifier("objectMapper") ObjectMapper mapper,
-			ConfigurationService configurationService) {
-		Assert.notNull(mapper);
-		Assert.notNull(configurationService);
-		//
-		this.mapper = mapper;
-		this.configurationService = configurationService;
-	}
+	@Qualifier("objectMapper")
+	@Autowired private ObjectMapper mapper;
+	@Autowired private ConfigurationService configurationService;
+	@Autowired private TokenManager tokenManager;
+	@Autowired private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 	
 	/**
 	 * Reads {@link IdmJwtAuthentication} from given token
@@ -119,35 +124,187 @@ public class JwtAuthenticationMapper {
 	}
 	
 	/**
+	 * Constructs new actual expiration by the configuration
+	 * 
+	 * @return
+	 */
+	public DateTime getNewExpiration() {
+		Integer timeoutMillis = configurationService.getIntegerValue(
+				LoginService.PROPERTY_EXPIRATION_TIMEOUT,
+				LoginService.DEFAULT_EXPIRATION_TIMEOUT);
+		//
+		return DateTime.now().plus(timeoutMillis);
+	}
+	
+	/**
 	 * Converts dto to authentication.
+	 * Authentication authorities are loaded or filled from persisted token
 	 * 
 	 * @param dto
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public IdmJwtAuthentication fromDto(IdmJwtAuthenticationDto dto) {
 		Assert.notNull(dto);
 		//
-		Collection<DefaultGrantedAuthorityDto> authorities = dto.getAuthorities();
-		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-		if (authorities != null) {
-			for (DefaultGrantedAuthorityDto a : authorities) {
-				grantedAuthorities.add(new DefaultGrantedAuthority(a.getAuthority()));
-			}
-		}
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				new IdmIdentityDto(dto.getCurrentIdentityId(), dto.getCurrentUsername()),
 				new IdmIdentityDto(dto.getOriginalIdentityId(), dto.getOriginalUsername()), 
 				dto.getExpiration(),
 				dto.getIssuedAt(),
-				grantedAuthorities,
+				null,
 				dto.getFromModule());
+		//
+		// try to load authorities
+		IdmTokenDto token = tokenManager.getToken(dto.getId());
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+		if (token != null) {
+			authentication.setId(token.getId());
+			Collection<DefaultGrantedAuthorityDto> authorities = (Collection<DefaultGrantedAuthorityDto>) token.getProperties().get(PROPERTY_AUTHORITIES);
+			if (authorities != null) {
+				for (DefaultGrantedAuthorityDto a : authorities) {
+					grantedAuthorities.add(new DefaultGrantedAuthority(a.getAuthority()));
+				}
+			} else {
+				grantedAuthorities.addAll(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(token.getOwnerId()));
+			}
+			
+		} else {
+			grantedAuthorities.addAll(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(dto.getCurrentIdentityId()));
+		}
+		authentication.setAuthorities(grantedAuthorities);
+		//
 		return authentication;
+	}
+	
+	/**
+	 * Converts dto to authentication.
+	 * 
+	 * @param token
+	 * @return
+	 */
+	public IdmJwtAuthentication fromDto(IdmTokenDto token) {
+		Assert.notNull(token);
+		//
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+		for (DefaultGrantedAuthorityDto a : getDtoAuthorities(token)) {
+			grantedAuthorities.add(new DefaultGrantedAuthority(a.getAuthority()));
+		}
+		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
+				new IdmIdentityDto(
+						token.getOwnerId(), 
+						token.getProperties().getString(PROPERTY_CURRENT_USERNAME)),
+				new IdmIdentityDto(
+						token.getProperties().getUuid(PROPERTY_ORIGINAL_IDENTITY_ID), 
+						token.getProperties().getString(PROPERTY_ORIGINAL_USERNAME)),
+				token.getExpiration(),
+				token.getIssuedAt(),
+				grantedAuthorities,
+				token.getModuleId());
+		authentication.setId(token.getId());
+		//
+		return authentication;
+	}
+	
+	/**
+	 * Create token with assigned identity authorities
+	 * 
+	 * @param identity
+	 * @param preparedToken 
+	 * @return preparedToken with filled required 
+	 */
+	public IdmTokenDto createToken(IdmIdentityDto identity, IdmTokenDto preparedToken) {
+		Assert.notNull(identity);
+		//
+		try {
+			// persist token
+			IdmTokenDto token = new IdmTokenDto();
+			if (preparedToken != null) {
+				// fill optional token properties
+				token.setModuleId(preparedToken.getModuleId());
+				token.setExternalId(preparedToken.getExternalId());
+				token.setProperties(preparedToken.getProperties());
+				token.setDisabled(preparedToken.isDisabled());
+			}
+			// required not overridable properties
+			token.setOwnerId(identity.getId());
+			token.setOwnerType(tokenManager.getOwnerType(identity));
+			token.setTokenType(AUTHENTICATION_TOKEN_NAME);
+			token.setIssuedAt(DateTime.now());
+			token.setExpiration(getNewExpiration());
+			token.getProperties().put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity.getId())));
+			token.getProperties().put(PROPERTY_CURRENT_USERNAME, identity.getUsername());
+			token.getProperties().put(PROPERTY_ORIGINAL_USERNAME, identity.getUsername()); // TODO: not implemented now - current = original
+			token.getProperties().put(PROPERTY_ORIGINAL_IDENTITY_ID, identity.getId()); // TODO: not implemented now - current = original
+			//
+			if (token.getId() == null) {
+				// token id has to be written int token
+				token.setId(UUID.randomUUID());
+			}
+			token.setToken(writeToken(toDto(token)));
+			token = tokenManager.saveToken(identity, token);
+			//
+			return token;
+		} catch(IOException ex) {
+			throw new CoreException(String.format("Creating JWT token for identity [%s] failed.", identity.getId()), ex);
+		}
+	}
+	
+	/**
+	 * Prolong authentication expiration - but only if difference from old expiration is greater than one minute. 
+	 * If persistent token for given authentication is found, then persisted token is updated 
+	 * 
+	 * @param tokenId
+	 * @return returns actual token
+	 */
+	public IdmJwtAuthenticationDto prolongExpiration(IdmJwtAuthenticationDto authenticationDto) {
+		if (authenticationDto == null || authenticationDto.getId() == null) {
+			return null;
+		}
+		//
+		DateTime newExpiration = getNewExpiration();
+		DateTime oldExpiration = authenticationDto.getExpiration();
+		if (oldExpiration == null) {
+			LOG.trace("Authentication token with id [{}] has unlimited expiration (e.g. system token), expiration will not be changed.", authenticationDto.getId());
+			return authenticationDto;
+		}
+		int seconds = Seconds.secondsBetween(authenticationDto.getExpiration(), newExpiration).getSeconds();
+		if (seconds < 60) {
+			LOG.trace("Authentication [{}] expiration will not be prolonged - expiration differs by [{}]s only.", authenticationDto.getId(), seconds);
+			return authenticationDto;
+		}
+		//
+		authenticationDto.setExpiration(newExpiration);
+		IdmTokenDto token = tokenManager.getToken(authenticationDto.getId());
+		if (token == null) {
+			LOG.trace("Persisted token for authentication with id [{}] not found, persisted token expiration will not be prolonged.", authenticationDto.getId());
+			return authenticationDto;
+		}
+		if (token.getExpiration() == null) {
+			LOG.trace("Persisted token with id [{}] has unlimited expiration (e.g. system token), expiration will not be changed.", token.getId());
+			return authenticationDto;
+		}
+		try {
+			// expiration and token attribute has to be updated
+			token.setExpiration(newExpiration);
+			token.setToken(writeToken(toDto(token)));
+			token = tokenManager.saveToken(new IdmIdentityDto(token.getOwnerId()), token);
+			//
+			return authenticationDto;
+		} catch(IOException ex) {
+			throw new CoreException(String.format("Prolong expiration for JWT token [%s] failed.", token.getId()), ex);
+		}
+	}
+	
+	public void disableToken(UUID tokenId) {
+		tokenManager.disableToken(tokenId);
 	}
 	
 	/**
 	 * Converts authentication.
 	 * 
 	 * @param authentication to dto
+	 * @see #saveToken(IdmJwtAuthentication)
 	 * @return
 	 */
 	public IdmJwtAuthenticationDto toDto(IdmJwtAuthentication authentication) {
@@ -160,8 +317,30 @@ public class JwtAuthenticationMapper {
 		authenticationDto.setOriginalIdentityId(getIdentityId(authentication.getOriginalIdentity()));
 		authenticationDto.setExpiration(authentication.getExpiration());
 		authenticationDto.setFromModule(authentication.getFromModule());
-		authenticationDto.setIssuedAt(DateTime.now());
-		authenticationDto.setAuthorities(getDtoAuthorities(authentication));
+		authenticationDto.setIssuedAt(authentication.getIssuedAt());
+		//
+		return authenticationDto;
+	}
+	
+	/**
+	 * Convert token to authentication dto
+	 * 
+	 * @param token
+	 * @return
+	 */
+	public IdmJwtAuthenticationDto toDto(IdmTokenDto token) {
+		Assert.notNull(token);
+		//
+		IdmJwtAuthenticationDto authenticationDto = new IdmJwtAuthenticationDto();
+		authenticationDto.setCurrentUsername(token.getProperties().getString(PROPERTY_CURRENT_USERNAME));
+		authenticationDto.setCurrentIdentityId(token.getOwnerId());
+		authenticationDto.setOriginalUsername(token.getProperties().getString(PROPERTY_ORIGINAL_USERNAME));
+		authenticationDto.setOriginalIdentityId(token.getProperties().getUuid(PROPERTY_ORIGINAL_IDENTITY_ID));
+		authenticationDto.setExpiration(token.getExpiration());
+		authenticationDto.setFromModule(token.getModuleId());
+		authenticationDto.setIssuedAt(token.getIssuedAt());
+		authenticationDto.setId(token.getId());
+		//
 		return authenticationDto;
 	}
 	
@@ -169,7 +348,7 @@ public class JwtAuthenticationMapper {
 	 * 
 	 * @param authentication
 	 * @return
-	 * @deprecated use {@link #getDtoAuthorities(Authentication)}
+	 * @deprecated @since 7.8.0 use {@link #getDtoAuthorities(Authentication)}
 	 */
 	@Deprecated
 	public List<DefaultGrantedAuthorityDto> getDTOAuthorities(Authentication authentication) {
@@ -177,24 +356,32 @@ public class JwtAuthenticationMapper {
 	}
 
 	/**
-	 * 
+	 * Transforms authentication authorities to list of dtos
 	 * 
 	 * @param authentication
 	 * @return
-	 * @deprecated will be private
 	 */
-	@Deprecated
-	@SuppressWarnings("unchecked")
 	public List<DefaultGrantedAuthorityDto> getDtoAuthorities(Authentication authentication) {
-		Collection<DefaultGrantedAuthority> authorities = (Collection<DefaultGrantedAuthority>) authentication
-				.getAuthorities();
+		return getDtoAuthorities(authentication.getAuthorities());
+	}
+	
+	public List<DefaultGrantedAuthorityDto> getDtoAuthorities(Collection<? extends GrantedAuthority> authorities) {
 		List<DefaultGrantedAuthorityDto> grantedAuthorities = new ArrayList<>();
 		if (authorities != null) {
-			for (DefaultGrantedAuthority a : authorities) {
+			for (GrantedAuthority a : authorities) {
 				grantedAuthorities.add(new DefaultGrantedAuthorityDto(a.getAuthority()));
 			}
 		}
 		return grantedAuthorities;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<DefaultGrantedAuthorityDto> getDtoAuthorities(IdmTokenDto token) {
+		List<DefaultGrantedAuthorityDto> authorities = (List<DefaultGrantedAuthorityDto>) token.getProperties().get(PROPERTY_AUTHORITIES);
+		if (authorities == null) {
+			return new ArrayList<>();
+		}
+		return authorities;
 	}
 	
 	public IdmJwtAuthenticationDto getClaims(Jwt jwt) throws IOException {

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -115,7 +114,7 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 
 	@After
@@ -180,7 +179,7 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(Boolean.TRUE, account.isEnable());
 
 		super.logout();
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// Disable the identity
 		identity.setState(IdentityState.DISABLED_MANUALLY);
 		identityService.save(identity);

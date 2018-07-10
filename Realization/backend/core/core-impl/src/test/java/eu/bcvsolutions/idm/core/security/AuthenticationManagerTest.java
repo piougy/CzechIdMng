@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -63,7 +62,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void login() {
-		loginAsAdmin("admin");
+		loginAsAdmin();
 	}
 	
 	@After
@@ -110,7 +109,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testBlockLogin() throws InterruptedException {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		String testPassword = "testPassword" + System.currentTimeMillis();
 
 		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();

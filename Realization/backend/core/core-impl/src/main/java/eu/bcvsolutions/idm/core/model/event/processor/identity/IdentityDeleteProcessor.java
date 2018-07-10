@@ -33,10 +33,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipientRepository;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
  * Delete identity - ensures referential integrity
@@ -60,7 +59,7 @@ public class IdentityDeleteProcessor
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
 	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
-	@Autowired private IdmAuthorityChangeRepository authChangeRepository;
+	@Autowired private TokenManager tokenManager;
 	@Autowired private IdmPasswordHistoryService passwordHistoryService;
 	@Autowired private IdmContractSliceService contractSliceService;
 	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
@@ -78,7 +77,7 @@ public class IdentityDeleteProcessor
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		IdmIdentityDto identity = event.getContent();
 		Assert.notNull(identity.getId(), "Identity ID is required!");
-		
+		//
 		// delete contract slices
 		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
 		sliceFilter.setIdentity(identity.getId());
@@ -91,7 +90,7 @@ public class IdentityDeleteProcessor
 		contractSliceGuaranteeService.find(sliceGuaranteeFilter, null).forEach(guarantee -> {
 			contractSliceGuaranteeService.delete(guarantee);
 		});
-		
+		//
 		// contracts
 		identityContractService.findAllByIdentity(identity.getId()).forEach(identityContract -> {
 			// when identity is deleted, then HR processes has to be shipped (prevent to update deleted identity, when contract is removed)
@@ -117,9 +116,9 @@ public class IdentityDeleteProcessor
 		passwordHistoryService.deleteAllByIdentity(identity.getId());
 		// set to null all notification recipients - real recipient remains (email etc.)
 		notificationRecipientRepository.clearIdentity(identity.getId());
-		// remove authorities last changed relation
-		deleteAuthorityChange(identity);
-		
+		// remove related tokens
+		tokenManager.deleteTokens(identity);
+		//
 		// Delete all role requests where is this identity applicant
 		IdmRoleRequestFilter roleRequestFilter = new IdmRoleRequestFilter();
 		roleRequestFilter.setApplicantId(identity.getId());
@@ -131,14 +130,8 @@ public class IdentityDeleteProcessor
 		identityRoleValidRequestService.deleteAll(validRequests);
 		// deletes identity
 		service.deleteInternal(identity);
+		//
 		return new DefaultEventResult<>(event, this);
-	}
-	
-	private void deleteAuthorityChange(IdmIdentityDto identity) {
-		IdmAuthorityChange ac = authChangeRepository.findOneByIdentity_Id(identity.getId());
-		if (ac != null) {
-			authChangeRepository.delete(ac);
-		}
 	}
 
 	@Override

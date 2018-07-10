@@ -8,7 +8,6 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -49,14 +47,8 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	private Random r = new Random();
 	
 	@Before
-	public void login() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+	public void init() {
 		formDefinitionService = context.getAutowireCapableBeanFactory().createBean(DefaultIdmFormDefinitionService.class);
-	}
-	
-	@After 
-	public void logout() {
-		super.logout();
 	}
 	
 	/**

@@ -222,8 +222,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		}
 		String module = this.getModule();
 		
-		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(
-				loginDto, identity, module);
+		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(loginDto, identity, module);
 		
 		LOG.info("Identity with username [{}] is authenticated by system [{}]", loginDto.getUsername(), system.getName());
 		

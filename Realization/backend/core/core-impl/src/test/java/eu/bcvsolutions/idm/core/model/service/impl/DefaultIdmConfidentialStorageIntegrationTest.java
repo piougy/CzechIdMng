@@ -66,7 +66,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Before
 	public void initStorage() {
 		confidentalStorage = new DefaultIdmConfidentialStorage(repository, cryptService);
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 	
 	@After

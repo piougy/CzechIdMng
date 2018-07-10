@@ -9,7 +9,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,6 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.HttpFilterUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
-import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 
@@ -40,6 +38,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
  * authenticated.
  * 
  * @author Jan Helbich
+ * @author Radek Tomiška
  *
  */
 public class ExtendExpirationFilter extends GenericFilterBean {
@@ -47,21 +46,13 @@ public class ExtendExpirationFilter extends GenericFilterBean {
 	private static final Logger LOG = LoggerFactory.getLogger(ExtendExpirationFilter.class);
 	public static final String PROPERTY_EXTEND_TOKEN_EXPIRATION = "idm.sec.security.jwt.token.extend.expiration";
 	
-	@Autowired
-	protected SecurityService securityService;
-	
-	@Autowired
-	protected JwtAuthenticationMapper jwtTokenMapper;
-	
-	@Autowired
-	protected AuthenticationExceptionContext ctx;
-	
-	@Autowired
-	protected ConfigurationService configService;
-	
-	@Autowired
-	@Qualifier("objectMapper")
-	protected ObjectMapper mapper;
+	@Autowired private SecurityService securityService;
+	@Autowired private JwtAuthenticationMapper jwtTokenMapper;
+	@Autowired private AuthenticationExceptionContext ctx;
+	@Autowired private ConfigurationService configService;
+	@Autowired 
+	@Qualifier("objectMapper") 
+	private ObjectMapper mapper;
 	
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
@@ -114,8 +105,7 @@ public class ExtendExpirationFilter extends GenericFilterBean {
 			return;
 		}
 		
-		IdmJwtAuthenticationDto token = ctx.getToken();
-		token.setExpiration(getNewExpiration());
+		IdmJwtAuthenticationDto token;
 		
 		// token either expired or authorities were changed, but user
 		// is authenticated by other method then IdM JWT token, therefore
@@ -123,8 +113,11 @@ public class ExtendExpirationFilter extends GenericFilterBean {
 		if (ctx.isExpired() || ctx.isAuthoritiesChanged()) {
 			token = jwtTokenMapper.toDto((IdmJwtAuthentication) 
 					SecurityContextHolder.getContext().getAuthentication());
+		} else {
+			// prolong expiration
+			token = jwtTokenMapper.prolongExpiration(ctx.getToken());
 		}
-		
+		//
 		try {
 			res.setHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME,
 				jwtTokenMapper.writeToken(token));
@@ -135,14 +128,6 @@ public class ExtendExpirationFilter extends GenericFilterBean {
 
 	private boolean isExtendExpiration() {
 		return configService.getBooleanValue(PROPERTY_EXTEND_TOKEN_EXPIRATION, true);
-	}
-	
-	private DateTime getNewExpiration() {
-		Integer timeoutMillis = configService.getIntegerValue(
-				LoginService.PROPERTY_EXPIRATION_TIMEOUT,
-				LoginService.DEFAULT_EXPIRATION_TIMEOUT);
-		
-		return DateTime.now().plus(timeoutMillis);
 	}
 
 	/**

@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningBreakConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
@@ -102,7 +101,7 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 
 	@After

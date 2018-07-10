@@ -16,7 +16,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -78,7 +77,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+		loginAsAdmin();
 		prepareIdentityAndRoles();
 	}
 

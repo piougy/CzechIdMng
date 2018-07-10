@@ -8,7 +8,6 @@ import java.util.function.Function;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -130,7 +129,7 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public void logout() {
-		SecurityContextHolder.clearContext();
+		loginService.logout();
 	}
 	
 	@Override

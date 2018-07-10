@@ -7,7 +7,6 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -31,7 +30,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testPermissionByWrongUuid() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// prepare role
 		IdmRoleDto role = getHelper().createRole();
 		//
@@ -61,7 +60,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testPermissionByUuid() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// prepare role
 		IdmRoleDto role = getHelper().createRole();
 		//
@@ -93,7 +92,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testPermissionByCode() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// prepare role
 		IdmRoleDto role = getHelper().createRole();
 		//

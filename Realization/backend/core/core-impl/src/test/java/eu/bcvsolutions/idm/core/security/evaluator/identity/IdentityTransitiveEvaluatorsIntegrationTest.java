@@ -45,7 +45,7 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 	@Autowired private PasswordChangeController passwordChangeController;
 	
 	private IdmIdentityDto prepareIdentityProfile() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		GuardedString password = new GuardedString("heslo");
 		// get default role
 		IdmRoleDto role = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);

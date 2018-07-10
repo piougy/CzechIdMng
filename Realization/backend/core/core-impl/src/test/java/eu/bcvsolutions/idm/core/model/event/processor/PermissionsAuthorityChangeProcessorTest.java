@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.model.event.processor;
 
 import java.util.List;
 
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,19 +10,17 @@ import org.springframework.transaction.support.TransactionCallback;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTokenFilter;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
- * Tests IdmRole's authority modifications, which must set new
- * IdmAuthorityChange timestamp for all identities in given role.
+ * Tests IdmRole's authority modifications, which should disable all tokens with this role involved.
  * 
  * To compute the difference in role authorities, one must checkout the
  * original entity from storage, {@see IdmRoleRepository#getPersistedRoleAuthorities(IdmRole)}.
@@ -33,89 +30,75 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * one to create new role, another to update its authorities.
  * 
  * @author Jan Helbich
+ * @author Radek Tomiška
  *
  */
 public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAuthoritiesProcessorTest {
 	
-	@Autowired
-	private IdmAuthorizationPolicyRepository policyRepository;
-	
-	@Autowired
-	private SecurityService securityService;
+	@Autowired private IdmAuthorizationPolicyRepository policyRepository;
 	
 	@Test
 	public void testRemoveAuthorityUpdateUsers() throws Exception {
 		IdmRoleDto role = getTestRole();
-		IdmIdentityDto i = getTestUser();
+		IdmIdentityDto i = getHelper().createIdentity();
 		IdmIdentityContractDto c = getTestContract(i);
-		@SuppressWarnings("unused")
-		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
-		
-		IdmAuthorityChange ac = acRepository.findOneByIdentity_Id(i.getId());
-		Assert.assertNotNull(ac);
-		Assert.assertNotNull(ac.getAuthChangeTimestamp());
-		DateTime origChangeTime = ac.getAuthChangeTimestamp();
-		
-		sleep();
-		
-		clearAuthPolicies(role);
-		
-		ac = acRepository.findOneByIdentity_Id(i.getId());
-		Assert.assertNotNull(ac);
-		Assert.assertNotNull(ac.getAuthChangeTimestamp());
-		Assert.assertTrue(origChangeTime.getMillis() < ac.getAuthChangeTimestamp().getMillis());
+		getTestIdentityRole(role, c);
+		//
+		List<IdmTokenDto> tokens = tokenManager.getTokens(i);
+		//
+		Assert.assertTrue(tokens.isEmpty());
+		//
+		// login - one token
+		getHelper().login(i.getUsername(), i.getPassword());
+		try {
+			tokens = tokenManager.getTokens(i);
+			Assert.assertEquals(1, tokens.size());
+			Assert.assertFalse(tokens.get(0).isDisabled());
+			
+			clearAuthPolicies(role);
+			
+			tokens = tokenManager.getTokens(i);
+			Assert.assertEquals(1, tokens.size());
+			Assert.assertTrue(tokens.get(0).isDisabled());
+		} finally {
+			getHelper().logout();
+		}
 	}
 
 	@Test
 	public void testAddAuthorityUpdateUsers() throws Exception {
 		IdmRoleDto role = getTestRole();
-		IdmIdentityDto i = getTestUser();
+		IdmIdentityDto i = getHelper().createIdentity();
 		IdmIdentityContractDto c = getTestContract(i);
 		getTestIdentityRole(role, c);
+		//
+		IdmTokenFilter filter = new IdmTokenFilter();
+		filter.setOwnerType(tokenManager.getOwnerType(i.getClass()));
+		filter.setOwnerId(i.getId());
+		List<IdmTokenDto> tokens = tokenManager.getTokens(i);
+		//
+		Assert.assertTrue(tokens.isEmpty());
+		//
+		// login - one token
+		getHelper().login(i.getUsername(), i.getPassword());
+		try {
+			tokens = tokenManager.getTokens(i);
+			Assert.assertEquals(1, tokens.size());
+			Assert.assertFalse(tokens.get(0).isDisabled());
 		
-		IdmAuthorityChange ac = acRepository.findOneByIdentity_Id(i.getId());
-		Assert.assertNotNull(ac);
-		Assert.assertNotNull(ac.getAuthChangeTimestamp());
-		DateTime origChangeTime = ac.getAuthChangeTimestamp();
-		
-		sleep();
-		
-		getTransactionTemplate().execute(new TransactionCallback<Object>() {
-			public Object doInTransaction(TransactionStatus transactionStatus) {
-				getTestPolicy(role, IdmBasePermission.EXECUTE, IdmGroupPermission.APP);
-				return null;
-			}
-		});
-
-		ac = acRepository.findOneByIdentity_Id(i.getId());
-		Assert.assertNotNull(ac);
-		Assert.assertNotNull(ac.getAuthChangeTimestamp());
-		Assert.assertTrue(origChangeTime.getMillis() < ac.getAuthChangeTimestamp().getMillis());
-	}
-	
-	/**
-	 * In case the identity in role does not have IdmAuthorityChange entity
-	 * relation, changing role's authorities must create one.
-	 * @throws Exception
-	 */
-	@Test
-	public void testCreateAuthorityChangeEntity() throws Exception {
-		IdmRoleDto role = getTestRole();
-		IdmIdentityDto i = getTestUser();
-		IdmIdentityContractDto c = getTestContract(i);
-		getTestIdentityRole(role, c);
-		
-		deleteAuthorityChangedEntity(i);
-		IdmAuthorityChange ac = acRepository.findOneByIdentity_Id(i.getId());
-		Assert.assertNull(ac);
-		
-		sleep();
-		
-		clearAuthPolicies(role);
-		
-		ac = acRepository.findOneByIdentity_Id(i.getId());
-		Assert.assertNotNull(ac);
-		Assert.assertNotNull(ac.getAuthChangeTimestamp());
+			getTransactionTemplate().execute(new TransactionCallback<Object>() {
+				public Object doInTransaction(TransactionStatus transactionStatus) {
+					createTestPolicy(role, IdmBasePermission.EXECUTE, IdmGroupPermission.APP);
+					return null;
+				}
+			});
+			// add role - token should not be removed
+			tokens = tokenManager.getTokens(i);
+			Assert.assertEquals(1, tokens.size());
+			Assert.assertFalse(tokens.get(0).isDisabled());
+		} finally {
+			getHelper().logout();
+		}
 	}
 	
 	/**
@@ -124,26 +107,33 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 	 */
 	@Test
 	public void testChangePersmissions() throws Exception {
-		securityService.setSystemAuthentication();
-		
 		IdmRoleDto role = getTestRole();
-		IdmIdentityDto i = getTestUser();
+		IdmIdentityDto i = getHelper().createIdentity();
 		IdmIdentityContractDto c = getTestContract(i);
 		getTestIdentityRole(role, c);
-		
-		IdmAuthorityChange ac = acRepository.findOneByIdentity_Id(i.getId());
-		Assert.assertNotNull(ac);
-		Assert.assertNotNull(ac.getAuthChangeTimestamp());
-		DateTime origChangeTime = ac.getAuthChangeTimestamp();
-		
-		sleep();
-		
-		changeAuthorizationPolicyPermissions(role);
-		
-		ac = acRepository.findOneByIdentity_Id(i.getId());
-		Assert.assertNotNull(ac);
-		Assert.assertNotNull(ac.getAuthChangeTimestamp());
-		Assert.assertTrue(origChangeTime.getMillis() < ac.getAuthChangeTimestamp().getMillis());
+		//
+		IdmTokenFilter filter = new IdmTokenFilter();
+		filter.setOwnerType(tokenManager.getOwnerType(i.getClass()));
+		filter.setOwnerId(i.getId());
+		List<IdmTokenDto> tokens = tokenManager.getTokens(i);
+		//
+		Assert.assertTrue(tokens.isEmpty());
+		//
+		// login - one token
+		getHelper().login(i.getUsername(), i.getPassword());
+		try {	
+			tokens = tokenManager.getTokens(i);
+			Assert.assertEquals(1, tokens.size());
+			Assert.assertFalse(tokens.get(0).isDisabled());
+			//
+			changeAuthorizationPolicyPermissions(role);
+			//
+			tokens = tokenManager.getTokens(i);
+			Assert.assertEquals(1, tokens.size());
+			Assert.assertTrue(tokens.get(0).isDisabled());
+		} finally {
+			getHelper().logout();
+		}
 	}
 
 	private void changeAuthorizationPolicyPermissions(IdmRoleDto role) {
@@ -157,22 +147,6 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 				return null;
 			}
 		});
-	}
-
-	private void deleteAuthorityChangedEntity(IdmIdentityDto i) {
-		// delete authority change to simulate empty relation
-		getTransactionTemplate().execute(new TransactionCallback<Object>() {
-			public Object doInTransaction(TransactionStatus status) {
-				IdmAuthorityChange ac = acRepository.findOneByIdentity_Id(i.getId()	);
-				acRepository.delete(ac);
-				return null;
-			}
-		});
-	}
-
-	private void sleep() throws InterruptedException {
-		// simulation of passing time for timestamp comparison
-		Thread.sleep(10);
 	}
 
 	private void clearAuthPolicies(IdmRoleDto role) {

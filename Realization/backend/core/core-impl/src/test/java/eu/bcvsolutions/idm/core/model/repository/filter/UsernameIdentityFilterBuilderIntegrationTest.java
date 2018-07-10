@@ -9,11 +9,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -30,7 +30,7 @@ public class UsernameIdentityFilterBuilderIntegrationTest extends AbstractIntegr
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 
 	@After
@@ -41,8 +41,8 @@ public class UsernameIdentityFilterBuilderIntegrationTest extends AbstractIntegr
 	@Test
 	public void testFindIdentityByUuid() {
 		// prepare data
-		IdmIdentityDto identityOne = helper.createIdentity();
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identityOne = helper.createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = helper.createIdentity((GuardedString) null);
 		UsernameIdentityFilter identityFilter = new UsernameIdentityFilter(repository); 
 		//
 		IdmIdentityFilter dataFilter = new IdmIdentityFilter();

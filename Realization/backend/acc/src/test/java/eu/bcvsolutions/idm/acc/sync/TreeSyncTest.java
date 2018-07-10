@@ -107,7 +107,7 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin();
 	}
 
 	@After

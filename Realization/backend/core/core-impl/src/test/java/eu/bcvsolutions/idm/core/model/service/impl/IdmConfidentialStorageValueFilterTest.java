@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfidentialStorageValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -39,7 +38,7 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 
 	@Before
 	public void login() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 
 	@After

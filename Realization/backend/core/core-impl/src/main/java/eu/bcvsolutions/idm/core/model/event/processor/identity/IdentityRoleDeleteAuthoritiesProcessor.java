@@ -3,66 +3,49 @@ package eu.bcvsolutions.idm.core.model.event.processor.identity;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
 
 /**
  * Event processor to check if authorities were removed from identity.
  * 
+ * TODO: asynchronous or execute without granted authorities is changed
+ * 
  * @author Jan Helbich
- *
+ * @author Radek Tomiška
  */
 @Component
-@Description("Checks modifications in identity authorities after role removal.")
+@Description("Checks modifications in identity authorities after role removal and disable authentication tokens.")
 public class IdentityRoleDeleteAuthoritiesProcessor extends CoreEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-delete-authorities-processor";
 
-	private final IdmAuthorityChangeRepository repository;
-	private final IdmIdentityRoleService identityRoleService;
-	private final GrantedAuthoritiesFactory authoritiesFactory;
-	private final IdmIdentityContractRepository contractRepository;
-	private final IdmAuthorityHierarchy authorityHierarchy;
+	@Autowired private TokenManager tokenManager;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private GrantedAuthoritiesFactory authoritiesFactory;
+	@Autowired private IdmAuthorityHierarchy authorityHierarchy;
 	
-	@Autowired
-	public IdentityRoleDeleteAuthoritiesProcessor(
-			IdmAuthorityChangeRepository repository,
-			IdmIdentityRoleService identityRoleService,
-			GrantedAuthoritiesFactory authoritiesFactory,
-			IdmIdentityContractRepository contractRepository,
-			IdmAuthorityHierarchy authorityHierarchy) {
+	public IdentityRoleDeleteAuthoritiesProcessor() {
 		super(IdentityRoleEventType.DELETE);
-		//
-		Assert.notNull(repository);
-		Assert.notNull(identityRoleService);
-		Assert.notNull(authoritiesFactory);
-		Assert.notNull(contractRepository);
-		Assert.notNull(authorityHierarchy);
-		//
-		this.repository = repository;
-		this.authoritiesFactory = authoritiesFactory;
-		this.identityRoleService = identityRoleService;
-		this.contractRepository = contractRepository;
-		this.authorityHierarchy = authorityHierarchy;
 	}
 
 	@Override
@@ -84,35 +67,27 @@ public class IdentityRoleDeleteAuthoritiesProcessor extends CoreEventProcessor<I
 
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
+		IdmIdentityRoleDto identityRole = event.getContent();
+		//
+		IdmIdentityContractDto contract = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract);
+		UUID identityId = contract.getIdentity(); 
 		
-		checkRevokedPermissions(event.getContent());
-		return new DefaultEventResult<>(event, this);
-	}
-
-	private void checkRevokedPermissions(IdmIdentityRoleDto identityRole) {
-		IdmIdentityContract contract = contractRepository.findOne(identityRole.getIdentityContract());
-		IdmIdentity identity = contract.getIdentity(); 
-		
-		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
+		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identityId);
 		roles.remove(identityRole);
 
 		// represents the final authorities set after role removal
 		Collection<? extends GrantedAuthority> withoutDeleted = authorityHierarchy.getReachableGrantedAuthorities(
-				authoritiesFactory.getGrantedAuthoritiesForValidRoles(identity.getId(), roles));
+				authoritiesFactory.getGrantedAuthoritiesForValidRoles(identityId, roles));
 		Collection<? extends GrantedAuthority> deletedAuthorities = authorityHierarchy.getReachableGrantedAuthorities(
-				authoritiesFactory.getGrantedAuthoritiesForValidRoles(identity.getId(),
+				authoritiesFactory.getGrantedAuthoritiesForValidRoles(identityId,
 						Collections.singletonList(identityRole)));
 
 		if (!authoritiesFactory.containsAllAuthorities(withoutDeleted, deletedAuthorities)) {
-			// authorities were changed, update identity flag
-			IdmAuthorityChange ac = repository.findOneByIdentity_Id(identity.getId());
-			if (ac == null) {
-				ac = new IdmAuthorityChange();
-				ac.setIdentity(identity);
-			}
-			ac.authoritiesChanged();
-			repository.save(ac);
+			// authorities were changed, disable active identity tokens
+			tokenManager.disableTokens(new IdmIdentityDto(identityId));
 		}
+		//
+		return new DefaultEventResult<>(event, this);
 	}
 
 }

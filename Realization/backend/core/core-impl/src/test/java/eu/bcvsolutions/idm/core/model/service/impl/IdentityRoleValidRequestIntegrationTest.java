@@ -65,7 +65,7 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 	
 	@Before
 	public void loginAndInit() {
-		loginAsAdmin("admin");
+		loginAsAdmin();
 	}
 	
 	@After

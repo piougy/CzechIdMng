@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
@@ -47,7 +46,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 	
 	@After 

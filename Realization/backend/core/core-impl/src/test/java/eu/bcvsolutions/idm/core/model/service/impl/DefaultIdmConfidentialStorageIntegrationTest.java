@@ -370,7 +370,6 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 
 		// change key in LRT
 		runChangeConfidentialStorageKeyTask(configurableEnviroment.getProperty(CryptService.APPLICATION_PROPERTIES_KEY));
-//		assertEquals(OperationState.EXECUTED, result.getState());
 		
 		serializable = confidentalStorage.get(identityOne.getId(), IdmIdentity.class, identityOne.getUsername());
 		assertEquals(passwordOne, serializable);

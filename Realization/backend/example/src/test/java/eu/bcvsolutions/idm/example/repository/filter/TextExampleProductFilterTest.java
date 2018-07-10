@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.example.dto.ExampleProductDto;
 import eu.bcvsolutions.idm.example.dto.filter.ExampleProductFilter;
+import eu.bcvsolutions.idm.example.entity.ExampleProduct;
 import eu.bcvsolutions.idm.example.service.api.ExampleProductService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -28,6 +29,8 @@ public class TextExampleProductFilterTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private ExampleProductService productService;
+	@Autowired
+	private TextExampleProductFilter textProductFilter;
 	
 	@Before
 	public void before() {
@@ -53,12 +56,12 @@ public class TextExampleProductFilterTest extends AbstractIntegrationTest {
 		
 		ExampleProductFilter filter = new ExampleProductFilter();
 		filter.setText(textValue);
-		List<ExampleProductDto> products = productService.find(filter, null).getContent();
+		List<ExampleProduct> products = textProductFilter.find(filter, null).getContent();
 		
 		assertEquals(3, products.size());
 		
 		// list must contains all products
-		ExampleProductDto product = products.stream().filter(prod -> prod.getId().equals(productOne.getId())).findFirst().get();
+		ExampleProduct product = products.stream().filter(prod -> prod.getId().equals(productOne.getId())).findFirst().get();
 		assertNotNull(product);
 		
 		product = products.stream().filter(prod -> prod.getId().equals(productTwo.getId())).findFirst().get();
@@ -82,7 +85,7 @@ public class TextExampleProductFilterTest extends AbstractIntegrationTest {
 		
 		ExampleProductFilter filter = new ExampleProductFilter();
 		filter.setText("textValue" + System.currentTimeMillis()); // different value than in variable textValue
-		List<ExampleProductDto> products = productService.find(filter, null).getContent();
+		List<ExampleProduct> products = textProductFilter.find(filter, null).getContent();
 		
 		assertEquals(0, products.size());
 	}

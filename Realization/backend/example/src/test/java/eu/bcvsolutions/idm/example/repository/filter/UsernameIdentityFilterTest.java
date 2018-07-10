@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class UsernameIdentityFilterTest extends AbstractIntegrationTest {
 
 	@Autowired
-	private IdmIdentityService identityService;
+	private UsernameIdentityFilter usernameIdentityFilter;
 
 	@Before
 	public void before() {
@@ -43,17 +43,22 @@ public class UsernameIdentityFilterTest extends AbstractIntegrationTest {
 	public void testFilteringFound() {
 		String username = getHelper().createName();
 		IdmIdentityDto identityOne = getHelper().createIdentity(username);
-		getHelper().createIdentity(getHelper().createName() + username + getHelper().createName());
-		getHelper().createIdentity(getHelper().createName() + username + getHelper().createName());
+		IdmIdentityDto identityTwo = getHelper().createIdentity(getHelper().createName() + username + getHelper().createName());
+		IdmIdentityDto identityThree = getHelper().createIdentity(getHelper().createName() + username + getHelper().createName());
 
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setUsername(username);
-		List<IdmIdentityDto> identities = identityService.find(filter, null).getContent();
+		List<IdmIdentity> identities = usernameIdentityFilter.find(filter, null).getContent();
 
-		// UsernameIdentityFilter filter has order 10 -> not override default filter
-		assertEquals(1, identities.size());
+		assertEquals(3, identities.size());
 
-		IdmIdentityDto identity = identities.stream().filter(ident -> ident.getId().equals(identityOne.getId())).findFirst().get();
+		IdmIdentity identity = identities.stream().filter(ident -> ident.getId().equals(identityOne.getId())).findFirst().get();
+		assertNotNull(identity);
+		
+		identity = identities.stream().filter(ident -> ident.getId().equals(identityTwo.getId())).findFirst().get();
+		assertNotNull(identity);
+		
+		identity = identities.stream().filter(ident -> ident.getId().equals(identityThree.getId())).findFirst().get();
 		assertNotNull(identity);
 	}
 
@@ -66,7 +71,7 @@ public class UsernameIdentityFilterTest extends AbstractIntegrationTest {
 
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setUsername("username1Value"); // value is different than variable username
-		List<IdmIdentityDto> identities = identityService.find(filter, null).getContent();
+		List<IdmIdentity> identities = usernameIdentityFilter.find(filter, null).getContent();
 
 		assertEquals(0, identities.size());
 	}

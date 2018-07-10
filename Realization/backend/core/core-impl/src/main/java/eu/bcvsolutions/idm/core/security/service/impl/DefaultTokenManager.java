@@ -78,7 +78,7 @@ public class DefaultTokenManager implements TokenManager {
 	public IdmTokenDto verifyToken(UUID tokenId, BasePermission... permission) {
 		IdmTokenDto token = getToken(tokenId, permission);
 		if (token == null) {
-			throw new ResultCodeException(CoreResultCode.TOKEN_NOT_FOURN);
+			throw new ResultCodeException(CoreResultCode.TOKEN_NOT_FOUND);
 		}
 		if (token.isDisabled()) {
 			throw new ResultCodeException(CoreResultCode.AUTHORITIES_CHANGED);

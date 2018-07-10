@@ -4415,6 +4415,10 @@
     "CORRELATION_PROPERTY_WRONG_TYPE": {
       "title": "Correlation filter doesn't work",
       "message": "Correlation filter doesn't work, because the property [{{property}}] is not String!"
+    },
+    "TOKEN_NOT_FOUND": {
+      "title": "Token not found",
+      "message": "Authenticate token not found!"
     }
   },
   "validationError": {

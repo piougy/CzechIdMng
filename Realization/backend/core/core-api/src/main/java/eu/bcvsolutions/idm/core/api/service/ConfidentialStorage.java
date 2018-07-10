@@ -93,5 +93,15 @@ public interface ConfidentialStorage {
 	 * @param value
 	 */
 	void saveGuardedString(UUID ownerId, Class<? extends Identifiable> ownerType, String key, GuardedString value);
+
+	/**
+	 * Method read value from confidential storage with old key and resave value with new one.q
+	 *
+	 * @param ownerId
+	 * @param ownerType
+	 * @param key
+	 * @param oldKey
+	 */
+	void changeCryptKey(UUID ownerId, Class<? extends Identifiable> ownerType, String key, GuardedString oldKey);
 	
 }

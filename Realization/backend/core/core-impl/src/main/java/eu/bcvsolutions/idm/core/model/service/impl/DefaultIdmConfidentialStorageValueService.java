@@ -55,11 +55,14 @@ public class DefaultIdmConfidentialStorageValueService extends
 			IdmConfidentialStorageValueDto dto) {
 		IdmConfidentialStorageValueDto result = super.toDto(entity, dto);
 		//
-		result.setSerializableValue(fromStorageValue(result.getValue()));
+		// for trimmed is not possible get decrypted value
+		if (!result.isTrimmed()) {
+			result.setSerializableValue(fromStorageValue(result.getValue()));
+		}
 		//
 		return result;
 	}
-
+	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmConfidentialStorageValue> root, CriteriaQuery<?> query,
 			CriteriaBuilder builder, IdmConfidentialStorageValueFilter filter) {

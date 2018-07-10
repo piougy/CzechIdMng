@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -30,7 +31,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTest {
 
 	@Autowired
-	private IdmConfidentialStorageValueService idmConfidentialValueService;
+	private IdmConfidentialStorageValueService confidentialValueService;
 	@Autowired
 	private DefaultIdmConfidentialStorage defaultStorageService;
 	@Autowired
@@ -54,10 +55,11 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 		IdmConfidentialStorageValueFilter filter = new IdmConfidentialStorageValueFilter();
 		filter.setOwnerId(human.getId());
 		filter.setKey(key);
-		Page<IdmConfidentialStorageValueDto> result = idmConfidentialValueService.find(filter, null);
+		Page<IdmConfidentialStorageValueDto> result = confidentialValueService.find(filter, null);
 		Serializable serializable = defaultStorageService.get(human.getId(), IdmIdentity.class, key);
 		assertEquals(1, result.getTotalElements());
-		assertEquals(serializable, result.getContent().get(0).getSerializableValue());
+		// for trimmed isn't value transformed
+		checkTrimmedValue(serializable, result.getContent().get(0));
 	}
 
 	@Test
@@ -68,10 +70,11 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 		IdmConfidentialStorageValueFilter filter = new IdmConfidentialStorageValueFilter();
 		filter.setOwnerType(IdmIdentity.class.getName());
 		filter.setKey(key);
-		Page<IdmConfidentialStorageValueDto> result = idmConfidentialValueService.find(filter, null);
+		Page<IdmConfidentialStorageValueDto> result = confidentialValueService.find(filter, null);
 		Serializable serializable = defaultStorageService.get(human.getId(), IdmIdentity.class, key);
 		assertEquals(1, result.getTotalElements());
-		assertEquals(serializable, result.getContent().get(0).getSerializableValue());
+		// for trimmed isn't value transformed
+		checkTrimmedValue(serializable, result.getContent().get(0));
 	}
 
 	@Test
@@ -81,10 +84,11 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 		createValue(human, IdmIdentity.class, key, UUID.randomUUID());
 		IdmConfidentialStorageValueFilter filter = new IdmConfidentialStorageValueFilter();
 		filter.setKey(key);
-		Page<IdmConfidentialStorageValueDto> result = idmConfidentialValueService.find(filter, null);
+		Page<IdmConfidentialStorageValueDto> result = confidentialValueService.find(filter, null);
 		Serializable serializable = defaultStorageService.get(human.getId(), IdmIdentity.class, key);
 		assertEquals(1, result.getTotalElements());
-		assertEquals(serializable, result.getContent().get(0).getSerializableValue());
+		// for trimmed isn't value transformed
+		checkTrimmedValue(serializable, result.getContent().get(0));
 	}
 
 	@Test
@@ -94,10 +98,11 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 		createValue(human, IdmIdentity.class, key, UUID.randomUUID());
 		IdmConfidentialStorageValueFilter filter = new IdmConfidentialStorageValueFilter();
 		filter.setText(key);
-		Page<IdmConfidentialStorageValueDto> result = idmConfidentialValueService.find(filter, null);
+		Page<IdmConfidentialStorageValueDto> result = confidentialValueService.find(filter, null);
 		Serializable serializable = defaultStorageService.get(human.getId(), IdmIdentity.class, key);
 		assertEquals(1, result.getTotalElements());
-		assertEquals(serializable, result.getContent().get(0).getSerializableValue());
+		// for trimmed isn't value transformed
+		checkTrimmedValue(serializable, result.getContent().get(0));
 	}
 
 	/**
@@ -108,5 +113,18 @@ public class IdmConfidentialStorageValueFilterTest extends AbstractIntegrationTe
 	private void createValue(Identifiable owner, Class<? extends Identifiable> ownerType, String key,
 			Serializable value) {
 		defaultStorageService.save(UUID.fromString(owner.getId().toString()), ownerType, key, value);
+	}
+
+	/**
+	 * Get {@link IdmConfidentialStorageValueDto} as not trimmed and check if value is same as given in parameters.
+	 *
+	 * @param serializable
+	 * @param trimmedValue
+	 */
+	private void checkTrimmedValue(Serializable serializable, IdmConfidentialStorageValueDto trimmedValue) {
+		// for trimmed isn't value transformed
+		IdmConfidentialStorageValueDto foundedValue = confidentialValueService.get(trimmedValue.getId());
+		assertNotNull(foundedValue);
+		assertEquals(serializable, foundedValue.getSerializableValue());
 	}
 }

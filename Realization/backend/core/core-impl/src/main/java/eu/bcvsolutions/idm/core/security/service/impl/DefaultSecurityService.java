@@ -52,7 +52,7 @@ public class DefaultSecurityService implements SecurityService {
 	
 	@Override
 	public void logout() {
-		setAuthentication(null);
+		// setAuthentication(null);
 		SecurityContextHolder.clearContext();
 	}
 

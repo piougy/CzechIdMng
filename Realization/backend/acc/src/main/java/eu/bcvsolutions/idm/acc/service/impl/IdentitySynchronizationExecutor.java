@@ -139,19 +139,24 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @return
 	 */
 	@Override
-	protected IdmIdentityDto save(IdmIdentityDto entity, boolean skipProvisioning) {
+	protected IdmIdentityDto save(IdmIdentityDto entity, boolean skipProvisioning, SynchronizationContext context) {
+		SysSyncIdentityConfigDto config = this.getConfig(context);
+		if (config.isCreateDefaultContract()) {
+			addToItemLog(context.getLog(), "For identity will be created default contract");
+		}
+		//
 		EntityEvent<IdmIdentityDto> event = new IdentityEvent(
 				identityService.isNew(entity) ? IdentityEventType.CREATE : IdentityEventType.UPDATE, entity,
 				ImmutableMap.of( //
 						ProvisioningService.SKIP_PROVISIONING, skipProvisioning, //
-						// In the identity sync are creation of the default contract skipped.
-						IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, Boolean.TRUE));
+						// In the identity sync are creation of the default contracts depend on synchronization setting.
+						// Behavior with create default contract doesn't override property with create default contract. Both properties must be allowed.
+						IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, !config.isCreateDefaultContract(),
+						// We don't want recalculate automatic role by attribute recalculation for every
+						// contract.
+						// Recalculation will be started only once.
+						IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE));
 		//
-		// We don't want recalculate automatic role by attribute recalculation for every
-		// contract.
-		// Recalculation will be started only once.
-		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
-
 		return identityService.publish(event).getContent();
 	}
 
@@ -186,7 +191,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		if (identity != null) {
 			// Update identity
 			identity = fillEntity(mappedAttributes, uid, icAttributes, identity, false, context);
-			identity = this.save(identity, true);
+			identity = this.save(identity, true, context);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, false, context);
 			// Update confidential attribute (entity must be persisted

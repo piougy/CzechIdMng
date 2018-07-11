@@ -1173,7 +1173,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		entity = fillEntity(mappedAttributes, uid, icAttributes, entity, true, context);
 
 		// Create new entity
-		entity = this.save(entity, true);
+		entity = this.save(entity, true, context);
 
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, true, context);
@@ -1242,7 +1242,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (entity != null) {
 			// Update entity
 			entity = fillEntity(mappedAttributes, uid, icAttributes, entity, false, context);
-			entity = this.save(entity, true);
+			entity = this.save(entity, true, context);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
 			// Update confidential attribute (entity must be persisted
@@ -2185,7 +2185,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param skipProvisioning
 	 * @return
 	 */
-	protected abstract DTO save(DTO dto, boolean skipProvisioning);
+	protected abstract DTO save(DTO dto, boolean skipProvisioning, SynchronizationContext context);
 
 	/**
 	 * Update account UID from system. UID mapped attribute must exist and returned

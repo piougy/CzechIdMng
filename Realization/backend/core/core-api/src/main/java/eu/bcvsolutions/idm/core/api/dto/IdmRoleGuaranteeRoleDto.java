@@ -9,13 +9,13 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 
 /**
- * Dto for role guarantee - identity
+ * Dto for role guarantee - role
  * 
  * @author Radek Tomiška
  *
  */
-@Relation(collectionRelation = "roleGuarantees")
-public class IdmRoleGuaranteeDto extends AbstractDto {
+@Relation(collectionRelation = "roleGuaranteeRoles")
+public class IdmRoleGuaranteeRoleDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
 
@@ -23,8 +23,8 @@ public class IdmRoleGuaranteeDto extends AbstractDto {
 	@Embedded(dtoClass = IdmRoleDto.class)
 	private UUID role; // owner
 	@NotNull
-	@Embedded(dtoClass = IdmIdentityDto.class)
-	private UUID guarantee; // guarantee as identity
+	@Embedded(dtoClass = IdmRoleDto.class)
+	private UUID guaranteeRole; // guarantee as role
 
 	/**
 	 * Owner
@@ -45,20 +45,20 @@ public class IdmRoleGuaranteeDto extends AbstractDto {
 	}
 	
 	/**
-	 * Guarantee as identity
+	 * Guarantee as role
 	 * 
 	 * @return
 	 */
-	public UUID getGuarantee() {
-		return guarantee;
+	public UUID getGuaranteeRole() {
+		return guaranteeRole;
 	}
-
+	
 	/**
-	 * Guarantee as identity
+	 * Guarantee as role
 	 * 
-	 * @param guarantee
+	 * @param guaranteeRole
 	 */
-	public void setGuarantee(UUID guarantee) {
-		this.guarantee = guarantee;
+	public void setGuaranteeRole(UUID guaranteeRole) {
+		this.guaranteeRole = guaranteeRole;
 	}
 }

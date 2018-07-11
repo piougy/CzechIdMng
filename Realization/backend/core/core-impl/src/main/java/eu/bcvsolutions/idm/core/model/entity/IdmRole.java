@@ -80,21 +80,25 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 
+	@Deprecated // @since 8.2.0 - will be removed in 9 - business role redesign
 	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleComposition> subRoles;
 	
+	@Deprecated // @since 8.2.0 - will be removed in 9 - business role redesign
 	@OneToMany(mappedBy = "sub")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleComposition> superiorRoles;
 
+	@Deprecated // @since 8.2.0 - use solo endpoint
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleGuarantee> guarantees;
 
+	@Deprecated // @since 8.2.0 - use solo endpoint
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )	

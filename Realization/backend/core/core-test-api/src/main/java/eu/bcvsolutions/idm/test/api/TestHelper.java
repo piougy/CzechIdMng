@@ -22,6 +22,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
@@ -234,7 +236,25 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleDto createRole(UUID id, String name);
-
+	
+	/**
+	 * Create role guarantee - identity
+	 * 
+	 * @param role
+	 * @param guarantee
+	 * @return
+	 */
+	IdmRoleGuaranteeDto createRoleGuarantee(IdmRoleDto role, IdmIdentityDto guarantee);
+	
+	/**
+	 * Create role guarantee - role
+	 * 
+	 * @param role
+	 * @param guarantee
+	 * @return
+	 */
+	IdmRoleGuaranteeRoleDto createRoleGuaranteeRole(IdmRoleDto role, IdmRoleDto guarantee);
+	
 	/**
 	 * Deletes role
 	 *

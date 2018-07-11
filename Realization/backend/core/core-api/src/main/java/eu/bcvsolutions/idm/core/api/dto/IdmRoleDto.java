@@ -44,10 +44,14 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
     @Size(max = DefaultFieldLengths.DESCRIPTION)
     private String description;
     //
+    @Deprecated // @since 8.2.0 - will be removed in 9 - business role redesign
     private List<IdmRoleCompositionDto> subRoles;
+    @Deprecated // @since 8.2.0 - will be removed in 9 - business role redesign
     @JsonProperty(access = Access.READ_ONLY)
     private List<IdmRoleCompositionDto> superiorRoles;
+    @Deprecated // @since 8.2.0 - use solo endpoint
     private List<IdmRoleGuaranteeDto> guarantees;
+    @Deprecated // @since 8.2.0 - use solo endpoint
     private List<IdmRoleCatalogueRoleDto> roleCatalogues;
 
     public IdmRoleDto() {

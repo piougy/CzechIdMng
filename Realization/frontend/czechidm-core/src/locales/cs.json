@@ -779,6 +779,8 @@
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
       "ROLECATALOGUE": "Katalog rolí",
+      "ROLEGUARANTEE": "$t(entity.Role.guarantees) - dle identity",
+      "ROLEGUARANTEEROLE": "$t(entity.Role.guarantees) - dle role",
       "ROLETREENODE": "Automatické role (organizační struktura)",
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
@@ -1720,6 +1722,17 @@
         "header": "Uživatelé s přiřazenou rolí",
         "title": "Uživatelé"
       },
+      "guarantees": {
+        "header": "$t(entity.Role.guarantees)",
+        "title": "$t(entity.Role.guarantees)",
+        "create": {
+          "header": "Přidat garanta role"
+        },
+        "edit": {
+          "header": "{{name}} <small>detail garanta role</small>",
+          "disabled": "Garant lze editovat pouze v základních informacích."
+        }
+      },
       "eav": {
         "header": "Další údaje",
         "title": "Další údaje",
@@ -2642,6 +2655,26 @@
       "description": "Popis",
       "parent": {
         "name": "Nadřazená složka v katalogu"
+      }
+    },
+    "RoleGuarantee": {
+      "_type": "Garant role - identita",
+      "role": {
+        "label": "Role"
+      },
+      "guarantee": {
+        "label": "Garant - identita",
+        "help": "Vybraná identita se stane garantem role."
+      }
+    },
+    "RoleGuaranteeRole": {
+      "_type": "Garant role - role",
+      "role": {
+        "label": "Role"
+      },
+      "guaranteeRole": {
+        "label": "Garant - role",
+        "help": "Identity mající vybranou roli se stanou garanty dané role."
       }
     },
     "ConfidentialStorageValue": {

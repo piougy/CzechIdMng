@@ -2,32 +2,26 @@ import React from 'react';
 import Helmet from 'react-helmet';
 //
 import * as Basic from '../../components/basic';
-import { IdentityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
-import IdentityTable from '../identity/IdentityTable';
+import RoleGuaranteeRoleTable from './RoleGuaranteeRoleTable';
 
 /**
- * Identities with assigned role
+ * Role guarantees - by role only now
  *
  * @author Radek Tomiška
  */
-export default class RoleIdentities extends Basic.AbstractContent {
+export default class RoleGuarantees extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.identityManager = new IdentityManager();
-  }
-
-  getManager() {
-    return this.identityManager;
   }
 
   getContentKey() {
-    return 'content.role.identities';
+    return 'content.role.guarantees';
   }
 
   getNavigationKey() {
-    return 'role-identities';
+    return 'role-guarantees';
   }
 
   render() {
@@ -41,12 +35,9 @@ export default class RoleIdentities extends Basic.AbstractContent {
         </Basic.ContentHeader>
 
         <Basic.Panel className="no-border last">
-          <IdentityTable
-            uiKey="role-identities-table"
-            identityManager={this.getManager()}
-            filterOpened={false}
-            forceSearchParameters={forceSearchParameters}
-            showAddButton={false}/>
+          <RoleGuaranteeRoleTable
+            uiKey="role-guarantee-role-table"
+            forceSearchParameters={ forceSearchParameters }/>
         </Basic.Panel>
       </div>
     );

@@ -55,6 +55,8 @@ import AutomaticRoleAttributeRuleRequestManager from './AutomaticRoleAttributeRu
 import EntityEventManager from './EntityEventManager';
 import EntityStateManager from './EntityStateManager';
 import ContractSliceManager from './ContractSliceManager';
+import RoleGuaranteeManager from './RoleGuaranteeManager';
+import RoleGuaranteeRoleManager from './RoleGuaranteeRoleManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -106,7 +108,9 @@ const ManagerRoot = {
   EntityEventManager,
   EntityStateManager,
   ContractSliceManager,
-  ContractSliceGuaranteeManager
+  ContractSliceGuaranteeManager,
+  RoleGuaranteeManager,
+  RoleGuaranteeRoleManager
 };
 
 ManagerRoot.version = '0.0.1';

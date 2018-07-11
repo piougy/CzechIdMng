@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -86,6 +87,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTokenRepository;
@@ -108,6 +110,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
@@ -175,6 +178,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmProcessedTaskItemRepository processedTaskRepository;
 	@Autowired private IdmScheduledTaskRepository scheduledTaskRepository;
 	@Autowired private IdmRoleGuaranteeRepository roleGuaranteeRepository;
+	@Autowired private IdmRoleGuaranteeRoleRepository roleGuaranteeRoleRepository;
 	@Autowired private IdmPasswordRepository passwordRepository;
 	@Autowired private IdmPasswordPolicyRepository passwordPolicyRepository;
 	@Autowired private IdmFormRepository formRepository;
@@ -640,7 +644,7 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
-	 * Role guarantees
+	 * Role guarantees - by identity
 	 * 
 	 * @return
 	 */
@@ -648,6 +652,17 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(IdmRoleGuaranteeService.class)
 	public IdmRoleGuaranteeService roleGuaranteeService() {
 		return new DefaultIdmRoleGuaranteeService(roleGuaranteeRepository);
+	}
+	
+	/**
+	 * Role guarantees - by role
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmRoleGuaranteeRoleService.class)
+	public IdmRoleGuaranteeRoleService roleGuaranteeRoleService() {
+		return new DefaultIdmRoleGuaranteeRoleService(roleGuaranteeRoleRepository, entityEventManager());
 	}
 	
 	/**

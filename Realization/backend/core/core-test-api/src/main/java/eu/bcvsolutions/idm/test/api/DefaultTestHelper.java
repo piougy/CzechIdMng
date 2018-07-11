@@ -32,6 +32,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
@@ -54,6 +56,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
@@ -111,6 +115,8 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmContractSliceService contractSliceService;
 	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
 	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private IdmRoleGuaranteeService roleGuaranteeService;
+	@Autowired private IdmRoleGuaranteeRoleService roleGuaranteeRoleService;
 	
 	@Override
 	public LoginDto loginAdmin() {
@@ -266,6 +272,24 @@ public class DefaultTestHelper implements TestHelper {
 		}
 		role.setName(name == null ? createName() : name);
 		return roleService.save(role);
+	}
+	
+	@Override
+	public IdmRoleGuaranteeDto createRoleGuarantee(IdmRoleDto role, IdmIdentityDto guarantee) {
+		IdmRoleGuaranteeDto dto = new IdmRoleGuaranteeDto();
+		dto.setRole(role.getId());
+		dto.setGuarantee(guarantee.getId());
+		//
+		return roleGuaranteeService.save(dto);
+	}
+	
+	@Override
+	public IdmRoleGuaranteeRoleDto createRoleGuaranteeRole(IdmRoleDto role, IdmRoleDto guarantee) {
+		IdmRoleGuaranteeRoleDto dto = new IdmRoleGuaranteeRoleDto();
+		dto.setRole(role.getId());
+		dto.setGuaranteeRole(guarantee.getId());
+		//
+		return roleGuaranteeRoleService.save(dto);
 	}
 
 	@Override

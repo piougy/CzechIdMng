@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
  * Deletes entity event - ensures referential integrity.
  * 
  * @author Radek Tomiška
- *
+ * @since 8.0.0
  */
 @Component
 @Description("Deletes entity event from repository.")

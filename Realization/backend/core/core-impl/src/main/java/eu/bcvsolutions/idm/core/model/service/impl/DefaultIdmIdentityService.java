@@ -259,7 +259,7 @@ public class DefaultIdmIdentityService
                     		)
             );			
 			predicates.add(builder.exists(subquery));
-		}
+		}		
 		//
 		return predicates;
 	}
@@ -460,14 +460,12 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllGuaranteesByRoleId(UUID roleId) {
-		IdmRoleDto role = roleService.get(roleId);
-		Assert.notNull(role, "Role is required. Role by name [" + roleId + "] not found.");
-		return role.getGuarantees()
-				.stream()
-				.map(guarantee -> {
-					return get(guarantee.getGuarantee());
-				})
-				.collect(Collectors.toList());			
+		Assert.notNull(roleId, "Role is required.");
+		//
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setGuaranteesForRole(roleId);
+		//
+		return find(filter, null).getContent();
 	}
 	
 	/**

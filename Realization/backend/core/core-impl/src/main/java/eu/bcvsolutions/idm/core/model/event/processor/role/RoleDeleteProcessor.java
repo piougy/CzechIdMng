@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -29,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
@@ -48,44 +50,19 @@ public class RoleDeleteProcessor
 		implements RoleProcessor {
 	
 	public static final String PROCESSOR_NAME = "role-delete-processor";
-	private final IdmRoleService service;
-	private final IdmIdentityRoleRepository identityRoleRepository;
-	private final IdmConceptRoleRequestService conceptRoleRequestService;
-	private final IdmRoleRequestService roleRequestService;
-	private final IdmRoleTreeNodeService roleTreeNodeService;
-	private final IdmAuthorizationPolicyService authorizationPolicyService;
-	private final IdmAutomaticRoleAttributeService automaticRoleAttributeService;
-	private final IdmAutomaticRoleRequestService automaticRoleRequestService;
+	//
+	@Autowired private IdmRoleService service;
+	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
+	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
+	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
+	@Autowired private IdmAutomaticRoleRequestService automaticRoleRequestService;
+	@Autowired private IdmRoleGuaranteeRoleService roleGuaranteeRoleService;
 	
-	@Autowired
-	public RoleDeleteProcessor(
-			IdmRoleService service,
-			IdmIdentityRoleRepository identityRoleRepository,
-			IdmConceptRoleRequestService conceptRoleRequestService,
-			IdmRoleRequestService roleRequestService,
-			IdmRoleTreeNodeService roleTreeNodeService,
-			IdmAuthorizationPolicyService authorizationPolicyService,
-			IdmAutomaticRoleAttributeService automaticRoleAttributeService,
-			IdmAutomaticRoleRequestService automaticRoleRequestService) {
+	public RoleDeleteProcessor() {
 		super(RoleEventType.DELETE);
-		//
-		Assert.notNull(service);
-		Assert.notNull(identityRoleRepository);
-		Assert.notNull(conceptRoleRequestService);
-		Assert.notNull(roleRequestService);
-		Assert.notNull(roleTreeNodeService);
-		Assert.notNull(authorizationPolicyService);
-		Assert.notNull(automaticRoleAttributeService);
-		Assert.notNull(automaticRoleRequestService);
-		//
-		this.service = service;
-		this.identityRoleRepository = identityRoleRepository;
-		this.conceptRoleRequestService = conceptRoleRequestService;
-		this.roleRequestService = roleRequestService;
-		this.roleTreeNodeService = roleTreeNodeService;
-		this.authorizationPolicyService = authorizationPolicyService;
-		this.automaticRoleAttributeService = automaticRoleAttributeService;
-		this.automaticRoleRequestService = automaticRoleRequestService;
 	}
 	
 	@Override
@@ -96,6 +73,7 @@ public class RoleDeleteProcessor
 	@Override
 	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
 		IdmRoleDto role = event.getContent();
+		Assert.notNull(role.getId(), "Role id is required!");
 		//
 		// role assigned to identity could not be deleted
 		if(identityRoleRepository.countByRole_Id(role.getId()) > 0) {
@@ -160,6 +138,17 @@ public class RoleDeleteProcessor
 				automaticRoleRequestService.cancel(request);
 			});
 		}
+		// remove role guarantee
+		IdmRoleGuaranteeRoleFilter roleGuaranteeRoleFilter = new IdmRoleGuaranteeRoleFilter();
+		roleGuaranteeRoleFilter.setGuaranteeRole(role.getId());
+		roleGuaranteeRoleService.find(roleGuaranteeRoleFilter, null).forEach(roleGuarantee -> {
+			roleGuaranteeRoleService.delete(roleGuarantee);
+		});
+		roleGuaranteeRoleFilter = new IdmRoleGuaranteeRoleFilter();
+		roleGuaranteeRoleFilter.setRole(role.getId());
+		roleGuaranteeRoleService.find(roleGuaranteeRoleFilter, null).forEach(roleGuarantee -> {
+			roleGuaranteeRoleService.delete(roleGuarantee);
+		});
 		//		
 		// remove role guarantees, sub roles and catalog works automatically by hibenate mapping
 		service.deleteInternal(role);

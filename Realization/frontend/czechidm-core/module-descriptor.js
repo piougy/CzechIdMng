@@ -289,6 +289,14 @@ module.exports = {
                 'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
               },
               {
+                'id': 'role-guarantees',
+                'type': 'TAB',
+                'labelKey': 'content.role.guarantees.title',
+                'order': 120,
+                'path': '/role/:entityId/guarantees',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+              },
+              {
                 'id': 'role-authorization-policies',
                 'type': 'TAB',
                 'labelKey': 'content.role.authorization-policies.label',

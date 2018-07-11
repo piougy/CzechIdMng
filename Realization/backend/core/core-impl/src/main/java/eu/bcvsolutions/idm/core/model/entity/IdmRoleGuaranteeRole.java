@@ -21,10 +21,10 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "idm_role_guarantee", indexes = {
-				@Index(name = "idx_idm_role_guarantee_role", columnList = "role_id"),
-				@Index(name = "idx_idm_role_guarantee_gnt", columnList = "guarantee_id")} )
-public class IdmRoleGuarantee extends AbstractEntity {
+@Table(name = "idm_role_guarantee_role", indexes = {
+				@Index(name = "idx_idm_role_g_r_role", columnList = "role_id"),
+				@Index(name = "idx_idm_role_g_r_g_role", columnList = "guarantee_role_id")} )
+public class IdmRoleGuaranteeRole extends AbstractEntity {
 
 	private static final long serialVersionUID = 6106304497345109366L;
 
@@ -36,14 +36,13 @@ public class IdmRoleGuarantee extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole role; // owner
 	
-	
-	@Audited
 	@NotNull
+	@Audited
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "guarantee_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "guarantee_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmIdentity guarantee; // guarantee as identity
+	private IdmRole guaranteeRole; // guarantee as role
 
 	/**
 	 * Role owner
@@ -64,20 +63,20 @@ public class IdmRoleGuarantee extends AbstractEntity {
 	}
 	
 	/**
-	 * Guarantee as identity
+	 * Guarantee as role
 	 * 
 	 * @return
 	 */
-	public IdmIdentity getGuarantee() {
-		return guarantee;
+	public IdmRole getGuaranteeRole() {
+		return guaranteeRole;
 	}
-
+	
 	/**
-	 * Guarantee as identity
+	 * Guarantee as role
 	 * 
-	 * @param guarantee
+	 * @param guaranteeRole
 	 */
-	public void setGuarantee(IdmIdentity guarantee) {
-		this.guarantee = guarantee;
+	public void setGuaranteeRole(IdmRole guaranteeRole) {
+		this.guaranteeRole = guaranteeRole;
 	}
 }

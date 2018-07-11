@@ -1452,7 +1452,6 @@
         }
       },
       "values": {
-        "header": "Hodnoty atributů",
         "title": "Hodnoty atributů"
       }
     },
@@ -1476,6 +1475,37 @@
           "label": "Text",
           "placeholder": "Kód / Název / Popis"
         }
+      },
+      "detail": {
+        "title": "Základní informace"
+      },
+      "values": {
+        "title": "Hodnoty atributu"
+      }
+    },
+    "formValues": {
+      "header": "Hodnoty atributů",
+      "title": "Hodnoty atributů",
+      "filter": {
+        "text": {
+          "label": "Text",
+          "placeholder": "Kód / Název"
+        },
+        "type": {
+          "placeholder": "Vyberte typ atributu"
+        },
+        "value": {
+          "placeholder": "Hodnota atributu"
+        }
+      },
+      "columns": {
+        "owner": "Vlastník",
+        "type": "Typ atributu",
+        "value": "Hodnota atributu",
+        "name": "Název atributu",
+        "code": "Kód atributu",
+        "default": "Výchozí hodnota",
+        "facetype": "Typ zobrazení"
       }
     },
     "confidentialStorage": {

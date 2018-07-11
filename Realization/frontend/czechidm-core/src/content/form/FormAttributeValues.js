@@ -6,7 +6,7 @@ import SearchParameters from '../../domain/SearchParameters';
 /**
  * @author Roman Kučera
  */
-export default class FormValues extends Basic.AbstractContent {
+export default class FormAttributeValues extends Basic.AbstractContent {
 
   getContentKey() {
     return 'content.formValues';
@@ -17,11 +17,11 @@ export default class FormValues extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'forms-values';
+    return 'forms-attribute-values';
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('definitionId', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('attributeId', this.props.params.entityId);
     return (
       <Basic.Panel className={'no-border last'}>
         <Basic.PanelHeader text={this.i18n('title')} />
@@ -33,7 +33,7 @@ export default class FormValues extends Basic.AbstractContent {
   }
 }
 
-FormValues.propTypes = {
+FormAttributeValues.propTypes = {
 };
-FormValues.defaultProps = {
+FormAttributeValues.defaultProps = {
 };

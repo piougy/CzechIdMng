@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
  * @param <E> Form attribute value type
  * @param <O> Values owner type
  */
+//TODO without this annotation it wont startup when I use this repository in IdmServiceConfigration, it fail with something on method findByOwner_IdAndFormAttribute_FormDefinition_IdOrderBySeqAsc
 @NoRepositoryBean
 public interface AbstractFormValueRepository<O extends FormableEntity, E extends AbstractFormValue<O>> extends AbstractEntityRepository<E> {
 	

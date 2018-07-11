@@ -987,7 +987,27 @@ module.exports = {
                 'path': '/forms/:entityId/attributes',
                 'icon': '',
                 'type': 'TAB',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ],
+                'items': [
+                  {
+                    'id': 'forms-attribute-detail',
+                    'labelKey': 'content.formAttributes.detail.title',
+                    'order': 10,
+                    'path': '/forms/attribute/:entityId/detail',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] }]
+                  },
+                  {
+                    'id': 'forms-attribute-values',
+                    'labelKey': 'content.formAttributes.values.title',
+                    'order': 950,
+                    'path': '/forms/attribute/:entityId/values',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] }]
+                  }
+                ]
               },
               {
                 'id': 'forms-localization',

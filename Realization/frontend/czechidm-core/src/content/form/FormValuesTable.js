@@ -5,6 +5,7 @@ import * as Advanced from '../../components/advanced';
 import { FormDefinitionAttributesValuesManager, DataManager } from '../../redux';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
+import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 
 const manager = new FormDefinitionAttributesValuesManager();
 
@@ -29,7 +30,7 @@ class FormValuesTable extends Advanced.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'content.formDefinitions.values';
+    return 'content.formValues';
   }
 
   getManager() {
@@ -54,16 +55,8 @@ class FormValuesTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
-  showDetail(entity) {
-    // TODO get username from uuid
-    console.log('entity ' + JSON.stringify(entity));
-    if (entity.id !== undefined) {
-      this.context.router.push('/identity/test/eav' + entity.id);
-    }
-  }
-
   render() {
-    const { uiKey, definitionId, attributeValues } = this.props;
+    const { uiKey, forceSearchParameters } = this.props;
     const { filterOpened } = this.state;
     return (
       <Advanced.Table
@@ -71,7 +64,7 @@ class FormValuesTable extends Advanced.AbstractTableContent {
         uiKey={uiKey}
         // showRowSelection={SecurityManager.hasAuthority('FORMATTRIBUTE_DELETE')}
         manager={manager}
-        forceSearchParameters={new SearchParameters().setFilter('definitionId', definitionId)}
+        forceSearchParameters={forceSearchParameters}
         // rowClass={({ rowIndex, data }) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
         filter={
           <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -87,33 +80,42 @@ class FormValuesTable extends Advanced.AbstractTableContent {
                 </div>
               </Basic.Row>
               <Basic.Row>
+                <div className="col-lg-4">
+                  <Basic.EnumSelectBox
+                    ref="persistentType"
+                    placeholder={this.i18n('filter.type.placeholder')}
+                    multiSelect={false}
+                    enum={PersistentTypeEnum}/>
+                </div>
+              </Basic.Row>
+              <Basic.Row>
                 <div className="col-lg-6">
-
                 </div>
               </Basic.Row>
             </Basic.AbstractForm>
           </Advanced.Filter>
         }
         filterOpened={!filterOpened}>
-        <Advanced.Column
-          header=""
-          className="detail-button"
+
+        <Advanced.Column property="ownerId" header={this.i18n('columns.owner')}
           cell={
             ({ rowIndex, data }) => {
               return (
-                <Advanced.DetailButton
-                  title={this.i18n('button.detail')}
-                  onClick={this.showDetail.bind(this, data[rowIndex])} />
+                <Advanced.EntityInfo
+                  entityType={Utils.Ui.getSimpleJavaType((data[rowIndex].ownerType))}
+                  entityIdentifier={data[rowIndex].ownerId}
+                  showIcon
+                  face="popover"
+                  showEntityType />
               );
             }
-          }
-          sort={false}
-          _searchParameters={this.getSearchParameters()} />
-
-        <Advanced.Column property="ownerId" header={'ownerId'} sort />
-        <Advanced.Column property="persistentType" header={'persistentType'} sort />
-        <Advanced.Column property="value" header={'value'} sort />
-        <Advanced.Column property="_embedded.formAttribute.name" header={'attr'} sort />
+          }/>
+        <Advanced.Column property="persistentType" header={this.i18n('columns.type')} face="enum" enumClass={PersistentTypeEnum} />
+        <Advanced.Column property="value" header={this.i18n('columns.value')} />
+        <Advanced.Column property="_embedded.formAttribute.name" header={this.i18n('columns.name')} />
+        <Advanced.Column property="_embedded.formAttribute.code" header={this.i18n('columns.code')} />
+        <Advanced.Column property="_embedded.formAttribute.defaultValue" header={this.i18n('columns.default')} />
+        <Advanced.Column property="_embedded.formAttribute.faceType" header={this.i18n('columns.default')} />
 
       </Advanced.Table>
     );
@@ -123,20 +125,18 @@ class FormValuesTable extends Advanced.AbstractTableContent {
 FormValuesTable.propTypes = {
   filterOpened: PropTypes.bool,
   uiKey: PropTypes.string.isRequired,
-  definitionId: PropTypes.string.isRequired,
-  attributeValues: PropTypes.object,
+  forceSearchParameters: PropTypes.object,
 };
 
 FormValuesTable.defaultProps = {
   filterOpened: true,
-  attributeValues: null
+  forceSearchParameters: null
 };
 
 function select(state, component) {
   const { uiKey } = component;
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, uiKey),
-    attributeValues: DataManager.getData(state, uiKey),
   };
 }
 

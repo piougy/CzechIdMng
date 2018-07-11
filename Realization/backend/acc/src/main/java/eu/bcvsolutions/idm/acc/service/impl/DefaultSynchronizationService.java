@@ -174,6 +174,12 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 		Assert.notNull(config, "Sync configuration is required!");
 		Assert.notNull(config.getId(), "Id of sync configuration is required!");
+		
+		if (synchronizationConfigService.isRunning(config)) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IS_RUNNING,
+					ImmutableMap.of("name", config.getName()));
+		}
+		
 		UUID syncConfigId = config.getId();
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		Assert.notNull(mapping);

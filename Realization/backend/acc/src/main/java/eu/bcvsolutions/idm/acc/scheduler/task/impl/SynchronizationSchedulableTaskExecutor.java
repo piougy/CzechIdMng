@@ -52,12 +52,17 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 				SynchronizationService.PARAMETER_SYNCHRONIZATION_ID);
 		//
 		// validation only
-		getConfig();
+	    getConfig();
 	}
 
 	@Override
 	public Boolean process() {
-		synchronizationService.startSynchronization(getConfig(), this);
+		AbstractSysSyncConfigDto config = getConfig();
+		if (service.isRunning(config)) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IS_RUNNING,
+					ImmutableMap.of("name", config.getName()));
+		}
+		synchronizationService.startSynchronization(config, this);
 		//
 		return Boolean.TRUE;
 	}

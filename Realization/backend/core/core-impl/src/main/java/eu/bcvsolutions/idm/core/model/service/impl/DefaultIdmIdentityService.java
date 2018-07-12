@@ -19,6 +19,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
@@ -460,12 +461,18 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllGuaranteesByRoleId(UUID roleId) {
+		return findGuaranteesByRoleId(roleId, null).getContent();
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentityDto> findGuaranteesByRoleId(UUID roleId, Pageable pageable) {
 		Assert.notNull(roleId, "Role is required.");
 		//
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setGuaranteesForRole(roleId);
 		//
-		return find(filter, null).getContent();
+		return find(filter, pageable);
 	}
 	
 	/**

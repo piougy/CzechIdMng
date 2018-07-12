@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.google.common.annotations.Beta;
 
@@ -121,14 +123,26 @@ public interface IdmIdentityService extends
 	String convertIdentitiesToString(List<IdmIdentityDto> identities);
 
 	/**
-	 * Find all guarantees for given role ID
+	 * Find all guarantees for given role ID. 
+	 * 
+	 * Lookout return all guarantess. Use {@link #findGuaranteesByRoleId(UUID, Pageable)} instead.
 	 * 
 	 * @param roleId
-	 * @return
+	 * @return 
+	 * @deprecated @since 8.2.0 - use {@link #findGuaranteesByRoleId(UUID, Pageable)}
 	 */
 	@Beta
+	@Deprecated
 	List<IdmIdentityDto> findAllGuaranteesByRoleId(UUID roleId);
 
+	/**
+	 * Find guarantees for given role ID. 
+	 * 
+	 * @param roleId
+	 * @param pageable
+	 * @return
+	 */
+	Page<IdmIdentityDto> findGuaranteesByRoleId(UUID roleId, Pageable pageable);
 	
 	/**
 	 * Disable tokens for all given identities and set 

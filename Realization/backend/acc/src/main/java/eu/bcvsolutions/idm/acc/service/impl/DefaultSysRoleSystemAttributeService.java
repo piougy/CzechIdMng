@@ -196,7 +196,7 @@ public class DefaultSysRoleSystemAttributeService extends
 
 		List<SysSystemMappingDto> systemMappings = sysSystemMappingService.find(filter, null).getContent();
 		if (systemMappings.isEmpty()) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_NOT_FOUND);
+			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_NOT_FOUND, ImmutableMap.of("systemId", systemId, "objectClassName", objectClassName));
 		}
 		return systemMappings.get(0);
 	}
@@ -213,7 +213,7 @@ public class DefaultSysRoleSystemAttributeService extends
 		filter.setObjectClassName(objectClassName);
 		List<SysSchemaObjectClassDto> objectClasses = sysSchemaObjectClassService.find(filter, null).getContent();
 		if (objectClasses.isEmpty()) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_SCHEMA_OBJECT_CLASS_NOT_FOUND);
+			throw new ResultCodeException(AccResultCode.SYSTEM_SCHEMA_OBJECT_CLASS_NOT_FOUND, ImmutableMap.of("objectClassName", objectClassName, "systemId", systemId));
 		}
 		return objectClasses.get(0).getId();
 	}
@@ -226,13 +226,14 @@ public class DefaultSysRoleSystemAttributeService extends
 	 * @return
 	 */
 	private SysSystemAttributeMappingDto getSystemAttributeMapping(UUID systemId, String attributeName, String objectClassName) {
+		SysSchemaAttributeDto schemaAttr = getSchemaAttr(systemId, attributeName, objectClassName);
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSystemId(systemId);
-		filter.setSchemaAttributeId(getSchemaAttr(systemId, attributeName, objectClassName).getId());
+		filter.setSchemaAttributeId(schemaAttr.getId());
 
 		List<SysSystemAttributeMappingDto> attributeMappings = sysSystemAttributeMappingService.find(filter, null).getContent();
 		if (attributeMappings.isEmpty()) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_ATTRIBUTE_MAPPING_NOT_FOUND);
+			throw new ResultCodeException(AccResultCode.SYSTEM_ATTRIBUTE_MAPPING_NOT_FOUND, ImmutableMap.of("schemaAttr", schemaAttr.getName(), "systemId", systemId));
 		}
 		return attributeMappings.get(0);
 	}
@@ -250,7 +251,7 @@ public class DefaultSysRoleSystemAttributeService extends
 		filter.setText(attributeName);
 		List<SysSchemaAttributeDto> schemas = sysSchemaAttributeService.find(filter, null).getContent();
 		if (schemas.isEmpty()) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_SCHEMA_ATTRIBUTE_NOT_FOUND);
+			throw new ResultCodeException(AccResultCode.SYSTEM_SCHEMA_ATTRIBUTE_NOT_FOUND, ImmutableMap.of("objectClassName", objectClassName, "attributeName", attributeName));
 		}
 		return schemas.get(0);
 	}

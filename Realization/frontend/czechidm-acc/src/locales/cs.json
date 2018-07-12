@@ -1655,6 +1655,26 @@
     "PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING": {
       "title": "Duplicitní atributu mapování",
       "message": "Provisioning mapování může obsahovat pouze jeden atribut, mapující stejný schéma atribut!"
+    },
+    "SYSTEM_MAPPING_NOT_FOUND": {
+      "title": "Nenalezeno systémové mapování",
+      "message": "Nenalezeno systémové mapování na systému [{{systemId}}] pro 'object class name' [{{objectClassName}}]."
+    },
+    "SYSTEM_SCHEMA_OBJECT_CLASS_NOT_FOUND": {
+      "title": "Nenalezeno 'schema object class'",
+      "message": "Nenalezeno 'schema object class' [{{objectClassName}}] na systému [{{systemId}}]."
+    },
+    "SYSTEM_ATTRIBUTE_MAPPING_NOT_FOUND": {
+      "title": "Nenalezeno systémové mapování atributu",
+      "message": "Nenalezeno systémové mapování atributu pro schéma [{{schemaAttr}}] na systému [{{systemId}}]."
+    },
+    "SYSTEM_SCHEMA_ATTRIBUTE_NOT_FOUND": {
+      "title": "Nenalezeno schéma atributu",
+      "message": "Nenalezeno schéma atributu pro 'object class name' [{{objectClassName}}] a atribut [{{attributeName}}]."
+    },
+    "ROLE_ACCOUNT_NOT_FOUND": {
+      "title": "'Role account' nenalezen",
+      "message": "'Role account' nenalezen pro id účtu [{{account}}]."
     }
   },
   "processor": {

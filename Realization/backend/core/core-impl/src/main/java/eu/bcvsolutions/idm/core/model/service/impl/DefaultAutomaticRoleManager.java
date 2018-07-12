@@ -1,3 +1,5 @@
+
+
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
@@ -212,3 +214,4 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 		return null;
 	}
 }
+

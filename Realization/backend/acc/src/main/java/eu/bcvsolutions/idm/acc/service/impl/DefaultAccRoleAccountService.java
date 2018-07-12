@@ -117,4 +117,16 @@ public class DefaultAccRoleAccountService
 		//
 		return predicates;
 	}
+
+	public UUID getRoleId(UUID account) {
+		AccRoleAccountFilter accountFilter = new AccRoleAccountFilter();
+		accountFilter.setAccountId(account);
+		accountFilter.setOwnership(Boolean.TRUE);
+
+		List<AccRoleAccountDto> roleAccounts = this.find(accountFilter, null).getContent();
+		if (roleAccounts.isEmpty()) {
+			throw new RuntimeException("No role Id found");
+		}
+		return roleAccounts.get(0).getRole();
+	}
 }

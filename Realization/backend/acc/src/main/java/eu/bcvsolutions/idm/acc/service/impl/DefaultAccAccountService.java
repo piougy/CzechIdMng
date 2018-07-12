@@ -182,7 +182,6 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 	@Override
 	public AccAccountDto getAccount(String uid, UUID systemId) {
 		Assert.notNull(uid, "UID cannot be null!");
-		Assert.notNull(systemId, "System ID cannot be null!");
 
 		AccAccountFilter filter = new AccAccountFilter();
 		filter.setUid(uid);

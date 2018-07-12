@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -22,5 +24,13 @@ public interface AccRoleAccountService extends
 	 * @param deleteAccount  If is true, then will be deleted (call provisioning) account on target system.
 	 */
 	void delete(AccRoleAccountDto entity, boolean deleteAccount, BasePermission... permission);
+	
+	/**
+	 * Method return roles id based on accountId.
+	 * 
+	 * @param account
+	 * @return
+	 */
+	UUID getRoleId(UUID account);
 }
 	

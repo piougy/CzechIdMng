@@ -25,6 +25,10 @@ public enum AccResultCode implements ResultCode {
 	SYSTEM_DELETE_FAILED_HAS_ENTITIES(HttpStatus.BAD_REQUEST, "System [%s] has system entities assigned, cannot be deleted."),
 	SYSTEM_DELETE_FAILED_HAS_ACCOUNTS(HttpStatus.BAD_REQUEST, "System [%s] has accounts assigned, cannot be deleted."),
 	SYSTEM_DELETE_FAILED_HAS_OPERATIONS(HttpStatus.BAD_REQUEST, "System [%s] cannot be deleted. It is used in active provisioning operations. Resolve operations at firts."),
+	SYSTEM_MAPPING_NOT_FOUND(HttpStatus.BAD_REQUEST, "Cannot find system mapping"),
+	SYSTEM_SCHEMA_OBJECT_CLASS_NOT_FOUND(HttpStatus.BAD_REQUEST, "Cannot find schema object class"),
+	SYSTEM_ATTRIBUTE_MAPPING_NOT_FOUND(HttpStatus.BAD_REQUEST, "Cannot find system attribute mapping"),
+	SYSTEM_SCHEMA_ATTRIBUTE_NOT_FOUND(HttpStatus.BAD_REQUEST, "Cannot find schema attribute"),
 	//
 	// attribute mapping
 	ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "Attribute [%s] cannot be deleted. It is used in synchronization on this system!"),

@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -143,7 +144,7 @@ public class DefaultSysRoleSystemAttributeService extends
 
 		SysRoleSystemAttributeDto systemAttribute = attribute;
 		UUID roleSystemId = getSysRoleSystem(systemId, roleId, objectClassName);
-		UUID systemAttributeMappingId = getSystemAttributeMapping(systemId, attributeName, objectClassName);
+		UUID systemAttributeMappingId = getSystemAttributeMapping(systemId, attributeName, objectClassName).getId();
 		//
 		//
 		systemAttribute.setName(attributeName);
@@ -182,29 +183,24 @@ public class DefaultSysRoleSystemAttributeService extends
 			SysRoleSystemDto sys = new SysRoleSystemDto();
 			sys.setRole(roleId);
 			sys.setSystem(systemId);
-			sys.setSystemMapping(getSystemMapping(systemId, objectClassName));
+			sys.setSystemMapping(getSystemMapping(systemId, objectClassName, SystemOperationType.PROVISIONING).getId());
 			return sysRoleSystemService.save(sys).getId();
 	}
 
-	/**
-	 * Returns provisioning mapping of system.
-	 * @param systemId
-	 * @param objectClassName
-	 * @return
-	 */
-	private UUID getSystemMapping(UUID systemId, String objectClassName) {
+	@Override
+	public SysSystemMappingDto getSystemMapping(UUID systemId, String objectClassName, SystemOperationType operationType) {
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setSystemId(systemId);
-		filter.setOperationType(SystemOperationType.PROVISIONING);
+		filter.setOperationType(operationType);
 		filter.setObjectClassId(getObjectClassId(systemId, objectClassName));
 
-		List<SysSystemMappingDto> content = sysSystemMappingService.find(filter, null).getContent();
-		if (content.isEmpty()) {
-			throw new RuntimeException("Cannot find system mapping");
+		List<SysSystemMappingDto> systemMappings = sysSystemMappingService.find(filter, null).getContent();
+		if (systemMappings.isEmpty()) {
+			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_NOT_FOUND);
 		}
-		return content.get(0).getId();
+		return systemMappings.get(0);
 	}
-
+	
 	/**
 	 * Returns systems object's scheme
 	 * @param systemId
@@ -217,7 +213,7 @@ public class DefaultSysRoleSystemAttributeService extends
 		filter.setObjectClassName(objectClassName);
 		List<SysSchemaObjectClassDto> objectClasses = sysSchemaObjectClassService.find(filter, null).getContent();
 		if (objectClasses.isEmpty()) {
-			throw new RuntimeException("Cannot find system schema");
+			throw new ResultCodeException(AccResultCode.SYSTEM_SCHEMA_OBJECT_CLASS_NOT_FOUND);
 		}
 		return objectClasses.get(0).getId();
 	}
@@ -229,16 +225,16 @@ public class DefaultSysRoleSystemAttributeService extends
 	 * @param objectClassName
 	 * @return
 	 */
-	private UUID getSystemAttributeMapping(UUID systemId, String attributeName, String objectClassName) {
+	private SysSystemAttributeMappingDto getSystemAttributeMapping(UUID systemId, String attributeName, String objectClassName) {
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSystemId(systemId);
-		filter.setSchemaAttributeId(getSchemaAttr(systemId, attributeName, objectClassName));
+		filter.setSchemaAttributeId(getSchemaAttr(systemId, attributeName, objectClassName).getId());
 
-		List<SysSystemAttributeMappingDto> content = sysSystemAttributeMappingService.find(filter, null).getContent();
-		if (content.isEmpty()) {
-			throw new RuntimeException("Cannot find System attribute mapping");
+		List<SysSystemAttributeMappingDto> attributeMappings = sysSystemAttributeMappingService.find(filter, null).getContent();
+		if (attributeMappings.isEmpty()) {
+			throw new ResultCodeException(AccResultCode.SYSTEM_ATTRIBUTE_MAPPING_NOT_FOUND);
 		}
-		return content.get(0).getId();
+		return attributeMappings.get(0);
 	}
 
 	/**
@@ -248,15 +244,15 @@ public class DefaultSysRoleSystemAttributeService extends
 	 * @param objectClassName
 	 * @return
 	 */
-	private UUID getSchemaAttr(UUID systemId, String attributeName, String objectClassName) {
+	private SysSchemaAttributeDto getSchemaAttr(UUID systemId, String attributeName, String objectClassName) {
 		SysSchemaAttributeFilter filter = new SysSchemaAttributeFilter();
 		filter.setObjectClassId(getObjectClassId(systemId, objectClassName));
 		filter.setText(attributeName);
-		List<SysSchemaAttributeDto> list = sysSchemaAttributeService.find(filter, null).getContent();
-		if (list.isEmpty()) {
-			throw new RuntimeException("Cannot find Schema attribute");
+		List<SysSchemaAttributeDto> schemas = sysSchemaAttributeService.find(filter, null).getContent();
+		if (schemas.isEmpty()) {
+			throw new ResultCodeException(AccResultCode.SYSTEM_SCHEMA_ATTRIBUTE_NOT_FOUND);
 		}
-		return list.get(0).getId();
+		return schemas.get(0);
 	}
 
 	/**

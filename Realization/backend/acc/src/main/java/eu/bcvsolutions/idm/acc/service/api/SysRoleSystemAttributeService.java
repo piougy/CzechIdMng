@@ -2,7 +2,9 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
@@ -26,4 +28,12 @@ public interface SysRoleSystemAttributeService extends ReadWriteDtoService<SysRo
 	 */
 	public void addRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName, String transformationScript,
 			String objectClassName, SysRoleSystemAttributeDto attribute);
+	
+	/**
+	 * Returns mapping of system.
+	 * @param systemId
+	 * @param objectClassName
+	 * @return
+	 */
+	public SysSystemMappingDto getSystemMapping(UUID systemId, String objectClassName, SystemOperationType operationType);
 }

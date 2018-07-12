@@ -196,6 +196,10 @@
           "startAutoRoleRec": {
             "label": "Po dokončení spustit přepočet automatických rolí",
             "helpBlock": "Po úspešném dokončení synchronizace bude spuštěn přepočet všech automatických rolí podle atributu."
+          },
+          "createDefaultContract": {
+            "label": "Vytvářet výchozí úvazky pro nové identity",
+            "helpBlock": "V průběhu vytváření nových identit budou vytvářeny i výchozí úvazky. Pro vytvoření úvazku musí být povolena funkce 'Vytváření výchozích úvazků' v konfiguraci aplikace."
           }
         }
       },

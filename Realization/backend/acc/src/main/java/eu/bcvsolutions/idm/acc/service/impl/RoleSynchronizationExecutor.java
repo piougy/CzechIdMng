@@ -119,7 +119,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @return
 	 */
 	@Override
-	protected IdmRoleDto save(IdmRoleDto entity, boolean skipProvisioning) {		
+	protected IdmRoleDto save(IdmRoleDto entity, boolean skipProvisioning, SynchronizationContext context) {		
 		// Content will be set in service (we need do transform entity to DTO). 
 		// Here we set only dummy dto (null content is not allowed)
 		EntityEvent<IdmRoleDto> event = new RoleEvent(

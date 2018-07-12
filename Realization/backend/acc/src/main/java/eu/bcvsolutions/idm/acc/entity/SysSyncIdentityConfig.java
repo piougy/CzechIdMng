@@ -44,6 +44,14 @@ public class SysSyncIdentityConfig extends SysSyncConfig{
 	@Column(name = "start_auto_role_rec", nullable = false)
 	private boolean startAutoRoleRec = true;
 
+	/*
+	 * During creating identity will be created default contract for it
+	 */
+	@Audited
+	@NotNull
+	@Column(name = "create_default_contract", nullable = false)
+	private boolean createDefaultContract = false;
+
 	public IdmRole getDefaultRole() {
 		return defaultRole;
 	}
@@ -59,5 +67,12 @@ public class SysSyncIdentityConfig extends SysSyncConfig{
 	public void setStartAutoRoleRec(boolean startAutoRoleRec) {
 		this.startAutoRoleRec = startAutoRoleRec;
 	}
-	
+
+	public boolean isCreateDefaultContract() {
+		return createDefaultContract;
+	}
+
+	public void setCreateDefaultContract(boolean createDefaultContract) {
+		this.createDefaultContract = createDefaultContract;
+	}
 }

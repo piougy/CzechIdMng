@@ -475,7 +475,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	 * @return
 	 */
 	@Override
-	protected IdmContractSliceDto save(IdmContractSliceDto entity, boolean skipProvisioning) {
+	protected IdmContractSliceDto save(IdmContractSliceDto entity, boolean skipProvisioning, SynchronizationContext context) {
 
 		if (entity.getIdentity() == null) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL,

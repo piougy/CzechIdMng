@@ -196,6 +196,10 @@
           "startAutoRoleRec": {
             "label": "After end, start the automatic role recalculation",
             "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute."
+          },
+          "createDefaultContract": {
+            "label": "Create default contracts for new identities",
+            "helpBlock": "During the creation of new identities, will be also created default contract. For create new default contract must be enabled function 'Creating default contracts' in application configuration."
           }
         }
       },

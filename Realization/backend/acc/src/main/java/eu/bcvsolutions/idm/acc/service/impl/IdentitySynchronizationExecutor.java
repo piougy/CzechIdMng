@@ -141,17 +141,20 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected IdmIdentityDto save(IdmIdentityDto entity, boolean skipProvisioning, SynchronizationContext context) {
 		SysSyncIdentityConfigDto config = this.getConfig(context);
-		if (config.isCreateDefaultContract()) {
-			addToItemLog(context.getLog(), "For identity will be created default contract");
+		boolean isNew = identityService.isNew(entity);
+		boolean createDefaultContract = config.isCreateDefaultContract();
+		
+		if (isNew && createDefaultContract) {
+			addToItemLog(context.getLogItem(), "For identity will be created default contract.");
 		}
 		//
 		EntityEvent<IdmIdentityDto> event = new IdentityEvent(
-				identityService.isNew(entity) ? IdentityEventType.CREATE : IdentityEventType.UPDATE, entity,
+				isNew ? IdentityEventType.CREATE : IdentityEventType.UPDATE, entity,
 				ImmutableMap.of( //
 						ProvisioningService.SKIP_PROVISIONING, skipProvisioning, //
 						// In the identity sync are creation of the default contracts depend on synchronization setting.
 						// Behavior with create default contract doesn't override property with create default contract. Both properties must be allowed.
-						IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, !config.isCreateDefaultContract(),
+						IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, !createDefaultContract,
 						// We don't want recalculate automatic role by attribute recalculation for every
 						// contract.
 						// Recalculation will be started only once.

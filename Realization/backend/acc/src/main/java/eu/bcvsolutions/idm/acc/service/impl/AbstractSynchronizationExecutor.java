@@ -2179,10 +2179,11 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	/**
-	 * Save dto
+	 * Save DTO
 	 * 
 	 * @param dto
 	 * @param skipProvisioning
+	 * @param context
 	 * @return
 	 */
 	protected abstract DTO save(DTO dto, boolean skipProvisioning, SynchronizationContext context);

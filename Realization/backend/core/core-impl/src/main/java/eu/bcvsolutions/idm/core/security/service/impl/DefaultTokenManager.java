@@ -65,6 +65,9 @@ public class DefaultTokenManager implements TokenManager {
 		//
 		token.setOwnerType(getOwnerType(owner));
 		token.setOwnerId(getOwnerId(owner));
+		if (token.getIssuedAt() == null) {
+			token.setIssuedAt(new DateTime());
+		}
 		//
 		return tokenService.save(token, permission);
 	}

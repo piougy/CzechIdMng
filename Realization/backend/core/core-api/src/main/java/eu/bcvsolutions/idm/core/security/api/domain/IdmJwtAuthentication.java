@@ -77,8 +77,16 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 		return expiration;
 	}
 	
+	public void setExpiration(DateTime expiration) {
+		this.expiration = expiration;
+	}
+	
 	public DateTime getIssuedAt() {
 		return issuedAt;
+	}
+	
+	public void setIssuedAt(DateTime issuedAt) {
+		this.issuedAt = issuedAt;
 	}
 
 	public boolean isExpired() {

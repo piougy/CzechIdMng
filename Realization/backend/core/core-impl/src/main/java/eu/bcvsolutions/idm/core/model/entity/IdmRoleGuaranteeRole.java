@@ -14,9 +14,8 @@ import org.hibernate.envers.Audited;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
- * Intersection table beetween role and identity - guarantee of role
+ * Role guarantee by role
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  *
  */

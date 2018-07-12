@@ -196,7 +196,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @return
 	 */
 	@Override
-	protected IdmTreeNodeDto save(IdmTreeNodeDto entity, boolean skipProvisioning) {
+	protected IdmTreeNodeDto save(IdmTreeNodeDto entity, boolean skipProvisioning, SynchronizationContext context) {
 		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(
 				treeNodeService.isNew(entity) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, entity,
 				ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
@@ -227,7 +227,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 		treeNode.setTreeType(this.getSystemMapping(mappedAttributes).getTreeType());
 		// Create new Entity
-		treeNode = this.save(treeNode, true);
+		treeNode = this.save(treeNode, true, context);
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, true, context);
 		// Update confidential attribute (entity must be persisted first)
@@ -283,7 +283,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		if (treeNode != null) {
 			// Update entity
 			treeNode = fillEntity(mappedAttributes, uid, icAttributes, treeNode, false, context);
-			treeNode = this.save(treeNode, true);
+			treeNode = this.save(treeNode, true, context);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, false, context);
 			// Update confidential attribute (entity must be persisted first)

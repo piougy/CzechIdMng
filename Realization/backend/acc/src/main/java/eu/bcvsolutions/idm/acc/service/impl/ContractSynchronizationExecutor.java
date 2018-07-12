@@ -492,7 +492,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	 * @return
 	 */
 	@Override
-	protected IdmIdentityContractDto save(IdmIdentityContractDto entity, boolean skipProvisioning) {
+	protected IdmIdentityContractDto save(IdmIdentityContractDto entity, boolean skipProvisioning, SynchronizationContext context) {
 
 		if (entity.getIdentity() == null) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL,

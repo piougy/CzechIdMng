@@ -26,6 +26,11 @@ public class SysSyncIdentityConfigDto extends AbstractSysSyncConfigDto {
 	 * Start recalculation after end synchronization for automatic roles by attribute
 	 */
 	private boolean startAutoRoleRec = true;
+	
+	/*
+	 * During creating identity will be created default contract for it
+	 */
+	private boolean createDefaultContract = false;
 
 	public UUID getDefaultRole() {
 		return defaultRole;
@@ -41,5 +46,13 @@ public class SysSyncIdentityConfigDto extends AbstractSysSyncConfigDto {
 
 	public void setStartAutoRoleRec(boolean startAutoRoleRec) {
 		this.startAutoRoleRec = startAutoRoleRec;
+	}
+
+	public boolean isCreateDefaultContract() {
+		return createDefaultContract;
+	}
+
+	public void setCreateDefaultContract(boolean createDefaultContract) {
+		this.createDefaultContract = createDefaultContract;
 	}
 }

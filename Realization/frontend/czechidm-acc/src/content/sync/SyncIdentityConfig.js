@@ -32,7 +32,13 @@ class SyncIdentityConfig extends Basic.AbstractContent {
   }
 
   render() {
-    const {synchronizationConfig, showLoading} = this.props;
+    const { synchronizationConfig, showLoading, isNew } = this.props;
+    // Set default values when create new sync configuration
+    if (isNew) {
+      synchronizationConfig.createDefaultContract = false;
+      synchronizationConfig.startAutoRoleRec = true;
+    }
+    //
     return (
       <Basic.AbstractForm ref="formSpecific" data={synchronizationConfig} showLoading={showLoading} className="panel-body">
         <Basic.SelectBox
@@ -44,6 +50,10 @@ class SyncIdentityConfig extends Basic.AbstractContent {
           ref="startAutoRoleRec"
           label={this.i18n('identityConfigDetail.startAutoRoleRec.label')}
           helpBlock={this.i18n('identityConfigDetail.startAutoRoleRec.helpBlock')}/>
+        <Basic.Checkbox
+          ref="createDefaultContract"
+          label={this.i18n('identityConfigDetail.createDefaultContract.label')}
+          helpBlock={this.i18n('identityConfigDetail.createDefaultContract.helpBlock')}/>
       </Basic.AbstractForm>
     );
   }

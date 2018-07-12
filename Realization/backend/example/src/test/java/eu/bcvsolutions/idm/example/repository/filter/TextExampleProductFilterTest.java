@@ -4,15 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
-import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.example.dto.ExampleProductDto;
 import eu.bcvsolutions.idm.example.dto.filter.ExampleProductFilter;
 import eu.bcvsolutions.idm.example.entity.ExampleProduct;
@@ -31,16 +27,6 @@ public class TextExampleProductFilterTest extends AbstractIntegrationTest {
 	private ExampleProductService productService;
 	@Autowired
 	private TextExampleProductFilter textProductFilter;
-	
-	@Before
-	public void before() {
-		this.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-	}
-
-	@After
-	public void after() {
-		super.logout();
-	}
 
 	@Test
 	public void testFilteringFound() {
@@ -100,7 +86,7 @@ public class TextExampleProductFilterTest extends AbstractIntegrationTest {
 	private ExampleProductDto createProduct(String name) {
 		ExampleProductDto product = new ExampleProductDto();
 		product.setName(name);
-		product.setCode(UUID.randomUUID().toString());
+		product.setCode(getHelper().createName());
 		return productService.save(product);
 	}
 }

@@ -543,11 +543,7 @@ import org.springframework.data.domain.Page;
                 return;
               }
               UUID systemId = defaultSysSystemService.getByCode(SYSTEM_CODE_FOR_ROLE_MAPPING).getId();
-
-                SysRoleSystemAttributeDto attr = new SysRoleSystemAttributeDto();
-                attr.setEntityAttribute(false);
-  		          attr.setStrategyType(AttributeMappingStrategyType.MERGE);
-                defaultSysRoleSystemAttributeService.addRoleMappingAttribute(systemId, roleId, attributeName, transformationScript, objectClassName, attr); //sysRoleSystemAttributeService
+               defaultSysRoleSystemAttributeService.addRoleMappingAttribute(systemId, roleId, attributeName, transformationScript, objectClassName); //sysRoleSystemAttributeService
           }
 
           // ------------------------------------------------------------------------------------------------------------
@@ -756,10 +752,7 @@ import org.springframework.data.domain.Page;
             return;
           }
           UUID systemId = defaultSysSystemService.getByCode(SYSTEM_CODE_FOR_ROLE_MAPPING).getId();
-          SysRoleSystemAttributeDto attr = new SysRoleSystemAttributeDto();
-          attr.setEntityAttribute(false);
-          attr.setStrategyType(AttributeMappingStrategyType.MERGE);
-          defaultSysRoleSystemAttributeService.addRoleMappingAttribute(systemId, roleId, attributeName, transformationScript, objectClassName, attr);
+          defaultSysRoleSystemAttributeService.addRoleMappingAttribute(systemId, roleId, attributeName, transformationScript, objectClassName);
         }
 
         def resolveMembers(roleId, membersAttribute) { // resolving membership - if some identities are already part of this group

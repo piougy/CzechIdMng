@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
@@ -133,14 +134,22 @@ public class DefaultSysRoleSystemAttributeService extends
 
 	@Override
 	public void addRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName, String transformationScript,
-			String objectClassName, SysRoleSystemAttributeDto attribute) { // ObjectClassName "__ACCOUNT__"
+			String objectClassName) { // ObjectClassName "__ACCOUNT__"
 		Assert.notNull(systemId, "SystemId cannot be null!");
 		Assert.notNull(roleId, "RoleId cannot be null!");
 		Assert.notNull(attributeName, "Attribute name cannot be null");
 		Assert.hasLength(attributeName, "Attribute name cannot be blank");
+		
 
-		SysRoleSystemAttributeDto systemAttribute = attribute;
 		UUID roleSystemId = getSysRoleSystem(systemId, roleId, objectClassName);
+		SysRoleSystemAttributeDto systemAttribute = getSystemAttribute(roleSystemId, attributeName);
+		if (systemAttribute == null) {
+			systemAttribute = new SysRoleSystemAttributeDto();
+		}
+		
+		systemAttribute.setEntityAttribute(false);
+		systemAttribute.setStrategyType(AttributeMappingStrategyType.MERGE);
+		
 		UUID systemAttributeMappingId = getSystemAttributeMapping(systemId, attributeName, objectClassName).getId();
 
 		systemAttribute.setName(attributeName);
@@ -151,14 +160,7 @@ public class DefaultSysRoleSystemAttributeService extends
 			systemAttribute.setTransformScript(transformationScript);
 		}
 
-		SysRoleSystemAttributeDto currentSystemAttribute = getSystemAttribute(roleSystemId, attributeName);
-		if (currentSystemAttribute == null) {
-			this.save(systemAttribute);
-		} else {
-			currentSystemAttribute.setTransformScript(transformationScript);
-			this.save(currentSystemAttribute);
-		}
-
+		this.save(systemAttribute);
 	}
 	
 	@Override

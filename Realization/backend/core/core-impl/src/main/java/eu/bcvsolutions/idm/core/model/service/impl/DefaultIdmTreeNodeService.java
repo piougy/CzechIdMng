@@ -170,6 +170,7 @@ public class DefaultIdmTreeNodeService
 	}
 	
 	@Override
+	@Transactional
 	public UUID rebuildIndexes(UUID treeTypeId) {
 		Assert.notNull(treeTypeId);
 		IdmTreeTypeDto treeType = treeTypeService.get(treeTypeId);

@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -177,7 +176,6 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Ignore // TODO: #1114 - why clear / drop index is called? Fix transactional usage ...
 	public void testRebuildIndex() {
 		IdmTreeTypeDto treeType = getHelper().createTreeType();
 		IdmTreeNodeDto node1 = getHelper().createTreeNode(treeType, null);
@@ -196,7 +194,6 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		Assert.assertTrue(results.stream().anyMatch(n -> n.equals(node4)));
 		//
 		// drop indexes
-		forestIndexService.clearIndexes(IdmTreeNode.toForestTreeType(treeType.getId()));
 		forestIndexService.dropIndexes(IdmTreeNode.toForestTreeType(treeType.getId()));
 		//
 		results = treeNodeService.find(filter, null).getContent();
@@ -205,6 +202,7 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		// reindex tree type
 		treeNodeService.rebuildIndexes(treeType.getId());
 		//
+		results = treeNodeService.find(filter, null).getContent();
 		Assert.assertEquals(2, results.size());
 		Assert.assertTrue(results.stream().anyMatch(n -> n.equals(node3)));
 		Assert.assertTrue(results.stream().anyMatch(n -> n.equals(node4)));

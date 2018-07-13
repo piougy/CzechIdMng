@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import * as Advanced from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import * as Basic from '../../../components/basic';
 import * as Utils from '../../../utils';
 import { TreeTypeManager, DataManager, SecurityManager } from '../../../redux';
@@ -145,7 +145,10 @@ class TreeTypeConfiguration extends Basic.AbstractContent {
           buttons={buttons}
           showLoading={_rebuildLoading}/>
 
-        <Advanced.LongRunningTask entityIdentifier={isRebuild} header={<span dangerouslySetInnerHTML={{__html: this.i18n('configuration.index.rebuild')}}/>}/>
+        <Advanced.LongRunningTask
+          entityIdentifier={ isRebuild }
+          header={ this.i18n('configuration.index.rebuild', { escape: false } ) }
+          showProperties={ false }/>
       </div>
     );
   }

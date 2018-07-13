@@ -1,12 +1,12 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -61,25 +61,19 @@ public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTa
 		try {
 			configurationService.setValue(roleCatalogueService.getConfigurationPropertyName(IdmRoleCatalogueService.CONFIGURATION_PROPERTY_REBUILD), getLongRunningTaskId().toString());
 			//
-			Page<IdmRoleCatalogue> nodes = roleCatalogueRepository.findAll(new PageRequest(0, 100, new Sort("id")));
-			count = nodes.getTotalElements();
+			count = roleCatalogueRepository.findAll(new PageRequest(0, 1)).getTotalElements();
 			counter = 0L;
 			boolean canContinue = true;
+			Page<IdmRoleCatalogue> roots = roleCatalogueRepository.findRoots(new PageRequest(0, 100));
 			while (canContinue) {
-				for(IdmRoleCatalogue node : nodes) {
-					if (node.getForestIndex() == null) {
-						forestIndexService.index(node.getForestTreeType(), node.getId(), node.getParentId());
-					}
-					counter++;	
-					canContinue = updateState();
-					if (!canContinue) {
-						break;
-					}
-				};
-				if (!nodes.hasNext()) {
+				canContinue = processChildren(roots.getContent());
+				if (!canContinue) {
 					break;
 				}
-				nodes = roleCatalogueRepository.findAll(nodes.nextPageable());
+				if (!roots.hasNext()) {
+					break;
+				}
+				roots = roleCatalogueRepository.findRoots(roots.nextPageable());
 			}
 			//
 			if (count.equals(counter)) {
@@ -93,5 +87,25 @@ public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTa
 		} finally {
 			configurationService.deleteValue(roleCatalogueService.getConfigurationPropertyName(IdmRoleCatalogueService.CONFIGURATION_PROPERTY_REBUILD));
 		}
+	}
+	
+	private boolean processChildren(List<IdmRoleCatalogue> nodes) {
+		boolean canContinue = true;
+		for(IdmRoleCatalogue node : nodes) {
+			if (node.getForestIndex() == null) {
+				forestIndexService.index(node.getForestTreeType(), node.getId(), node.getParentId());
+			}
+			counter++;
+			canContinue = updateState();
+			if (!canContinue) {
+				break;
+			}
+			// proces nodes childred
+			canContinue = processChildren(roleCatalogueRepository.findDirectChildren(node, null).getContent());
+			if (!canContinue) {
+				break;
+			}
+		};
+		return canContinue;
 	}
 }

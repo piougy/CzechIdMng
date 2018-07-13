@@ -748,6 +748,8 @@
       "NOTIFICATION": "Notifications",
       "ROLE": "Roles",
       "ROLECATALOGUE": "Role catalog",
+      "ROLEGUARANTEE": "$t(entity.Role.guarantees) - by identity",
+      "ROLEGUARANTEEROLE": "$t(entity.Role.guarantees) - by role",
       "ROLETREENODE": "Automatic roles (organization structure)",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
@@ -766,8 +768,8 @@
       "AUTOMATICROLEATTRIBUTE": "Automatic roles (attributes)",
       "AUTOMATICROLEATTRIBUTERULE": "Rules for automatic roles (attributes)",
       "AUTOMATICROLEREQUEST": "Requests for automatic roles",
-      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Requests for automatic roles (rules of the attributes)"
-
+      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Requests for automatic roles (rules of the attributes)",
+      "TOKEN": "Token"
     }
   },
   "content": {
@@ -1677,6 +1679,17 @@
       "identities": {
         "header": "Users with assigned role",
         "title": "Users with role"
+      },
+      "guarantees": {
+        "header": "$t(entity.Role.guarantees)",
+        "title": "$t(entity.Role.guarantees)",
+        "create": {
+          "header": "Create role authorizer"
+        },
+        "edit": {
+          "header": "{{name}} <small>role authorizer detail</small>",
+          "disabled": "Authorizer can be edited directly from basic information tab."
+        }
       },
       "eav": {
         "header": "More information",
@@ -2597,6 +2610,26 @@
       "description": "description",
       "parent": {
         "name": "Parent folder in catalog"
+      }
+    },
+    "RoleGuarantee": {
+      "_type": "Role authorizer - identity",
+      "role": {
+        "label": "Role"
+      },
+      "guarantee": {
+        "label": "Authorizer - identity",
+        "help": "Selected identity will be the role authorizer."
+      }
+    },
+    "RoleGuaranteeRole": {
+      "_type": "Role authorizer- role",
+      "role": {
+        "label": "Role"
+      },
+      "guaranteeRole": {
+        "label": "Authorizer - role",
+        "help": "Identities with the selected role assigned will be the role authorizers."
       }
     },
     "ConfidentialStorageValue": {
@@ -3701,6 +3734,16 @@
             "help": "Add permission to attributes of users, which can be read by the logged user (for example, when logged user can read identity, then he can update attributes)."
           }
         }
+      },
+      "form-definition-uuid-evaluator": {
+        "help": "Permissions for form definition.",
+        "attributes": {
+          "uuid": {
+            "label": "Form definition",
+            "help": "",
+            "placeholder": "Select form definition ..."
+          }
+        }
       }
     }
   },
@@ -4405,6 +4448,10 @@
     "CORRELATION_PROPERTY_WRONG_TYPE": {
       "title": "Correlation filter doesn't work",
       "message": "Correlation filter doesn't work, because the property [{{property}}] is not String!"
+    },
+    "TOKEN_NOT_FOUND": {
+      "title": "Token not found",
+      "message": "Authenticate token not found!"
     }
   },
   "validationError": {

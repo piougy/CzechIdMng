@@ -14,7 +14,6 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
-import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -115,7 +114,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void login() {
-		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 	
 	@After

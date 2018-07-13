@@ -1,13 +1,17 @@
 import React from 'react';
 import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import { IdentityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import IdentityTable from '../identity/IdentityTable';
 
-class RoleIdentities extends Basic.AbstractContent {
+/**
+ * Identities with assigned role
+ *
+ * @author Radek Tomiška
+ */
+export default class RoleIdentities extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -22,8 +26,8 @@ class RoleIdentities extends Basic.AbstractContent {
     return 'content.role.identities';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['roles-menu', 'roles', 'role-identities']);
+  getNavigationKey() {
+    return 'role-identities';
   }
 
   render() {
@@ -48,15 +52,3 @@ class RoleIdentities extends Basic.AbstractContent {
     );
   }
 }
-
-RoleIdentities.propTypes = {
-};
-RoleIdentities.defaultProps = {
-};
-
-function select() {
-  return {
-  };
-}
-
-export default connect(select)(RoleIdentities);

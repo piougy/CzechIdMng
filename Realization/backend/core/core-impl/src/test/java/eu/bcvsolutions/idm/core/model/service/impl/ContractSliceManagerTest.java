@@ -19,7 +19,6 @@ import org.springframework.data.domain.Page;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.config.domain.ContractSliceConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
@@ -70,7 +69,7 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+		loginAsAdmin();
 	}
 
 	@After

@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
@@ -47,7 +46,7 @@ public class IdentityAccountByRoleEvaluatorIntegrationTest extends AbstractInteg
 		IdmIdentityDto identity;
 		AccIdentityAccountDto accountIdentityOne;
 		try {
-			loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
+			loginAsAdmin();
 			//
 			identity = helper.createIdentity();
 			SysSystemDto system = helper.createTestResourceSystem(true);
@@ -101,7 +100,7 @@ public class IdentityAccountByRoleEvaluatorIntegrationTest extends AbstractInteg
 		IdmIdentityDto identity;
 		AccIdentityAccountDto accountIdentityOne;
 		try {
-			loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
+			loginAsAdmin();
 			//
 			identity = helper.createIdentity();
 			SysSystemDto system = helper.createTestResourceSystem(true);

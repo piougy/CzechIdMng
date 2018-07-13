@@ -61,7 +61,7 @@ public class GenerateSchemaWithEavTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin();
 	}
 
 	@After

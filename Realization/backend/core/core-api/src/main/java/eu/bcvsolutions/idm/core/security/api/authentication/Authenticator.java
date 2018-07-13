@@ -4,6 +4,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -20,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 
 public interface Authenticator extends Ordered {
 	
-	public static int DEFAULT_AUTHENTICATOR_ORDER = 0;
+	int DEFAULT_AUTHENTICATOR_ORDER = 0;
 	
 	/**
 	 * Return name of authenticator
@@ -43,6 +44,15 @@ public interface Authenticator extends Ordered {
 	 * @return
 	 */
 	LoginDto authenticate(LoginDto loginDto);
+	
+	/**
+	 * Logout.  Override, when logout feature is provided by Authenticator implementation.
+	 * 
+	 * @param token current IdM token - token contains username, external token id
+	 */
+	default void logout(IdmTokenDto token) {
+		// nothing by default
+	}
 	
 	/**
 	 * Authenticator excepted result

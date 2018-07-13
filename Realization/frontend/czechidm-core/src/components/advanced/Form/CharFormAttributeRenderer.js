@@ -17,10 +17,8 @@ export default class CharFormAttributeRenderer extends TextFormAttributeRenderer
    * @return {Joi}
    */
   getInputValidation() {
-    const { attribute } = this.props;
-    //
     let validation = Joi.string().max(1);
-    if (!attribute.required) {
+    if (!this.isRequired()) {
       validation = validation.concat(Joi.string().allow(null).allow(''));
     }
     return validation;

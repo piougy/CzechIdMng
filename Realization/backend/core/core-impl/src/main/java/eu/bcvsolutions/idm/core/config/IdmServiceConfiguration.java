@@ -41,10 +41,12 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTokenService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
@@ -68,7 +70,6 @@ import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.ecm.config.DefaultAttachmentConfiguration;
 import eu.bcvsolutions.idm.core.ecm.repository.IdmAttachmentRepository;
 import eu.bcvsolutions.idm.core.ecm.service.impl.DefaultAttachmentManager;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRuleRepository;
@@ -86,8 +87,10 @@ import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTokenRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.repository.filter.DefaultFilterManager;
@@ -107,9 +110,11 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTokenService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultLookupService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
@@ -128,10 +133,12 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultAuthorizationManager;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultCryptService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultEnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
+import eu.bcvsolutions.idm.core.security.service.impl.DefaultTokenManager;
 import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
 
 /**
@@ -168,10 +175,10 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmContractGuaranteeRepository contractGuaranteeRepository;
 	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
 	@Autowired private IdmIdentityContractRepository identityContractRepository;
-	@Autowired private IdmAuthorityChangeRepository authChangeRepository;
 	@Autowired private IdmProcessedTaskItemRepository processedTaskRepository;
 	@Autowired private IdmScheduledTaskRepository scheduledTaskRepository;
 	@Autowired private IdmRoleGuaranteeRepository roleGuaranteeRepository;
+	@Autowired private IdmRoleGuaranteeRoleRepository roleGuaranteeRoleRepository;
 	@Autowired private IdmPasswordRepository passwordRepository;
 	@Autowired private IdmPasswordPolicyRepository passwordPolicyRepository;
 	@Autowired private IdmFormRepository formRepository;
@@ -182,6 +189,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmEntityEventRepository entityEventRepository;
 	@Autowired private IdmEntityStateRepository entityStateRepository;
 	@Autowired private IdmPasswordHistoryRepository passwordHistoryRepository;
+	@Autowired private IdmTokenRepository tokenRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -309,6 +317,29 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(SecurityService.class)
 	public SecurityService securityService() {
 		return new DefaultSecurityService(roleHierarchy());
+	}
+	
+	/**
+	 * Token service - persists tokens (e.g. for authentication). Use {@link TokenManager}.
+	 * 
+	 * @see #tokenManager()
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmTokenService.class)
+	public IdmTokenService tokenService() {
+		return new DefaultIdmTokenService(tokenRepository, entityEventManager());
+	}
+	
+	/**
+	 * Token manager - create and dispose tokens.
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(TokenManager.class)
+	public TokenManager tokenManager() {
+		return new DefaultTokenManager();
 	}
 	
 	/**
@@ -457,7 +488,7 @@ public class IdmServiceConfiguration {
 				formService(),
 				roleService(), 
 				entityEventManager(),
-				authChangeRepository,
+				tokenManager(),
 				roleConfiguration(),
 				identityContractService(),
 				passwordService());
@@ -613,7 +644,7 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
-	 * Role guarantees
+	 * Role guarantees - by identity
 	 * 
 	 * @return
 	 */
@@ -621,6 +652,17 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(IdmRoleGuaranteeService.class)
 	public IdmRoleGuaranteeService roleGuaranteeService() {
 		return new DefaultIdmRoleGuaranteeService(roleGuaranteeRepository);
+	}
+	
+	/**
+	 * Role guarantees - by role
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmRoleGuaranteeRoleService.class)
+	public IdmRoleGuaranteeRoleService roleGuaranteeRoleService() {
+		return new DefaultIdmRoleGuaranteeRoleService(roleGuaranteeRoleRepository, entityEventManager());
 	}
 	
 	/**

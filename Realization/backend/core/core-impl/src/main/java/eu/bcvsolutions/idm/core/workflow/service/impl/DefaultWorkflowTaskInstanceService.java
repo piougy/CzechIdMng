@@ -133,13 +133,12 @@ public class DefaultWorkflowTaskInstanceService extends
 	@Override
 	public void completeTask(String taskId, String decision, Map<String, String> formData,
 			Map<String, Object> variables, BasePermission[] permission) {
-
+		String loggedUser = securityService.getCurrentId().toString();
 		// Check if user can complete this task
 		if (!canExecute(this.get(taskId, permission), permission)) {
 			throw new ResultCodeException(CoreResultCode.FORBIDDEN,
 					"You do not have permission for execute task with ID: %s !", ImmutableMap.of("taskId", taskId));
 		}
-		String loggedUser = securityService.getCurrentId().toString();
 		taskService.setAssignee(taskId, loggedUser);
 		taskService.setVariables(taskId, variables);
 		taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION, decision);

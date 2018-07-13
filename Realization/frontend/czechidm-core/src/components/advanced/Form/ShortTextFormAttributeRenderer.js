@@ -105,10 +105,8 @@ export default class ShortTextFormAttributeRenderer extends TextFormAttributeRen
    * @return {Joi}
    */
   getInputValidation() {
-    const { attribute } = this.props;
-    //
     let validation = Joi.string().max(2000);
-    if (!attribute.required) {
+    if (!this.isRequired()) {
       validation = validation.concat(Joi.string().allow(null).allow(''));
     }
     return validation;

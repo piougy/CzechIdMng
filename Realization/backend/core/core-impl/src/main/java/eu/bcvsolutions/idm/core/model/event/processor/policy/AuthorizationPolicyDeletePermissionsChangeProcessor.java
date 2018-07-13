@@ -42,7 +42,8 @@ public class AuthorizationPolicyDeletePermissionsChangeProcessor extends CoreEve
 	public AuthorizationPolicyDeletePermissionsChangeProcessor(
 			IdmAuthorizationPolicyService service,
 			IdmIdentityService identityService) {
-		super(AuthorizationPolicyEventType.values());
+		// authorization policy removal only
+		super(AuthorizationPolicyEventType.UPDATE, AuthorizationPolicyEventType.DELETE);
 		//
 		Assert.notNull(service);
 		Assert.notNull(identityService);
@@ -53,7 +54,7 @@ public class AuthorizationPolicyDeletePermissionsChangeProcessor extends CoreEve
 
 	@Override
 	public int getOrder() {
-		// runs last
+		// runs last .. ugh
 		return Integer.MAX_VALUE;
 	}
 

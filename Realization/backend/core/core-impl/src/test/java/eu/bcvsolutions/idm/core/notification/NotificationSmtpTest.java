@@ -68,7 +68,7 @@ public class NotificationSmtpTest extends AbstractNotificationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin();
 		//
 		initConfiguration();
 	}

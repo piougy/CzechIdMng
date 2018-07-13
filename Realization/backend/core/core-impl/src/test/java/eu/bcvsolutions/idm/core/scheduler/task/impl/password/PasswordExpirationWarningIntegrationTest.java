@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -45,7 +44,7 @@ public class PasswordExpirationWarningIntegrationTest extends AbstractIntegratio
 	
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 	
 	@After

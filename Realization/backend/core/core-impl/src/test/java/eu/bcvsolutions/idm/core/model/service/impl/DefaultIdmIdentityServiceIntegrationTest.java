@@ -74,7 +74,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+		loginAsAdmin();
 		identityService = context.getAutowireCapableBeanFactory().createBean(DefaultIdmIdentityService.class);
 	}
 

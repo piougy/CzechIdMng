@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 
 /**
@@ -92,6 +93,18 @@ public class DefaultCryptService implements CryptService {
 	
 	@Override
 	public byte[] decrypt(byte[] value) {
+		return this.decryptWithKey(value, null);
+	}
+	
+	@Override
+	public byte[] decryptWithKey(byte[] value, GuardedString guardedKey) {
+		Assert.notNull(value);
+
+		SecretKey key = this.key;
+		if (guardedKey != null) {
+			key = new SecretKeySpec(guardedKey.asBytes(), ALGORITHM);
+		}
+
 		try {
 			Cipher decryptCipher = initCipher(Cipher.DECRYPT_MODE, key);
 			if (decryptCipher == null) {
@@ -119,7 +132,7 @@ public class DefaultCryptService implements CryptService {
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 	}
-	
+
 	/**
 	 * Method return {@link SecretKey} that defined key from resource file. File name is defined by 
 	 * application property

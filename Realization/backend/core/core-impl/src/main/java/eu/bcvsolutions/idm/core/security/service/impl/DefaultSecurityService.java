@@ -49,6 +49,12 @@ public class DefaultSecurityService implements SecurityService {
 	public void setSystemAuthentication() {
 		this.setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto(SYSTEM_NAME), null, getAdminAuthorities(), null));
 	}
+	
+	@Override
+	public void logout() {
+		// setAuthentication(null);
+		SecurityContextHolder.clearContext();
+	}
 
 	@Override
 	public AbstractAuthentication getAuthentication() {
@@ -76,6 +82,18 @@ public class DefaultSecurityService implements SecurityService {
 			return GUEST_NAME;
 		}
 		return authentication.getName();
+	}
+	
+	@Override
+	public UUID getId() {
+		if (!isAuthenticated()) {
+			return null;
+		}
+		Authentication authentication = getAuthentication();
+		if (authentication instanceof AbstractAuthentication) {
+			return ((AbstractAuthentication) authentication).getId();
+		}
+		return null;
 	}
 	
 	@Override

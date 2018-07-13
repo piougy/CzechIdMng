@@ -118,7 +118,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	private SysSystemDto system;
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin();
 	}
 
 	@After

@@ -22,6 +22,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
@@ -53,6 +55,7 @@ public interface TestHelper {
 	String DEFAULT_AUTOMATIC_ROLE_NAME = "default";
 	String ADMIN_USERNAME = "admin";
 	String ADMIN_PASSWORD = "admin";
+	String ADMIN_ROLE = "superAdminRole";
 	String DEFAULT_PASSWORD = "password";
 	String HAL_CONTENT_TYPE = "application/hal+json";
 	
@@ -71,6 +74,16 @@ public interface TestHelper {
 	 * @param password
 	 */
 	LoginDto login(String username, String password);
+	
+	/**
+	 * Login as given identity.
+	 * Identity has to exists, assigned identity roles and permissions will be used.
+	 * 
+	 * @param username
+	 * @param password
+	 * @return
+	 */
+	LoginDto login(String username, GuardedString password);
 	
 	/**
 	 * Logout current logged identity ~ clear secutity context
@@ -223,7 +236,25 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleDto createRole(UUID id, String name);
-
+	
+	/**
+	 * Create role guarantee - identity
+	 * 
+	 * @param role
+	 * @param guarantee
+	 * @return
+	 */
+	IdmRoleGuaranteeDto createRoleGuarantee(IdmRoleDto role, IdmIdentityDto guarantee);
+	
+	/**
+	 * Create role guarantee - role
+	 * 
+	 * @param role
+	 * @param guarantee
+	 * @return
+	 */
+	IdmRoleGuaranteeRoleDto createRoleGuaranteeRole(IdmRoleDto role, IdmRoleDto guarantee);
+	
 	/**
 	 * Deletes role
 	 *
@@ -297,7 +328,7 @@ public interface TestHelper {
 			UUID role, 
 			GroupPermission groupPermission, 
 			Class<? extends AbstractEntity> authorizableType, 
-			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluatorType, 
+			Class<? extends AuthorizationEvaluator<? extends Identifiable>> evaluatorType, 
 		    BasePermission... permission);
 	
 	/**
@@ -315,7 +346,7 @@ public interface TestHelper {
 			UUID role, 
 			GroupPermission groupPermission, 
 			Class<? extends AbstractEntity> authorizableType, 
-			Class<? extends AuthorizationEvaluator<? extends AbstractEntity>> evaluatorType, 
+			Class<? extends AuthorizationEvaluator<? extends Identifiable>> evaluatorType, 
 			ConfigurationMap evaluatorProperties,
 		    BasePermission... permission);
 

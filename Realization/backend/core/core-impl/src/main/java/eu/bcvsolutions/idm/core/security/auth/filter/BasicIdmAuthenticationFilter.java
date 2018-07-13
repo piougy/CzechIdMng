@@ -33,9 +33,8 @@ public class BasicIdmAuthenticationFilter implements IdmAuthenticationFilter {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BasicIdmAuthenticationFilter.class);
 	private static final String AUTHORIZATION_TYPE_BASIC_PREFIX = "Basic ";
-	
-	@Autowired
-	private AuthenticationManager authManager;
+	//
+	@Autowired private AuthenticationManager authManager;
 	
 	@Override
 	public boolean authorize(String token, HttpServletRequest req, HttpServletResponse res) {
@@ -68,7 +67,7 @@ public class BasicIdmAuthenticationFilter implements IdmAuthenticationFilter {
 		LoginDto ldto = new LoginDto();
 		ldto.setUsername(creds[0]);
 		ldto.setPassword(new GuardedString(creds[1]));
-		ldto.setSkipMustChange(true);
+		ldto.setSkipMustChange(true); // FIXME: really? I thing this row is  
 		return ldto;
 	}
 	

@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -54,7 +53,7 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 
 	@Before
 	public void login() {
-		super.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		super.loginAsAdmin();
 
 		emailLogRepository.deleteAll();
 		idmNotificationRepository.deleteAll();

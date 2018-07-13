@@ -54,8 +54,6 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * Provide additional methods to retrieve DTOs and entities using the pagination
  * and sorting abstraction.
  * 
- * TODO: Move autowired fields to e.g. BeanPostProcessor
- * 
  * @author Svanda
  * @author Radek Tomiška
  * @see Sort

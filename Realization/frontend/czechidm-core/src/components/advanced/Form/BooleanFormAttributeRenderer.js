@@ -21,7 +21,7 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
     if (!rawValue || (typeof rawValue === 'string') && rawValue.toLowerCase() !== 'true') { // false
       const { attribute } = this.props;
       //
-      if (attribute.required || (attribute.defaultValue != null && attribute.defaultValue.toLowerCase() === 'true')) {
+      if (this.isRequired() || (attribute.defaultValue != null && attribute.defaultValue.toLowerCase() === 'true')) {
         formValue.booleanValue = rawValue;
       } else {
         // not required and false filled - dont need to be saved at all
@@ -56,7 +56,7 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
         value={ this.toInputValue(values) }
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
-        required={ attribute.required }/>
+        required={ this.isRequired() }/>
     );
   }
 

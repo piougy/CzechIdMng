@@ -430,9 +430,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                   if (parameterName.lastIndexOf('core:', 0) === 0) {
                     return null;
                   }
-                  if (entity.evaluatorProperties[parameterName] === null
-                    || entity.evaluatorProperties[parameterName] === undefined
-                    || entity.evaluatorProperties[parameterName] === '') {
+                  if (Utils.Ui.isEmpty(entity.evaluatorProperties[parameterName])) {
                       // not filled (false is needed to render)
                     return null;
                   }

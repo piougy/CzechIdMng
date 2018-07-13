@@ -203,5 +203,5 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		Assert.assertFalse((Boolean) formValue.getValue());
 		formValue.setValue("TRUE");
 		Assert.assertTrue((Boolean) formValue.getValue());
-	}	
+	}
 }

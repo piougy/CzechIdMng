@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.security.api.domain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,7 +18,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 public class IdmJwtAuthentication extends AbstractAuthentication {
 
 	private static final long serialVersionUID = -63165487654324844L;
-
+	//
+	public static final String TOKEN_TYPE = "authentication";
+	//
 	private DateTime issuedAt; // issued at
 	private DateTime expiration; // expiration
 	private Collection<GrantedAuthority> authorities;
@@ -38,8 +41,19 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 			DateTime issuedAt,
 			Collection<GrantedAuthority> authorities,
 			String fromModule) {
-		super(currentIdentity, originalIdentity);
-
+		this(null, currentIdentity, currentIdentity, expiration, DateTime.now(), authorities, fromModule);
+	}
+	
+	public IdmJwtAuthentication(
+			UUID tokenId,
+			IdmIdentityDto currentIdentity, 
+			IdmIdentityDto originalIdentity, 
+			DateTime expiration,
+			DateTime issuedAt,
+			Collection<GrantedAuthority> authorities,
+			String fromModule) {
+		super(tokenId, currentIdentity, originalIdentity);
+		//
 		this.fromModule = fromModule;
 		this.issuedAt = issuedAt;
 		this.expiration = expiration;
@@ -63,8 +77,16 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 		return expiration;
 	}
 	
+	public void setExpiration(DateTime expiration) {
+		this.expiration = expiration;
+	}
+	
 	public DateTime getIssuedAt() {
 		return issuedAt;
+	}
+	
+	public void setIssuedAt(DateTime issuedAt) {
+		this.issuedAt = issuedAt;
 	}
 
 	public boolean isExpired() {

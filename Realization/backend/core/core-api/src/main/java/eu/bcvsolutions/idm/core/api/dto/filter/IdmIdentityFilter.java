@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
  * Filter for identities
@@ -65,7 +64,10 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	 * Identifiers filter in externalCode, username
 	 */
 	public static final String PARAMETER_IDENTIFIERS = "identifiers";
-
+	/**
+	 * Guarantees for given role
+	 */
+	public static final String PARAMETER_GUARANTEES_FOR_ROLE = "guaranteesForRole";
 	/**
 	 * roles - OR
 	 */
@@ -256,7 +258,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public UUID getAutomaticRoleId() {
-		return EntityUtils.toUuid(data.getFirst(PARAMETER_AUTOMATIC_ROLE));
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_AUTOMATIC_ROLE));
 	}
 
 	public void setAutomaticRoleId(UUID automaticRoleId) {
@@ -297,4 +299,11 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 	
+	public UUID getGuaranteesForRole() {
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_GUARANTEES_FOR_ROLE));
+	}
+	
+	public void setGuaranteesForRole(UUID guaranteesForRole) {
+		data.set(PARAMETER_GUARANTEES_FOR_ROLE, guaranteesForRole);
+	}	
 }

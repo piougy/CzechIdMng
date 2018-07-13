@@ -60,7 +60,25 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		// persist
 		repository.save(storage);
 	}
-	
+
+	@Override
+	@Transactional
+	public void changeCryptKey(UUID ownerId, Class<? extends Identifiable> ownerType, String key, GuardedString oldKey) {
+		Assert.notNull(ownerId);
+		Assert.notNull(ownerType);
+		Assert.notNull(oldKey);
+		Assert.hasLength(key);
+		//
+		IdmConfidentialStorageValue storage = getStorageValue(ownerId, ownerType, key);
+		//
+		// decrypt value with old key
+		byte[] decryptedValue = cryptService.decryptWithKey(storage.getValue(), oldKey);
+		//
+		// and crypt valuewith new key
+		storage.setValue(cryptService.encrypt(decryptedValue));
+		// persist new value
+		repository.save(storage);
+	}
 	/**
 	 * {@inheritDoc}
 	 */

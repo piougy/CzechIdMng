@@ -228,11 +228,25 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testGetDefinitions() {
+		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null);
+		//
 		IdmFormDefinitionDto definitionOne = formService.createDefinition(IdmIdentity.class, getHelper().createName(), null);
-		IdmFormDefinitionDto definitionTwo = formService.createDefinition(IdmIdentityDto.class, getHelper().createName(), null);
+		IdmFormDefinitionDto definitionTwo = formService.createDefinition(owner.getClass(), getHelper().createName(), null);
 		IdmFormDefinitionDto definitionOther = formService.createDefinition(IdmRole.class, getHelper().createName(), null);
 		//
 		List<IdmFormDefinitionDto> results = formService.getDefinitions(IdmIdentity.class);
+		//
+		Assert.assertTrue(results.stream().anyMatch(d -> d.getId().equals(definitionOne.getId())));
+		Assert.assertTrue(results.stream().anyMatch(d -> d.getId().equals(definitionTwo.getId())));
+		Assert.assertFalse(results.stream().anyMatch(d -> d.getId().equals(definitionOther.getId())));
+		//
+		results = formService.getDefinitions(owner.getClass());
+		//
+		Assert.assertTrue(results.stream().anyMatch(d -> d.getId().equals(definitionOne.getId())));
+		Assert.assertTrue(results.stream().anyMatch(d -> d.getId().equals(definitionTwo.getId())));
+		Assert.assertFalse(results.stream().anyMatch(d -> d.getId().equals(definitionOther.getId())));
+		//
+		results = formService.getDefinitions(owner);
 		//
 		Assert.assertTrue(results.stream().anyMatch(d -> d.getId().equals(definitionOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(d -> d.getId().equals(definitionTwo.getId())));

@@ -6,18 +6,26 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 
 /**
  * Filter for {@link IdmRoleGuarantee}
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
 public class IdmRoleGuaranteeFilter extends DataFilter {
-
-	private UUID guarantee;
-	private UUID role;
+	
+	/**
+	 * Owner role
+	 */
+	public static final String PARAMETER_ROLE = "role";
+	/**
+	 * guarantee as identity
+	 */
+	public static final String PARAMETER_GUARANTEE = "guarantee";
 	
 	public IdmRoleGuaranteeFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -27,21 +35,19 @@ public class IdmRoleGuaranteeFilter extends DataFilter {
 		super(IdmRoleGuaranteeDto.class, data);
 	}
 	
-	public UUID getGuarantee() {
-		return guarantee;
-	}
-	
-	public void setGuarantee(UUID guarantee) {
-		this.guarantee = guarantee;
-	}
-	
 	public UUID getRole() {
-		return role;
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_ROLE));
 	}
 	
 	public void setRole(UUID role) {
-		this.role = role;
+		data.set(PARAMETER_ROLE, role);
 	}
 	
+	public UUID getGuarantee() {
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_GUARANTEE));
+	}
 	
+	public void setGuarantee(UUID guarantee) {
+		data.set(PARAMETER_GUARANTEE, guarantee);
+	}
 }

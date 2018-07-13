@@ -136,7 +136,16 @@ class LongRunningTask extends Basic.AbstractContent {
 
 
   render() {
-    const { rendered, instanceId, entityIdentifier, entity, _showLoading, header, footerButtons } = this.props;
+    const {
+      rendered,
+      instanceId,
+      entityIdentifier,
+      entity,
+      _showLoading,
+      header,
+      footerButtons,
+      showProperties
+    } = this.props;
     //
     let _entity = this.props._entity;
     if (entity) { // entity prop has higher priority
@@ -169,12 +178,22 @@ class LongRunningTask extends Basic.AbstractContent {
             </span>
           } />
         <Basic.PanelBody>
-          <div><strong>{ this.i18n('entity.LongRunningTask.taskProperties.label') }</strong></div>
           {
-            _.keys(_entity.taskProperties).map(propertyName => {
-              return `${ propertyName }: ${ _entity.taskProperties[propertyName] }`;
-            })
-            .join(', ')
+            !showProperties
+            ||
+            <div>
+              <div><strong>{ this.i18n('entity.LongRunningTask.taskProperties.label') }</strong></div>
+              {
+                _.keys(_entity.taskProperties).map(propertyName => {
+                  if (Utils.Ui.isEmpty(_entity.taskProperties[propertyName])) {
+                    return null;
+                  }
+                  return `${ propertyName }: ${ Utils.Ui.toStringValue(_entity.taskProperties[propertyName]) }`;
+                })
+                .filter(v => v !== null)
+                .join(', ')
+              }
+            </div>
           }
           <ProgressBar
             style={{ marginTop: 15, marginBottom: 0 }}
@@ -230,6 +249,10 @@ LongRunningTask.propTypes = {
   footerButtons: PropTypes.arrayOf(React.PropTypes.object),
   updateInterval: PropTypes.number,
   /**
+   * Show task properties
+   */
+  showProperties: PropTypes.bool,
+  /**
    * Internal entity loaded by given identifier
    */
   _entity: PropTypes.object,
@@ -243,6 +266,7 @@ LongRunningTask.defaultProps = {
   header: null,
   footerButtons: null,
   updateInterval: 2500,
+  showProperties: true,
   //
   _entity: null,
   _showLoading: false

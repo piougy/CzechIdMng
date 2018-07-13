@@ -4,7 +4,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import SearchParameters from '../../domain/SearchParameters';
-import RoleTreeNodeTableComponent, {RoleTreeNodeTable} from './RoleTreeNodeTable';
+import RoleTreeNodeTableComponent, { RoleTreeNodeTable } from './RoleTreeNodeTable';
 
 /**
  * Automatic roles - tab on role detail

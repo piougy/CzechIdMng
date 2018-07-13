@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.core.model.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,32 +38,4 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 			+ " WHERE"
 	        + " roles.role.id = :role")
 	List<IdmIdentity> findAllByRole(@Param(value = "role") UUID roleId);
-	
-	/**
-	 * Find identities where the IdmAuthorityChange relation does not
-	 * exist.
-	 * 
-	 * TODO: move to IdmAuthorityChangeRepository
-	 * 
-	 * @param identities
-	 * @return
-	 */
-	@Query(value = "select e from #{#entityName} e where e.id in (:identities) and e not in"
-			+ "(select z.identity from IdmAuthorityChange z where z.identity.id in (:identities))")
-	List<IdmIdentity> findAllWithoutAuthorityChange(@Param("identities") List<UUID> identities);
-	
-	/**
-	 * Marks identities, with authority change 
-	 * 
-	 * TODO: move to IdmAuthorityChangeRepository
-	 * 
-	 * @param identities
-	 * @param authorityChange
-	 */
-	@Transactional
-	@Modifying
-	@Query(value = "update IdmAuthorityChange e set e.authChangeTimestamp = :authorityChange"
-			+ " where e.identity.id in (:identities)")
-	void setIdmAuthorityChangeForIdentity(@Param("identities") List<UUID> identities,
-			@Param("authorityChange") DateTime authorityChange);
 }

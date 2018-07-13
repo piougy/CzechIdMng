@@ -18,7 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
@@ -74,7 +73,7 @@ public class ExecuteScriptTaskExecutorTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void login() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		manager = context.getAutowireCapableBeanFactory().createBean(DefaultLongRunningTaskManager.class);
 	}
 	

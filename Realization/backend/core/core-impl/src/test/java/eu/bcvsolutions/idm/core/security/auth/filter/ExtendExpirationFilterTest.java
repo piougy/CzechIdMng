@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.core.security.auth.filter;
 
-import static eu.bcvsolutions.idm.InitTestData.HAL_CONTENT_TYPE;
-import static eu.bcvsolutions.idm.InitTestData.TEST_ADMIN_PASSWORD;
-import static eu.bcvsolutions.idm.InitTestData.TEST_ADMIN_USERNAME;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -17,93 +14,151 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
-
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmTokenService;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
-import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
-import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Tests authentication token expiration time extension.
+ * 
  * @author Jan Helbich
- *
+ * @author Radek Tomiška
  */
+@Transactional
 public class ExtendExpirationFilterTest extends AbstractRestTest {
-	
-	@Autowired protected JwtAuthenticationMapper jwtMapper;
-	@Autowired private IdmIdentityService identityService;
 
+	@Autowired private JwtAuthenticationMapper jwtMapper;
+	@Autowired private IdmTokenService tokenService; 
+	@Autowired private SecurityService securityService; 
+	
+	/**
+	 * Token is not prolonged in the same minute
+	 * 
+	 * @throws Exception
+	 */
 	@Test
-	public void testSuccessfulTokenExtension() throws Exception {
-		IdmJwtAuthenticationDto authDto = AuthenticationTestUtils.getAuthDto(identityService.getByUsername(TEST_ADMIN_USERNAME),
-				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()));
-		String token = getAuthToken(authDto);
-		
-		sleep();
-		
-		MvcResult result = getMockMvc().perform(get(AuthenticationTestUtils.getSelfPath(TEST_ADMIN_USERNAME))
-				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, token)
-				.contentType(HAL_CONTENT_TYPE))
+	public void testReuseTokenExtension() throws Exception {
+		LoginDto login = getHelper().loginAdmin();
+		securityService.logout();
+		//
+		MvcResult result = getMockMvc().perform(get(getSelfPath(TestHelper.ADMIN_USERNAME))
+				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isOk())
-			.andExpect(content().contentType(HAL_CONTENT_TYPE))
-			.andExpect(jsonPath("$.username", equalTo(TEST_ADMIN_USERNAME)))
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(jsonPath("$.username", equalTo(TestHelper.ADMIN_USERNAME)))
 			.andReturn();
 		
 		IdmJwtAuthenticationDto extendedDto = getIdmJwtDto(result);
-		checkSuccessfulTokenExtension(authDto, extendedDto);
+		
+		Assert.assertEquals(login.getAuthentication().getId(), extendedDto.getId());
+		Assert.assertEquals(login.getToken(), result.getResponse().getHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME));
+		Assert.assertEquals(login.getAuthentication().getIssuedAt().getMillis(), extendedDto.getIssuedAt().getMillis());
+		Assert.assertEquals(login.getAuthentication().getExpiration().getMillis(), extendedDto.getExpiration().getMillis());
+	}
+	
+	/**
+	 * Token is prolonged, when original expiration differs more than 60 seconds
+	 * @throws Exception
+	 */
+	@Test
+	public void testSuccessfulTokenExtension() throws Exception {
+		LoginDto login = getHelper().loginAdmin();
+		securityService.logout();
+		//
+		IdmTokenDto originalToken = tokenService.get(login.getAuthentication().getId());
+		originalToken.setExpiration(originalToken.getExpiration().minusMinutes(2));
+		originalToken = tokenService.save(originalToken);
+		//
+		MvcResult result = getMockMvc().perform(get(getSelfPath(TestHelper.ADMIN_USERNAME))
+				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(jsonPath("$.username", equalTo(TestHelper.ADMIN_USERNAME)))
+			.andReturn();
+		
+		IdmJwtAuthenticationDto extended = getIdmJwtDto(result);
+		
+		Assert.assertEquals(originalToken.getOwnerId(), extended.getCurrentIdentityId());
+		Assert.assertEquals(originalToken.getIssuedAt().getMillis(), extended.getIssuedAt().getMillis());
+		
+		// token expiration - orignal exp. time is lower or equal to new one 
+		Assert.assertTrue(originalToken.getExpiration().getMillis() < extended.getExpiration().getMillis());
 	}
 
 	@Test
 	public void testSuccBasicAuthNoExtension() throws Exception {
-		String basicAuth = AuthenticationTestUtils.getBasicAuth(TEST_ADMIN_USERNAME, TEST_ADMIN_PASSWORD);
+		String basicAuth = getBasicAuth(TestHelper.ADMIN_USERNAME, TestHelper.ADMIN_PASSWORD);
 		
-		MvcResult result = getMockMvc().perform(get(AuthenticationTestUtils.getSelfPath(TEST_ADMIN_USERNAME))
+		MvcResult result = getMockMvc().perform(get(getSelfPath(TestHelper.ADMIN_USERNAME))
 				.header("Authorization", "Basic " + basicAuth)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isOk())
-			.andExpect(content().contentType(HAL_CONTENT_TYPE))
-			.andExpect(jsonPath("$.username", equalTo(TEST_ADMIN_USERNAME)))
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(jsonPath("$.username", equalTo(TestHelper.ADMIN_USERNAME)))
 			.andReturn();
 		
 		Assert.assertNull(result.getResponse().getHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME));
 	}
 	
 	@Test
-	public void testSuccBasicAuthTokenExtension() throws Exception {
-		IdmJwtAuthenticationDto authDto = AuthenticationTestUtils.getAuthDto(identityService.getByUsername(TEST_ADMIN_USERNAME),
-				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()));
-		String token = getAuthToken(authDto);
-		String basicAuth = AuthenticationTestUtils.getBasicAuth(TEST_ADMIN_USERNAME, TEST_ADMIN_PASSWORD);
-		
-		sleep();
-		
-		MvcResult result = getMockMvc().perform(get(AuthenticationTestUtils.getSelfPath(TEST_ADMIN_USERNAME))
+	public void testReuseBasicAuthTokenExtension() throws Exception {
+		LoginDto login = getHelper().loginAdmin();
+		securityService.logout();
+		//
+		String basicAuth = getBasicAuth(TestHelper.ADMIN_USERNAME, TestHelper.ADMIN_PASSWORD);
+
+		MvcResult result = getMockMvc().perform(get(getSelfPath(TestHelper.ADMIN_USERNAME))
 				.header("Authorization", "Basic " + basicAuth)
-				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, token)
-				.contentType(HAL_CONTENT_TYPE))
+				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isOk())
-			.andExpect(content().contentType(HAL_CONTENT_TYPE))
-			.andExpect(jsonPath("$.username", equalTo(TEST_ADMIN_USERNAME)))
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(jsonPath("$.username", equalTo(TestHelper.ADMIN_USERNAME)))
 			.andReturn();
 		
 		IdmJwtAuthenticationDto extendedDto = getIdmJwtDto(result);
-		checkSuccessfulTokenExtension(authDto, extendedDto);
+		
+		Assert.assertEquals(login.getAuthentication().getIssuedAt().getMillis(), extendedDto.getIssuedAt().getMillis());
+		Assert.assertEquals(login.getAuthentication().getExpiration().getMillis(), extendedDto.getExpiration().getMillis());
 	}
 
-	private void checkSuccessfulTokenExtension(IdmJwtAuthenticationDto original,
-			IdmJwtAuthenticationDto extended) {
-		Assert.assertEquals(original.getCurrentUsername(), extended.getCurrentUsername());
-		Assert.assertEquals(original.getOriginalUsername(), extended.getOriginalUsername());
-		Assert.assertEquals(original.getAuthorities(), extended.getAuthorities());
-		Assert.assertEquals(original.getCurrentIdentityId(), extended.getCurrentIdentityId());
-		Assert.assertEquals(original.getIssuedAt().getMillis(), extended.getIssuedAt().getMillis());
+	@Test
+	public void testSuccBasicAuthTokenExtension() throws Exception {
+		LoginDto login = getHelper().loginAdmin();
+		securityService.logout();
+		//
+		String basicAuth = getBasicAuth(TestHelper.ADMIN_USERNAME, TestHelper.ADMIN_PASSWORD);
+		//
+		IdmTokenDto originalToken = tokenService.get(login.getAuthentication().getId());
+		originalToken.setExpiration(originalToken.getExpiration().minusMinutes(2));
+		originalToken = tokenService.save(originalToken);
+		//
+		MvcResult result = getMockMvc().perform(get(getSelfPath(TestHelper.ADMIN_USERNAME))
+				.header("Authorization", "Basic " + basicAuth)
+				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(jsonPath("$.username", equalTo(TestHelper.ADMIN_USERNAME)))
+			.andReturn();
+		
+		IdmJwtAuthenticationDto extended = getIdmJwtDto(result);
+		
+		Assert.assertEquals(originalToken.getOwnerId(), extended.getCurrentIdentityId());
+		Assert.assertEquals(originalToken.getIssuedAt().getMillis(), extended.getIssuedAt().getMillis());
 		
 		// token expiration - orignal exp. time is lower or equal to new one 
-		Assert.assertTrue(original.getExpiration().getMillis() < extended.getExpiration().getMillis());
+		Assert.assertTrue(originalToken.getExpiration().getMillis() < extended.getExpiration().getMillis());
 	}
 
 	private IdmJwtAuthenticationDto getIdmJwtDto(MvcResult result) throws IOException {
@@ -115,14 +170,8 @@ public class ExtendExpirationFilterTest extends AbstractRestTest {
 		IdmJwtAuthenticationDto extendedDto = jwtMapper.getClaims(decoded);
 		return extendedDto;
 	}
-
 	
-	private String getAuthToken(IdmJwtAuthenticationDto d) throws IOException {
-		return jwtMapper.writeToken(d);
-	}
-
-	private void sleep() throws InterruptedException {
-		// simulation of time passed between requests
-		Thread.sleep(10);
+	private String getSelfPath(String user) {
+		return BaseDtoController.BASE_PATH + "/identities/" + user;
 	}
 }

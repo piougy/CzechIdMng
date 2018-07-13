@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
@@ -53,7 +51,6 @@ import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -70,10 +67,10 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.PasswordChangeEvent;
 import eu.bcvsolutions.idm.core.model.event.PasswordChangeEvent.PasswordChangeEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
  * Operations with IdmIdentity
@@ -91,11 +88,11 @@ public class DefaultIdmIdentityService
 
 	private final IdmIdentityRepository repository;
 	private final IdmRoleService roleService;
-	private final IdmAuthorityChangeRepository authChangeRepository;
 	private final EntityEventManager entityEventManager;
 	private final RoleConfiguration roleConfiguration;
 	private final IdmIdentityContractService identityContractService;
 	private final IdmPasswordService passwordService;
+	private final TokenManager tokenManager;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
@@ -103,7 +100,7 @@ public class DefaultIdmIdentityService
 			FormService formService,
 			IdmRoleService roleService,
 			EntityEventManager entityEventManager,
-			IdmAuthorityChangeRepository authChangeRepository,
+			TokenManager tokenManager,
 			RoleConfiguration roleConfiguration,
 			IdmIdentityContractService identityContractService,
 			IdmPasswordService passwordService) {
@@ -111,18 +108,18 @@ public class DefaultIdmIdentityService
 		//
 		Assert.notNull(roleService);
 		Assert.notNull(entityEventManager);
-		Assert.notNull(authChangeRepository);
 		Assert.notNull(roleConfiguration);
 		Assert.notNull(identityContractService);
 		Assert.notNull(passwordService);
+		Assert.notNull(tokenManager);
 		//
 		this.repository = repository;
 		this.roleService = roleService;
-		this.authChangeRepository = authChangeRepository;
 		this.entityEventManager = entityEventManager;
 		this.roleConfiguration = roleConfiguration;
 		this.identityContractService = identityContractService;
 		this.passwordService = passwordService;
+		this.tokenManager = tokenManager;
 	}
 	
 	@Override
@@ -263,7 +260,7 @@ public class DefaultIdmIdentityService
                     		)
             );			
 			predicates.add(builder.exists(subquery));
-		}
+		}		
 		//
 		return predicates;
 	}
@@ -438,14 +435,18 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllGuaranteesByRoleId(UUID roleId) {
-		IdmRoleDto role = roleService.get(roleId);
-		Assert.notNull(role, "Role is required. Role by name [" + roleId + "] not found.");
-		return role.getGuarantees()
-				.stream()
-				.map(guarantee -> {
-					return get(guarantee.getGuarantee());
-				})
-				.collect(Collectors.toList());			
+		return findGuaranteesByRoleId(roleId, null).getContent();
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentityDto> findGuaranteesByRoleId(UUID roleId, Pageable pageable) {
+		Assert.notNull(roleId, "Role is required.");
+		//
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setGuaranteesForRole(roleId);
+		//
+		return find(filter, pageable);
 	}
 	
 	/**
@@ -479,32 +480,20 @@ public class DefaultIdmIdentityService
 	}
 
 	/**
-	 * Update authority change timestamp for all given identities. The IdmAuthorityChange
-	 * entity is either updated or created anew, if the original relation did not exist.
-	 * @param identities identities to update
-	 * @param changeTime authority change time
+	 * @deprecated @since 8.2.0
 	 */
-	@Transactional
 	@Override
+	@Deprecated
+	@Transactional
 	public void updateAuthorityChange(List<UUID> identities, DateTime changeTime) {
 		Assert.notNull(identities);
 		//
 		if (identities.isEmpty()) {
 			return;
 		}
-		List<UUID> identitiesCopy = Lists.newArrayList(identities);
-		// handle identities without IdmAuthorityChange entity relation (auth. change is null)
-		Map<UUID, IdmIdentity> withoutChangeMap = new HashMap<>();
-		List<IdmIdentity> withoutAuthChangeRel = repository.findAllWithoutAuthorityChange(identitiesCopy);
-		withoutAuthChangeRel.forEach(i -> withoutChangeMap.put(i.getId(), i));
-		if (!withoutAuthChangeRel.isEmpty()) {
-			identitiesCopy.removeAll(withoutChangeMap.keySet());
-			createAuthorityChange(withoutChangeMap.values(), changeTime);
-		}
-		// run update query on the rest of identities
-		if (!identitiesCopy.isEmpty()) {
-			repository.setIdmAuthorityChangeForIdentity(identitiesCopy, changeTime);
-		}
+		identities.forEach(identityId -> {
+			tokenManager.disableTokens(new IdmIdentityDto(identityId));
+		});
 	}
 	
 	@Override
@@ -619,15 +608,6 @@ public class DefaultIdmIdentityService
 		}
 		//
 		return IdentityState.DISABLED;
-	}
-
-	private void createAuthorityChange(Collection<IdmIdentity> withoutAuthChange, DateTime changeTime) {
-		for (IdmIdentity identity : withoutAuthChange) {
-			IdmAuthorityChange ac = new IdmAuthorityChange();
-			ac.setAuthChangeTimestamp(changeTime);
-			ac.setIdentity(identity);
-			authChangeRepository.save(ac);
-		}
 	}
 	
 	/**

@@ -279,6 +279,11 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
         },
         {
+          path: 'guarantees',
+          component: require('./src/content/role/RoleGuarantees'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+        },
+        {
           path: 'identities',
           component: require('./src/content/role/RoleIdentities'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]

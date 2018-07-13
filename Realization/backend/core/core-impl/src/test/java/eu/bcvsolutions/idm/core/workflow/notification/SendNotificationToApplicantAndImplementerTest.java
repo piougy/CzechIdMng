@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 
 import eu.bcvsolutions.idm.InitApplicationData;
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -93,7 +92,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Before
 	public void login() {
-		super.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		super.loginAsAdmin();
 		//
 		helper.setConfigurationValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, true);
 		helper.setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, true);
@@ -110,7 +109,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskApplicantImplementerSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -135,7 +134,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 		// test notification
@@ -150,7 +149,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskApplicantImplementerNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -176,7 +175,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 
@@ -201,7 +200,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskApplicantSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -226,7 +225,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 		// test notification
@@ -241,7 +240,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskApplicantNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -267,7 +266,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 
@@ -290,7 +289,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskImplementerSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -315,7 +314,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 		// test notification
@@ -330,7 +329,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskImplementerNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -356,7 +355,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 
@@ -379,7 +378,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -404,7 +403,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 		// test notification
@@ -417,7 +416,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -443,7 +442,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 
@@ -463,7 +462,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedApplicantImplementerSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -488,14 +487,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -511,7 +510,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedApplicantImplementerNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -537,14 +536,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -569,7 +568,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedApplicantSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -594,14 +593,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -617,7 +616,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedApplicantNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -643,14 +642,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -674,7 +673,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedImplementerSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -699,14 +698,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -722,7 +721,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedImplementerNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -748,14 +747,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -779,7 +778,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -804,14 +803,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -825,7 +824,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -851,14 +850,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -879,7 +878,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskApplicantImplementerSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -904,7 +903,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 		// test notification
@@ -919,7 +918,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskApplicantImplementerNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -945,7 +944,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 
@@ -970,7 +969,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskApplicantSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -995,7 +994,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 		// test notification
@@ -1010,7 +1009,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskApplicantNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -1036,7 +1035,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 
@@ -1059,7 +1058,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskImplementerSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -1084,7 +1083,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 		// test notification
@@ -1099,7 +1098,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskImplementerNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -1125,7 +1124,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 
@@ -1148,7 +1147,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -1173,7 +1172,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 		// test notification
@@ -1186,7 +1185,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskNotSameTest() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -1212,7 +1211,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 				.search(taskFilter).getResources();
 		assertEquals(0, tasks.size());
 
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.domain.comparator;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
@@ -10,8 +11,10 @@ import eu.bcvsolutions.idm.core.api.domain.Auditable;
  * @author Radek Tomiška
  *
  */
-public class CreatedComparator implements Comparator<Auditable> {
+public class CreatedComparator implements Comparator<Auditable>, Serializable {
 	
+	private static final long serialVersionUID = 1L;
+	//
 	private final boolean asc;
 	
 	public CreatedComparator() {

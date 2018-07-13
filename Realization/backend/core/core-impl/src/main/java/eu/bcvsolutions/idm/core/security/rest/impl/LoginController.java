@@ -31,7 +31,7 @@ import io.swagger.annotations.ApiParam;
 @RestController
 @RequestMapping(value = BaseController.BASE_PATH + "/authentication")
 @Api(value = LoginController.TAG, description = "Authentication endpoint", tags = { LoginController.TAG })
-public class LoginController {
+public class LoginController implements BaseController {
 	
 	protected static final String TAG = "Authentication";
 	public static final String REMOTE_AUTH_PATH = "/remote-auth";
@@ -57,12 +57,11 @@ public class LoginController {
 	
 	@ApiOperation(
 			value = "Login with remote token", 
-			notes= "Login with remote token an get the CIDMST token. Remote token can be obtained by external authentication system (e.g. OpenAM, OAuth)",
+			notes= "Login with remote token an get the CIDMST token. Remote token can be obtained by external authentication system (e.g. OpenAM, OAuth).",
 			response = LoginDto.class,
 			tags = { LoginController.TAG })
 	@RequestMapping(path = REMOTE_AUTH_PATH, method = RequestMethod.GET)
 	public Resource<LoginDto> loginWithRemoteToken() {
 		return new Resource<LoginDto>(loginService.loginAuthenticatedUser());
 	}
-	
 }

@@ -93,6 +93,7 @@ public class IdmScriptType {
 		this.parameters = parameters;
 	}
 
+	@XmlJavaTypeAdapter(CDATAAdapter.class)
 	@XmlElement(type = String.class)
 	public String getDescription() {
 		return description;

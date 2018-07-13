@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -545,7 +546,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 			return;
 		}
 		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(getHelper().createName());
-		IdmFormDefinitionDto formDefinition = formService.createDefinition(getController().getDtoClass(), getHelper().createName(), Lists.newArrayList(formAttribute));
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(getFormOwnerType(), getHelper().createName(), Lists.newArrayList(formAttribute));
 		formAttribute = formDefinition.getFormAttributes().get(0);
 		//
 		DTO owner = createDto();
@@ -706,7 +707,14 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	}
 	
 	protected String getFormValuesUrl(Serializable backendId) {
-		return String.format("%s/%s/form-values", getBaseUrl(), backendId);
+		String id = null;
+		if (backendId instanceof Identifiable) {
+			id = ((Identifiable) backendId).getId().toString();
+		} else {
+			id = backendId.toString();
+		}
+		//
+		return String.format("%s/%s/form-values", getBaseUrl(), id);
 	}
 	
 	/**
@@ -925,6 +933,15 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed to execute bulk action [" + action.getName() + "]", ex);
 		}
+	}
+	
+	/**
+	 * Returns form value owner type - sometimes can be different than controlled dto type (e.g. slices, connectors)
+	 * 
+	 * @return
+	 */
+	protected Class<? extends Identifiable> getFormOwnerType() {
+		return getController().getDtoClass();
 	}
 	
 	/**

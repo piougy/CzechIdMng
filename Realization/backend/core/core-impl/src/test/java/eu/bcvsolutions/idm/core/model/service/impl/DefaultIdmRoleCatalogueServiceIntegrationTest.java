@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -39,7 +38,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 	
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+		loginAsAdmin();
 	}
 	
 	@After 

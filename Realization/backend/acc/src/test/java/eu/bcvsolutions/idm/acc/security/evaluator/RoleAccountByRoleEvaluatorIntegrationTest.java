@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.entity.AccRoleAccount;
@@ -75,7 +74,7 @@ public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractIntegrati
 	}
 
 	private IdmIdentityDto createIdentityWithRole(boolean transitive) {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		IdmRoleDto role = helper.createRole();
 		TEST_ROLE_ID = role.getId();
 		// self policy

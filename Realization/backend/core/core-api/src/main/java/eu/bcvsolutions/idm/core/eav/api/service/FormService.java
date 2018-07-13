@@ -102,12 +102,20 @@ public interface FormService extends ScriptEnabled {
 	IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerType, BasePermission... permission);
 	
 	/**
+	 * Returns all definitions for given type by given owner
+	 * 
+	 * @param owner
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 */
+	List<IdmFormDefinitionDto> getDefinitions(Identifiable owner, BasePermission... permission);
+	
+	/**
 	 * Returns all definitions for given type
 	 * 
 	 * @param ownerType
 	 * @param permission base permissions to evaluate (AND)
 	 * @return
-	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	List<IdmFormDefinitionDto> getDefinitions(Class<? extends Identifiable> ownerType, BasePermission... permission);
 	

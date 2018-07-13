@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -42,8 +44,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
-import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
  * Test authentication using the basic scheme. 
@@ -55,11 +55,15 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 
 	@Autowired private IdmConfigurationService configurationService;
 	@Autowired private LoginService loginService;
-	@Autowired private TestHelper testHelper;
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private PasswordChangeController passwordChangeController;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
+	
+	@Before
+	public void init() {
+		this.logout();
+	}
 	
 	@After
 	public void after() {
@@ -70,9 +74,9 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 	
 	@Test
 	public void testBasicAuthSuccess() throws Exception {
-		String basedAuth = AuthenticationTestUtils.getBasicAuth(TEST_ADMIN_USERNAME, TEST_ADMIN_PASSWORD);
+		String basedAuth = getBasicAuth(TEST_ADMIN_USERNAME, TEST_ADMIN_PASSWORD);
 		
-		getMockMvc().perform(get(AuthenticationTestUtils.getSelfPath(TEST_ADMIN_USERNAME))
+		getMockMvc().perform(get(getSelfPath(TEST_ADMIN_USERNAME))
 				.header("Authorization", "Basic " + basedAuth)
 				.contentType(HAL_CONTENT_TYPE))
 			.andExpect(status().isOk())
@@ -82,9 +86,9 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 	
 	@Test
 	public void testBasicAuthFail() throws Exception {
-		String basedAuth = AuthenticationTestUtils.getBasicAuth(TEST_ADMIN_USERNAME, "");
+		String basedAuth = getBasicAuth(TEST_ADMIN_USERNAME, "");
 		
-		getMockMvc().perform(get(AuthenticationTestUtils.getSelfPath(TEST_ADMIN_USERNAME))
+		getMockMvc().perform(get(getSelfPath(TEST_ADMIN_USERNAME))
 				.header("Authorization", "Basic " + basedAuth)
 				.contentType(HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
@@ -95,11 +99,11 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		String testPassword = "testPassword";
 		String newTestPassword = "newTestPassword";
 		//
-		this.loginAsAdmin(TEST_ADMIN_USERNAME);
+		this.loginAsAdmin();
 		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED, false);
 		//
 		// create identity
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
 		passwordChangeDto.setNewPassword(new GuardedString(testPassword));
 		passwordService.save(identity, passwordChangeDto);
@@ -130,11 +134,11 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		String testPassword = "testPassword";
 		String newTestPassword = "newTestPassword";
 		//
-		this.loginAsAdmin(TEST_ADMIN_USERNAME);
+		loginAsAdmin();
 		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED, true);
 		//
 		// create identity
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
 		passwordChangeDto.setNewPassword(new GuardedString(testPassword));
 		passwordService.save(identity, passwordChangeDto);
@@ -173,16 +177,16 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		String testPassword = "testPassword";
 		String newTestPassword = "newTestPassword";
 		//
-		this.loginAsAdmin(TEST_ADMIN_USERNAME);
+		this.loginAsAdmin();
 		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED, false);
 		//
 		// create identity
 		IdmIdentityDto identity = createIdentityInTransaction(testPassword);
 
 		// allow password change
-		IdmRoleDto roleWithPermission = testHelper.createRole();
-		testHelper.createAuthorizationPolicy(roleWithPermission.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, SelfIdentityEvaluator.class, IdentityBasePermission.PASSWORDCHANGE);
-		testHelper.assignRoles(testHelper.getPrimeContract(identity.getId()), roleWithPermission);
+		IdmRoleDto roleWithPermission = getHelper().createRole();
+		getHelper().createAuthorizationPolicy(roleWithPermission.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, SelfIdentityEvaluator.class, IdentityBasePermission.PASSWORDCHANGE);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity.getId()), roleWithPermission);
 		this.logout();
 		
 		
@@ -203,16 +207,16 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		String testPassword = "testPassword";
 		String newTestPassword = "newTestPassword";
 		//
-		this.loginAsAdmin(TEST_ADMIN_USERNAME);
+		this.loginAsAdmin();
 		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_PUBLIC_CHANGE_PASSWORD_FOR_IDM_ENABLED, true);
 		//
 		// create identity
 		IdmIdentityDto identity = createIdentityInTransaction(testPassword);
 
 		// allow password change
-		IdmRoleDto roleWithPermission = testHelper.createRole();
-		testHelper.createAuthorizationPolicy(roleWithPermission.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, SelfIdentityEvaluator.class, IdentityBasePermission.PASSWORDCHANGE);
-		testHelper.assignRoles(testHelper.getPrimeContract(identity.getId()), roleWithPermission);
+		IdmRoleDto roleWithPermission = getHelper().createRole();
+		getHelper().createAuthorizationPolicy(roleWithPermission.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, SelfIdentityEvaluator.class, IdentityBasePermission.PASSWORDCHANGE);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity.getId()), roleWithPermission);
 		this.logout();
 		
 		
@@ -247,7 +251,7 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 	private IdmIdentityDto createIdentityInTransaction(String password) {
 		return getTransactionTemplate().execute(new TransactionCallback<IdmIdentityDto>() {
 			public IdmIdentityDto doInTransaction(TransactionStatus transactionStatus) {
-				IdmIdentityDto identity = testHelper.createIdentity();
+				IdmIdentityDto identity = getHelper().createIdentity();
 				if (password != null) {
 					PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
 					passwordChangeDto.setNewPassword(new GuardedString(password));
@@ -256,5 +260,9 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 				return identity;
 			}
 		});
+	}
+	
+	private String getSelfPath(String user) {
+		return BaseDtoController.BASE_PATH + "/identities/" + user;
 	}
 }

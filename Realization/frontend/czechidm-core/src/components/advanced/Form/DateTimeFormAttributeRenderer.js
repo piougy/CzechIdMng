@@ -43,7 +43,7 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
       <Basic.DateTimePicker
         ref={ AbstractFormAttributeRenderer.INPUT }
         mode={ attribute.persistentType.toLowerCase() }
-        required={ attribute.required }
+        required={ this.isRequired() }
         label={ this.getLabel() }
         placeholder={ this.getPlaceholder() }
         value={ this.toInputValue(values) }

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.HttpFilterUtils;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
@@ -38,15 +39,9 @@ public class JwtIdmAuthenticationFilter implements IdmAuthenticationFilter {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(JwtIdmAuthenticationFilter.class);
 
-	@Autowired
-	protected OAuthAuthenticationManager authenticationManager;
-
-	@Autowired
-	protected JwtAuthenticationMapper jwtTokenMapper;
-
-	@Autowired
-	protected AuthenticationExceptionContext ctx;
-	
+	@Autowired private OAuthAuthenticationManager authenticationManager;
+	@Autowired private JwtAuthenticationMapper jwtTokenMapper;
+	@Autowired private AuthenticationExceptionContext ctx;
 	
 	@Override
 	public boolean authorize(String token, HttpServletRequest request, HttpServletResponse response) {
@@ -57,9 +52,15 @@ public class JwtIdmAuthenticationFilter implements IdmAuthenticationFilter {
 				return false;
 			}
 			HttpFilterUtils.verifyToken(jwt.get(), jwtTokenMapper.getVerifier());
+			// authentication dto from request
 			claims = jwtTokenMapper.getClaims(jwt.get());
+			// resolve actual authentication from given authentication dto (token is loaded)
+			IdmJwtAuthentication authentication = jwtTokenMapper.fromDto(claims);
+			// set current authentication dto to context
+			ctx.setToken(jwtTokenMapper.toDto(authentication));
 			ctx.setToken(claims);
-			Authentication auth = authenticationManager.authenticate(jwtTokenMapper.fromDto(claims));
+			// try to authenticate
+			Authentication auth = authenticationManager.authenticate(authentication);
 			LOG.debug("User [{}] successfully logged in.", auth.getName());
 			return auth.isAuthenticated();
 		} catch (ResultCodeException ex) {

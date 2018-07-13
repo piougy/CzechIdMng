@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
@@ -33,67 +34,34 @@ import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
  * Default implementation of authentication manager {@link AuthenticationManager}.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
 @Service
 public class DefaultAuthenticationManager implements AuthenticationManager {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAuthenticationManager.class);
-	
-	private final List<Authenticator> authenticators;
-	private final IdmPasswordService passwordService;
-	private final IdmPasswordPolicyService passwordPolicyService;
-	private final NotificationManager notificationManager;
+	//
+	@Autowired
+	private List<Authenticator> authenticators;
+	@Autowired
+	private IdmPasswordService passwordService;
+	@Autowired
+	private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired
+	private NotificationManager notificationManager;
 	@Autowired
 	private ConfigurationService configurationService;
-
 	@Autowired
-	public DefaultAuthenticationManager(
-			List<Authenticator> authenticators,
-			IdmPasswordService passwordService,
-			IdmPasswordPolicyService passwordPolicyService,
-			NotificationManager notificationManager) {
-		//
-		Assert.notNull(authenticators);
-		Assert.notNull(passwordService);
-		Assert.notNull(passwordPolicyService);
-		Assert.notNull(notificationManager);
-		//
-		this.authenticators = authenticators;
-		this.passwordService = passwordService;
-		this.passwordPolicyService = passwordPolicyService;
-		this.notificationManager = notificationManager;
-	}
+	private TokenManager tokenManager;
 
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
-		// authenticate
-		return authenticateOverAuthenticator(loginDto);
-	}
-	
-	/**
-	 * Get enabled {@link Authenticator} and sort by order
-	 */
-	private List<Authenticator> getEnabledAuthenticators() {
-		// disable/enable BE modules
-		List<Authenticator> enabledAuthenticator = this.authenticators.stream().filter(auth -> !auth.isDisabled()).collect(Collectors.toList());
-		// sort by ordered
-		AnnotationAwareOrderComparator.sort(enabledAuthenticator);
-		return enabledAuthenticator;
-	}
-	
-	/**
-	 * Authenticate {@link LoginDto} over all found {@link Authenticator}
-	 * 
-	 * @param loginDto
-	 */
-	private LoginDto authenticateOverAuthenticator(LoginDto loginDto) {
-
 		Assert.notNull(authenticators);
 		//
 		List<LoginDto> resultsList = new LinkedList<>();
@@ -144,6 +112,36 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		}
 		passwordDto = passwordService.setLastSuccessfulLogin(passwordDto);
 		return resultsList.get(0);
+	}
+	
+	@Override
+	public void logout() {
+		IdmTokenDto token = tokenManager.getCurrentToken();
+		if (token == null) {
+			LOG.debug("Current token not found, logout is not supported (already logged out or authenticated externally without token).");
+			return;
+		}
+		//
+		// all registered authenticator should know about logout given token
+		for(Authenticator authenticator : getEnabledAuthenticators()) {
+			LOG.trace("Process authenticator [{}].", authenticator.getName());
+			//
+			authenticator.logout(token);
+		}
+	}
+	
+	/**
+	 * Get enabled {@link Authenticator} and sort by order
+	 */
+	private List<Authenticator> getEnabledAuthenticators() {
+		// disable/enable BE modules
+		List<Authenticator> enabledAuthenticator = this.authenticators
+				.stream()
+				.filter(auth -> !auth.isDisabled())
+				.collect(Collectors.toList());
+		// sort by ordered
+		AnnotationAwareOrderComparator.sort(enabledAuthenticator);
+		return enabledAuthenticator;
 	}
 	
 	/**

@@ -59,6 +59,8 @@ import EntityStateService from './EntityStateService';
 import BulkActionService from './BulkActionService';
 import ContractSliceService from './ContractSliceService';
 import ContractSliceGuaranteeService from './ContractSliceGuaranteeService';
+import RoleGuaranteeService from './RoleGuaranteeService';
+import RoleGuaranteeRoleService from './RoleGuaranteeRoleService';
 
 const ServiceRoot = {
   RestApiService,
@@ -114,7 +116,9 @@ const ServiceRoot = {
   EntityStateService,
   BulkActionService,
   ContractSliceService,
-  ContractSliceGuaranteeService
+  ContractSliceGuaranteeService,
+  RoleGuaranteeService,
+  RoleGuaranteeRoleService
 };
 
 ServiceRoot.version = '0.0.1';

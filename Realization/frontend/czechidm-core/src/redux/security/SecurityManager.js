@@ -49,7 +49,6 @@ export default class SecurityManager {
       const lt = AuthenticateService.getLastToken();
       if (lt && userContext.tokenCIDMST && userContext.tokenCIDMST !== lt) {
         userContext.tokenCIDMST = lt;
-        userContext.authorities = AuthenticateService.getTokenAuthorities(lt);
         dispatch({
           type: RECEIVE_LOGIN,
           userContext
@@ -93,7 +92,6 @@ export default class SecurityManager {
 
   _handleUserAuthSuccess(dispatch, getState, redirect, json) {
     const decoded = AuthenticateService.decodeToken(json.token);
-    const authorities = AuthenticateService.getAuthorities(decoded);
     const userName = decoded.currentUsername;
     // construct logged user context
     const userContext = {
@@ -102,7 +100,7 @@ export default class SecurityManager {
       username: userName,
       tokenCIDMST: json.token,
       tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
-      authorities
+      authorities: json.authorities.map(authority => authority.authority)
     };
     //
     // remove all messages (only logout could be fond in messages after logout)
@@ -145,7 +143,7 @@ export default class SecurityManager {
 
   receiveLoginError(error, redirect) {
     return dispatch => {
-      authenticateService.logout();
+      authenticateService.clearStorage();
       // add error message
       if (error) {
         dispatch(flashMessagesManager.addErrorMessage({ position: 'tc' }, error));
@@ -180,19 +178,23 @@ export default class SecurityManager {
    */
   logout(redirect) {
     return dispatch => {
-      authenticateService.logout();
-      dispatch(flashMessagesManager.removeAllMessages());
-      /* RT: i think this message is not needed
-      dispatch(flashMessagesManager.addMessage({
-        key: 'logout',
-        message: LocalizationService.i18n('content.logout.message.logout'),
-        level: 'info',
-        position: 'tc'
-      }));*/
-      dispatch(this.receiveLogout());
-      if (redirect) {
-        redirect();
-      }
+      authenticateService
+        .logout()
+        .then(() => {
+          dispatch(flashMessagesManager.removeAllMessages());
+          /* RT: i think this message is not needed
+          dispatch(flashMessagesManager.addMessage({
+            key: 'logout',
+            message: LocalizationService.i18n('content.logout.message.logout'),
+            level: 'info',
+            position: 'tc'
+          }));*/
+          dispatch(this.receiveLogout());
+          if (redirect) {
+            redirect();
+          }
+        })
+        .catch(error => dispatch(this.receiveLoginError(error, redirect)));
     };
   }
 

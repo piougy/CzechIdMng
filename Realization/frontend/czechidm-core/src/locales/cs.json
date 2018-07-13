@@ -779,6 +779,8 @@
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
       "ROLECATALOGUE": "Katalog rolí",
+      "ROLEGUARANTEE": "$t(entity.Role.guarantees) - dle identity",
+      "ROLEGUARANTEEROLE": "$t(entity.Role.guarantees) - dle role",
       "ROLETREENODE": "Automatické role (organizační struktura)",
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
@@ -797,7 +799,8 @@
       "AUTOMATICROLEATTRIBUTE": "Automatické role (atributy)",
       "AUTOMATICROLEATTRIBUTERULE": "Pravidla automatických rolí (atributy)",
       "AUTOMATICROLEREQUEST": "Žádosti o automatické role",
-      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)"
+      "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)",
+      "TOKEN": "Token"
     }
   },
   "content": {
@@ -1718,6 +1721,17 @@
       "identities": {
         "header": "Uživatelé s přiřazenou rolí",
         "title": "Uživatelé"
+      },
+      "guarantees": {
+        "header": "$t(entity.Role.guarantees)",
+        "title": "$t(entity.Role.guarantees)",
+        "create": {
+          "header": "Přidat garanta role"
+        },
+        "edit": {
+          "header": "{{name}} <small>detail garanta role</small>",
+          "disabled": "Garant lze editovat pouze v základních informacích."
+        }
       },
       "eav": {
         "header": "Další údaje",
@@ -2641,6 +2655,26 @@
       "description": "Popis",
       "parent": {
         "name": "Nadřazená složka v katalogu"
+      }
+    },
+    "RoleGuarantee": {
+      "_type": "Garant role - identita",
+      "role": {
+        "label": "Role"
+      },
+      "guarantee": {
+        "label": "Garant - identita",
+        "help": "Vybraná identita se stane garantem role."
+      }
+    },
+    "RoleGuaranteeRole": {
+      "_type": "Garant role - role",
+      "role": {
+        "label": "Role"
+      },
+      "guaranteeRole": {
+        "label": "Garant - role",
+        "help": "Identity mající vybranou roli se stanou garanty dané role."
       }
     },
     "ConfidentialStorageValue": {
@@ -3744,6 +3778,16 @@
             "help": "Nastaví oprávnění pro atributy uživatelů, které aktuálně přihlášený uživatel může číst (například pokud může číst uživatele, může editovat vyjmenované atributy)."
           }
         }
+      },
+      "form-definition-uuid-evaluator": {
+        "help": "Oprávnění pro formuláře definující rozšířené atributy",
+        "attributes": {
+          "uuid": {
+            "label": "Definice formuláře",
+            "help": "Definice formuláře, které bude nastaveno oprávnění.",
+            "placeholder": "Vyberte definici ..."
+          }
+        }
       }
     }
   },
@@ -4448,6 +4492,10 @@
     "CORRELATION_PROPERTY_WRONG_TYPE": {
       "title": "Korelační filtr nefunguje",
       "message": "Korelační filtr není možné použít, protože požadovaný atribut [{{property}}] není typu String!"
+    },
+    "TOKEN_NOT_FOUND": {
+      "title": "Autentizační token nebyl nalezen",
+      "message": "Autentizační token nebyl nalezen!"
     }
   },
   "validationError": {

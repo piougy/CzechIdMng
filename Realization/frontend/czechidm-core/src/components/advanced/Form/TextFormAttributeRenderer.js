@@ -139,10 +139,8 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
    * @return {Joi}
    */
   getInputValidation() {
-    const { attribute } = this.props;
-    //
     let validation = Joi.string();
-    if (!attribute.required) {
+    if (!this.isRequired()) {
       validation = validation.concat(Joi.string().allow(null).allow(''));
     }
     return validation;
@@ -161,7 +159,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         helpBlock={ this.getHelpBlock() }
         readOnly={ readOnly || attribute.readonly }
         validation={ this.getInputValidation() }
-        required={ attribute.required }
+        required={ this.isRequired() }
         confidential={ attribute.confidential }/>
     );
   }
@@ -173,7 +171,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
       <Basic.TextArea
         ref={ AbstractFormAttributeRenderer.INPUT }
         type={ attribute.confidential ? 'password' : 'text' }
-        required={ attribute.required }
+        required={ this.isRequired() }
         label={
           <span>
             { this.getLabel() }

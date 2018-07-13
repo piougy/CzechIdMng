@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.acc.sync;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -22,7 +24,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
@@ -64,6 +65,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationServiceTest;
+import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
@@ -88,6 +90,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
@@ -156,10 +159,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private ConfigurationService configurationService;
 	@Autowired
 	private SynchronizationService synchronizationService;
+	@Autowired
+	private IdentityConfiguration identityConfiguration;
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
+		loginAsAdmin();
 	}
 
 	@After
@@ -693,39 +698,44 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testTaskExecution() throws InterruptedException {
-		SysSystemDto system = initData();
-		Assert.assertNotNull(system);
-		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
-
-		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
-
-		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
-		identityFilter.setUsername(IDENTITY_ONE);
-		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
-		Assert.assertEquals(0, identities.size());
-
-		Task initiatorTask = createSyncTask(config.getId());
-		ObserveLongRunningTaskEndProcessor.listenTask(initiatorTask.getId());
-		// Execute
-		manager.runTask(initiatorTask.getId());
-		ObserveLongRunningTaskEndProcessor.waitForEnd(initiatorTask.getId());
-
-		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
-				OperationResultType.SUCCESS);
-
-		Assert.assertFalse(log.isRunning());
-		Assert.assertFalse(log.isContainsError());
-
-		identities = identityService.find(identityFilter, null).getContent();
-		Assert.assertEquals(1, identities.size());
-		IdmIdentityDto identity = identities.get(0);
-		List<IdmFormValueDto> emailValues = formService.getValues(identity, ATTRIBUTE_EMAIL_TWO);
-		Assert.assertEquals(1, emailValues.size());
-		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
-		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
-
-		// Delete log
-		syncLogService.delete(log);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		try {
+			SysSystemDto system = initData();
+			Assert.assertNotNull(system);
+			SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+	
+			config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+	
+			IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+			identityFilter.setUsername(IDENTITY_ONE);
+			List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+			Assert.assertEquals(0, identities.size());
+	
+			Task initiatorTask = createSyncTask(config.getId());
+			ObserveLongRunningTaskEndProcessor.listenTask(initiatorTask.getId());
+			// Execute
+			manager.runTask(initiatorTask.getId());
+			ObserveLongRunningTaskEndProcessor.waitForEnd(initiatorTask.getId());
+	
+			SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
+					OperationResultType.SUCCESS);
+	
+			Assert.assertFalse(log.isRunning());
+			Assert.assertFalse(log.isContainsError());
+	
+			identities = identityService.find(identityFilter, null).getContent();
+			Assert.assertEquals(1, identities.size());
+			IdmIdentityDto identity = identities.get(0);
+			List<IdmFormValueDto> emailValues = formService.getValues(identity, ATTRIBUTE_EMAIL_TWO);
+			Assert.assertEquals(1, emailValues.size());
+			Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
+			Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+	
+			// Delete log
+			syncLogService.delete(log);
+		} finally {
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		}
 	}
 
 	@Test
@@ -957,7 +967,120 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 	}
 
+	@Test
+	public void syncIdentityWithDefaultContract() {
+		// application property for creating default contract is allowed and also is allowed create 
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, Boolean.TRUE);
 
+		SysSystemDto system = initData();
+		this.getBean().deleteAllResourceData();
+		
+		String usernameOne = getHelper().createName();
+		this.getBean().setTestData(usernameOne, getHelper().createName(), getHelper().createName());
+		
+		String usernameTwo = getHelper().createName();
+		this.getBean().setTestData(usernameTwo, getHelper().createName(), getHelper().createName());
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setCreateDefaultContract(true);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		assertTrue(identityConfiguration.isCreateDefaultContractEnabled());
+		
+		helper.startSynchronization(config);
+		
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2,
+				OperationResultType.SUCCESS);
+		
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		IdmIdentityDto identityOne = identityService.getByUsername(usernameOne);
+		assertNotNull(identityOne);
+		List<IdmIdentityContractDto> allByIdentity = contractService.findAllByIdentity(identityOne.getId());
+		assertEquals(1, allByIdentity.size());
+
+		IdmIdentityDto identityTwo = identityService.getByUsername(usernameTwo);
+		assertNotNull(identityTwo);
+		allByIdentity = contractService.findAllByIdentity(identityTwo.getId());
+		assertEquals(1, allByIdentity.size());
+	}
+
+	@Test
+	public void syncIdentityWithoutDefaultContract() {
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, Boolean.TRUE);
+
+		SysSystemDto system = initData();
+		this.getBean().deleteAllResourceData();
+		
+		String usernameOne = getHelper().createName();
+		this.getBean().setTestData(usernameOne, getHelper().createName(), getHelper().createName());
+		
+		String usernameTwo = getHelper().createName();
+		this.getBean().setTestData(usernameTwo, getHelper().createName(), getHelper().createName());
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setCreateDefaultContract(false);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		assertTrue(identityConfiguration.isCreateDefaultContractEnabled());
+		
+		helper.startSynchronization(config);
+		
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2,
+				OperationResultType.SUCCESS);
+		
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		IdmIdentityDto identityOne = identityService.getByUsername(usernameOne);
+		assertNotNull(identityOne);
+		List<IdmIdentityContractDto> allByIdentity = contractService.findAllByIdentity(identityOne.getId());
+		assertEquals(0, allByIdentity.size());
+
+		IdmIdentityDto identityTwo = identityService.getByUsername(usernameTwo);
+		assertNotNull(identityTwo);
+		allByIdentity = contractService.findAllByIdentity(identityTwo.getId());
+		assertEquals(0, allByIdentity.size());
+	}
+
+	@Test
+	public void syncIdentityWithDefaultContractDisableByProperty() {
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, Boolean.FALSE);
+
+		SysSystemDto system = initData();
+		this.getBean().deleteAllResourceData();
+		
+		String usernameOne = getHelper().createName();
+		this.getBean().setTestData(usernameOne, getHelper().createName(), getHelper().createName());
+		
+		String usernameTwo = getHelper().createName();
+		this.getBean().setTestData(usernameTwo, getHelper().createName(), getHelper().createName());
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setCreateDefaultContract(true);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		assertFalse(identityConfiguration.isCreateDefaultContractEnabled());
+		
+		helper.startSynchronization(config);
+		
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2,
+				OperationResultType.SUCCESS);
+		
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		IdmIdentityDto identityOne = identityService.getByUsername(usernameOne);
+		assertNotNull(identityOne);
+		List<IdmIdentityContractDto> allByIdentity = contractService.findAllByIdentity(identityOne.getId());
+		assertEquals(0, allByIdentity.size());
+
+		IdmIdentityDto identityTwo = identityService.getByUsername(usernameTwo);
+		assertNotNull(identityTwo);
+		allByIdentity = contractService.findAllByIdentity(identityTwo.getId());
+		assertEquals(0, allByIdentity.size());
+	}
 
 	private Task createSyncTask(UUID syncConfId) {
 		Task task = new Task();

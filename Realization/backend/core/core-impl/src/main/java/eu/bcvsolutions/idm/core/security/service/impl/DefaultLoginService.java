@@ -8,26 +8,27 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.JwtAuthenticationService;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 
 /**
  * Default login service
  * 
  * @author svandav
- *
  */
-@Service
+@Service("loginService")
 public class DefaultLoginService implements LoginService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLoginService.class);
@@ -43,6 +44,9 @@ public class DefaultLoginService implements LoginService {
 	
 	@Autowired
 	private SecurityService securityService;
+	
+	@Autowired
+	private TokenManager tokenManager;
 
 	@Override
 	public LoginDto login(LoginDto loginDto) {
@@ -87,7 +91,7 @@ public class DefaultLoginService implements LoginService {
 		LOG.info("Identity with username [{}] authenticating", username);
 		
 		IdmIdentityDto identity = identityService.getByUsername(username);
-		// identity exists
+		// identity doesn't exist
 		if (identity == null) {			
 			throw new IdmAuthenticationException(MessageFormat.format(
 					"Check identity can login: The identity "
@@ -97,19 +101,25 @@ public class DefaultLoginService implements LoginService {
 		
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(username);
-		
 		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(
 				loginDto, 
-				// TODO: why is new dto created - previously dto could be used
-				new IdmIdentityDto(identity, identity.getUsername()),
-				EntityUtils.getModule(this.getClass()));
+				identity,
+				CoreModuleDescriptor.MODULE_ID);
 		
 		LOG.info("Identity with username [{}] is authenticated", username);
 
 		return loginDto;
 	}
 
-
+	@Override
+	public void logout() {
+		logout(tokenManager.getCurrentToken());
+	}
+	
+	@Override
+	public void logout(IdmTokenDto token) {
+		jwtAuthenticationService.logout(token);
+	}
 
 	/**
 	 * Validates given identity can log in

@@ -138,6 +138,14 @@ export default class LongRunningTaskItems extends Advanced.AbstractTableContent 
             header={this.i18n('entity.LongRunningTaskItem.referencedDtoType')}
             width={75}
             face="text"
+            cell={
+              ({ rowIndex, data, property }) => {
+                const javaType = data[rowIndex][property];
+                return (
+                  <span title={ javaType }>{ Utils.Ui.getSimpleJavaType(javaType) }</span>
+                );
+              }
+            }
           />
           <Advanced.Column
             property="created"

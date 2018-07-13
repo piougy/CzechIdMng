@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.security.api.service;
 
 import java.util.Base64;
 
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+
 /**
  * Service for encrypt and decrypt string values.
  * Encrypt is based as AES with key from resources and IV (initialization vector).
@@ -44,4 +46,14 @@ public interface CryptService {
 	 * @return
 	 */
 	byte[] decrypt(byte[] value);
+
+	/**
+	 * Decrypt given value with given {@link GuardedString}. Method will be used for change confidential storage key.
+	 * If key will be null method use key classic confidential key defined in application properties or file.
+	 *
+	 * @param value
+	 * @param key
+	 * @return
+	 */
+	byte[] decryptWithKey(byte[] value, GuardedString key);
 }

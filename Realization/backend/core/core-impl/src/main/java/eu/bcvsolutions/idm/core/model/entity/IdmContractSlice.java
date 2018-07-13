@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -35,10 +36,17 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Entity
 @Table(name = "idm_contract_slice", indexes = {
 		@Index(name = "idx_idm_contract_slice_idnt", columnList = "identity_id"),
-		@Index(name = "idx_idm_contract_slice_wp", columnList = "work_position_id")})
-public class IdmContractSlice extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable {
+		@Index(name = "idx_idm_contract_slice_wp", columnList = "work_position_id"),
+		@Index(name = "idx_idm_contract_slice_ext_id", columnList = "external_id")})
+public class IdmContractSlice extends AbstractEntity 
+		implements ValidableEntity, FormableEntity, Disableable, AuditSearchable, ExternalIdentifiable {
 
 	private static final long serialVersionUID = 1L;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
+	private String externalId;
 	
 	@Audited
 	@ManyToOne(optional = false)
@@ -301,5 +309,15 @@ public class IdmContractSlice extends AbstractEntity implements ValidableEntity,
 
 	public void setContractValidTill(LocalDate contractValidTill) {
 		this.contractValidTill = contractValidTill;
-	}	
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	@Override
+	public String getExternalId() {
+		return externalId;
+	}
 }

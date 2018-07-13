@@ -5,7 +5,9 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
- * Operations with identity roles
+ * Operations with role guarantees - by identity
+ * 
+ * TODO: eventable - when role guarantee will be removed from IdmRole list and detail.
  * 
  * @author Radek Tomiška
  *

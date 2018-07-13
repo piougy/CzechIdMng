@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Iterables;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -49,7 +48,7 @@ public class ContractGuaranteeSaveAndDeleteProcessorTest extends AbstractIntegra
 	
 	@Before
 	public void login() {
-		this.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		this.loginAsAdmin();
 	}
 	
 	@After

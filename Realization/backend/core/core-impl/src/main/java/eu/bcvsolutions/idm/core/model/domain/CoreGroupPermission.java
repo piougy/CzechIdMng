@@ -45,6 +45,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	CONTRACTSLICE(
 			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
@@ -81,6 +82,22 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE,
 			IdmBasePermission.AUTOCOMPLETE),
+	ROLEGUARANTEE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	ROLEGUARANTEEROLE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
 	TREENODE(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.COUNT, 
@@ -215,7 +232,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	WORKFLOWTASK(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.READ,
-			IdmBasePermission.EXECUTE);
+			IdmBasePermission.EXECUTE),
+	TOKEN(
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authorize SpEl expressions
 	
@@ -243,6 +266,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITYCONTRACT_UPDATE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITYCONTRACT_DELETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String CONTRACTSLICE_COUNT = "CONTRACTSLICE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String CONTRACTSLICE_AUTOCOMPLETE = "CONTRACTSLICE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String CONTRACTSLICE_READ = "CONTRACTSLICE" + BasePermission.SEPARATOR + "READ";
 	public static final String CONTRACTSLICE_CREATE = "CONTRACTSLICE" + BasePermission.SEPARATOR + "CREATE";
@@ -302,6 +326,20 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLETREENODE_UPDATE = "ROLETREENODE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLETREENODE_DELETE = "ROLETREENODE" + BasePermission.SEPARATOR + "DELETE";
 	public static final String ROLETREENODE_AUTOCOMPLETE = "ROLETREENODE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	//
+	public static final String ROLEGUARANTEE_COUNT = "ROLEGUARANTEE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String ROLEGUARANTEE_AUTOCOMPLETE = "ROLEGUARANTEE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String ROLEGUARANTEE_READ = "ROLEGUARANTEE" + BasePermission.SEPARATOR + "READ";
+	public static final String ROLEGUARANTEE_CREATE = "ROLEGUARANTEE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLEGUARANTEE_UPDATE = "ROLEGUARANTEE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ROLEGUARANTEE_DELETE = "ROLEGUARANTEE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String ROLEGUARANTEEROLE_COUNT = "ROLEGUARANTEEROLE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String ROLEGUARANTEEROLE_AUTOCOMPLETE = "ROLEGUARANTEEROLE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String ROLEGUARANTEEROLE_READ = "ROLEGUARANTEEROLE" + BasePermission.SEPARATOR + "READ";
+	public static final String ROLEGUARANTEEROLE_CREATE = "ROLEGUARANTEEROLE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLEGUARANTEEROLE_UPDATE = "ROLEGUARANTEEROLE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ROLEGUARANTEEROLE_DELETE = "ROLEGUARANTEEROLE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String PASSWORDPOLICY_COUNT = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "COUNT";
 	public static final String PASSWORDPOLICY_CREATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "CREATE";

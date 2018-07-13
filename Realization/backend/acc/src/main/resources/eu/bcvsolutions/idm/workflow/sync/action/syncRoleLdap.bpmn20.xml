@@ -19,21 +19,21 @@ import groovy.transform.Field
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.UUID;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 
 logItem.addToLog("distinguishedName " + distinguishedName);
 logItem.addToLog("name " + name);
 
 SysSyncItemLogDto variableLog;
-UUID account;
 
     variableLog = defaultSynchronizationService.resolveMissingEntitySituation(uid, entityType, icAttributes, syncConfigId, actionType);
-    account = accAccountService.getAccount(uid, systemId).getId();
+    AccAccountDto account = accAccountService.getAccount(uid, systemId);
     if (account == null) {
       logItem.addToLog("Error: Account has not been found.");
       return;
     }
     execution.setVariable("log", variableLog);
-    execution.setVariable("accountId", account);
+    execution.setVariable("accountId", account.getId());
 </script>
     </scriptTask>
     <scriptTask id="scripttask2" name="Linked" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -815,6 +815,8 @@ import org.springframework.data.domain.Page;
         // ------------------------------------------------------------------------------------------------------------
 
         logItem.addToLog("SYNC finished, now for the guarantees and catalogues");
+        
+        if(actionType.equals("CREATE_ENTITY")) {
 
         UUID roleId = defaultAccRoleAccountService.getRoleId(accountId);
 
@@ -841,8 +843,7 @@ import org.springframework.data.domain.Page;
         //
 
         logItem.addToLog("SYNC ${roleId} DONE");
-
-        return log;
+        }
       </script>
     </scriptTask>
     <sequenceFlow id="flow19" sourceRef="scripttask10" targetRef="scripttask12"></sequenceFlow>

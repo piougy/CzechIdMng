@@ -46,7 +46,7 @@ public interface AccAccountService extends//
 	List<AccAccountDto> getAccounts(UUID systemId, UUID identityId);
 
 	/**
-	 * Returns first account found by UID on given system.
+	 * Returns account found by UID on given system.
 	 * 
 	 * @param uid
 	 * @param systemId

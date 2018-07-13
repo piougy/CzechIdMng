@@ -29,6 +29,7 @@ public interface SynchronizationService {
 	String WF_VARIABLE_KEY_ENTITY_ID = "entityId";
 	String WF_VARIABLE_KEY_ACC_ACCOUNT_ID = "accountId";
 	String WF_VARIABLE_KEY_LOG_ITEM = "logItem";
+	String WF_VARIABLE_KEY_SYSTEM_ID = "systemId";
 	String WRAPPER_SYNC_ITEM = "wrapper_sync_item";
 	String RESULT_SYNC_ITEM = "result_sync_item";
 	String SYNC_EXECUTOR_CACHE_NAME = "sync-executor-cache";

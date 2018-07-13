@@ -30,7 +30,8 @@ public interface SysRoleSystemAttributeService extends ReadWriteDtoService<SysRo
 			String objectClassName, SysRoleSystemAttributeDto attribute);
 	
 	/**
-	 * Returns mapping of system.
+	 * Returns mapping of system
+	 * 
 	 * @param systemId
 	 * @param objectClassName
 	 * @return

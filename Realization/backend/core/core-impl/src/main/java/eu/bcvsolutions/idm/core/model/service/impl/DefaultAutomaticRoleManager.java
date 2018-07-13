@@ -1,5 +1,3 @@
-
-
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
@@ -158,17 +156,17 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public void deleteAutomaticRole(AbstractIdmAutomaticRoleDto automaticRole, boolean executeImmediately) {
 		Assert.notNull(automaticRole);
 		Assert.notNull(automaticRole.getId(), "Automatic role must exists!");
-		
+
 		IdmAutomaticRoleRequestDto request = new IdmAutomaticRoleRequestDto();
-		if(automaticRole instanceof IdmRoleTreeNodeDto) {
+		if (automaticRole instanceof IdmRoleTreeNodeDto) {
 			request.setRequestType(AutomaticRoleRequestType.TREE);
-			request.setTreeNode(((IdmRoleTreeNodeDto)automaticRole).getTreeNode());
-		}else {
+			request.setTreeNode(((IdmRoleTreeNodeDto) automaticRole).getTreeNode());
+		} else {
 			request.setRequestType(AutomaticRoleRequestType.ATTRIBUTE);
 		}
 		request.setOperation(RequestOperationType.REMOVE);
@@ -214,4 +212,3 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 		return null;
 	}
 }
-

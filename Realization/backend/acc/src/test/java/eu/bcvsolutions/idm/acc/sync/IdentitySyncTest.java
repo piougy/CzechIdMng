@@ -1080,6 +1080,9 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		assertNotNull(identityTwo);
 		allByIdentity = contractService.findAllByIdentity(identityTwo.getId());
 		assertEquals(0, allByIdentity.size());
+		
+		// Set default
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, Boolean.TRUE);
 	}
 
 	private Task createSyncTask(UUID syncConfId) {

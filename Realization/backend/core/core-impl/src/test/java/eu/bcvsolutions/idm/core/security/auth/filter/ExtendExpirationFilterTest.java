@@ -59,6 +59,8 @@ public class ExtendExpirationFilterTest extends AbstractRestTest {
 		
 		IdmJwtAuthenticationDto extendedDto = getIdmJwtDto(result);
 		
+		Assert.assertEquals(login.getAuthentication().getId(), extendedDto.getId());
+		Assert.assertEquals(login.getToken(), result.getResponse().getHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME));
 		Assert.assertEquals(login.getAuthentication().getIssuedAt().getMillis(), extendedDto.getIssuedAt().getMillis());
 		Assert.assertEquals(login.getAuthentication().getExpiration().getMillis(), extendedDto.getExpiration().getMillis());
 	}

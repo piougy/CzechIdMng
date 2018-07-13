@@ -111,19 +111,13 @@ public class ExtendExpirationFilter extends GenericFilterBean {
 		// is authenticated by other method then IdM JWT token, therefore
 		// this is a valid state and we only issue a fresh IdM token
 		if (ctx.isExpired() || ctx.isAuthoritiesChanged()) {
-			token = jwtTokenMapper.toDto((IdmJwtAuthentication) 
-					SecurityContextHolder.getContext().getAuthentication());
+			token = jwtTokenMapper.toDto((IdmJwtAuthentication) SecurityContextHolder.getContext().getAuthentication());
 		} else {
 			// prolong expiration
 			token = jwtTokenMapper.prolongExpiration(ctx.getToken());
 		}
 		//
-		try {
-			res.setHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME,
-				jwtTokenMapper.writeToken(token));
-		} catch (IOException e) {
-			LOG.warn("Cannot write token with extended expiration header!");
-		}
+		res.setHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, jwtTokenMapper.writeToken(token));
 	}
 
 	private boolean isExtendExpiration() {

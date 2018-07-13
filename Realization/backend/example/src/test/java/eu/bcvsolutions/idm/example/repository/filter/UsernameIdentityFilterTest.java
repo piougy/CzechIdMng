@@ -5,13 +5,10 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -28,16 +25,6 @@ public class UsernameIdentityFilterTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private UsernameIdentityFilter usernameIdentityFilter;
-
-	@Before
-	public void before() {
-		this.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-	}
-	
-	@After
-	public void after() {
-		super.logout();
-	}
 	
 	@Test
 	public void testFilteringFound() {

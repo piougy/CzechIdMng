@@ -6,8 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.IOException;
-
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +88,7 @@ public class JwtIdmAuthenticationFilterTest extends AbstractRestTest {
 			.andExpect(status().is(403));
 	}
 	
-	protected String getAuthToken(IdmJwtAuthenticationDto d) throws IOException {
+	protected String getAuthToken(IdmJwtAuthenticationDto d) {
 		return jwtMapper.writeToken(d);
 	}
 	

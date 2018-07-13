@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.JwtAuthenticationService;
 
@@ -51,8 +52,9 @@ public class DefaultJwtAuthenticationService implements JwtAuthenticationService
 		oauthAuthenticationManager.authenticate(authentication);
 		//
 		loginDto.setAuthenticationModule(token.getModuleId());
-		loginDto.setAuthentication(jwtTokenMapper.toDto(token));
-		loginDto.setToken(token.getToken());
+		IdmJwtAuthenticationDto authenticationDto = jwtTokenMapper.toDto(token);
+		loginDto.setAuthentication(authenticationDto);
+		loginDto.setToken(jwtTokenMapper.writeToken(authenticationDto));
 		loginDto.setAuthorities(jwtTokenMapper.getDtoAuthorities(token));
 		return loginDto;
 	}

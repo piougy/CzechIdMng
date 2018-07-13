@@ -1651,6 +1651,26 @@
     "PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING": {
       "title": "Mapping attribute is duplicated",
       "message": "Schema attribute can be mapped only once (in provisioning mapping)!"
+    },
+    "SYSTEM_MAPPING_NOT_FOUND": {
+      "title": "Cannot find system mapping",
+      "message": "Cannot find system mapping on system [{{systemId}}] for object class name [{{objectClassName}}]."
+    },
+    "SYSTEM_SCHEMA_OBJECT_CLASS_NOT_FOUND": {
+      "title": "Cannot find schema object class",
+      "message": "Cannot find schema object class [{{objectClassName}}] on system [{{systemId}}]."
+    },
+    "SYSTEM_ATTRIBUTE_MAPPING_NOT_FOUND": {
+      "title": "Cannot find system attribute mapping",
+      "message": "Cannot find system attribute mapping for schema [{{schemaAttr}}] on system [{{systemId}}]."
+    },
+    "SYSTEM_SCHEMA_ATTRIBUTE_NOT_FOUND": {
+      "title": "Cannot find schema attribute",
+      "message": "Cannot find schema attribute for object class name [{{objectClassName}}] and attribute name [{{attributeName}}]."
+    },
+    "ROLE_ACCOUNT_NOT_FOUND": {
+      "title": "No role account found",
+      "message": "No role account found for account id [{{account}}]."
     }
   },
   "processor": {

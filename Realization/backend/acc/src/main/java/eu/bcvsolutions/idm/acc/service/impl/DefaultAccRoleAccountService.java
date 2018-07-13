@@ -16,6 +16,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
@@ -27,6 +28,7 @@ import eu.bcvsolutions.idm.acc.event.AccountEvent.AccountEventType;
 import eu.bcvsolutions.idm.acc.repository.AccRoleAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -118,6 +120,7 @@ public class DefaultAccRoleAccountService
 		return predicates;
 	}
 
+	@Override
 	public UUID getRoleId(UUID account) {
 		AccRoleAccountFilter accountFilter = new AccRoleAccountFilter();
 		accountFilter.setAccountId(account);
@@ -125,7 +128,7 @@ public class DefaultAccRoleAccountService
 
 		List<AccRoleAccountDto> roleAccounts = this.find(accountFilter, null).getContent();
 		if (roleAccounts.isEmpty()) {
-			throw new RuntimeException("No role Id found");
+			throw new ResultCodeException(AccResultCode.ROLE_ACCOUNT_NOT_FOUND, ImmutableMap.of("account", account));
 		}
 		return roleAccounts.get(0).getRole();
 	}

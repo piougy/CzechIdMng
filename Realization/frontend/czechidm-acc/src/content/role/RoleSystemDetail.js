@@ -184,7 +184,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     const { entityId } = this.props.params;
     const { systemId } = this.state;
     //
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem & _roleSystem.id ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem && _roleSystem.id ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const roleSystem = isNew ? this.state.roleSystem : _roleSystem;
     const forceSearchMappings = new Domain.SearchParameters()

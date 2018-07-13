@@ -25,7 +25,7 @@ public interface SysRoleSystemAttributeService extends ReadWriteDtoService<SysRo
 	 * @param transformationScript
 	 * @param objectClassName
 	 */
-	public void addRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName, String transformationScript,
+	public SysRoleSystemAttributeDto addRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName, String transformationScript,
 			String objectClassName);
 	
 	/**

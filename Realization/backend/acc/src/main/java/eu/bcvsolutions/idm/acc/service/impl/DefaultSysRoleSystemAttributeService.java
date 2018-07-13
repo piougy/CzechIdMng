@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -132,24 +133,24 @@ public class DefaultSysRoleSystemAttributeService extends
 		return roleSystemAttribute;
 	}
 
+	@Transactional
 	@Override
-	public void addRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName, String transformationScript,
-			String objectClassName) { // ObjectClassName "__ACCOUNT__"
+	public SysRoleSystemAttributeDto addRoleMappingAttribute(UUID systemId, UUID roleId, String attributeName,
+			String transformationScript, String objectClassName) { // ObjectClassName "__ACCOUNT__"
 		Assert.notNull(systemId, "SystemId cannot be null!");
 		Assert.notNull(roleId, "RoleId cannot be null!");
 		Assert.notNull(attributeName, "Attribute name cannot be null");
 		Assert.hasLength(attributeName, "Attribute name cannot be blank");
-		
 
 		UUID roleSystemId = getSysRoleSystem(systemId, roleId, objectClassName);
 		SysRoleSystemAttributeDto systemAttribute = getSystemAttribute(roleSystemId, attributeName);
 		if (systemAttribute == null) {
 			systemAttribute = new SysRoleSystemAttributeDto();
 		}
-		
+
 		systemAttribute.setEntityAttribute(false);
 		systemAttribute.setStrategyType(AttributeMappingStrategyType.MERGE);
-		
+
 		UUID systemAttributeMappingId = getSystemAttributeMapping(systemId, attributeName, objectClassName).getId();
 
 		systemAttribute.setName(attributeName);
@@ -160,15 +161,17 @@ public class DefaultSysRoleSystemAttributeService extends
 			systemAttribute.setTransformScript(transformationScript);
 		}
 
-		this.save(systemAttribute);
+		return this.save(systemAttribute);
 	}
-	
+
+	@Transactional
 	@Override
-	public SysSystemMappingDto getSystemMapping(UUID systemId, String objectClassName, SystemOperationType operationType) {
+	public SysSystemMappingDto getSystemMapping(UUID systemId, String objectClassName,
+			SystemOperationType operationType) {
 		Assert.notNull(systemId, "SystemId cannot be null!");
 		Assert.notNull(objectClassName, "ObjectClassName cannot be null!");
 		Assert.notNull(operationType, "OperationType cannot be null!");
-		
+
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setSystemId(systemId);
 		filter.setOperationType(operationType);
@@ -176,7 +179,8 @@ public class DefaultSysRoleSystemAttributeService extends
 
 		List<SysSystemMappingDto> systemMappings = systemMappingService.find(filter, null).getContent();
 		if (systemMappings.isEmpty()) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_NOT_FOUND, ImmutableMap.of("systemId", systemId, "objectClassName", objectClassName));
+			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_NOT_FOUND,
+					ImmutableMap.of("systemId", systemId, "objectClassName", objectClassName));
 		}
 		return systemMappings.get(0);
 	}
@@ -203,7 +207,7 @@ public class DefaultSysRoleSystemAttributeService extends
 		sys.setSystemMapping(getSystemMapping(systemId, objectClassName, SystemOperationType.PROVISIONING).getId());
 		return roleSystemService.save(sys).getId();
 	}
-	
+
 	/**
 	 * Returns systems object's scheme
 	 * 
@@ -217,7 +221,8 @@ public class DefaultSysRoleSystemAttributeService extends
 		filter.setObjectClassName(objectClassName);
 		List<SysSchemaObjectClassDto> objectClasses = schemaObjectClassService.find(filter, null).getContent();
 		if (objectClasses.isEmpty()) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_SCHEMA_OBJECT_CLASS_NOT_FOUND, ImmutableMap.of("objectClassName", objectClassName, "systemId", systemId));
+			throw new ResultCodeException(AccResultCode.SYSTEM_SCHEMA_OBJECT_CLASS_NOT_FOUND,
+					ImmutableMap.of("objectClassName", objectClassName, "systemId", systemId));
 		}
 		return objectClasses.get(0).getId();
 	}
@@ -230,7 +235,8 @@ public class DefaultSysRoleSystemAttributeService extends
 	 * @param objectClassName
 	 * @return
 	 */
-	private SysSystemAttributeMappingDto getSystemAttributeMapping(UUID systemId, String attributeName, String objectClassName) {
+	private SysSystemAttributeMappingDto getSystemAttributeMapping(UUID systemId, String attributeName,
+			String objectClassName) {
 		SysSchemaAttributeDto schemaAttr = getSchemaAttr(systemId, attributeName, objectClassName);
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSystemId(systemId);
@@ -239,7 +245,8 @@ public class DefaultSysRoleSystemAttributeService extends
 		List<SysSystemAttributeMappingDto> attributeMappings = systemAttributeMappingService.find(filter, null)
 				.getContent();
 		if (attributeMappings.isEmpty()) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_ATTRIBUTE_MAPPING_NOT_FOUND, ImmutableMap.of("schemaAttr", schemaAttr.getName(), "systemId", systemId));
+			throw new ResultCodeException(AccResultCode.SYSTEM_ATTRIBUTE_MAPPING_NOT_FOUND,
+					ImmutableMap.of("schemaAttr", schemaAttr.getName(), "systemId", systemId));
 		}
 		return attributeMappings.get(0);
 	}
@@ -255,10 +262,11 @@ public class DefaultSysRoleSystemAttributeService extends
 	private SysSchemaAttributeDto getSchemaAttr(UUID systemId, String attributeName, String objectClassName) {
 		SysSchemaAttributeFilter filter = new SysSchemaAttributeFilter();
 		filter.setObjectClassId(getObjectClassId(systemId, objectClassName));
-		filter.setText(attributeName);
+		filter.setName(attributeName);
 		List<SysSchemaAttributeDto> schemas = schemaAttributeService.find(filter, null).getContent();
 		if (schemas.isEmpty()) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_SCHEMA_ATTRIBUTE_NOT_FOUND, ImmutableMap.of("objectClassName", objectClassName, "attributeName", attributeName));
+			throw new ResultCodeException(AccResultCode.SYSTEM_SCHEMA_ATTRIBUTE_NOT_FOUND,
+					ImmutableMap.of("objectClassName", objectClassName, "attributeName", attributeName));
 		}
 		return schemas.get(0);
 	}

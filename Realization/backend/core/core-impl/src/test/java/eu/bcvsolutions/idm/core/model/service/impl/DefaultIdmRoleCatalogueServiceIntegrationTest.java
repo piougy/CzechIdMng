@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-
-import com.google.common.collect.Lists;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -30,10 +30,11 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Radek Tomiška
  *
  */
+@Transactional
 public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmRoleCatalogueService roleCatalogueService;
+	@Autowired private IdmRoleCatalogueRoleService roleCatalogueRoleService;
 	@Autowired private TestHelper helper;
 	
 	@Before
@@ -55,18 +56,14 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		roleCatalogue.setName(catalogueName);
 		roleCatalogue = roleCatalogueService.save(roleCatalogue);
 		// role
-		IdmRoleDto role = new IdmRoleDto();
-		String roleName = "test_r_" + System.currentTimeMillis();
-		role.setName(roleName);		
+		IdmRoleDto role = getHelper().createRole();
 		//
 		IdmRoleCatalogueRoleDto roleCatalogueRole = new IdmRoleCatalogueRoleDto();
 		roleCatalogueRole.setRole(role.getId());
 		roleCatalogueRole.setRoleCatalogue(roleCatalogue.getId());
+		roleCatalogueRoleService.save(roleCatalogueRole);
 		//
-		role.setRoleCatalogues(Lists.newArrayList(roleCatalogueRole));
-		role = roleService.save(role);
-		//
-		List<IdmRoleCatalogueRoleDto> list = role.getRoleCatalogues();
+		List<IdmRoleCatalogueRoleDto> list = roleCatalogueRoleService.findAllByRoleCatalogue(roleCatalogue.getId());
 		assertEquals(1, list.size());
 		UUID catalogId = list.get(0).getRoleCatalogue();
 		UUID roleId = list.get(0).getRole();
@@ -78,6 +75,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		//
 		roleCatalogueService.delete(roleCatalogue);
 		//
+		Assert.assertEquals(0, roleCatalogueRoleService.findAllByRoleCatalogue(roleCatalogue.getId()).size());
 		List<IdmRoleCatalogueDto> roleCatalogues = roleCatalogueService.findAllByRole(role.getId());
 		assertEquals(0, roleCatalogues.size());
 	}

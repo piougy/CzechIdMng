@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -77,25 +76,19 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 		try {
 			configurationService.setValue(treeTypeService.getConfigurationPropertyName(treeTypeCode, IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD), getLongRunningTaskId().toString());
 			//
-			Page<IdmTreeNode> nodes = treeNodeRepository.findByTreeType_Id(treeType.getId(), new PageRequest(0, 100, new Sort("id")));
-			count = nodes.getTotalElements();
+			count = treeNodeRepository.findByTreeType_Id(treeType.getId(), new PageRequest(0, 1)).getTotalElements();
 			counter = 0L;
 			boolean canContinue = true;
+			Page<IdmTreeNode> roots = treeNodeRepository.findRoots(treeType.getId(), new PageRequest(0, 100));
 			while (canContinue) {
-				for(IdmTreeNode node : nodes) {
-					if (node.getForestIndex() == null) {
-						forestIndexService.index(node.getForestTreeType(), node.getId(), node.getParentId());
-					}
-					counter++;	
-					canContinue = updateState();
-					if (!canContinue) {
-						break;
-					}
-				};
-				if (!nodes.hasNext()) {
+				canContinue = processChildren(roots.getContent());
+				if (!canContinue) {
 					break;
 				}
-				nodes = treeNodeRepository.findByTreeType_Id(treeType.getId(), nodes.nextPageable());
+				if (!roots.hasNext()) {
+					break;
+				}
+				roots = treeNodeRepository.findRoots(treeType.getId(), roots.nextPageable());
 			}
 			//
 			if (count.equals(counter)) {
@@ -109,6 +102,26 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 		} finally {
 			configurationService.deleteValue(treeTypeService.getConfigurationPropertyName(treeTypeCode, IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD));
 		}
+	}
+	
+	private boolean processChildren(List<IdmTreeNode> nodes) {
+		boolean canContinue = true;
+		for(IdmTreeNode node : nodes) {
+			if (node.getForestIndex() == null) {
+				forestIndexService.index(node.getForestTreeType(), node.getId(), node.getParentId());
+			}
+			counter++;
+			canContinue = updateState();
+			if (!canContinue) {
+				break;
+			}
+			// proces nodes childred
+			canContinue = processChildren(treeNodeRepository.findDirectChildren(node, null).getContent());
+			if (!canContinue) {
+				break;
+			}
+		};
+		return canContinue;
 	}
 	
 	private IdmTreeTypeDto getTreeType() {

@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +69,7 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	// @Transactional - TODO: fix recount index in transaction
-	public void testForestIndexAfterBulkMove() {
+	public void testForestIndexAfterBulkMoveWithoutTransaction() {
 		int rootCount = 5;
 		// prepare new tree type
 		IdmTreeTypeDto treeType = getHelper().createTreeType();
@@ -96,6 +95,71 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		Assert.assertEquals(rootCount - 1, treeNodeService.findChildrenByParent(root.getId(), null).getTotalElements());
 		Assert.assertEquals(rootCount - 1, treeNodeForestContentService.findDirectChildren(root.getId(), null).getTotalElements());
 		Assert.assertEquals(rootCount - 1, treeNodeForestContentService.findAllChildren(root.getId(), null).getTotalElements());
+	}
+	
+	@Test
+	@Transactional
+	public void testForestIndexAfterBulkMoveWithTransaction() {
+		int rootCount = 5;
+		// prepare new tree type
+		IdmTreeTypeDto treeType = getHelper().createTreeType();
+		// create root nodes
+		for (int i = 0; i < rootCount; i++) {
+			getHelper().createTreeNode(treeType, null);
+		}
+		// move nodes to the first node
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
+		filter.setTreeTypeId(treeType.getId());
+		List<IdmTreeNodeDto> nodes = treeNodeService.find(filter, null).getContent();
+		IdmTreeNodeDto root = nodes.get(0);
+		for (int i = 0; i < nodes.size(); i++) {
+			IdmTreeNodeDto node = nodes.get(i);
+			if (node.equals(root)) {
+				continue;
+			}
+			node.setParent(root.getId());
+			node = treeNodeService.save(node);
+		}		
+		// check
+		Assert.assertEquals(1L, treeNodeService.findRoots(treeType.getId(), null).getTotalElements());
+		Assert.assertEquals(rootCount - 1, treeNodeService.findChildrenByParent(root.getId(), null).getTotalElements());
+		Assert.assertEquals(rootCount - 1, treeNodeForestContentService.findDirectChildren(root.getId(), null).getTotalElements());
+		Assert.assertEquals(rootCount - 1, treeNodeForestContentService.findAllChildren(root.getId(), null).getTotalElements());
+	}
+	
+	/**
+	 * Move childern to new parent a delete previous parent
+	 * 
+	 */
+	@Test
+	@Transactional
+	public void testMoveChildren() {
+		IdmTreeTypeDto treeType = getHelper().createTreeType();
+		// create root node
+		IdmTreeNodeDto root = getHelper().createTreeNode(treeType, null);
+		IdmTreeNodeDto subRoot = getHelper().createTreeNode(treeType, root);
+		// create children
+		IdmTreeNodeDto nodeOne = getHelper().createTreeNode(treeType, subRoot);
+		IdmTreeNodeDto nodeTwo = getHelper().createTreeNode(treeType, subRoot);
+		IdmTreeNodeDto nodeThree = getHelper().createTreeNode(treeType, subRoot);
+		//
+		Assert.assertEquals(4, treeNodeForestContentService.findAllChildren(root.getId(), null).getTotalElements());
+		Assert.assertEquals(3, treeNodeForestContentService.findAllChildren(subRoot.getId(), null).getTotalElements());
+		//
+		// move children to other parent
+		IdmTreeNodeDto subRootTwo = getHelper().createTreeNode(treeType, root);
+		nodeOne.setParent(subRootTwo.getId());
+		nodeOne = treeNodeService.save(nodeOne);
+		nodeTwo.setParent(subRootTwo.getId());
+		nodeTwo = treeNodeService.save(nodeTwo);
+		nodeThree.setParent(subRootTwo.getId());
+		nodeThree = treeNodeService.save(nodeThree);
+		//
+		// delete previous parent
+		treeNodeService.delete(subRoot);
+		//
+		Assert.assertEquals(4, treeNodeForestContentService.findAllChildren(root.getId(), null).getTotalElements());
+		Assert.assertEquals(3, treeNodeForestContentService.findAllChildren(subRootTwo.getId(), null).getTotalElements());
 	}
 	
 	@Test
@@ -177,7 +241,6 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Ignore // TODO: #1114 - why clear / drop index is called? Fix transactional usage ...
 	public void testRebuildIndex() {
 		IdmTreeTypeDto treeType = getHelper().createTreeType();
 		IdmTreeNodeDto node1 = getHelper().createTreeNode(treeType, null);
@@ -196,7 +259,6 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		Assert.assertTrue(results.stream().anyMatch(n -> n.equals(node4)));
 		//
 		// drop indexes
-		forestIndexService.clearIndexes(IdmTreeNode.toForestTreeType(treeType.getId()));
 		forestIndexService.dropIndexes(IdmTreeNode.toForestTreeType(treeType.getId()));
 		//
 		results = treeNodeService.find(filter, null).getContent();
@@ -205,6 +267,7 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		// reindex tree type
 		treeNodeService.rebuildIndexes(treeType.getId());
 		//
+		results = treeNodeService.find(filter, null).getContent();
 		Assert.assertEquals(2, results.size());
 		Assert.assertTrue(results.stream().anyMatch(n -> n.equals(node3)));
 		Assert.assertTrue(results.stream().anyMatch(n -> n.equals(node4)));

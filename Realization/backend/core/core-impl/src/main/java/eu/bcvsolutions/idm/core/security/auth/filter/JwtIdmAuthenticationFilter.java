@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.crypto.sign.InvalidSignatureException;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.HttpFilterUtils;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
@@ -54,6 +56,11 @@ public class JwtIdmAuthenticationFilter implements IdmAuthenticationFilter {
 			HttpFilterUtils.verifyToken(jwt.get(), jwtTokenMapper.getVerifier());
 			// authentication dto from request
 			claims = jwtTokenMapper.getClaims(jwt.get());
+			// check expiration for token given in header
+			// we need to check expiration, before current (automatically prolonged) token is used by mapper
+			if (claims.getExpiration() != null && claims.getExpiration().isBefore(DateTime.now())) {
+				throw new ResultCodeException(CoreResultCode.AUTH_EXPIRED);
+			}
 			// resolve actual authentication from given authentication dto (token is loaded)
 			IdmJwtAuthentication authentication = jwtTokenMapper.fromDto(claims);
 			// set current authentication dto to context

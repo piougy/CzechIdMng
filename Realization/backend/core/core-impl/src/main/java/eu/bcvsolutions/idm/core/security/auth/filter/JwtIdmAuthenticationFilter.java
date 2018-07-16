@@ -58,7 +58,6 @@ public class JwtIdmAuthenticationFilter implements IdmAuthenticationFilter {
 			IdmJwtAuthentication authentication = jwtTokenMapper.fromDto(claims);
 			// set current authentication dto to context
 			ctx.setToken(jwtTokenMapper.toDto(authentication));
-			ctx.setToken(claims);
 			// try to authenticate
 			Authentication auth = authenticationManager.authenticate(authentication);
 			LOG.debug("User [{}] successfully logged in.", auth.getName());

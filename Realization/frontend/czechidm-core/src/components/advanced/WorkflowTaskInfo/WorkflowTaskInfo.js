@@ -73,7 +73,10 @@ export class WorkflowTaskInfo extends AbstractEntityInfo {
       return (<UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
     }
     //
-    const niceLabel = this.getManager().localize(_entity, 'description');
+    let niceLabel = this.getManager().localize(_entity, 'description');
+    if (!niceLabel) {
+      niceLabel = _entity.taskName;
+    }
     if (!this.showLink()) {
       return (
         <span className={ classNames }>{ niceLabel }</span>

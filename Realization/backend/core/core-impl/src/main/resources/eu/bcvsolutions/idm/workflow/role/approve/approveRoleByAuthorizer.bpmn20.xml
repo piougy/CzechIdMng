@@ -137,7 +137,7 @@ conceptRoleRequestService.save(conceptDto);</script>
 def candidates = null;
 
 //Find all role guarantees
-candidates = identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent();
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
 }
@@ -171,7 +171,7 @@ if(!skip){
 def candidates = null;
 
 //Find all role guarantees
-candidates = identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent();
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
 }
@@ -222,12 +222,12 @@ automaticRoleRequestService.save(requestDto);</script>
 def candidates = null;
 
 //Find all role guarantees
-candidates = identityService.findGuaranteesByRoleId(entityEvent.content.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent();
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(entityEvent.content.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
 }
 
-//Is current logged user = implemeneter user and is betwen candidates? If yes, then we can skip task.
+//Is current logged user = implementer user and is between candidates? If yes, then we can skip task.
 if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
   skip = identityService.containsUser(candidates, implementerIdentifier);
 }else{

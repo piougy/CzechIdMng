@@ -17,7 +17,6 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.TestResource_;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -55,7 +54,7 @@ public class DefaultSysRoleSystemAttributeServiceTest extends AbstractIntegratio
 		SysSystemDto system = helper.createTestResourceSystem(true);
 
 		SysRoleSystemAttributeDto attribute = roleSystemAttributeService.addRoleMappingAttribute(system.getId(),
-				role.getId(), TestResource_.firstname.getName().toUpperCase(), null, IcObjectClassInfo.ACCOUNT);
+				role.getId(), "FIRSTNAME", null, IcObjectClassInfo.ACCOUNT);
 		assertNotNull(attribute);
 
 		SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();

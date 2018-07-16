@@ -27,9 +27,9 @@ public interface IdmRoleCatalogueService extends
 	/**
 	 * Prefix to configuration
 	 */
-	static final String CONFIGURATION_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.roleCatalogue.";
-	static final String CONFIGURATION_PROPERTY_VALID = "valid";
-	static final String CONFIGURATION_PROPERTY_REBUILD = "rebuild";	
+	String CONFIGURATION_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.roleCatalogue.";
+	String CONFIGURATION_PROPERTY_VALID = "valid";
+	String CONFIGURATION_PROPERTY_REBUILD = "rebuild";	
 	
 	/**
 	 * Rebuild (drop and create) all indexes for role catalogue.

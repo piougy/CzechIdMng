@@ -161,7 +161,7 @@ public class RoleDeleteProcessor
 			});
 		}
 		//		
-		// remove role guarantees, sub roles and catalog works automatically by hibenate mapping
+		// remove role guarantees, sub roles and catalogue works automatically by hibenate mapping
 		service.deleteInternal(role);
 		//
 		return new DefaultEventResult<>(event, this);

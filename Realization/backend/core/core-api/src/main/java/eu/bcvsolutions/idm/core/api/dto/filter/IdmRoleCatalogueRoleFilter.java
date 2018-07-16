@@ -4,6 +4,8 @@ import java.util.UUID;
 
 /**
  * Filter for {@link IdmRoleCatalogueRole}
+ * 
+ * TODO: data filter
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška

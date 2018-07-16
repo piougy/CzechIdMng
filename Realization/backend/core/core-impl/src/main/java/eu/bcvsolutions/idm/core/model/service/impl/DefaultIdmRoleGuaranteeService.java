@@ -52,18 +52,13 @@ public class DefaultIdmRoleGuaranteeService
 		// role
 		UUID role = filter.getRole();
 		if (role != null) {
-			predicates.add(builder.equal(
-					root.get(IdmRoleGuarantee_.role).get(IdmRole_.id), 
-					role)
-					);
+			predicates.add(builder.equal(root.get(IdmRoleGuarantee_.role).get(IdmRole_.id), role));
 		}
 		//
 		// guarantee
-		if (filter.getGuarantee() != null) {
-			predicates.add(builder.equal(
-					root.get(IdmRoleGuarantee_.guarantee).get(IdmIdentity_.id), 
-					filter.getGuarantee())
-					);
+		UUID guarantee = filter.getGuarantee();
+		if (guarantee != null) {
+			predicates.add(builder.equal(root.get(IdmRoleGuarantee_.guarantee).get(IdmIdentity_.id), guarantee));
 		}	
 		//
 		return predicates;

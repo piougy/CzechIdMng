@@ -36,7 +36,7 @@ public interface IdmTreeNodeService extends
 	Page<IdmTreeNodeDto> findRoots(UUID treeTypeId, Pageable pageable);
 	
 	/**
-	 * Method return children by parent id
+	 * Method return children by parent id. Returns direct children only.
 	 * 
 	 * @param parent
 	 * @return Page of children

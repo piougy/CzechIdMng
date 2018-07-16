@@ -203,7 +203,7 @@ class LongRunningTask extends Basic.AbstractContent {
             bars={[
               { now: _entity.failedItemCount, bsStyle: 'danger' },
               { now: _entity.warningItemCount, bsStyle: 'warning' },
-              { now: _entity.successItemCount, bsStyle: 'success' }]
+              { now: (_entity.counter > 0 && !_entity.successItemCount && !_entity.warningItemCount && !_entity.failedItemCount) ? _entity.counter : _entity.successItemCount, bsStyle: 'success' }]
             }/>
         </Basic.PanelBody>
         <Basic.PanelFooter>

@@ -15,12 +15,22 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 /**
  * Default repository for intersection table between role catalogue and role
  * 
+ * TODO: refactor filter usage
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  *
  */
 public interface IdmRoleCatalogueRoleRepository extends AbstractEntityRepository<IdmRoleCatalogueRole> {
 	
+	/**
+	 * @deprecated @since 8.1.4 use filter
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
+	@Deprecated
 	@Query(value = "select e from IdmRoleCatalogueRole e " +
 	        " where" +
 	        " (?#{[0].roleCatalogueId} is null or e.roleCatalogue.id = ?#{[0].roleCatalogueId})" + 
@@ -33,29 +43,37 @@ public interface IdmRoleCatalogueRoleRepository extends AbstractEntityRepository
 	 * 
 	 * @param role
 	 * @return
+	 * @deprecated @since 8.1.4 use filter
 	 */
-	List<IdmRoleCatalogueRole> findAllByRole_Id(@Param(value = "roleId") UUID roleId);
+	@Deprecated
+	List<IdmRoleCatalogueRole> findAllByRole_Id(UUID roleId);
 	
 	/**
 	 * Get all roleCatalogueRole for roleCatalogue given in parameter
 	 * 
 	 * @param roleCatalogue
 	 * @return
+	 * @deprecated @since 8.1.4 use filter
 	 */
-	List<IdmRoleCatalogueRole> findAllByRoleCatalogue_Id(@Param(value = "roleCatalogueId") UUID roleCatalogueId);
+	@Deprecated
+	List<IdmRoleCatalogueRole> findAllByRoleCatalogue_Id(UUID roleCatalogueId);
 	
 	/**
 	 * Delete all rows that contain role given in parameter
 	 * 
 	 * @param role
 	 * @return
+	 * @deprecated @since 8.1.4 use filter + delete (this method skips audit)
 	 */
+	@Deprecated
 	int deleteAllByRole_Id(@Param(value = "roleId") UUID roleId);
 	
 	/**
 	 * Delete all rows that contain roleCatalogue given in parameter
 	 * @param roleCatalogue
 	 * @return
+	 * @deprecated @since 8.1.4 use filter + delete (this method skips audit)
 	 */
+	@Deprecated
 	int deleteAllByRoleCatalogue_Id(@Param(value = "roleCatalogueId") UUID roleCatalogueId);
 }

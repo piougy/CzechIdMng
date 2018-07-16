@@ -120,7 +120,7 @@ conceptRoleRequestService.save(conceptDto);</script>
 def candidates = null;
 
 //Find all role guarantees
-candidates = identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent();
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
 }
@@ -207,7 +207,7 @@ if(!skip){
 def candidates = null;
 
 //Find all role guarantees
-candidates = identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent();
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
 }
@@ -316,7 +316,7 @@ automaticRoleRequestService.save(requestDto);</script>
 def candidates = null;
 
 //Find all role guarantees
-candidates = identityService.findGuaranteesByRoleId(entityEvent.content.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent();
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(entityEvent.content.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
 }
@@ -348,6 +348,7 @@ if(!skip){
     <sequenceFlow id="flow57" sourceRef="scripttask13" targetRef="servicetask6"></sequenceFlow>
     <sequenceFlow id="flow58" sourceRef="servicetask6" targetRef="scripttask16"></sequenceFlow>
     <userTask id="approveAutomaticRole" name="Approve by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:formKey="dynamicAutomaticRoleTaskDetail" activiti:skipExpression="#{skipApproveByAuthorizers}">
+      <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
@@ -406,6 +407,7 @@ if(!skip){
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
     <userTask id="approveAutomaticRoleBySecurity" name="Approve by security" activiti:candidateUsers="#{candidatesApproveBySecurity}" activiti:formKey="dynamicAutomaticRoleTaskDetail" activiti:skipExpression="#{skipApproveBySecurity}">
+      <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>

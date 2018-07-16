@@ -153,6 +153,7 @@ public class JwtAuthenticationMapper {
 	 */
 	public IdmJwtAuthentication fromDto(IdmJwtAuthenticationDto dto) {
 		Assert.notNull(dto);
+		Assert.notNull(dto.getCurrentIdentityId());
 		//
 		IdmIdentityDto identity = new IdmIdentityDto(dto.getCurrentIdentityId(), dto.getCurrentUsername());
 		// try to load token or create a new one
@@ -166,7 +167,7 @@ public class JwtAuthenticationMapper {
 				token.setOwnerType(tokenManager.getOwnerType(IdmIdentityDto.class));
 				token.setIssuedAt(dto.getIssuedAt());
 				token.setExpiration(dto.getExpiration());
-				token.getProperties().put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(dto.getCurrentIdentityId())));
+				token.getProperties().put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity.getId())));
 				token.getProperties().put(PROPERTY_CURRENT_USERNAME, dto.getCurrentUsername());
 				token.getProperties().put(PROPERTY_ORIGINAL_USERNAME,  dto.getOriginalUsername());
 				token.getProperties().put(PROPERTY_ORIGINAL_IDENTITY_ID, dto.getOriginalIdentityId());

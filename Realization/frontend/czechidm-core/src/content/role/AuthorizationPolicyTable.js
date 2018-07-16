@@ -270,11 +270,11 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       _permissions } = this.props;
     const { detail, evaluatorType, authorizableType } = this.state;
     //
-    let formInstance = null;
+    let formInstance = new Domain.FormInstance({});
     if (evaluatorType && evaluatorType.formDefinition && detail.entity) {
       formInstance = new Domain.FormInstance(evaluatorType.formDefinition).setProperties(detail.entity.evaluatorProperties);
     }
-    const showProperties = formInstance && evaluatorType.formDefinition.formAttributes.length > 0;
+    const showProperties = formInstance && evaluatorType && evaluatorType.formDefinition && evaluatorType.formDefinition.formAttributes.length > 0;
     //
     const _supportedEvaluators = this._getSupportedEvaluators(authorizableType);
     const _authorizableTypes = [];

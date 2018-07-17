@@ -291,7 +291,14 @@ export class AccountTable extends Advanced.AbstractTableContent {
                 className="table-bordered"
                 rendered={ !Utils.Entity.isNew(detail.entity) }>
                 <Basic.Column property="name" header={this.i18n('label.property')}/>
-                <Basic.Column property="values" header={this.i18n('label.value')}/>
+                <Basic.Column property="values" header={this.i18n('label.value')}
+                  cell={
+                    ({ rowIndex, data }) => {
+                      return (
+                        Utils.Ui.toStringValue(data[rowIndex].values)
+                      );
+                    }
+                  }/>
               </Basic.Table>
 
             </Basic.Modal.Body>

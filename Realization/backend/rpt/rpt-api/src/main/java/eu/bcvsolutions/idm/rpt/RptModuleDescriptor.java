@@ -10,10 +10,10 @@ import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
  */
 public interface RptModuleDescriptor extends ModuleDescriptor {
 
-	static final String MODULE_ID = "rpt";
+	String MODULE_ID = "rpt";
 	//
-	static final String TOPIC_REPORT_GENERATE_SUCCESS = String.format("%s:reportGenerateSuccess", MODULE_ID);
-	static final String TOPIC_REPORT_GENERATE_FAILED = String.format("%s:reportGenerateFailed", MODULE_ID);
+	String TOPIC_REPORT_GENERATE_SUCCESS = String.format("%s:reportGenerateSuccess", MODULE_ID);
+	String TOPIC_REPORT_GENERATE_FAILED = String.format("%s:reportGenerateFailed", MODULE_ID);
 	
 	@Override
 	default String getId() {

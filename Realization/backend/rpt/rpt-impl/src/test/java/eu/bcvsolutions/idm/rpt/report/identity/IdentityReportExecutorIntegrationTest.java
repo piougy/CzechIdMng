@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.rpt.executor;
+package eu.bcvsolutions.idm.rpt.report.identity;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,7 +27,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
-import eu.bcvsolutions.idm.rpt.renderer.IdentityReportXlsxRenderer;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**

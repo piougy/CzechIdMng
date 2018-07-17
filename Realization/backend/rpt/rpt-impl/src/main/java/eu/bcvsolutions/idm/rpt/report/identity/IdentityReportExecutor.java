@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.rpt.executor;
+package eu.bcvsolutions.idm.rpt.report.identity;
 
 import java.io.File;
 import java.io.FileInputStream;

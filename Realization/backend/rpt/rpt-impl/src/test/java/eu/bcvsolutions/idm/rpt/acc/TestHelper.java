@@ -1,9 +1,8 @@
-package eu.bcvsolutions.idm.acc;
+package eu.bcvsolutions.idm.rpt.acc;
 
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
@@ -12,7 +11,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -121,16 +119,6 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	TestResource findResource(String uid);
-	
-	/**
-	 * Saves resource on target system
-	 * 
-	 * TODO: support merge (persist only now) 
-	 * 
-	 * @param uid
-	 * @return
-	 */
-	TestResource saveResource(TestResource testResource);
 
 	/**
 	 * Creates system entity (IDENTITY) with random name on given system
@@ -159,7 +147,5 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	SysSystemMappingDto createMappingSystem(SystemEntityType type, SysSchemaObjectClassDto objectClass);
-
-	void startSynchronization(AbstractSysSyncConfigDto syncConfigCustom);
 
 }

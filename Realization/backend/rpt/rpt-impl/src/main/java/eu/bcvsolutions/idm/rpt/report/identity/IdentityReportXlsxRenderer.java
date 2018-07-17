@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.rpt.renderer;
+package eu.bcvsolutions.idm.rpt.report.identity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +21,6 @@ import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.api.exception.ReportRenderException;
 import eu.bcvsolutions.idm.rpt.api.renderer.AbstractXlsxRenderer;
 import eu.bcvsolutions.idm.rpt.api.renderer.RendererRegistrar;
-import eu.bcvsolutions.idm.rpt.executor.IdentityReportExecutor;
 
 /**
  * Basic identity report xlsx renderer

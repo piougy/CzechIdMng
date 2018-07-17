@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.core.api.domain.RecursionType;
  */
 @Entity
 @Table(name = "idm_role_tree_node", indexes = {
-		@Index(name = "ux_idm_role_tree_node", columnList = "tree_node_id,recursion_type", unique = true),
 		@Index(name = "idx_idm_role_tree_node", columnList = "tree_node_id") })
 public class IdmRoleTreeNode extends IdmAutomaticRole {
 

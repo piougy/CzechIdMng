@@ -149,4 +149,10 @@ public class DefaultIdmLoggingEventService
 	public void deleteAllById(Long eventId) {
 		this.repository.deleteById(eventId);
 	}
+
+	@Override
+	@Transactional
+	public int deleteLowerOrEqualTimestamp(Long timestamp) {
+		return this.repository.deleteLowerOrEqual(timestamp);
+	}
 }

@@ -107,19 +107,6 @@ public class DefaultIdmRoleTreeNodeService
 		//
 		// FIXME: this should be in save internal or in save processor ... can be skipped by publishing raw create event
 		if (isNew(roleTreeNode)) { // create
-			// check if exists same entity for roleId, treeNodeId and recursion type
-			IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
-			filter.setRoleId(roleTreeNode.getRole());
-			filter.setTreeNodeId(roleTreeNode.getTreeNode());
-			filter.setRecursionType(roleTreeNode.getRecursionType());
-			List<IdmRoleTreeNodeDto> content = this.find(filter, null).getContent();
-			if (!content.isEmpty()) {
-				throw new ResultCodeException(CoreResultCode.ROLE_TREE_NODE_TYPE_EXISTS, ImmutableMap.of(
-						"roleId", roleTreeNode.getRole(),
-						"treeNodeId", roleTreeNode.getTreeNode(),
-						"recursionType", roleTreeNode.getRecursionType()));
-			}
-			//
 			EventContext<IdmRoleTreeNodeDto> context = entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.CREATE, roleTreeNode));
 			if (context.isSuspended()) {
 				throw new AcceptedException();

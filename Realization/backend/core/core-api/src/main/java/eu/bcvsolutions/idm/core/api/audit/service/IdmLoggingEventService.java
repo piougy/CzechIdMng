@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.api.audit.service;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventExceptionDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventPropertyDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmLoggingEventFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -21,4 +23,13 @@ public interface IdmLoggingEventService
 	 * @param eventId
 	 */
 	void deleteAllById(Long eventId);
+
+	/**
+	 * Remove all {@link IdmLoggingEventDto}, {@link IdmLoggingEventExceptionDto} and {@link IdmLoggingEventPropertyDto},
+	 * where timestamp is lower or equal thank given. Method is used for quick clear logs.
+	 *
+	 * @param timestamp
+	 * @return
+	 */
+	int deleteLowerOrEqualTimestamp(Long timestamp);
 }

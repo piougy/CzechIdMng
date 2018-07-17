@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.utils.HttpFilterUtils;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
-import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.api.filter.AbstractAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
 
@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager
  */
 @Order(0)
 @Component
-public class JwtIdmAuthenticationFilter implements IdmAuthenticationFilter {
+public class JwtIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(JwtIdmAuthenticationFilter.class);
 

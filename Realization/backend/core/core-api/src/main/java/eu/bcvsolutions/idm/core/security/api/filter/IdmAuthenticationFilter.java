@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.security.api.filter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import eu.bcvsolutions.idm.core.api.service.Configurable;
+
 /**
  * An interface common to all authentication filters in IdM.
  * 
@@ -10,10 +12,15 @@ import javax.servlet.http.HttpServletResponse;
  * @author Radek Tomiška
  * 
  */
-public interface IdmAuthenticationFilter {
+public interface IdmAuthenticationFilter extends Configurable {
 	
 	String AUTHORIZATION_HEADER_NAME = "Authorization";
 	String AUTHENTICATION_TOKEN_NAME = "cidmst";
+	
+	@Override
+	default String getConfigurableType() {
+		return "authentication-filter";
+	}
 
 	/**
 	 * Authenticate user based on authorization token in HTTP header.

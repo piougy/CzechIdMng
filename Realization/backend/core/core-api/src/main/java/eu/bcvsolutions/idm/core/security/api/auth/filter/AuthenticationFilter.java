@@ -51,6 +51,7 @@ public class AuthenticationFilter extends GenericFilterBean {
 		HttpServletResponse response = HttpFilterUtils.asHttp(res);
 		filters.stream()
 			.filter(f -> enabledEvaluator.isEnabled(f))
+			.filter(f -> !f.isDisabled())
 			.filter(f -> isAuthenticated()
 					|| res.isCommitted()
 					|| handleAuthenticationHeader(request, response, f))

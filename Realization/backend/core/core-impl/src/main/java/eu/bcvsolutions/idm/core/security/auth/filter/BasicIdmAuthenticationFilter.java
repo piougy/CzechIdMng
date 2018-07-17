@@ -16,7 +16,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.api.filter.AbstractAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 
 /**
@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
  */
 @Order(100)
 @Component
-public class BasicIdmAuthenticationFilter implements IdmAuthenticationFilter {
+public class BasicIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BasicIdmAuthenticationFilter.class);
 	private static final String AUTHORIZATION_TYPE_BASIC_PREFIX = "Basic ";

@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.HttpFilterUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.api.filter.AbstractAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.security.rest.impl.LoginController;
 
@@ -49,7 +49,7 @@ import eu.bcvsolutions.idm.core.security.rest.impl.LoginController;
  */
 //@Order(999)
 //@Component
-public class TestAppAuthenticationFilter implements IdmAuthenticationFilter {
+public class TestAppAuthenticationFilter extends AbstractAuthenticationFilter {
 	
 	@Autowired
 	private IdmIdentityService identityService;

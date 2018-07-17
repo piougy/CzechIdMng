@@ -15,15 +15,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventExceptionDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmLoggingEventPropertyDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmLoggingEventFilter;
-import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventExceptionService;
-import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventPropertyService;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEvent_;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
  * Long running task for remove old record from event logging tables.
+ * Remove {@link IdmLoggingEventDto}, {@link IdmLoggingEventExceptionDto} and {@link IdmLoggingEventPropertyDto},
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -31,14 +32,13 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
 
 @Service
 @DisallowConcurrentExecution
-@Description("Removes old logs from event logging tables.")
+@Description("Removes old logs from event logging tables (events, eventException and eventProperty).")
 public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RemoveOldLogsTaskExecutor.class);
 	
-	@Autowired private IdmLoggingEventService loggingEventService;
-	@Autowired private IdmLoggingEventExceptionService loggingEventExceptionService;
-	@Autowired private IdmLoggingEventPropertyService loggingEventPropertyService;
+	@Autowired
+	private IdmLoggingEventService loggingEventService;
 	
 	private String PARAMETER_DAYS = "removeRecordOlderThan";
 	private Long days;
@@ -56,41 +56,22 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 			LOG.warn("Parameter {} is not filled. This task will be skipped.", PARAMETER_DAYS);
 			return Boolean.TRUE;
 		}
+		DateTime dateTimeTill = DateTime.now().minusDays(days.intValue());
 		//
 		IdmLoggingEventFilter filter = new IdmLoggingEventFilter();
-		filter.setTill(DateTime.now().minusDays(days.intValue()));
+		filter.setTill(dateTimeTill);
+		
+		// only for get total elements
 		Page<IdmLoggingEventDto> loggingEvents = loggingEventService.find(
-				filter, new PageRequest(0, 100, new Sort(IdmLoggingEvent_.timestmp.getName())));
+				filter, new PageRequest(0, 1, new Sort(IdmLoggingEvent_.timestmp.getName())));
 		//
-		Long exceptionCounter = 0l;
-		boolean canContinue = true;
 		this.count = loggingEvents.getTotalElements();
 		this.setCounter(0l);
 		//
-		while (canContinue) {
-			for (IdmLoggingEventDto event : loggingEvents) {
-				Long eventId = Long.valueOf(event.getId().toString());
-				//
-				LOG.debug("Event id: [{}] will be removed", event.getId());
-				loggingEventExceptionService.deleteByEventId(eventId);
-				loggingEventPropertyService.deleteAllByEventId(eventId);
-				loggingEventService.deleteAllById(eventId);
-				this.increaseCounter();
-				//
-				canContinue = updateState();
-				if (!canContinue) {
-					break;
-				}
-			}
-			//
-			loggingEvents = loggingEventService.find(filter, new PageRequest(0, 100, new Sort(IdmLoggingEvent_.timestmp.getName())));
-			//
-			if (loggingEvents.getContent().isEmpty()) {
-				break;
-			}
-		}
+		int deletedItems = loggingEventService.deleteLowerOrEqualTimestamp(dateTimeTill.getMillis());
+		this.setCounter(Long.valueOf(deletedItems));
 		//
-		LOG.info("Removed logs older than [{}] days was successfully completed. Removed logs: [{}] and their exceptions [{}].", days, this.counter, exceptionCounter);
+		LOG.info("Removed logs older than [{}] days was successfully completed. Removed logs older than: [{}] and their exceptions and properties. Removed logs [{}].", days, this.counter);
 		//
 		return Boolean.TRUE;
 	}

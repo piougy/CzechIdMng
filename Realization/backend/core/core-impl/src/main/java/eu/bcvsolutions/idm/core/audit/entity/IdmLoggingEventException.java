@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.audit.entity;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
@@ -34,7 +35,7 @@ public class IdmLoggingEventException implements BaseEntity {
 	private Long id;
 	
 	@NotNull
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = false, cascade = CascadeType.ALL)
 	@JoinColumn(name = "event_id", referencedColumnName = "event_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )

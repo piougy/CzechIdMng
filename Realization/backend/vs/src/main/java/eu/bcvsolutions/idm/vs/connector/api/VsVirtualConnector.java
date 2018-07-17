@@ -4,6 +4,7 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanCreate;
@@ -50,5 +51,11 @@ public interface VsVirtualConnector extends IcConnector, IcCanRead, IcCanCreate,
 	 * @return
 	 */
 	BasicVirtualConfiguration getVirtualConfiguration();
+
+	/**
+	 * Get instance of IC configuration
+	 * @return
+	 */
+	IcConnectorConfiguration getConfiguration();
 
 }

@@ -65,12 +65,22 @@ public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSyste
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<SysSystemDto> event) {
+		// We want execute this processor only for virtual system
+		SysSystemDto system = event.getContent();
+		Assert.notNull(system);
+		return system.isVirtual();
+	}
+	
 
 	@Override
 	public EventResult<SysSystemDto> process(EntityEvent<SysSystemDto> event) {
 
 		SysSystemDto system = event.getContent();
 		Assert.notNull(system);
+		Assert.notNull(system.getId());
 		//
 		// If exists unresolved vs request, then is not possible to delete
 		// system
@@ -114,7 +124,6 @@ public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSyste
 		systemImplementerService.find(implementerFilter, null).forEach(entity -> {
 			systemImplementerService.delete(entity);
 		});
-
 		return new DefaultEventResult<>(event, this);
 	}
 

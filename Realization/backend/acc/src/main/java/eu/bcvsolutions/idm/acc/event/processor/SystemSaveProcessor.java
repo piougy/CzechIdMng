@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -18,7 +19,6 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
@@ -41,7 +41,7 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 			SysSystemService service,
 			ConfidentialStorage confidentialStorage,
 			SysProvisioningBreakConfigService provisioningBreakConfigService) {
-		super(IdentityEventType.UPDATE, IdentityEventType.CREATE);
+		super(SystemEventType.UPDATE, SystemEventType.CREATE);
 		//
 		Assert.notNull(service);
 		Assert.notNull(confidentialStorage);

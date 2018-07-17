@@ -193,6 +193,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       this.addError(error);
     }
     super.afterSave();
+    this.setState({showLoading: false});
   }
 
   _getIsNew(nextProps) {

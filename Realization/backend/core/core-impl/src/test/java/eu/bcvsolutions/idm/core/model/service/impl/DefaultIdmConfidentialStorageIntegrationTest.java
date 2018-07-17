@@ -20,23 +20,23 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.ChangeConfidentialStorageKey;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ChangeConfidentialStorageKeyTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultCryptService;
@@ -44,7 +44,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Tests for "naive" confidential storage (values are persisted in standard database)
- * and test for LRT {@link ChangeConfidentialStorageKey}. The LRT change confidential
+ * and test for LRT {@link ChangeConfidentialStorageKeyTaskExecutor}. The LRT change confidential
  * storage crypt key.
  * 
  * @author Radek Tomiška
@@ -56,31 +56,36 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	private static final String STORAGE_KEY_TWO = "test_key_two";
 	//
 	@Autowired private IdmConfidentialStorageValueRepository repository;
-	@Autowired private IdmIdentityRepository identityRepository;
-	@Autowired private CryptService cryptService;
 	@Autowired private ConfigurableEnvironment configurableEnviroment;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	@Autowired private ApplicationContext context;
 	//
 	private DefaultIdmConfidentialStorage confidentalStorage;
 	
 	
 	@Before
 	public void initStorage() {
-		confidentalStorage = new DefaultIdmConfidentialStorage(repository, cryptService);
-		loginAsAdmin();
+		confidentalStorage = context.getAutowireCapableBeanFactory().createBean(DefaultIdmConfidentialStorage.class);
 	}
 	
 	@After
 	public void clearData() {
 		repository.deleteByKey(STORAGE_KEY_ONE);
 		repository.deleteByKey(STORAGE_KEY_TWO);
-		super.logout();
+	}
+	
+	@Test
+	public void testOwnerType() {
+		IdmIdentityDto owner = new IdmIdentityDto(UUID.randomUUID());
+		//
+		Assert.assertNotNull(confidentalStorage.getOwnerType(owner));
+		Assert.assertEquals(confidentalStorage.getOwnerType(owner), confidentalStorage.getOwnerType(owner.getClass()));
 	}
 	
 	@Test
 	@Transactional
 	public void testLoadUnexistedValue() {
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);		
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);		
 		
 		Serializable storageValue = confidentalStorage.get(identity.getId(), identity.getClass(), STORAGE_KEY_ONE);	
 		
@@ -96,7 +101,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test
 	@Transactional
 	public void testSaveValue() {
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		
 		String value = "one";
 		confidentalStorage.save(identity.getId(), identity.getClass(), STORAGE_KEY_ONE, value);
@@ -109,7 +114,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void testSaveValues() {
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		
 		ArrayList<String> values = Lists.newArrayList("one", "two", "three");
 		confidentalStorage.save(identity.getId(), identity.getClass(), STORAGE_KEY_ONE, values);		
@@ -123,7 +128,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void testSaveMoreKeys() {
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		
 		String value = "one";
 		confidentalStorage.save(identity.getId(), identity.getClass(), STORAGE_KEY_ONE, value);		
@@ -142,7 +147,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test
 	@Transactional
 	public void testEditSavedValues() {	
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		
 		String value = "one";
 		confidentalStorage.save(identity.getId(), identity.getClass(), STORAGE_KEY_ONE, value);
@@ -150,16 +155,16 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		assertEquals(value, confidentalStorage.get(identity.getId(), identity.getClass(), STORAGE_KEY_ONE));
 		
 		value = "one_update";
-		confidentalStorage.save(identity.getId(), identity.getClass(), STORAGE_KEY_ONE, value);
+		confidentalStorage.save(identity, STORAGE_KEY_ONE, value);
 		
-		assertEquals(value, confidentalStorage.get(identity.getId(), identity.getClass(), STORAGE_KEY_ONE));
+		assertEquals(value, confidentalStorage.get(identity, STORAGE_KEY_ONE));
 	}
 	
 	@Test
 	@Transactional
 	public void testSaveValueDifferentOwner() {	
-		IdmIdentity identityOne = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
-		IdmIdentity identityTwo = identityRepository.findOneByUsername(InitTestData.TEST_USER_2);
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);	
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);	
 		
 		String valueOne = "one";
 		confidentalStorage.save(identityOne.getId(), identityOne.getClass(), STORAGE_KEY_ONE, valueOne);		
@@ -174,7 +179,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void testOverrideSavedValues() {	
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		
 		String value = "one";
 		confidentalStorage.save(identity.getId(), identity.getClass(), STORAGE_KEY_ONE, value);
@@ -192,8 +197,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test
 	@Transactional
 	public void testDeleteSavedValues() {
-		IdmIdentity identityOne = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
-		IdmIdentity identityTwo = identityRepository.findOneByUsername(InitTestData.TEST_USER_2);
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);	
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);	
 		
 		String valueOne = "one";
 		confidentalStorage.save(identityOne.getId(), IdmIdentity.class, STORAGE_KEY_ONE, valueOne);		
@@ -208,15 +213,15 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, STORAGE_KEY_ONE));
 		assertEquals(valueTwo, confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, STORAGE_KEY_ONE));
 		
-		confidentalStorage.delete(identityTwo.getId(), IdmIdentity.class, STORAGE_KEY_ONE);
+		confidentalStorage.delete(identityTwo, STORAGE_KEY_ONE);
 		
 		assertNull(confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, STORAGE_KEY_ONE));
 	}
 	
 	@Test
 	@Transactional
-	public void testDeleteSavedValuesByOwner() {
-		IdmIdentity identityOne = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+	public void testDeleteSavedValuesByOwnerId() {
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);	
 		String valueOne = "one";
 		confidentalStorage.save(identityOne.getId(), IdmIdentity.class, STORAGE_KEY_ONE, valueOne);		
 		String valueTwo = "two";
@@ -233,21 +238,41 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	@Transactional
+	public void testDeleteSavedValuesByOwner() {
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);	
+		String valueOne = "one";
+		confidentalStorage.save(identityOne, STORAGE_KEY_ONE, valueOne);		
+		String valueTwo = "two";
+		confidentalStorage.save(identityOne.getId(), IdmIdentity.class, STORAGE_KEY_TWO, valueTwo);
+		
+		assertEquals(valueOne, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, STORAGE_KEY_ONE));
+		assertEquals(valueTwo, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, STORAGE_KEY_TWO));
+		
+		confidentalStorage.deleteAll(identityOne);
+		
+		assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, STORAGE_KEY_ONE));
+		assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, STORAGE_KEY_TWO));
+	}
+	
+	@Test
+	@Transactional
 	public void testReadWithType() {
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		
 		String value = "one";
 		confidentalStorage.save(identity.getId(), IdmIdentity.class, STORAGE_KEY_ONE, value);
-
+		//
 		String readValue = confidentalStorage.get(identity.getId(), IdmIdentity.class, STORAGE_KEY_ONE, String.class);
-		
+		assertEquals(value, readValue);
+		//
+		readValue = confidentalStorage.get(identity, STORAGE_KEY_ONE, String.class);
 		assertEquals(value, readValue);
 	}
 	
 	@Transactional
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadWrongType() {
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		
 		String value = "one";
 		confidentalStorage.save(identity.getId(), IdmIdentity.class, STORAGE_KEY_ONE, value);
@@ -258,7 +283,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test
 	@Transactional
 	public void testReadWrongTypeWithDefaultValue() {
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		
 		String value = "one";
 		confidentalStorage.save(identity.getId(), IdmIdentity.class, STORAGE_KEY_ONE, value);
@@ -267,12 +292,16 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		Integer readValue = confidentalStorage.get(identity.getId(), IdmIdentity.class, STORAGE_KEY_ONE, Integer.class, defaultValue);
 		
 		assertEquals(defaultValue, readValue);
+		
+		readValue = confidentalStorage.get(identity, STORAGE_KEY_ONE, Integer.class, defaultValue);
+		
+		assertEquals(defaultValue, readValue);
 	}
 	
 	@Test
 	@Transactional
 	public void testLoadUnexistedValueWithDefault() {
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 
 		assertNull(confidentalStorage.get(identity.getId(), IdmIdentity.class, STORAGE_KEY_ONE, Integer.class));
 		
@@ -285,12 +314,12 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test
 	@Transactional
 	public void testReadGuardedString() {
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		
 		String password = "heslo";
 		confidentalStorage.save(identity.getId(), IdmIdentity.class, STORAGE_KEY_ONE, new GuardedString(password).asString());
 		
-		GuardedString savedPassword = confidentalStorage.getGuardedString(identity.getId(), IdmIdentity.class, STORAGE_KEY_ONE);
+		GuardedString savedPassword = confidentalStorage.getGuardedString(identity, STORAGE_KEY_ONE);
 		
 		assertEquals(password, savedPassword.asString());
 	}
@@ -298,7 +327,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test
 	@Transactional
 	public void testSaveAndReadGuardedString() {
-		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_2);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		
 		String password = "heslo_save";
 		confidentalStorage.saveGuardedString(identity.getId(), IdmIdentity.class, STORAGE_KEY_ONE, new GuardedString(password));
@@ -336,7 +365,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		
 		confidentalStorage.saveGuardedString(identityOne.getId(), IdmIdentity.class, identityOne.getUsername(), new GuardedString(passwordOne));
 		confidentalStorage.saveGuardedString(identityTwo.getId(), IdmIdentity.class, identityTwo.getUsername(), new GuardedString(passwordTwo));
-		confidentalStorage.saveGuardedString(identityThree.getId(), IdmIdentity.class, identityThree.getUsername(), new GuardedString(passwordThree));
+		confidentalStorage.saveGuardedString(identityThree, identityThree.getUsername(), new GuardedString(passwordThree));
 
 		Serializable serializable = confidentalStorage.get(identityOne.getId(), IdmIdentity.class, identityOne.getUsername());
 		assertEquals(passwordOne, serializable);
@@ -399,15 +428,15 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 
 	/**
 	 * Create and run task for change confidential storage key.
-	 * Task {@link ChangeConfidentialStorageKey}
+	 * Task {@link ChangeConfidentialStorageKeyTaskExecutor}
 	 *
 	 * @param oldKey
 	 * @return
 	 */
 	private void runChangeConfidentialStorageKeyTask(String oldKey) {
-		ChangeConfidentialStorageKey task = new ChangeConfidentialStorageKey();
+		ChangeConfidentialStorageKeyTaskExecutor task = new ChangeConfidentialStorageKeyTaskExecutor();
 		Map<String, Object> properties = new HashMap<>();
-		properties.put(ChangeConfidentialStorageKey.PARAMETER_OLD_CONFIDENTIAL_KEY, oldKey);
+		properties.put(ChangeConfidentialStorageKeyTaskExecutor.PARAMETER_OLD_CONFIDENTIAL_KEY, oldKey);
 		task.init(properties);
 		//
 		Boolean executed = longRunningTaskManager.executeSync(task);

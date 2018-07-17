@@ -76,6 +76,19 @@ public interface IdmIdentityService extends
 	 */
 	List<IdmIdentityDto> findValidByRole(UUID roleId);
 	
+
+	/**
+	 * Find valid identities by assigned currently valid role. Identities with valid identity roles from valid contracts only.
+	 * 
+	 * @param roleId
+	 * @param pageable
+	 * @return Page of identities with assigned currently valid role
+	 * @see {@link #findAllByRole(UUID)} when you need to return identities with invalid role assigned
+	 * @since 8.2.0
+	 */
+	@Beta
+	Page<IdmIdentityDto> findValidByRolePage(UUID roleId, Pageable pageable);
+	
 	/**
 	 * Find all identities by assigned role name. Returns even identities with invalid roles (future valid and expired) and invalid identities.
 	 * 
@@ -195,4 +208,5 @@ public interface IdmIdentityService extends
 	 * @return
 	 */
 	IdentityState evaluateState(UUID identityId);
+
 }

@@ -140,6 +140,8 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormDefinitionDto> getDefinitions(Identifiable owner, BasePermission... permission) {
+		Assert.notNull(owner);
+		//
 		return getDefinitions(owner.getClass(), permission);
 	}
 

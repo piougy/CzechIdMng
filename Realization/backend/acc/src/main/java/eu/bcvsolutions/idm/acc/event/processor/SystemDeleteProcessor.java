@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
@@ -32,7 +33,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 /**
  * Delete system - ensures referential integrity
@@ -63,7 +63,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 			AccAccountRepository accountRepository, SysSystemEntityService systemEntityService,
 			SysProvisioningBreakConfigService provisioningBreakConfigService,
 			ConfidentialStorage confidentialStorage) {
-		super(IdentityEventType.DELETE);
+		super(SystemEventType.DELETE);
 		//
 		Assert.notNull(service);
 		Assert.notNull(provisioningOperationRepository);

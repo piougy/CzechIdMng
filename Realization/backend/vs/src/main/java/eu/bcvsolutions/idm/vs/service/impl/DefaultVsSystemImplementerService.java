@@ -12,6 +12,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -21,7 +22,6 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
-import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.dto.VsSystemImplementerDto;
 import eu.bcvsolutions.idm.vs.dto.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer;
@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 public class DefaultVsSystemImplementerService
 		extends AbstractReadWriteDtoService<VsSystemImplementerDto, VsSystemImplementer, VsSystemImplementerFilter>
 		implements VsSystemImplementerService {
-	
+
 	private final IdmIdentityService identityService;
 
 	@Autowired
@@ -74,19 +74,26 @@ public class DefaultVsSystemImplementerService
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(VirtualSystemGroupPermission.VSREQUEST, getEntityClass());
+		return null;
 	}
 
 	@Override
 	public List<IdmIdentityDto> findRequestImplementers(UUID vsSystemId) {
+		return this.findRequestImplementers(vsSystemId, 1000);
+	}
+	
+	@Override
+	public List<IdmIdentityDto> findRequestImplementers(UUID vsSystemId, long limit) {
 		if (vsSystemId == null) {
 			return null;
 		}
+
 		VsSystemImplementerFilter filter = new VsSystemImplementerFilter();
 		filter.setSystemId(vsSystemId);
 		List<VsSystemImplementerDto> requestImplementers = this.find(filter, null).getContent();
 		Set<IdmIdentityDto> identities = requestImplementers.stream()//
 				.filter(sysImp -> sysImp.getIdentity() != null)//
+				.limit(limit)//
 				.map(VsSystemImplementerDto::getIdentity)//
 				.map(identityService::get)//
 				.collect(Collectors.toSet());
@@ -98,7 +105,11 @@ public class DefaultVsSystemImplementerService
 				.collect(Collectors.toSet());
 
 		roles.forEach(role -> {
-			identities.addAll(identityService.findValidByRole(role));
+			if (identities.size() < limit) {
+				List<IdmIdentityDto> identitiesFromRole = identityService
+						.findValidByRolePage(role, new PageRequest(0, (int) limit - identities.size())).getContent();
+				identities.addAll(identitiesFromRole);
+			}
 		});
 		return new ArrayList<>(identities);
 	}

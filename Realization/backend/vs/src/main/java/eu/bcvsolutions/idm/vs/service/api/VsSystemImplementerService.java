@@ -20,9 +20,19 @@ public interface VsSystemImplementerService extends
 
 	/**
 	 * Find all implementers for this system. Merge all identities and identities from all roles.
+	 * Maximum of 1000 implementers are returned.
+	 * 
 	 * @param vsSystemId
 	 * @return
 	 */
 	List<IdmIdentityDto> findRequestImplementers(UUID vsSystemId);
+	
+	/**
+	 * Find all implementers for this system. Merge all identities and identities from all roles.
+	 * @param vsSystemId
+	 * @param limit - Max number of returned implementers
+	 * @return
+	 */
+	List<IdmIdentityDto> findRequestImplementers(UUID vsSystemId, long limit);
 
 }

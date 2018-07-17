@@ -4,8 +4,6 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
-import org.springframework.data.repository.query.Param;
-
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue;
 
@@ -25,10 +23,7 @@ public interface IdmConfidentialStorageValueRepository extends AbstractEntityRep
 	 * @param key
 	 * @return
 	 */
-	IdmConfidentialStorageValue findOneByOwnerIdAndOwnerTypeAndKey(
-			@Param("ownerId") UUID ownerId,
-			@Param("ownerType") String ownerType,			
-			@Param("key") String key);
+	IdmConfidentialStorageValue findOneByOwnerIdAndOwnerTypeAndKey(UUID ownerId, String ownerType, String key);
 	
 	/**
 	 * Deletes all values by given key from all owners
@@ -37,7 +32,7 @@ public interface IdmConfidentialStorageValueRepository extends AbstractEntityRep
 	 * @return
 	 */
 	@Transactional
-	int deleteByKey(@Param("key") String key);
+	int deleteByKey(String key);
 
 	/**
 	 * Deletes all values by given owner. Use this method after delete whole owner.
@@ -48,7 +43,5 @@ public interface IdmConfidentialStorageValueRepository extends AbstractEntityRep
 	 * @since 7.6.0
 	 */
 	@Transactional
-	int deleteByOwnerIdAndOwnerType(
-			@Param("ownerId") UUID ownerId,
-			@Param("ownerType") String ownerType);
+	int deleteByOwnerIdAndOwnerType(UUID ownerId, String ownerType);
 }

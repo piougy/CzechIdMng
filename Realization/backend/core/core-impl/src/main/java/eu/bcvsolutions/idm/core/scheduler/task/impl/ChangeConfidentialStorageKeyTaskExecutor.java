@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfidentialStorageValueDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -35,15 +34,15 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 @Service
 @DisallowConcurrentExecution
 @Description("Change all crypted values in confidential storage to new. This task required start after you changed key!")
-public class ChangeConfidentialStorageKey extends AbstractSchedulableTaskExecutor<Boolean> {
+public class ChangeConfidentialStorageKeyTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ChangeConfidentialStorageKey.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ChangeConfidentialStorageKeyTaskExecutor.class);
 
-	public static String PARAMETER_OLD_CONFIDENTIAL_KEY = "oldKey";
+	public static String PARAMETER_OLD_CONFIDENTIAL_KEY = "oldCryptKey";
 
-	private GuardedString oldKey = null;
+	private GuardedString oldCryptKey = null;
 	private int PAGE_SIZE = 100;
-	private int MIN_LENGTH_KEY = 16;
+	private int KEY_LENGTH = 16;
 
 	@Autowired
 	private IdmConfidentialStorageValueService confidetialStorageValueService;
@@ -60,12 +59,12 @@ public class ChangeConfidentialStorageKey extends AbstractSchedulableTaskExecuto
 			LOG.error("Old key cannot be null or empty.");
 			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Old key cannot be null or empty.");
 		}
-		if (oldKeyInString.length() < MIN_LENGTH_KEY) {
-			LOG.error("Length of old key cannot be lower than [{}].", MIN_LENGTH_KEY);
+		if (oldKeyInString.length() != KEY_LENGTH) {
+			LOG.error("Length of old key has to be [{}] characters.", KEY_LENGTH);
 			throw new ResultCodeException(CoreResultCode.BAD_VALUE,
-					MessageFormat.format("Length of old key cannot be lower than [{0}].", MIN_LENGTH_KEY));
+					MessageFormat.format("Length of old key has to be [{0}] characters.", KEY_LENGTH));
 		}
-		this.oldKey = new GuardedString(oldKeyInString);
+		this.oldCryptKey = new GuardedString(oldKeyInString);
 	}
 
 	@Override
@@ -79,6 +78,7 @@ public class ChangeConfidentialStorageKey extends AbstractSchedulableTaskExecuto
 	public Boolean process() {
 		int page = 0;
 		boolean canContinue = true;
+		counter = 0L;
 		//
 		do {
 			Page<IdmConfidentialStorageValueDto> values = confidetialStorageValueService.find(new PageRequest(page, PAGE_SIZE));
@@ -92,7 +92,15 @@ public class ChangeConfidentialStorageKey extends AbstractSchedulableTaskExecuto
 				Assert.notNull(value);
 				Assert.notNull(value.getId());
 				//
-				processItem(value);
+				try {
+					confidentialStorage.changeCryptKey(value, oldCryptKey);
+					counter++;
+					//
+					this.logItemProcessed(value, new OperationResult.Builder(OperationState.EXECUTED).build());
+				} catch (Exception ex) {
+					LOG.error("Error during change confidential storage key. For key [{}].", value.getKey(), ex);
+					this.logItemProcessed(value, new OperationResult.Builder(OperationState.EXCEPTION).setCause(ex).build());
+				}
 				//
  				canContinue &= this.updateState();
 			}
@@ -102,18 +110,5 @@ public class ChangeConfidentialStorageKey extends AbstractSchedulableTaskExecuto
 		} while (canContinue);
 
 		return Boolean.TRUE;
-	}
-
-	private void processItem(IdmConfidentialStorageValueDto dto) {
-		try {
-			Class<?> forName = Class.forName(dto.getOwnerType());
-			Class<? extends Identifiable> asSubclass = forName.asSubclass(Identifiable.class);
-			//
-			confidentialStorage.changeCryptKey(dto.getOwnerId(), asSubclass, dto.getKey(), oldKey);
-		} catch (ClassNotFoundException e) {
-			LOG.error("Error during change confidential storage key. For key [{}].", dto.getKey(), e);
-			this.logItemProcessed(dto, new OperationResult.Builder(OperationState.EXCEPTION).setCause(e).build());
-		}
-		this.logItemProcessed(dto, new OperationResult.Builder(OperationState.EXECUTED).build());
 	}
 }

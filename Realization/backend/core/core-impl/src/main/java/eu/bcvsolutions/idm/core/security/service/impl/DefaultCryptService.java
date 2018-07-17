@@ -185,7 +185,7 @@ public class DefaultCryptService implements CryptService {
 				APPLICATION_PROPERTIES_KEY, 
 				APPLICATION_PROPERTIES_KEY_PATH,
 				// TODO: move to configuration, use version property etc.
-				"https://wiki.czechidm.com/devel/dev/security/confidential-storage");
+				"https://wiki.czechidm.com/devel/documentation/security/dev/confidential-storage");
 	}
 	
 	/**

@@ -583,7 +583,7 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 
 		// Find change for firstName value
 		boolean findCorrectChangedFirstName = wish.getAttributes().stream()
-				.filter(attr -> attr.getValue().getValue().equals(changed)
+				.filter(attr -> attr.getValue() != null && attr.getValue().getValue().equals(changed)
 						&& attr.getValue().getOldValue().equals(firstName)
 						&& VsValueChangeType.UPDATED == attr.getValue().getChange())
 				.findFirst().isPresent();
@@ -591,7 +591,7 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 
 		// Find change for lastName value
 		boolean findCorrectChangedLastName = wish.getAttributes().stream()
-				.filter(attr -> attr.getValue().getValue().equals(changed)
+				.filter(attr -> attr.getValue() != null && attr.getValue().getValue().equals(changed)
 						&& attr.getValue().getOldValue().equals(lastName)
 						&& VsValueChangeType.UPDATED == attr.getValue().getChange())
 				.findFirst().isPresent();

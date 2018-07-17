@@ -22,7 +22,6 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
-import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.dto.VsSystemImplementerDto;
 import eu.bcvsolutions.idm.vs.dto.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer;
@@ -75,7 +74,7 @@ public class DefaultVsSystemImplementerService
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(VirtualSystemGroupPermission.VSREQUEST, getEntityClass());
+		return null;
 	}
 
 	@Override
@@ -84,7 +83,7 @@ public class DefaultVsSystemImplementerService
 	}
 	
 	@Override
-	public List<IdmIdentityDto> findRequestImplementers(UUID vsSystemId, long max) {
+	public List<IdmIdentityDto> findRequestImplementers(UUID vsSystemId, long limit) {
 		if (vsSystemId == null) {
 			return null;
 		}
@@ -94,7 +93,8 @@ public class DefaultVsSystemImplementerService
 		List<VsSystemImplementerDto> requestImplementers = this.find(filter, null).getContent();
 		Set<IdmIdentityDto> identities = requestImplementers.stream()//
 				.filter(sysImp -> sysImp.getIdentity() != null)//
-				.limit(max).map(VsSystemImplementerDto::getIdentity)//
+				.limit(limit)//
+				.map(VsSystemImplementerDto::getIdentity)//
 				.map(identityService::get)//
 				.collect(Collectors.toSet());
 
@@ -105,9 +105,9 @@ public class DefaultVsSystemImplementerService
 				.collect(Collectors.toSet());
 
 		roles.forEach(role -> {
-			if (identities.size() < max) {
+			if (identities.size() < limit) {
 				List<IdmIdentityDto> identitiesFromRole = identityService
-						.findValidByRolePage(role, new PageRequest(0, (int) max)).getContent();
+						.findValidByRolePage(role, new PageRequest(0, (int) limit - identities.size())).getContent();
 				identities.addAll(identitiesFromRole);
 			}
 		});

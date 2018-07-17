@@ -613,6 +613,8 @@ public class DefaultIdmIdentityService
 	/**
 	 * Specification for find valid identities by role
 	 * 
+	 * TODO: move to filter builder => standard identity filter, make a test
+	 * 
 	 * @param roleId
 	 * @return
 	 */

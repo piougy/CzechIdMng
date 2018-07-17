@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -27,7 +28,7 @@ import eu.bcvsolutions.idm.vs.service.api.VsSystemService;
  *
  */
 @Component("vsSystemSaveProcessor")
-@Description("Ensures referential integrity. Cannot be disabled.")
+@Description("Ensures update configuration of virtual system (form definition, implementers). Is invoke after SysSystem save.")
 public class SystemSaveProcessor extends AbstractEntityEventProcessor<SysSystemDto> {
 
 	public static final String PROCESSOR_NAME = "system-save-processor";
@@ -35,7 +36,7 @@ public class SystemSaveProcessor extends AbstractEntityEventProcessor<SysSystemD
 	private VsSystemService vsSystemService;
 
 	public SystemSaveProcessor() {
-		super(SystemEventType.UPDATE, SystemEventType.CREATE);
+		super(SystemEventType.UPDATE, SystemEventType.CREATE, SystemEventType.EAV_SAVE);
 	}
 
 	@Override
@@ -71,12 +72,13 @@ public class SystemSaveProcessor extends AbstractEntityEventProcessor<SysSystemD
 	public EventResult<SysSystemDto> process(EntityEvent<SysSystemDto> event) {
 
 		SysSystemDto system = event.getContent();
-		UUID systemId = system.getId();
 		Assert.notNull(system);
+		UUID systemId = system.getId();
 		Assert.notNull(systemId);
-		Assert.notNull(system.getConnectorKey());
+		SysConnectorKeyDto connectorKey = system.getConnectorKey();
+		Assert.notNull(connectorKey);
 
-		VsVirtualConnector virtualConnector = vsSystemService.getVirtualConnector(systemId, system.getConnectorKey().getFullName());
+		VsVirtualConnector virtualConnector = vsSystemService.getVirtualConnector(systemId, connectorKey.getFullName());
 		Assert.notNull(virtualConnector);
 
 		// Update configuration (implementers, definition)

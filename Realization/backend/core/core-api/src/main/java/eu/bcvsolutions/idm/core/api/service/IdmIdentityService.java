@@ -86,6 +86,7 @@ public interface IdmIdentityService extends
 	 * @see {@link #findAllByRole(UUID)} when you need to return identities with invalid role assigned
 	 * @since 8.2.0
 	 */
+	@Beta
 	Page<IdmIdentityDto> findValidByRolePage(UUID roleId, Pageable pageable);
 	
 	/**

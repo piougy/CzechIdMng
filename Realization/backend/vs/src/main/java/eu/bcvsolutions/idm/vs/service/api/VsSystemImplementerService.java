@@ -30,9 +30,9 @@ public interface VsSystemImplementerService extends
 	/**
 	 * Find all implementers for this system. Merge all identities and identities from all roles.
 	 * @param vsSystemId
-	 * @param max - Max number of returned implementers
+	 * @param limit - Max number of returned implementers
 	 * @return
 	 */
-	List<IdmIdentityDto> findRequestImplementers(UUID vsSystemId, long max);
+	List<IdmIdentityDto> findRequestImplementers(UUID vsSystemId, long limit);
 
 }

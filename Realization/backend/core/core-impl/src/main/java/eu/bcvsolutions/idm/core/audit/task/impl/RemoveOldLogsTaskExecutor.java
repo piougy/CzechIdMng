@@ -67,6 +67,7 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 		//
 		this.count = loggingEvents.getTotalElements();
 		this.setCounter(0l);
+		this.updateState();
 		//
 		int deletedItems = loggingEventService.deleteLowerOrEqualTimestamp(dateTimeTill.getMillis());
 		this.setCounter(Long.valueOf(deletedItems));

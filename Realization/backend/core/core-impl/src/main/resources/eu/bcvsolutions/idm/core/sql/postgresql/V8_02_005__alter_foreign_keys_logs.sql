@@ -15,5 +15,5 @@ DROP CONSTRAINT logging_event_property_event_id_fkey;
 ALTER TABLE logging_event_exception ADD CONSTRAINT
 	logging_event_exception_event_id_fkey FOREIGN KEY (event_id) REFERENCES logging_event(event_id) ON DELETE CASCADE;
 
-	ALTER TABLE logging_event_property ADD CONSTRAINT
+ALTER TABLE logging_event_property ADD CONSTRAINT
 	logging_event_property_event_id_fkey FOREIGN KEY (event_id) REFERENCES logging_event(event_id) ON DELETE CASCADE;

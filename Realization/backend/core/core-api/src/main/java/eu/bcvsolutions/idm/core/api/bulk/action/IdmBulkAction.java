@@ -7,6 +7,7 @@ import org.springframework.plugin.core.Plugin;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -77,4 +78,11 @@ public interface IdmBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 	 * @return
 	 */
 	List<String> getAuthorities();
+
+	/**
+	 * Prevalidate method is called before start the action. It used for show additional informations to the user.
+	 * 
+	 * @return
+	 */
+	ResultModels prevalidate();
 }

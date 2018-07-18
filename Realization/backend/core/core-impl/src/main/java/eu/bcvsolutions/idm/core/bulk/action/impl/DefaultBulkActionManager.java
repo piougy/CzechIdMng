@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.bulk.action.IdmBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -71,6 +72,17 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		//
 		action.setAuthorities(executor.getAuthorities());
 		return action;
+	}
+	
+	public ResultModels prevalidate(IdmBulkActionDto action) {
+		AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> executor = getOperationForDto(action);
+		//
+		executor = (AbstractBulkAction<?, ?>) AutowireHelper.createBean(executor.getClass());
+		//
+		executor.setAction(action);
+		//
+		// Prevalidate before execute
+		return executor.prevalidate();
 	}
 	
 	@Override

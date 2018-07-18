@@ -41,7 +41,7 @@ public class IdentityDeleteBulkAction extends AbstractRemoveBulkAction<IdmIdenti
 
 	@Override
 	public int getOrder() {
-		return super.getOrder() + 300;
+		return super.getOrder() + 10000;
 	}
 
 	@Override

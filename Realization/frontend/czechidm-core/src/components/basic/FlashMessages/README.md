@@ -41,3 +41,4 @@ this.context.store.dispatch(addMessage({message : 'Identity john.doe was success
 | level  | ["success", "info", "warning", "error"]:optional   | Message level / color | "success" |
 | position  | ["tr", "tc"]:optional   | Message position. Default "tr" | "tc" for errors and warnings, "tr" others |
 | date  | date  | Message date | new Date() |
+| showHtmlText | boolean | Show text as HTML (dangerouslySetInnerHTML) | false |

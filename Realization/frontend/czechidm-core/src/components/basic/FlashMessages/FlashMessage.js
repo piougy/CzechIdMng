@@ -18,7 +18,7 @@ export default class FlashMessage extends AbstractContextComponent {
   }
 
   render() {
-    const { rendered, message, showDate, onClose, style, level, icon, className, buttons, children } = this.props;
+    const { rendered, message, showDate, onClose, style, level, icon, className, buttons, children, showHtmlText } = this.props;
     //
     if (!rendered || !message) {
       return null;
@@ -48,6 +48,7 @@ export default class FlashMessage extends AbstractContextComponent {
         text={ message.message }
         onClose={ onClose }
         style={ style }
+        showHtmlText= { showHtmlText }
         className={ className }
         buttons={ buttons }>
         { children }
@@ -68,7 +69,8 @@ FlashMessage.propTypes = {
   /**
    * Action buttons
    */
-  buttons: PropTypes.arrayOf(PropTypes.node)
+  buttons: PropTypes.arrayOf(PropTypes.node),
+  showHtmlText: PropTypes.bool
 };
 FlashMessage.defaultProps = {
   level: null,
@@ -76,5 +78,6 @@ FlashMessage.defaultProps = {
   message: null,
   showDate: false,
   icon: null,
-  buttons: []
+  buttons: [],
+  showHtmlText: false
 };

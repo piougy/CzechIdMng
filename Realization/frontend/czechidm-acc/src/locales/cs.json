@@ -1337,6 +1337,12 @@
           }
         }
       }
+    },
+    "bulk-action": {
+      "role-acm-bulk-action": {
+        "label": "Provést přepočet účtů",
+        "help": "Tato operace vyvolá pro každou vybranou roli <strong>přepočet účtů</strong>. Přepočet bude proveden pro všechny uživatele s danou rolí. Samotný přepočet i následný provisioning je prováděn <strong>asynchroně</strong>. Postup můžete sledovat v agendě spravující <strong>Události</strong>."
+      }
     }
   },
   "error": {
@@ -1679,6 +1685,14 @@
     "ROLE_ACCOUNT_NOT_FOUND": {
       "title": "'Role account' nenalezen",
       "message": "'Role account' nenalezen pro id účtu [{{account}}]."
+    },
+    "ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES": {
+      "message": "Role <strong>{{role}}</strong> obsahuje  <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele.",
+      "title": ""
+    },
+    "ROLE_ACM_BULK_ACTION_NONE_IDENTITIES": {
+      "message": "Žádná z vybranných rolí <strong>neobsahuje</strong> vazbu na uživatele.",
+      "title": ""
     }
   },
   "processor": {

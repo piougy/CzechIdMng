@@ -8,6 +8,9 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 /**
  * Enum class for formatting response messages (mainly errors). 
  * Every enum contains a string message and corresponding https HttpStatus code.
+ * 
+ * @author svandav
+ * @author Radek Tomiška
  */
 public enum AccResultCode implements ResultCode {
 	// connector
@@ -114,10 +117,11 @@ public enum AccResultCode implements ResultCode {
 	// Role system
 	ROLE_SYSTEM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "Duplicated role mapping. Role [%s] with mapping on same system [%s] already exists!"),
 	ACCOUNT_CANNOT_BE_READ_FROM_TARGET(HttpStatus.BAD_REQUEST, "Account [%s] cannot be read from the target system [%s]!"),
-	ROLE_ACCOUNT_NOT_FOUND(HttpStatus.BAD_REQUEST, "No role account found for account id [%s] !");
-	
-	
-	
+	ROLE_ACCOUNT_NOT_FOUND(HttpStatus.BAD_REQUEST, "No role account found for account id [%s] !"),
+	// Role bulk operations
+	ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES(HttpStatus.OK, "Role [%s] has [%s] role-identities."),
+	ROLE_ACM_BULK_ACTION_NONE_IDENTITIES(HttpStatus.NOT_FOUND, "No role has any  role-identities.");
+
 	private final HttpStatus status;
 	private final String message;
 	

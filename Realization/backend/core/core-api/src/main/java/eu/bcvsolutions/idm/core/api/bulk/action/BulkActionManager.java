@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.bulk.action;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -28,5 +29,7 @@ public interface BulkActionManager {
 	 * @return
 	 */
 	IdmBulkActionDto processAction(IdmBulkActionDto actionDto);
+
+	ResultModels prevalidate(IdmBulkActionDto bulkAction);
 	
 }

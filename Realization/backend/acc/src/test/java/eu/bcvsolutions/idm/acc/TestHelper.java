@@ -123,6 +123,11 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	TestResource findResource(String uid);
 	
 	/**
+	 * Delete all data from the target system
+	 */
+	void deleteAllResourceData();
+	
+	/**
 	 * Saves resource on target system
 	 * 
 	 * TODO: support merge (persist only now) 
@@ -160,6 +165,11 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 */
 	SysSystemMappingDto createMappingSystem(SystemEntityType type, SysSchemaObjectClassDto objectClass);
 
+	/**
+	 * Start synchronization by given sync config
+	 * 
+	 * @param syncConfigCustom
+	 */
 	void startSynchronization(AbstractSysSyncConfigDto syncConfigCustom);
 
 }

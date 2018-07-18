@@ -2,9 +2,8 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { FormDefinitionAttributesValuesManager, DataManager } from '../../redux';
+import { FormDefinitionAttributesValuesManager } from '../../redux';
 import * as Utils from '../../utils';
-import SearchParameters from '../../domain/SearchParameters';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 
 const manager = new FormDefinitionAttributesValuesManager();
@@ -62,35 +61,29 @@ class FormValuesTable extends Advanced.AbstractTableContent {
       <Advanced.Table
         ref="table"
         uiKey={uiKey}
-        // showRowSelection={SecurityManager.hasAuthority('FORMATTRIBUTE_DELETE')}
         manager={manager}
         forceSearchParameters={forceSearchParameters}
-        // rowClass={({ rowIndex, data }) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
         filter={
           <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
             <Basic.AbstractForm ref="filterForm">
               <Basic.Row>
-                <div className="col-lg-6">
+                <Basic.Col lg={ 6 }>
                   <Advanced.Filter.TextField
                     ref="text"
                     placeholder={this.i18n('filter.text.placeholder')} />
-                </div>
-                <div className="col-lg-6 text-right">
+                </Basic.Col>
+                <Basic.Col lg={ 6 } className="text-right">
                   <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)} />
-                </div>
+                </Basic.Col>
               </Basic.Row>
               <Basic.Row>
-                <div className="col-lg-4">
+                <Basic.Col lg={ 6 }>
                   <Basic.EnumSelectBox
                     ref="persistentType"
                     placeholder={this.i18n('filter.type.placeholder')}
                     multiSelect={false}
                     enum={PersistentTypeEnum}/>
-                </div>
-              </Basic.Row>
-              <Basic.Row>
-                <div className="col-lg-6">
-                </div>
+                </Basic.Col>
               </Basic.Row>
             </Basic.AbstractForm>
           </Advanced.Filter>
@@ -134,9 +127,7 @@ FormValuesTable.defaultProps = {
 };
 
 function select(state, component) {
-  const { uiKey } = component;
   return {
-    _searchParameters: Utils.Ui.getSearchParameters(state, uiKey),
   };
 }
 

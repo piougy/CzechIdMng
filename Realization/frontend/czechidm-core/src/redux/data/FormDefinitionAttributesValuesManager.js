@@ -36,10 +36,8 @@ export default class FormDefinitionAttributesValuesManager extends EntityManager
             cb(json, null);
           }
           let attributesValues = new Immutable.Map();
-          console.log('json ' + json);
           json._embedded.formValues.forEach(item => {
             attributesValues = attributesValues.set(item.id, item);
-            console.log('item ' + item);
           });
           dispatch(this.dataManager.receiveData(uiKey, attributesValues));
         })

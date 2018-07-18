@@ -26,7 +26,7 @@ export default class FormAttributeValues extends Basic.AbstractContent {
       <Basic.Panel className={'no-border last'}>
         <Basic.PanelHeader text={this.i18n('title')} />
         <Basic.PanelBody style={{ padding: 0 }}>
-          <FormValuesTable uiKey="form-values-table" forceSearchParameters={forceSearchParameters} />
+          <FormValuesTable uiKey="form-attribute-values-table" forceSearchParameters={forceSearchParameters} />
         </Basic.PanelBody>
       </Basic.Panel>
     );

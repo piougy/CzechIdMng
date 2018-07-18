@@ -16,6 +16,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormValueService;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue;
@@ -31,7 +33,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 //TODO extend AbstractFormValueService and use toPredicete there.
 public class DefaultIdmFormValueService
-		extends AbstractReadDtoService<IdmFormValueDto, IdmFormValue, IdmFormValueFilter>
+		extends AbstractReadDtoService<IdmFormValueDto, AbstractFormValue, IdmFormValueFilter>
 		implements IdmFormValueService {
 
 	private final AbstractFormValueRepository repository;
@@ -50,26 +52,26 @@ public class DefaultIdmFormValueService
 	}
 
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmFormValue> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmFormValueFilter filter) {
+	protected List<Predicate> toPredicates(Root<AbstractFormValue> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmFormValueFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.or(
-					builder.like(builder.lower(root.get(IdmFormValue_.formAttribute).get(IdmFormAttribute_.code)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmFormValue_.formAttribute).get(IdmFormAttribute_.name)), "%" + filter.getText().toLowerCase() + "%")
+					builder.like(builder.lower(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.code)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.name)), "%" + filter.getText().toLowerCase() + "%")
 			));
 		}
 		//
 		if (filter.getPersistentType() != null) {
-			predicates.add(builder.equal(root.get(IdmFormValue_.persistentType), filter.getPersistentType()));
+			predicates.add(builder.equal(root.get(AbstractFormValue_.persistentType), filter.getPersistentType()));
 		}
 		//
 		if (filter.getDefinitionId() != null) {
-			predicates.add(builder.equal(root.get(IdmFormValue_.formAttribute).get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.id), filter.getDefinitionId()));
+			predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.id), filter.getDefinitionId()));
 		}
 		//
 		if (filter.getAttributeId() != null) {
-			predicates.add(builder.equal(root.get(IdmFormValue_.formAttribute).get(IdmFormAttribute_.id), filter.getAttributeId()));
+			predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.id), filter.getAttributeId()));
 		}
 		//
 		if (filter.getOwner() != null) {

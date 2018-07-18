@@ -57,7 +57,6 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
-import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormRepository;

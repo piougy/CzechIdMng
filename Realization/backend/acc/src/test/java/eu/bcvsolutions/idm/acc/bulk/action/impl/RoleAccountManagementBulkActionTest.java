@@ -101,7 +101,7 @@ public class RoleAccountManagementBulkActionTest extends AbstractBulkActionTest 
 		bulkAction.setIdentifiers(this.getIdFromList(roles));
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		
-		checkResultLrt(processAction, null, 1l, null);
+		checkResultLrt(processAction, null, 0l, 1l);
 		
 		// ACM was run, but without premissions for update the role
 		assertNull(helper.findResource(identity.getUsername()));

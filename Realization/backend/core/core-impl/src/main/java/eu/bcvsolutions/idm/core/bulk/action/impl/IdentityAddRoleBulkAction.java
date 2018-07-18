@@ -84,8 +84,8 @@ public class IdentityAddRoleBulkAction extends AbstractBulkAction<IdmIdentityDto
 		formAttributes.add(getRoleAttribute());
 		formAttributes.add(getApproveAttribute());
 		formAttributes.add(getPrimaryContractAttribute());
-		formAttributes.add(getValidTillAttribute());
 		formAttributes.add(getValidFromAttribute());
+		formAttributes.add(getValidTillAttribute());
 		return formAttributes;
 	}
 

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
@@ -72,7 +73,7 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 			identityRoleFilter.setRoleId(roleId);
 			IdmRoleDto role = getService().get(roleId);
 
-			long count = identityRoleService.find(identityRoleFilter, null).getTotalElements();
+			long count = identityRoleService.find(identityRoleFilter, new PageRequest(0, 1)).getTotalElements();
 			if (count > 0) {
 				models.put(new DefaultResultModel(CoreResultCode.ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES,
 						ImmutableMap.of("role", role.getName(), "count", count)), count);

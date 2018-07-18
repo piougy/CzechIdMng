@@ -283,7 +283,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 						"entityId", dto.getId(),
 						"entityCode", entityCode));
 		// operation state = blocked for insufficient permission
-		this.logItemProcessed(dto, new OperationResult.Builder(OperationState.EXCEPTION).setModel(model).build());
+		this.logItemProcessed(dto, new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(model).build());
 	}
 
 	/**

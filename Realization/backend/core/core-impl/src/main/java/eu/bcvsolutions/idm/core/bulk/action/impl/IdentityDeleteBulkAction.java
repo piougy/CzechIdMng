@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractRemoveBulkAction;
+import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -24,9 +25,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  *
  */
 
-@Enabled(module = CoreModuleDescriptor.MODULE_ID, property = "idm.pub.core.identity.delete")
 @Component("identityDeleteBulkAction")
 @Description("Delete given identities.")
+@Enabled(module = CoreModuleDescriptor.MODULE_ID, property = IdentityConfiguration.PROPERTY_IDENTITY_DELETE)
 public class IdentityDeleteBulkAction extends AbstractRemoveBulkAction<IdmIdentityDto, IdmIdentityFilter> {
 
 	public static final String NAME = "identity-delete-bulk-action";
@@ -37,11 +38,6 @@ public class IdentityDeleteBulkAction extends AbstractRemoveBulkAction<IdmIdenti
 	@Override
 	public String getName() {
 		return NAME;
-	}
-
-	@Override
-	public int getOrder() {
-		return super.getOrder() + 10000;
 	}
 
 	@Override

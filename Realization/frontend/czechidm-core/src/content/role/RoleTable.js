@@ -181,15 +181,14 @@ class RoleTable extends Advanced.AbstractTableContent {
 
           <Advanced.Table
             ref="table"
-            uiKey={uiKey}
-            manager={roleManager}
-            rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
-            filterOpened={filterOpened}
-            useBackendBulkAction
-            forceSearchParameters={forceSearchParameters}
-            showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
-            style={!showTree ? {} : { borderLeft: '1px solid #ddd' }}
-            showLoading={showLoading}
+            uiKey={ uiKey }
+            manager={ roleManager }
+            rowClass={ ({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); } }
+            filterOpened={ filterOpened }
+            forceSearchParameters={ forceSearchParameters }
+            showRowSelection={ SecurityManager.hasAuthority('ROLE_DELETE') }
+            style={ !showTree ? {} : { borderLeft: '1px solid #ddd' } }
+            showLoading={ showLoading }
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">

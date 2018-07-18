@@ -94,7 +94,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                     <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.notstarted')}/>
                     ||
                     <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
-                      { longRunningTaskManager.getProcessedCount(entity) }
+                      <Advanced.LongRunningTask entity={ entity } face="count"/>
                     </Basic.LabelWrapper>
                   }
                 </Basic.Col>

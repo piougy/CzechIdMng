@@ -3221,6 +3221,15 @@
       "taskDescription": "Description",
       "count": "Count",
       "counter": "Processed",
+      "successItemCount": {
+        "help": "Item count - success"
+      },
+      "warningItemCount": {
+        "help": "Item count - warning"
+      },
+      "failedItemCount": {
+        "help": "Item count - failed"
+      },
       "started": "Started",
       "notstarted": "Not started yet!",
       "result": {

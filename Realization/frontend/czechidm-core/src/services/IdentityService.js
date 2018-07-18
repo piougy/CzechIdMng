@@ -25,6 +25,10 @@ class IdentityService extends FormableEntityService {
     return false;
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   getGroupPermission() {
     return 'IDENTITY';
   }

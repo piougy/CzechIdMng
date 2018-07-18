@@ -16,14 +16,13 @@ Encapsulates all features from BasicTable component. All BasicTable parameters a
 | filterOpened | bool | If filter is opened by default | false |
 | filterOpen | func | External filter open function. If false is returned, internal filterOpened is not set. |  |
 | filterCollapsible | bool | If filter can be collapsed |  |
-| actions | arrayOf(object) | Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) } |  |
+| actions | arrayOf(object) | Bulk actions. Ignored, if manager supports backend bulk actions. e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) } |  |
 | buttons | arrayOf(element) | Buttons are shown on the right of toogle filter button | |
 | showId | bool | Shows column with id. Default is id shown in Development stage. | true on development, false otherwise |
 | showFilter | bool | Shows filter. | true |
 | showPageSize | bool | Shows page size. | true |
 | showToolbar | bool | Shows toolbar. | true |
-| header | oneOfType([string, element]) | Table header |  |
-| useBackendBulkAction | bool | Use bulk action on backend. Before use the flag is necessary implements all required prerequisites for bulk action. See documentation for bulk actions. | false |
+| header | oneOfType([string, element]) | Table header |  ||
 
 # AdvancedColumn Component
 

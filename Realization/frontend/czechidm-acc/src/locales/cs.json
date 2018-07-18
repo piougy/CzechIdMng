@@ -1340,6 +1340,7 @@
     },
     "bulk-action": {
       "role-acm-bulk-action": {
+        "icon": "link",
         "label": "Provést přepočet účtů",
         "help": "Tato operace vyvolá pro každou vybranou roli <strong>přepočet účtů</strong>. Přepočet bude proveden pro všechny uživatele s danou rolí. Samotný přepočet i následný provisioning je prováděn <strong>asynchroně</strong>. Postup můžete sledovat v agendě spravující <strong>Události</strong>."
       }

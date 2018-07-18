@@ -57,6 +57,15 @@ export default class AbstractService {
   }
 
   /**
+   * Added for enddpoints with backend bulk action support.
+   *
+   * @return {bool}
+   */
+  supportsBulkAction() {
+    return false;
+  }
+
+  /**
    * Returns group permission for given manager / agenda
    *
    * @return {string} GroupPermission name
@@ -315,6 +324,11 @@ export default class AbstractService {
     });
   }
 
+  /**
+   * Fetch permissions
+   * @param  {string, number} id entity id
+   * @return {Promise}
+   */
   getPermissions(id) {
     return RestApiService
     .get(this.getApiPath() + `/${encodeURIComponent(id)}/permissions`)
@@ -352,6 +366,73 @@ export default class AbstractService {
         }
         if (Utils.Response.hasInfo(json)) {
           throw Utils.Response.getFirstInfo(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Returns all bulk actions in given api path
+   *
+   * @return Promise
+   */
+  getAvailableBulkActions() {
+    return RestApiService
+      .get(this.getApiPath() + `/bulk/actions`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Execute bulk action
+   *
+   * @param  {object}   action
+   * @param  {Function} cb
+   * @return {Promise}
+   */
+  processBulkAction(action, cb) {
+    return RestApiService
+      .post(this.getApiPath() + `/bulk/action`, action)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (cb) {
+          cb(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Validate action before execution
+   *
+   * @param  {object}   action
+   * @param  {Function} cb
+   * @return {Promise}
+   */
+  prevalidateBulkAction(action, cb) {
+    return RestApiService
+      .post(this.getApiPath() + `/bulk/prevalidate`, action)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (cb) {
+          cb(json);
         }
         return json;
       });

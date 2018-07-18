@@ -3265,6 +3265,15 @@
       "taskDescription": "Popis",
       "count": "Počet",
       "counter": "Zpracováno",
+      "successItemCount": {
+        "help": "Počet úspěšně zpracovaných položek"
+      },
+      "warningItemCount": {
+        "help": "Počet položek s varováním"
+      },
+      "failedItemCount": {
+        "help": "Počet položek s chybou"
+      },
       "started": "Spuštěno",
       "notstarted": "Úloha nebyla spuštěna!",
       "result": {

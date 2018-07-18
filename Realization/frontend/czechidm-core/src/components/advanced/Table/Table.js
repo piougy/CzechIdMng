@@ -45,10 +45,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   componentDidMount() {
-    const { useBackendBulkAction, manager } = this.props;
+    const { manager } = this.props;
     this.reload();
     //
-    if (useBackendBulkAction) {
+    if (manager.supportsBulkAction()) {
       this.context.store.dispatch(manager.fetchAvailableBulkActions());
     }
   }
@@ -68,9 +68,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       return;
     }
     this.fetchEntities(_searchParameters, _props);
-    if (_props.useBackendBulkAction) {
-      this.context.store.dispatch(_props.manager.fetchAvailableBulkActions());
-    }
   }
 
   /**
@@ -438,7 +435,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
   }
 
-  renderPrevalidateMessages(backendBulkAction) {
+  _renderPrevalidateMessages(backendBulkAction) {
     if (!backendBulkAction.prevalidateResult) {
       return null;
     }
@@ -448,8 +445,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
 
     const result = [];
     for (const model of backendBulkAction.prevalidateResult._infos) {
-      result.push(<Basic.FlashMessage showHtmlText
-        message={ this.getFlashManager().convertFromResultModel(model) }/>);
+      result.push(
+        <Basic.FlashMessage showHtmlText message={ this.getFlashManager().convertFromResultModel(model) }/>
+      );
     }
     return result;
   }
@@ -546,9 +544,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               <Basic.Alert
                 level="info"
                 showHtmlText
-                text={help}
-                rendered={(`${backendBulkAction.module}:${help}`) !== helpKey} />
-              {this.renderPrevalidateMessages(backendBulkAction)}
+                text={ help }
+                rendered={ (`${backendBulkAction.module}:${help}`) !== helpKey } />
+
+              { this._renderPrevalidateMessages(backendBulkAction) }
+
               <EavAttributeForm
                 ref="bulkActionAttributes"
                 localizationKey={backendBulkAction.name}
@@ -615,7 +615,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       condensed,
       header,
       forceSearchParameters,
-      useBackendBulkAction,
       _backendBulkActions
     } = this.props;
     const {
@@ -744,7 +743,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
     //
     let _actions = [];
-    if (useBackendBulkAction) {
+    if (manager.supportsBulkAction()) {
       for (const index in _backendBulkActions) {
         if (_backendBulkActions.hasOwnProperty(index)) {
           const backendBulkAction = _backendBulkActions[index];
@@ -840,21 +839,21 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             <Basic.BasicTable.Table
               ref="table"
               header={ header }
-              data={_entities}
-              showLoading={_showLoading || showLoading}
-              onRowClick={onRowClick}
-              onRowDoubleClick={onRowDoubleClick}
+              data={ _entities }
+              showLoading={ _showLoading || showLoading }
+              onRowClick={ onRowClick }
+              onRowDoubleClick={ onRowDoubleClick }
               showRowSelection={ _actions.length > 0 && showRowSelection }
-              selectedRows={selectedRows}
-              onRowSelect={this._onRowSelect.bind(this)}
-              rowClass={_rowClass}
-              condensed={condensed}
-              noData={this.getNoData(noData)}
-              selectRowCb={useBackendBulkAction ? this.selectRowForBulkAction.bind(this) : null}
-              isRowSelectedCb={useBackendBulkAction ? this.isRowSelected.bind(this) : null}
-              isAllRowsSelectedCb={useBackendBulkAction ? this.isAllRowSelected.bind(this) : null}>
+              selectedRows={ selectedRows }
+              onRowSelect={ this._onRowSelect.bind(this) }
+              rowClass={ _rowClass }
+              condensed={ condensed }
+              noData={ this.getNoData(noData) }
+              selectRowCb={ manager.supportsBulkAction() ? this.selectRowForBulkAction.bind(this) : null }
+              isRowSelectedCb={ manager.supportsBulkAction() ? this.isRowSelected.bind(this) : null }
+              isAllRowsSelectedCb={ manager.supportsBulkAction() ? this.isAllRowSelected.bind(this) : null }>
 
-              {renderedColumns}
+              { renderedColumns }
 
               <Basic.Column
                 header={ this.i18n('entity.id.label') }
@@ -865,7 +864,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 cell={
                   ({rowIndex, data, property}) => {
                     return (
-                      <UuidInfo value={data[rowIndex][property]}/>
+                      <UuidInfo value={ data[rowIndex][property] }/>
                     );
                   }
                 }/>
@@ -967,7 +966,7 @@ AdvancedTable.propTypes = {
   filterViewportOffsetTop: PropTypes.number,
   /**
    * Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) }
-   * This prop is ignored, if backend actions are used (see prop "useBackendBulkAction")
+   * This prop is ignored, if backend actions are used (see manager.supportsBulkAction())
    */
   actions: PropTypes.arrayOf(PropTypes.object),
   /**
@@ -988,11 +987,6 @@ AdvancedTable.propTypes = {
    * Shows toolbar.
    */
   showToolbar: PropTypes.bool,
-  /**
-   * Use bulk operation from backend
-   * Prop "actions" will be ignored, if "true" is given.
-   */
-  useBackendBulkAction: PropTypes.bool,
   //
   // Private properties, which are used internally for async data fetching
   //
@@ -1026,13 +1020,11 @@ AdvancedTable.defaultProps = {
   actions: [],
   buttons: [],
   showPageSize: true,
-  showToolbar: true,
-  useBackendBulkAction: false
+  showToolbar: true
 };
 
 function select(state, component) {
   const uiKey = component.manager.resolveUiKey(component.uiKey);
-  const useBackendBulkAction = component.useBackendBulkAction;
   const ui = state.data.ui[uiKey];
   if (!ui) {
     return {};
@@ -1043,7 +1035,7 @@ function select(state, component) {
     _total: ui.total,
     _searchParameters: ui.searchParameters,
     _error: ui.error,
-    _backendBulkActions: useBackendBulkAction ? DataManager.getData(state, component.manager.getUiKeyForBulkActions()) : null
+    _backendBulkActions: component.manager.supportsBulkAction() ? DataManager.getData(state, component.manager.getUiKeyForBulkActions()) : null
   };
 }
 

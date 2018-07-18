@@ -25,6 +25,10 @@ export default class RoleService extends FormableEntityService {
     return true;
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   getGroupPermission() {
     return 'ROLE';
   }

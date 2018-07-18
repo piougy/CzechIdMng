@@ -56,11 +56,6 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 	}
 
 	@Override
-	public int getOrder() {
-		return super.getOrder() + 10000;
-	}
-
-	@Override
 	protected List<String> getAuthoritiesForEntity() {
 		return Lists.newArrayList(CoreGroupPermission.ROLE_DELETE);
 	}

@@ -1332,6 +1332,7 @@
     },
     "bulk-action": {
       "role-acm-bulk-action": {
+        "icon": "link",
         "label": "Invoke account management",
         "help": "This operation invokes <strong>account management</strong> for each selected role. The account management will be invoke for all users with the role. Account management itself and subsequent provisioning are performed <strong>asynchronously</strong>.  You can see progress of this operations in the <strong>Events</strong> agenda."
       }

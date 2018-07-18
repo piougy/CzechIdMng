@@ -123,45 +123,53 @@ class LongRunningTask extends Basic.AbstractContent {
   /**
    * Shows modal detail with given entity
    */
-   showDetail(entity) {
-     this.context.router.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
-   }
+  showDetail(entity) {
+    this.context.router.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
+  }
 
-   setRefresh(task) {
-     const { updateInterval } = this.props;
-     if (task && OperationStateEnum.findSymbolByKey(task.resultState) === OperationStateEnum.RUNNING) {
-       this.updateIntervalId = setInterval(this.updateLrtState.bind(this), updateInterval);
-     }
-   }
+  setRefresh(task) {
+    const { updateInterval } = this.props;
+    if (task && OperationStateEnum.findSymbolByKey(task.resultState) === OperationStateEnum.RUNNING) {
+      this.updateIntervalId = setInterval(this.updateLrtState.bind(this), updateInterval);
+    }
+  }
 
+  getEntity() {
+    const { entity, _entity } = this.props;
+    //
+    if (entity) { // entity is given by props
+      return entity;
+    }
+    return _entity; // loaded by redux
+  }
 
-  render() {
+  _renderCount() {
+    const entity = this.getEntity();
+    //
+    if (!entity.successItemCount && !entity.warningItemCount && !entity.failedItemCount) {
+      return (
+        <span>{ manager.getProcessedCount(entity) }</span>
+      );
+    }
+    return (
+      <span>
+        <Basic.Label level="success" value={ entity.successItemCount } style={{ marginRight: 3 }} title={ this.i18n('entity.LongRunningTask.successItemCount.help') }/>
+        <Basic.Label level="warning" value={ entity.warningItemCount } style={{ marginRight: 3 }} title={ this.i18n('entity.LongRunningTask.warningItemCount.help') }/>
+        <Basic.Label level="danger" value={ entity.failedItemCount } style={{ marginRight: 3 }} title={ this.i18n('entity.LongRunningTask.failedItemCount.help') }/>
+        <span title={ this.i18n('entity.LongRunningTask.count') } className={ !entity.count ? 'hidden' : '' }>{ `/ ${entity.count}` }</span>
+      </span>
+    );
+  }
+
+  _renderFull() {
     const {
-      rendered,
       instanceId,
-      entityIdentifier,
-      entity,
       _showLoading,
       header,
       footerButtons,
       showProperties
     } = this.props;
-    //
-    let _entity = this.props._entity;
-    if (entity) { // entity prop has higher priority
-      _entity = entity;
-    }
-    //
-    if (!rendered || (!_entity && !entityIdentifier)) {
-      return null;
-    }
-    if (!_entity) {
-      return (
-        <Basic.Panel>
-          <Basic.Loading isStatic show />
-        </Basic.Panel>
-      );
-    }
+    const _entity = this.getEntity();
     //
     const active = OperationStateEnum.findSymbolByKey(_entity.resultState) === OperationStateEnum.RUNNING;
     return (
@@ -235,6 +243,39 @@ class LongRunningTask extends Basic.AbstractContent {
       </Basic.Panel>
     );
   }
+
+  render() {
+    const {
+      rendered,
+      entityIdentifier,
+      entity,
+      face
+    } = this.props;
+    //
+    let _entity = this.props._entity;
+    if (entity) { // entity prop has higher priority
+      _entity = entity;
+    }
+    //
+    if (!rendered || (!_entity && !entityIdentifier)) {
+      return null;
+    }
+    if (!_entity) {
+      return (
+        <Basic.Panel>
+          <Basic.Loading isStatic show />
+        </Basic.Panel>
+      );
+    }
+    switch (face) {
+      case 'count': {
+        return this._renderCount();
+      }
+      default: {
+        return this._renderFull();
+      }
+    }
+  }
 }
 
 LongRunningTask.propTypes = {
@@ -256,7 +297,11 @@ LongRunningTask.propTypes = {
    * Internal entity loaded by given identifier
    */
   _entity: PropTypes.object,
-  _showLoading: PropTypes.bool
+  _showLoading: PropTypes.bool,
+  /**
+   * Decorator
+   */
+  face: PropTypes.oneOf(['count', 'full']),
 };
 LongRunningTask.defaultProps = {
   rendered: true,
@@ -269,7 +314,8 @@ LongRunningTask.defaultProps = {
   showProperties: true,
   //
   _entity: null,
-  _showLoading: false
+  _showLoading: false,
+  face: 'full'
 };
 
 function select(state, component) {

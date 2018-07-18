@@ -56,7 +56,6 @@ import AutomaticRoleRequestService from './AutomaticRoleRequestService';
 import AutomaticRoleAttributeRuleRequestService from './AutomaticRoleAttributeRuleRequestService';
 import EntityEventService from './EntityEventService';
 import EntityStateService from './EntityStateService';
-import BulkActionService from './BulkActionService';
 import ContractSliceService from './ContractSliceService';
 import ContractSliceGuaranteeService from './ContractSliceGuaranteeService';
 import RoleGuaranteeService from './RoleGuaranteeService';
@@ -114,7 +113,6 @@ const ServiceRoot = {
   AutomaticRoleAttributeRuleRequestService,
   EntityEventService,
   EntityStateService,
-  BulkActionService,
   ContractSliceService,
   ContractSliceGuaranteeService,
   RoleGuaranteeService,

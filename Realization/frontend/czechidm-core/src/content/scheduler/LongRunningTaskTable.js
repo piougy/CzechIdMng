@@ -273,7 +273,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
                 return (
-                  <span>{manager.getProcessedCount(entity)}</span>
+                  <Advanced.LongRunningTask entity={ entity } face="count"/>
                 );
               }
             }/>

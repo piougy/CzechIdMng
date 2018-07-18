@@ -89,6 +89,15 @@ export default class EntityManager {
   }
 
   /**
+   * Added for enddpoints with backend bulk action support.
+   *
+   * @return {bool}
+   */
+  supportsBulkAction() {
+    return this.getService().supportsBulkAction();
+  }
+
+  /**
    * Returns group permission for given manager / agenda
    *
    * @return {string} GroupPermission name
@@ -188,6 +197,16 @@ export default class EntityManager {
       return `${this.getEntityType()}-${id}`;
     }
     return this.getEntityType();
+  }
+
+  /**
+   * Returns default uiKey for bulk actions by entity type.
+   * This ui key can be used for check state of entities fetching etc.
+   *
+   * @return {string}
+   */
+  getUiKeyForBulkActions() {
+    return `bulk-action-${this.getCollectionType()}`;
   }
 
   /**
@@ -1182,5 +1201,63 @@ export default class EntityManager {
       return SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
     }
     return (!this.supportsAuthorization() || Utils.Permission.hasPermission(permissions, 'EXECUTE')) && SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
+  }
+
+  /**
+   * Returns all bulk actions in given api path
+   *
+   * @return {object} - action
+   */
+  fetchAvailableBulkActions() {
+    const uiKey = this.getUiKeyForBulkActions();
+    //
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getAvailableBulkActions()
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
+  /**
+   * Executes validation of action before it starts
+   *
+   * @param  {object}   action
+   * @param  {Function} cb
+   * @return {action}
+   */
+  prevalidateBulkAction(action, cb) {
+    return (dispatch) => {
+      this.getService().prevalidateBulkAction(action, cb)
+      .then(json => {
+        return json;
+      })
+      .catch(error => {
+        dispatch(this.receiveError(null, null, error, cb));
+      });
+    };
+  }
+
+  /**
+   * Execute bulk action
+   *
+   * @param  {object}   action
+   * @param  {Function} cb
+   * @return {action}
+   */
+  processBulkAction(action, cb) {
+    return (dispatch) => {
+      this.getService().processBulkAction(action, cb)
+      .then(json => {
+        return json;
+      })
+      .catch(error => {
+        dispatch(this.receiveError(null, null, error, cb));
+      });
+    };
   }
 }

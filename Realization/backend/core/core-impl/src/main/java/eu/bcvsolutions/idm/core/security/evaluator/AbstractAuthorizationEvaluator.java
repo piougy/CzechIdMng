@@ -19,7 +19,6 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -43,11 +42,6 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	@SuppressWarnings({ "unchecked" })
 	public AbstractAuthorizationEvaluator() {
 		this.entityClass = (Class<E>) GenericTypeResolver.resolveTypeArgument(getClass(), AuthorizationEvaluator.class);
-	}
-
-	@Override
-	public String getModule() {
-		return EntityUtils.getModule(this.getClass());
 	}
 
 	@Override
@@ -114,6 +108,11 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 		return true;
 	}
 	
+	@Override
+	public ConfigurationService getConfigurationService() {
+		return configurationService;
+	}
+	
 	/**
 	 * Returns true, when policy has all given permissions
 	 * 
@@ -151,10 +150,5 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 */
 	protected boolean hasAuthority(Collection<String> authorities, BasePermission... authority) {
 		return authorities.containsAll(Arrays.stream(authority).map(Object::toString).collect(Collectors.toList()));
-	}
-	
-	@Override
-	public ConfigurationService getConfigurationService() {
-		return configurationService;
 	}
 }

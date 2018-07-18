@@ -72,6 +72,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	}
 	
 	@Override
+	@Transactional
 	public void save(Identifiable owner, String key, Serializable value) {
 		Assert.notNull(owner);
 		//

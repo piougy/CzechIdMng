@@ -72,7 +72,7 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 		int deletedItems = loggingEventService.deleteLowerOrEqualTimestamp(dateTimeTill.getMillis());
 		this.setCounter(Long.valueOf(deletedItems));
 		//
-		LOG.info("Removed logs older than [{}] days was successfully completed. Removed logs older than: [{}] and their exceptions and properties. Removed logs [{}].", days, this.counter);
+		LOG.info("Removed logs older than [{}] days was successfully completed. Removed logs [{}].", days, this.counter);
 		//
 		return Boolean.TRUE;
 	}

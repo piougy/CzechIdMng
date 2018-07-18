@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -166,10 +167,11 @@ public class JwtAuthenticationMapper {
 			token.setOwnerType(tokenManager.getOwnerType(IdmIdentityDto.class));
 			token.setIssuedAt(dto.getIssuedAt());
 			token.setExpiration(dto.getExpiration());
-			token.getProperties().put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity.getId())));
-			token.getProperties().put(PROPERTY_CURRENT_USERNAME, identity.getUsername());
-			token.getProperties().put(PROPERTY_ORIGINAL_USERNAME,  dto.getOriginalUsername());
-			token.getProperties().put(PROPERTY_ORIGINAL_IDENTITY_ID, dto.getOriginalIdentityId());
+			ConfigurationMap properties = token.getProperties();
+			properties.put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity.getId())));
+			properties.put(PROPERTY_CURRENT_USERNAME, identity.getUsername());
+			properties.put(PROPERTY_ORIGINAL_USERNAME,  dto.getOriginalUsername());
+			properties.put(PROPERTY_ORIGINAL_IDENTITY_ID, dto.getOriginalIdentityId());
 			//
 			token.setId(dto.getId()); // preserve authentication id if given
 			if (token.getId() == null) {
@@ -247,7 +249,7 @@ public class JwtAuthenticationMapper {
 			// fill optional token properties
 			token.setModuleId(preparedToken.getModuleId());
 			token.setExternalId(preparedToken.getExternalId());
-			token.setProperties(preparedToken.getProperties());
+			token.getProperties().putAll(preparedToken.getProperties());
 			token.setDisabled(preparedToken.isDisabled());
 			token.setIssuedAt(preparedToken.getIssuedAt());
 		}
@@ -259,10 +261,11 @@ public class JwtAuthenticationMapper {
 			token.setIssuedAt(DateTime.now());
 		}
 		token.setExpiration(getNewExpiration());
-		token.getProperties().put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity.getId())));
-		token.getProperties().put(PROPERTY_CURRENT_USERNAME, identity.getUsername());
-		token.getProperties().put(PROPERTY_ORIGINAL_USERNAME, identity.getUsername()); // TODO: not implemented now - current = original
-		token.getProperties().put(PROPERTY_ORIGINAL_IDENTITY_ID, identity.getId()); // TODO: not implemented now - current = original
+		ConfigurationMap properties = token.getProperties();
+		properties.put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity.getId())));
+		properties.put(PROPERTY_CURRENT_USERNAME, identity.getUsername());
+		properties.put(PROPERTY_ORIGINAL_USERNAME, identity.getUsername()); // TODO: not implemented now - current = original
+		properties.put(PROPERTY_ORIGINAL_IDENTITY_ID, identity.getId()); // TODO: not implemented now - current = original
 		//
 		if (token.getId() == null) {
 			// token id has to be written int token

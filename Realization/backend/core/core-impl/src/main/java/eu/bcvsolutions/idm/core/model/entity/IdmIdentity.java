@@ -4,10 +4,14 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -15,6 +19,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -29,6 +34,8 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
+import eu.bcvsolutions.idm.core.ecm.entity.IdmAttachment;
 
 /**
  * Identity
@@ -42,7 +49,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 		@Index(name = "idx_idm_identity_external_code", columnList = "external_code"),
 		@Index(name = "idx_idm_identity_external_id", columnList = "external_id")})
 public class IdmIdentity extends AbstractEntity 
-		implements Codeable, FormableEntity, Disableable, AuditSearchable, ExternalCodeable, ExternalIdentifiable {
+		implements Codeable, FormableEntity, Disableable, AuditSearchable, AttachableEntity, ExternalCodeable, ExternalIdentifiable {
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//
@@ -106,7 +113,7 @@ public class IdmIdentity extends AbstractEntity
 	@OneToMany(mappedBy = "identity")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<IdmIdentityContract> contracts; // only for hibernate mappnig - we dont want lazy lists
+	private List<IdmIdentityContract> contracts; // only for hibernate mapping - we dont want lazy lists
 	
 	@Audited
 	@NotNull
@@ -119,6 +126,24 @@ public class IdmIdentity extends AbstractEntity
 	@Column(name = "state", nullable = false, length = 45)
 	private IdentityState state = IdentityState.CREATED; // @since 7.6.0
 	
+	/**
+	 * Attachment with the image
+	 */
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "image_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmAttachment image;
+	
+	public IdmAttachment getImage() {
+		return image;
+	}
+
+	public void setImage(IdmAttachment image) {
+		this.image = image;
+	}
+
 	public IdmIdentity() {
 	}
 	

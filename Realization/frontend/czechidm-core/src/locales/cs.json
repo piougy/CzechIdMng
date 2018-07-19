@@ -90,7 +90,8 @@
     "saveAndNew": "Uložit a přidat další",
     "saving": "Ukládám ...",
     "yes": "Ano",
-    "set": "Nastavit"
+    "set": "Nastavit",
+    "crop": "Ořezat a uložit"
   },
   "filter": {
     "dateFrom": {
@@ -772,6 +773,7 @@
       "IDENTITY": "Uživatelé",
       "IDENTITYROLE": "Přiřazené role uživatelům",
       "IDENTITYCONTRACT": "Pracovně právní vztahy",
+      "IDENTITYIMAGE": "Profilová fotka identity",
       "CONTRACTSLICE": "Časové řezy",
       "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
       "CONTRACTSLICEGUARANTEE": "Garanti časových řezů PPV",
@@ -1808,6 +1810,12 @@
         "externalCode": "$t(entity.Identity.externalCode)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
+        "fileRejected": "$t(entity.Identity.fileRejected)",
+        "fileUploaded": "$t(entity.Identity.fileUploaded)",
+        "deleteImage": {
+          "title": "Smazat fotku",
+          "message": "Opravdu chcete smazat profilovou fotku?"
+        },
         "email": {
           "label": "$t(entity.Identity.email)",
           "placeholder": "Email uživatele"
@@ -2470,7 +2478,7 @@
         "resourceName": "$t(content.workflow.definition.resourceName)",
         "fileRejected": "Soubor s definicí workflow musí mít příponu bpmn20.xml ({{name}})!",
         "filesRejected": "Soubor/y s definicí workflow musí mít příponu bpmn20.xml!",
-        "fileUploded": "Definice ({{name}}) byla úspěšně nahrána.",
+        "fileUploaded": "Definice ({{name}}) byla úspěšně nahrána.",
         "id":"$t(content.workflow.definition.id)"
       },
       "history":{
@@ -2630,6 +2638,8 @@
       "externe": "Externista",
       "titleBefore": "Titul před",
       "titleAfter": "Titul za",
+      "fileRejected": "Soubor profilové fotky ({{name}}) musí být formát grafického souboru - jpg, png, gif.",
+      "fileUploaded": "Soubor s profilovou fotkou ({{name}}) byl úspěšně nahrán.",
       "state": {
         "label": "Stav",
         "help": "Stav uživatele. Stav je řízen pracovně právními vztahy. Uživatele lze manuálně deaktivovat (akce nad tabulkou uživatelů).",
@@ -4216,6 +4226,10 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Událost nelze smazat",
       "message": "Událost nelze smazat. Na událost navazují další události, odeberte nejprve navazující události. Při odebrání poslední z navazujících událostí bude smazána i tato událost."
+    },
+    "IDENTITYIMAGE_WRONG_FORMAT": {
+      "title": "Neplatný formát",
+      "message": "Soubor má správnou příponu, ale není to obrázek. Soubor musí obsahovat obrázek v jednom z těchto formátů: jpg, png, gif."
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Nebyla vyplněna povinná položka",

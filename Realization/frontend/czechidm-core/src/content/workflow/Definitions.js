@@ -30,7 +30,7 @@ class Definitions extends Basic.AbstractContent {
   }
 
   /**
-   * Validate extension type and uplod definition
+   * Validate extension type and upload definition
    * @param  {file} file File to upload
    */
   _upload(file) {
@@ -55,7 +55,7 @@ class Definitions extends Basic.AbstractContent {
         showLoading: false
       }, () => {
         this.addMessage({
-          message: this.i18n('fileUploded', {name: file.name})
+          message: this.i18n('fileUploaded', {name: file.name})
         });
         this.refs.table.getWrappedInstance().reload();
       });

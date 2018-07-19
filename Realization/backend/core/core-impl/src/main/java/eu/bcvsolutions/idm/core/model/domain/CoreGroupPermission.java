@@ -58,6 +58,12 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
+	IDENTITYIMAGE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
 	ROLE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
@@ -258,6 +264,12 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
 	public static final String IDENTITY_PASSWORDCHANGE = "IDENTITY" + BasePermission.SEPARATOR + "PASSWORDCHANGE";
 	public static final String IDENTITY_CHANGEPERMISSION = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEPERMISSION";
+	//
+	public static final String IDENTITYIMAGE_ADMIN = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String IDENTITYIMAGE_READ = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "READ";
+	public static final String IDENTITYIMAGE_CREATE = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String IDENTITYIMAGE_UPDATE = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String IDENTITYIMAGE_DELETE = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String IDENTITYCONTRACT_COUNT = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "COUNT";
 	public static final String IDENTITYCONTRACT_AUTOCOMPLETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";

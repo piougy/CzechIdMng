@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipientRepository;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
@@ -63,7 +64,8 @@ public class IdentityDeleteProcessor
 	@Autowired private IdmPasswordHistoryService passwordHistoryService;
 	@Autowired private IdmContractSliceService contractSliceService;
 	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
-	
+	@Autowired private AttachmentManager attachmentManager;
+
 	public IdentityDeleteProcessor() {
 		super(IdentityEventType.DELETE);
 	}
@@ -125,6 +127,8 @@ public class IdentityDeleteProcessor
 		roleRequestService.find(roleRequestFilter, null).forEach(request ->{
 			roleRequestService.delete(request);
 		});
+		// remove image attachment for this identity
+		attachmentManager.deleteAttachments(identity);
 		// remove all IdentityRoleValidRequest for this identity
 		List<IdmIdentityRoleValidRequestDto> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityId(identity.getId());
 		identityRoleValidRequestService.deleteAll(validRequests);

@@ -1,6 +1,9 @@
-import { PropTypes} from 'react';
+import React, { PropTypes} from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
+import classNames from 'classnames';
 //
+import * as Basic from '../../basic';
 import { IdentityManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
@@ -19,6 +22,17 @@ export class IdentityInfo extends AbstractEntityInfo {
 
   getManager() {
     return manager;
+  }
+
+  componentDidMount() {
+    if (!this.state.imageUrl && this.props.entityIdentifier) {
+      manager.download(this.props.entityIdentifier, this.receiveImage.bind(this));
+    }
+  }
+
+  receiveImage(blob) {
+    const objectURL = URL.createObjectURL(blob);
+    this.setState({imageUrl: objectURL});
   }
 
   /**
@@ -90,23 +104,105 @@ export class IdentityInfo extends AbstractEntityInfo {
     return '';
   }
 
+  renderImage() {
+    const imageUrl = this.state.imageUrl;
+    const style = {
+      height: '100px',
+      width: '100px',
+      borderRadius: '50%',
+      marginTop: '5px',
+      marginBottom: '10px',
+      border: '2px solid white',
+      backgroundColor: 'white',
+    };
+    if (imageUrl) {
+      style.boxShadow = '0px 2px 10px rgba(0, 0, 0, 0.2)';
+      return (
+        <img
+        src={imageUrl}
+        className="center-block"
+        style={ style } />
+      );
+    }
+    return (
+        <div
+        className="center-block"
+        style={ style }>
+          <Basic.Icon
+          className=""
+          value={ "fa:user-circle" }
+          color="#D6EEF8"
+          style={{ fontSize: '92px', margin: '2px', height: '100px'}}/>
+        </div>
+      );
+  }
 
-  /**
-   * Returns popover info content
-   *
-   * @param  {array} table data
-   */
-  getPopoverContent(entity) {
-    return [
-      {
-        label: this.i18n('entity.Identity.email'),
-        value: entity.email
-      },
-      {
-        label: this.i18n('entity.Identity.phone'),
-        value: entity.phone
-      }
-    ];
+  renderRow(icon, entityAttr) {
+    if (entityAttr) {
+      return (
+        <tr>
+          <td>
+            <Basic.Icon value={icon} />
+            {' '}
+            { entityAttr }
+          </td>
+        </tr>
+      );
+    }
+  }
+
+  renderBody(_entity) {
+    return (
+      <table className="table table-condensed text-center" style={{ marginBottom: 0 }}>
+        <tbody>
+          { this.renderRow('fa:envelope', _entity.email) }
+          { this.renderRow('fa:phone', _entity.phone) }
+        </tbody>
+      </table>
+    );
+  }
+
+  _renderFull() {
+    const { className, style } = this.props;
+    const _entity = this.getEntity();
+    //
+    const panelClassNames = classNames(
+      'abstract-entity-info',
+      { 'panel-success': _entity && !this.isDisabled(_entity) },
+      { 'panel-warning': _entity && this.isDisabled(_entity) },
+      className
+    );
+    //
+    return (
+      <Basic.Panel className={panelClassNames} style={style}>
+        <Basic.PanelHeader className="text-center" style={{ padding: '8px 0' }}>
+            { this.renderImage() }
+
+              <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
+              { this.getPopoverTitle(_entity) }
+            {
+              !this.isDisabled(_entity)
+              ||
+              <div className="pull-right">
+                <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
+              </div>
+            }
+            <div className="clearfix"/>
+        </Basic.PanelHeader>
+
+        { this.renderBody(_entity) }
+
+        <Basic.PanelFooter rendered={ this.showLink() }>
+          <div className="text-center">
+            <Link to={ this.getLink() }>
+              <Basic.Icon value="fa:angle-double-right"/>
+              {' '}
+              {this.i18n('component.advanced.EntityInfo.link.detail.label')}
+            </Link>
+          </div>
+        </Basic.PanelFooter>
+      </Basic.Panel>
+    );
   }
 }
 

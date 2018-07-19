@@ -152,6 +152,18 @@ export default class IdentityManager extends FormableEntityManager {
     return Utils.Permission.hasPermission(permissions, 'PASSWORDCHANGE');
   }
 
+  upload(formData, identityId) {
+    return this.getService().upload(formData, identityId);
+  }
+
+  download(identityId, cb) {
+    return this.getService().download(identityId, cb);
+  }
+
+  deleteImage(identityId) {
+    return this.getService().deleteImage(identityId);
+  }
+
   /**
    * PreValidates password
    *

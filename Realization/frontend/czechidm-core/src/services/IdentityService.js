@@ -246,6 +246,69 @@ class IdentityService extends FormableEntityService {
       return json;
     });
   }
+
+  /**
+   * Upload image to BE
+   */
+  upload(formData, identityId) {
+    return RestApiService
+      .upload(this.getApiPath() + `/${encodeURIComponent(identityId)}/image`, formData)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Get image from BE
+   */
+  download(identityId, cb) {
+    return RestApiService
+      .download(this.getApiPath() + `/${identityId}/image`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        cb(blob);
+      });
+  }
+
+  /**
+   * Delete image from BE
+   */
+  deleteImage(identityId) {
+    return RestApiService
+      .delete(this.getApiPath() + `/${encodeURIComponent(identityId)}/image`)
+      .then(response => {
+        if (response.status === 204) { // no content - ok
+          return null;
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
+        return json;
+      });
+  }
 }
 
 export default IdentityService;

@@ -39,8 +39,10 @@ import ValidationMessage from './ValidationMessage/ValidationMessage';
 import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
 import DecisionButtons from '../../content/task/DecisionButtons';
 import OperationResult from './OperationResult/OperationResult';
+import ImageDropzone from './ImageDropzone/ImageDropzone';
 import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
+import ImageCropper from './ImageCropper/ImageCropper';
 import LongRunningTask from './LongRunningTask/LongRunningTask';
 import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
 
@@ -87,9 +89,11 @@ const Components = {
   DecisionButtons,
   DynamicTaskDetail,
   OperationResult,
+  ImageDropzone,
   WorkflowTaskInfo,
   TreeTypeInfo,
   TreeNodeInfo,
+  ImageCropper,
   LongRunningTask,
   CreatableSelectBox
 };

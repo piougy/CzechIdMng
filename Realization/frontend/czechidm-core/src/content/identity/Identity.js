@@ -11,11 +11,26 @@ const identityManager = new IdentityManager();
 
 class IdentityContent extends Basic.AbstractContent {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+    };
+  }
+
   componentDidMount() {
     this._selectNavigationItem();
     const { entityId } = this.props.params;
     //
     this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId));
+    //
+    if (!this.state.imageUrl && entityId) {
+      identityManager.download(entityId, this.receiveImage.bind(this));
+    }
+  }
+
+  receiveImage(blob) {
+    const objectURL = URL.createObjectURL(blob);
+    this.setState({imageUrl: objectURL});
   }
 
   componentDidUpdate() {
@@ -41,12 +56,18 @@ class IdentityContent extends Basic.AbstractContent {
   render() {
     const { identity } = this.props;
     const { entityId } = this.props.params;
+    const imageUrl = this.state.imageUrl;
 
     return (
       <div>
         <Helmet title={this.i18n('navigation.menu.profile')} />
 
         <Basic.PageHeader>
+          <img
+          src={imageUrl}
+          className="img-circle"
+          style={{height: '40px'}} />
+          {' '}
           {identityManager.getNiceLabel(identity)} <small> {this.i18n('content.identity.profile.userDetail')}</small>
         </Basic.PageHeader>
 

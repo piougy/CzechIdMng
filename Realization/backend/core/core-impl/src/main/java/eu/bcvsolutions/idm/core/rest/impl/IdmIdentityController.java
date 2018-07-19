@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +13,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -30,6 +35,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+// classes for handling upload size limit exception
+//import org.springframework.web.multipart.MultipartException;
+//import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -62,12 +71,16 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.ImageUtils;
+import eu.bcvsolutions.idm.core.rest.lookup.IdmIdentityDtoLookup;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
 import io.swagger.annotations.Api;
@@ -80,7 +93,7 @@ import io.swagger.annotations.AuthorizationScope;
  * Rest methods for IdmIdentity resource
  * 
  * @author Radek Tomiška
- *
+ * @author Petr Hanák
  */
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
@@ -97,20 +110,22 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	@Autowired private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
-	@Autowired private IdmAuditService auditService; 	
+	@Autowired private IdmAuditService auditService;
 	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private IdmFormDefinitionController formDefinitionController;
 	@Autowired private PrivateIdentityConfiguration identityConfiguration;
+	@Autowired private AttachmentManager attachmentManager;
+	@Autowired private IdmIdentityDtoLookup identityLookup;
 	//
 	private final IdmIdentityService identityService;
-	
+
 	@Autowired
 	public IdmIdentityController(IdmIdentityService identityService) {
 		super(identityService);
 		//
 		this.identityService = identityService;
 	}
-	
+
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
@@ -782,5 +797,127 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		filter.setLastName(getParameterConverter().toString(parameters, "lastName"));
 		filter.setState(getParameterConverter().toEnum(parameters, IdmIdentityFilter.PARAMETER_STATE, IdentityState.class));
 		return filter;
+	}
+	
+	/**
+	 * Upload new profile picture
+	 *
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/image", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYIMAGE_UPDATE + "')" +
+			" or hasAuthority('" + CoreGroupPermission.IDENTITYIMAGE_CREATE + "')")
+	@ApiOperation(value = "Update profile picture", nickname = "postProfilePicture", tags = {
+			IdmIdentityController.TAG }, notes = "Upload new profile image", authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_CREATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_UPDATE, description = ""), }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_CREATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_UPDATE, description = ""), }) })
+	public ResponseEntity<?> uploadImage(
+			@ApiParam(value = "Image's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
+			@RequestParam(required = true, name = "data") MultipartFile data) throws IOException {
+		IdmIdentityDto identity = getDto(backendId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		// Verify image and resize to thumbnail
+		ImageUtils imageUtils = new ImageUtils();
+		if (imageUtils.verifyImage(data)) {
+			BufferedImage image = imageUtils.processImage(data);
+			// save image as attachment to identity
+			IdmAttachmentDto attachment = new IdmAttachmentDto();
+			// TODO generate file name (SQL injection)
+			attachment.setName("Profile-picture-name");
+			attachment.setMimetype("image/*");
+			attachment.setInputData(imageUtils.imageToInputStream(image));
+			attachment = attachmentManager.saveAttachment(identity, attachment);
+			// If there is some photo for identity, it will delete the old one
+			if (identity.getImage() != null) {
+				attachmentManager.deleteAttachment(attachmentManager.get(identity.getImage()));
+				identity.setImage(null);
+			}
+			identity.setImage(attachment.getId());
+		} else {
+			// not an image
+			throw new ResultCodeException(CoreResultCode.IDENTITYIMAGE_WRONG_FORMAT, ImmutableMap.of("entity", backendId));
+		}
+		return new ResponseEntity<>(toResource(identityService.save(identity)), HttpStatus.OK);
+	}
+	
+	/**
+	 * Returns image attachment from identity
+	 * 
+	 * @return 
+	 */
+	@RequestMapping(value = "/{backendId}/image", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@ApiOperation(
+			value = "Profile picture", 
+			nickname = "getProfilePicure",
+			tags = { IdmIdentityController.TAG },
+			notes = "Returns input stream to identity detail.",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_READ, description = "") })
+					})
+	public ResponseEntity<InputStreamResource> getImage(
+			@ApiParam(value = "Identity's uuid identifier.", required = true)
+			@PathVariable String backendId) {
+		IdmIdentityDto identity = identityLookup.lookup(backendId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		if (identity.getImage() == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		InputStream is = attachmentManager.getAttachmentData(identity.getImage());
+		try {
+			return ResponseEntity.ok().contentLength(is.available()).contentType(MediaType.IMAGE_JPEG)
+					.body(new InputStreamResource(is));
+		} catch (IOException e) {
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
+		}
+	}
+	
+	/**
+	 * Deletes image attachment from identity
+	 * 
+	 * @return 
+	 */
+	@RequestMapping(value = "/{backendId}/image", method = RequestMethod.DELETE)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYIMAGE_DELETE + "')")
+	@ApiOperation(
+			value = "Profile picture", 
+			nickname = "deleteProfilePicure",
+			tags = { IdmIdentityController.TAG },
+			notes = "Deletes profile picture from identity.",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_DELETE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITYIMAGE_DELETE, description = "") })
+					})
+	public ResponseEntity<?> deleteImage(
+			@ApiParam(value = "Identity's uuid identifier.", required = true)
+			@PathVariable String backendId) {
+		IdmIdentityDto identity = identityLookup.lookup(backendId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		if (identity.getImage() != null) {
+			attachmentManager.deleteAttachment(attachmentManager.get(identity.getImage()));
+			identity.setImage(null);
+			identityService.save(identity);
+		}
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 }

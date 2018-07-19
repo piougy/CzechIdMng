@@ -18,14 +18,14 @@ module.exports = {
     {
       'id': 'assigned-task-dashboard',
       'type': 'dashboard',
-      'span': '8',
+      'span': '9',
       'order': '3',
       'component': require('./src/content/dashboards/AssignedTaskDashboard')
     },
     {
       'id': 'profile-dashboard',
       'type': 'dashboard',
-      'span': '4',
+      'span': '3',
       'order': '1',
       'component': require('./src/content/dashboards/ProfileDashboard')
     },

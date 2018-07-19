@@ -90,7 +90,8 @@
     "saveAndNew": "Save and add another",
     "saving": "Saving",
     "yes": "Yes",
-    "set": "Set"
+    "set": "Set",
+    "crop": "Crop & save"
   },
   "filter": {
     "dateFrom": {
@@ -739,6 +740,7 @@
       "AUDIT": "Audit",
       "CONFIGURATION": "Configuration (app)",
       "IDENTITY": "Users",
+      "IDENTITYIMAGE": "Profile picture",
       "IDENTITYROLE": "Assigned roles",
       "IDENTITYCONTRACT": "Contracted positions",
       "CONTRACTSLICE": "Time slices",
@@ -1763,6 +1765,12 @@
         "externalCode": "$t(entity.Identity.externalCode)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
+        "fileRejected": "$t(entity.Identity.fileRejected)",
+        "fileUploaded": "$t(entity.Identity.fileUploaded)",
+        "deleteImage": {
+          "title": "Delete profile image",
+          "message": "Do you really want to delete profile image?"
+        },
         "email": {
           "label": "$t(entity.Identity.email)",
           "placeholder": "Users e-mail"
@@ -2425,7 +2433,7 @@
         "resourceName": "$t(content.workflow.definition.resourceName)",
         "fileRejected": "Workflow definition file must be of type bpmn20.xml ({{name}})!",
         "filesRejected": "Workflow definition types must be of type bpmn20.xml!",
-        "fileUploded": "Workflow definition ({{name}}) was successfully uploaded.",
+        "fileUploaded": "Workflow definition ({{name}}) was successfully uploaded.",
         "id":"$t(content.workflow.definition.id)"
       },
       "history":{
@@ -2585,6 +2593,8 @@
       "externe": "External contractor",
       "titleBefore": "Titles before",
       "titleAfter": "Titles after",
+      "fileRejected": "Profile picture file ({{name}}) must be of image type - jpg, png, gif.",
+      "fileUploaded": "Profile picture ({{name}}) was successfully uploaded.",
       "state": {
         "label": "State",
         "help": "Identity state. It's controlled by contracted positions or can be manually deactivated from the table actions.",
@@ -4172,6 +4182,10 @@
     "EVENT_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Event cannot be deleted",
       "message": "Event cannot be deleted. Delete events at first, where this event is set as parent."
+    },
+    "IDENTITYIMAGE_WRONG_FORMAT": {
+      "title": "Wrong format",
+      "message": "File has got image suffix but It's not an image. File should contains image in one of this formats: jpg, png, gif"
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Required property wasn't filled",

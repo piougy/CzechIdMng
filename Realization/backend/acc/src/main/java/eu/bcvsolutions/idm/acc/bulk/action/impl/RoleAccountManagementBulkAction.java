@@ -85,7 +85,7 @@ public class RoleAccountManagementBulkAction extends AbstractBulkAction<IdmRoleD
 			if (contract != null) {
 				IdmIdentityDto identity = DtoUtils.getEmbedded(contract, IdmIdentityContract_.identity,
 						IdmIdentityDto.class);
-				message.append("\n");
+				message.append('\n');
 				message.append(
 						MessageFormat.format("[{0}], identity [{1}]", identityRole.getId(), identity.getUsername()));
 

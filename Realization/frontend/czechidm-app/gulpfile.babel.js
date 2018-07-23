@@ -166,6 +166,24 @@ gulp.task('makeProductModules', () => {
 });
 
 /**
+ * Npm install
+ */
+gulp.task('npmInstall',
+  shell.task([
+    'npm install'
+  ], {verbose: true, quiet: false})
+);
+
+/**
+ * Clear node modules (remove links to ours modules)
+ */
+gulp.task('npmPrune',
+  shell.task([
+    'npm prune'
+  ], {verbose: true, quiet: false})
+);
+
+/**
  * Gulp task for relase module.
  * Has three parameters:
  * --releaseVersion (may not be defined)
@@ -551,7 +569,7 @@ gulp.task('watchTask', () => {
 
 
 gulp.task('install', cb => {
-  runSequence('clean', 'makeProductModules', 'removeAppLink', cb);
+  runSequence('clean', 'npmPrune', 'npmInstall', 'makeProductModules', 'removeAppLink', cb);
 });
 
 gulp.task('watch', cb => {

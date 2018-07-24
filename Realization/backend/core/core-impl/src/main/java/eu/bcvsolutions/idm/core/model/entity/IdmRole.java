@@ -6,10 +6,14 @@ import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -28,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.model.domain.Requestable;
 
 /**
  * Role
@@ -41,7 +46,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Table(name = "idm_role", indexes = { 
 		@Index(name = "ux_idm_role_name", columnList = "name", unique = true),
 		@Index(name = "idx_idm_role_external_id", columnList = "external_id")})
-public class IdmRole extends AbstractEntity implements Codeable, FormableEntity, Disableable, ExternalIdentifiable {
+public class IdmRole extends AbstractEntity implements Codeable, FormableEntity, Disableable, ExternalIdentifiable, Requestable {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
@@ -113,6 +118,13 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	@NotNull
 	@Column(name = "can_be_requested", nullable = false)
 	private boolean canBeRequested;
+	
+	@Audited
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "request_item_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	private IdmRequestItem requestItem;
 
 	public IdmRole() {
 	}
@@ -260,5 +272,15 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	@Override
 	public String getExternalId() {
 		return externalId;
+	}
+
+	@Override
+	public IdmRequestItem getRequestItem() {
+		return requestItem;
+	}
+
+	@Override
+	public void setRequestItem(IdmRequestItem requestItem) {
+		this.requestItem = requestItem;
 	}
 }

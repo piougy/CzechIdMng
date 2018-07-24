@@ -238,7 +238,23 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE);
+			IdmBasePermission.DELETE),
+	REQUEST(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE, 
+			IdmBasePermission.EXECUTE),
+	REQUESTITEM(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE, 
+			IdmBasePermission.EXECUTE);
 	
 	// String constants could be used in pre / post authorize SpEl expressions
 	
@@ -420,6 +436,20 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String WORKFLOW_TASK_ADMIN = "WORKFLOWTASK" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String WORKFLOW_TASK_READ = "WORKFLOWTASK" + BasePermission.SEPARATOR + "READ";
 	public static final String WORKFLOW_TASK_EXECUTE = "WORKFLOWTASK" + BasePermission.SEPARATOR + "EXECUTE";
+	//
+	public static final String REQUEST_ADMIN = "REQUEST" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String REQUEST_READ = "REQUEST" + BasePermission.SEPARATOR + "READ";
+	public static final String REQUEST_CREATE = "REQUEST" + BasePermission.SEPARATOR + "CREATE";
+	public static final String REQUEST_UPDATE = "REQUEST" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String REQUEST_DELETE = "REQUEST" + BasePermission.SEPARATOR + "DELETE";
+	public static final String REQUEST_AUTOCOMPLETE = "REQUEST" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	//
+	public static final String REQUEST_ITEM_ADMIN = "REQUESTITEM" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String REQUEST_ITEM_READ = "REQUESTITEM" + BasePermission.SEPARATOR + "READ";
+	public static final String REQUEST_ITEM_CREATE = "REQUESTITEM" + BasePermission.SEPARATOR + "CREATE";
+	public static final String REQUEST_ITEM_UPDATE = "REQUESTITEM" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String REQUEST_ITEM_DELETE = "REQUESTITEM" + BasePermission.SEPARATOR + "DELETE";
+	public static final String REQUEST_ITEM_AUTOCOMPLETE = "REQUESTITEM" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	
 	private final List<BasePermission> permissions;
 

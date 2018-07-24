@@ -60,6 +60,8 @@ import ContractSliceService from './ContractSliceService';
 import ContractSliceGuaranteeService from './ContractSliceGuaranteeService';
 import RoleGuaranteeService from './RoleGuaranteeService';
 import RoleGuaranteeRoleService from './RoleGuaranteeRoleService';
+import RequestService from './RequestService';
+import RequestItemService from './RequestItemService';
 
 const ServiceRoot = {
   RestApiService,
@@ -116,7 +118,9 @@ const ServiceRoot = {
   ContractSliceService,
   ContractSliceGuaranteeService,
   RoleGuaranteeService,
-  RoleGuaranteeRoleService
+  RoleGuaranteeRoleService,
+  RequestService,
+  RequestItemService
 };
 
 ServiceRoot.version = '0.0.1';

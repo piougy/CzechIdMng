@@ -269,6 +269,21 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEREQUEST_CREATE'] } ]
     },
     {
+      path: 'requests',
+      component: require('./src/content/request/Requests'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['REQUEST_READ'] } ]
+    },
+    {
+      path: 'requests/:entityId/detail',
+      component: require('./src/content/request/RequestDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['REQUEST_READ'] } ]
+    },
+    {
+      path: 'requests/:entityId/new',
+      component: require('./src/content/request/RequestDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['REQUEST_CREATE'] } ]
+    },
+    {
       path: 'role/:entityId/',
       component: require('./src/content/role/Role'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],

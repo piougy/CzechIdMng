@@ -477,6 +477,16 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ]
           },
           {
+            'id': 'requests',
+            'labelKey': 'content.requests.header',
+            'titleKey': 'content.requests.title',
+            'icon': 'fa:exchange',
+            'order': 25,
+            'iconColor': '#419641',
+            'path': '/requests',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['REQUEST_READ'] } ]
+          },
+          {
             'id': 'automatic-role-requests',
             'labelKey': 'content.automaticRoles.header',
             'titleKey': 'content.automaticRoles.title',

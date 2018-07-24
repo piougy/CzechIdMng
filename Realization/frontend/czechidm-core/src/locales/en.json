@@ -1675,6 +1675,54 @@
        }
 
       },
+     "requests": {
+       "header": "Requests",
+       "title": "Requests",
+       "role": "Request",
+       "name": "Name",
+       "create": {
+         "header": "Create new request"
+       },
+       "button": {
+         "createRequest": "Create request",
+         "start": "Execute request"
+       },
+       "action": {
+         "startRequest": {
+           "header": "Do you really want execute this request",
+           "message": "Do you really want execute this request and start approval process?",
+           "started": "Request was started",
+           "exception": "Error occurred during submitting request. Request was not submitted!",
+           "duplicated": "Request was not submitted because it is duplicate with another request created on [{{created}}]."
+         }
+       },
+       "filter": {
+         "states":{
+           "placeholder": "Search by states"
+         }
+       }
+     },
+     "requestDetail": {
+       "header": "Request",
+       "title": "Request",
+       "conceptHeader": "Requested change",
+       "save": {
+         "success": "Request successfully saved",
+         "start": "Execute request"
+       },
+       "button": {
+         "createRequest":{
+           "label": "Submit a request",
+           "tooltip": "Start request"
+         }
+       },
+       "create": {
+         "header": "Create the request change"
+       },
+       "edit": {
+         "header": "Edit the request change"
+       }
+      },
     "role": {
       "identities": {
         "header": "Users with assigned role",

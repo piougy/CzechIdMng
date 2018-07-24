@@ -1689,7 +1689,6 @@
           "placeholder": "Vyhledání podle stavů"
         }
       }
-
     },
     "automaticRoleRequestDetail": {
       "header": "Žádost pro automatickou roli",
@@ -1715,6 +1714,54 @@
       "rulesIsAnd": {
         "title": "Všechna pravidla musí být splněna.",
         "text": "Pro přidělení role dle automatická role, musí entita (identita i úvazek) splnit všechna (níže definovaná) pravidla zároveň."
+      }
+    },
+    "requests": {
+      "header": "Žádosti",
+      "title": "Žádosti",
+      "role": "Žádost",
+      "name": "Název",
+      "create": {
+        "header": "Vytvořit novou žádost"
+      },
+      "button": {
+        "createRequest": "Vytvořit žádost",
+        "start": "Provést žádost"
+      },
+      "action": {
+        "startRequest": {
+          "header": "Opravdu chcete podat tuto žádost",
+          "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
+          "started": "Žádost byla úspěšně podána",
+          "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
+          "duplicated": "Žádost nebyla podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
+        }
+      },
+      "filter": {
+        "states":{
+          "placeholder": "Vyhledání podle stavů"
+        }
+      }
+    },
+    "requestDetail": {
+      "header": "Žádost",
+      "title": "Žádost",
+      "conceptHeader": "Požadované změny",
+      "save": {
+        "success": "Žádost byla úspěšně uložena",
+        "start": "Podat žádost"
+      },
+      "button": {
+        "createRequest":{
+          "label": "Podat žádost",
+          "tooltip": "Zahájí žádost. Spustí případné schvalovací procesy."
+        }
+      },
+      "create": {
+        "header": "Přidat změnu žádosti"
+      },
+      "edit": {
+        "header": "Upravit změnu žádosti"
       }
     },
     "role": {

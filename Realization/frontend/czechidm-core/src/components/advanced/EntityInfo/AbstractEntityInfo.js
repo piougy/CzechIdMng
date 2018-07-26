@@ -58,7 +58,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           this.context.store.dispatch(manager.autocompleteEntityIfNeeded(entityId, uiKey, (e, ex) => {
             // TODO: move to other place - is called only when entity is not given
             if (!ex && (face === 'full' || (face === 'link' && this.getLink()))) {
-              this._onEnter();
+              this.onEnter();
             }
             this.setState({
               error: ex
@@ -74,7 +74,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    *
    * @return {[type]} [description]
    */
-  _onEnter() {
+  onEnter() {
     const { _permissions } = this.props;
     const manager = this.getManager();
     const entityId = this.getEntityId();
@@ -269,7 +269,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         trigger={['click']}
         value={ this._renderFull() }
         className="abstract-entity-info-popover"
-        onEnter={ this._onEnter.bind(this) }>
+        onEnter={ this.onEnter.bind(this) }>
         {
           <span
             style={ style }>

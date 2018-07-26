@@ -38,6 +38,7 @@ import ConceptRoleRequestManager from './ConceptRoleRequestManager';
 import RoleTreeNodeManager from './RoleTreeNodeManager';
 import FormDefinitionManager from './FormDefinitionManager';
 import FormAttributeManager from './FormAttributeManager';
+import FormValueManager from './FormValueManager';
 import AuthorizationPolicyManager from './AuthorizationPolicyManager';
 import ScriptAuthorityManager from './ScriptAuthorityManager';
 import ContractGuaranteeManager from './ContractGuaranteeManager';
@@ -58,7 +59,6 @@ import ContractSliceManager from './ContractSliceManager';
 import RoleGuaranteeManager from './RoleGuaranteeManager';
 import RoleGuaranteeRoleManager from './RoleGuaranteeRoleManager';
 import ProfileManager from './ProfileManager';
-import FormDefinitionAttributesValuesManager from './FormDefinitionAttributesValuesManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -94,7 +94,7 @@ const ManagerRoot = {
   RoleTreeNodeManager,
   FormDefinitionManager,
   FormAttributeManager,
-  FormDefinitionAttributesValuesManager,
+  FormValueManager,
   AuthorizationPolicyManager,
   ScriptAuthorityManager,
   ContractGuaranteeManager,

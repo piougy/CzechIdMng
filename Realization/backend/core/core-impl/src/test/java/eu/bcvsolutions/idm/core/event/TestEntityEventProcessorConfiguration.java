@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EventType;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 
 /**
  * Test entity event processors init
@@ -107,6 +108,10 @@ public class TestEntityEventProcessorConfiguration {
 		
 		@Override
 		public EventResult<TestContent> process(EntityEvent<TestContent> event) {
+			if (order.equals(event.getContent().getException())) {
+				throw new CoreException("test ex on order [" + order + "]");
+			}
+			//
 			event.getContent().setText(order.toString());			
 			DefaultEventResult.Builder<TestContent> result = new DefaultEventResult.Builder<>(event, this);
 			if (order.equals(event.getContent().getClose())) {

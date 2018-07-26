@@ -17,6 +17,7 @@ public class TestContent implements BaseEntity {
 	private String text;
 	private Integer suspend;
 	private Integer close;
+	private Integer exception;
 
 	@Override
 	public Serializable getId() {
@@ -50,5 +51,13 @@ public class TestContent implements BaseEntity {
 	
 	public void setClose(Integer close) {
 		this.close = close;
+	}
+	
+	public void setException(Integer exception) {
+		this.exception = exception;
+	}
+	
+	public Integer getException() {
+		return exception;
 	}
 }

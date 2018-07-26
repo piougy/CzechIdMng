@@ -7,7 +7,6 @@ import org.joda.time.DateTime;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
@@ -18,11 +17,6 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
  * @author Radek Tomiška 
  *
  */
-@RepositoryRestResource( //
-		collectionResourceRel = "formDefinitions", // 
-		path = "form-definitions", //
-		itemResourceRel = "formDefinition", //
-		exported = false)
 public interface IdmFormDefinitionRepository extends AbstractEntityRepository<IdmFormDefinition> {
 	
 	/**

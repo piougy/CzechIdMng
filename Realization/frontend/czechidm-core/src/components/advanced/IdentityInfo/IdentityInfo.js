@@ -24,8 +24,8 @@ export class IdentityInfo extends AbstractEntityInfo {
     return manager;
   }
 
-  componentDidMount() {
-    super.componentDidMount();
+  onEnter() {
+    super.onEnter();
     //
     if (this.getEntityId()) {
       this.context.store.dispatch(this.getManager().downloadProfileImage(this.getEntityId()));

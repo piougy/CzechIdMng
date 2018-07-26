@@ -1415,9 +1415,6 @@
           "header": "How to",
           "message": "Form localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (in the <strong>eav</strong> section):"
         }
-      },
-      "values": {
-        "title": "Attribute's values"
       }
     },
     "formAttributes": {
@@ -1443,12 +1440,9 @@
       },
       "detail": {
         "title": "Basic information"
-      },
-      "values": {
-        "title": "Attribute's values"
       }
     },
-    "formValues": {
+    "form-Values": {
       "header": "Attribute's values",
       "title": "Attribute's values",
       "filter": {
@@ -1462,15 +1456,6 @@
         "value": {
           "placeholder": "Attribute value"
         }
-      },
-      "columns": {
-        "owner": "Owner",
-        "type": "Attribute's type",
-        "value": "Attribute's value",
-        "name": "Name of attribute",
-        "code": "Code of attribute",
-        "default": "Default value",
-        "facetype": "Type for display"
       }
     },
     "confidentialStorage": {
@@ -2755,6 +2740,17 @@
       "unmodifiable": {
         "help": "System attribute cannot be deleted. Some of its configurations are not editable.",
         "label": "System attribute"
+      }
+    },
+    "FormValue": {
+      "ownerId": {
+        "label": "Owner"
+      },
+      "value": {
+        "label": "Attribute's value"
+      },
+      "persistentType": {
+        "label": "Attribute type"
       }
     },
     "Role": {

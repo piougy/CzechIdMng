@@ -1456,9 +1456,6 @@
           "header": "How to",
           "message": "Lokalizaci pro formulář je možné definovat v modulu <strong class=\"highlight\">{{name}}</strong> (v sekci <strong>eav</strong>):"
         }
-      },
-      "values": {
-        "title": "Hodnoty atributů"
       }
     },
     "formAttributes": {
@@ -1484,12 +1481,9 @@
       },
       "detail": {
         "title": "Základní informace"
-      },
-      "values": {
-        "title": "Hodnoty atributu"
       }
     },
-    "formValues": {
+    "form-values": {
       "header": "Hodnoty atributů",
       "title": "Hodnoty atributů",
       "filter": {
@@ -1503,15 +1497,6 @@
         "value": {
           "placeholder": "Hodnota atributu"
         }
-      },
-      "columns": {
-        "owner": "Vlastník",
-        "type": "Typ atributu",
-        "value": "Hodnota atributu",
-        "name": "Název atributu",
-        "code": "Kód atributu",
-        "default": "Výchozí hodnota",
-        "facetype": "Typ zobrazení"
       }
     },
     "confidentialStorage": {
@@ -2801,6 +2786,17 @@
         "help": "Systémový atribut nemůže být smazán a nelze upravovat některé jeho atributy.",
         "label": "Systémový atribut"
        }
+    },
+    "FormValue": {
+      "ownerId": {
+        "label": "Vlastník"
+      },
+      "value": {
+        "label": "Hodnota atributu"
+      },
+      "persistentType": {
+        "label": "Typ atributu"
+      }
     },
     "Role": {
       "_type": "Role",

@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventType;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -329,5 +330,17 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		} finally {
 			entityEventManager.enable(processor.getId());
 		}
+	}
+	
+	@Test
+	public void testNextProcessorIsNotExecutedAfterException() {
+		EntityEvent<TestContent> event = new CoreEvent<>(CoreEventType.CREATE, new TestContent());
+		event.getContent().setException(3);
+		try {
+			entityEventManager.process(event);
+		} catch (CoreException ex) {
+			// ok
+		}
+		Assert.assertEquals("2", event.getContent().getText());
 	}
 }

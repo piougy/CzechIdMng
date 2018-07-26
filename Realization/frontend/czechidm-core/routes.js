@@ -567,12 +567,12 @@ module.exports = {
         },
         {
           path: ':entityId/localization',
-          component: require('./src/content/form/FormLocalization'),
+          component: require('./src/content/form/FormDefinitionLocalization'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]
         },
         {
           path: ':entityId/values',
-          component: require('./src/content/form/FormValues'),
+          component: require('./src/content/form/FormDefinitionValues'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
         }
       ]

@@ -24,6 +24,8 @@ class FormAttributeRoutes extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { entityId } = this.props.params;
 
     if (!this._getIsNew()) {
@@ -33,11 +35,14 @@ class FormAttributeRoutes extends Basic.AbstractContent {
   }
 
   /**
-   * Function check if exist params new
+   * Method check if exist params new
    */
   _getIsNew() {
     const { query } = this.props.location;
-    return (query) ? query.new : null;
+    if (query) {
+      return query.new ? true : false;
+    }
+    return false;
   }
 
   _getFormDefinitionId() {
@@ -51,10 +56,10 @@ class FormAttributeRoutes extends Basic.AbstractContent {
       <div>
         {
           this._getIsNew()
-            ?
-            <Helmet title={this.i18n('create.title')} />
-            :
-            <Helmet title={this.i18n('edit.title')} />
+          ?
+          <Helmet title={this.i18n('create.title')} />
+          :
+          <Helmet title={this.i18n('edit.title')} />
         }
         {
           (this._getIsNew() || !entity)
@@ -67,12 +72,12 @@ class FormAttributeRoutes extends Basic.AbstractContent {
         }
         {
           this._getIsNew()
-            ?
-            <FormAttributeDetail isNew formDefinition={this._getFormDefinitionId()} params={this.props.params} />
-            :
-            <Advanced.TabPanel position="left" parentId="forms-attributes" params={this.props.params}>
-              {this.props.children}
-            </Advanced.TabPanel>
+          ?
+          <FormAttributeDetail isNew formDefinition={ this._getFormDefinitionId() } params={ this.props.params } />
+          :
+          <Advanced.TabPanel position="left" parentId="forms-attributes" params={this.props.params}>
+            {this.props.children}
+          </Advanced.TabPanel>
         }
 
       </div>

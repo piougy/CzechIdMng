@@ -15,7 +15,7 @@ const manager = new FormDefinitionManager();
  *
  * @author Radek Tomiška
  */
-class FormLocalization extends Basic.AbstractContent {
+class FormDefinitionLocalization extends Basic.AbstractContent {
 
   getContentKey() {
     return 'content.formDefinitions.localization';
@@ -102,7 +102,7 @@ class FormLocalization extends Basic.AbstractContent {
         <Basic.PanelBody style={{ padding: 0 }}>
 
           { this.i18n('how-to.message', { name: entity.module, escape: false } ) }
-
+          {/* it's ugly, but works */}
           <pre style={{ marginTop: 15 }}>
             ...<br/>
             {'  '}"eav": {'\u007b'} <br/>
@@ -136,9 +136,9 @@ class FormLocalization extends Basic.AbstractContent {
   }
 }
 
-FormLocalization.propTypes = {
+FormDefinitionLocalization.propTypes = {
 };
-FormLocalization.defaultProps = {
+FormDefinitionLocalization.defaultProps = {
 };
 
 function select(state, component) {
@@ -150,4 +150,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(FormLocalization);
+export default connect(select)(FormDefinitionLocalization);

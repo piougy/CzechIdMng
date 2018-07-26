@@ -71,8 +71,6 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	private LookupService lookupService;
 
 	public AbstractReadDtoController(ReadDtoService<DTO, F> service) {
-		Assert.notNull(service, "Service is required!");
-
 		this.service = service;
 	}
 
@@ -82,6 +80,8 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	protected ReadDtoService<DTO, F> getService() {
+		Assert.notNull(service, "Service is required!");
+		//
 		return service;
 	}
 

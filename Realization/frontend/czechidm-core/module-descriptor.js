@@ -1007,15 +1007,24 @@ module.exports = {
                     'access': [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] }]
                   },
                   {
-                    'id': 'forms-attribute-values',
-                    'labelKey': 'content.formAttributes.values.title',
-                    'order': 950,
+                    'id': 'form-attribute-values',
+                    'labelKey': 'content.form-values.title',
+                    'order': 505,
                     'path': '/forms/attribute/:entityId/values',
                     'icon': '',
                     'type': 'TAB',
                     'access': [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] }]
                   }
                 ]
+              },
+              {
+                'id': 'form-definition-values',
+                'labelKey': 'content.form-values.title',
+                'order': 200,
+                'path': '/forms/:entityId/values',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
               },
               {
                 'id': 'forms-localization',
@@ -1025,15 +1034,6 @@ module.exports = {
                 'icon': '',
                 'type': 'TAB',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]
-              },
-              {
-                'id': 'forms-values',
-                'labelKey': 'content.formDefinitions.values.title',
-                'order': 950,
-                'path': '/forms/:entityId/values',
-                'icon': '',
-                'type': 'TAB',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
               }
             ]
           },

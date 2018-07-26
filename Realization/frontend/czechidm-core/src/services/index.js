@@ -40,6 +40,7 @@ import ConceptRoleRequestService from './ConceptRoleRequestService';
 import RoleTreeNodeService from './RoleTreeNodeService';
 import FormDefinitionService from './FormDefinitionService';
 import FormAttributeService from './FormAttributeService';
+import FormValueService from './FormValueService';
 import AuthorizationPolicyService from './AuthorizationPolicyService';
 import ScriptAuthorityService from './ScriptAuthorityService';
 import ContractGuaranteeService from './ContractGuaranteeService';
@@ -61,7 +62,6 @@ import ContractSliceGuaranteeService from './ContractSliceGuaranteeService';
 import RoleGuaranteeService from './RoleGuaranteeService';
 import RoleGuaranteeRoleService from './RoleGuaranteeRoleService';
 import ProfileService from './ProfileService';
-import FormDefinitionAttributesValuesService from './FormDefinitionAttributesValuesService';
 
 const ServiceRoot = {
   RestApiService,
@@ -99,7 +99,7 @@ const ServiceRoot = {
   RoleTreeNodeService,
   FormDefinitionService,
   FormAttributeService,
-  FormDefinitionAttributesValuesService,
+  FormValueService,
   AuthorizationPolicyService,
   ScriptAuthorityService,
   ContractGuaranteeService,

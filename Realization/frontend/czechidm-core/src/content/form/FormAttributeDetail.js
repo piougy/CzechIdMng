@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
 import Joi from 'joi';
 //
 import * as Basic from '../../components/basic';
+import * as Utils from '../../utils';
 import { FormAttributeManager } from '../../redux';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 import ComponentService from '../../services/ComponentService';
@@ -33,6 +33,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     super.componentDidMount();
+    //
     const { entityId } = this.props.params;
     const { isNew, formDefinitionId } = this.props;
     if (isNew) {
@@ -166,43 +167,20 @@ class FormAttributeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading, _permissions, isNew } = this.props;
+    const { entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
     //
     return (
       <div>
-        {
-          isNew
-          ?
-          <Helmet title={this.i18n('create.title')} />
-          :
-          <Helmet title={this.i18n('edit.title')} />
-        }
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        {
-          !entity
-          ||
-          <Basic.PageHeader>
-            <Basic.Icon value="fa:wpforms"/>
-            {' '}
-            {
-              isNew
-              ?
-              this.i18n('create.header')
-              :
-              <span>{entity.name} <small>{this.i18n('edit.header')}</small></span>
-            }
-          </Basic.PageHeader>
-        }
-
-        <Basic.Panel>
-            <form onSubmit={this.save.bind(this)}>
+        <form onSubmit={this.save.bind(this)}>
+          <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+            <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.formAttributes.detail.title') } />
+            <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
               <Basic.AbstractForm
                 ref="form"
                 data={ entity }
                 showLoading={showLoading || _showLoading}
-                readOnly={ !manager.canSave(entity, _permissions) }
-                style={{ padding: '15px 15px 0 15px' }}>
+                readOnly={ !manager.canSave(entity, _permissions) }>
                 <Basic.Row>
                   <Basic.Col lg={ 4 }>
                     <Basic.TextField
@@ -298,20 +276,20 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   label={this.i18n('entity.FormAttribute.unmodifiable.label')}
                   helpBlock={this.i18n('entity.FormAttribute.unmodifiable.help')}/>
               </Basic.AbstractForm>
-              <Basic.PanelFooter showLoading={showLoading || _showLoading} >
-                <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-                <Basic.Button
-                  type="submit"
-                  level="success"
-                  showLoadingIcon
-                  showLoadingText={this.i18n('button.saving')}
-                  rendered={ manager.canSave(entity, _permissions) }>
-                  {this.i18n('button.save')}
-                </Basic.Button>
-              </Basic.PanelFooter>
-            </form>
-        </Basic.Panel>
-
+            </Basic.PanelBody>
+            <Basic.PanelFooter showLoading={showLoading || _showLoading} >
+              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoadingIcon
+                showLoadingText={this.i18n('button.saving')}
+                rendered={ manager.canSave(entity, _permissions) }>
+                {this.i18n('button.save')}
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
+        </form>
       </div>
     );
   }

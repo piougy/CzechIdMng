@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -53,6 +54,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormDefinitionFilter;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
@@ -925,8 +927,7 @@ public class DefaultFormService implements FormService {
 					.format("Find owners by confidential attributes [{0}] are not supported.", attribute.getCode()));
 		}
 		//
-		FormValueService<FormableEntity> formValueService = (FormValueService<FormableEntity>) formValueServices
-				.getPluginFor(lookupService.getEntityClass(ownerType));
+		FormValueService<FormableEntity> formValueService = getFormValueService(ownerType);
 		//
 		Page<FormableEntity> ownerEntities = formValueService.findOwners(attribute, persistentValue, pageable);
 		//
@@ -952,6 +953,37 @@ public class DefaultFormService implements FormService {
 		//
 		return findOwners(ownerType, attribute, persistentValue, pageable);
 	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Transactional(readOnly = true)
+	public Page<IdmFormValueDto> findValues(IdmFormValueFilter filter, Pageable pageable, BasePermission... permission) {
+		Assert.notNull(filter);
+		//
+		// resolve owner by definition
+		IdmFormDefinitionDto formDefinition = null;
+		UUID definitionId = filter.getDefinitionId();
+		if (definitionId != null) {
+			formDefinition = formDefinitionService.get(definitionId);
+		}
+		//
+		UUID attributeId = filter.getAttributeId();
+		if (formDefinition == null && attributeId != null) {
+			IdmFormAttributeDto formAttribute = formAttributeService.get(attributeId);
+			if (formAttribute != null) {
+				formDefinition = DtoUtils.getEmbedded(formAttribute, IdmFormAttribute_.formDefinition);
+			}
+		}
+		if (formDefinition == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", "formDefinition"));
+		}
+		filter.setOwner(getEmptyOwner(formDefinition));
+		Assert.notNull(filter.getOwner(), "Filter - attribute owner is required. Is possible to filter form values by given owner only");
+		//
+		FormValueService<FormableEntity> formValueService = getFormValueService(((Identifiable) filter.getOwner()).getClass());
+		//
+		return formValueService.find(filter, pageable, permission);
+	}
 
 	@Override
 	public List<String> getOwnerTypes() {
@@ -969,23 +1001,29 @@ public class DefaultFormService implements FormService {
 	 * Returns FormValueService for given owner
 	 * 
 	 * @param owner
-	 * @param <O>
-	 *            values owner
-	 * @param <E>
-	 *            values entity
+	 * @param <O> values owner
+	 * @return
+	 */
+	private <O extends FormableEntity> FormValueService<O> getFormValueService(Identifiable owner) {
+		return getFormValueService(owner.getClass());
+	}
+	
+	/**
+	 * Returns FormValueService for given owner
+	 * 
+	 * @param ownerType
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked" })
-	private <O extends FormableEntity> FormValueService<O> getFormValueService(Identifiable owner) {
-		O ownerEntity = getOwnerEntity(owner);
-		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(ownerEntity.getClass());
+	private <O extends FormableEntity> FormValueService<O> getFormValueService(Class<? extends Identifiable> ownerType) {
+		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(lookupService.getEntityClass(ownerType));
 		if (formValueService == null) {
 			throw new IllegalStateException(MessageFormat.format(
-					"FormValueService for class [{0}] not found, please check configuration", ownerEntity.getClass()));
+					"FormValueService for class [{0}] not found, please check configuration", ownerType));
 		}
 		return formValueService;
 	}
-
+	
 	/**
 	 * 
 	 * @param owner
@@ -1125,5 +1163,15 @@ public class DefaultFormService implements FormService {
 			result.append(singleValue);
 		}
 		return result.toString();
+	}
+	
+	private FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition) {
+		Assert.notNull(formDefinition);
+		//
+		try {
+			return (FormableEntity) Class.forName(formDefinition.getType()).newInstance();
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("formDefinition", formDefinition.getType()));
+		}
 	}
 }

@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -686,6 +687,18 @@ public interface FormService extends ScriptEnabled {
 	 * @return owners dto
 	 */
 	<O extends BaseDto> Page<O> findOwners(Class<? extends Identifiable> ownerType, String attributeCode, Serializable persistentValue, Pageable pageable);
+	
+	/**
+	 * Find values by given filter
+	 * 
+	 * @param filter Owner is required - values are returnded by given owner type.
+	 * @param pageable
+	 * @param permission
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	Page<IdmFormValueDto> findValues(IdmFormValueFilter filter, Pageable pageable, BasePermission... permission);
+	
 	
 	/**
 	 * Method returns full class names of all entities implementing {@link FormableEntity}

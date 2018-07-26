@@ -3,12 +3,18 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
-import { IdentityManager } from '../../redux';
+import { IdentityManager, DataManager } from '../../redux';
 import * as Advanced from '../../components/advanced';
 import OrganizationPosition from './OrganizationPosition';
 
 const identityManager = new IdentityManager();
 
+/**
+ * Identitz routes / tabs
+ *
+ * @author Radek Tomiška
+ * @author Petr Hanák
+ */
 class IdentityContent extends Basic.AbstractContent {
 
   constructor(props) {
@@ -18,19 +24,16 @@ class IdentityContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._selectNavigationItem();
     const { entityId } = this.props.params;
     //
     this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId));
     //
-    if (!this.state.imageUrl && entityId) {
-      identityManager.download(entityId, this.receiveImage.bind(this));
+    if (entityId) {
+      this.context.store.dispatch(identityManager.downloadProfileImage(entityId));
     }
-  }
-
-  receiveImage(blob) {
-    const objectURL = URL.createObjectURL(blob);
-    this.setState({imageUrl: objectURL});
   }
 
   componentDidUpdate() {
@@ -54,19 +57,21 @@ class IdentityContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { identity } = this.props;
+    const { identity, _imageUrl } = this.props;
     const { entityId } = this.props.params;
-    const imageUrl = this.state.imageUrl;
-
+    //
     return (
       <div>
         <Helmet title={this.i18n('navigation.menu.profile')} />
 
         <Basic.PageHeader>
-          <img
-          src={imageUrl}
-          className="img-circle"
-          style={{height: '40px'}} />
+          {
+            _imageUrl
+            ?
+            <img src={ _imageUrl } className="img-circle img-thumbnail" style={{ height: 40, padding: 0 }} />
+            :
+            <Basic.Icon icon="user"/>
+          }
           {' '}
           {identityManager.getNiceLabel(identity)} <small> {this.i18n('content.identity.profile.userDetail')}</small>
         </Basic.PageHeader>
@@ -89,17 +94,22 @@ IdentityContent.propTypes = {
 IdentityContent.defaultProps = {
   identity: null,
   userContext: null,
-  selectedSidebarItem: null
+  selectedSidebarItem: null,
+  _imageUrl: null
 };
 
 function select(state, component) {
   const { entityId } = component.params;
   const selectedNavigationItems = state.config.get('selectedNavigationItems');
   const selectedSidebarItem = (selectedNavigationItems.length > 1) ? selectedNavigationItems[1] : null;
+  const profileUiKey = identityManager.resolveProfileUiKey(entityId);
+  const profile = DataManager.getData(state, profileUiKey);
+  //
   return {
     identity: identityManager.getEntity(state, entityId),
     userContext: state.security.userContext,
-    selectedSidebarItem
+    selectedSidebarItem,
+    _imageUrl: profile ? profile.imageUrl : null,
   };
 }
 

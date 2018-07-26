@@ -35,6 +35,14 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE,
 			IdentityBasePermission.PASSWORDCHANGE,
 			IdentityBasePermission.CHANGEPERMISSION),
+	PROFILE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE),
 	IDENTITYCONTRACT(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.COUNT, 
@@ -54,12 +62,6 @@ public enum CoreGroupPermission implements GroupPermission {
 	IDENTITYROLE(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.AUTOCOMPLETE,
-			IdmBasePermission.READ, 
-			IdmBasePermission.CREATE, 
-			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE),
-	IDENTITYIMAGE(
-			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
@@ -265,11 +267,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITY_PASSWORDCHANGE = "IDENTITY" + BasePermission.SEPARATOR + "PASSWORDCHANGE";
 	public static final String IDENTITY_CHANGEPERMISSION = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEPERMISSION";
 	//
-	public static final String IDENTITYIMAGE_ADMIN = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "ADMIN";
-	public static final String IDENTITYIMAGE_READ = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "READ";
-	public static final String IDENTITYIMAGE_CREATE = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "CREATE";
-	public static final String IDENTITYIMAGE_UPDATE = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "UPDATE";
-	public static final String IDENTITYIMAGE_DELETE = "IDENTITYIMAGE" + BasePermission.SEPARATOR + "DELETE";
+	public static final String PROFILE_ADMIN = "PROFILE" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String PROFILE_COUNT = "PROFILE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String PROFILE_AUTOCOMPLETE = "PROFILE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String PROFILE_READ = "PROFILE" + BasePermission.SEPARATOR + "READ";
+	public static final String PROFILE_CREATE = "PROFILE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String PROFILE_UPDATE = "PROFILE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String PROFILE_DELETE = "PROFILE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String IDENTITYCONTRACT_COUNT = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "COUNT";
 	public static final String IDENTITYCONTRACT_AUTOCOMPLETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";

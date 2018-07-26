@@ -353,7 +353,8 @@
         "label": "$t(component.basic.ProgressBar.processed) {{now}} / {{max}}"
       },
       "Dropzone": {
-        "infoText": "Přetáhněte soubory na tuto plochu a nebo na ní klikněte pro výběr souborů."
+        "infoText": "Přetáhněte soubory na tuto plochu a nebo na ní klikněte pro výběr souborů.",
+        "readOnly": "Náhled není k dispozici."
       },
       "TextField": {
         "confidential": {
@@ -773,7 +774,7 @@
       "IDENTITY": "Uživatelé",
       "IDENTITYROLE": "Přiřazené role uživatelům",
       "IDENTITYCONTRACT": "Pracovně právní vztahy",
-      "IDENTITYIMAGE": "Profilová fotka identity",
+      "PROFILE": "Profil identity (fotka)",
       "CONTRACTSLICE": "Časové řezy",
       "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
       "CONTRACTSLICEGUARANTEE": "Garanti časových řezů PPV",
@@ -3812,6 +3813,15 @@
             "label": "Definice formuláře",
             "help": "Definice formuláře, které bude nastaveno oprávnění.",
             "placeholder": "Vyberte definici ..."
+          }
+        }
+      },
+      "core-profile-by-identity-evaluator": {
+        "help": "Oprávnění pro profil uživatele (fotka)",
+        "attributes": {
+          "identity-read": {
+            "label": "Dle oprávnění číst uživatele",
+            "help": "Nastaví oprávnění pro profily uživatelů, které aktuálně přihlášený uživatel může číst (například pokud může číst uživatele, může editovat jeho profil)."
           }
         }
       }

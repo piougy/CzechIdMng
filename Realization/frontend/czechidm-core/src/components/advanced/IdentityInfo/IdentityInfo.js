@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import classNames from 'classnames';
 //
 import * as Basic from '../../basic';
-import { IdentityManager } from '../../../redux/';
+import { IdentityManager, DataManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new IdentityManager();
@@ -25,14 +25,11 @@ export class IdentityInfo extends AbstractEntityInfo {
   }
 
   componentDidMount() {
-    if (!this.state.imageUrl && this.props.entityIdentifier) {
-      manager.download(this.props.entityIdentifier, this.receiveImage.bind(this));
+    super.componentDidMount();
+    //
+    if (this.getEntityId()) {
+      this.context.store.dispatch(this.getManager().downloadProfileImage(this.getEntityId()));
     }
-  }
-
-  receiveImage(blob) {
-    const objectURL = URL.createObjectURL(blob);
-    this.setState({imageUrl: objectURL});
   }
 
   /**
@@ -85,7 +82,7 @@ export class IdentityInfo extends AbstractEntityInfo {
     if (this.isDisabled(entity)) {
       return 'fa:user-times';
     }
-    return 'fa:user';
+    return 'user';
   }
 
   /**
@@ -93,7 +90,8 @@ export class IdentityInfo extends AbstractEntityInfo {
    * Renders nicelabel used in text and link face
    */
   _renderNiceLabel() {
-    const{showOnlyUsername} = this.props;
+    const{ showOnlyUsername } = this.props;
+    //
     if (!showOnlyUsername) {
       return super._renderNiceLabel();
     }
@@ -104,37 +102,40 @@ export class IdentityInfo extends AbstractEntityInfo {
     return '';
   }
 
-  renderImage() {
-    const imageUrl = this.state.imageUrl;
-    const style = {
-      height: '100px',
-      width: '100px',
-      borderRadius: '50%',
-      marginTop: '5px',
-      marginBottom: '10px',
-      border: '2px solid white',
-      backgroundColor: 'white',
-    };
-    if (imageUrl) {
-      style.boxShadow = '0px 2px 10px rgba(0, 0, 0, 0.2)';
-      return (
-        <img
-        src={imageUrl}
-        className="center-block"
-        style={ style } />
-      );
-    }
-    return (
-        <div
-        className="center-block"
-        style={ style }>
+  renderImage(entity) {
+    const { _imageLoading, _imageUrl } = this.props;
+    //
+    let content = null;
+    if (_imageLoading) {
+      content = (
+        <div className="text-center img-thumbnail img-loading" style={{ backgroundColor: '#DFF0D8' }}>
           <Basic.Icon
-          className=""
-          value={ "fa:user-circle" }
-          color="#D6EEF8"
-          style={{ fontSize: '92px', margin: '2px', height: '100px'}}/>
+            value="fa:refresh"
+            showLoading
+            color={ '#FFFFFF' }
+            />
         </div>
       );
+    } else if (_imageUrl) {
+      content = (
+        <img src={ _imageUrl } className="img-thumbnail" />
+      );
+    } else {
+      content = (
+        <Basic.Icon
+          value="user"
+          className="text-center img-thumbnail img-none"
+          style={{ backgroundColor: this.isDisabled(entity) ? '#FCF8E3' : '#DFF0D8' }}
+          color={ '#FFFFFF' }
+          />
+      );
+    }
+    //
+    return (
+      <div className="image-wrapper">
+        { content }
+      </div>
+    );
   }
 
   renderRow(icon, entityAttr) {
@@ -142,24 +143,12 @@ export class IdentityInfo extends AbstractEntityInfo {
       return (
         <tr>
           <td>
-            <Basic.Icon value={icon} />
-            {' '}
+            <Basic.Icon value={ icon } style={{ marginRight: 5 }} />
             { entityAttr }
           </td>
         </tr>
       );
     }
-  }
-
-  renderBody(_entity) {
-    return (
-      <table className="table table-condensed text-center" style={{ marginBottom: 0 }}>
-        <tbody>
-          { this.renderRow('fa:envelope', _entity.email) }
-          { this.renderRow('fa:phone', _entity.phone) }
-        </tbody>
-      </table>
-    );
   }
 
   _renderFull() {
@@ -168,6 +157,7 @@ export class IdentityInfo extends AbstractEntityInfo {
     //
     const panelClassNames = classNames(
       'abstract-entity-info',
+      'identity-info',
       { 'panel-success': _entity && !this.isDisabled(_entity) },
       { 'panel-warning': _entity && this.isDisabled(_entity) },
       className
@@ -175,32 +165,37 @@ export class IdentityInfo extends AbstractEntityInfo {
     //
     return (
       <Basic.Panel className={panelClassNames} style={style}>
-        <Basic.PanelHeader className="text-center" style={{ padding: '8px 0' }}>
-            { this.renderImage() }
-
-              <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
-              { this.getPopoverTitle(_entity) }
-            {
-              !this.isDisabled(_entity)
-              ||
-              <div className="pull-right">
-                <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
-              </div>
-            }
-            <div className="clearfix"/>
+        <Basic.PanelHeader>
+          <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
+          { this.getPopoverTitle(_entity) }
+          {
+            !this.isDisabled(_entity)
+            ||
+            <div className="pull-right">
+              <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
+            </div>
+          }
         </Basic.PanelHeader>
-
-        { this.renderBody(_entity) }
-
-        <Basic.PanelFooter rendered={ this.showLink() }>
-          <div className="text-center">
-            <Link to={ this.getLink() }>
-              <Basic.Icon value="fa:angle-double-right"/>
-              {' '}
-              {this.i18n('component.advanced.EntityInfo.link.detail.label')}
-            </Link>
+        <div className="image-field-container">
+          <div className="image-col">
+            { this.renderImage(_entity) }
           </div>
-        </Basic.PanelFooter>
+          <div className="field-col">
+            <table className="table table-condensed">
+              <tbody>
+                { this.renderRow('fa:envelope', _entity.email) }
+                { this.renderRow('fa:phone', _entity.phone) }
+                { this.renderRow(null, (
+                  <Link to={ this.getLink() }>
+                    <Basic.Icon value="fa:angle-double-right"/>
+                    {' '}
+                    {this.i18n('component.advanced.EntityInfo.link.detail.label')}
+                  </Link>
+                )) }
+              </tbody>
+            </table>
+          </div>
+        </div>
       </Basic.Panel>
     );
   }
@@ -226,23 +221,30 @@ IdentityInfo.propTypes = {
   showOnlyUsername: PropTypes.bool,
   //
   _showLoading: PropTypes.bool,
-  _permissions: PropTypes.arrayOf(PropTypes.string)
+  _permissions: PropTypes.arrayOf(PropTypes.string),
+  _imageLoading: PropTypes.bool,
 };
 IdentityInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
   entity: null,
   face: 'full',
   showOnlyUsername: false,
-  _showLoading: true
+  _showLoading: true,
+  _imageLoading: true,
+  _imageUrl: null
 };
 
 function select(state, component) {
   const identifier = component.entityIdentifier || component.username;
   const identity = component.entity || manager.getEntity(state, identifier);
+  const profileUiKey = manager.resolveProfileUiKey(identifier);
+  const profile = DataManager.getData(state, profileUiKey);
   //
   return {
     _entity: identity,
     _showLoading: manager.isShowLoading(state, null, identifier),
+    _imageLoading: DataManager.isShowLoading(state, profileUiKey),
+    _imageUrl: profile ? profile.imageUrl : null,
     userContext: state.security.userContext, // is needed for refresh after login
     _permissions: manager.getPermissions(state, null, identity)
   };

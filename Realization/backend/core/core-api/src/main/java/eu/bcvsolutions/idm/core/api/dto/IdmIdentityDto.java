@@ -18,11 +18,9 @@ import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
-import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
-import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 import io.swagger.annotations.ApiModel;
@@ -74,18 +72,6 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	private boolean disabled;
 	@JsonProperty(access = Access.READ_ONLY)
 	private IdentityState state;
-	@JsonProperty(access = Access.READ_ONLY)
-	@Embedded(dtoClass = IdmAttachmentDto.class)
-	private UUID image;
-	
-	public UUID getImage() {
-		return image;
-	}
-
-	public void setImage(UUID image) {
-		this.image = image;
-	}
-
 	private DateTime blockLoginDate = null;
 
 	public IdmIdentityDto() {

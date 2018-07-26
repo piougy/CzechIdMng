@@ -201,6 +201,7 @@ public class DefaultIdmPasswordService
 			return passwordDto;
 		}
 		//
+		// TODO: two passwords can be created in multi thread access (lock by identity before the get)
 		passwordDto = new IdmPasswordDto();
 		passwordDto.setIdentity(identityId);
 		passwordDto.setMustChange(false);

@@ -323,7 +323,8 @@
         "label": "$t(component.basic.ProgressBar.processed) {{now}} / {{max}}"
       },
       "Dropzone": {
-        "infoText": "Drag files here, or click to select files."
+        "infoText": "Drag files here, or click to select files.",
+        "readOnly": "Preview is not available."
       },
       "TextField": {
         "confidential": {
@@ -740,9 +741,9 @@
       "AUDIT": "Audit",
       "CONFIGURATION": "Configuration (app)",
       "IDENTITY": "Users",
-      "IDENTITYIMAGE": "Profile picture",
       "IDENTITYROLE": "Assigned roles",
       "IDENTITYCONTRACT": "Contracted positions",
+      "PROFILE": "User profile (picture)",
       "CONTRACTSLICE": "Time slices",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
       "CONTRACTSLICEGUARANTEE": "Time slices 's guarantees",
@@ -3768,6 +3769,15 @@
             "label": "Form definition",
             "help": "",
             "placeholder": "Select form definition ..."
+          }
+        }
+      },
+      "core-profile-by-identity-evaluator": {
+        "help": "Permissions to identity profile (picture)",
+        "attributes": {
+          "identity-read": {
+            "label": "By permission to read user",
+            "help": "Add permission to profile of users, which can be read by the logged user (for example, when logged user can read identity, then he can update her profile)."
           }
         }
       }

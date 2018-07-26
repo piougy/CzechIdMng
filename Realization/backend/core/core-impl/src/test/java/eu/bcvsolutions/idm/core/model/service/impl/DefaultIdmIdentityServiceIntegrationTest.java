@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
+import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -69,6 +70,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Autowired private IdmRoleGuaranteeRepository roleGuaranteeRepository;
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private IdmConceptRoleRequestService conceptRequestService;
+	@Autowired private IdmProfileService profileService;
 	//
 	private IdmIdentityService identityService;
 
@@ -111,7 +113,10 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		getHelper().createIdentityRole(contract, role);
 		IdmIdentityRoleFilter identityRolefilter = new IdmIdentityRoleFilter();
 		identityRolefilter.setIdentityId(identity.getId());
+		// profile
+		getHelper().createProfile(identity);
 
+		assertNotNull(profileService.findOneByIdentity(identity.getId()));
 		assertEquals(1, role.getGuarantees().size());
 		assertNotNull(identityService.getByUsername(username));
 		assertNotNull(passwordService.findOneByIdentity(identity.getId()));
@@ -134,6 +139,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(0, identityContractService.findAllByIdentity(identity.getId()).size());
 		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
 		assertEquals(0, contractGuaranteeService.find(filter, null).getTotalElements());
+		assertNull(profileService.findOneByIdentity(identity.getId()));
 		// TODO: transactions?
 		// assertEquals(0, roleGuaranteeRepository.findAllByRole_Id(role.getId()).size());
 	}

@@ -250,9 +250,9 @@ class IdentityService extends FormableEntityService {
   /**
    * Upload image to BE
    */
-  upload(formData, identityId) {
+  uploadProfileImage(identityId, formData) {
     return RestApiService
-      .upload(this.getApiPath() + `/${encodeURIComponent(identityId)}/image`, formData)
+      .upload(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/image`, formData)
       .then(response => {
         return response.json();
       })
@@ -270,29 +270,16 @@ class IdentityService extends FormableEntityService {
   /**
    * Get image from BE
    */
-  download(identityId, cb) {
-    return RestApiService
-      .download(this.getApiPath() + `/${identityId}/image`)
-      .then(response => {
-        if (response.status === 403) {
-          throw new Error(403);
-        }
-        if (response.status === 404) {
-          throw new Error(404);
-        }
-        return response.blob();
-      })
-      .then(blob => {
-        cb(blob);
-      });
+  downloadProfileImage(identityId) {
+    return RestApiService.download(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/image`);
   }
 
   /**
    * Delete image from BE
    */
-  deleteImage(identityId) {
+  deleteProfileImage(identityId) {
     return RestApiService
-      .delete(this.getApiPath() + `/${encodeURIComponent(identityId)}/image`)
+      .delete(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/image`)
       .then(response => {
         if (response.status === 204) { // no content - ok
           return null;
@@ -308,6 +295,26 @@ class IdentityService extends FormableEntityService {
         }
         return json;
       });
+  }
+
+  /**
+   * Fetch profile permissions
+   *
+   * @param  {string, number} identityId entity id
+   * @return {Promise}
+   */
+  getProfilePermissions(identityId) {
+    return RestApiService
+    .get(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/permissions`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
   }
 }
 

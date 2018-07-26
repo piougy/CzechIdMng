@@ -65,7 +65,11 @@ public class DefaultLookupService implements LookupService {
 		if (lookup == null) {
 			throw new IllegalArgumentException(String.format("Entity lookup for identifiable type [%s] is not supported", identifiableType));
 		}
-		return lookup.lookup(entityId);
+		BaseEntity entity = lookup.lookup(entityId);
+		//
+		LOG.trace("Identifiable type [{}] with identifier [{}] found [{}]", identifiableType, entityId, entity != null);
+		return entity;
+		
 	}
 	
 	@Override
@@ -74,7 +78,10 @@ public class DefaultLookupService implements LookupService {
 		if (lookup == null) {
 			throw new IllegalArgumentException(String.format("Dto lookup for identifiable type [%s] is not supported", identifiableType));
 		}
-		return lookup.lookup(entityId);
+		BaseDto dto = lookup.lookup(entityId);
+		//
+		LOG.trace("Identifiable type [{}] with identifier [{}] found [{}]", identifiableType, entityId, dto != null);
+		return dto;
 	}
 	
 	@Override

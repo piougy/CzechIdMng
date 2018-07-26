@@ -57,6 +57,7 @@ import EntityStateManager from './EntityStateManager';
 import ContractSliceManager from './ContractSliceManager';
 import RoleGuaranteeManager from './RoleGuaranteeManager';
 import RoleGuaranteeRoleManager from './RoleGuaranteeRoleManager';
+import ProfileManager from './ProfileManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -110,7 +111,8 @@ const ManagerRoot = {
   ContractSliceManager,
   ContractSliceGuaranteeManager,
   RoleGuaranteeManager,
-  RoleGuaranteeRoleManager
+  RoleGuaranteeRoleManager,
+  ProfileManager
 };
 
 ManagerRoot.version = '0.0.1';

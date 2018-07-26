@@ -1,4 +1,5 @@
 import FlashMessagesManager from '../flash/FlashMessagesManager';
+import * as Utils from '../../utils';
 /**
  * action types
  */
@@ -117,7 +118,7 @@ export default class DataManager {
   }
 
   /**
-   *
+   * Returns data associated with the given key
    *
    * @param  {state} state - application state
    * @param  {string} uiKey - access ui key
@@ -131,5 +132,17 @@ export default class DataManager {
       return null;
     }
     return state.data.data.get(uiKey);
+  }
+
+  /**
+   * Returns true, when loading for given uiKey proceed
+   *
+   * @param  {state} state - application state
+   * @param  {string} uiKey - access ui key
+   * @return {any} - stored data
+   * @since 9.0.0
+   */
+  static isShowLoading(state, uiKey) {
+    return Utils.Ui.isShowLoading(state, uiKey);
   }
 }

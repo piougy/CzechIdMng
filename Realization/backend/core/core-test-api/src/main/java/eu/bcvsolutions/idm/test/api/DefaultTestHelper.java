@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
@@ -55,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
@@ -117,6 +119,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private IdmRoleGuaranteeService roleGuaranteeService;
 	@Autowired private IdmRoleGuaranteeRoleService roleGuaranteeRoleService;
+	@Autowired private IdmProfileService profileService;
 	
 	@Override
 	public LoginDto loginAdmin() {
@@ -676,5 +679,10 @@ public class DefaultTestHelper implements TestHelper {
 		automaticRole = automaticRoleAttributeService.save(automaticRole);
 		//
 		return rule;
+	}
+	
+	@Override
+	public IdmProfileDto createProfile(IdmIdentityDto identity) {
+		return profileService.findOrCreateByIdentity(identity.getId());
 	}
 }

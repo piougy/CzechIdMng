@@ -194,7 +194,18 @@ export default class SecurityManager {
             redirect();
           }
         })
-        .catch(error => dispatch(this.receiveLoginError(error, redirect)));
+        .catch(error => {
+          if (error.statusCode === 401 || error.statusCode === 403) {
+            // logout was already called - clean up token from FE
+            dispatch(this.receiveLogout());
+            if (redirect) {
+              redirect();
+            }
+          } else {
+            // other error
+            dispatch(this.receiveLoginError(error, redirect));
+          }
+        });
     };
   }
 

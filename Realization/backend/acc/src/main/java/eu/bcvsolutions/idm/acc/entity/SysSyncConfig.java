@@ -74,7 +74,7 @@ public class SysSyncConfig extends AbstractEntity {
 	@Column(name = "custom_filter", nullable = false)
 	private boolean customFilter = false;
 
-	@NotAudited // token isn't audited more
+	@NotAudited // token isn't audited any more
 	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "token")
 	private String token;

@@ -569,13 +569,30 @@ module.exports = {
           path: ':entityId/localization',
           component: require('./src/content/form/FormLocalization'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]
+        },
+        {
+          path: ':entityId/values',
+          component: require('./src/content/form/FormValues'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
         }
       ]
     },
     {
-      path: 'forms/attribute/:entityId',
-      component: require('./src/content/form/FormAttributeDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
+      path: 'forms/attribute/',
+      component: require('./src/content/form/FormAttributeRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId/detail',
+          component: require('./src/content/form/FormAttributeDetail'),
+          access: [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] }]
+        },
+        {
+          path: ':entityId/values',
+          component: require('./src/content/form/FormAttributeValues'),
+          access: [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] }]
+        }
+      ]
     },
     {
       path: 'password-policies',

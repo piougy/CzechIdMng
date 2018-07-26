@@ -61,6 +61,7 @@ import ContractSliceGuaranteeService from './ContractSliceGuaranteeService';
 import RoleGuaranteeService from './RoleGuaranteeService';
 import RoleGuaranteeRoleService from './RoleGuaranteeRoleService';
 import ProfileService from './ProfileService';
+import FormDefinitionAttributesValuesService from './FormDefinitionAttributesValuesService';
 
 const ServiceRoot = {
   RestApiService,
@@ -98,6 +99,7 @@ const ServiceRoot = {
   RoleTreeNodeService,
   FormDefinitionService,
   FormAttributeService,
+  FormDefinitionAttributesValuesService,
   AuthorizationPolicyService,
   ScriptAuthorityService,
   ContractGuaranteeService,

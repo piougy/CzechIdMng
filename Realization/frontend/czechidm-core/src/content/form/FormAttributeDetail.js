@@ -34,14 +34,14 @@ class FormAttributeDetail extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     const { entityId } = this.props.params;
-
-    if (this._getIsNew()) {
+    const { isNew, formDefinitionId } = this.props;
+    if (isNew) {
       this.context.store.dispatch(manager.receiveEntity(entityId,
         {
           persistentType: PersistentTypeEnum.TEXT,
           seq: 0,
           unmodifiable: false,
-          formDefinition: this._getFormDefinitionId()
+          formDefinition: formDefinitionId
         }, null, () => {
           this.refs.code.focus();
           this.setState({
@@ -60,27 +60,14 @@ class FormAttributeDetail extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'forms';
-  }
-
-  /**
-   * Function check if exist params new
-   */
-  _getIsNew() {
-    const { query } = this.props.location;
-    return (query) ? query.new : null;
-  }
-
-  _getFormDefinitionId() {
-    const { query } = this.props.location;
-    return (query) ? query.formDefinition : null;
+    return 'forms-attribute-detail';
   }
 
   /**
    * Default save method that catch save event from form.
    */
   save(event) {
-    const { uiKey } = this.props;
+    const { uiKey, formDefinition } = this.props;
 
     if (event) {
       event.preventDefault();
@@ -99,7 +86,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
     };
 
     if (entity.id === undefined) {
-      saveEntity.formDefinition = this._getFormDefinitionId();
+      saveEntity.formDefinition = formDefinition;
       this.context.store.dispatch(manager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
@@ -117,6 +104,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
    * Method set showLoading to false and if is'nt error then show success message
    */
   _afterSave(entity, error) {
+    const { isNew } = this.props;
     if (error) {
       this.setState({
         _showLoading: false
@@ -128,7 +116,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
       _showLoading: false
     });
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    if (this._getIsNew()) {
+    if (isNew) {
       this.context.router.goBack();
     }
   }
@@ -178,13 +166,13 @@ class FormAttributeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading, _permissions } = this.props;
+    const { entity, showLoading, _permissions, isNew } = this.props;
     const { _showLoading } = this.state;
     //
     return (
       <div>
         {
-          this._getIsNew()
+          isNew
           ?
           <Helmet title={this.i18n('create.title')} />
           :
@@ -198,7 +186,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
             <Basic.Icon value="fa:wpforms"/>
             {' '}
             {
-              this._getIsNew()
+              isNew
               ?
               this.i18n('create.header')
               :
@@ -330,10 +318,14 @@ class FormAttributeDetail extends Basic.AbstractContent {
 }
 
 FormAttributeDetail.propTypes = {
-  _permissions: PropTypes.arrayOf(PropTypes.string)
+  _permissions: PropTypes.arrayOf(PropTypes.string),
+  isNew: PropTypes.bool,
+  formDefinition: PropTypes.string,
 };
 FormAttributeDetail.defaultProps = {
-  _permissions: null
+  _permissions: null,
+  isNew: false,
+  formDefinition: null,
 };
 
 function select(state, component) {

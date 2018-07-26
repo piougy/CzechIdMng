@@ -58,6 +58,7 @@ import ContractSliceManager from './ContractSliceManager';
 import RoleGuaranteeManager from './RoleGuaranteeManager';
 import RoleGuaranteeRoleManager from './RoleGuaranteeRoleManager';
 import ProfileManager from './ProfileManager';
+import FormDefinitionAttributesValuesManager from './FormDefinitionAttributesValuesManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -93,6 +94,7 @@ const ManagerRoot = {
   RoleTreeNodeManager,
   FormDefinitionManager,
   FormAttributeManager,
+  FormDefinitionAttributesValuesManager,
   AuthorizationPolicyManager,
   ScriptAuthorityManager,
   ContractGuaranteeManager,

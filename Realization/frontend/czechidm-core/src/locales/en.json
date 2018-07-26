@@ -1415,6 +1415,9 @@
           "header": "How to",
           "message": "Form localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (in the <strong>eav</strong> section):"
         }
+      },
+      "values": {
+        "title": "Attribute's values"
       }
     },
     "formAttributes": {
@@ -1437,6 +1440,37 @@
           "label": "Text",
           "placeholder": "Code / Name / Description"
         }
+      },
+      "detail": {
+        "title": "Basic information"
+      },
+      "values": {
+        "title": "Attribute's values"
+      }
+    },
+    "formValues": {
+      "header": "Attribute's values",
+      "title": "Attribute's values",
+      "filter": {
+        "text": {
+          "label": "Text",
+          "placeholder": "Code / Name"
+        },
+        "type": {
+          "placeholder": "Select attribute type"
+        },
+        "value": {
+          "placeholder": "Attribute value"
+        }
+      },
+      "columns": {
+        "owner": "Owner",
+        "type": "Attribute's type",
+        "value": "Attribute's value",
+        "name": "Name of attribute",
+        "code": "Code of attribute",
+        "default": "Default value",
+        "facetype": "Type for display"
       }
     },
     "confidentialStorage": {

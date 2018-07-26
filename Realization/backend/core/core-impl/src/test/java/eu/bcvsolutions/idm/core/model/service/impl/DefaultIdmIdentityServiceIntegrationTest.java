@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
@@ -51,6 +52,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -71,6 +73,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private IdmConceptRoleRequestService conceptRequestService;
 	@Autowired private IdmProfileService profileService;
+	@Autowired private TokenManager tokenManager;
 	//
 	private IdmIdentityService identityService;
 
@@ -115,7 +118,13 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		identityRolefilter.setIdentityId(identity.getId());
 		// profile
 		getHelper().createProfile(identity);
-
+		// token
+		IdmTokenDto token = new IdmTokenDto();
+		token.setToken("token");
+		token.setTokenType("test");
+		token = tokenManager.saveToken(identity, token);
+		//
+		assertNotNull(tokenManager.getToken(token.getId()));
 		assertNotNull(profileService.findOneByIdentity(identity.getId()));
 		assertEquals(1, role.getGuarantees().size());
 		assertNotNull(identityService.getByUsername(username));
@@ -140,6 +149,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
 		assertEquals(0, contractGuaranteeService.find(filter, null).getTotalElements());
 		assertNull(profileService.findOneByIdentity(identity.getId()));
+		assertNull(tokenManager.getToken(token.getId()));
 		// TODO: transactions?
 		// assertEquals(0, roleGuaranteeRepository.findAllByRole_Id(role.getId()).size());
 	}

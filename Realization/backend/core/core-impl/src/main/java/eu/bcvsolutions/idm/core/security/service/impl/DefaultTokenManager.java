@@ -161,7 +161,7 @@ public class DefaultTokenManager implements TokenManager {
 	}
 	
 	@Transactional
-	@Scheduled(fixedDelay = 3600000)
+	@Scheduled(fixedDelay = 86400000) // once per day
 	public void purgeTokens() {
 		// TODO: CONFIGURATION - ENABLE, TTL
 		// older then 2 weeks by default

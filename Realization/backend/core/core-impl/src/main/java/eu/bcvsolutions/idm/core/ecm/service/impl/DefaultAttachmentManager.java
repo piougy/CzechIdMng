@@ -304,7 +304,7 @@ public class DefaultAttachmentManager
 	 * 
 	 * @return purged files count
 	 */
-	@Scheduled(fixedDelay = 3600000) 
+	@Scheduled(fixedDelay = 86400000) // once per day
 	public void purgeTempFiles() {	
 		int purgedFiles = 0;
 		long ttl = attachmentConfiguration.getTempTtl();

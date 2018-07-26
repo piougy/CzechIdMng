@@ -10,7 +10,6 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
-import eu.bcvsolutions.idm.core.api.domain.RequestState;
 
 /**
  * DTO for request item
@@ -26,18 +25,11 @@ public class IdmRequestItemDto extends AbstractDto {
 	private UUID request;
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	private String ownerType;
-	@NotNull
-	private UUID ownerId;
 	private UUID originalOwnerId;
 	@NotNull
 	private RequestOperationType operation = RequestOperationType.ADD;
-	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	private String requestType;
-	@NotNull
-	private RequestState state = RequestState.CONCEPT;
-	@Size(max = DefaultFieldLengths.NAME)
-	private String name;
 	private OperationResultDto result;
+	private String data; // JSON represented target DTO
 
 	public UUID getRequest() {
 		return request;
@@ -53,14 +45,6 @@ public class IdmRequestItemDto extends AbstractDto {
 
 	public void setOwnerType(String ownerType) {
 		this.ownerType = ownerType;
-	}
-
-	public UUID getOwnerId() {
-		return ownerId;
-	}
-
-	public void setOwnerId(UUID ownerId) {
-		this.ownerId = ownerId;
 	}
 
 	public UUID getOriginalOwnerId() {
@@ -79,36 +63,20 @@ public class IdmRequestItemDto extends AbstractDto {
 		this.operation = operation;
 	}
 
-	public String getRequestType() {
-		return requestType;
-	}
-
-	public void setRequestType(String requestType) {
-		this.requestType = requestType;
-	}
-
-	public RequestState getState() {
-		return state;
-	}
-
-	public void setState(RequestState state) {
-		this.state = state;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public OperationResultDto getResult() {
 		return result;
 	}
 
 	public void setResult(OperationResultDto result) {
 		this.result = result;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
 	}
 
 }

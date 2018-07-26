@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.util.UUID;
+
 import javax.validation.constraints.Size;
 
 import org.springframework.hateoas.core.Relation;
@@ -21,6 +23,8 @@ public class IdmRequestDto extends AbstractRequestDto {
 	private String requestType;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String name;
+	private String ownerType;
+	private UUID ownerId;
 
 	public String getRequestType() {
 		return requestType;
@@ -44,6 +48,22 @@ public class IdmRequestDto extends AbstractRequestDto {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getOwnerType() {
+		return ownerType;
+	}
+
+	public void setOwnerType(String ownerType) {
+		this.ownerType = ownerType;
+	}
+
+	public UUID getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(UUID ownerId) {
+		this.ownerId = ownerId;
 	}
 
 }

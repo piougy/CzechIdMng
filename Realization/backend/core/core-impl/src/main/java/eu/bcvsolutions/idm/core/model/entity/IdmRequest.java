@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -11,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
@@ -26,8 +29,13 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  *
  */
 @Entity
-@Table(name = "idm_request", indexes = { @Index(name = "idx_idm_req_wf", columnList = "wf_process_id"),
-		@Index(name = "idx_idm_req_name", columnList = "name") })
+@Table(name = "idm_request", indexes = { 
+		@Index(name = "idx_idm_req_wf", columnList = "wf_process_id"), //
+		@Index(name = "idx_idm_req_name", columnList = "name"), //
+		@Index(name = "idx_idm_req_o_id", columnList = "owner_id"), //
+		@Index(name = "idx_idm_req_o_type", columnList = "owner_type"), //
+		@Index(name = "idx_idm_req_state", columnList = "state") //
+})
 public class IdmRequest extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -36,6 +44,14 @@ public class IdmRequest extends AbstractEntity {
 	@NotNull
 	@Column(name = "request_type", nullable = false)
 	private String requestType;
+
+	@NotEmpty
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "owner_type", length = DefaultFieldLengths.NAME, nullable = false)
+	private String ownerType;
+
+	@Column(name = "owner_id", length = 16)
+	private UUID ownerId;
 
 	@Audited
 	@NotNull
@@ -133,6 +149,22 @@ public class IdmRequest extends AbstractEntity {
 
 	public void setOperation(RequestOperationType operation) {
 		this.operation = operation;
+	}
+
+	public String getOwnerType() {
+		return ownerType;
+	}
+
+	public void setOwnerType(String ownerType) {
+		this.ownerType = ownerType;
+	}
+
+	public UUID getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(UUID ownerId) {
+		this.ownerId = ownerId;
 	}
 
 }

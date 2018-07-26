@@ -35,7 +35,10 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmRequest;
+import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem_;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -168,7 +171,6 @@ public class IdmRequestItemController extends AbstractReadWriteDtoController<Idm
 	public ResponseEntity<?> post(@RequestBody @NotNull IdmRequestItemDto request) {
 		if (getService().isNew(request)) { 
 			request.setResult(new OperationResultDto(OperationState.CREATED));
-			request.setState(RequestState.CONCEPT);
 		}
 		return super.post(request);
 	}
@@ -201,8 +203,8 @@ public class IdmRequestItemController extends AbstractReadWriteDtoController<Idm
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.REQUEST_ITEM_DELETE + "')")
 	@ApiOperation(
-			value = "Delete request", 
-			nickname = "deleteRequest",
+			value = "Delete request item", 
+			nickname = "deleteRequestItem",
 			tags = { IdmRequestItemController.TAG },
 			authorizations = { 
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -215,20 +217,20 @@ public class IdmRequestItemController extends AbstractReadWriteDtoController<Idm
 			@PathVariable @NotNull String backendId) {
 		IdmRequestItemService service = ((IdmRequestItemService)this.getService());
 		IdmRequestItemDto dto = service.get(backendId);
+		IdmRequest request = DtoUtils.getEmbedded(dto, IdmRequestItem_.request, IdmRequest.class);
 		//
 		checkAccess(dto, IdmBasePermission.DELETE);
 		//
-		// Request in Executed state can not be delete or change
-		if(RequestState.EXECUTED == dto.getState()){
+		// Request item where his request is in the Executed state can not be delete or change
+		if(RequestState.EXECUTED == request.getState()){
 			throw new ResultCodeException(CoreResultCode.REQUEST_EXECUTED_CANNOT_DELETE,
 					ImmutableMap.of("request", dto));
 		}
 		
-		// Only request in Concept state, can be deleted. In others states, will be request set to Canceled state and save.
-		if(RequestState.CONCEPT == dto.getState()){
+		// Only request item where his request is in the Concept state, can be deleted. In others states, will be request item set to Canceled result and save.
+		if(RequestState.CONCEPT == request.getState()){
 			service.delete(dto);
 		}else {
-			dto.setState(RequestState.CANCELED);
 			dto.setResult(new OperationResultDto(OperationState.CANCELED));
 			service.save(dto);
 		}

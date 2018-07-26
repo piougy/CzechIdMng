@@ -19,6 +19,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRuleRequest_;
+import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRequestItemRepository;
@@ -77,7 +79,6 @@ public class DefaultIdmRequestItemService extends
 
 		if (this.isNew(dto)) { 
 			dto.setResult(new OperationResultDto(OperationState.CREATED));
-			dto.setState(RequestState.CONCEPT);
 		}
 		IdmRequestItem requestEntity = super.toEntity(dto, entity);
 
@@ -89,12 +90,23 @@ public class DefaultIdmRequestItemService extends
 	protected List<Predicate> toPredicates(Root<IdmRequestItem> root, CriteriaQuery<?> query,
 			CriteriaBuilder builder, IdmRequestItemFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
-
-		// States
-		List<RequestState> states = filter.getStates();
-		if (!states.isEmpty()) {
-			predicates.add(root.get(IdmRequestItem_.state).in(states));
+		
+		if (filter.getRequestId() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmRequestItem_.request).get(IdmRequestItem_.id),
+					filter.getRequestId()));
 		}
+		if (filter.getOriginalOwnerId() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmRequestItem_.originalOwnerId),
+					filter.getOriginalOwnerId()));
+		}
+		if (filter.getOriginalType() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmRequestItem_.ownerType),
+					filter.getOriginalType()));
+		}
+
 		return predicates;
 	}
 

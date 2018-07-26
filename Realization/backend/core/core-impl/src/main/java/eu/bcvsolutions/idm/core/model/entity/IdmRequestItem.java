@@ -13,15 +13,14 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
-import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
@@ -34,10 +33,8 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  */
 @Entity
 @Table(name = "idm_request_item", indexes = { //
-		@Index(name = "idx_idm_req_item_o_id", columnList = "owner_id"), //
 		@Index(name = "idx_idm_req_item_o_o_id", columnList = "orig_owner_id"), //
 		@Index(name = "idx_idm_req_item_o_type", columnList = "owner_type"), //
-		@Index(name = "idx_idm_req_item_state", columnList = "state"), //
 		@Index(name = "idx_idm_req_item_operation", columnList = "operation"), //
 		@Index(name = "idx_idm_req_item_req_id", columnList = "request_id"), //
 })
@@ -57,35 +54,15 @@ public class IdmRequestItem extends AbstractEntity {
 	@Column(name = "owner_type", length = DefaultFieldLengths.NAME, nullable = false)
 	private String ownerType;
 
-	@Column(name = "owner_id", length = 16)
-	private UUID ownerId;
+	@Type(type = "org.hibernate.type.StringClobType") 
+	@Column(name = "data")
+	private String data; // JSON represented target DTO
 
 	@Column(name = "orig_owner_id", length = 16)
 	private UUID originalOwnerId;
 
-	@Audited
-	@NotNull
-	@Column(name = "request_type", nullable = false)
-	private String requestType;
-
-	@Audited
-	@NotNull
-	@Column(name = "state")
-	@Enumerated(EnumType.STRING)
-	private RequestState state = RequestState.CONCEPT;
-
 	@Embedded
 	private OperationResult result;
-
-	@Audited
-	@NotNull
-	@Column(name = "execute_immediately")
-	private boolean executeImmediately = false;
-
-	@Audited
-	@Size(max = DefaultFieldLengths.DESCRIPTION)
-	@Column(name = "description")
-	private String description;
 
 	@Audited
 	@Enumerated(EnumType.STRING)
@@ -108,36 +85,12 @@ public class IdmRequestItem extends AbstractEntity {
 		this.ownerType = ownerType;
 	}
 
-	public UUID getOwnerId() {
-		return ownerId;
-	}
-
-	public void setOwnerId(UUID ownerId) {
-		this.ownerId = ownerId;
-	}
-
 	public UUID getOriginalOwnerId() {
 		return originalOwnerId;
 	}
 
 	public void setOriginalOwnerId(UUID originalOwnerId) {
 		this.originalOwnerId = originalOwnerId;
-	}
-
-	public String getRequestType() {
-		return requestType;
-	}
-
-	public void setRequestType(String requestType) {
-		this.requestType = requestType;
-	}
-
-	public RequestState getState() {
-		return state;
-	}
-
-	public void setState(RequestState state) {
-		this.state = state;
 	}
 
 	public OperationResult getResult() {
@@ -148,28 +101,20 @@ public class IdmRequestItem extends AbstractEntity {
 		this.result = result;
 	}
 
-	public boolean isExecuteImmediately() {
-		return executeImmediately;
-	}
-
-	public void setExecuteImmediately(boolean executeImmediately) {
-		this.executeImmediately = executeImmediately;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
 	public RequestOperationType getOperation() {
 		return operation;
 	}
 
 	public void setOperation(RequestOperationType operation) {
 		this.operation = operation;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
 	}
 
 }

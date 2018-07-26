@@ -45,8 +45,10 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
     private boolean approveRemove;
     @Size(max = DefaultFieldLengths.DESCRIPTION)
     private String description;
-    @Embedded(dtoClass = IdmRequestDto.class)
+    @Embedded(dtoClass = IdmRequestItemDto.class)
     private UUID requestItem;
+    @Embedded(dtoClass = IdmRequestDto.class)
+    private UUID request; // Isn't persist in the entity
     
     //
     @Deprecated // @since 8.2.0 - will be removed in 9 - business role redesign
@@ -188,5 +190,13 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
 
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
+	}
+
+	public UUID getRequest() {
+		return request;
+	}
+
+	public void setRequest(UUID request) {
+		this.request = request;
 	}
 }

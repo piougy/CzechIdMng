@@ -17,6 +17,6 @@ export default class RequestItemManager extends EntityManager {
   }
 
   getCollectionType() {
-    return 'request-items';
+    return 'requestItems';
   }
 }

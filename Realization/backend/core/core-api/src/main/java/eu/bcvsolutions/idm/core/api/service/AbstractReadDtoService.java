@@ -519,4 +519,17 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected Pageable getPageableAll(Sort sort) {
 		return new PageRequest(0, Integer.MAX_VALUE, sort);
 	}
+	
+//	@Override
+//	public DTO clone(UUID id) {
+//		Assert.notNull(id, "Id muste cannot be null!");
+//		DTO original = this.get(id);
+//		Assert.notNull(original, "Original DTO must be found for cloning!");
+//
+//		original.setId(null);
+//		if(original instanceof Auditable) {
+//			EntityUtils.clearAuditFields((Auditable) original);
+//		}
+//		return original;
+//	}
 }

@@ -490,7 +490,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		accountFilter.setSystemId(systemId);
 		Page<VsAccountDto> resultsPage = accountService.find(accountFilter, pageable);
 		List<VsAccountDto> results = resultsPage.getContent();
-		results.forEach(account -> {
+		for(VsAccountDto account : results) {
 			boolean canContinue = handler
 					.handle(this.read(new IcUidAttributeImpl(IcAttributeInfo.NAME, account.getUid(), null),
 							new IcObjectClassImpl(IcObjectClassInfo.ACCOUNT)));
@@ -498,7 +498,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 				// Handler stop next searching
 				return;
 			}
-		});
+		}
 		if (resultsPage.hasNext()) {
 			this.searchByPage(handler, resultsPage.nextPageable());
 		}

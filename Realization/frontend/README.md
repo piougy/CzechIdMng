@@ -131,3 +131,11 @@ Go to app module and then run:
 `npm run lint`   Check syntax in app module and in all czechidm linked modules (in directory czechidm-modules).
 
 `gulp lint`  Do same check as previous command, but run as gulp task.
+
+## Update dependencies
+
+For update NPM dependencies, you can use task 'install' in the gulp again.
+
+`gulp install`
+
+If you want to use command `npm install` instead `gulp install`. **You have to delete all symlinks on the CzechIdM modules** (from 'node_modules' folder) first. You can use command `npm prune` for that. This command is execute during 'gulp install' too. 

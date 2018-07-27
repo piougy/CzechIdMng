@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
-import FormValueTableComponent, { FormValueTable }  from './FormValueTable';
+import FormValueTableComponent, { FormValueTable } from './FormValueTable';
 import SearchParameters from '../../domain/SearchParameters';
 
 /**

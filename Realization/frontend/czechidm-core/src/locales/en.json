@@ -1442,7 +1442,7 @@
         "title": "Basic information"
       }
     },
-    "form-Values": {
+    "form-values": {
       "header": "Attribute's values",
       "title": "Attribute's values",
       "filter": {

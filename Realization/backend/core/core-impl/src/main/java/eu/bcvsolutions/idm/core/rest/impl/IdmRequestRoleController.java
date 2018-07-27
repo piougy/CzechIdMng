@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.rest.impl;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -14,7 +13,6 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -104,78 +102,64 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(value= REQUEST_SUB_PATH, method = RequestMethod.GET)
+	@RequestMapping(value= "/{requestId}"+REQUEST_SUB_PATH, method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	@ApiOperation(
-			value = "Search roles (/search/quick alias)", 
-			nickname = "searchRoles",
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = {
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
+			value = "Search roles (/search/quick alias)", //
+			nickname = "searchRoles", //
+			tags = { IdmRequestRoleController.TAG }, //
+			authorizations = { //
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { //
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }), //
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { //
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }) //
 				})
-	public Resources<?> find(
-			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable) {
-		return super.find(parameters, pageable);
-	}
-	
-	@ResponseBody
-	@RequestMapping(value= REQUEST_SUB_PATH+"/search/quick", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
-	@ApiOperation(
-			value = "Search roles", 
-			nickname = "searchQuickRoles", 
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = {
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
-				})
-	public Resources<?> findQuick(
-			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable) {
-		return super.findQuick(parameters, pageable);
-	}
-	
-	@ResponseBody
-	@RequestMapping(value= REQUEST_SUB_PATH+"/search/autocomplete", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_AUTOCOMPLETE + "')")
-	@ApiOperation(
-			value = "Autocomplete roles (selectbox usage)", 
-			nickname = "autocompleteRoles", 
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_AUTOCOMPLETE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_AUTOCOMPLETE, description = "") })
-				})
-	public Resources<?> autocomplete(
-			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable) {
-		return super.autocomplete(parameters, pageable);
+	public Resources<?> find( //
+			@PathVariable @NotNull String requestId, //
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, //
+			@PageableDefault Pageable pageable) { //
+		return super.find(requestId, parameters, pageable);
 	}
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(value = REQUEST_SUB_PATH+"/search/count", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_COUNT + "')")
-	@ApiOperation(
-			value = "The number of entities that match the filter", 
-			nickname = "countRoles", 
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_COUNT, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_COUNT, description = "") })
-				})
-	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
-		return super.count(parameters);
+	@RequestMapping(value= "/{requestId}"+REQUEST_SUB_PATH+"/search/quick", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@ApiOperation( //
+			value = "Search roles", //
+			nickname = "searchQuickRoles", //
+			tags = { IdmRequestRoleController.TAG }, //
+			authorizations = { //
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { //
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }), //
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { //
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }) //
+				}) 
+	public Resources<?> findQuick( //
+			@PathVariable @NotNull String requestId, //
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, //
+			@PageableDefault Pageable pageable) { //
+		return super.find(requestId, parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/{requestId}"+REQUEST_SUB_PATH+"/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_AUTOCOMPLETE + "')")
+	@ApiOperation( //
+			value = "Autocomplete roles (selectbox usage)", //
+			nickname = "autocompleteRoles", //
+			tags = { IdmRequestRoleController.TAG }, // 
+			authorizations = { //
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { //
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_AUTOCOMPLETE, description = "") }), //
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { //
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_AUTOCOMPLETE, description = "") }) //
+				}) //
+	public Resources<?> autocomplete( //
+			@PathVariable @NotNull String requestId, //
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, //
+			@PageableDefault Pageable pageable) { //
+		return super.autocomplete(parameters, pageable);
 	}
 	
 	@Override
@@ -245,28 +229,49 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 		return super.put(requestId, backendId, dto);
 	}
 	
-	@Override
-	@ResponseBody
-	@RequestMapping(value = REQUEST_SUB_PATH+"/{backendId}", method = RequestMethod.PATCH)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
-	@ApiOperation(
-			value = "Patch role", 
-			nickname = "patchRole", 
-			response = IdmRoleDto.class, 
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") })
-				})
-	public ResponseEntity<?> patch(
-			@ApiParam(value = "Role's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest)
-			throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest);
-	}
+	// TODO: Support?	
+	
+//	@Override
+//	@ResponseBody
+//	@RequestMapping(value = REQUEST_SUB_PATH+"/{backendId}", method = RequestMethod.PATCH)
+//	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
+//	@ApiOperation(
+//			value = "Patch role", 
+//			nickname = "patchRole", 
+//			response = IdmRoleDto.class, 
+//			tags = { IdmRequestRoleController.TAG }, 
+//			authorizations = { 
+//				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+//						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }),
+//				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+//						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") })
+//				})
+//	public ResponseEntity<?> patch(
+//			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+//			@PathVariable @NotNull String backendId,
+//			HttpServletRequest nativeRequest)
+//			throws HttpMessageNotReadableException {
+//		return super.patch(backendId, nativeRequest);
+//	}
+	
+	// TODO: Support?	
+//		@Override
+//		@ResponseBody
+//		@RequestMapping(value = REQUEST_SUB_PATH+"/search/count", method = RequestMethod.GET)
+//		@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_COUNT + "')")
+//		@ApiOperation(
+//				value = "The number of entities that match the filter", 
+//				nickname = "countRoles", 
+//				tags = { IdmRequestRoleController.TAG }, 
+//				authorizations = { 
+//					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+//							@AuthorizationScope(scope = CoreGroupPermission.ROLE_COUNT, description = "") }),
+//					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+//							@AuthorizationScope(scope = CoreGroupPermission.ROLE_COUNT, description = "") })
+//					})
+//		public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+//			return super.count(parameters);
+//		}
 	
 	@Override
 	@ResponseBody
@@ -433,28 +438,29 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(value=REQUEST_SUB_PATH, method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_CREATE + "')"
-			+ " or hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
-	@ApiOperation(
-			value = "Create request for role", 
-			nickname = "createRequestForRole", 
-			response = IdmRequestDto.class, 
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_CREATE, description = ""),
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "")}),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_CREATE, description = ""),
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "")})
-				})
+	@RequestMapping(value = REQUEST_SUB_PATH, method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_CREATE + "')" + " or hasAuthority('"
+			+ CoreGroupPermission.ROLE_UPDATE + "')")
+	@ApiOperation( //
+			value = "Create request for role", //
+			nickname = "createRequestForRole", //
+			response = IdmRequestDto.class, //
+			tags = { IdmRequestRoleController.TAG }, //
+			authorizations = { //
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { //
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_CREATE, description = ""), //
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }), //
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { //
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_CREATE, description = ""), //
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }) //
+			}) //
 	public ResponseEntity<?> createRequest(@Valid @RequestBody IdmRoleDto dto) {
 		return super.createRequest(dto);
 	}
-	
+
 	@Override
 	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
+		// TODO: Call to filter from original controller -> make as public?
 		IdmRoleFilter filter = new IdmRoleFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", RoleType.class));

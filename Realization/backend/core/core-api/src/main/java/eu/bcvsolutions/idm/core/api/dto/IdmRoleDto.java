@@ -46,7 +46,7 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
     @Size(max = DefaultFieldLengths.DESCRIPTION)
     private String description;
     @Embedded(dtoClass = IdmRequestItemDto.class)
-    private UUID requestItem;
+    private UUID requestItem; // Isn't persist in the entity
     @Embedded(dtoClass = IdmRequestDto.class)
     private UUID request; // Isn't persist in the entity
     
@@ -184,18 +184,22 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
 		return externalId;
 	}
 
+	@Override
 	public UUID getRequestItem() {
 		return requestItem;
 	}
 
+	@Override
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
 	}
 
+	@Override
 	public UUID getRequest() {
 		return request;
 	}
 
+	@Override
 	public void setRequest(UUID request) {
 		this.request = request;
 	}

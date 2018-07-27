@@ -213,29 +213,40 @@ class RequestDetail extends Advanced.AbstractTableContent {
               property="operation"
               face="enum"
               enumClass={ConceptRoleRequestOperationEnum}
-              header={this.i18n('entity.ConceptRoleRequest.operation')}
+              header={this.i18n('entity.RequestItem.operation')}
               sort/>
             <Advanced.Column
-              property="attributeName"
+              property="result"
+              header={this.i18n('entity.RequestItem.result')}
               face="text"
-              header={this.i18n('entity.RequestItem.attributeName')}
-              sort/>
+              cell={
+                ({ rowIndex, data }) => {
+                  const entity = data[rowIndex];
+                  return (
+                    <Advanced.OperationResult value={ entity.result }/>
+                  );
+                }
+              }/>
             <Advanced.Column
-              property="formAttribute"
-              face="bool"
-              rendered={false}
-              header={this.i18n('entity.RequestItem.formAttribute')}
-              sort/>
-            <Advanced.Column
-              property="value"
+              property="originalOwnerId"
+              header={ this.i18n('entity.RequestItem.originalOwnerId') }
               face="text"
-              header={this.i18n('entity.RequestItem.value.label')}
-              sort/>
-            <Advanced.Column
-              property="comparison"
-              face="text"
-              header={this.i18n('entity.RequestItem.comparison')}
-              sort/>
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  const entity = data[rowIndex];
+                  const types = entity.ownerType.split('.');
+                  const entityType = types[types.length - 1];
+                  return (
+                    <Advanced.EntityInfo
+                      entityType={ entityType }
+                      entityIdentifier={ entity.originalOwnerId }
+                      /* entity={ entity._embedded.entity } */
+                      face="popover"/>
+                  );
+                }
+              }/>
+            <Advanced.Column property="created" header={this.i18n('entity.created')} sort face="datetime"/>
           </Advanced.Table>
         </Basic.Panel>
       </div>

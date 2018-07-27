@@ -3401,6 +3401,31 @@
       "currentActivity": "Approval state",
       "wfProcessId": "WF identifier"
     },
+    "Request": {
+      "requestType": "Request for",
+      "state": "State",
+      "name": "Name",
+      "executeImmediately": "Without approval",
+      "description": {
+        "label" : "Description",
+        "placeholder": "Verbal description of a request"
+      },
+      "created": "Created",
+      "modified": "Modified",
+      "candicateUsers": "Approvers",
+      "operation": "Requested change",
+      "currentActivity": "Approval state",
+      "wfProcessId": "WF identifier",
+      "result": "Result"
+    },
+    "RequestItem": {
+      "created": "Created",
+      "modified": "Modified",
+      "ownerType": "Object type",
+      "originalOwnerId":"Target object",
+      "data": "Data",
+      "result": "Result"
+    },
     "AutomaticRoleAttributeRuleRequest": {
       "type": {
         "label": "$t(entity.AutomaticRole.attribute.type.label)",

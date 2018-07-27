@@ -3444,6 +3444,31 @@
       "currentActivity": "Stav schvalování",
       "wfProcessId": "WF"
     },
+    "Request": {
+      "requestType": "Požadavek pro",
+      "state": "Stav",
+      "name": "Název",
+      "executeImmediately": "Provést bez schválení",
+      "description": {
+        "label" : "Popis",
+        "placeholder": "Slovní popis požadavku"
+      },
+      "created": "Vytvořeno",
+      "modified": "Upraveno",
+      "candicateUsers": "Schvalují",
+      "currentActivity": "Stav schvalování",
+      "wfProcessId": "WF",
+      "result": "Výsledek"
+    },
+    "RequestItem": {
+      "created": "Vytvořeno",
+      "modified": "Upraveno",
+      "ownerType": "Typ objektu",
+      "operation": "Požadovaná změna",
+      "originalOwnerId":"Cílový objekt",
+      "data": "Data",
+      "result": "Výsledek"
+    },
     "AutomaticRoleAttributeRuleRequest": {
       "type": {
         "label": "$t(entity.AutomaticRole.attribute.type.label)",

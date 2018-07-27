@@ -169,16 +169,34 @@ export class RequestTable extends Advanced.AbstractTableContent {
             face="enum"
             enumClass={RoleRequestStateEnum}/>
           <Advanced.Column
-            property="operation"
-            rendered={_.includes(columns, 'operation')}
-            sort
-            face="enum"
-            enumClass={ConceptRoleRequestOperationEnum}/>
-          <Advanced.Column
             property="name"
             rendered={_.includes(columns, 'name')}
             face="text"
             />
+          <Advanced.Column
+            property="operation"
+            face="enum"
+            enumClass={ConceptRoleRequestOperationEnum}
+            sort/>
+          <Advanced.Column
+            property="originalOwnerId"
+            header={ this.i18n('entity.RequestItem.originalOwnerId') }
+            face="text"
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                const types = entity.ownerType.split('.');
+                const entityType = types[types.length - 1];
+                return (
+                  <Advanced.EntityInfo
+                    entityType={ entityType }
+                    entityIdentifier={ entity.originalOwnerId }
+                    /* entity={ entity._embedded.entity } */
+                    face="popover"/>
+                );
+              }
+            }/>
           <Advanced.Column
             property="currentActivity"
             rendered={_.includes(columns, 'wf')}
@@ -197,11 +215,6 @@ export class RequestTable extends Advanced.AbstractTableContent {
             sort
             face="boolean"/>
           <Advanced.Column
-            property="modified"
-            rendered={_.includes(columns, 'modified')}
-            sort
-            face="datetime"/>
-          <Advanced.Column
             property="created"
             rendered={_.includes(columns, 'created')}
             sort
@@ -212,6 +225,17 @@ export class RequestTable extends Advanced.AbstractTableContent {
             cell={this._getWfProcessCell}
             sort
             face="text"/>
+          <Advanced.Column
+            property="result"
+            face="text"
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                return (
+                  <Advanced.OperationResult value={ entity.result }/>
+                );
+              }
+            }/>
           <Advanced.Column
             property=""
             header=""

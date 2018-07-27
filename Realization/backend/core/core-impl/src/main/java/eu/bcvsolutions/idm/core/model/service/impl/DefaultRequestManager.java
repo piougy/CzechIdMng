@@ -2,16 +2,21 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.activiti.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,26 +24,23 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -48,14 +50,12 @@ import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem_;
 import eu.bcvsolutions.idm.core.model.event.RequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RequestEvent.RequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
@@ -63,455 +63,558 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
  * Default implementation of universal request manager
- * 
- * @author svandav
  *
+ * @author svandav
  */
 @Service("requestManager")
 public class DefaultRequestManager implements RequestManager {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultRequestManager.class);
+  private static final org.slf4j.Logger LOG =
+      org.slf4j.LoggerFactory.getLogger(DefaultRequestManager.class);
 
-	@Autowired
-	private SecurityService securityService;
-	@Autowired
-	private ApplicationContext applicationContext;
-	@Autowired
-	private WorkflowProcessInstanceService workflowProcessInstanceService;
-	@Autowired
-	private EntityEventManager entityEventManager;
-	@Autowired
-	private IdmRequestService requestService;
-	@Autowired
-	private IdmRequestItemService requestItemService;
-	@Autowired
-	private LookupService lookupService;
-	@Autowired
-	@Qualifier("objectMapper")
-	private ObjectMapper mapper;
-	private RequestManager requestManager;
+  @Autowired private SecurityService securityService;
+  @Autowired private ApplicationContext applicationContext;
+  @Autowired private WorkflowProcessInstanceService workflowProcessInstanceService;
+  @Autowired private EntityEventManager entityEventManager;
+  @Autowired private IdmRequestService requestService;
+  @Autowired private IdmRequestItemService requestItemService;
+  @Autowired private LookupService lookupService;
 
-	@Override
-	@Transactional
-	public IdmRequestDto startRequest(UUID requestId, boolean checkRight) {
-		IdmRequestDto request = requestService.get(requestId);
-		Assert.notNull(request, "Request is required!");
-		return request;
+  @Autowired
+  @Qualifier("objectMapper")
+  private ObjectMapper mapper;
 
-		// // Validation on exist some rule
-		// if (RequestType.ATTRIBUTE == request.getRequestType()
-		// && RequestOperationType.REMOVE != request.getOperation()) {
-		// IdmAutomaticRoleAttributeRuleRequestFilter ruleFilter = new
-		// IdmAutomaticRoleAttributeRuleRequestFilter();
-		// ruleFilter.setRoleRequestId(requestId);
-		//
-		// List<IdmAutomaticRoleAttributeRuleRequestDto> ruleConcepts =
-		// automaticRoleRuleRequestService
-		// .find(ruleFilter, null).getContent();
-		// if (ruleConcepts.isEmpty()) {
-		// throw new
-		// RoleRequestException(CoreResultCode.AUTOMATIC_ROLE_REQUEST_START_WITHOUT_RULE,
-		// ImmutableMap.of("request", request.getName()));
-		// }
-		// }
-		//
-		// try {
-		// IdmRequestService service = this.getIdmRequestService();
-		// if (!(service instanceof DefaultIdmRequestService)) {
-		// throw new CoreException("We expects instace of DefaultIdmRequestService!");
-		// }
-		// return ((DefaultIdmRequestService)
-		// service).startRequestNewTransactional(requestId,
-		// checkRight);
-		// } catch (Exception ex) {
-		// LOG.error(ex.getLocalizedMessage(), ex);
-		// request = get(requestId);
-		// Throwable exceptionToLog = resolveException(ex);
-		//
-		// // TODO: I set only cause of exception, not code and properties. If are
-		// // properties set, then request cannot be save!
-		// request.setResult(
-		// new
-		// OperationResultDto.Builder(OperationState.EXCEPTION).setCause(exceptionToLog).build());
-		// request.setState(RequestState.EXCEPTION);
-		// return save(request);
-		// }
-	}
+  private RequestManager requestManager;
 
-	/**
-	 * Internal start request. Start in new transaction
-	 * 
-	 * @param requestId
-	 * @param checkRight
-	 *            - If is true, then will be check right for immediately execution
-	 *            (if is requires)
-	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public IdmRequestDto startRequestNewTransactional(UUID requestId, boolean checkRight) {
-		return this.getRequestManager().startRequestInternal(requestId, checkRight);
-	}
+  private List<IdmRequestItemDto> items;
 
-	@Override
-	@Transactional
-	public IdmRequestDto startRequestInternal(UUID requestId, boolean checkRight) {
-		LOG.debug("Start role request [{}]", requestId);
-		Assert.notNull(requestId, "Role request ID is required!");
-		// Load request ... check right for read
-		IdmRequestDto request = requestService.get(requestId);
-		Assert.notNull(request, "Role request DTO is required!");
-		Assert.isTrue(
-				RequestState.CONCEPT == request.getState() || RequestState.DUPLICATED == request.getState()
-						|| RequestState.EXCEPTION == request.getState(),
-				"Only role request with CONCEPT or EXCEPTION or DUPLICATED state can be started!");
+  @Override
+  @Transactional
+  public IdmRequestDto startRequest(UUID requestId, boolean checkRight) {
+    IdmRequestDto request = requestService.get(requestId);
+    Assert.notNull(request, "Request is required!");
+    return request;
 
-		// Request will be set on in progress state
-		request.setState(RequestState.IN_PROGRESS);
-		request.setResult(new OperationResultDto.Builder(OperationState.RUNNING).build());
-		IdmRequestDto savedRequest = requestService.save(request);
+    // // Validation on exist some rule
+    // if (RequestType.ATTRIBUTE == request.getRequestType()
+    // && RequestOperationType.REMOVE != request.getOperation()) {
+    // IdmAutomaticRoleAttributeRuleRequestFilter ruleFilter = new
+    // IdmAutomaticRoleAttributeRuleRequestFilter();
+    // ruleFilter.setRoleRequestId(requestId);
+    //
+    // List<IdmAutomaticRoleAttributeRuleRequestDto> ruleConcepts =
+    // automaticRoleRuleRequestService
+    // .find(ruleFilter, null).getContent();
+    // if (ruleConcepts.isEmpty()) {
+    // throw new
+    // RoleRequestException(CoreResultCode.AUTOMATIC_ROLE_REQUEST_START_WITHOUT_RULE,
+    // ImmutableMap.of("request", request.getName()));
+    // }
+    // }
+    //
+    // try {
+    // IdmRequestService service = this.getIdmRequestService();
+    // if (!(service instanceof DefaultIdmRequestService)) {
+    // throw new CoreException("We expects instace of DefaultIdmRequestService!");
+    // }
+    // return ((DefaultIdmRequestService)
+    // service).startRequestNewTransactional(requestId,
+    // checkRight);
+    // } catch (Exception ex) {
+    // LOG.error(ex.getLocalizedMessage(), ex);
+    // request = get(requestId);
+    // Throwable exceptionToLog = resolveException(ex);
+    //
+    // // TODO: I set only cause of exception, not code and properties. If are
+    // // properties set, then request cannot be save!
+    // request.setResult(
+    // new
+    // OperationResultDto.Builder(OperationState.EXCEPTION).setCause(exceptionToLog).build());
+    // request.setState(RequestState.EXCEPTION);
+    // return save(request);
+    // }
+  }
 
-		// Throw event
-		Map<String, Serializable> variables = new HashMap<>();
-		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
-		return entityEventManager.process(new RequestEvent(RequestEventType.EXECUTE, savedRequest, variables))
-				.getContent();
-	}
+  /**
+   * Internal start request. Start in new transaction
+   *
+   * @param requestId
+   * @param checkRight - If is true, then will be check right for immediately execution (if is
+   *     requires)
+   */
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public IdmRequestDto startRequestNewTransactional(UUID requestId, boolean checkRight) {
+    return this.getRequestManager().startRequestInternal(requestId, checkRight);
+  }
 
-	@Override
-	@Transactional
-	public boolean startApprovalProcess(IdmRequestDto request, boolean checkRight, EntityEvent<IdmRequestDto> event,
-			String wfDefinition) {
-		// If is request marked as executed immediately, then we will check right
-		// and do realization immediately (without start approval process)
-		if (request.isExecuteImmediately()) {
-			boolean haveRightExecuteImmediately = securityService
-					.hasAnyAuthority(CoreGroupPermission.AUTOMATIC_ROLE_REQUEST_ADMIN);
+  @Override
+  @Transactional
+  public IdmRequestDto startRequestInternal(UUID requestId, boolean checkRight) {
+    LOG.debug("Start role request [{}]", requestId);
+    Assert.notNull(requestId, "Role request ID is required!");
+    // Load request ... check right for read
+    IdmRequestDto request = requestService.get(requestId);
+    Assert.notNull(request, "Role request DTO is required!");
+    Assert.isTrue(
+        RequestState.CONCEPT == request.getState()
+            || RequestState.DUPLICATED == request.getState()
+            || RequestState.EXCEPTION == request.getState(),
+        "Only role request with CONCEPT or EXCEPTION or DUPLICATED state can be started!");
 
-			if (checkRight && !haveRightExecuteImmediately) {
-				throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT,
-						ImmutableMap.of("new", request));
-			}
+    // Request will be set on in progress state
+    request.setState(RequestState.IN_PROGRESS);
+    request.setResult(new OperationResultDto.Builder(OperationState.RUNNING).build());
+    IdmRequestDto savedRequest = requestService.save(request);
 
-			// Execute request immediately
-			return true;
-		} else {
+    // Throw event
+    Map<String, Serializable> variables = new HashMap<>();
+    variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
+    return entityEventManager
+        .process(new RequestEvent(RequestEventType.EXECUTE, savedRequest, variables))
+        .getContent();
+  }
 
-			Map<String, Object> variables = new HashMap<>();
-			// Minimize size of DTO persisting to WF
-			IdmRequestDto eventRequest = event.getContent();
-			eventRequest.setEmbedded(null);
-			variables.put(EntityEvent.EVENT_PROPERTY, event);
-			variables.put("approvalForAutomaticRole", Boolean.TRUE);
+  @Override
+  @Transactional
+  public boolean startApprovalProcess(
+      IdmRequestDto request,
+      boolean checkRight,
+      EntityEvent<IdmRequestDto> event,
+      String wfDefinition) {
+    // If is request marked as executed immediately, then we will check right
+    // and do realization immediately (without start approval process)
+    if (request.isExecuteImmediately()) {
+      boolean haveRightExecuteImmediately =
+          securityService.hasAnyAuthority(CoreGroupPermission.AUTOMATIC_ROLE_REQUEST_ADMIN);
 
-			ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinition,
-					IdmRoleDto.class.getSimpleName(), request.getCreator(), request.getCreatorId().toString(),
-					variables);
-			// We have to refresh request (maybe was changed in wf process)
-			request = requestService.get(request.getId());
-			request.setWfProcessId(processInstance.getProcessInstanceId());
-			requestService.save(request);
-		}
+      if (checkRight && !haveRightExecuteImmediately) {
+        throw new RoleRequestException(
+            CoreResultCode.ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT,
+            ImmutableMap.of("new", request));
+      }
 
-		return false;
-	}
+      // Execute request immediately
+      return true;
+    } else {
 
-	@Override
-	@Transactional
-	public IdmRequestDto executeRequest(UUID requestId) {
-		// We can`t catch and log exception to request, because this transaction will be
-		// marked as to rollback.
-		// We can`t run this method in new transaction, because changes on request
-		// (state modified in WF for example) is in uncommited transaction!
-		return this.executeRequestInternal(requestId);
-	}
+      Map<String, Object> variables = new HashMap<>();
+      // Minimize size of DTO persisting to WF
+      IdmRequestDto eventRequest = event.getContent();
+      eventRequest.setEmbedded(null);
+      variables.put(EntityEvent.EVENT_PROPERTY, event);
+      variables.put("approvalForAutomaticRole", Boolean.TRUE);
 
-	private IdmRequestDto executeRequestInternal(UUID requestId) {
-		Assert.notNull(requestId, "Role request ID is required!");
-		IdmRequestDto request = requestService.get(requestId);
-		Assert.notNull(request, "Role request is required!");
+      ProcessInstance processInstance =
+          workflowProcessInstanceService.startProcess(
+              wfDefinition,
+              IdmRoleDto.class.getSimpleName(),
+              request.getCreator(),
+              request.getCreatorId().toString(),
+              variables);
+      // We have to refresh request (maybe was changed in wf process)
+      request = requestService.get(request.getId());
+      request.setWfProcessId(processInstance.getProcessInstanceId());
+      requestService.save(request);
+    }
 
-		// UUID automaticRoleId = request.getAutomaticRole();
-		//
-		// if (RequestType.ATTRIBUTE == request.getRequestType()) {
-		// // Automatic role by attributes
-		// if (RequestOperationType.REMOVE == request.getOperation()) {
-		// // Remove automatic role by attributes
-		// Assert.notNull(automaticRoleId, "Id of automatic role in the request (for
-		// delete) is required!");
-		// automaticRoleAttributeService.delete(automaticRoleAttributeService.get(automaticRoleId));
-		// request.setAutomaticRole(null);
-		// } else {
-		// // Add new or update (rules) for automatic role by attributes
-		// IdmAutomaticRoleAttributeDto automaticRole = null;
-		// if (automaticRoleId != null) {
-		// automaticRole = automaticRoleAttributeService.get(automaticRoleId);
-		// } else {
-		// automaticRole = new IdmAutomaticRoleAttributeDto();
-		// automaticRole = initAttributeAutomaticRole(request, automaticRole);
-		// automaticRole = automaticRoleAttributeService.save(automaticRole);
-		// request.setAutomaticRole(automaticRole.getId());
-		// }
-		// UUID roleId = automaticRole.getRole() != null ? automaticRole.getRole() :
-		// request.getRole();
-		// Assert.notNull(roleId, "Id of role is required in the automatic role
-		// request!");
-		//
-		// IdmRoleDto role = roleService.get(request.getRole());
-		// Assert.notNull(role, "Role is required in the automatic role request!");
-		//
-		// // Before we do any change, we have to sets the automatic role to concept
-		// state
-		// automaticRole.setConcept(true);
-		// automaticRoleAttributeService.save(automaticRole);
-		//
-		// // Realize changes for rules
-		// realizeAttributeRules(request, automaticRole, ruleConcepts);
-		//
-		// // Sets automatic role as no concept -> execute recalculation this role
-		// automaticRole.setConcept(false);
-		// automaticRoleAttributeService.recalculate(automaticRoleAttributeService.save(automaticRole).getId());
-		//
-		// }
-		// } else if (RequestType.TREE == request.getRequestType()) {
-		// // Automatic role by node in a tree
-		// if (RequestOperationType.REMOVE == request.getOperation()) {
-		// // Remove tree automatic role
-		// Assert.notNull(automaticRoleId, "Id of automatic role in the request (for
-		// delete) is required!");
-		// // Recount (remove) assigned roles ensures LRT during delete
-		// automaticRoleTreeService.delete(automaticRoleTreeService.get(automaticRoleId));
-		// request.setAutomaticRole(null);
-		//
-		// } else if (RequestOperationType.ADD == request.getOperation()) {
-		// // Create new tree automatic role
-		// IdmRoleTreeNodeDto treeAutomaticRole = new IdmRoleTreeNodeDto();
-		// treeAutomaticRole = initTreeAutomaticRole(request, treeAutomaticRole);
-		// // Recount of assigned roles ensures LRT after save
-		// treeAutomaticRole = automaticRoleTreeService.save(treeAutomaticRole);
-		// request.setAutomaticRole(treeAutomaticRole.getId());
-		// } else {
-		// // Update is not supported
-		// throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED,
-		// "Tree automatic role update is not supported");
-		// }
-		// }
+    return false;
+  }
 
-		request.setState(RequestState.EXECUTED);
-		request.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
-		return requestService.save(request);
+  @Override
+  @Transactional
+  public IdmRequestDto executeRequest(UUID requestId) {
+    // We can`t catch and log exception to request, because this transaction will be
+    // marked as to rollback.
+    // We can`t run this method in new transaction, because changes on request
+    // (state modified in WF for example) is in uncommited transaction!
+    return this.executeRequestInternal(requestId);
+  }
 
-	}
+  private IdmRequestDto executeRequestInternal(UUID requestId) {
+    Assert.notNull(requestId, "Role request ID is required!");
+    IdmRequestDto request = requestService.get(requestId);
+    Assert.notNull(request, "Role request is required!");
 
-	@Override
-	@Transactional
-	public void cancel(IdmRequestDto dto) {
-		cancelWF(dto);
-		dto.setState(RequestState.CANCELED);
-		dto.setResult(new OperationResultDto(OperationState.CANCELED));
-		requestService.save(dto);
-	}
+    // UUID automaticRoleId = request.getAutomaticRole();
+    //
+    // if (RequestType.ATTRIBUTE == request.getRequestType()) {
+    // // Automatic role by attributes
+    // if (RequestOperationType.REMOVE == request.getOperation()) {
+    // // Remove automatic role by attributes
+    // Assert.notNull(automaticRoleId, "Id of automatic role in the request (for
+    // delete) is required!");
+    // automaticRoleAttributeService.delete(automaticRoleAttributeService.get(automaticRoleId));
+    // request.setAutomaticRole(null);
+    // } else {
+    // // Add new or update (rules) for automatic role by attributes
+    // IdmAutomaticRoleAttributeDto automaticRole = null;
+    // if (automaticRoleId != null) {
+    // automaticRole = automaticRoleAttributeService.get(automaticRoleId);
+    // } else {
+    // automaticRole = new IdmAutomaticRoleAttributeDto();
+    // automaticRole = initAttributeAutomaticRole(request, automaticRole);
+    // automaticRole = automaticRoleAttributeService.save(automaticRole);
+    // request.setAutomaticRole(automaticRole.getId());
+    // }
+    // UUID roleId = automaticRole.getRole() != null ? automaticRole.getRole() :
+    // request.getRole();
+    // Assert.notNull(roleId, "Id of role is required in the automatic role
+    // request!");
+    //
+    // IdmRoleDto role = roleService.get(request.getRole());
+    // Assert.notNull(role, "Role is required in the automatic role request!");
+    //
+    // // Before we do any change, we have to sets the automatic role to concept
+    // state
+    // automaticRole.setConcept(true);
+    // automaticRoleAttributeService.save(automaticRole);
+    //
+    // // Realize changes for rules
+    // realizeAttributeRules(request, automaticRole, ruleConcepts);
+    //
+    // // Sets automatic role as no concept -> execute recalculation this role
+    // automaticRole.setConcept(false);
+    // automaticRoleAttributeService.recalculate(automaticRoleAttributeService.save(automaticRole).getId());
+    //
+    // }
+    // } else if (RequestType.TREE == request.getRequestType()) {
+    // // Automatic role by node in a tree
+    // if (RequestOperationType.REMOVE == request.getOperation()) {
+    // // Remove tree automatic role
+    // Assert.notNull(automaticRoleId, "Id of automatic role in the request (for
+    // delete) is required!");
+    // // Recount (remove) assigned roles ensures LRT during delete
+    // automaticRoleTreeService.delete(automaticRoleTreeService.get(automaticRoleId));
+    // request.setAutomaticRole(null);
+    //
+    // } else if (RequestOperationType.ADD == request.getOperation()) {
+    // // Create new tree automatic role
+    // IdmRoleTreeNodeDto treeAutomaticRole = new IdmRoleTreeNodeDto();
+    // treeAutomaticRole = initTreeAutomaticRole(request, treeAutomaticRole);
+    // // Recount of assigned roles ensures LRT after save
+    // treeAutomaticRole = automaticRoleTreeService.save(treeAutomaticRole);
+    // request.setAutomaticRole(treeAutomaticRole.getId());
+    // } else {
+    // // Update is not supported
+    // throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED,
+    // "Tree automatic role update is not supported");
+    // }
+    // }
 
-	/**
-	 * Fill the audit fields. We want to use original creator from request,
-	 * otherwise the creator from the last approver would be used.
-	 * 
-	 * @param request
-	 * @param automaticRole
-	 */
-	private void fillAuditFields(IdmRequestDto request, AbstractDto automaticRole) {
-		automaticRole.setOriginalCreator(request.getOriginalCreator());
-		automaticRole.setOriginalModifier(request.getOriginalModifier());
-	}
+    request.setState(RequestState.EXECUTED);
+    request.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
+    return requestService.save(request);
+  }
 
-	/**
-	 * Cancel unfinished workflow process for this automatic role.
-	 * 
-	 * @param dto
-	 */
-	private void cancelWF(IdmRequestDto dto) {
-		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
-			WorkflowFilterDto filter = new WorkflowFilterDto();
-			filter.setProcessInstanceId(dto.getWfProcessId());
+  @Override
+  @Transactional
+  public void cancel(IdmRequestDto dto) {
+    cancelWF(dto);
+    dto.setState(RequestState.CANCELED);
+    dto.setResult(new OperationResultDto(OperationState.CANCELED));
+    requestService.save(dto);
+  }
 
-			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService.find(filter, null)
-					.getContent();
-			if (resources.isEmpty()) {
-				// Process with this ID not exist ... maybe was ended
-				return;
-			}
+  /**
+   * Fill the audit fields. We want to use original creator from request, otherwise the creator from
+   * the last approver would be used.
+   *
+   * @param request
+   * @param automaticRole
+   */
+  private void fillAuditFields(IdmRequestDto request, AbstractDto automaticRole) {
+    automaticRole.setOriginalCreator(request.getOriginalCreator());
+    automaticRole.setOriginalModifier(request.getOriginalModifier());
+  }
 
-			workflowProcessInstanceService.delete(dto.getWfProcessId(),
-					"Role request use this WF, was deleted. This WF was deleted too.");
-		}
-	}
+  /**
+   * Cancel unfinished workflow process for this automatic role.
+   *
+   * @param dto
+   */
+  private void cancelWF(IdmRequestDto dto) {
+    if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
+      WorkflowFilterDto filter = new WorkflowFilterDto();
+      filter.setProcessInstanceId(dto.getWfProcessId());
 
-	private RequestManager getRequestManager() {
-		if (this.requestManager == null) {
-			this.requestManager = applicationContext.getBean(RequestManager.class);
-		}
-		return this.requestManager;
-	}
+      Collection<WorkflowProcessInstanceDto> resources =
+          workflowProcessInstanceService.find(filter, null).getContent();
+      if (resources.isEmpty()) {
+        // Process with this ID not exist ... maybe was ended
+        return;
+      }
 
-	@Override
-	public Requestable post(Serializable requestId, Requestable dto) {
-		Assert.notNull(dto, "DTO is required!");
-		Assert.notNull(requestId, "Request ID is required!");
-		// TODO: Rights!
+      workflowProcessInstanceService.delete(
+          dto.getWfProcessId(), "Role request use this WF, was deleted. This WF was deleted too.");
+    }
+  }
 
-		ReadDtoService<Requestable, ?> dtoReadService = getDtoService(dto);
+  private RequestManager getRequestManager() {
+    if (this.requestManager == null) {
+      this.requestManager = applicationContext.getBean(RequestManager.class);
+    }
+    return this.requestManager;
+  }
 
-		IdmRequestDto request = requestService.get(requestId);
-		boolean isNew = dtoReadService.isNew(dto);
-		try {
-			String dtoString = this.convertDtoToString(dto);
-			IdmRequestItemDto item = null;
-			if (isNew) {
-				item = createRequestItem(request.getId(), dto);
-				item.setOperation(RequestOperationType.ADD);
-			}
-			// Exists item for same original owner?
-			item = this.findRequestItem(request.getId(), dto);
-			if (item == null) {
-				item = createRequestItem(request.getId(), dto);
-				item.setOperation(RequestOperationType.UPDATE);
-				item.setOriginalOwnerId((UUID) dto.getId());
-			} else {
-				item.setOperation(RequestOperationType.UPDATE);
-			}
-			item.setData(dtoString);
-			// Update or create new request item
-			item = requestItemService.save(item);
-			// Set ID of request item to result DTO
-			dto.setRequestItem(item.getId());
+  @Override
+  public Requestable post(Serializable requestId, Requestable dto) {
+    Assert.notNull(dto, "DTO is required!");
+    Assert.notNull(requestId, "Request ID is required!");
+    // TODO: Rights!
 
-			return dto;
+    ReadDtoService<Requestable, ?> dtoReadService = getDtoService(dto);
 
-		} catch (JsonProcessingException e) {
-			throw new ResultCodeException(CoreResultCode.DTO_CANNOT_BE_CONVERT_TO_JSON,
-					ImmutableMap.of("dto", dto.toString()));
-		}
-	}
+    IdmRequestDto request = requestService.get(requestId);
+    boolean isNew = dtoReadService.isNew(dto);
+    try {
+      String dtoString = this.convertDtoToString(dto);
+      IdmRequestItemDto item = null;
+      if (isNew) {
+        item = createRequestItem(request.getId(), dto);
+        item.setOperation(RequestOperationType.ADD);
+      }
+      // Exists item for same original owner?
+      item = this.findRequestItem(request.getId(), dto);
+      if (item == null) {
+        item = createRequestItem(request.getId(), dto);
+        item.setOperation(RequestOperationType.UPDATE);
+        item.setOriginalOwnerId((UUID) dto.getId());
+      } else {
+        item.setOperation(RequestOperationType.UPDATE);
+      }
+      item.setData(dtoString);
+      // Update or create new request item
+      item = requestItemService.save(item);
+      // Set ID of request item to result DTO
+      dto.setRequestItem(item.getId());
 
-	@Override
-	public Requestable delete(Serializable requestId, Requestable dto) {
-		Assert.notNull(dto, "DTO is required!");
-		Assert.notNull(requestId, "Request ID is required!");
-		// TODO: Rights!
+      return dto;
 
-		IdmRequestDto request = requestService.get(requestId);
-		// Exists item for same original owner?
-		IdmRequestItemDto item = this.findRequestItem(request.getId(), dto);
-		if (item == null) {
-			item = createRequestItem(request.getId(), dto);
-			item.setOriginalOwnerId((UUID) dto.getId());
-		}
-		item.setOperation(RequestOperationType.REMOVE);
-		item.setData(null);
-		// Update or create new request item
-		item = requestItemService.save(item);
-		// Set ID of request item to result DTO
-		dto.setRequestItem(item.getId());
+    } catch (JsonProcessingException e) {
+      throw new ResultCodeException(
+          CoreResultCode.DTO_CANNOT_BE_CONVERT_TO_JSON, ImmutableMap.of("dto", dto.toString()));
+    }
+  }
 
-		return dto;
-	}
+  @Override
+  public Requestable delete(Serializable requestId, Requestable dto) {
+    Assert.notNull(dto, "DTO is required!");
+    Assert.notNull(requestId, "Request ID is required!");
+    // TODO: Rights!
 
-	@Override
-	public Requestable get(Serializable requestId, Requestable dto) {
-		Assert.notNull(dto, "DTO is required!");
-		Assert.notNull(requestId, "Request ID is required!");
-		// TODO: Rights!
+    IdmRequestDto request = requestService.get(requestId);
+    // Exists item for same original owner?
+    IdmRequestItemDto item = this.findRequestItem(request.getId(), dto);
+    if (item == null) {
+      item = createRequestItem(request.getId(), dto);
+      item.setOriginalOwnerId((UUID) dto.getId());
+    }
+    item.setOperation(RequestOperationType.REMOVE);
+    item.setData(null);
+    // Update or create new request item
+    item = requestItemService.save(item);
+    // Set ID of request item to result DTO
+    dto.setRequestItem(item.getId());
 
-		IdmRequestDto request = requestService.get(requestId);
-		// Exists item for same original owner?
-		IdmRequestItemDto item = this.findRequestItem(request.getId(), dto);
+    return dto;
+  }
 
-		if (item == null) {
-			return dto;
-		} else if (RequestOperationType.REMOVE == item.getOperation()) {
-			addRequestItemToDto(dto, item);
-			return dto;
-		}
+  @Override
+  public Requestable get(Serializable requestId, Requestable dto) {
+    Assert.notNull(dto, "DTO is required!");
+    Assert.notNull(requestId, "Request ID is required!");
+    // TODO: Rights!
 
-		try {
-			BaseDto requestedDto = this.convertStringToDto(item.getData(), dto.getClass());
-			addRequestItemToDto((Requestable) requestedDto, item);
-			return (Requestable) requestedDto;
+    IdmRequestDto request = requestService.get(requestId);
+    // Exists item for same original owner?
+    IdmRequestItemDto item = this.findRequestItem(request.getId(), dto);
 
-		} catch (IOException e) {
-			throw new ResultCodeException(CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
-					ImmutableMap.of("json", item.getData()));
-		}
-	}
+    if (item == null) {
+      return dto;
+    } else if (RequestOperationType.REMOVE == item.getOperation()) {
+      addRequestItemToDto(dto, item);
+      return dto;
+    }
 
-	@Override
-	public IdmRequestDto createRequest(Requestable dto) {
-		Assert.notNull(dto, "DTO is required!");
-		// TODO: Rights!
+    try {
+      BaseDto requestedDto = this.convertStringToDto(item.getData(), dto.getClass());
+      addRequestItemToDto((Requestable) requestedDto, item);
+      return (Requestable) requestedDto;
 
-		IdmRequestDto request = new IdmRequestDto();
-		request.setState(RequestState.CONCEPT);
-		request.setOwnerId((UUID) dto.getId());
-		request.setOwnerType(dto.getClass().getName());
-		request.setExecuteImmediately(false);
-		request.setRequestType(dto.getClass().getSimpleName());
-		request.setResult(new OperationResultDto(OperationState.CREATED));
+    } catch (IOException e) {
+      throw new ResultCodeException(
+          CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO, ImmutableMap.of("json", item.getData()));
+    }
+  }
 
-		return requestService.save(request);
-	}
+  @Override
+  public Page<Requestable> find(
+      Class<? extends Requestable> dtoClass,
+      Serializable requestId,
+      BaseFilter filter,
+      Pageable pageable,
+      IdmBasePermission permission) {
+    ReadDtoService<Requestable, BaseFilter> dtoReadService = getDtoService(dtoClass);
+    Page<Requestable> originalPage = dtoReadService.find(filter, pageable, permission);
+    List<Requestable> originals = originalPage.getContent();
+    List<Requestable> results = new ArrayList<>();
 
-	private String convertDtoToString(BaseDto dto) throws JsonProcessingException {
-		return mapper.writerFor(dto.getClass()).writeValueAsString(dto);
-	}
+    IdmRequestDto request = requestService.get(requestId);
+    items = this.findRequestItems(request.getId(), dtoClass);
 
-	private BaseDto convertStringToDto(String data, Class<? extends BaseDto> type)
-			throws JsonParseException, JsonMappingException, IOException {
-		return mapper.readValue(data, type);
-	}
+    originals
+        .stream()
+        .forEach(
+            dto -> {
+              IdmRequestItemDto item =
+                  items
+                      .stream() //
+                      .filter(i -> dto.getId().equals(i.getOriginalOwnerId())) //
+                      .findFirst() //
+                      .orElse(null); //
+              if (item == null) {
+                // None item found -> result is original DTO
+                results.add(dto);
+                return;
+              }
+              if (Strings.isNullOrEmpty(item.getData())) {
+                // Item found, but does not contains any DTO. So original DTO will be result
+                // (with connected item)
+                addRequestItemToDto(dto, item);
+                results.add(dto);
+                return;
+              }
 
-	private IdmRequestItemDto findRequestItem(UUID requestId, Requestable dto) {
-		IdmRequestItemFilter itemFilter = new IdmRequestItemFilter();
-		itemFilter.setRequestId(requestId);
-		itemFilter.setOriginalOwnerId((UUID) dto.getId());
-		itemFilter.setOriginalType(dto.getClass().getName());
-		List<IdmRequestItemDto> items = requestItemService.find(itemFilter, null).getContent();
-		if (items.size() > 0) {
-			return items.get(0);
-		}
-		return null;
-	}
+              try {
+                // Item with data found. Data in the request is result
+                BaseDto requestedDto = this.convertStringToDto(item.getData(), dtoClass);
+                addRequestItemToDto((Requestable) requestedDto, item);
+                results.add((Requestable) requestedDto);
+                return;
 
-	private IdmRequestItemDto createRequestItem(UUID requestId, Requestable dto) {
-		IdmRequestItemDto item = new IdmRequestItemDto();
-		item.setRequest(requestId);
-		item.setOwnerType(dto.getClass().getName());
-		item.setResult(new OperationResultDto(OperationState.CREATED));
-		return item;
-	}
+              } catch (IOException e) {
+                throw new ResultCodeException(
+                    CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
+                    ImmutableMap.of("json", item.getData()));
+              }
+            });
 
-	/**
-	 * Add request item to DTO and to embedded map
-	 * 
-	 * @param dto
-	 * @param item
-	 */
-	private void addRequestItemToDto(Requestable dto, IdmRequestItemDto item) {
-		dto.setRequestItem(item.getId());
-		if (dto instanceof AbstractDto) {
-			((AbstractDto) dto).getEmbedded().put(Requestable.REQUEST_ITEM_FIELD, item);
-		}
-	}
+    // Find items which should be added but has not original owner ID filled in
+    List<IdmRequestItemDto> itemsToAdd =
+        items
+            .stream() //
+            .filter(
+                i ->
+                    RequestOperationType.ADD == i.getOperation()
+                        && i.getOriginalOwnerId() == null) //
+            .collect(Collectors.toList()); //
 
-	/**
-	 * Get read DTO service for given DTO
-	 * 
-	 * @param dto
-	 * @return
-	 */
-	private ReadDtoService<Requestable, ?> getDtoService(Requestable dto) {
-		Class<? extends Requestable> dtoClass = dto.getClass();
-		@SuppressWarnings("unchecked")
-		ReadDtoService<Requestable, ?> dtoReadService = (ReadDtoService<Requestable, ?>) lookupService
-				.getDtoService(dtoClass);
-		return dtoReadService;
-	}
+    itemsToAdd.forEach(
+        item -> {
+          try {
+            BaseDto requestedDto = this.convertStringToDto(item.getData(), dtoClass);
+            addRequestItemToDto((Requestable) requestedDto, item);
+            results.add((Requestable) requestedDto);
+            return;
 
+          } catch (IOException e) {
+            throw new ResultCodeException(
+                CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
+                ImmutableMap.of("json", item.getData()));
+          }
+        });
+
+    return new PageImpl<>(results, pageable, originalPage.getTotalElements());
+  }
+
+  @Override
+  public IdmRequestDto createRequest(Requestable dto) {
+    Assert.notNull(dto, "DTO is required!");
+    // TODO: Rights!
+
+    IdmRequestDto request = new IdmRequestDto();
+    request.setState(RequestState.CONCEPT);
+    request.setOwnerId((UUID) dto.getId());
+    request.setOwnerType(dto.getClass().getName());
+    request.setExecuteImmediately(false);
+    request.setRequestType(dto.getClass().getSimpleName());
+    request.setResult(new OperationResultDto(OperationState.CREATED));
+
+    return requestService.save(request);
+  }
+
+  private String convertDtoToString(BaseDto dto) throws JsonProcessingException {
+    return mapper.writerFor(dto.getClass()).writeValueAsString(dto);
+  }
+
+  private BaseDto convertStringToDto(String data, Class<? extends BaseDto> type)
+      throws JsonParseException, JsonMappingException, IOException {
+    return mapper.readValue(data, type);
+  }
+
+  private IdmRequestItemDto findRequestItem(UUID requestId, Requestable dto) {
+    IdmRequestItemFilter itemFilter = new IdmRequestItemFilter();
+    itemFilter.setRequestId(requestId);
+    itemFilter.setOriginalOwnerId((UUID) dto.getId());
+    itemFilter.setOriginalType(dto.getClass().getName());
+    List<IdmRequestItemDto> items = requestItemService.find(itemFilter, null).getContent();
+    if (items.size() > 0) {
+      return items.get(0);
+    }
+    return null;
+  }
+
+  private List<IdmRequestItemDto> findRequestItems(
+      UUID requestId, Class<? extends Requestable> dtoClass) {
+    IdmRequestItemFilter itemFilter = new IdmRequestItemFilter();
+    itemFilter.setRequestId(requestId);
+    itemFilter.setOriginalType(dtoClass.getName());
+    return requestItemService.find(itemFilter, null).getContent();
+  }
+
+  private IdmRequestItemDto createRequestItem(UUID requestId, Requestable dto) {
+    IdmRequestItemDto item = new IdmRequestItemDto();
+    item.setRequest(requestId);
+    item.setOwnerType(dto.getClass().getName());
+    item.setResult(new OperationResultDto(OperationState.CREATED));
+    return item;
+  }
+
+  /**
+   * Add request item to DTO and to embedded map
+   *
+   * @param dto
+   * @param item
+   */
+  private void addRequestItemToDto(Requestable dto, IdmRequestItemDto item) {
+    dto.setRequestItem(item.getId());
+    if (dto instanceof AbstractDto) {
+      ((AbstractDto) dto).getEmbedded().put(Requestable.REQUEST_ITEM_FIELD, item);
+    }
+  }
+
+  /**
+   * Get read DTO service for given DTO
+   *
+   * @param dto
+   * @return
+   */
+  private ReadDtoService<Requestable, BaseFilter> getDtoService(Requestable dto) {
+    Class<? extends Requestable> dtoClass = dto.getClass();
+    return this.getDtoService(dtoClass);
+  }
+
+  /**
+   * Get read DTO service for given DTO class
+   *
+   * @param dto
+   * @return
+   */
+  private ReadDtoService<Requestable, BaseFilter> getDtoService(
+      Class<? extends Requestable> dtoClass) {
+    @SuppressWarnings("unchecked")
+    ReadDtoService<Requestable, BaseFilter> dtoReadService =
+        (ReadDtoService<Requestable, BaseFilter>) lookupService.getDtoService(dtoClass);
+    return dtoReadService;
+  }
 }

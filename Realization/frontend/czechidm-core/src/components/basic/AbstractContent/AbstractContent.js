@@ -6,6 +6,7 @@ import PageHeader from '../PageHeader/PageHeader';
 import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
 import { selectNavigationItems, selectNavigationItem, getNavigationItem, hideFooter } from '../../../redux/config/actions';
+import {UniversalRequestManager} from '../../../redux';
 
 /**
 * Basic content = page representation
@@ -159,6 +160,43 @@ export default class AbstractContent extends AbstractContextComponent {
    */
   hideFooter() {
     return false;
+  }
+
+  /**
+   * Returns true if is content Universal request. This is based on exists of 'requestId' param.
+   * @param  params
+   * @return {Boolean}
+   */
+  isRequest(params) {
+    if (!params) {
+      return false;
+    }
+    if (params.requestId) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Returns manager. If it is evaluated, that should be using universal request managers, then
+   * is created new instance and returned. Is given params doesn't contains
+   * 'requestId' attribute, then original manager will be returned.
+   * @param  params
+   * @param  originalManager
+   * @return Original or request manager
+   */
+  getRequestManager(params, originalManager) {
+    if (this.isRequest(params)) {
+      return new UniversalRequestManager(params.requestId, originalManager);
+    }
+    return originalManager;
+  }
+
+  addRequestPrefix(path, params) {
+    if (this.isRequest(params)) {
+      return `requests/${params.requestId}/${path}`;
+    }
+    return path;
   }
 
   /**

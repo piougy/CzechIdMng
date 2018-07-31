@@ -89,7 +89,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
     //
     // entity type is not registered
     if (this.getLogger()) {
-      this.getLogger().debug(`[Advanced.EntityInfo]: Entity info for type [${entityType}] is not supported.`);
+      // this.getLogger().debug(`[Advanced.EntityInfo]: Entity info for type [${entityType}] is not supported.`);
     }
     return (
       <div

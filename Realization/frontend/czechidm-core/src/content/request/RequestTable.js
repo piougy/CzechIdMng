@@ -6,7 +6,6 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import {SecurityManager, IdentityManager, WorkflowTaskInstanceManager} from '../../redux';
-import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
@@ -45,13 +44,8 @@ export class RequestTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().reload();
   }
 
-  showDetail(entity, add) {
-    const {createNewRequestFunc } = this.props;
-    if (add) {
-      createNewRequestFunc(entity);
-    } else {
-      this.context.router.push(`/requests/${entity.id}/detail`);
-    }
+  showDetail(entity) {
+    this.context.router.push(`/requests/${entity.id}/detail`);
   }
 
   reload() {
@@ -92,8 +86,16 @@ export class RequestTable extends Advanced.AbstractTableContent {
     );
   }
 
+  _renderDetailCell({ rowIndex, data }) {
+    return (
+      <Advanced.DetailButton
+        title={this.i18n('button.detail')}
+        onClick={this.showDetail.bind(this, data[rowIndex])}/>
+    );
+  }
+
   render() {
-    const { _showLoading, uiKey, startRequestFunc, createNewRequestFunc, columns, forceSearchParameters, showFilter} = this.props;
+    const { _showLoading, uiKey, startRequestFunc, columns, forceSearchParameters, showFilter} = this.props;
     const innerShowLoading = _showLoading;
     return (
       <div>
@@ -129,39 +131,13 @@ export class RequestTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          buttons={
-            [
-              <Basic.Button
-                level="success"
-                key="add_button"
-                className="btn-xs"
-                onClick={this.showDetail.bind(this, { }, true)}
-                rendered={
-                  _.includes(columns, 'createNew')
-                    && createNewRequestFunc
-                    && SecurityManager.hasAnyAuthority(['REQUEST_CREATE'])
-                  }>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
-              </Basic.Button>
-            ]
-          }
           _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             property=""
             header=""
             rendered={_.includes(columns, 'detail')}
             className="detail-button"
-            cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                );
-              }
-            }/>
+            cell={this._renderDetailCell.bind(this)}/>
           <Advanced.Column
             property="state"
             rendered={_.includes(columns, 'state')}
@@ -173,11 +149,6 @@ export class RequestTable extends Advanced.AbstractTableContent {
             rendered={_.includes(columns, 'name')}
             face="text"
             />
-          <Advanced.Column
-            property="operation"
-            face="enum"
-            enumClass={ConceptRoleRequestOperationEnum}
-            sort/>
           <Advanced.Column
             property="originalOwnerId"
             header={ this.i18n('entity.RequestItem.originalOwnerId') }
@@ -191,21 +162,15 @@ export class RequestTable extends Advanced.AbstractTableContent {
                 return (
                   <Advanced.EntityInfo
                     entityType={ entityType }
-                    entityIdentifier={ entity.originalOwnerId }
+                    entityIdentifier={ entity.ownerId }
                     /* entity={ entity._embedded.entity } */
                     face="popover"/>
                 );
               }
             }/>
           <Advanced.Column
-            property="currentActivity"
-            rendered={_.includes(columns, 'wf')}
-            face="text"
-            cell={this._getCurrentActivitiCell}
-            />
-          <Advanced.Column
             property="candicateUsers"
-            rendered={_.includes(columns, 'wf')}
+            rendered={false}
             face="text"
             cell={this._getCandidatesCell}
             />
@@ -215,10 +180,11 @@ export class RequestTable extends Advanced.AbstractTableContent {
             sort
             face="boolean"/>
           <Advanced.Column
-            property="created"
-            rendered={_.includes(columns, 'created')}
-            sort
-            face="datetime"/>
+            property="currentActivity"
+            rendered={_.includes(columns, 'wf')}
+            face="text"
+            cell={this._getCurrentActivitiCell}
+            />
           <Advanced.Column
             property="wfProcessId"
             rendered={_.includes(columns, 'wf_name')}
@@ -236,6 +202,11 @@ export class RequestTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
+          <Advanced.Column
+            property="created"
+            rendered={_.includes(columns, 'created')}
+            sort
+            face="datetime"/>
           <Advanced.Column
             property=""
             header=""
@@ -277,7 +248,6 @@ RequestTable.propTypes = {
   showFilter: PropTypes.bool,
   forceSearchParameters: PropTypes.object,
   startRequestFunc: PropTypes.func,
-  createNewRequestFunc: PropTypes.func,
   columns: PropTypes.arrayOf(PropTypes.string)
 };
 

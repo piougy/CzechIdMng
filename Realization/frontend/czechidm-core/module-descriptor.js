@@ -316,6 +316,8 @@ module.exports = {
                 'items': [
                   {
                     'id': 'role-automatic-role-tree',
+
+                    'disabled': true,
                     'labelKey': 'content.automaticRoles.tree.title',
                     'order': 10,
                     'path': '/role/:entityId/automatic-roles/trees',
@@ -379,6 +381,129 @@ module.exports = {
                 'labelKey': 'content.role.identities.title',
                 'order': 400,
                 'path': '/role/:entityId/identities',
+                'icon': 'fa:group'
+              }
+            ]
+          },
+          {
+            'id': 'request-roles',
+            'type': 'TAB',
+            'labelKey': 'content.roles.header',
+            'titleKey': 'content.roles.title',
+            'icon': 'fa:universal-access',
+            'iconColor': '#eb9316',
+            'order': 20,
+            'path': 'requests/:requestId/roles',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'AUTOMATICROLEATTRIBUTE_READ', 'ROLETREENODE_READ'] } ],
+            'items': [
+              {
+                'id': 'request-role-detail',
+                'type': 'TAB',
+                'labelKey': 'content.roles.tabs.basic',
+                'order': 100,
+                'path': 'requests/:requestId/role/:entityId/detail',
+                'icon': 'fa:newspaper-o'
+              },
+              {
+                'id': 'request-role-eav',
+                'type': 'TAB',
+                'labelKey': 'content.role.eav.title',
+                'order': 110,
+                'priority': 0,
+                'path': 'requests/:requestId/role/:entityId/eav',
+                'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
+              },
+              {
+                'id': 'request-role-guarantees',
+                'type': 'TAB',
+                'labelKey': 'content.role.guarantees.title',
+                'order': 120,
+                'path': 'requests/:requestId/role/:entityId/guarantees',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+              },
+              {
+                'id': 'request-role-authorization-policies',
+                'type': 'TAB',
+                'labelKey': 'content.role.authorization-policies.label',
+                'titleKey': 'content.role.authorization-policies.title',
+                'order': 200,
+                'path': 'requests/:requestId/role/:entityId/authorization-policies',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
+              },
+              {
+                'id': 'request-role-automatic-roles',
+                'type': 'TAB',
+                'labelKey': 'content.role.tree-nodes.label',
+                'titleKey': 'content.role.tree-nodes.title',
+                'order': 400,
+                'path': 'requests/:requestId/role/:entityId/automatic-roles/trees',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ],
+                'items': [
+                  {
+                    'id': 'request-role-automatic-role-tree',
+                    'labelKey': 'content.automaticRoles.tree.title',
+                    'order': 10,
+                    'path': 'requests/:requestId/role/:entityId/automatic-roles/trees',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [
+                      {
+                        'type': 'HAS_ANY_AUTHORITY',
+                        'authorities': ['ROLETREENODE_READ']
+                      }
+                    ]
+                  },
+                  {
+                    'id': 'request-role-automatic-role-attribute',
+                    'labelKey': 'content.automaticRoles.attribute.title',
+                    'order': 20,
+                    'path': 'requests/:requestId/role/:entityId/automatic-roles/attributes',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [
+                      {
+                        'type': 'HAS_ANY_AUTHORITY',
+                        'authorities': ['AUTOMATICROLEATTRIBUTE_READ']
+                      }
+                    ],
+                    'items': [
+                      {
+                        'id': 'request-role-automatic-role-attribute-detail',
+                        'labelKey': 'content.automaticRoles.attribute.basic.title',
+                        'order': 10,
+                        'path': 'requests/:requestId/role/:entityId/automatic-roles/attributes/:automaticRoleId/detail',
+                        'icon': '',
+                        'type': 'TAB',
+                        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTE_READ'] } ]
+                      },
+                      {
+                        'id': 'request-role-automatic-role-attribute-rules',
+                        'labelKey': 'content.automaticRoles.attribute.rules.title',
+                        'order': 15,
+                        'path': 'requests/:requestId/role/:entityId/automatic-roles/attributes/:automaticRoleId/rules',
+                        'icon': '',
+                        'type': 'TAB',
+                        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
+                      },
+                      {
+                        'id': 'request-role-automatic-role-attribute-identities',
+                        'labelKey': 'content.automaticRoles.attribute.identities.title',
+                        'order': 20,
+                        'path': 'requests/:requestId/role/:entityId/automatic-roles/attributes/:automaticRoleId/identities',
+                        'icon': '',
+                        'type': 'TAB',
+                        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                'id': 'request-role-identities',
+                'type': 'TAB',
+                'labelKey': 'content.role.identities.title',
+                'order': 400,
+                'path': 'requests/:requestId/role/:entityId/identities',
                 'icon': 'fa:group'
               }
             ]

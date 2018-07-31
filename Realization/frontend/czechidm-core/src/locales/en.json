@@ -1714,6 +1714,10 @@
          "createRequest":{
            "label": "Submit a request",
            "tooltip": "Start request"
+         },
+         "showDetailByRequest":{
+           "label": "Show changes",
+           "tooltip": "Show target object with all requested changes."
          }
        },
        "create": {

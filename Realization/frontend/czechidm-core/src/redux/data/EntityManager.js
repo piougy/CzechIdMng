@@ -1122,6 +1122,7 @@ export default class EntityManager {
    * @return {arrayOf(authority)} what logged user can do with ui key and underlying entity
    */
   getPermissions(state, uiKey = null, id = null) {
+    debugger;
     if (!_.isObject(id)) {
       return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id));
     }

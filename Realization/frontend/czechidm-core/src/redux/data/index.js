@@ -59,6 +59,7 @@ import RoleGuaranteeManager from './RoleGuaranteeManager';
 import RoleGuaranteeRoleManager from './RoleGuaranteeRoleManager';
 import RequestManager from './RequestManager';
 import RequestItemManager from './RequestItemManager';
+import UniversalRequestManager from './UniversalRequestManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -114,7 +115,8 @@ const ManagerRoot = {
   RoleGuaranteeManager,
   RoleGuaranteeRoleManager,
   RequestManager,
-  RequestItemManager
+  RequestItemManager,
+  UniversalRequestManager
 };
 
 ManagerRoot.version = '0.0.1';

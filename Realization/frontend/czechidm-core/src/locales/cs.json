@@ -1755,6 +1755,10 @@
         "createRequest":{
           "label": "Podat žádost",
           "tooltip": "Zahájí žádost. Spustí případné schvalovací procesy."
+        },
+        "showDetailByRequest":{
+          "label": "Zobrazit změny",
+          "tooltip": "Zobrazí cílový objekt spolu s požadovanými změnami."
         }
       },
       "create": {

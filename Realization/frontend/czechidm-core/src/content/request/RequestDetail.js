@@ -139,6 +139,24 @@ class RequestDetail extends Advanced.AbstractTableContent {
     this.refs.form.processEnded();
   }
 
+  showDetailByRequest(entity) {
+    const urlType = this._getUrlType(entity.ownerType);
+    this.context.router.push(`/requests/${entity.id}/${urlType}/${entity.ownerId}/detail`);
+  }
+
+  _getNameOfDTO(ownerType) {
+    const types = ownerType.split('.');
+    return types[types.length - 1];
+  }
+
+  _getUrlType(ownerType) {
+    const dtoType = this._getNameOfDTO(ownerType);
+    const words = dtoType.split(/(?=[A-Z])/);
+    words.splice(0, 1);
+    words.splice(words.length - 1, 1);
+    return words.map(w => w.toLowerCase()).join('-');
+  }
+
   _getIsNew(nextProps) {
     if ((nextProps && nextProps.location) || this.props.location) {
       const { query } = nextProps ? nextProps.location : this.props.location;
@@ -191,6 +209,25 @@ class RequestDetail extends Advanced.AbstractTableContent {
     return;
   }
 
+  _renderDetailCell({ rowIndex, data }) {
+    return (
+      <Advanced.DetailButton
+        title={this.i18n('button.detail')}
+        onClick={this.showDetailByRequest.bind(this, data[rowIndex])}/>
+    );
+  }
+
+  _renderOriginalOwnerCell({ rowIndex, data }) {
+    const entity = data[rowIndex];
+    const entityType = this._getNameOfDTO(entity.ownerType);
+    return (
+      <Advanced.EntityInfo
+        entityType={ entityType }
+        entityIdentifier={ entity.originalOwnerId }
+        face="popover"/>
+    );
+  }
+
   _renderRequestItemsTable(request, forceSearchParameters, rendered) {
     if (!rendered) {
       return null;
@@ -209,6 +246,12 @@ class RequestDetail extends Advanced.AbstractTableContent {
             manager={requestItemManager}
             forceSearchParameters={forceSearchParameters}
             >
+            <Advanced.Column
+              rendered={false}
+              property=""
+              header=""
+              className="detail-button"
+              cell={this._renderDetailCell.bind(this)}/>
             <Advanced.Column
               property="operation"
               face="enum"
@@ -231,21 +274,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
               property="originalOwnerId"
               header={ this.i18n('entity.RequestItem.originalOwnerId') }
               face="text"
-              cell={
-                /* eslint-disable react/no-multi-comp */
-                ({ rowIndex, data }) => {
-                  const entity = data[rowIndex];
-                  const types = entity.ownerType.split('.');
-                  const entityType = types[types.length - 1];
-                  return (
-                    <Advanced.EntityInfo
-                      entityType={ entityType }
-                      entityIdentifier={ entity.originalOwnerId }
-                      /* entity={ entity._embedded.entity } */
-                      face="popover"/>
-                  );
-                }
-              }/>
+              cell={this._renderOriginalOwnerCell.bind(this)}/>
             <Advanced.Column property="created" header={this.i18n('entity.created')} sort face="datetime"/>
           </Advanced.Table>
         </Basic.Panel>
@@ -377,10 +406,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
                 ref="name"
                 label={this.i18n('entity.Request.name')}/>
               <Basic.EnumLabel
-                ref="operation"
-                enum={ConceptRoleRequestOperationEnum}
-                label={this.i18n('entity.Request.operation')}/>
-              <Basic.EnumLabel
                 ref="state"
                 enum={RoleRequestStateEnum}
                 label={this.i18n('entity.Request.state')}/>
@@ -436,6 +461,19 @@ class RequestDetail extends Advanced.AbstractTableContent {
                 showLoading={showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>
+              <Basic.Button
+                level="primary"
+                disabled={!isEditable}
+                showLoading={showLoading}
+                onClick={this.showDetailByRequest.bind(this, request)}
+                rendered={ request && requestManager.canSave(request, _permissions)}
+                titlePlacement="bottom"
+                title={this.i18n('button.showDetailByRequest.tooltip')}>
+                <Basic.Icon type="fa" icon="object-group"/>
+                {' '}
+                { this.i18n('button.showDetailByRequest.label') }
+              </Basic.Button>
+                {' '}
               <Basic.Button
                 onClick={this.save.bind(this, this, false, true)}
                 disabled={!isEditable}

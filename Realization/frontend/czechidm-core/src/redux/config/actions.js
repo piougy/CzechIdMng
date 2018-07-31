@@ -222,7 +222,7 @@ export function resolveNavigationParameters(userContext = null, params = null) {
  * Check user access, conditions etc ...
  * construct target links by given parameters
  */
-export function getNavigationItems(navigation, parentId = null, section = null, userContext = null, params = null) {
+export function getNavigationItems(navigation, parentId = null, section = null, userContext = null, params = null, onlyDynamic = false) {
   if (!navigation) {
     return [];
   }
@@ -237,6 +237,9 @@ export function getNavigationItems(navigation, parentId = null, section = null, 
   }
 
   return navigationItems.filter(item => {
+    if (onlyDynamic && item.type !== 'DYNAMIC') {
+      return false;
+    }
     if (section && section !== item.section) {
       return false;
     }

@@ -73,7 +73,7 @@ export class Navigation extends Basic.AbstractContent {
 
   renderNavigationItems(section = 'main') {
     const { navigation, userContext, selectedNavigationItems } = this.props;
-    const items = getNavigationItems(navigation, null, section, userContext);
+    const items = getNavigationItems(navigation, null, section, userContext, null, true);
     return this._renderNavigationItems(items, userContext, selectedNavigationItems);
   }
 
@@ -157,7 +157,7 @@ export class Navigation extends Basic.AbstractContent {
   renderSidebarItems(parentId = null, level = 0) {
     const { navigation, navigationCollapsed, userContext, selectedNavigationItems } = this.props;
     level = level + 1;
-    const levelItems = getNavigationItems(navigation, parentId, 'main', userContext);
+    const levelItems = getNavigationItems(navigation, parentId, 'main', userContext, null, true);
     if (!levelItems || levelItems.length === 0) {
       return null;
     }
@@ -167,7 +167,7 @@ export class Navigation extends Basic.AbstractContent {
       if (levelItem.type !== 'DYNAMIC' && levelItem.type !== 'SEPARATOR') {
         continue;
       }
-      const childrenItems = getNavigationItems(navigation, levelItem.id, 'main', userContext);
+      const childrenItems = getNavigationItems(navigation, levelItem.id, 'main', userContext, null, true);
       //
       if (childrenItems.length === 1 && childrenItems[0].path === levelItem.path) {
         // if menu contains only one subitem, which leeds to the same path - sub menu is truncated

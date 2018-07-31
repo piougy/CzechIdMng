@@ -1,10 +1,11 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import { RoleManager } from '../../redux';
+import { RoleManager} from '../../redux';
 import * as Advanced from '../../components/advanced';
 
-const manager = new RoleManager();
+const originalManager = new RoleManager();
+let manager = null;
 
 /**
  * Role's tab panel
@@ -15,7 +16,11 @@ class Role extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    //
+
+    // Init manager - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    manager = this.getRequestManager(this.props.params, originalManager);
+
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
       this.handleError(error);
     }));
@@ -23,7 +28,9 @@ class Role extends Basic.AbstractContent {
 
   render() {
     const { entity, showLoading } = this.props;
-
+    if (!manager) {
+      return null;
+    }
     return (
       <div>
         <Basic.PageHeader showLoading={!entity && showLoading}>
@@ -31,8 +38,7 @@ class Role extends Basic.AbstractContent {
         {' '}
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
         </Basic.PageHeader>
-
-        <Advanced.TabPanel parentId="roles" params={this.props.params}>
+        <Advanced.TabPanel parentId={this.isRequest(this.props.params) ? 'request-roles' : 'roles'} params={this.props.params}>
           { this.props.children }
         </Advanced.TabPanel>
       </div>
@@ -50,6 +56,9 @@ Role.defaultProps = {
 };
 
 function select(state, component) {
+  if (!manager) {
+    return {};
+  }
   const { entityId } = component.params;
   return {
     entity: manager.getEntity(state, entityId),

@@ -62,6 +62,7 @@ import RoleGuaranteeService from './RoleGuaranteeService';
 import RoleGuaranteeRoleService from './RoleGuaranteeRoleService';
 import RequestService from './RequestService';
 import RequestItemService from './RequestItemService';
+import UniversalRequestService from './UniversalRequestService';
 
 const ServiceRoot = {
   RestApiService,
@@ -120,7 +121,8 @@ const ServiceRoot = {
   RoleGuaranteeService,
   RoleGuaranteeRoleService,
   RequestService,
-  RequestItemService
+  RequestItemService,
+  UniversalRequestService
 };
 
 ServiceRoot.version = '0.0.1';

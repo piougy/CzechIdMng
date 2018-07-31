@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -294,9 +295,10 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 		return super.delete(requestId, backendId);
 	}
 	
+	// TODO permissions (from original controller???)
 	@Override
 	@ResponseBody
-	@RequestMapping(value = REQUEST_SUB_PATH+"/{backendId}/permissions", method = RequestMethod.GET)
+	@RequestMapping(value = "/{requestId}"+REQUEST_SUB_PATH+"/{backendId}/permissions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	@ApiOperation(
 			value = "What logged identity can do with given record", 
@@ -311,6 +313,7 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	public Set<String> getPermissions(
 			@ApiParam(value = "Role's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
+		// return ImmutableSet.of(IdmBasePermission.READ.name());
 		return super.getPermissions(backendId);
 	}
 

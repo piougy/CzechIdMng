@@ -11,7 +11,8 @@ import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import RolePriorityEnum from '../../enums/RolePriorityEnum';
 import { RoleManager, RoleCatalogueManager, SecurityManager } from '../../redux';
 
-const roleManager = new RoleManager();
+let roleManager = null;
+const originalManager = new RoleManager();
 const roleCatalogueManager = new RoleCatalogueManager();
 
 /**
@@ -64,6 +65,9 @@ class RoleDetail extends Basic.AbstractContent {
   }
 
   _setSelectedEntity(entity) {
+    // Init manager - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    roleManager = this.getRequestManager(this.props.params, originalManager);
     this.setState({
       _showLoading: false
     }, () => {
@@ -120,7 +124,7 @@ class RoleDetail extends Basic.AbstractContent {
           this._afterSave(createdEntity, error, afterAction);
         }));
       } else {
-        this.context.store.dispatch(roleManager.patchEntity(entity, null, (patchedEntity, error) => {
+        this.context.store.dispatch(roleManager.updateEntity(entity, null, (patchedEntity, error) => {
           this._afterSave(patchedEntity, error, afterAction);
         }));
       }
@@ -139,7 +143,7 @@ class RoleDetail extends Basic.AbstractContent {
       //
       this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       if (afterAction === 'CLOSE') {
-        this.context.router.replace(`roles`);
+        this.context.router.replace(this.addRequestPrefix('roles', this.props.params));
       } else if (afterAction === 'NEW') {
         const uuidId = uuid.v1();
         const newEntity = {
@@ -148,10 +152,10 @@ class RoleDetail extends Basic.AbstractContent {
           priorityEnum: RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.NONE)
         };
         this.context.store.dispatch(roleManager.receiveEntity(uuidId, newEntity));
-        this.context.router.replace(`/role/${uuidId}/new?new=1`);
+        this.context.router.replace(`${this.addRequestPrefix('role', this.props.params)}/${uuidId}/new?new=1`);
         this._setSelectedEntity(newEntity);
       } else {
-        this.context.router.replace(`role/${entity.id}/detail`);
+        this.context.router.replace(`${this.addRequestPrefix('role', this.props.params)}/${entity.id}/detail`);
       }
     });
   }
@@ -168,6 +172,9 @@ class RoleDetail extends Basic.AbstractContent {
   render() {
     const { entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
+    if (!roleManager) {
+      return null;
+    }
     //
     return (
       <div>
@@ -288,6 +295,9 @@ RoleDetail.defaultProps = {
 };
 
 function select(state, component) {
+  if (!roleManager) {
+    return null;
+  }
   if (!component.entity) {
     return {};
   }

@@ -315,17 +315,6 @@ public class DefaultRequestManager implements RequestManager {
     requestService.save(dto);
   }
 
-  /**
-   * Fill the audit fields. We want to use original creator from request, otherwise the creator from
-   * the last approver would be used.
-   *
-   * @param request
-   * @param automaticRole
-   */
-  private void fillAuditFields(IdmRequestDto request, AbstractDto automaticRole) {
-    automaticRole.setOriginalCreator(request.getOriginalCreator());
-    automaticRole.setOriginalModifier(request.getOriginalModifier());
-  }
 
   /**
    * Cancel unfinished workflow process for this automatic role.
@@ -367,21 +356,26 @@ public class DefaultRequestManager implements RequestManager {
     IdmRequestDto request = requestService.get(requestId);
     boolean isNew = dtoReadService.isNew(dto);
     try {
-      String dtoString = this.convertDtoToString(dto);
       IdmRequestItemDto item = null;
       if (isNew) {
+    	if(dto.getId() == null) {
+    		dto.setId(UUID.randomUUID());
+    	}
         item = createRequestItem(request.getId(), dto);
         item.setOperation(RequestOperationType.ADD);
-      }
-      // Exists item for same original owner?
-      item = this.findRequestItem(request.getId(), dto);
-      if (item == null) {
-        item = createRequestItem(request.getId(), dto);
-        item.setOperation(RequestOperationType.UPDATE);
         item.setOriginalOwnerId((UUID) dto.getId());
       } else {
-        item.setOperation(RequestOperationType.UPDATE);
+	      // Exists item for same original owner?
+	      item = this.findRequestItem(request.getId(), dto);
+	      if (item == null) {
+	        item = createRequestItem(request.getId(), dto);
+	        item.setOperation(RequestOperationType.UPDATE);
+	        item.setOriginalOwnerId((UUID) dto.getId());
+	      } else {
+	        item.setOperation(RequestOperationType.UPDATE);
+	      }
       }
+      String dtoString = this.convertDtoToString(dto);
       item.setData(dtoString);
       // Update or create new request item
       item = requestItemService.save(item);
@@ -505,8 +499,7 @@ public class DefaultRequestManager implements RequestManager {
             .stream() //
             .filter(
                 i ->
-                    RequestOperationType.ADD == i.getOperation()
-                        && i.getOriginalOwnerId() == null) //
+                    RequestOperationType.ADD == i.getOperation()) //
             .collect(Collectors.toList()); //
 
     itemsToAdd.forEach(
@@ -577,6 +570,7 @@ public class DefaultRequestManager implements RequestManager {
     item.setRequest(requestId);
     item.setOwnerType(dto.getClass().getName());
     item.setResult(new OperationResultDto(OperationState.CREATED));
+    item.setState(RequestState.CONCEPT);
     return item;
   }
 

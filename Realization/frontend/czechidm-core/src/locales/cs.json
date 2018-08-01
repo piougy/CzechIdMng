@@ -1539,7 +1539,12 @@
       "header": "Role",
       "title": "Správa rolí",
       "button": {
-        "allRoles": "Všechny role"
+        "allRoles": "Všechny role",
+        "createRequest": {
+          "header": "Změny role podléhají schvalování.",
+          "label": "Vytvořit žádost o změnu",
+          "text": "Pokud chcete provést změny, tak nejprve vytvořte žádost."
+        }
       },
       "edit": {
         "title": "Detail role",
@@ -1756,9 +1761,9 @@
           "label": "Podat žádost",
           "tooltip": "Zahájí žádost. Spustí případné schvalovací procesy."
         },
-        "showDetailByRequest":{
-          "label": "Zobrazit změny",
-          "tooltip": "Zobrazí cílový objekt spolu s požadovanými změnami."
+        "previewDetailByRequest":{
+          "label": "Zobrazit náhled",
+          "tooltip": "Zobrazí náhled spolu s požadovanými změnami."
         }
       },
       "create": {
@@ -3470,6 +3475,9 @@
       "ownerType": "Typ objektu",
       "operation": "Požadovaná změna",
       "originalOwnerId":"Cílový objekt",
+      "candicateUsers": "Schvalují",
+      "currentActivity": "Stav schvalování",
+      "wfProcessId": "WF",
       "data": "Data",
       "result": "Výsledek"
     },

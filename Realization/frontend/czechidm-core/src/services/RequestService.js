@@ -3,6 +3,12 @@ import SearchParameters from '../domain/SearchParameters';
 import RestApiService from './RestApiService';
 import ResponseUtils from '../utils/ResponseUtils';
 
+/**
+ * Service for universal requests
+ *
+ * @extends AbstractService
+ * @author Vít Švanda
+ */
 class RequestService extends AbstractService {
 
   getApiPath() {
@@ -34,6 +40,24 @@ class RequestService extends AbstractService {
    */
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('created', 'desc');
+  }
+
+  createRequest(endpoint, entity) {
+    return RestApiService.post(this.getApiPath() + `/${endpoint}`, entity).then(response => {
+      if (response.status === 403) {
+        throw new Error(403);
+      }
+      if (response.status === 404) {
+        throw new Error(404);
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (ResponseUtils.hasError(json)) {
+        throw ResponseUtils.getFirstError(json);
+      }
+      return json;
+    });
   }
 
   startRequest(idRequest) {

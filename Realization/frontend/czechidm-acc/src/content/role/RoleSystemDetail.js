@@ -11,7 +11,8 @@ const uiKey = 'role-system';
 const uiKeyAttributes = 'role-system-attributes';
 const roleSystemAttributeManager = new RoleSystemAttributeManager();
 const systemManager = new SystemManager();
-const roleSystemManager = new RoleSystemManager();
+const originalManager = new RoleSystemManager();
+let roleSystemManager = null;
 const roleManager = new Managers.RoleManager();
 const systemMappingManager = new SystemMappingManager();
 
@@ -101,6 +102,10 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
+    // Init manager - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    roleSystemManager = this.getRequestManager(props.params, originalManager);
+
     if (!this._getIsNew(props)) {
       const { roleSystemId } = props.params;
       this.context.store.dispatch(roleSystemManager.fetchEntity(roleSystemId));
@@ -184,6 +189,9 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     const { entityId } = this.props.params;
     const { systemId } = this.state;
     //
+    if (!roleSystemManager) {
+      return null;
+    }
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem && _roleSystem.id ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const roleSystem = isNew ? this.state.roleSystem : _roleSystem;
@@ -321,6 +329,9 @@ RoleSystemDetail.defaultProps = {
 };
 
 function select(state, component) {
+  if (!roleSystemManager) {
+    return null;
+  }
   const entity = Utils.Entity.getEntity(state, roleSystemManager.getEntityType(), component.params.roleSystemId);
   return {
     _roleSystem: entity || {},

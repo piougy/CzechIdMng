@@ -10,6 +10,7 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
+import eu.bcvsolutions.idm.core.api.domain.RequestState;
 
 /**
  * DTO for request item
@@ -19,64 +20,82 @@ import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 @Relation(collectionRelation = "requestItems")
 public class IdmRequestItemDto extends AbstractDto {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	@Embedded(dtoClass = IdmRequestDto.class)
-	private UUID request;
-	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	private String ownerType;
-	private UUID originalOwnerId;
-	@NotNull
-	private RequestOperationType operation = RequestOperationType.ADD;
-	private OperationResultDto result;
-	private String data; // JSON represented target DTO
+  @Embedded(dtoClass = IdmRequestDto.class)
+  private UUID request;
 
-	public UUID getRequest() {
-		return request;
-	}
+  @Size(min = 1, max = DefaultFieldLengths.NAME)
+  private String ownerType;
 
-	public void setRequest(UUID request) {
-		this.request = request;
-	}
+  private UUID originalOwnerId;
+  @NotNull private RequestOperationType operation = RequestOperationType.ADD;
+  private OperationResultDto result;
+  private String data; // JSON represented target DTO
+  private RequestState state = RequestState.CONCEPT;
+  private String wfProcessId;
 
-	public String getOwnerType() {
-		return ownerType;
-	}
+  public UUID getRequest() {
+    return request;
+  }
 
-	public void setOwnerType(String ownerType) {
-		this.ownerType = ownerType;
-	}
+  public void setRequest(UUID request) {
+    this.request = request;
+  }
 
-	public UUID getOriginalOwnerId() {
-		return originalOwnerId;
-	}
+  public String getOwnerType() {
+    return ownerType;
+  }
 
-	public void setOriginalOwnerId(UUID originalOwnerId) {
-		this.originalOwnerId = originalOwnerId;
-	}
+  public void setOwnerType(String ownerType) {
+    this.ownerType = ownerType;
+  }
 
-	public RequestOperationType getOperation() {
-		return operation;
-	}
+  public UUID getOriginalOwnerId() {
+    return originalOwnerId;
+  }
 
-	public void setOperation(RequestOperationType operation) {
-		this.operation = operation;
-	}
+  public void setOriginalOwnerId(UUID originalOwnerId) {
+    this.originalOwnerId = originalOwnerId;
+  }
 
-	public OperationResultDto getResult() {
-		return result;
-	}
+  public RequestOperationType getOperation() {
+    return operation;
+  }
 
-	public void setResult(OperationResultDto result) {
-		this.result = result;
-	}
+  public void setOperation(RequestOperationType operation) {
+    this.operation = operation;
+  }
 
-	public String getData() {
-		return data;
-	}
+  public OperationResultDto getResult() {
+    return result;
+  }
 
-	public void setData(String data) {
-		this.data = data;
-	}
+  public void setResult(OperationResultDto result) {
+    this.result = result;
+  }
 
+  public String getData() {
+    return data;
+  }
+
+  public void setData(String data) {
+    this.data = data;
+  }
+
+  public RequestState getState() {
+    return state;
+  }
+
+  public void setState(RequestState state) {
+    this.state = state;
+  }
+
+  public String getWfProcessId() {
+    return wfProcessId;
+  }
+
+  public void setWfProcessId(String wfProcessId) {
+    this.wfProcessId = wfProcessId;
+  }
 }

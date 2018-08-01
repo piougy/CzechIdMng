@@ -1,11 +1,12 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import { RoleManager} from '../../redux';
+import { RoleManager, RequestManager} from '../../redux';
 import * as Advanced from '../../components/advanced';
 
 const originalManager = new RoleManager();
 let manager = null;
+const requestManager = new RequestManager();
 
 /**
  * Role's tab panel
@@ -26,11 +27,32 @@ class Role extends Basic.AbstractContent {
     }));
   }
 
+  _createRequestRole() {
+    const { entity} = this.props;
+    const promise = requestManager.getService().createRequest('roles', entity);
+    promise.then((json) => {
+      // Init universal request manager (manually)
+      manager = this.getRequestManager({requestId: json.id}, originalManager);
+      // Fetch entity - we need init permissions for new manager
+      this.context.store.dispatch(manager.fetchEntityIfNeeded(entity.id, null, (e, error) => {
+        this.handleError(error);
+      }));
+      // Redirect to new request
+      this.context.router.push(`${this.addRequestPrefix('role', {requestId: json.id})}/${entity.id}/detail`);
+    }).catch(ex => {
+      this.setState({
+        showLoading: false
+      });
+      this.addError(ex);
+    });
+  }
+
   render() {
     const { entity, showLoading } = this.props;
     if (!manager) {
       return null;
     }
+    const isRequest = this.isRequest(this.props.params);
     return (
       <div>
         <Basic.PageHeader showLoading={!entity && showLoading}>
@@ -38,6 +60,25 @@ class Role extends Basic.AbstractContent {
         {' '}
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
         </Basic.PageHeader>
+        <Basic.Row rendered={!isRequest}>
+          <Basic.Col lg={ 6 }>
+            <Basic.Alert
+              level="warning"
+              title={ this.i18n('content.roles.button.createRequest.header') }
+              text={ this.i18n('content.roles.button.createRequest.text') }
+              className="no-margin"
+              buttons={[
+                <Basic.Button
+                  level="warning"
+                  onClick={ this._createRequestRole.bind(this) }
+                  titlePlacement="bottom">
+                  <Basic.Icon type="fa" icon="key"/>
+                  {' '}
+                  { this.i18n('content.roles.button.createRequest.label') }
+                </Basic.Button>
+              ]}/>
+          </Basic.Col>
+        </Basic.Row>
         <Advanced.TabPanel parentId={this.isRequest(this.props.params) ? 'request-roles' : 'roles'} params={this.props.params}>
           { this.props.children }
         </Advanced.TabPanel>

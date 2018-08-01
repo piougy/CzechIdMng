@@ -11,7 +11,8 @@ import { DataManager, SecurityManager, ConfigurationManager, RoleManager } from 
 import { SystemMappingManager, SystemManager, RoleSystemManager } from '../../redux';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
-const manager = new RoleSystemManager();
+const originalManager = new RoleSystemManager();
+let manager = null;
 const roleManager = new RoleManager();
 const systemManager = new SystemManager();
 /**
@@ -37,6 +38,11 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
   }
 
   getManager() {
+    if (!manager) {
+      // Init manager - evaluates if we want to use standard (original) manager or
+      // universal request manager (depends on existing of 'requestId' param)
+      manager = this.getRequestManager(this.props.params, originalManager);
+    }
     return manager;
   }
 
@@ -65,7 +71,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
     if (menu === 'system') {
       this.context.router.push(`/system/${entityId}/roles/${uuidId}/new?new=1`);
     } else { // role detail as default
-      this.context.router.push(`/role/${entityId}/systems/${uuidId}/new?new=1`);
+      this.context.router.push(`${this.addRequestPrefix('role', this.props.params)}/${entityId}/systems/${uuidId}/new?new=1`);
     }
   }
 
@@ -126,6 +132,9 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
     if (!rendered) {
       return null;
     }
+    if (!manager) {
+      return null;
+    }
     //
     const _forceSearchParameters = forceSearchParameters || new SearchParameters();
     //
@@ -135,7 +144,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
-          manager={ manager }
+          manager={ this.getManager() }
           showRowSelection={SecurityManager.hasAuthority('ROLE_UPDATE')}
           forceSearchParameters={_forceSearchParameters}
           filterOpened={ filterOpened }

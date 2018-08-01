@@ -36,6 +36,10 @@ class RoleDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entity } = this.props;
+    // Init manager - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    roleManager = this.getRequestManager(this.props.params, originalManager);
+
     if (Utils.Entity.isNew(entity)) {
       entity.priorityEnum = RolePriorityEnum.NONE;
       entity.priority = RolePriorityEnum.getPriority(RolePriorityEnum.NONE) + '';
@@ -47,6 +51,12 @@ class RoleDetail extends Basic.AbstractContent {
 
   componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
+    if ((nextProps.params && this.props.params && nextProps.params.requestId !== this.props.params.requestId)
+      || (nextProps.entity && nextProps.entity !== entity)) {
+      // Init manager - evaluates if we want to use standard (original) manager or
+      // universal request manager (depends on existing of 'requestId' param)
+      roleManager = this.getRequestManager(nextProps.params, originalManager);
+    }
     if (nextProps.entity && nextProps.entity !== entity && nextProps.entity.subRoles) {
       this._setSelectedEntity(this._prepareEntity(nextProps.entity));
     }
@@ -65,9 +75,6 @@ class RoleDetail extends Basic.AbstractContent {
   }
 
   _setSelectedEntity(entity) {
-    // Init manager - evaluates if we want to use standard (original) manager or
-    // universal request manager (depends on existing of 'requestId' param)
-    roleManager = this.getRequestManager(this.props.params, originalManager);
     this.setState({
       _showLoading: false
     }, () => {

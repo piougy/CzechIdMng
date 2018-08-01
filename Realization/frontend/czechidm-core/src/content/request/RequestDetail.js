@@ -8,7 +8,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import OperationStateEnum from '../../enums/OperationStateEnum';
-import { RequestManager, RequestItemManager } from '../../redux';
+import { RequestManager, RequestItemManager, WorkflowTaskInstanceManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import SearchParameters from '../../domain/SearchParameters';
@@ -17,6 +17,7 @@ const uiKey = 'universal-request';
 const uiKeyRequestItems = 'request-items';
 const requestItemManager = new RequestItemManager();
 const requestManager = new RequestManager();
+const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 
 /**
  * Detail for universal request
@@ -139,7 +140,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
     this.refs.form.processEnded();
   }
 
-  showDetailByRequest(entity) {
+  previewDetailByRequest(entity) {
     const urlType = this._getUrlType(entity.ownerType);
     this.context.router.push(`/requests/${entity.id}/${urlType}/${entity.ownerId}/detail`);
   }
@@ -213,7 +214,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
     return (
       <Advanced.DetailButton
         title={this.i18n('button.detail')}
-        onClick={this.showDetailByRequest.bind(this, data[rowIndex])}/>
+        onClick={this.previewDetailByRequest.bind(this, data[rowIndex])}/>
     );
   }
 
@@ -275,6 +276,22 @@ class RequestDetail extends Advanced.AbstractTableContent {
               header={ this.i18n('entity.RequestItem.originalOwnerId') }
               face="text"
               cell={this._renderOriginalOwnerCell.bind(this)}/>
+            <Advanced.Column
+              property="candicateUsers"
+              rendered={false}
+              face="text"
+              cell={this._getCandidatesCell}
+              />
+            <Advanced.Column
+              property="currentActivity"
+              face="text"
+              cell={this._getCurrentActivitiCell}
+              />
+            <Advanced.Column
+              property="wfProcessId"
+              cell={this._getWfProcessCell}
+              sort
+              face="text"/>
             <Advanced.Column property="created" header={this.i18n('entity.created')} sort face="datetime"/>
           </Advanced.Table>
         </Basic.Panel>
@@ -312,6 +329,40 @@ class RequestDetail extends Advanced.AbstractTableContent {
           </div>
         }
       </div>
+    );
+  }
+
+  _getCandidatesCell({ rowIndex, data, property}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
+      return '';
+    }
+    return (
+      <Advanced.IdentitiesInfo identities={entity._embedded.wfProcessId[property]} maxEntry={5} />
+    );
+  }
+
+  _getCurrentActivitiCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
+      return '';
+    }
+    const task = {taskName: entity._embedded.wfProcessId.currentActivityName,
+                  processDefinitionKey: entity._embedded.wfProcessId.processDefinitionKey,
+                  definition: {id: entity._embedded.wfProcessId.activityId}
+                };
+    return (
+      workflowTaskInstanceManager.localize(task, 'name')
+    );
+  }
+
+  _getWfProcessCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity.wfProcessId) {
+      return '';
+    }
+    return (
+      <Advanced.WorkflowProcessInfo entityIdentifier={entity.wfProcessId}/>
     );
   }
 
@@ -465,13 +516,13 @@ class RequestDetail extends Advanced.AbstractTableContent {
                 level="primary"
                 disabled={!isEditable}
                 showLoading={showLoading}
-                onClick={this.showDetailByRequest.bind(this, request)}
+                onClick={this.previewDetailByRequest.bind(this, request)}
                 rendered={ request && requestManager.canSave(request, _permissions)}
                 titlePlacement="bottom"
-                title={this.i18n('button.showDetailByRequest.tooltip')}>
+                title={this.i18n('button.previewDetailByRequest.tooltip')}>
                 <Basic.Icon type="fa" icon="object-group"/>
                 {' '}
-                { this.i18n('button.showDetailByRequest.label') }
+                { this.i18n('button.previewDetailByRequest.label') }
               </Basic.Button>
                 {' '}
               <Basic.Button

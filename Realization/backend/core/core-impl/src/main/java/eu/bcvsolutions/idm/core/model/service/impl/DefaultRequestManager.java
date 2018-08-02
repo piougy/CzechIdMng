@@ -457,8 +457,10 @@ public class DefaultRequestManager implements RequestManager {
 		List<IdmRequestItemDto> items = this.findRequestItems(request.getId(), dtoClass);
 
 		originals.stream().forEach(dto -> {
-			IdmRequestItemDto item = items.stream().filter(i -> dto.getId().equals(i.getOriginalOwnerId())).findFirst()
-					.orElse(null);
+			IdmRequestItemDto item = items.stream() //
+					.filter(i -> dto.getId().equals(i.getOriginalOwnerId())) //
+					.findFirst() //
+					.orElse(null); //
 			if (item == null) {
 				// None item found -> result is original DTO
 				results.add(dto);

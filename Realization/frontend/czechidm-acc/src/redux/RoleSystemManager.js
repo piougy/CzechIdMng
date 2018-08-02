@@ -3,7 +3,7 @@ import { RoleSystemService } from '../services';
 
 const service = new RoleSystemService();
 
-export default class RoleSystemManager extends Managers.EntityManager {
+export default class RoleSystemManager extends Managers.AbstractRequestManager {
 
   constructor() {
     super();
@@ -13,7 +13,7 @@ export default class RoleSystemManager extends Managers.EntityManager {
     return service;
   }
 
-  getEntityType() {
+  getEntitySubType() {
     return 'RoleSystem'; // TODO: constant or enumeration
   }
 

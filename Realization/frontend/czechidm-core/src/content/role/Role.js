@@ -4,7 +4,6 @@ import * as Basic from '../../components/basic';
 import { RoleManager, RequestManager} from '../../redux';
 import * as Advanced from '../../components/advanced';
 
-const originalManager = new RoleManager();
 let manager = null;
 const requestManager = new RequestManager();
 
@@ -20,7 +19,7 @@ class Role extends Basic.AbstractContent {
 
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    manager = this.getRequestManager(this.props.params, originalManager);
+    manager = this.getRequestManager(this.props.params, new RoleManager());
 
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
       this.handleError(error);
@@ -32,7 +31,7 @@ class Role extends Basic.AbstractContent {
     const promise = requestManager.getService().createRequest('roles', entity);
     promise.then((json) => {
       // Init universal request manager (manually)
-      manager = this.getRequestManager({requestId: json.id}, originalManager);
+      manager = this.getRequestManager({requestId: json.id}, new RoleManager());
       // Fetch entity - we need init permissions for new manager
       this.context.store.dispatch(manager.fetchEntityIfNeeded(entity.id, null, (e, error) => {
         this.handleError(error);

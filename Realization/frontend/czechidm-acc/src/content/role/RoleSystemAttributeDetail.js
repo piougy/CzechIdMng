@@ -8,9 +8,7 @@ import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrat
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 const uiKey = 'role-system-attribute';
-const originalManager = new RoleSystemAttributeManager();
 let roleSystemAttributeManager = null;
-const originalRoleSystemManager = new RoleSystemManager();
 let roleSystemManager = null;
 const systemAttributeMappingManager = new SystemAttributeMappingManager();
 const scriptManager = new Managers.ScriptManager();
@@ -76,8 +74,8 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
   _initComponent(props) {
     // Init managers - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    roleSystemAttributeManager = this.getRequestManager(props.params, originalManager);
-    roleSystemManager = this.getRequestManager(props.params, originalRoleSystemManager);
+    roleSystemAttributeManager = this.getRequestManager(props.params, new RoleSystemAttributeManager());
+    roleSystemManager = this.getRequestManager(props.params, new RoleSystemManager());
 
     const {roleSystemId, attributeId} = props.params;
     if (this._getIsNew(props)) {

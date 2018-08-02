@@ -9,10 +9,8 @@ import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 
 const uiKey = 'role-system';
 const uiKeyAttributes = 'role-system-attributes';
-const originalRoleSystemAttributeManager = new RoleSystemAttributeManager();
 let roleSystemAttributeManager = null;
 const systemManager = new SystemManager();
-const originalManager = new RoleSystemManager();
 let roleSystemManager = null;
 const roleManager = new Managers.RoleManager();
 const systemMappingManager = new SystemMappingManager();
@@ -105,8 +103,8 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
   _initComponent(props) {
     // Init managers - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    roleSystemManager = this.getRequestManager(props.params, originalManager);
-    roleSystemAttributeManager = this.getRequestManager(props.params, originalRoleSystemAttributeManager);
+    roleSystemManager = this.getRequestManager(props.params, new RoleSystemManager());
+    roleSystemAttributeManager = this.getRequestManager(props.params, new RoleSystemAttributeManager());
 
     if (!this._getIsNew(props)) {
       const { roleSystemId } = props.params;

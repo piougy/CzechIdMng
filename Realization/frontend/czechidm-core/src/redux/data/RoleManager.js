@@ -1,4 +1,4 @@
-import FormableEntityManager from './FormableEntityManager';
+import AbstractRequestFormableManager from './AbstractRequestFormableManager';
 import { RoleService} from '../../services';
 import DataManager from './DataManager';
 
@@ -7,7 +7,7 @@ import DataManager from './DataManager';
  *
  * @author Radek Tomiška
  */
-export default class RoleManager extends FormableEntityManager {
+export default class RoleManager extends AbstractRequestFormableManager {
 
   constructor() {
     super();
@@ -19,7 +19,7 @@ export default class RoleManager extends FormableEntityManager {
     return this.service;
   }
 
-  getEntityType() {
+  getEntitySubType() {
     return 'Role';
   }
 

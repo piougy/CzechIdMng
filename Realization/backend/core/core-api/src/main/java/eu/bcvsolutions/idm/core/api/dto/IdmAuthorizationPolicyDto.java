@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
@@ -25,7 +26,7 @@ import java.util.UUID;
  *
  */
 @Relation(collectionRelation = "authorizationPolicies")
-public class IdmAuthorizationPolicyDto extends AbstractDto implements AuthorizationPolicy {
+public class IdmAuthorizationPolicyDto extends AbstractDto implements AuthorizationPolicy, Requestable {
 
 	private static final long serialVersionUID = 1515971437827128049L;
 
@@ -48,10 +49,14 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 	private ConfigurationMap evaluatorProperties;
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String basePermissions;
-	
+	@Embedded(dtoClass = IdmRequestItemDto.class)
+	private UUID requestItem; // Isn't persist in the entity
+	@Embedded(dtoClass = IdmRequestDto.class)
+	private UUID request; // Isn't persist in the entity
+
 	public IdmAuthorizationPolicyDto() {
 	}
-	
+
 	public IdmAuthorizationPolicyDto(UUID id) {
 		super(id);
 	}
@@ -96,26 +101,26 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 	public void setEvaluatorType(String evaluatorType) {
 		this.evaluatorType = evaluatorType;
 	}
-	
+
 	public void setEvaluator(Class<? extends AuthorizationEvaluator<?>> evaluator) {
 		Assert.notNull(evaluator);
 		//
 		this.evaluatorType = evaluator.getCanonicalName();
 	}
-	
+
 	public void setAuthorizableType(String authorizableType) {
 		this.authorizableType = authorizableType;
 	}
-	
+
 	@Override
 	public String getAuthorizableType() {
 		return authorizableType;
 	}
-	
+
 	public void setEvaluatorProperties(ConfigurationMap evaluatorProperties) {
 		this.evaluatorProperties = evaluatorProperties;
 	}
-	
+
 	@Override
 	public ConfigurationMap getEvaluatorProperties() {
 		if (evaluatorProperties == null) {
@@ -123,35 +128,55 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 		}
 		return evaluatorProperties;
 	}
-	
+
 	@Override
 	public String getBasePermissions() {
 		return basePermissions;
 	}
-	
+
 	public void setBasePermissions(String basePermissions) {
 		this.basePermissions = basePermissions;
 	}
-	
+
 	@JsonIgnore
 	public void setPermissions(BasePermission... permissions) {
 		Assert.notNull(permissions);
 		//
 		this.basePermissions = StringUtils.join(permissions, ",");
 	}
-	
+
 	@JsonIgnore
 	@Override
 	public Set<String> getPermissions() {
 		return AuthorizationPolicy.super.getPermissions();
 	}
-	
+
 	@Override
 	public String getGroupPermission() {
 		return groupPermission;
 	}
-	
+
 	public void setGroupPermission(String groupPermission) {
 		this.groupPermission = groupPermission;
+	}
+	
+	@Override
+	public UUID getRequestItem() {
+		return requestItem;
+	}
+
+	@Override
+	public void setRequestItem(UUID requestItem) {
+		this.requestItem = requestItem;
+	}
+
+	@Override
+	public UUID getRequest() {
+		return request;
+	}
+
+	@Override
+	public void setRequest(UUID request) {
+		this.request = request;
 	}
 }

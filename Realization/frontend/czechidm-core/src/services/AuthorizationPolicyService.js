@@ -1,4 +1,4 @@
-import AbstractService from './AbstractService';
+import AbstractRequestService from './AbstractRequestService';
 import SearchParameters from '../domain/SearchParameters';
 import RoleService from './RoleService';
 import RestApiService from './RestApiService';
@@ -9,14 +9,14 @@ import * as Utils from '../utils';
  *
  * @author Radek Tomiška
  */
-export default class AuthorizationPolicyService extends AbstractService {
+export default class AuthorizationPolicyService extends AbstractRequestService {
 
   constructor() {
     super();
     this.roleService = new RoleService();
   }
 
-  getApiPath() {
+  getSubApiPath() {
     return '/authorization-policies';
   }
 

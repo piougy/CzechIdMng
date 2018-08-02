@@ -12,8 +12,6 @@ import * as Domain from '../../domain';
 import { RoleManager, AuthorizationPolicyManager, DataManager, FormAttributeManager } from '../../redux';
 
 const DEFAULT_EVALUATOR_TYPE = 'eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator';
-const manager = new AuthorizationPolicyManager();
-const roleManager = new RoleManager();
 const formAttributeManager = new FormAttributeManager();
 
 /**
@@ -41,15 +39,21 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   }
 
   getManager() {
-    return manager;
+    return this.manager;
   }
 
   componentDidMount() {
     super.componentDidMount();
+    // Init managers - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+
+    this.manager = this.getRequestManager(this.props.params, new AuthorizationPolicyManager());
+    this.roleManager = this.getRequestManager(this.props.params, new RoleManager());
+
     this.context.store.dispatch(this.getManager().fetchSupportedEvaluators());
     this.context.store.dispatch(this.getManager().fetchAuthorizableTypes());
-    this.context.store.dispatch(roleManager.fetchAllAuthorities());
-    this.context.store.dispatch(roleManager.fetchAvailableAuthorities());
+    this.context.store.dispatch(this.roleManager.fetchAllAuthorities());
+    this.context.store.dispatch(this.roleManager.fetchAvailableAuthorities());
   }
 
   showDetail(entity) {
@@ -270,6 +274,10 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       _permissions } = this.props;
     const { detail, evaluatorType, authorizableType } = this.state;
     //
+    if (!this.manager || !this.roleManager) {
+      return null;
+    }
+    //
     let formInstance = new Domain.FormInstance({});
     if (evaluatorType && evaluatorType.formDefinition && detail.entity) {
       formInstance = new Domain.FormInstance(evaluatorType.formDefinition).setProperties(detail.entity.evaluatorProperties);
@@ -307,9 +315,9 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
         <Advanced.Table
           ref="table"
           uiKey={ uiKey }
-          manager={ manager }
+          manager={ this.manager }
           forceSearchParameters={ forceSearchParameters }
-          showRowSelection={ manager.canDelete() }
+          showRowSelection={ this.manager.canDelete() }
           rowClass={
             ({rowIndex, data}) => {
               // installed vs. available authorities - authority from disabled module
@@ -331,7 +339,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, { evaluatorType: DEFAULT_EVALUATOR_TYPE }) }
-                rendered={ _supportedEvaluators.length > 0 && manager.canSave() }>
+                rendered={ _supportedEvaluators.length > 0 && this.manager.canSave() }>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -387,6 +395,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="evaluatorType"
+            header={ this.i18n('entity.AuthorizationPolicy.evaluatorType.label') }
             sort
             rendered={_.includes(columns, 'evaluatorType')}
             cell={
@@ -446,16 +455,19 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="description"
+            header={ this.i18n('entity.AuthorizationPolicy.description.label') }
             face="text"
             sort
             rendered={_.includes(columns, 'description')}/>
           <Advanced.Column
             property="disabled"
+            header={ this.i18n('entity.AuthorizationPolicy.disabled.label') }
             face="bool"
             sort
             rendered={_.includes(columns, 'disabled')}/>
           <Advanced.Column
             property="seq"
+            header={ this.i18n('entity.AuthorizationPolicy.seq.label') }
             face="text"
             sort
             rendered={_.includes(columns, 'seq')}/>
@@ -475,12 +487,12 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
               <Basic.AbstractForm
                 ref="form"
                 showLoading={_showLoading}
-                readOnly={ !manager.canSave(detail.entity, _permissions) }>
+                readOnly={ !this.manager.canSave(detail.entity, _permissions) }>
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Basic.SelectBox
                       ref="role"
-                      manager={ roleManager }
+                      manager={ this.roleManager }
                       label={ this.i18n('entity.AuthorizationPolicy.role') }
                       readOnly={ !Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'role') }
                       required/>
@@ -556,7 +568,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 showLoading={_showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={ manager.canSave(detail.entity, _permissions) }>
+                rendered={ this.manager.canSave(detail.entity, _permissions) }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

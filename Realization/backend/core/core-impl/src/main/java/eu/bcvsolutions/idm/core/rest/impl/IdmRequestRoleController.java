@@ -102,7 +102,7 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(value= "/{requestId}"+REQUEST_SUB_PATH, method = RequestMethod.GET)
+	@RequestMapping(value= "/{requestId}"+ REQUEST_SUB_PATH, method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	@ApiOperation(
 			value = "Search roles (/search/quick alias)", //
@@ -312,7 +312,6 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	public Set<String> getPermissions(
 			@ApiParam(value = "Role's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
-		// return ImmutableSet.of(IdmBasePermission.READ.name());
 		return super.getPermissions(backendId);
 	}
 

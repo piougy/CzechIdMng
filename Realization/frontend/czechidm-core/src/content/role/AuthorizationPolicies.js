@@ -38,7 +38,8 @@ export default class AuthorizationPolicies extends Basic.AbstractContent {
         <Basic.Panel className="no-border last">
           <AuthorizationPolicyTable
             uiKey="role-authorization-policies-table"
-            forceSearchParameters={ forceSearchParameters }/>
+            forceSearchParameters={ forceSearchParameters }
+            params={ this.props.params }/>
         </Basic.Panel>
 
       </div>

@@ -6,7 +6,6 @@ import PageHeader from '../PageHeader/PageHeader';
 import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
 import { selectNavigationItems, selectNavigationItem, getNavigationItem, hideFooter } from '../../../redux/config/actions';
-import {UniversalRequestManager} from '../../../redux';
 
 /**
 * Basic content = page representation
@@ -187,8 +186,10 @@ export default class AbstractContent extends AbstractContextComponent {
    */
   getRequestManager(params, originalManager) {
     if (this.isRequest(params)) {
-      return new UniversalRequestManager(params.requestId, originalManager);
+      originalManager.setRequestId(params.requestId);
+      return originalManager;
     }
+    originalManager.setRequestId(null);
     return originalManager;
   }
 

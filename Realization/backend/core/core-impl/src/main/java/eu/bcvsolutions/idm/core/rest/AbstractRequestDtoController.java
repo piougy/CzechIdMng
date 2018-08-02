@@ -142,7 +142,7 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 		DTO dto = getDto(backendId);
 		if (dto == null) {
 			try {
-				dto =  getService().getDtoClass().newInstance();
+				dto = getService().getDtoClass().newInstance();
 				dto.setId(UUID.fromString(backendId));
 			} catch (InstantiationException | IllegalAccessException e) {
 				throw new CoreException(e);
@@ -256,6 +256,25 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 		Page<DTO> page = (Page<DTO>) requestManager.find(getDtoClass(), requestId, toFilter(parameters), pageable,
 				IdmBasePermission.AUTOCOMPLETE);
 		return toResources(page, getDtoClass());
+	}
+
+	// TODO: Support of count !
+	/**
+	 * The number of entities that match the filter - parameters will be transformed
+	 * to filter object
+	 * 
+	 * @param parameters
+	 * @return
+	 * @see #toFilter(MultiValueMap)
+	 */
+	@ApiOperation(value = "The number of entities that match the filter", authorizations = {
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC), //
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST) //
+	}) //
+	public long count(@ApiParam(value = "Request ID", required = true) String requestId, //
+			@RequestParam(required = false) //
+			MultiValueMap<String, Object> parameters) { //
+		return count(toFilter(parameters), IdmBasePermission.COUNT);
 	}
 
 	/**

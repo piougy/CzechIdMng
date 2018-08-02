@@ -12,7 +12,6 @@ import RolePriorityEnum from '../../enums/RolePriorityEnum';
 import { RoleManager, RoleCatalogueManager, SecurityManager } from '../../redux';
 
 let roleManager = null;
-const originalManager = new RoleManager();
 const roleCatalogueManager = new RoleCatalogueManager();
 
 /**
@@ -38,7 +37,7 @@ class RoleDetail extends Basic.AbstractContent {
     const { entity } = this.props;
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    roleManager = this.getRequestManager(this.props.params, originalManager);
+    roleManager = this.getRequestManager(this.props.params, new RoleManager());
 
     if (Utils.Entity.isNew(entity)) {
       entity.priorityEnum = RolePriorityEnum.NONE;
@@ -55,7 +54,7 @@ class RoleDetail extends Basic.AbstractContent {
       || (nextProps.entity && nextProps.entity !== entity)) {
       // Init manager - evaluates if we want to use standard (original) manager or
       // universal request manager (depends on existing of 'requestId' param)
-      roleManager = this.getRequestManager(nextProps.params, originalManager);
+      roleManager = this.getRequestManager(nextProps.params, new RoleManager());
     }
     if (nextProps.entity && nextProps.entity !== entity && nextProps.entity.subRoles) {
       this._setSelectedEntity(this._prepareEntity(nextProps.entity));

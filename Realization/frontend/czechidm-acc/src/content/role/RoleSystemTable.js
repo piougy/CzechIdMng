@@ -38,11 +38,9 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
   }
 
   getManager() {
-    if (!manager) {
-      // Init manager - evaluates if we want to use standard (original) manager or
-      // universal request manager (depends on existing of 'requestId' param)
-      manager = this.getRequestManager(this.props.params, originalManager);
-    }
+    // Init manager - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    manager = this.getRequestManager(this.props.params, originalManager);
     return manager;
   }
 

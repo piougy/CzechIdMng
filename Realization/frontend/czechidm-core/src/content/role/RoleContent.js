@@ -6,7 +6,6 @@ import { RoleManager} from '../../redux';
 import RoleDetail from './RoleDetail';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 
-const originalManager = new RoleManager();
 let roleManager = null;
 
 /**
@@ -29,8 +28,7 @@ class Content extends Basic.AbstractContent {
 
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    roleManager = this.getRequestManager(this.props.params, originalManager);
-
+    roleManager = this.getRequestManager(this.props.params, new RoleManager());
     this.selectNavigationItems(['roles-menu', 'roles', 'role-detail']);
     if (this._isNew()) {
       this.context.store.dispatch(roleManager.receiveEntity(entityId, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) }));

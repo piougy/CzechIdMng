@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.rest;
 
+import java.util.UUID;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -138,7 +141,12 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 
 		DTO dto = getDto(backendId);
 		if (dto == null) {
-			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+			try {
+				dto =  getService().getDtoClass().newInstance();
+				dto.setId(UUID.fromString(backendId));
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new CoreException(e);
+			}
 		}
 		Requestable resultDto = requestManager.get(requestId, dto);
 		if (resultDto == null) {
@@ -163,38 +171,40 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 		Resource<IdmRequestDto> resource = new Resource<IdmRequestDto>(request, selfLink);
 		return new ResponseEntity<>(resource, HttpStatus.CREATED);
 	}
-	
+
 	/**
 	 * Quick search - parameters will be transformed to filter object
 	 * 
 	 * @param parameters
 	 * @param pageable
 	 * @return
-     * @see #toFilter(MultiValueMap)
+	 * @see #toFilter(MultiValueMap)
 	 */
 	@ApiOperation(value = "Search records (/search/quick alias)", authorizations = { //
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC), //
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST) //
-			}) //
-	@ApiImplicitParams({ //	
-        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query", //
-                value = "Results page you want to retrieve (0..N)"), //
-        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query", //
-                value = "Number of records per page."), //
-        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query", //
-                value = "Sorting criteria in the format: property(,asc|desc). " + //
-                        "Default sort order is ascending. " + //
-                        "Multiple sort criteria are supported.") //
+	}) //
+	@ApiImplicitParams({ //
+			@ApiImplicitParam(name = "page", dataType = "string", paramType = "query", //
+					value = "Results page you want to retrieve (0..N)"), //
+			@ApiImplicitParam(name = "size", dataType = "string", paramType = "query", //
+					value = "Number of records per page."), //
+			@ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query", //
+					value = "Sorting criteria in the format: property(,asc|desc). " + //
+							"Default sort order is ascending. " + //
+							"Multiple sort criteria are supported.") //
 	})
 	public Resources<?> find( //
 			@ApiParam(value = "Request ID", required = true) String requestId, //
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, //
 			@PageableDefault Pageable pageable) { //
-		 Page<DTO> page = (Page<DTO>) requestManager.find(getDtoClass(), requestId, toFilter(parameters), pageable, IdmBasePermission.READ);
-		
+		@SuppressWarnings("unchecked")
+		Page<DTO> page = (Page<DTO>) requestManager.find(getDtoClass(), requestId, toFilter(parameters), pageable,
+				IdmBasePermission.READ);
+
 		return toResources(page, getDtoClass());
 	}
-	
+
 	/**
 	 * All endpoints will support find quick method.
 	 * 
@@ -203,28 +213,19 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 	 * @return
 	 * @see #toFilter(MultiValueMap)
 	 */
-	@ApiOperation(value = "Search records", authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
-			})
+	@ApiOperation(value = "Search records", authorizations = { @Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST) })
 	@ApiImplicitParams({
-        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
-                value = "Results page you want to retrieve (0..N)"),
-        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
-                value = "Number of records per page."),
-        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
-                value = "Sorting criteria in the format: property(,asc|desc). " +
-                        "Default sort order is ascending. " +
-                        "Multiple sort criteria are supported.")
-	})
-	public Resources<?> findQuick(
-			@ApiParam(value = "Request ID", required = true) String requestId,
+			@ApiImplicitParam(name = "page", dataType = "string", paramType = "query", value = "Results page you want to retrieve (0..N)"),
+			@ApiImplicitParam(name = "size", dataType = "string", paramType = "query", value = "Number of records per page."),
+			@ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query", value = "Sorting criteria in the format: property(,asc|desc). "
+					+ "Default sort order is ascending. " + "Multiple sort criteria are supported.") })
+	public Resources<?> findQuick(@ApiParam(value = "Request ID", required = true) String requestId,
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return find(requestId, parameters, pageable);
 	}
-	
-	
+
 	/**
 	 * Quick search for autocomplete (read data to select box etc.) - parameters
 	 * will be transformed to filter object
@@ -251,6 +252,7 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			@ApiParam(value = "Request ID", required = true) String requestId, //
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, //
 			@PageableDefault Pageable pageable) { //
+		@SuppressWarnings("unchecked")
 		Page<DTO> page = (Page<DTO>) requestManager.find(getDtoClass(), requestId, toFilter(parameters), pageable,
 				IdmBasePermission.AUTOCOMPLETE);
 		return toResources(page, getDtoClass());

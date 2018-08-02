@@ -59,7 +59,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
     if (menu === 'system') {
       this.context.router.push(`/system/${entity.system}/roles/${entity.id}/detail`);
     } else {
-      this.context.router.push(`/role/${entity.role}/systems/${entity.id}/detail`);
+      this.context.router.push(`${this.addRequestPrefix('role', this.props.params)}/${entity.role}/systems/${entity.id}/detail`);
     }
   }
 

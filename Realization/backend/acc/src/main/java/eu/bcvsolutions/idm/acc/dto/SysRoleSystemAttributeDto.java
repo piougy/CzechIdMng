@@ -10,7 +10,10 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 
 /**
  * DTO for {@link SysRoleSystemAttribute}
@@ -20,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  */
 
 @Relation(collectionRelation = "roleSystemAttributes")
-public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeMapping {
+public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeMapping, Requestable {
 
 	private static final long serialVersionUID = -3340543770861555491L;
 	
@@ -43,6 +46,10 @@ public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeM
 	private UUID schemaAttribute = null;
 	@JsonIgnore
 	private boolean cached = true;
+	@Embedded(dtoClass = IdmRequestItemDto.class)
+	private UUID requestItem; // Isn't persist in the entity
+	@Embedded(dtoClass = IdmRequestDto.class)
+	private UUID request; // Isn't persist in the entity
 
 	public String getName() {
 		return name;
@@ -206,6 +213,24 @@ public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeM
 		this.cached = cached;
 	}
 	
-	
+	@Override
+	public UUID getRequestItem() {
+		return requestItem;
+	}
+
+	@Override
+	public void setRequestItem(UUID requestItem) {
+		this.requestItem = requestItem;
+	}
+
+	@Override
+	public UUID getRequest() {
+		return request;
+	}
+
+	@Override
+	public void setRequest(UUID request) {
+		this.request = request;
+	}
 
 }

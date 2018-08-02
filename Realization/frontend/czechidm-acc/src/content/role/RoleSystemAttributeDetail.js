@@ -8,8 +8,10 @@ import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrat
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 const uiKey = 'role-system-attribute';
-const roleSystemAttributeManager = new RoleSystemAttributeManager();
-const roleSystemManager = new RoleSystemManager();
+const originalManager = new RoleSystemAttributeManager();
+let roleSystemAttributeManager = null;
+const originalRoleSystemManager = new RoleSystemManager();
+let roleSystemManager = null;
 const systemAttributeMappingManager = new SystemAttributeMappingManager();
 const scriptManager = new Managers.ScriptManager();
 
@@ -72,6 +74,11 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
+    // Init managers - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    roleSystemAttributeManager = this.getRequestManager(props.params, originalManager);
+    roleSystemManager = this.getRequestManager(props.params, originalRoleSystemManager);
+
     const {roleSystemId, attributeId} = props.params;
     if (this._getIsNew(props)) {
       this.setState({attribute: {
@@ -176,6 +183,9 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
     const _mappingId = isNew ? mappingId : _systemMappingId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemMappingId', _mappingId ? _mappingId : Domain.SearchParameters.BLANK_UUID);
 
+    if (!roleSystemAttributeManager) {
+      return null;
+    }
     const _isDisabled = this.refs.disabledDefaultAttribute ? this.refs.disabledDefaultAttribute.getValue() : false;
     const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
     const _isExtendedAttribute = this.refs.extendedAttribute ? this.refs.extendedAttribute.getValue() : false;
@@ -329,6 +339,9 @@ RoleSystemAttributeDetail.defaultProps = {
 };
 
 function select(state, component) {
+  if (!roleSystemAttributeManager) {
+    return null;
+  }
   const entity = Utils.Entity.getEntity(state, roleSystemAttributeManager.getEntityType(), component.params.attributeId);
   let systemMappingId = null;
   if (entity) {

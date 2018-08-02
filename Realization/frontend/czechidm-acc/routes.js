@@ -286,7 +286,7 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
         },
         {
-          path: 'role-systems/:roleSystemId/attributes/:attributeId/new',
+          path: 'systems/:roleSystemId/attributes/:attributeId/new',
           component: require('./src/content/role/RoleSystemAttributeDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE', 'SYSTEM_READ'] } ]
         }

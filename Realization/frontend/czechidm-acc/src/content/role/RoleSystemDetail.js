@@ -9,7 +9,8 @@ import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 
 const uiKey = 'role-system';
 const uiKeyAttributes = 'role-system-attributes';
-const roleSystemAttributeManager = new RoleSystemAttributeManager();
+const originalRoleSystemAttributeManager = new RoleSystemAttributeManager();
+let roleSystemAttributeManager = null;
 const systemManager = new SystemManager();
 const originalManager = new RoleSystemManager();
 let roleSystemManager = null;
@@ -72,14 +73,14 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
       entityId = this.props.params.entityId;
     }
     const roleSystem = this.props.params.roleSystemId;
-    const linkMenu = this._isSystemMenu() ? `/system/${entityId}/roles/${roleSystem}/attributes` : `/role/${entityId}/systems/${roleSystem}/attributes`;
+    const linkMenu = this._isSystemMenu() ? `system/${entityId}/roles/${roleSystem}/attributes` : `role/${entityId}/systems/${roleSystem}/attributes`;
     //
     if (add) {
       // When we add new object class, then we need id of role as parametr and use "new" url
       const uuidId = uuid.v1();
-      this.context.router.push(`${linkMenu}/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
+      this.context.router.push(`${this.addRequestPrefix(linkMenu, this.props.params)}/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
     } else {
-      this.context.router.push(`${linkMenu}/${entity.id}/detail`);
+      this.context.router.push(`${this.addRequestPrefix(linkMenu, this.props.params)}/${entity.id}/detail`);
     }
   }
 
@@ -102,9 +103,10 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    // Init manager - evaluates if we want to use standard (original) manager or
+    // Init managers - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
     roleSystemManager = this.getRequestManager(props.params, originalManager);
+    roleSystemAttributeManager = this.getRequestManager(props.params, originalRoleSystemAttributeManager);
 
     if (!this._getIsNew(props)) {
       const { roleSystemId } = props.params;

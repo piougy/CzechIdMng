@@ -41,7 +41,7 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
     if (this._isSystemMenu()) {
       return 'system-roles';
     }
-    return 'role-systems';
+    this.getRequestNavigationKey('role-systems', this.props.params);
   }
 
   _isMenu(menu = 'role') {

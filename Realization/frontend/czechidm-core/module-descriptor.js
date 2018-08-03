@@ -316,8 +316,6 @@ module.exports = {
                 'items': [
                   {
                     'id': 'role-automatic-role-tree',
-
-                    'disabled': true,
                     'labelKey': 'content.automaticRoles.tree.title',
                     'order': 10,
                     'path': '/role/:entityId/automatic-roles/trees',

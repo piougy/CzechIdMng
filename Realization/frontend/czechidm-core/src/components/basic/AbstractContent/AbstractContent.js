@@ -201,6 +201,21 @@ export default class AbstractContent extends AbstractContextComponent {
   }
 
   /**
+   * Return navigation identifier, with can be used to show content header, title, icon ...
+   * If is content request, then navigation key for request will be
+   * returned else the standard navigation key will be returned.
+   *
+   * @return {string} navigation item identifier
+   */
+  getRequestNavigationKey(navigationKey, params) {
+    if (navigationKey && this.isRequest(params)) {
+      return `request-${navigationKey}`;
+    }
+    return navigationKey;
+  }
+
+
+  /**
    * Default Page header with page title based on navigation item
    *
    * @param {object} props PageHeader properties e.g. style, className

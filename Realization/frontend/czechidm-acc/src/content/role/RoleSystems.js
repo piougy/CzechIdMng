@@ -27,7 +27,7 @@ export default class RoleSystems extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-systems';
+    return this.getRequestNavigationKey('role-systems', this.props.params);
   }
 
   render() {

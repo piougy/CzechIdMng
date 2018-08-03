@@ -13,6 +13,8 @@ import { RoleManager, AuthorizationPolicyManager, DataManager, FormAttributeMana
 
 const DEFAULT_EVALUATOR_TYPE = 'eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator';
 const formAttributeManager = new FormAttributeManager();
+let roleManager = null;
+let manager = null;
 
 /**
 * Table of role's granted permissions
@@ -23,6 +25,11 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    // Init managers - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    manager = this.getRequestManager(props.params, new AuthorizationPolicyManager());
+    roleManager = this.getRequestManager(props.params, new RoleManager());
+
     this.state = {
       ...this.state,
       authorizableType: null,
@@ -39,21 +46,25 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   }
 
   getManager() {
-    return this.manager;
+    return manager;
   }
 
   componentDidMount() {
     super.componentDidMount();
-    // Init managers - evaluates if we want to use standard (original) manager or
-    // universal request manager (depends on existing of 'requestId' param)
-
-    this.manager = this.getRequestManager(this.props.params, new AuthorizationPolicyManager());
-    this.roleManager = this.getRequestManager(this.props.params, new RoleManager());
 
     this.context.store.dispatch(this.getManager().fetchSupportedEvaluators());
     this.context.store.dispatch(this.getManager().fetchAuthorizableTypes());
-    this.context.store.dispatch(this.roleManager.fetchAllAuthorities());
-    this.context.store.dispatch(this.roleManager.fetchAvailableAuthorities());
+    this.context.store.dispatch(roleManager.fetchAllAuthorities());
+    this.context.store.dispatch(roleManager.fetchAvailableAuthorities());
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.params) {
+      // Init managers - evaluates if we want to use standard (original) manager or
+      // universal request manager (depends on existing of 'requestId' param)
+      manager = this.getRequestManager(nextProps.params, manager ? manager : new AuthorizationPolicyManager());
+      roleManager = this.getRequestManager(nextProps.params, roleManager ? roleManager : new RoleManager());
+    }
   }
 
   showDetail(entity) {
@@ -274,7 +285,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       _permissions } = this.props;
     const { detail, evaluatorType, authorizableType } = this.state;
     //
-    if (!this.manager || !this.roleManager) {
+    if (!manager || !roleManager) {
       return null;
     }
     //
@@ -315,9 +326,9 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
         <Advanced.Table
           ref="table"
           uiKey={ uiKey }
-          manager={ this.manager }
+          manager={ manager }
           forceSearchParameters={ forceSearchParameters }
-          showRowSelection={ this.manager.canDelete() }
+          showRowSelection={ manager.canDelete() }
           rowClass={
             ({rowIndex, data}) => {
               // installed vs. available authorities - authority from disabled module
@@ -339,7 +350,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, { evaluatorType: DEFAULT_EVALUATOR_TYPE }) }
-                rendered={ _supportedEvaluators.length > 0 && this.manager.canSave() }>
+                rendered={ _supportedEvaluators.length > 0 && manager.canSave() }>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -487,12 +498,12 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
               <Basic.AbstractForm
                 ref="form"
                 showLoading={_showLoading}
-                readOnly={ !this.manager.canSave(detail.entity, _permissions) }>
+                readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Basic.SelectBox
                       ref="role"
-                      manager={ this.roleManager }
+                      manager={ roleManager }
                       label={ this.i18n('entity.AuthorizationPolicy.role') }
                       readOnly={ !Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'role') }
                       required/>
@@ -568,7 +579,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 showLoading={_showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={ this.manager.canSave(detail.entity, _permissions) }>
+                rendered={ manager.canSave(detail.entity, _permissions) }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

@@ -37,7 +37,7 @@ class RoleAccounts extends Advanced.AbstractTableContent {
   }
 
   getNavigationKey() {
-    return 'role-accounts';
+    return this.getRequestNavigationKey('role-accounts', this.props.params);
   }
 
   showDetail(entity) {

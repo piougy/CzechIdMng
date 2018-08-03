@@ -14,9 +14,6 @@ export default class RoleAutomaticRoleRoutes extends Basic.AbstractContent {
     return 'content.automaticRoles';
   }
 
-  componentDidMount() {
-  }
-
   render() {
     return (
       <div>

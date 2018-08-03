@@ -23,7 +23,7 @@ export default class RoleAutomaticAttributes extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-automatic-role-attribute';
+    return this.getRequestNavigationKey('role-automatic-role-attribute', this.props.params);
   }
 
   render() {

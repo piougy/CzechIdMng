@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest;
 
+import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -256,6 +257,37 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 		Page<DTO> page = (Page<DTO>) requestManager.find(getDtoClass(), requestId, toFilter(parameters), pageable,
 				IdmBasePermission.AUTOCOMPLETE);
 		return toResources(page, getDtoClass());
+	}
+
+	/**
+	 * Returns, what currently logged identity can do with given DTO
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@ApiOperation(value = "What logged identity can do with given record", authorizations = { //
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC), //
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST) //
+	}) //
+	public Set<String> getPermissions( //
+			@ApiParam(value = "Request ID", required = true) String requestId, //
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true) //
+			@PathVariable @NotNull String backendId) { //
+		DTO dto = getDto(backendId);
+		if (dto == null) {
+			try {
+				dto = getService().getDtoClass().newInstance();
+				dto.setId(UUID.fromString(backendId));
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new CoreException(e);
+			}
+		}
+		Requestable resultDto = requestManager.get(requestId, dto);
+		if (resultDto == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
+		return getService().getPermissions((DTO)resultDto);
 	}
 
 	// TODO: Support of count !

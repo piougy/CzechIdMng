@@ -239,9 +239,10 @@ public class IdmRequestAuthorizationPolicyController extends AbstractRequestDtoC
 						@AuthorizationScope(scope = CoreGroupPermission.AUTHORIZATIONPOLICY_READ, description = "") })
 				})
 	public Set<String> getPermissions(
+			@PathVariable @NotNull String requestId,
 			@ApiParam(value = "Policy's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return super.getPermissions(backendId);
+		return super.getPermissions(requestId, backendId);
 	}
 	
 	/**

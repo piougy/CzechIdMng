@@ -15,6 +15,7 @@ const requestManager = new RequestManager();
 class Role extends Basic.AbstractContent {
 
   componentDidMount() {
+    super.componentDidMount();
     const { entityId } = this.props.params;
 
     // Init manager - evaluates if we want to use standard (original) manager or

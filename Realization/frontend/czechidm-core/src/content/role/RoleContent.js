@@ -23,13 +23,17 @@ class Content extends Basic.AbstractContent {
     return 'content.roles';
   }
 
+  getNavigationKey() {
+    return this.getRequestNavigationKey('role-detail', this.props.params);
+  }
+
   componentDidMount() {
+    super.componentDidMount();
     const { entityId } = this.props.params;
 
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
     roleManager = this.getRequestManager(this.props.params, new RoleManager());
-    this.selectNavigationItems(['roles-menu', 'roles', 'role-detail']);
     if (this._isNew()) {
       this.context.store.dispatch(roleManager.receiveEntity(entityId, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) }));
     } else {
@@ -37,9 +41,6 @@ class Content extends Basic.AbstractContent {
         this.handleError(error);
       }));
     }
-  }
-
-  componentDidUpdate() {
   }
 
   _isNew() {

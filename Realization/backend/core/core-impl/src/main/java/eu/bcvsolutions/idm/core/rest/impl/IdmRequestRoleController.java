@@ -310,9 +310,10 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
 				})
 	public Set<String> getPermissions(
+			@PathVariable @NotNull String requestId,
 			@ApiParam(value = "Role's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return super.getPermissions(backendId);
+		return super.getPermissions(requestId, backendId);
 	}
 
 	

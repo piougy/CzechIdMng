@@ -21,7 +21,7 @@ export default class AuthorizationPolicies extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-authorization-policies';
+    return this.getRequestNavigationKey('role-authorization-policies', this.props.params);
   }
 
   render() {

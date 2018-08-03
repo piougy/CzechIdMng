@@ -381,8 +381,7 @@ public class DefaultRequestManager implements RequestManager {
 			item = requestItemService.save(item);
 			// Set ID of request item to result DTO
 			dto.setRequestItem(item.getId());
-
-			return dto;
+			return this.get(requestId, dto);
 
 		} catch (JsonProcessingException e) {
 			throw new ResultCodeException(CoreResultCode.DTO_CANNOT_BE_CONVERT_TO_JSON,
@@ -495,8 +494,10 @@ public class DefaultRequestManager implements RequestManager {
 		itemsToAdd.forEach(item -> {
 			try {
 				BaseDto requestedDto = this.convertStringToDto(item.getData(), dtoClass);
-				addEmbedded((AbstractDto) requestedDto, request.getId());
-				addRequestItemToDto((Requestable) requestedDto, item);
+				AbstractDto requested = (AbstractDto) requestedDto;
+				addEmbedded(requested, request.getId());
+				addRequestItemToDto((Requestable) requested, item);
+				requested.setTrimmed(true);
 				results.add((Requestable) requestedDto);
 				return;
 
@@ -633,8 +634,15 @@ public class DefaultRequestManager implements RequestManager {
 						if (Requestable.class.isAssignableFrom(embeddedAnnotation.dtoClass())) {
 							embeddedDto = embeddedAnnotation.dtoClass().newInstance();
 							embeddedDto.setId(id);
-							// Call standard method for load request's DTO
-							embeddedDto = (AbstractDto) this.get(requestId, (Requestable) embeddedDto);
+							Requestable originalEmbeddedDto = this.getDtoService((Requestable) embeddedDto)
+									.get(embeddedDto.getId());
+							if (originalEmbeddedDto != null) {
+								// Call standard method for load request's DTO with original DTO
+								embeddedDto = (AbstractDto) this.get(requestId, originalEmbeddedDto);
+							} else {
+								// Call standard method for load request's DTO with mock DTO (only with ID)
+								embeddedDto = (AbstractDto) this.get(requestId, (Requestable) embeddedDto);
+							}
 						} else {
 							// If embedded DTO is not Requestable, then standard service is using
 							embeddedDto = (AbstractDto) lookupService.getDtoService(embeddedAnnotation.dtoClass())

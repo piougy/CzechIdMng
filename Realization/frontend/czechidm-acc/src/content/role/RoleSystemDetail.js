@@ -51,7 +51,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     if (this._isSystemMenu()) {
       return 'system-roles';
     }
-    return 'role-systems';
+    this.getRequestNavigationKey('role-systems', this.props.params);
   }
 
   _isMenu(menu = 'role') {
@@ -149,7 +149,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
         if (this._isSystemMenu()) {
           this.context.router.replace(`/system/${entity.system}/roles/${entity.id}/detail`, { entityId: entity.id });
         } else {
-          this.context.router.replace(`/role/${entity.role}/systems/${entity.id}/detail`, { entityId: entity.id });
+          this.context.router.replace(`${this.addRequestPrefix('role', this.props.params)}/${entity.role}/systems/${entity.id}/detail`, { entityId: entity.id });
         }
       } else {
         this.addMessage({ message: this.i18n('save.success', { system: entity._embedded.system.name, role: entity._embedded.role.name }) });

@@ -741,6 +741,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       // automatic rowClass by entity's "disabled" attribute
       _rowClass = ({rowIndex, data}) => { return Utils.Ui.getDisabledRowClass(data[rowIndex]); };
     }
+    // If is manager in the universal request mode, then row class by requests will be used (REMOVE / ADD / CHANGE).
+    if (manager.isRequestModeEnabled && manager.isRequestModeEnabled()) {
+      _rowClass = ({rowIndex, data}) => { return Utils.Ui.getRequestRowClass(data[rowIndex]); };
+    }
     //
     let _actions = [];
     if (manager.supportsBulkAction()) {

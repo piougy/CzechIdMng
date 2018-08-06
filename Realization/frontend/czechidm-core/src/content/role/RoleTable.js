@@ -9,10 +9,11 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 //
-import { SecurityManager, RoleCatalogueManager } from '../../redux';
+import {RoleManager, RequestManager, SecurityManager, RoleCatalogueManager } from '../../redux';
 
 // Table uiKey
 const rootsKey = 'role-catalogue-tree-roots';
+const requestManager = new RequestManager();
 
 /**
 * Table of roles
@@ -61,6 +62,25 @@ class RoleTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  }
+
+  createRequest() {
+    const promise = requestManager.getService().createRequest('roles', {});
+    promise.then((json) => {
+      // Init universal request manager (manually)
+      const manager = this.getRequestManager({requestId: json.id}, new RoleManager());
+      // Fetch entity - we need init permissions for new manager
+      this.context.store.dispatch(manager.fetchEntityIfNeeded(json.ownerId, null, (e, error) => {
+        this.handleError(error);
+      }));
+      // Redirect to new request
+      this.context.router.push(`${this.addRequestPrefix('role', {requestId: json.id})}/${json.ownerId}/detail`);
+    }).catch(ex => {
+      this.setState({
+        showLoading: false
+      });
+      this.addError(ex);
+    });
   }
 
   showDetail(entity) {
@@ -221,7 +241,7 @@ class RoleTable extends Advanced.AbstractTableContent {
               </Advanced.Filter>
             }
             buttons={
-              [
+              [<span>
                 <Basic.Button
                   level="success"
                   key="add_button"
@@ -232,6 +252,17 @@ class RoleTable extends Advanced.AbstractTableContent {
                   {' '}
                   {this.i18n('button.add')}
                 </Basic.Button>
+                <Basic.Button
+                  level="success"
+                  key="add_request"
+                  className="btn-xs"
+                  onClick={this.createRequest.bind(this)}
+                  rendered={SecurityManager.hasAuthority('ROLE_CREATE')}>
+                  <Basic.Icon type="fa" icon="plus"/>
+                  {' '}
+                  {this.i18n('button.add')}
+                </Basic.Button>
+              </span>
               ]
             }
             _searchParameters={ this.getSearchParameters() }

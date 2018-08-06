@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.MethodDescriptor;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -32,6 +34,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -48,6 +51,7 @@ import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -355,26 +359,20 @@ public class DefaultRequestManager implements RequestManager {
 
 		IdmRequestDto request = requestService.get(requestId);
 		boolean isNew = dtoReadService.isNew(dto);
+		// Exists item for same original owner?
+		IdmRequestItemDto item = this.findRequestItem(request.getId(), dto);
 		try {
-			IdmRequestItemDto item = null;
-			if (isNew) {
-				if (dto.getId() == null) {
-					dto.setId(UUID.randomUUID());
-				}
+			if (dto.getId() == null) {
+				dto.setId(UUID.randomUUID());
+			}
+			if (item == null) {
 				item = createRequestItem(request.getId(), dto);
-				item.setOperation(RequestOperationType.ADD);
+				item.setOperation(isNew ? RequestOperationType.ADD : RequestOperationType.UPDATE);
 				item.setOriginalOwnerId((UUID) dto.getId());
 			} else {
-				// Exists item for same original owner?
-				item = this.findRequestItem(request.getId(), dto);
-				if (item == null) {
-					item = createRequestItem(request.getId(), dto);
-					item.setOperation(RequestOperationType.UPDATE);
-					item.setOriginalOwnerId((UUID) dto.getId());
-				} else {
-					item.setOperation(RequestOperationType.UPDATE);
-				}
+				item.setOperation(isNew ? RequestOperationType.ADD : RequestOperationType.UPDATE);
 			}
+
 			String dtoString = this.convertDtoToString(dto);
 			item.setData(dtoString);
 			// Update or create new request item
@@ -432,9 +430,7 @@ public class DefaultRequestManager implements RequestManager {
 		try {
 			BaseDto requestedDto = this.convertStringToDto(item.getData(), dto.getClass());
 			addRequestItemToDto((Requestable) requestedDto, item);
-			if (RequestOperationType.ADD == item.getOperation()) {
-				this.addEmbedded((AbstractDto) requestedDto, request.getId());
-			}
+			this.addEmbedded((AbstractDto) requestedDto, request.getId());
 			return (Requestable) requestedDto;
 
 		} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
@@ -476,20 +472,34 @@ public class DefaultRequestManager implements RequestManager {
 			try {
 				// Item with data found. Data in the request is result
 				BaseDto requestedDto = this.convertStringToDto(item.getData(), dtoClass);
+				addEmbedded((AbstractDto) requestedDto, request.getId());
 				addRequestItemToDto((Requestable) requestedDto, item);
 				results.add((Requestable) requestedDto);
 				return;
 
-			} catch (IOException e) {
+			} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+					| InstantiationException | IntrospectionException e) {
 				throw new ResultCodeException(CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
 						ImmutableMap.of("json", item.getData()));
 			}
 		});
 
+		// !!Searching of added DTOs are very naive!!
+		// We use all UUID value in the filter and try to find it in the DTOs. It means
+		// only equals is implemented.
+
+		// Find potential parents
+		List<UUID> potencialParents = this.findPotencialParents(filter);
+
 		// Find items which should be added
 		List<IdmRequestItemDto> itemsToAdd = items.stream() //
 				.filter(i -> RequestOperationType.ADD == i.getOperation()) //
-				.collect(Collectors.toList()); //
+				.filter(i -> {
+					return potencialParents.stream() //
+							.filter(parentId -> i.getData().indexOf(parentId.toString()) != -1) //
+							.findFirst() //
+							.isPresent(); //
+				}).collect(Collectors.toList()); //
 
 		itemsToAdd.forEach(item -> {
 			try {
@@ -497,7 +507,6 @@ public class DefaultRequestManager implements RequestManager {
 				AbstractDto requested = (AbstractDto) requestedDto;
 				addEmbedded(requested, request.getId());
 				addRequestItemToDto((Requestable) requested, item);
-				requested.setTrimmed(true);
 				results.add((Requestable) requestedDto);
 				return;
 
@@ -508,6 +517,10 @@ public class DefaultRequestManager implements RequestManager {
 			}
 		});
 
+		// Set all results as trimmed = true. Frontend expects trimmed value in the
+		// table.
+		results.forEach(result -> ((AbstractDto) result).setTrimmed(true));
+
 		return new PageImpl<>(results, pageable, originalPage.getTotalElements());
 	}
 
@@ -516,6 +529,9 @@ public class DefaultRequestManager implements RequestManager {
 		Assert.notNull(dto, "DTO is required!");
 		// TODO: Rights!
 
+		if (dto.getId() == null) {
+			dto.setId(UUID.randomUUID());
+		}
 		IdmRequestDto request = new IdmRequestDto();
 		request.setState(RequestState.CONCEPT);
 		request.setOwnerId((UUID) dto.getId());
@@ -537,6 +553,10 @@ public class DefaultRequestManager implements RequestManager {
 	}
 
 	private IdmRequestItemDto findRequestItem(UUID requestId, Requestable dto) {
+		Assert.notNull(dto, "DTO is required!");
+		if (dto.getId() == null) {
+			return null;
+		}
 		IdmRequestItemFilter itemFilter = new IdmRequestItemFilter();
 		itemFilter.setRequestId(requestId);
 		itemFilter.setOriginalOwnerId((UUID) dto.getId());
@@ -562,6 +582,43 @@ public class DefaultRequestManager implements RequestManager {
 		item.setResult(new OperationResultDto(OperationState.CREATED));
 		item.setState(RequestState.CONCEPT);
 		return item;
+	}
+
+	/**
+	 * Find potential parents. Invokes all method with UUID return type and without
+	 * input parameters.
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	private List<UUID> findPotencialParents(BaseFilter filter) {
+		Assert.notNull(filter, "Filter is mandatory!");
+
+		List<MethodDescriptor> descriptors;
+		try {
+			descriptors = Lists.newArrayList(Introspector.getBeanInfo(filter.getClass()).getMethodDescriptors()) //
+					.stream() //
+					.filter(methodDescriptor -> UUID.class.equals(methodDescriptor.getMethod().getReturnType())) //
+					.filter(methodDescriptor -> methodDescriptor.getParameterDescriptors() == null
+							|| methodDescriptor.getParameterDescriptors().length == 0) //
+					.collect(Collectors.toList());
+		} catch (IntrospectionException e) {
+			throw new CoreException(e);
+		} //
+
+		List<UUID> results = new ArrayList<>();
+		descriptors.stream().forEach(descriptor -> {
+			try {
+				Object value = descriptor.getMethod().invoke(filter, new Object[] {});
+				if (value == null) {
+					return;
+				}
+				results.add((UUID) value);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new CoreException(e);
+			}
+		});
+		return results;
 	}
 
 	/**

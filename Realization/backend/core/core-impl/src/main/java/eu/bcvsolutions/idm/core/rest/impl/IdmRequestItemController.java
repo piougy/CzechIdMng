@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
@@ -37,7 +38,6 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem_;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
@@ -217,7 +217,7 @@ public class IdmRequestItemController extends AbstractReadWriteDtoController<Idm
 			@PathVariable @NotNull String backendId) {
 		IdmRequestItemService service = ((IdmRequestItemService)this.getService());
 		IdmRequestItemDto dto = service.get(backendId);
-		IdmRequest request = DtoUtils.getEmbedded(dto, IdmRequestItem_.request, IdmRequest.class);
+		IdmRequestDto request = DtoUtils.getEmbedded(dto, IdmRequestItem_.request, IdmRequestDto.class);
 		//
 		checkAccess(dto, IdmBasePermission.DELETE);
 		//

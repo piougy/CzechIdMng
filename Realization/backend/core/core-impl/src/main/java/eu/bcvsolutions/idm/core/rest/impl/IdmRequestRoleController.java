@@ -456,7 +456,7 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_CREATE, description = ""), //
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }) //
 			}) //
-	public ResponseEntity<?> createRequest(@Valid @RequestBody IdmRoleDto dto) {
+	public ResponseEntity<?> createRequest(@RequestBody IdmRoleDto dto) {
 		return super.createRequest(dto);
 	}
 

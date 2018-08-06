@@ -8,7 +8,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import OperationStateEnum from '../../enums/OperationStateEnum';
-import { RequestManager, RequestItemManager, WorkflowTaskInstanceManager } from '../../redux';
+import {SecurityManager, RequestManager, RequestItemManager, WorkflowTaskInstanceManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import SearchParameters from '../../domain/SearchParameters';
@@ -246,6 +246,11 @@ class RequestDetail extends Advanced.AbstractTableContent {
             uiKey={uiKeyRequestItems}
             manager={requestItemManager}
             forceSearchParameters={forceSearchParameters}
+            showRowSelection={SecurityManager.hasAuthority('REQUEST_UPDATE')}
+            actions={
+              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
+                 action: this.onDelete.bind(this), disabled: false }]
+            }
             >
             <Advanced.Column
               rendered={false}

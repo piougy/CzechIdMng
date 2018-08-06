@@ -88,9 +88,18 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			@ApiParam(value = "Request ID", required = true) String requestId, //
 			@ApiParam(value = "Record's uuid identifier or unique code", required = true) String backendId, //
 			@ApiParam(value = "Record (dto).", required = true) DTO dto) { //
-		DTO updateDto = getDto(backendId);
-		if (updateDto == null) {
-			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		DTO updatedDto = getDto(backendId);
+		if (updatedDto == null) {
+			try {
+				updatedDto = getService().getDtoClass().newInstance();
+				updatedDto.setId(UUID.fromString(backendId));
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new CoreException(e);
+			}
+			Requestable requestDto = requestManager.get(requestId, updatedDto);
+			if (requestDto == null) {
+				throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+			}
 		}
 
 		Requestable resultDto = requestManager.post(requestId, dto);
@@ -287,7 +296,7 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 		if (resultDto == null) {
 			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
-		return getService().getPermissions((DTO)resultDto);
+		return getService().getPermissions((DTO) resultDto);
 	}
 
 	// TODO: Support of count !

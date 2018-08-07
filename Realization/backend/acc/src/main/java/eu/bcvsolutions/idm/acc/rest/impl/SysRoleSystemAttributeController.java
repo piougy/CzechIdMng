@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
+import eu.bcvsolutions.idm.core.api.config.domain.RequestConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -52,6 +53,9 @@ public class SysRoleSystemAttributeController
 		extends AbstractReadWriteDtoController<SysRoleSystemAttributeDto, SysRoleSystemAttributeFilter> {
 
 	protected static final String TAG = "Role system - attributes";
+	
+	@Autowired
+	private RequestConfiguration requestConfiguration;
 	
 	@Autowired
 	public SysRoleSystemAttributeController(SysRoleSystemAttributeService service) {
@@ -177,5 +181,10 @@ public class SysRoleSystemAttributeController
 			@ApiParam(value = "Role system attribute's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	protected boolean supportsRequests() {
+		return requestConfiguration.isRoleRequestEnabled();
 	}
 }

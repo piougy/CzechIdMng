@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.bcvsolutions.idm.core.api.config.domain.RequestConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
@@ -57,6 +58,8 @@ public class IdmAuthorizationPolicyController extends AbstractReadWriteDtoContro
 	
 	protected static final String TAG = "Authorization policies";
 	private final AuthorizationManager authorizationManager;
+	@Autowired
+	private RequestConfiguration requestConfiguration;
 	
 	@Autowired
 	public IdmAuthorizationPolicyController(
@@ -274,5 +277,10 @@ public class IdmAuthorizationPolicyController extends AbstractReadWriteDtoContro
 			notes = "Returns all types, with securing data support (by authorization policies).")
 	public Resources<AuthorizableType> getAuthorizableTypes() {
 		return new Resources<>(authorizationManager.getAuthorizableTypes());
+	}
+	
+	@Override
+	protected boolean supportsRequests() {
+		return requestConfiguration.isRoleRequestEnabled();
 	}
 }

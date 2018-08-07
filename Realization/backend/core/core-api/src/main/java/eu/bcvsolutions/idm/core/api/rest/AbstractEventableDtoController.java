@@ -6,12 +6,16 @@ import java.util.Map;
 
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
@@ -54,6 +58,11 @@ public class AbstractEventableDtoController<DTO extends BaseDto, F extends BaseF
 	@Override
 	public DTO saveDto(DTO dto, BasePermission... permission) {
 		Assert.notNull(dto, "DTO is required");
+		//
+		if (this.supportsRequests()) {
+			throw new ResultCodeException(CoreResultCode.REQUEST_CUD_OPERATIONS_NOT_ALLOWED,
+					ImmutableMap.of("controller", this.getClass().getSimpleName()));
+		}
 		// UI actions has higher priority
 		EventType eventType = getService().isNew(dto) ? CoreEventType.CREATE : CoreEventType.UPDATE;
 		Map<String, Serializable> properties = new HashMap<>();

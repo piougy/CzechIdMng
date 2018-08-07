@@ -1501,7 +1501,7 @@
         "allRoles": "All roles",
         "createRequest": {
           "header": "Role changes are subject to approval.",
-          "label": "Create request of changes",
+          "label": "Create request for changes",
           "text": "If do you want to make a changes, then create the request first."
         }
       },

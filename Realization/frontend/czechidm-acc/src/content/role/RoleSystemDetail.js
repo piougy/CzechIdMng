@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
+import { Managers, Basic, Domain, Utils, Advanced } from 'czechidm-core';
 import { RoleSystemManager, SystemManager, RoleSystemAttributeManager, SystemMappingManager } from '../../redux';
 import uuid from 'uuid';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
@@ -12,7 +12,7 @@ const uiKeyAttributes = 'role-system-attributes';
 let roleSystemAttributeManager = null;
 const systemManager = new SystemManager();
 let roleSystemManager = null;
-const roleManager = new Managers.RoleManager();
+let roleManager = null;
 const systemMappingManager = new SystemMappingManager();
 
 /**
@@ -105,6 +105,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     // universal request manager (depends on existing of 'requestId' param)
     roleSystemManager = this.getRequestManager(props.params, new RoleSystemManager());
     roleSystemAttributeManager = this.getRequestManager(props.params, new RoleSystemAttributeManager());
+    roleManager = this.getRequestManager(props.params, new Managers.RoleManager());
 
     if (!this._getIsNew(props)) {
       const { roleSystemId } = props.params;
@@ -189,7 +190,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     const { entityId } = this.props.params;
     const { systemId } = this.state;
     //
-    if (!roleSystemManager) {
+    if (!roleSystemManager || !roleManager) {
       return null;
     }
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem && _roleSystem.id ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
@@ -213,7 +214,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
 
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm ref="form" data={ roleSystem } showLoading={ _showLoading } style={{ padding: 0 }}>
+            <Basic.AbstractForm ref="form" data={ roleSystem } readOnly={!roleManager.canSave()} showLoading={ _showLoading } style={{ padding: 0 }}>
               <Basic.SelectBox
                 ref="role"
                 manager={ roleManager }
@@ -251,6 +252,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
                 onClick={this.save.bind(this)}
                 level="success"
                 type="submit"
+                rendered={roleManager.canSave()}
                 showLoading={_showLoading}>
                 {this.i18n('button.save')}
               </Basic.Button>
@@ -268,9 +270,9 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
             uiKey={ `${uiKeyAttributes}-${entityId}` }
             manager={ roleSystemAttributeManager }
             forceSearchParameters={ forceSearchParameters }
-            showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE']) }
+            showRowSelection={ roleManager.canSave() }
             actions={
-              Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])
+              roleManager.canSave()
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -283,7 +285,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, roleSystem, true)}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])}>
+                  rendered={roleManager.canSave()}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}

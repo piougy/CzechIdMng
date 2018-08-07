@@ -4,16 +4,16 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import _ from 'lodash';
 //
-import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
+import { Basic, Advanced, Utils } from 'czechidm-core';
 import { SystemInfo } from '../../components/SystemInfo/SystemInfo.js';
 import SearchParameters from 'czechidm-core/src/domain/SearchParameters';
-import { DataManager, SecurityManager, ConfigurationManager, RoleManager } from 'czechidm-core/src/redux';
+import { DataManager, ConfigurationManager, RoleManager } from 'czechidm-core/src/redux';
 import { SystemMappingManager, SystemManager, RoleSystemManager } from '../../redux';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 const originalManager = new RoleSystemManager();
 let manager = null;
-const roleManager = new RoleManager();
+let roleManager = null;
 const systemManager = new SystemManager();
 /**
  * Table component to display roles, assigned to system
@@ -41,6 +41,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
     manager = this.getRequestManager(this.props.params, originalManager);
+    roleManager = this.getRequestManager(this.props.params, new RoleManager());
     return manager;
   }
 
@@ -143,13 +144,13 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={uiKey}
           manager={ this.getManager() }
-          showRowSelection={SecurityManager.hasAuthority('ROLE_UPDATE')}
+          showRowSelection={roleManager.canSave()}
           forceSearchParameters={_forceSearchParameters}
           filterOpened={ filterOpened }
           showFilter={ showFilter }
           filterColumns={ filterColumns }
           actions={
-            Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])
+            roleManager.canSave()
             ?
             [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
             :
@@ -163,7 +164,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
                 type="submit"
                 className="btn-xs"
                 onClick={this.addRoleSystemConnection.bind(this, {})}
-                rendered={showAddButton && SecurityManager.hasAuthority('IDENTITY_CREATE')}
+                rendered={showAddButton && roleManager.canSave()}
                 icon="fa:plus">
                 {this.i18n('button.add')}
               </Basic.Button>

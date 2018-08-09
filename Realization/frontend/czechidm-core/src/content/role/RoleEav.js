@@ -6,7 +6,7 @@ import * as Advanced from '../../components/advanced';
 import { RoleManager } from '../../redux';
 
 const uiKey = 'eav-role';
-const manager = new RoleManager();
+let manager = null;
 
 /**
  * Extended role attributes
@@ -17,6 +17,9 @@ class RoleEav extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    // Init manager - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    manager = this.getRequestManager(this.props.params, new RoleManager());
   }
 
   getContentKey() {
@@ -52,6 +55,9 @@ RoleEav.defaultProps = {
 };
 
 function select(state, component) {
+  if (!manager) {
+    return null;
+  }
   return {
     _entity: manager.getEntity(state, component.params.entityId),
     _permissions: manager.getPermissions(state, null, component.params.entityId)

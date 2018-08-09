@@ -1710,7 +1710,7 @@
      "requestDetail": {
        "header": "Request",
        "title": "Request",
-       "conceptHeader": "Requested change",
+       "conceptHeader": "Requested changes",
        "save": {
          "success": "Request successfully saved",
          "start": "Execute request"

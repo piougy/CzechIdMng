@@ -256,39 +256,46 @@ module.exports = {
       ]
     },
     {
-      path: 'requests/:requestId/role/:entityId/',
-      component: require('czechidm-core/src/content/role/Role'),
+      path: 'requests/:requestId',
+      component: require('czechidm-core/src/content/request/RequestInfo'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
       childRoutes: [
         {
-          path: 'accounts',
-          component: require('./src/content/role/RoleAccounts'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEACCOUNT_READ'] } ]
-        },
-        {
-          path: 'systems',
-          component: require('./src/content/role/RoleSystems'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
-        },
-        {
-          path: 'systems/:roleSystemId/new',
-          component: require('./src/content/role/RoleSystemDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE', 'SYSTEM_READ'] } ]
-        },
-        {
-          path: 'systems/:roleSystemId/detail',
-          component: require('./src/content/role/RoleSystemDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
-        },
-        {
-          path: 'systems/:roleSystemId/attributes/:attributeId/detail',
-          component: require('./src/content/role/RoleSystemAttributeDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
-        },
-        {
-          path: 'systems/:roleSystemId/attributes/:attributeId/new',
-          component: require('./src/content/role/RoleSystemAttributeDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE', 'SYSTEM_READ'] } ]
+          path: 'role/:entityId',
+          component: require('czechidm-core/src/content/role/Role'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+          childRoutes: [
+            {
+              path: 'accounts',
+              component: require('./src/content/role/RoleAccounts'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEACCOUNT_READ'] } ]
+            },
+            {
+              path: 'systems',
+              component: require('./src/content/role/RoleSystems'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+            },
+            {
+              path: 'systems/:roleSystemId/new',
+              component: require('./src/content/role/RoleSystemDetail'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE', 'SYSTEM_READ'] } ]
+            },
+            {
+              path: 'systems/:roleSystemId/detail',
+              component: require('./src/content/role/RoleSystemDetail'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+            },
+            {
+              path: 'systems/:roleSystemId/attributes/:attributeId/detail',
+              component: require('./src/content/role/RoleSystemAttributeDetail'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+            },
+            {
+              path: 'systems/:roleSystemId/attributes/:attributeId/new',
+              component: require('./src/content/role/RoleSystemAttributeDetail'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE', 'SYSTEM_READ'] } ]
+            }
+          ]
         }
       ]
     },

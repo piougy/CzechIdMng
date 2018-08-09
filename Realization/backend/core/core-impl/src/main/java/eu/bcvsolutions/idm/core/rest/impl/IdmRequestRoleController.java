@@ -102,7 +102,7 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(value= "/{requestId}"+ REQUEST_SUB_PATH, method = RequestMethod.GET)
+	@RequestMapping(value= "/{requestId}" + REQUEST_SUB_PATH, method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	@ApiOperation(
 			value = "Search roles (/search/quick alias)", //
@@ -123,7 +123,7 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(value= "/{requestId}"+REQUEST_SUB_PATH+"/search/quick", method = RequestMethod.GET)
+	@RequestMapping(value= "/{requestId}" + REQUEST_SUB_PATH+"/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	@ApiOperation( //
 			value = "Search roles", //
@@ -143,7 +143,7 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	}
 	
 	@ResponseBody
-	@RequestMapping(value= "/{requestId}"+REQUEST_SUB_PATH+"/search/autocomplete", method = RequestMethod.GET)
+	@RequestMapping(value= "/{requestId}" + REQUEST_SUB_PATH+"/search/autocomplete", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_AUTOCOMPLETE + "')")
 	@ApiOperation( //
 			value = "Autocomplete roles (selectbox usage)", //
@@ -164,7 +164,7 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(value = "/{requestId}"+REQUEST_SUB_PATH+"/{backendId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{requestId}" + REQUEST_SUB_PATH+"/{backendId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	@ApiOperation(
 			value = "Role detail", 
@@ -186,7 +186,7 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(value = "/{requestId}"+REQUEST_SUB_PATH, method = RequestMethod.POST)
+	@RequestMapping(value = "/{requestId}" + REQUEST_SUB_PATH, method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_CREATE + "')"
 			+ " or hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	@ApiOperation(
@@ -208,7 +208,7 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(value = "/{requestId}"+REQUEST_SUB_PATH+"/{backendId}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/{requestId}" + REQUEST_SUB_PATH+"/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	@ApiOperation(
 			value = "Update role",
@@ -229,7 +229,183 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 		return super.put(requestId, backendId, dto);
 	}
 	
-	// TODO: Support?	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{requestId}" + REQUEST_SUB_PATH+"/{backendId}", method = RequestMethod.DELETE)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_DELETE + "')")
+	@ApiOperation(
+			value = "Create delete request for role", 
+			nickname = "deleteRequestRole", 
+			tags = { IdmRequestRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_DELETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_DELETE, description = "") })
+				})
+	public ResponseEntity<?> delete(
+			@PathVariable @NotNull String requestId,
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.delete(requestId, backendId);
+	}
+	
+	// TODO permissions (from original controller???)
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{requestId}" + REQUEST_SUB_PATH + "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnRole", 
+			tags = { IdmRequestRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
+				})
+	public Set<String> getPermissions(
+			@PathVariable @NotNull String requestId,
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(requestId, backendId);
+	}
+
+	
+	/**
+	 * Returns form definition to given entity.
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{requestId}" + REQUEST_SUB_PATH + "/{backendId}/form-definitions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@ApiOperation(
+			value = "Role extended attributes form definitions", 
+			nickname = "getRoleFormDefinitions", 
+			tags = { IdmRequestRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
+				})
+	public ResponseEntity<?> getFormDefinitions(
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return formDefinitionController.getDefinitions(IdmRole.class);
+	}
+	
+	/**
+	 * Returns entity's filled form values
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{requestId}" + REQUEST_SUB_PATH + "/{backendId}/form-values", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@ApiOperation(
+			value = "Role form definition - read values", 
+			nickname = "getRoleFormValues", 
+			tags = { IdmRequestRoleController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
+				})
+	public Resource<?> getFormValues(
+			@PathVariable @NotNull String requestId,
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId, 
+			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
+			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
+		IdmRoleDto dto = getDto(requestId, backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		//
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmRole.class, definitionCode);
+		//
+		return this.getFormValues(requestId, dto, formDefinition);
+	}
+	
+	/**
+	 * Saves entity's form values
+	 * 
+	 * @param backendId
+	 * @param formValues
+	 * @return
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
+	@RequestMapping(value = "/{requestId}" + REQUEST_SUB_PATH + "/{backendId}/form-values", method = { RequestMethod.POST, RequestMethod.PATCH } )
+	@ApiOperation(
+			value = "Role form definition - save values", 
+			nickname = "postRoleFormValues", 
+			tags = { IdmRequestRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") })
+				})
+	public Resource<?> saveFormValues(
+			@PathVariable @NotNull String requestId,
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId,
+			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
+			@RequestParam(name = "definitionCode", required = false) String definitionCode,
+			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
+		IdmRoleDto dto = getDto(requestId, backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		checkAccess(dto, IdmBasePermission.UPDATE);
+		//
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmRole.class, definitionCode);
+		//
+		return super.saveFormValues(requestId, dto, formDefinition, formValues);
+	}
+	
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = REQUEST_SUB_PATH, method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_CREATE + "')" + " or hasAuthority('"
+			+ CoreGroupPermission.ROLE_UPDATE + "')")
+	@ApiOperation( //
+			value = "Create request for role", //
+			nickname = "createRequestForRole", //
+			response = IdmRequestDto.class, //
+			tags = { IdmRequestRoleController.TAG }, //
+			authorizations = { //
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { //
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_CREATE, description = ""), //
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }), //
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { //
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_CREATE, description = ""), //
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }) //
+			}) //
+	public ResponseEntity<?> createRequest(@RequestBody IdmRoleDto dto) {
+		return super.createRequest(dto);
+	}
+
+	@Override
+	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
+		// TODO: Call to filter from original controller -> make as public?
+		IdmRoleFilter filter = new IdmRoleFilter(parameters);
+		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", RoleType.class));
+		filter.setRoleCatalogueId(getParameterConverter().toUuid(parameters, "roleCatalogue"));
+		filter.setGuaranteeId(getParameterConverter().toEntityUuid(parameters, "guarantee", IdmIdentity.class));
+		return filter;
+	}
+
+// TODO: Support?	
 	
 //	@Override
 //	@ResponseBody
@@ -271,203 +447,30 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 //					})
 //		public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
 //			return super.count(parameters);
+//		}	
+	
+//	// TODO Support?
+//	@ResponseBody
+//	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+//	@RequestMapping(value = REQUEST_SUB_PATH+"/{backendId}/authorities", method = RequestMethod.GET)
+//	@ApiOperation(
+//			value = "Role assigned authorities", 
+//			nickname = "getRoleAuthorities", 
+//			tags = { IdmRequestRoleController.TAG },
+//			authorizations = { 
+//				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+//						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
+//				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+//						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
+//				})
+//	public Set<GrantedAuthority> getAuthorities(
+//			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+//			@PathVariable @NotNull String backendId) {
+//		IdmRoleDto dto = getDto(backendId);
+//		if (dto == null) {
+//			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 //		}
-	
-	@Override
-	@ResponseBody
-	@RequestMapping(value = "/{requestId}"+REQUEST_SUB_PATH+"/{backendId}", method = RequestMethod.DELETE)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_DELETE + "')")
-	@ApiOperation(
-			value = "Create delete request for role", 
-			nickname = "deleteRequestRole", 
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_DELETE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_DELETE, description = "") })
-				})
-	public ResponseEntity<?> delete(
-			@PathVariable @NotNull String requestId,
-			@ApiParam(value = "Role's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId) {
-		return super.delete(requestId, backendId);
-	}
-	
-	// TODO permissions (from original controller???)
-	@Override
-	@ResponseBody
-	@RequestMapping(value = "/{requestId}"+REQUEST_SUB_PATH+"/{backendId}/permissions", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
-	@ApiOperation(
-			value = "What logged identity can do with given record", 
-			nickname = "getPermissionsOnRole", 
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
-				})
-	public Set<String> getPermissions(
-			@PathVariable @NotNull String requestId,
-			@ApiParam(value = "Role's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId) {
-		return super.getPermissions(requestId, backendId);
-	}
-
-	
-	/**
-	 * Returns form definition to given entity.
-	 * 
-	 * @param backendId
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping(value = REQUEST_SUB_PATH+"/{backendId}/form-definitions", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
-	@ApiOperation(
-			value = "Role extended attributes form definitions", 
-			nickname = "getRoleFormDefinitions", 
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
-				})
-	public ResponseEntity<?> getFormDefinitions(
-			@ApiParam(value = "Role's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId) {
-		return formDefinitionController.getDefinitions(IdmRole.class);
-	}
-	
-	/**
-	 * Returns entity's filled form values
-	 * 
-	 * @param backendId
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping(value = REQUEST_SUB_PATH+"/{backendId}/form-values", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
-	@ApiOperation(
-			value = "Role form definition - read values", 
-			nickname = "getRoleFormValues", 
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = { 
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
-				})
-	public Resource<?> getFormValues(
-			@ApiParam(value = "Role's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
-			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
-		IdmRoleDto dto = getDto(backendId);
-		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}
-		//
-		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmRole.class, definitionCode);
-		//
-		return formDefinitionController.getFormValues(dto, formDefinition);
-	}
-	
-	/**
-	 * Saves entity's form values
-	 * 
-	 * @param backendId
-	 * @param formValues
-	 * @return
-	 */
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
-	@RequestMapping(value = REQUEST_SUB_PATH+"/{backendId}/form-values", method = { RequestMethod.POST, RequestMethod.PATCH } )
-	@ApiOperation(
-			value = "Role form definition - save values", 
-			nickname = "postRoleFormValues", 
-			tags = { IdmRequestRoleController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") })
-				})
-	public Resource<?> saveFormValues(
-			@ApiParam(value = "Role's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId,
-			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
-			@RequestParam(name = "definitionCode", required = false) String definitionCode,
-			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
-		IdmRoleDto dto = getDto(backendId);
-		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}
-		checkAccess(dto, IdmBasePermission.UPDATE);
-		//
-		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmRole.class, definitionCode);
-		//
-		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
-	}
-	
-	
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
-	@RequestMapping(value = REQUEST_SUB_PATH+"/{backendId}/authorities", method = RequestMethod.GET)
-	@ApiOperation(
-			value = "Role assigned authorities", 
-			nickname = "getRoleAuthorities", 
-			tags = { IdmRequestRoleController.TAG },
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
-				})
-	public Set<GrantedAuthority> getAuthorities(
-			@ApiParam(value = "Role's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId) {
-		IdmRoleDto dto = getDto(backendId);
-		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}
-		//
-		return authorizationPolicyService.getEnabledRoleAuthorities(securityService.getAuthentication().getCurrentIdentity().getId(), dto.getId());
-	}
-	
-	@Override
-	@ResponseBody
-	@RequestMapping(value = REQUEST_SUB_PATH, method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_CREATE + "')" + " or hasAuthority('"
-			+ CoreGroupPermission.ROLE_UPDATE + "')")
-	@ApiOperation( //
-			value = "Create request for role", //
-			nickname = "createRequestForRole", //
-			response = IdmRequestDto.class, //
-			tags = { IdmRequestRoleController.TAG }, //
-			authorizations = { //
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { //
-							@AuthorizationScope(scope = CoreGroupPermission.ROLE_CREATE, description = ""), //
-							@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }), //
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { //
-							@AuthorizationScope(scope = CoreGroupPermission.ROLE_CREATE, description = ""), //
-							@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }) //
-			}) //
-	public ResponseEntity<?> createRequest(@RequestBody IdmRoleDto dto) {
-		return super.createRequest(dto);
-	}
-
-	@Override
-	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
-		// TODO: Call to filter from original controller -> make as public?
-		IdmRoleFilter filter = new IdmRoleFilter(parameters);
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", RoleType.class));
-		filter.setRoleCatalogueId(getParameterConverter().toUuid(parameters, "roleCatalogue"));
-		filter.setGuaranteeId(getParameterConverter().toEntityUuid(parameters, "guarantee", IdmIdentity.class));
-		return filter;
-	}
+//		//
+//		return authorizationPolicyService.getEnabledRoleAuthorities(securityService.getAuthentication().getCurrentIdentity().getId(), dto.getId());
+//	}
 }

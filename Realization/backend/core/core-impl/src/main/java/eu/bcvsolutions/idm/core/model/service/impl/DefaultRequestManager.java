@@ -8,15 +8,19 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -33,11 +37,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
@@ -50,21 +56,35 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem;
 import eu.bcvsolutions.idm.core.model.event.RequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RequestEvent.RequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -95,6 +115,12 @@ public class DefaultRequestManager implements RequestManager {
 	private IdmRequestItemService requestItemService;
 	@Autowired
 	private LookupService lookupService;
+	@Autowired
+	private FormService formService;
+	@Autowired
+	private IdmFormDefinitionService formDefinitionService;
+	@Autowired
+	private ConfidentialStorage confidentialStorage;
 
 	@Autowired
 	@Qualifier("objectMapper")
@@ -320,45 +346,20 @@ public class DefaultRequestManager implements RequestManager {
 		requestService.save(dto);
 	}
 
-	/**
-	 * Cancel unfinished workflow process for this automatic role.
-	 *
-	 * @param dto
-	 */
-	private void cancelWF(IdmRequestDto dto) {
-		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
-			WorkflowFilterDto filter = new WorkflowFilterDto();
-			filter.setProcessInstanceId(dto.getWfProcessId());
-
-			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService.find(filter, null)
-					.getContent();
-			if (resources.isEmpty()) {
-				// Process with this ID not exist ... maybe was ended
-				return;
-			}
-
-			workflowProcessInstanceService.delete(dto.getWfProcessId(),
-					"Role request use this WF, was deleted. This WF was deleted too.");
-		}
-	}
-
-	private RequestManager getRequestManager() {
-		if (this.requestManager == null) {
-			this.requestManager = applicationContext.getBean(RequestManager.class);
-		}
-		return this.requestManager;
-	}
-
 	@Override
+	@Transactional
 	public Requestable post(Serializable requestId, Requestable dto) {
+		ReadDtoService<Requestable, ?> dtoReadService = getDtoService(dto);
+		boolean isNew = dtoReadService.isNew(dto);
+		return this.post(requestId, dto, isNew);
+	}
+
+	private Requestable post(Serializable requestId, Requestable dto, boolean isNew) {
 		Assert.notNull(dto, "DTO is required!");
 		Assert.notNull(requestId, "Request ID is required!");
 		// TODO: Rights!
 
-		ReadDtoService<Requestable, ?> dtoReadService = getDtoService(dto);
-
 		IdmRequestDto request = requestService.get(requestId);
-		boolean isNew = dtoReadService.isNew(dto);
 		// Exists item for same original owner?
 		IdmRequestItemDto item = this.findRequestItem(request.getId(), dto);
 		try {
@@ -388,6 +389,7 @@ public class DefaultRequestManager implements RequestManager {
 	}
 
 	@Override
+	@Transactional
 	public Requestable delete(Serializable requestId, Requestable dto) {
 		Assert.notNull(dto, "DTO is required!");
 		Assert.notNull(requestId, "Request ID is required!");
@@ -396,10 +398,13 @@ public class DefaultRequestManager implements RequestManager {
 		IdmRequestDto request = requestService.get(requestId);
 		// Exists item for same original owner?
 		IdmRequestItemDto item = this.findRequestItem(request.getId(), dto);
-		if (item == null) {
-			item = createRequestItem(request.getId(), dto);
-			item.setOriginalOwnerId((UUID) dto.getId());
+		// If this item already exists for ADD or UPDATE, then we want to delete him.
+		if (item != null && RequestOperationType.REMOVE != item.getOperation()) {
+			requestItemService.delete(item);
+			return null;
 		}
+		item = createRequestItem(request.getId(), dto);
+		item.setOriginalOwnerId((UUID) dto.getId());
 		item.setOperation(RequestOperationType.REMOVE);
 		item.setData(null);
 		// Update or create new request item
@@ -491,6 +496,121 @@ public class DefaultRequestManager implements RequestManager {
 		// Find potential parents
 		List<UUID> potencialParents = this.findPotencialParents(filter);
 
+		results.addAll(this.findRelatedAddedItems(request, potencialParents, items, dtoClass));
+
+		// Set all results as trimmed = true. FE expects trimmed value in the table.
+		results.forEach(result -> ((AbstractDto) result).setTrimmed(true));
+
+		return new PageImpl<>(results, pageable, originalPage.getTotalElements());
+	}
+
+	@Override
+	@Transactional
+	public IdmRequestDto createRequest(Requestable dto) {
+		Assert.notNull(dto, "DTO is required!");
+		// TODO: Rights!
+
+		if (dto.getId() == null) {
+			dto.setId(UUID.randomUUID());
+		}
+		IdmRequestDto request = new IdmRequestDto();
+		request.setState(RequestState.CONCEPT);
+		request.setOwnerId((UUID) dto.getId());
+		request.setOwnerType(dto.getClass().getName());
+		request.setExecuteImmediately(false);
+		request.setRequestType(dto.getClass().getSimpleName());
+		request.setResult(new OperationResultDto(OperationState.CREATED));
+		// Create request
+		request = requestService.save(request);
+		// Create item
+		this.post(request.getId(), dto);
+
+		return request;
+	}
+
+	@Override
+	@Transactional
+	public IdmFormInstanceDto saveFormInstance(UUID requestId, Requestable owner, IdmFormDefinitionDto formDefinition,
+			List<IdmFormValueDto> newValues, BasePermission... permission) {
+
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(owner, formDefinition, newValues);
+
+		// Load all current form values (includes requested items)
+		IdmFormInstanceDto previousRequestFormInstance = getFormInstance(requestId, owner, formDefinition, permission);
+
+		Map<UUID, Map<UUID, IdmFormValueDto>> previousValues = new HashMap<>(); // values by attributes
+		previousRequestFormInstance.getValues().forEach(formValue -> {
+			if (!previousValues.containsKey(formValue.getFormAttribute())) {
+				previousValues.put(formValue.getFormAttribute(), new LinkedHashMap<>()); // sort by seq
+			}
+			previousValues.get(formValue.getFormAttribute()).put(formValue.getId(), formValue);
+		});
+
+		List<IdmFormValueDto> results = new ArrayList<>();
+		for (Entry<String, List<IdmFormValueDto>> attributeEntry : formInstance.toValueMap().entrySet()) {
+			IdmFormAttributeDto attribute = formInstance.getMappedAttributeByCode(attributeEntry.getKey());
+			List<IdmFormValueDto> attributePreviousValues = new ArrayList<>();
+			if (previousValues.containsKey(attribute.getId())) {
+				attributePreviousValues.addAll(previousValues.get(attribute.getId()).values());
+			}
+			// Save attributes
+			results.addAll(saveAttributeValues(requestId, owner, attribute, attributePreviousValues,
+					attributeEntry.getValue(), permission));
+		}
+
+		return new IdmFormInstanceDto(owner, formDefinition, results);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public IdmFormInstanceDto getFormInstance(UUID requestId, Requestable owner, IdmFormDefinitionDto formDefinition,
+			BasePermission... permission) {
+
+		Assert.notNull(requestId, "ID of request is required!");
+		Assert.notNull(owner, "Owner is required!");
+		Assert.notNull(formDefinition, "Form definition is required!");
+
+		boolean isNew = getDtoService(owner).isNew(owner);
+		List<IdmFormValueDto> requestValues = new ArrayList<>();
+		
+		// If owner does not exists in the DB. We cannot call form service - exception
+		// (owner does not exist) would be throw.
+		if (!isNew) {
+			IdmFormInstanceDto previousFormInstance = formService.getFormInstance(owner, formDefinition, permission);
+			List<IdmFormValueDto> originalValues = previousFormInstance.getValues();
+
+			originalValues.forEach(value -> {
+				requestValues.add((IdmFormValueDto) this.get(requestId, value));
+			});
+		}
+
+		IdmRequestDto request = requestService.get(requestId);
+		// Load all added items for that request
+		List<IdmRequestItemDto> addedItems = this.findRequestItems(request.getId(), IdmFormValueDto.class,
+				RequestOperationType.ADD);
+		// Find added items for that owner ID
+		List<Requestable> relatedAddedItems = this.findRelatedAddedItems(request,
+				ImmutableList.of((UUID) owner.getId()), addedItems, IdmFormValueDto.class);
+
+		requestValues.addAll((Collection<? extends IdmFormValueDto>) relatedAddedItems);
+
+		return new IdmFormInstanceDto(owner, formDefinition, requestValues);
+	}
+
+	/**
+	 * Find related added DTOs by given parents. !!Searching of added DTOs are very
+	 * naive!! We use all UUID value in the filter and try to find it in the DTOs.
+	 * It means only equals is implemented.
+	 * 
+	 * @param request
+	 * @param potencialParents
+	 * @param items
+	 * @param dtoClass
+	 * @return
+	 */
+	private List<Requestable> findRelatedAddedItems(IdmRequestDto request, List<UUID> potencialParents,
+			List<IdmRequestItemDto> items, Class<? extends Requestable> dtoClass) {
+		List<Requestable> results = new ArrayList<>();
 		// Find items which should be added
 		List<IdmRequestItemDto> itemsToAdd = items.stream() //
 				.filter(i -> RequestOperationType.ADD == i.getOperation()) //
@@ -517,30 +637,7 @@ public class DefaultRequestManager implements RequestManager {
 			}
 		});
 
-		// Set all results as trimmed = true. Frontend expects trimmed value in the
-		// table.
-		results.forEach(result -> ((AbstractDto) result).setTrimmed(true));
-
-		return new PageImpl<>(results, pageable, originalPage.getTotalElements());
-	}
-
-	@Override
-	public IdmRequestDto createRequest(Requestable dto) {
-		Assert.notNull(dto, "DTO is required!");
-		// TODO: Rights!
-
-		if (dto.getId() == null) {
-			dto.setId(UUID.randomUUID());
-		}
-		IdmRequestDto request = new IdmRequestDto();
-		request.setState(RequestState.CONCEPT);
-		request.setOwnerId((UUID) dto.getId());
-		request.setOwnerType(dto.getClass().getName());
-		request.setExecuteImmediately(false);
-		request.setRequestType(dto.getClass().getSimpleName());
-		request.setResult(new OperationResultDto(OperationState.CREATED));
-
-		return requestService.save(request);
+		return results;
 	}
 
 	private String convertDtoToString(BaseDto dto) throws JsonProcessingException {
@@ -569,9 +666,16 @@ public class DefaultRequestManager implements RequestManager {
 	}
 
 	private List<IdmRequestItemDto> findRequestItems(UUID requestId, Class<? extends Requestable> dtoClass) {
+		return this.findRequestItems(requestId, dtoClass, null);
+	}
+
+	private List<IdmRequestItemDto> findRequestItems(UUID requestId, Class<? extends Requestable> dtoClass,
+			RequestOperationType operation) {
 		IdmRequestItemFilter itemFilter = new IdmRequestItemFilter();
 		itemFilter.setRequestId(requestId);
 		itemFilter.setOriginalType(dtoClass.getName());
+		itemFilter.setOperationType(operation);
+
 		return requestItemService.find(itemFilter, null).getContent();
 	}
 
@@ -714,5 +818,212 @@ public class DefaultRequestManager implements RequestManager {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Save single attribute values
+	 * 
+	 * @param owner
+	 * @param attribute
+	 * @param previousValues
+	 * @param newValues
+	 * @param permission
+	 * @return
+	 */
+	private List<IdmFormValueDto> saveAttributeValues(UUID requestId, Requestable owner, IdmFormAttributeDto attribute,
+			List<IdmFormValueDto> previousValues, List<IdmFormValueDto> newValues, BasePermission... permission) {
+
+		ReadDtoService<Requestable, ?> dtoReadService = getDtoService(owner);
+		Class<? extends BaseEntity> entityClass = dtoReadService.getEntityClass();
+		if (!FormableEntity.class.isAssignableFrom(entityClass)) {
+			throw new IllegalArgumentException(MessageFormat.format("Form owner [{0}] is not FormableEntity [{1}]!",
+					owner.toString(), entityClass));
+		}
+		@SuppressWarnings("unchecked")
+		Class<? extends FormableEntity> ownerClass = (Class<? extends FormableEntity>) entityClass;
+
+		IdmFormDefinitionDto formDefinition = formDefinitionService.get(attribute.getFormDefinition());
+
+		List<IdmFormValueDto> results = new ArrayList<>();
+		Map<UUID, IdmFormValueDto> unprocessedPreviousValues = new LinkedHashMap<>(); // ordered by seq
+		if (CollectionUtils.isNotEmpty(previousValues)) {
+			previousValues.forEach(previousValue -> {
+				unprocessedPreviousValues.put(previousValue.getId(), previousValue);
+			});
+		}
+		//
+		if (newValues == null || newValues.isEmpty()) {
+			// confidential values has to removed directly, they could not be sent with form
+			// (only changed values)
+			if (!attribute.isConfidential()) {
+				// delete previous attributes
+				unprocessedPreviousValues.values().forEach(value -> {
+					results.add((IdmFormValueDto) this.delete(requestId, value));
+				});
+			}
+			return results;
+		}
+		//
+		if (!attribute.isMultiple() && newValues.size() > 1) {
+			throw new IllegalArgumentException(
+					MessageFormat.format("Form attribute [{0}:{1}] does not support multivalue, sent [{2}] values.",
+							formDefinition.getCode(), attribute.getCode(), newValues.size()));
+		}
+		//
+		// compare values
+		IdmFormValueDto[] sortedPreviousValues = formService.resolvePreviousValues(unprocessedPreviousValues,
+				newValues);
+		for (short index = 0; index < newValues.size(); index++) {
+			IdmFormValueDto previousValue = sortedPreviousValues[index];
+			IdmFormValueDto newValue = newValues.get(index);
+			newValue.setOwnerAndAttribute(null, attribute);
+			newValue.setOwnerId(owner.getId());
+			newValue.setOwnerType(ownerClass);
+			newValue.setSeq(index);
+			//
+			if (previousValue == null) {
+				if (!newValue.isNull()) { // null values are not saved
+					results.add((IdmFormValueDto) this.post(requestId, newValue, this.isFormValueNew(previousValue)));
+				}
+			} else {
+				//
+				// we using filled value only and set her into previous value => value id is
+				// preserved
+				// the same value should not be updated
+				// confidential value is always updated - only new values are sent from client
+				if (newValue.isConfidential() || !previousValue.isEquals(newValue)) {
+					// set value for the previous value
+					previousValue.setValue(newValue.getValue());
+					// attribute persistent type could be changed
+					previousValue.setOwnerAndAttribute(null, attribute);
+					previousValue.setOwnerId(owner.getId());
+					previousValue.setOwnerType(ownerClass);
+					previousValue.setSeq(index);
+					if (!previousValue.isNull()) { // null values are not saved
+
+						if (previousValue.isConfidential()) {
+							// Confidential value has to be persisted in the confidential storage
+							results.add(saveConfidentialEavValue(requestId, previousValue));
+						} else {
+							results.add((IdmFormValueDto) this.post(requestId, previousValue,
+									this.isFormValueNew(previousValue)));
+						}
+					} else {
+						results.add((IdmFormValueDto) this.delete(requestId, previousValue));
+					}
+				}
+			}
+		}
+		// remove unprocessed values
+		// confidential property will be removed too => none or all confidential values
+		// have to be given for multiple attributes
+		unprocessedPreviousValues.values().forEach(previousValue -> {
+			results.add((IdmFormValueDto) this.delete(requestId, previousValue));
+		});
+
+		return results;
+	}
+
+	/**
+	 * Save confidential FormValueDto. Value is persists to the confidential
+	 * storage. DTO persisted in the request item contains 'asterixed' value only.
+	 * 
+	 * @param requestId
+	 * @param confidentialFormValue
+	 * @return
+	 */
+	private IdmFormValueDto saveConfidentialEavValue(UUID requestId, IdmFormValueDto confidentialFormValue) {
+		// check, if value has to be persisted in confidential storage
+		Serializable confidentialValue = confidentialFormValue.getValue();
+		if (confidentialFormValue.isConfidential()) {
+			confidentialFormValue.clearValues();
+			if (confidentialValue != null) {
+				// we need only to know, if value was filled
+				confidentialFormValue.setStringValue(GuardedString.SECRED_PROXY_STRING);
+				confidentialFormValue.setShortTextValue(GuardedString.SECRED_PROXY_STRING);
+			}
+		}
+		Assert.notNull(confidentialFormValue);
+		// Save DTO without confidential value
+		Requestable persistedRequestDto = this.post(requestId, confidentialFormValue,
+				this.isFormValueNew(confidentialFormValue));
+		UUID requestItem = persistedRequestDto.getRequestItem();
+		Assert.notNull(requestItem);
+
+		// Save confidential value to ConfidentialStorage - owner is request item
+		confidentialStorage.save(requestItem, IdmRequestItem.class, getConfidentialStorageKey(requestItem),
+				confidentialValue);
+		LOG.debug("Confidential FormValue [{}]  is persisted in RequestItem [{}] and value in the confidential storage",
+				confidentialFormValue.getId(), requestItem);
+
+		return (IdmFormValueDto) persistedRequestDto;
+	}
+
+	/**
+	 * Check if given FormValue is new.
+	 * 
+	 * @param formValue
+	 * @return
+	 */
+	private boolean isFormValueNew(IdmFormValueDto formValue) {
+		if (formValue == null) {
+			return true;
+		}
+		if (formValue.getId() == null) {
+			return true;
+		}
+		if (formValue.getRequestItem() != null) {
+			IdmRequestItemDto requestItemDto = DtoUtils.getEmbedded(formValue, Requestable.REQUEST_ITEM_FIELD,
+					IdmRequestItemDto.class, null);
+			if (requestItemDto == null) {
+				requestItemDto = requestItemService.get(formValue.getRequestItem());
+			}
+			if (requestItemDto != null && RequestOperationType.ADD == requestItemDto.getOperation()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Cancel unfinished workflow process for this automatic role.
+	 *
+	 * @param dto
+	 */
+	private void cancelWF(IdmRequestDto dto) {
+		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
+			WorkflowFilterDto filter = new WorkflowFilterDto();
+			filter.setProcessInstanceId(dto.getWfProcessId());
+
+			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService.find(filter, null)
+					.getContent();
+			if (resources.isEmpty()) {
+				// Process with this ID not exist ... maybe was ended
+				return;
+			}
+
+			workflowProcessInstanceService.delete(dto.getWfProcessId(),
+					"Role request use this WF, was deleted. This WF was deleted too.");
+		}
+	}
+
+	private RequestManager getRequestManager() {
+		if (this.requestManager == null) {
+			this.requestManager = applicationContext.getBean(RequestManager.class);
+		}
+		return this.requestManager;
+	}
+
+	private String getConfidentialStorageKey(UUID itemId) {
+		Assert.notNull(itemId);
+		//
+		return FormValueService.CONFIDENTIAL_STORAGE_VALUE_PREFIX + ":" + itemId;
+	}
+
+	private Serializable getConfidentialPersistentValue(IdmRequestItemDto confidentialItem) {
+		Assert.notNull(confidentialItem);
+		//
+		return confidentialStorage.get(confidentialItem.getId(), IdmRequestItem.class,
+				getConfidentialStorageKey(confidentialItem.getId()));
 	}
 }

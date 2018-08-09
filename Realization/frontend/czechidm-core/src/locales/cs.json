@@ -1748,6 +1748,19 @@
         }
       }
     },
+    "requestInfo": {
+      "title": "Nacházíte se v náhledu žádosti",
+      "text": "Všechny změny které provedete, budou zapsány pouze do této žádosti.",
+      "button": {
+        "goToRequest": {
+          "label": "Přejít na detail žádosti"
+        },
+        "showChanges": {
+          "label": "Zobrazit změny",
+          "tooltip": "Zobrazí změny provedéné v této žádosti na tomto detailu."
+        }
+      }
+    },
     "requestDetail": {
       "header": "Žádost",
       "title": "Žádost",

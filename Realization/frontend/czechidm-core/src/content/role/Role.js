@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import { RoleManager, RequestManager} from '../../redux';
+import { RoleManager, RequestManager, ConfigurationManager} from '../../redux';
 import * as Advanced from '../../components/advanced';
 
 let manager = null;
@@ -48,7 +48,7 @@ class Role extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading } = this.props;
+    const { entity, showLoading, _requestsEnabled } = this.props;
     if (!manager) {
       return null;
     }
@@ -60,7 +60,7 @@ class Role extends Basic.AbstractContent {
         {' '}
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
         </Basic.PageHeader>
-        <Basic.Row rendered={!isRequest}>
+        <Basic.Row rendered={_requestsEnabled && !isRequest}>
           <Basic.Col lg={ 6 }>
             <Basic.Alert
               level="warning"
@@ -103,7 +103,8 @@ function select(state, component) {
   const { entityId } = component.params;
   return {
     entity: manager.getEntity(state, entityId),
-    showLoading: manager.isShowLoading(state, null, entityId)
+    showLoading: manager.isShowLoading(state, null, entityId),
+    _requestsEnabled: ConfigurationManager.getPublicValueAsBoolean(state, manager.getEnabledPropertyKey())
   };
 }
 

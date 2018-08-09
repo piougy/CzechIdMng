@@ -6,6 +6,18 @@ export default class AbstractRequestManager extends EntityManager {
     this.getService().setRequestId(requestId);
   }
 
+  setRequestsEnabled(enabled) {
+    this.requestEnabled = enabled;
+  }
+
+  /**
+   * Returns key of configuration by which is requests for that manager enabled/disabled.
+   * Should be overrided in the child.
+   */
+  getEnabledPropertyKey() {
+    return 'idm.pub.core.request.idm-role.enabled';
+  }
+
   getEntityType() {
     if (this.isRequestModeEnabled()) {
       return `Request-${this.getEntitySubType()}`;
@@ -28,7 +40,7 @@ export default class AbstractRequestManager extends EntityManager {
    * @return {bool}
    */
   canSave(entity = null, permissions = null) {
-    if (!this.isRequestModeEnabled()) {
+    if (this.requestEnabled && !this.isRequestModeEnabled()) {
       return false;
     }
     return super.canSave(entity, permissions);
@@ -43,7 +55,7 @@ export default class AbstractRequestManager extends EntityManager {
    * @return {bool}
    */
   canDelete(entity = null, permissions = null) {
-    if (!this.isRequestModeEnabled()) {
+    if (this.requestEnabled && !this.isRequestModeEnabled()) {
       return false;
     }
     return super.canDelete(entity, permissions);
@@ -58,7 +70,7 @@ export default class AbstractRequestManager extends EntityManager {
    * @return {bool}
    */
   canExecute(entity = null, permissions = null) {
-    if (!this.isRequestModeEnabled()) {
+    if (this.requestEnabled && !this.isRequestModeEnabled()) {
       return false;
     }
     return super.canExecute(entity, permissions);

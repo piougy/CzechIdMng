@@ -559,7 +559,8 @@ public class DefaultFormService implements FormService {
 	 * @param newValue
 	 * @return
 	 */
-	protected IdmFormValueDto[] resolvePreviousValues(Map<UUID, IdmFormValueDto> unprocessedPreviousValues, List<IdmFormValueDto> newValues) {
+	@Override
+	public IdmFormValueDto[] resolvePreviousValues(Map<UUID, IdmFormValueDto> unprocessedPreviousValues, List<IdmFormValueDto> newValues) {
 		IdmFormValueDto[] sortedPreviousValues = new IdmFormValueDto[newValues.size()];
 		// by id - highest priority
 		// wee need to iterate through all values

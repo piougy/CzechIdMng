@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.eav.api.service;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -701,4 +702,22 @@ public interface FormService extends ScriptEnabled {
 	 * @return
 	 */
 	IdmFormDefinitionDto convertConfigurationToFormDefinition(Class<? extends ConfigurationClass> configurationClass);
+
+	/**
+	 * Returns previous values sorted accordingly to given new values => previous(index) ~ new(index).
+	 * Returned array length is the same as size of list with new values.
+	 * if previous value is not found, then position in array will be null.
+	 * 
+	 * Values are paired by:
+	 * - 1. by id (if new value has id)
+	 * - 2. by value
+	 * - 3. by seq
+	 * - 4. use remaining unprocessed values
+	 * 
+	 * @param unprocessedPreviousValues if value is resolved, value is removed from this map (=> processed)
+	 * @param newValue
+	 * @return
+	 */
+	IdmFormValueDto[] resolvePreviousValues(Map<UUID, IdmFormValueDto> unprocessedPreviousValues,
+			List<IdmFormValueDto> newValues);
 }

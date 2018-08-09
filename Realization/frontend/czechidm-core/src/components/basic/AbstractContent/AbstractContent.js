@@ -5,6 +5,7 @@ import AbstractContextComponent from '../AbstractContextComponent/AbstractContex
 import PageHeader from '../PageHeader/PageHeader';
 import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
+import ConfigurationManager from '../../../redux/data/ConfigurationManager';
 import { selectNavigationItems, selectNavigationItem, getNavigationItem, hideFooter } from '../../../redux/config/actions';
 
 /**
@@ -189,6 +190,7 @@ export default class AbstractContent extends AbstractContextComponent {
       originalManager.setRequestId(params.requestId);
       return originalManager;
     }
+    originalManager.setRequestsEnabled(ConfigurationManager.getPublicValueAsBoolean(this.context.store.getState(), originalManager.getEnabledPropertyKey()));
     originalManager.setRequestId(null);
     return originalManager;
   }

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,20 +17,27 @@ import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.rest.impl.IdmRequestController;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -50,6 +58,22 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 
 	public AbstractRequestDtoController(ReadWriteDtoService<DTO, F> entityService) {
 		super(entityService);
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public DTO getDto(String requestId, String backendId) {
+		DTO updatedDto = getDto(backendId);
+		if (updatedDto == null) {
+			try {
+				updatedDto = getService().getDtoClass().newInstance();
+				updatedDto.setId(UUID.fromString(backendId));
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new CoreException(e);
+			}
+		}
+		
+		return (DTO) requestManager.get(UUID.fromString(requestId), updatedDto);
 	}
 
 	/**
@@ -88,18 +112,9 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			@ApiParam(value = "Request ID", required = true) String requestId, //
 			@ApiParam(value = "Record's uuid identifier or unique code", required = true) String backendId, //
 			@ApiParam(value = "Record (dto).", required = true) DTO dto) { //
-		DTO updatedDto = getDto(backendId);
+		DTO updatedDto = getDto(requestId, backendId);
 		if (updatedDto == null) {
-			try {
-				updatedDto = getService().getDtoClass().newInstance();
-				updatedDto.setId(UUID.fromString(backendId));
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new CoreException(e);
-			}
-			Requestable requestDto = requestManager.get(requestId, updatedDto);
-			if (requestDto == null) {
-				throw new EntityNotFoundException(getService().getEntityClass(), backendId);
-			}
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 
 		Requestable resultDto = requestManager.post(requestId, dto);
@@ -122,7 +137,7 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST) })
 	public ResponseEntity<?> delete(@ApiParam(value = "Request ID", required = true) String requestId, //
 			@ApiParam(value = "Record's uuid identifier or unique code.", required = true) String backendId) { //
-		DTO dto = getDto(backendId);
+		DTO dto = getDto(requestId, backendId);
 		if (dto == null) {
 			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
@@ -149,21 +164,12 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true) //
 			@PathVariable @NotNull String backendId) { //
 
-		DTO dto = getDto(backendId);
+		DTO dto = getDto(requestId, backendId);
 		if (dto == null) {
-			try {
-				dto = getService().getDtoClass().newInstance();
-				dto.setId(UUID.fromString(backendId));
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new CoreException(e);
-			}
-		}
-		Requestable resultDto = requestManager.get(requestId, dto);
-		if (resultDto == null) {
 			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
-		@SuppressWarnings("unchecked")
-		ResourceSupport resource = toResource(requestId, (DTO) resultDto);
+		
+		ResourceSupport resource = toResource(requestId, dto);
 		if (resource == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
@@ -274,7 +280,6 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 	 * @param backendId
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	@ApiOperation(value = "What logged identity can do with given record", authorizations = { //
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC), //
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST) //
@@ -283,20 +288,11 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			@ApiParam(value = "Request ID", required = true) String requestId, //
 			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true) //
 			@PathVariable @NotNull String backendId) { //
-		DTO dto = getDto(backendId);
+		DTO dto = getDto(requestId, backendId);
 		if (dto == null) {
-			try {
-				dto = getService().getDtoClass().newInstance();
-				dto.setId(UUID.fromString(backendId));
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new CoreException(e);
-			}
-		}
-		Requestable resultDto = requestManager.get(requestId, dto);
-		if (resultDto == null) {
 			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
-		return getService().getPermissions((DTO) resultDto);
+		return getService().getPermissions((DTO) dto);
 	}
 
 	// TODO: Support of count !
@@ -316,6 +312,26 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			@RequestParam(required = false) //
 			MultiValueMap<String, Object> parameters) { //
 		return count(toFilter(parameters), IdmBasePermission.COUNT);
+	}
+	
+	public Resource<?> saveFormValues(String requestId, IdmRoleDto dto, IdmFormDefinitionDto formDefinition,
+			List<IdmFormValueDto> formValues, BasePermission... permission) {
+		Assert.notNull(dto);
+		Assert.notNull(requestId);
+
+		IdmFormInstanceDto formInstance = requestManager.saveFormInstance(UUID.fromString(requestId), dto,
+				formDefinition, formValues, permission);
+		return new Resource<>(formInstance);
+	}
+
+	public Resource<IdmFormInstanceDto> getFormValues(String requestId, Identifiable owner,
+			IdmFormDefinitionDto formDefinition, BasePermission... permission) {
+		Assert.notNull(owner);
+		Assert.notNull(requestId);
+
+		IdmFormInstanceDto formInstance = requestManager.getFormInstance(UUID.fromString(requestId), (Requestable) owner,
+				formDefinition, permission);
+		return new Resource<>(formInstance);
 	}
 
 	/**

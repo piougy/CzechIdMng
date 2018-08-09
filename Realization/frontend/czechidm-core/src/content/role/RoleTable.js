@@ -9,7 +9,7 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 //
-import {RoleManager, RequestManager, SecurityManager, RoleCatalogueManager } from '../../redux';
+import {RoleManager, RequestManager, SecurityManager, RoleCatalogueManager, ConfigurationManager } from '../../redux';
 
 // Table uiKey
 const rootsKey = 'role-catalogue-tree-roots';
@@ -166,7 +166,7 @@ class RoleTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, roleManager, columns, showCatalogue, forceSearchParameters } = this.props;
+    const { uiKey, roleManager, columns, showCatalogue, forceSearchParameters, _requestsEnabled } = this.props;
     const { filterOpened, showLoading, rootNodes } = this.state;
     const showTree = showCatalogue && !showLoading && rootNodes && rootNodes.length !== 0;
     return (
@@ -247,7 +247,7 @@ class RoleTable extends Advanced.AbstractTableContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { })}
-                  rendered={SecurityManager.hasAuthority('ROLE_CREATE')}>
+                  rendered={!_requestsEnabled && SecurityManager.hasAuthority('ROLE_CREATE')}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -257,7 +257,7 @@ class RoleTable extends Advanced.AbstractTableContent {
                   key="add_request"
                   className="btn-xs"
                   onClick={this.createRequest.bind(this)}
-                  rendered={SecurityManager.hasAuthority('ROLE_CREATE')}>
+                  rendered={_requestsEnabled && SecurityManager.hasAuthority('ROLE_CREATE')}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -317,7 +317,8 @@ RoleTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    _requestsEnabled: ConfigurationManager.getPublicValueAsBoolean(state, component.roleManager.getEnabledPropertyKey())
   };
 }
 

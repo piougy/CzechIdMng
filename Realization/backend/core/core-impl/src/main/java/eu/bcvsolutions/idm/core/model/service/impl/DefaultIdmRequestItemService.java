@@ -106,6 +106,11 @@ public class DefaultIdmRequestItemService extends
 					root.get(IdmRequestItem_.ownerType),
 					filter.getOriginalType()));
 		}
+		if (filter.getOperationType() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmRequestItem_.operation),
+					filter.getOperationType()));
+		}
 
 		return predicates;
 	}

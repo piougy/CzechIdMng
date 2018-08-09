@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 
@@ -21,6 +22,7 @@ public class IdmRequestItemFilter extends DataFilter {
 	private UUID requestId;
 	private UUID originalOwnerId;
 	private String originalType;
+	private RequestOperationType operationType;
 
 	public IdmRequestItemFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -63,6 +65,14 @@ public class IdmRequestItemFilter extends DataFilter {
 
 	public void setOriginalType(String originalType) {
 		this.originalType = originalType;
+	}
+
+	public RequestOperationType getOperationType() {
+		return operationType;
+	}
+
+	public void setOperationType(RequestOperationType operationType) {
+		this.operationType = operationType;
 	}
 
 }

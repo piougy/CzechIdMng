@@ -18,7 +18,7 @@ public interface RequestConfiguration extends Configurable {
 	 * Enable requesting of role
 	 */
 	String PROPERTY_ROLE_ENABLE = 
-			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.request.idm-role.enable";
+			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.request.idm-role.enabled";
 	
 	
 	

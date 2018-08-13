@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccContractSliceAccountDto;
@@ -595,6 +596,50 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 			return entities.get(0);
 		}
 		return null;
+	}
+	
+	
+	/**
+	 * Check if is supported provisioning for given entity type.
+	 * 
+	 * @param entityType
+	 * @param logItem
+	 * @return
+	 */
+	@Override
+	protected boolean isProvisioningImplemented(SystemEntityType entityType, SysSyncItemLogDto logItem) {
+		// Contract does not supports provisioning, but we need publish 'save' event,
+		// because identity provisioning still should be executed.
+		return true;
+
+	}
+	
+	/**
+	 * Call provisioning for given account
+	 * 
+	 * @param entity
+	 * @param entityType
+	 * @param logItem
+	 */
+	@Override
+	protected void callProvisioningForEntity(IdmContractSliceDto entity, SystemEntityType entityType,
+			SysSyncItemLogDto logItem) {
+		addToItemLog(logItem, MessageFormat.format(
+				"Call provisioning (process IdmContractSliceDto.UPDATE) for contract ({0}) with position ({1}).",
+				entity.getId(), entity.getPosition()));
+		ContractSliceEvent event = new ContractSliceEvent(ContractSliceEventType.UPDATE, entity);
+		// We do not want execute HR processes for every contract. We need start
+		// them for every identity only once.
+		// For this we skip them now. HR processes must be start after whole
+		// sync finished (by using dependent scheduled task)!
+		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+		//
+		// We don't want recalculate automatic role by attribute recalculation for every
+		// contract.
+		// Recalculation will be started only once.
+		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+
+		entityEventManager.process(event);
 	}
 
 	/**

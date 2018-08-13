@@ -2582,6 +2582,17 @@
         "detail": {
           "header": "Detail stavu"
         }
+      },
+      "action": {
+        "deleteAll": {
+          "button": {
+            "label": "Smazat události",
+            "title": "Smazat události"
+          },
+          "header": "Smazat uložené události",
+          "message": "Opravdu chcete smazat všechny uložené události a jejich stavy? <strong>Budou smazány všechny události ve všech stavech!</strong>",
+          "success": "Události byly smazány"
+        }
       }
     }
   },

@@ -24,4 +24,24 @@ export default class EntityEventManager extends EntityManager {
   getCollectionType() {
     return 'entityEvents';
   }
+
+  /**
+   * Delete all entity events
+   *
+   * @return {Promise}
+   */
+  deleteAll(uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    //
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().deleteAll()
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
+    };
+  }
 }

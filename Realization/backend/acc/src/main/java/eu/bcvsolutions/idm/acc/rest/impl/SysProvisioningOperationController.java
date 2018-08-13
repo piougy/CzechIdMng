@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +29,7 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.CancelProvisioningQueueTaskExecutor;
@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -72,18 +73,17 @@ public class SysProvisioningOperationController
 
 	protected static final String TAG = "Provisioning - queue";
 	//
-	private final ProvisioningExecutor provisioningExecutor;
-	private final LongRunningTaskManager longRunningTaskManager;
+	private final SysProvisioningOperationService service;
+	//
+	@Autowired private ProvisioningExecutor provisioningExecutor;
+	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	
 
 	@Autowired
-	public SysProvisioningOperationController(SysProvisioningOperationService service,
-			ProvisioningExecutor provisioningExecutor, LongRunningTaskManager longRunningTaskManager) {
+	public SysProvisioningOperationController(SysProvisioningOperationService service) {
 		super(service);
 		//
-		Assert.notNull(provisioningExecutor);
-		//
-		this.provisioningExecutor = provisioningExecutor;
-		this.longRunningTaskManager = longRunningTaskManager;
+		this.service = service;
 	}
 
 	@Override
@@ -232,5 +232,20 @@ public class SysProvisioningOperationController
 		LongRunningFutureTask<Boolean> futureTask = longRunningTaskManager.execute(lrt);
 		//
 		return new ResponseEntity<Object>(longRunningTaskManager.getLongRunningTask(futureTask), HttpStatus.ACCEPTED);
+	}
+	
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
+	@RequestMapping(value = "/action/bulk/delete", method = RequestMethod.DELETE)
+	@ApiOperation(
+			value = "Delete provisioning queue", 
+			nickname = "deleteAllProvisioningQueue",
+			tags = { SysProvisioningOperationController.TAG },
+			notes = "Delete all operations from provisioning queue for given system")
+	public ResponseEntity<?> deleteAll(@RequestParam(required = true) String system) {
+		UUID systemId = getParameterConverter().toEntityUuid(system, SysSystemDto.class);
+		service.deleteOperations(systemId);
+		//
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 }

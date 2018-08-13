@@ -78,6 +78,43 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
     });
   }
 
+  _deleteAll() {
+    const { uiKey, manager, isArchive } = this.props;
+    if (isArchive) {
+      // not supported for archive
+      return;
+    }
+    //
+    this.refs['confirm-deleteAll'].show(
+      this.i18n(`action.deleteAll.message`),
+      this.i18n(`action.deleteAll.header`),
+      (result) => {
+        if (result === 'reject') {
+          return true;
+        }
+        if (result === 'confirm' && this.refs['delete-form'].isFormValid()) {
+          return true;
+        }
+        return false;
+      }
+    ).then(() => {
+      const systemField = this.refs['delete-system'];
+      if (systemField.isValid()) {
+        //
+        this.context.store.dispatch(manager.deleteAll(systemField.getValue(), uiKey, (entity, error) => {
+          if (!error) {
+            this.addMessage({ level: 'success', message: this.i18n('action.deleteAll.success')});
+            this.reload();
+          } else {
+            this.addError(error);
+          }
+        }));
+      }
+    }, () => {
+      // nothing
+    });
+  }
+
   render() {
     const { uiKey, manager, showRowSelection, actions, showDetail, forceSearchParameters, columns, isArchive } = this.props;
     const { filterOpened } = this.state;
@@ -85,6 +122,19 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
     return (
       <div>
         <Basic.Confirm ref="confirm-cancelAll" level="warning"/>
+        <Basic.Confirm ref="confirm-deleteAll" level="danger">
+          <div style={{ marginTop: 20 }}>
+            <Basic.AbstractForm ref="delete-form" uiKey="confirm-deleteAll" >
+              <Basic.SelectBox
+                ref="delete-system"
+                label={ this.i18n('action.deleteAll.system.label') }
+                placeholder={ this.i18n('action.deleteAll.system.placeholder') }
+                manager={ systemManager }
+                required/>
+            </Basic.AbstractForm>
+          </div>
+        </Basic.Confirm>
+
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
@@ -164,6 +214,17 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
           buttons={
             [
               <Basic.Button
+                level="danger"
+                key="delete-all-button"
+                className="btn-xs"
+                onClick={ this._deleteAll.bind(this) }
+                rendered={ Managers.SecurityManager.hasAnyAuthority('APP_ADMIN') && !isArchive }
+                title={ this.i18n('action.deleteAll.button.title') }
+                titlePlacement="bottom"
+                icon="fa:trash">
+                { this.i18n('action.deleteAll.button.label') }
+              </Basic.Button>,
+              <Basic.Button
                 level="warning"
                 key="cancel-all-button"
                 className="btn-xs"
@@ -171,7 +232,8 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 rendered={ Managers.SecurityManager.hasAnyAuthority('SYSTEM_ADMIN') && !isArchive }
                 title={ this.i18n('action.cancelAll.button.title') }
                 titlePlacement="bottom"
-                icon="fa:ban">
+                icon="fa:ban"
+                style={{ marginLeft: 3 }}>
                 { this.i18n('action.cancelAll.button.label') }
               </Basic.Button>
             ]

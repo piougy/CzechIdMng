@@ -332,6 +332,11 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	public <DTO extends AbstractDto> IdmProcessedTaskItemDto logItemProcessed(DTO item, OperationResult opResult) {
 		Assert.notNull(item);
 		//
+		if (opResult == null) {
+			// default result - executed
+			opResult = new OperationResult.Builder(OperationState.EXECUTED).build();
+		}
+		//
 		return itemService.createLogItem(item, opResult, this.getLongRunningTaskService().get(this.getLongRunningTaskId()));
 	}
 }

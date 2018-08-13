@@ -2538,6 +2538,17 @@
         "detail": {
           "header": "State detail"
         }
+      },
+      "action": {
+        "deleteAll": {
+          "button": {
+            "label": "Delete all entity events",
+            "title": "Delete all entity events"
+          },
+          "header": "Delete entity events",
+          "message": "Do you want to delete all persisted entity events and their states? <strong>All entity events in all states will be deleted!</strong>",
+          "accepted": "Entity events successfully deleted."
+        }
       }
     }
   },

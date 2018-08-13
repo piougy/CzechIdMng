@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -198,7 +200,16 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		batch = batchService.get(batch.getId());
 		//	
 		OperationResult result = null;
-		for (SysProvisioningOperationDto provisioningOperation : provisioningOperationService.getByTimelineAndBatchId(batch.getId())) {
+		List<SysProvisioningOperationDto> operations = provisioningOperationService.getByTimelineAndBatchId(batch.getId());
+		if (operations.isEmpty()) {
+			// reset next attemt time if is filled
+			if (batch.getNextAttempt() != null) {
+				batch.setNextAttempt(null);
+				batchService.save(batch);
+			}
+			return new OperationResult.Builder(OperationState.EXECUTED).build();
+		}
+		for (SysProvisioningOperationDto provisioningOperation : operations) {
 			// It not possible to get operation from embedded, because missing request
 			SysProvisioningOperationDto operation = executeInternal(provisioningOperation); // not run in transaction
 			result = operation.getResult();

@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
@@ -43,6 +44,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -458,6 +460,33 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		}
 	}
 	
+	@Test
+	@Transactional
+	public void testDeleteOperations() {
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysSystemDto systemTwo = getHelper().createTestResourceSystem(true);
+		//
+		SysProvisioningOperationDto createProvisioningOperationOne = createProvisioningOperation(systemOne, getHelper().createName());
+		createProvisioningOperationOne.setResult(new OperationResult(OperationState.BLOCKED));
+		provisioningOperationService.save(createProvisioningOperationOne);
+		SysProvisioningOperationDto createProvisioningOperationTwo = createProvisioningOperation(systemTwo, getHelper().createName());
+		createProvisioningOperationTwo.setResult(new OperationResult(OperationState.BLOCKED));
+		provisioningOperationService.save(createProvisioningOperationTwo);
+		
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(systemOne.getId());
+		Assert.assertEquals(1, provisioningOperationService.find(filter,  null).getTotalElements());
+		filter.setSystemId(systemTwo.getId());
+		Assert.assertEquals(1, provisioningOperationService.find(filter,  null).getTotalElements());
+		//
+		provisioningOperationService.deleteOperations(systemOne.getId());
+		//
+		filter.setSystemId(systemOne.getId());
+		Assert.assertEquals(0, provisioningOperationService.find(filter,  null).getTotalElements());
+		filter.setSystemId(systemTwo.getId());
+		Assert.assertEquals(1, provisioningOperationService.find(filter,  null).getTotalElements());
+	}
+	
 	/**
 	 * Provisioning content - account object
 	 * 
@@ -526,5 +555,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	private ProvisioningAttributeDto getProvisioningAttribute(String name) {
 		// load attribute mapping is not needed now - name is the same on both (tree) sides
 		return new ProvisioningAttributeDto(name, AttributeMappingStrategyType.SET);
+	}
+	
+	public eu.bcvsolutions.idm.acc.TestHelper getHelper() {
+		return (eu.bcvsolutions.idm.acc.TestHelper) super.getHelper();
 	}
 }

@@ -54,4 +54,9 @@ public interface IdmEntityEventRepository extends AbstractEntityRepository<IdmEn
 	 */
 	int countByParentId(UUID parentId);
 	
+	/**
+	 * Delete all events
+	 */
+	void deleteAllInBatch();
+	
 }

@@ -61,7 +61,7 @@ class Role extends Basic.AbstractContent {
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
         </Basic.PageHeader>
         <Basic.Row rendered={_requestsEnabled && !isRequest}>
-          <Basic.Col lg={ 6 }>
+          <Basic.Col lg={ 12 }>
             <Basic.Alert
               level="warning"
               title={ this.i18n('content.roles.button.createRequest.header') }

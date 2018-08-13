@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.vs.dto;
+package eu.bcvsolutions.idm.core.api.dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +20,8 @@ import io.swagger.annotations.ApiModelProperty;
  *
  */
 @Relation(collectionRelation = "attributes")
-@ApiModel(description = "Attribute virtual system")
-public class VsAttributeDto extends AbstractDto {
+@ApiModel(description = "Attribute of request item")
+public class IdmRequestItemAttributeDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
 
@@ -31,13 +31,13 @@ public class VsAttributeDto extends AbstractDto {
 	private String name;
 	private boolean multivalue;
 	private boolean changed = false;
-	private VsAttributeValueDto value;
-	private List<VsAttributeValueDto> values;
+	private IdmRequestAttributeValueDto value;
+	private List<IdmRequestAttributeValueDto> values;
 
-	public VsAttributeDto() {
+	public IdmRequestItemAttributeDto() {
 	}
 	
-	public VsAttributeDto(String name, boolean multiValue, boolean changed) {
+	public IdmRequestItemAttributeDto(String name, boolean multiValue, boolean changed) {
 		this.name = name;
 		this.multivalue = multiValue;
 		this.changed = changed;
@@ -59,22 +59,22 @@ public class VsAttributeDto extends AbstractDto {
 		this.multivalue = multivalue;
 	}
 
-	public VsAttributeValueDto getValue() {
+	public IdmRequestAttributeValueDto getValue() {
 		return value;
 	}
 
-	public void setValue(VsAttributeValueDto value) {
+	public void setValue(IdmRequestAttributeValueDto value) {
 		this.value = value;
 	}
 
-	public List<VsAttributeValueDto> getValues() {
+	public List<IdmRequestAttributeValueDto> getValues() {
 		if(values == null){
 			this.values = new ArrayList<>();
 		}
 		return values;
 	}
 
-	public void setValues(List<VsAttributeValueDto> values) {
+	public void setValues(List<IdmRequestAttributeValueDto> values) {
 		this.values = values;
 	}
 

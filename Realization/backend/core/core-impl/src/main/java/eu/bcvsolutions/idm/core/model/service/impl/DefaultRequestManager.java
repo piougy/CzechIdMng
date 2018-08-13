@@ -51,6 +51,8 @@ import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemAttributeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemChangesDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
@@ -595,6 +597,109 @@ public class DefaultRequestManager implements RequestManager {
 		requestValues.addAll((Collection<? extends IdmFormValueDto>) relatedAddedItems);
 
 		return new IdmFormInstanceDto(owner, formDefinition, requestValues);
+	}
+	
+	@Override
+	public IdmRequestItemChangesDto getChanges(IdmRequestItemDto item) {
+		LOG.debug(MessageFormat.format("Start read request item with changes [{0}].", item));
+		Assert.notNull(item, "Idm request item cannot be null!");
+		if(Strings.isNullOrEmpty(item.getOwnerType()) || item.getOriginalOwnerId() == null) {
+			return null;
+		}
+
+		List<IdmRequestItemAttributeDto> resultAttributes = new ArrayList<>();
+		Class<? extends Requestable> dtoClass;
+		try {
+			dtoClass = (Class<? extends Requestable>) Class.forName(item.getOwnerType());
+		} catch (ClassNotFoundException e) {
+			throw new CoreException(e);
+		}
+		
+		Requestable currentDto = this.getDtoService(dtoClass).get(item.getOriginalOwnerId());
+		Requestable changedDto = this.get(item.getOriginalOwnerId(), currentDto);
+//		Map<String, Serializable>
+//		
+//		List<IcAttribute> currentAttributes = currentObject.getAttributes();
+//		List<IcAttribute> changedAttributes = item.getConnectorObject().getAttributes();
+//
+//		// First add all new attributes
+//		changedAttributes.forEach(changedAttribute -> {
+//			if (currentObject.getAttributeByName(changedAttribute.getName()) == null) {
+//				VsAttributeDto vsAttribute = new VsAttributeDto(changedAttribute.getName(),
+//						changedAttribute.isMultiValue(), true);
+//				if (changedAttribute.isMultiValue()) {
+//					if (changedAttribute.getValues() != null) {
+//						changedAttribute.getValues().forEach(value -> {
+//							vsAttribute.getValues().add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
+//						});
+//					}
+//				} else {
+//					vsAttribute.setValue(
+//							new VsAttributeValueDto(changedAttribute.getValue(), null, VsValueChangeType.ADDED));
+//				}
+//				resultAttributes.add(vsAttribute);
+//			}
+//		});
+//
+//		// Second add all already exists attributes
+//		currentAttributes.forEach(currentAttribute -> {
+//			VsAttributeDto vsAttribute;
+//			// Attribute was changed
+//			if (changeObject.getAttributeByName(currentAttribute.getName()) != null) {
+//				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), true);
+//				IcAttribute changedAttribute = changeObject.getAttributeByName(currentAttribute.getName());
+//				if (changedAttribute.isMultiValue()) {
+//					if (changedAttribute.getValues() != null) {
+//						changedAttribute.getValues().forEach(value -> {
+//							if (currentAttribute.getValues() != null && currentAttribute.getValues().contains(value)) {
+//								vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
+//							} else {
+//								vsAttribute.getValues()
+//										.add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
+//							}
+//						});
+//					}
+//					if (currentAttribute.getValues() != null) {
+//						currentAttribute.getValues().forEach(value -> {
+//							if (changedAttribute.getValues() == null || !changedAttribute.getValues().contains(value)) {
+//								vsAttribute.getValues()
+//										.add(new VsAttributeValueDto(value, value, VsValueChangeType.REMOVED));
+//							}
+//						});
+//					}
+//				} else {
+//					Object changedValue = changedAttribute.getValue();
+//					Object currentValue = currentAttribute.getValue();
+//					if ((changedValue == null && currentValue == null)
+//							|| (changedValue != null && changedValue.equals(currentObject))
+//							|| (currentValue != null && currentValue.equals(changedValue))) {
+//
+//						vsAttribute.setValue(new VsAttributeValueDto(changedValue, currentValue, null));
+//					} else {
+//						vsAttribute.setValue(
+//								new VsAttributeValueDto(changedValue, currentValue, VsValueChangeType.UPDATED));
+//					}
+//				}
+//			} else {
+//				// Attribute was not changed
+//				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), false);
+//				if (currentAttribute.isMultiValue()) {
+//					if (currentAttribute.getValues() != null) {
+//						currentAttribute.getValues().forEach(value -> {
+//							vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
+//						});
+//					}
+//				} else {
+//					vsAttribute.setValue(
+//							new VsAttributeValueDto(currentAttribute.getValue(), currentAttribute.getValue(), null));
+//				}
+//			}
+//			resultAttributes.add(vsAttribute);
+//		});
+
+		
+
+		return null;
 	}
 
 	/**

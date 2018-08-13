@@ -1707,6 +1707,19 @@
          }
        }
      },
+     "requestInfo": {
+       "title": "You are on the request preview",
+       "text": "Any changes you make will only be written to this request.",
+       "button": {
+         "goToRequest": {
+           "label": "Go to the request detail"
+         },
+         "showChanges": {
+           "label": "Show changes",
+           "tooltip": "Shows the changes made to this request in this detail."
+         }
+       }
+     },
      "requestDetail": {
        "header": "Request",
        "title": "Request",

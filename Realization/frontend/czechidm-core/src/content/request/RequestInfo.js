@@ -32,7 +32,7 @@ class RequestInfo extends Basic.AbstractContent {
             <Basic.Button
             level="warning"
             onClick={ this._gotToRequest.bind(this) }
-            tooltip={('content.requestInfo.button.showChanges.tooltip')}
+            title={this.i18n('content.requestInfo.button.showChanges.tooltip')}
             titlePlacement="bottom">
             {' '}
             { this.i18n('content.requestInfo.button.showChanges.label') }

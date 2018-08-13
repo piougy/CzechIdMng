@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemChangesDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -40,6 +42,8 @@ public interface RequestManager
 
 	IdmFormInstanceDto getFormInstance(UUID fromString, Requestable owner, IdmFormDefinitionDto formDefinition,
 			BasePermission... permission);
+
+	IdmRequestItemChangesDto getChanges(IdmRequestItemDto item);
 
 
 }

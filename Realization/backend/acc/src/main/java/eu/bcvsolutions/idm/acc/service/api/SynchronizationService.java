@@ -8,7 +8,6 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
-import eu.bcvsolutions.idm.acc.event.processor.synchronization.SynchronizationCancelProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 

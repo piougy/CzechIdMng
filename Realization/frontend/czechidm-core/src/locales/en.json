@@ -2547,7 +2547,7 @@
           },
           "header": "Delete entity events",
           "message": "Do you want to delete all persisted entity events and their states? <strong>All entity events in all states will be deleted!</strong>",
-          "accepted": "Entity events successfully deleted."
+          "success": "Entity events successfully deleted."
         }
       }
     }

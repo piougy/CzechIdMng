@@ -567,7 +567,7 @@
           },
           "header": "Delete operations from provisioning queue",
           "message": "Do you want to delete operations from provisioning queue? All operations for selected system will be deleted.",
-          "accepted": "Operations successfully deleted."
+          "success": "Operations successfully deleted."
         }
       },
       "tabs": {

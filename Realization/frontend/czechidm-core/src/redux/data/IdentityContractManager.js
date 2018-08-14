@@ -33,6 +33,10 @@ export default class IdentityContractManager extends FormableEntityManager {
     return super.canSave(entity, _permissions);
   }
 
+  canSaveContract(entity, _permissions) {
+    return super.canSave(entity, _permissions);
+  }
+
   /**
    * Extended nice label
    *

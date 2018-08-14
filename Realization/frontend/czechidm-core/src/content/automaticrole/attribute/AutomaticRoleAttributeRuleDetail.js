@@ -265,12 +265,16 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     }
     if (formAttribute.persistentType === 'TEXT') {
       return (
-        <Basic.Alert text={this.i18n('attributeCantBeUsed.persistentTypeText', {name: formAttribute.name})} style={{marginTop: '12px'}}/>
+        <Basic.LabelWrapper label={ this.i18n('entity.AutomaticRole.attribute.value.label') }>
+          <Basic.Alert text={this.i18n('attributeCantBeUsed.persistentTypeText', {name: formAttribute.name})}/>
+        </Basic.LabelWrapper>
       );
     }
     if (formAttribute.confidential) {
       return (
-        <Basic.Alert text={this.i18n('attributeCantBeUsed.confidential', {name: formAttribute.name})} style={{marginTop: '12px'}}/>
+        <Basic.LabelWrapper label={ this.i18n('entity.AutomaticRole.attribute.value.label') }>
+          <Basic.Alert text={this.i18n('attributeCantBeUsed.confidential', {name: formAttribute.name})}/>
+        </Basic.LabelWrapper>
       );
     }
     const FormValueComponent = component.component;

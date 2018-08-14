@@ -1356,6 +1356,11 @@
         },
         "filter": {
           "text": "Name of automatic role or role name"
+        },
+        "attributeCantBeUsed": {
+          "text": "Attribute [{{name}}] can't be used for create new rule",
+          "confidential": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute is marked as confidential.",
+          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute has persistent type TEXT."
         }
       },
       "recalculate": {

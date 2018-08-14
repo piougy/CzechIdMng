@@ -1396,6 +1396,11 @@
         },
         "filter": {
           "text": "Název automatické role, nebo role"
+        },
+        "attributeCantBeUsed": {
+          "text": "Atribut [{{name}}] nemůže být použit pro vytvoření nového pravidla",
+          "confidential": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), atribut je označen jako tajný.",
+          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), atribut je typu TEXT."
         }
       },
       "recalculate": {

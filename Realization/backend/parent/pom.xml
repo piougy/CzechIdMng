@@ -80,8 +80,8 @@
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.language>java</sonar.language>
 
-		<!-- properties are used ind test and release profile, test: swagger.json 
-			input is generated release: swagger2markup and asciidoctor plugins require 
+		<!-- properties are used ind test and release profile, test: swagger.json
+			input is generated release: swagger2markup and asciidoctor plugins require
 			them -->
 		<asciidoctor.input.directory>${project.basedir}/src/docs/asciidoc</asciidoctor.input.directory>
 		<asciidoctor.input.extensions.directory>${asciidoctor.input.directory}/extensions</asciidoctor.input.extensions.directory>
@@ -180,7 +180,7 @@
 			<artifactId>spring-boot-starter-data-rest</artifactId>
 		</dependency>
 
-		<!-- we are using entity lookups, which is not in version provided by dependency 
+		<!-- we are using entity lookups, which is not in version provided by dependency
 			management -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
@@ -726,7 +726,7 @@
 			<properties>
 				<spring.profiles.active>separatedApp</spring.profiles.active>
 			</properties>
-			<!-- DistrubitonManagment resolves deploying on remote servers/repositories 
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories
 				- used by goal 'deploy' -->
 			<distributionManagement>
 				<snapshotRepository>
@@ -754,7 +754,7 @@
 					<artifactId>h2</artifactId>
 				</dependency>
 			</dependencies>
-			<!-- DistrubitonManagment resolves deploying on remote servers/repositories 
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories
 				- used by goal 'deploy' -->
 			<distributionManagement>
 				<repository>
@@ -766,6 +766,20 @@
 
 			<build>
 				<plugins>
+					<!-- generate sources for all jars -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
 					<!-- generate javadoc for all jars -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>

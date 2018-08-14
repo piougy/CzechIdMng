@@ -1,0 +1,5 @@
+--
+-- CzechIdM 9.0 Flyway script 
+-- BCV solutions s.r.o.
+--
+-- This is initial SQL script

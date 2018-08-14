@@ -722,6 +722,20 @@
 		</profile>
 
 		<profile>
+			<id>dev-mssql</id>
+			<properties>
+				<spring.profiles.active>dev-mssql</spring.profiles.active>
+			</properties>
+			<dependencies>
+				<dependency>
+				    <groupId>com.microsoft.sqlserver</groupId>
+				    <artifactId>sqljdbc4</artifactId>
+				    <version>4.0</version>
+				</dependency>
+			</dependencies>
+		</profile>
+
+		<profile>
 			<id>separatedApp</id>
 			<properties>
 				<spring.profiles.active>separatedApp</spring.profiles.active>

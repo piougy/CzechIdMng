@@ -275,6 +275,33 @@
 			<id>dev-mysql</id>
 		</profile>
 
+		<profile>
+			<id>dev-mssql</id>
+			<!-- Optional modules - could be added without dependency -->
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-acc</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-example</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-vs</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-rpt-impl</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+
 		<!-- Due portability of maven build among different OSs we need to distinguish 
 			scripts for windows/unix. Profiles are activated automaticaly based on OS -->
 		<profile>

@@ -1,7 +1,8 @@
 import React from 'react';
 import * as Basic from '../../components/basic';
-// import { RequestManager} from '../../redux';
-// const requestManager = new RequestManager();
+import _ from 'lodash';
+import RequestItemChangesTable from './RequestItemChangesTable';
+import {RequestManager } from '../../redux';
 
 /**
  * Request info component
@@ -12,16 +13,62 @@ class RequestInfo extends Basic.AbstractContent {
 
   componentDidMount() {
     super.componentDidMount();
+    this.requestManager = new RequestManager();
   }
 
   _gotToRequest() {
     const {requestId} = this.props.params;
-    debugger;
     // Redirect to request
     this.context.router.push(`requests/${requestId}/detail`);
   }
 
+  _showItemChanges() {
+    const params = this.props.params;
+    const entityId = this._getEntityId(params, this.props.location.pathname);
+    this.requestManager.getService().getChanges(params.requestId, entityId)
+    .then(json => {
+      this.setState({itemDetail: {changes: json, show: true}});
+    })
+    .catch(error => {
+      this.addError(error);
+    });
+  }
+
+  _getEntityId(params, path) {
+    const paths = path.split('/').reverse();
+    for (const p of paths) {
+      for (const key in params) {
+        if (params.hasOwnProperty(key)) {
+          if (p === params[key]) {
+            return params[key];
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  closeDetail() {
+    this.setState({itemDetail: {show: false}});
+  }
+
+  /**
+   * Return data (attributes) for table of changes
+   */
+  _getDataWithChanges(itemDetail) {
+    if (itemDetail && itemDetail.changes) {
+      // sort by name
+      return _(itemDetail.changes.attributes).sortBy('name').value();
+    }
+    return null;
+  }
+
   render() {
+    const {_showLoading} = this.props;
+    const itemDetail = this.state ? this.state.itemDetail : null;
+    //
+    const itemData = this._getDataWithChanges(itemDetail);
+    const isOperationUpdate = itemDetail && itemDetail.changes && itemDetail.changes.requestItem.operation === 'UPDATE';
     return (
       <div>
         <Basic.Alert
@@ -32,7 +79,8 @@ class RequestInfo extends Basic.AbstractContent {
           buttons={[
             <Basic.Button
             level="warning"
-            onClick={ this._gotToRequest.bind(this) }
+            key="showChanges"
+            onClick={ this._showItemChanges.bind(this) }
             title={this.i18n('content.requestInfo.button.showChanges.tooltip')}
             titlePlacement="bottom">
             {' '}
@@ -40,6 +88,7 @@ class RequestInfo extends Basic.AbstractContent {
             </Basic.Button>,
             <Basic.Button
               level="primary"
+              key="gotToRequest"
               style={{marginLeft: '5px'}}
               onClick={ this._gotToRequest.bind(this) }
               titlePlacement="bottom">
@@ -49,6 +98,24 @@ class RequestInfo extends Basic.AbstractContent {
             </Basic.Button>
           ]}/>
           { this.props.children }
+          <Basic.Modal
+            show={itemDetail && itemDetail.show}
+            onHide={this.closeDetail.bind(this)}
+            backdrop="static"
+            keyboard={!_showLoading}>
+              <Basic.Modal.Header closeButton={ !_showLoading } text={this.i18n('content.requestDetail.itemDetail.header')}/>
+              <Basic.Modal.Body>
+                <RequestItemChangesTable itemData={itemData} isOperationUpdate={isOperationUpdate}/>
+              </Basic.Modal.Body>
+              <Basic.Modal.Footer>
+                <Basic.Button
+                  level="link"
+                  onClick={ this.closeDetail.bind(this) }
+                  showLoading={ _showLoading }>
+                  { this.i18n('button.close') }
+                </Basic.Button>
+              </Basic.Modal.Footer>
+          </Basic.Modal>
       </div>
     );
   }

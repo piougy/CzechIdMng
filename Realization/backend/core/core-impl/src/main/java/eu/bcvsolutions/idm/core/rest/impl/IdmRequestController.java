@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,12 +30,16 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemChangesDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.service.RequestService;
@@ -66,6 +71,8 @@ public class IdmRequestController extends AbstractReadWriteDtoController<IdmRequ
 	
 	@Autowired
 	private RequestManager requestManager;
+	@Autowired
+	private IdmRequestItemService requestItemService;
 	
 	@Autowired
 	public IdmRequestController(
@@ -279,6 +286,44 @@ public class IdmRequestController extends AbstractReadWriteDtoController<IdmRequ
 			@PathVariable @NotNull String backendId) {
 		((RequestService<?>)this.getService()).startRequest(UUID.fromString(backendId), true);
 		return this.get(backendId);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/entity/{entityId}/changes", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.REQUEST_READ + "')")
+	@ApiOperation(
+			value = "Request changes of entity", 
+			nickname = "getRequestEntityChange", 
+			response = IdmRequestItemDto.class, 
+			tags = { IdmRequestItemController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.REQUEST_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.REQUEST_READ, description = "") })
+					})
+	public ResponseEntity<?> getChanges(
+			@ApiParam(value = "Item's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			@ApiParam(value = "Entity's uuid identifier.", required = true)
+			@PathVariable @NotNull String entityId) {
+		
+		IdmRequestDto dto = this.getDto(backendId);
+		// Find item by entity ID and request ID
+		IdmRequestItemFilter itemFilter = new IdmRequestItemFilter();
+		itemFilter.setRequestId(dto.getId());
+		itemFilter.setOriginalOwnerId(UUID.fromString(entityId));
+		List<IdmRequestItemDto> items = requestItemService.find(itemFilter, null, IdmBasePermission.READ).getContent();
+		if (items.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		IdmRequestItemChangesDto result = requestManager.getChanges(items.get(0));
+		if (result == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		//
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	
 

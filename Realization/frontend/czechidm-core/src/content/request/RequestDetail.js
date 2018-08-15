@@ -12,6 +12,7 @@ import {SecurityManager, RequestManager, RequestItemManager, WorkflowTaskInstanc
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import SearchParameters from '../../domain/SearchParameters';
+import RequestItemChangesTable from './RequestItemChangesTable';
 
 const uiKey = 'universal-request';
 const uiKeyRequestItems = 'request-items';
@@ -635,24 +636,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
           keyboard={!_showLoading}>
             <Basic.Modal.Header closeButton={ !_showLoading } text={this.i18n('itemDetail.header')}/>
             <Basic.Modal.Body>
-              <Basic.Table
-                data={itemData}
-                noData={this.i18n('component.basic.Table.noData')}
-                rowClass={({rowIndex, data}) => { return (data[rowIndex].changed) && isOperationUpdate ? 'warning' : ''; }}
-                className="table-bordered">
-                <Basic.Column
-                  property="name"
-                  header={this.i18n('itemDetail.changes.property')}/>
-                <Basic.Column
-                  property="oldValue"
-                  rendered={isOperationUpdate}
-                  header={this.i18n('itemDetail.changes.oldValue')}
-                  cell={this._getWishValueCell.bind(this, true, true)}/>
-                <Basic.Column
-                  property="value"
-                  header={this.i18n('itemDetail.changes.newValue')}
-                  cell={this._getWishValueCell.bind(this, false, true)}/>
-              </Basic.Table>
+              <RequestItemChangesTable itemData={itemData} isOperationUpdate={isOperationUpdate}/>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button

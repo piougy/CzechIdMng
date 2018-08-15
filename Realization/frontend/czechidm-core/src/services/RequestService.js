@@ -78,6 +78,28 @@ class RequestService extends AbstractService {
     });
   }
 
+  /**
+   * Get changes for given request and entity
+   * @param  id Id of request
+   * @param  entityId Id of reqeustable entity
+   */
+  getChanges(id, entityId) {
+    return RestApiService
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}/entity/${encodeURIComponent(entityId)}/changes`)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (ResponseUtils.hasError(jsonResponse)) {
+          throw ResponseUtils.getFirstError(jsonResponse);
+        }
+        if (ResponseUtils.hasInfo(jsonResponse)) {
+          throw ResponseUtils.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
+  }
+
 }
 
 export default RequestService;

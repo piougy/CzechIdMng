@@ -1,9 +1,10 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.Serializable;
+
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -15,7 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Relation(collectionRelation = "attributes")
 @ApiModel(description = "Attribute value with marked type of change")
-public class IdmRequestAttributeValueDto extends AbstractDto {
+public class IdmRequestAttributeValueDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

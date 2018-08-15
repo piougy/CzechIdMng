@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemChangesDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -333,7 +334,7 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 				formDefinition, permission);
 		return new Resource<>(formInstance);
 	}
-
+	
 	/**
 	 * Converts DTO to ResourceSupport
 	 * 

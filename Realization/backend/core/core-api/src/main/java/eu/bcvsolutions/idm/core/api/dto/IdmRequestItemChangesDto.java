@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.Size;
@@ -8,7 +10,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -20,7 +21,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Relation(collectionRelation = "items")
 @ApiModel(description = "Request item with marked changed values")
-public class IdmRequestItemChangesDto extends AbstractDto {
+public class IdmRequestItemChangesDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -40,6 +41,9 @@ public class IdmRequestItemChangesDto extends AbstractDto {
 	}
 
 	public List<IdmRequestItemAttributeDto> getAttributes() {
+		if(attributes == null) {
+			attributes = new ArrayList<>();
+		}
 		return attributes;
 	}
 

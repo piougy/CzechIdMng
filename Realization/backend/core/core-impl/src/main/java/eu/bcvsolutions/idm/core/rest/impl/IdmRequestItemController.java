@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemChangesDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
@@ -36,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
+import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem_;
@@ -63,6 +65,8 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmRequestItemController extends AbstractReadWriteDtoController<IdmRequestItemDto, IdmRequestItemFilter>{
 
 	protected static final String TAG = "Request's items";
+	@Autowired
+	private RequestManager requestManager;
 		
 	@Autowired
 	public IdmRequestItemController(
@@ -257,6 +261,33 @@ public class IdmRequestItemController extends AbstractReadWriteDtoController<Idm
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
 	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/changes", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.REQUEST_ITEM_READ + "')")
+	@ApiOperation(
+			value = "Request detail item", 
+			nickname = "getRequestItem", 
+			response = IdmRequestItemDto.class, 
+			tags = { IdmRequestItemController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.REQUEST_ITEM_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.REQUEST_ITEM_READ, description = "") })
+					})
+	public ResponseEntity<?> getChanges(
+			@ApiParam(value = "Item's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		IdmRequestItemDto dto = this.getDto(backendId);
+		IdmRequestItemChangesDto result = requestManager.getChanges(dto);
+		if (result == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		//
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+
 	
 
 	@Override

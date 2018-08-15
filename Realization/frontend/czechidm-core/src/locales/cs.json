@@ -1784,6 +1784,14 @@
       },
       "edit": {
         "header": "Upravit změnu žádosti"
+      },
+      "itemDetail": {
+        "header": "Požadované změny",
+        "changes": {
+          "property": "Název atributu",
+          "oldValue": "Původní hodnota",
+          "newValue": "Nová hodnota"
+        }
       }
     },
     "role": {

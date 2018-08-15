@@ -137,12 +137,34 @@ class RequestDetail extends Advanced.AbstractTableContent {
   }
 
   closeDetail() {
-    this.refs.form.processEnded();
+    this.setState({itemDetail: {show: false}});
   }
 
   previewDetailByRequest(entity) {
     const urlType = this._getUrlType(entity.ownerType);
     this.context.router.push(`/requests/${entity.id}/${urlType}/${entity.ownerId}/detail`);
+  }
+
+  showItemChanges(entity) {
+    this.getManager().getService().getChanges(entity.id)
+    .then(json => {
+      this.setState({itemDetail: {changes: json, show: true}});
+    })
+    .catch(error => {
+      this.addError(error);
+    });
+  }
+
+  /**
+   * Return data (attributes) for table of changes
+   */
+  _getDataWithChanges() {
+    const {itemDetail} = this.state;
+    if (itemDetail && itemDetail.changes) {
+      // sort by name
+      return _(itemDetail.changes.attributes).sortBy('name').value();
+    }
+    return null;
   }
 
   _getNameOfDTO(ownerType) {
@@ -212,9 +234,15 @@ class RequestDetail extends Advanced.AbstractTableContent {
 
   _renderDetailCell({ rowIndex, data }) {
     return (
-      <Advanced.DetailButton
-        title={this.i18n('button.detail')}
-        onClick={this.previewDetailByRequest.bind(this, data[rowIndex])}/>
+      <Basic.Button
+        type="button"
+        level="warning"
+        title={ this.i18n('button.showChanges.tooltip')}
+        titlePlacement="bottom"
+        onClick={this.showItemChanges.bind(this, data[rowIndex])}
+        className="btn-xs">
+        <Basic.Icon type="fa" icon="exchange"/>
+      </Basic.Button>
     );
   }
 
@@ -253,7 +281,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
             }
             >
             <Advanced.Column
-              rendered={false}
               property=""
               header=""
               className="detail-button"
@@ -405,6 +432,49 @@ class RequestDetail extends Advanced.AbstractTableContent {
     this.setState({requestType: requestType ? requestType.value : null});
   }
 
+  /**
+   * Create value (highlights changes) cell for attributes table
+   */
+  _getWishValueCell( old = false, showChanges = true, { rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || (!entity.value && !entity.values)) {
+      return '';
+    }
+    if (entity.multivalue) {
+      const listResult = [];
+      if (!entity.values) {
+        return '';
+      }
+      for (const item of entity.values) {
+        const value = old ? item.oldValue : item.value;
+        if (!old && item.change && showChanges) {
+          listResult.push(<Basic.Label
+            key={value}
+            level={ConceptRoleRequestOperationEnum.getLevel(item.change)}
+            title={item.change ? this.i18n(`attribute.diff.${item.change}`) : null}
+            style={item.change === 'REMOVE' ? {textDecoration: 'line-through'} : null}
+            text={value}/>);
+        } else {
+          listResult.push(value ? (item.value + ' ') : '');
+        }
+        listResult.push(' ');
+      }
+      return listResult;
+    }
+
+    if (!entity.value) {
+      return '';
+    }
+    const value = old ? entity.value.oldValue : entity.value.value;
+    if (!old && entity.value.change && showChanges) {
+      return (<Basic.Label
+        title={entity.value.change ? this.i18n(`attribute.diff.${entity.value.change}`) : null}
+        level={ConceptRoleRequestOperationEnum.getLevel(entity.value.change)}
+        text={value !== null ? value + '' : '' }/>);
+    }
+    return value !== null ? value + '' : '';
+  }
+
   render() {
     const {
       _showLoading,
@@ -412,7 +482,9 @@ class RequestDetail extends Advanced.AbstractTableContent {
       editableInStates,
       showRequestDetail,
       _permissions} = this.props;
+    const {itemDetail} = this.state;
     //
+    const itemData = this._getDataWithChanges();
     const forceSearchParameters = new SearchParameters().setFilter('requestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
@@ -440,6 +512,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
     if (request && request.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)) {
       isDeleteRequest = true;
     }
+    const isOperationUpdate = itemDetail && itemDetail.changes && itemDetail.changes.requestItem.operation === 'UPDATE';
 
     return (
       <div>
@@ -555,6 +628,41 @@ class RequestDetail extends Advanced.AbstractTableContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
+        <Basic.Modal
+          show={itemDetail && itemDetail.show}
+          onHide={this.closeDetail.bind(this)}
+          backdrop="static"
+          keyboard={!_showLoading}>
+            <Basic.Modal.Header closeButton={ !_showLoading } text={this.i18n('itemDetail.header')}/>
+            <Basic.Modal.Body>
+              <Basic.Table
+                data={itemData}
+                noData={this.i18n('component.basic.Table.noData')}
+                rowClass={({rowIndex, data}) => { return (data[rowIndex].changed) && isOperationUpdate ? 'warning' : ''; }}
+                className="table-bordered">
+                <Basic.Column
+                  property="name"
+                  header={this.i18n('itemDetail.changes.property')}/>
+                <Basic.Column
+                  property="oldValue"
+                  rendered={isOperationUpdate}
+                  header={this.i18n('itemDetail.changes.oldValue')}
+                  cell={this._getWishValueCell.bind(this, true, true)}/>
+                <Basic.Column
+                  property="value"
+                  header={this.i18n('itemDetail.changes.newValue')}
+                  cell={this._getWishValueCell.bind(this, false, true)}/>
+              </Basic.Table>
+            </Basic.Modal.Body>
+            <Basic.Modal.Footer>
+              <Basic.Button
+                level="link"
+                onClick={ this.closeDetail.bind(this) }
+                showLoading={ _showLoading }>
+                { this.i18n('button.close') }
+              </Basic.Button>
+            </Basic.Modal.Footer>
+        </Basic.Modal>
       </div>
     );
   }

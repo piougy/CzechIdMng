@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.MethodDescriptor;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -41,6 +42,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
@@ -50,6 +52,7 @@ import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestAttributeValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemChangesDto;
@@ -574,7 +577,7 @@ public class DefaultRequestManager implements RequestManager {
 
 		boolean isNew = getDtoService(owner).isNew(owner);
 		List<IdmFormValueDto> requestValues = new ArrayList<>();
-		
+
 		// If owner does not exists in the DB. We cannot call form service - exception
 		// (owner does not exist) would be throw.
 		if (!isNew) {
@@ -598,12 +601,13 @@ public class DefaultRequestManager implements RequestManager {
 
 		return new IdmFormInstanceDto(owner, formDefinition, requestValues);
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public IdmRequestItemChangesDto getChanges(IdmRequestItemDto item) {
 		LOG.debug(MessageFormat.format("Start read request item with changes [{0}].", item));
 		Assert.notNull(item, "Idm request item cannot be null!");
-		if(Strings.isNullOrEmpty(item.getOwnerType()) || item.getOriginalOwnerId() == null) {
+		if (Strings.isNullOrEmpty(item.getOwnerType()) || item.getOriginalOwnerId() == null) {
 			return null;
 		}
 
@@ -614,92 +618,152 @@ public class DefaultRequestManager implements RequestManager {
 		} catch (ClassNotFoundException e) {
 			throw new CoreException(e);
 		}
-		
+
 		Requestable currentDto = this.getDtoService(dtoClass).get(item.getOriginalOwnerId());
-		Requestable changedDto = this.get(item.getOriginalOwnerId(), currentDto);
-//		Map<String, Serializable>
-//		
-//		List<IcAttribute> currentAttributes = currentObject.getAttributes();
-//		List<IcAttribute> changedAttributes = item.getConnectorObject().getAttributes();
-//
-//		// First add all new attributes
-//		changedAttributes.forEach(changedAttribute -> {
-//			if (currentObject.getAttributeByName(changedAttribute.getName()) == null) {
-//				VsAttributeDto vsAttribute = new VsAttributeDto(changedAttribute.getName(),
-//						changedAttribute.isMultiValue(), true);
-//				if (changedAttribute.isMultiValue()) {
-//					if (changedAttribute.getValues() != null) {
-//						changedAttribute.getValues().forEach(value -> {
-//							vsAttribute.getValues().add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
-//						});
-//					}
-//				} else {
-//					vsAttribute.setValue(
-//							new VsAttributeValueDto(changedAttribute.getValue(), null, VsValueChangeType.ADDED));
-//				}
-//				resultAttributes.add(vsAttribute);
-//			}
-//		});
-//
-//		// Second add all already exists attributes
-//		currentAttributes.forEach(currentAttribute -> {
-//			VsAttributeDto vsAttribute;
-//			// Attribute was changed
-//			if (changeObject.getAttributeByName(currentAttribute.getName()) != null) {
-//				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), true);
-//				IcAttribute changedAttribute = changeObject.getAttributeByName(currentAttribute.getName());
-//				if (changedAttribute.isMultiValue()) {
-//					if (changedAttribute.getValues() != null) {
-//						changedAttribute.getValues().forEach(value -> {
-//							if (currentAttribute.getValues() != null && currentAttribute.getValues().contains(value)) {
-//								vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
-//							} else {
-//								vsAttribute.getValues()
-//										.add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
-//							}
-//						});
-//					}
-//					if (currentAttribute.getValues() != null) {
-//						currentAttribute.getValues().forEach(value -> {
-//							if (changedAttribute.getValues() == null || !changedAttribute.getValues().contains(value)) {
-//								vsAttribute.getValues()
-//										.add(new VsAttributeValueDto(value, value, VsValueChangeType.REMOVED));
-//							}
-//						});
-//					}
-//				} else {
-//					Object changedValue = changedAttribute.getValue();
-//					Object currentValue = currentAttribute.getValue();
-//					if ((changedValue == null && currentValue == null)
-//							|| (changedValue != null && changedValue.equals(currentObject))
-//							|| (currentValue != null && currentValue.equals(changedValue))) {
-//
-//						vsAttribute.setValue(new VsAttributeValueDto(changedValue, currentValue, null));
-//					} else {
-//						vsAttribute.setValue(
-//								new VsAttributeValueDto(changedValue, currentValue, VsValueChangeType.UPDATED));
-//					}
-//				}
-//			} else {
-//				// Attribute was not changed
-//				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), false);
-//				if (currentAttribute.isMultiValue()) {
-//					if (currentAttribute.getValues() != null) {
-//						currentAttribute.getValues().forEach(value -> {
-//							vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
-//						});
-//					}
-//				} else {
-//					vsAttribute.setValue(
-//							new VsAttributeValueDto(currentAttribute.getValue(), currentAttribute.getValue(), null));
-//				}
-//			}
-//			resultAttributes.add(vsAttribute);
-//		});
+		if (currentDto == null) {
+			try {
+				currentDto = dtoClass.newInstance();
+				currentDto.setId(item.getOriginalOwnerId());
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new CoreException(e);
+			}
+		}
+		Requestable changedDto = this.get(item.getRequest(), currentDto);
+		Map<String, Object> currentFieldsValues = this.dtoToMap((AbstractDto) currentDto);
+		Map<String, Object> changedFieldsValues = this.dtoToMap((AbstractDto) changedDto);
 
-		
+		// First add all new attributes
+		changedFieldsValues.keySet().stream().forEach(changedAttribute -> {
+			if (!currentFieldsValues.containsKey(changedAttribute)) {
+				Object value = changedFieldsValues.get(changedAttribute);
+				IdmRequestItemAttributeDto attribute = new IdmRequestItemAttributeDto(changedAttribute,
+						value instanceof List, true);
+				if (attribute.isMultivalue()) {
+					if (value != null && value instanceof List) {
+						((List<?>) value).forEach(v -> {
+							attribute.getValues()
+									.add(new IdmRequestAttributeValueDto(v, null, RequestOperationType.ADD));
+						});
+					}
+				} else {
+					attribute.setValue(new IdmRequestAttributeValueDto(value, null, RequestOperationType.ADD));
+				}
+				resultAttributes.add(attribute);
+			}
+		});
 
-		return null;
+		// Second add all already exists attributes
+		currentFieldsValues.keySet().forEach(currentAttribute -> {
+			Object changedValue = makeNiceValue(changedFieldsValues.get(currentAttribute));
+			IdmRequestItemAttributeDto attribute;
+			Object currentValue = makeNiceValue(currentFieldsValues.get(currentAttribute));
+			attribute = new IdmRequestItemAttributeDto(currentAttribute, changedValue instanceof List, false);
+
+			if (attribute.isMultivalue()) {
+				if (changedValue != null && changedValue instanceof List) {
+					((List<?>) changedValue).forEach(value -> {
+						Object niceValue = makeNiceValue(value);
+						if (currentValue != null && currentValue instanceof List
+								&& ((List<?>) currentValue).contains(value)) {
+							attribute.getValues().add(new IdmRequestAttributeValueDto(niceValue, niceValue, null));
+						} else {
+							attribute.setChanged(true);
+							attribute.getValues()
+									.add(new IdmRequestAttributeValueDto(niceValue, null, RequestOperationType.ADD));
+						}
+					});
+				}
+				if (currentValue != null && currentValue instanceof List) {
+					((List<?>) currentValue).forEach(value -> {
+						Object niceValue = makeNiceValue(value);
+						if (changedValue == null || !((List<?>) changedValue).contains(value)) {
+							attribute.setChanged(true);
+							attribute.getValues().add(
+									new IdmRequestAttributeValueDto(niceValue, niceValue, RequestOperationType.REMOVE));
+						}
+					});
+				}
+			} else {
+				if ((changedValue == null && currentValue == null)
+						|| (changedValue != null && changedValue.equals(currentValue))
+						|| (currentValue != null && currentValue.equals(changedValue))) {
+					attribute.setChanged(RequestOperationType.UPDATE == item.getOperation() ? false : true);
+					attribute.setValue(new IdmRequestAttributeValueDto(changedValue, currentValue,
+							RequestOperationType.UPDATE == item.getOperation() ? null : item.getOperation()));
+				} else {
+					attribute.setChanged(true);
+					attribute
+							.setValue(new IdmRequestAttributeValueDto(changedValue, currentValue, item.getOperation()));
+				}
+			}
+			resultAttributes.add(attribute);
+		});
+
+		IdmRequestItemChangesDto result = new IdmRequestItemChangesDto();
+		result.setRequestItem(item);
+		result.getAttributes().addAll(resultAttributes);
+
+		LOG.debug(MessageFormat.format("End of reading the request item with changes [{0}].", item));
+		return result;
+	}
+
+	private Object makeNiceValue(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Codeable) {
+			Codeable codeable = (Codeable) value;
+			return codeable.getCode();
+		}
+		if (value instanceof Identifiable) {
+			Identifiable identifiable = (Identifiable) value;
+			return identifiable.getId();
+		}
+		return value;
+	}
+
+	private Map<String, Object> dtoToMap(AbstractDto dto) {
+		Map<String, Object> results = new HashMap<>();
+		if (dto == null) {
+			return results;
+		}
+		try {
+			List<PropertyDescriptor> descriptors = Lists
+					.newArrayList(Introspector.getBeanInfo(dto.getClass()).getPropertyDescriptors());
+			List<Field> fields = Lists.newArrayList(dto.getClass().getDeclaredFields()) //
+					.stream() //
+					.filter(field -> !Requestable.REQUEST_ITEM_FIELD.equals(field.getName())) //
+					.filter(field -> !Requestable.REQUEST_FIELD.equals(field.getName())) //
+					.collect(Collectors.toList()); //
+			// Embedded objects
+			fields.stream() //
+					.filter(field -> field.isAnnotationPresent(Embedded.class)) //
+					.forEach(field -> {
+						results.put(field.getName(), dto.getEmbedded().get(field.getName()));
+					});
+
+			// Others objects
+			fields.stream() //
+					.filter(field -> !field.isAnnotationPresent(Embedded.class)) //
+					.forEach(field -> {
+						try {
+							PropertyDescriptor fieldDescriptor = descriptors.stream() //
+									.filter(descriptor -> field.getName().equals(descriptor.getName())) //
+									.findFirst() //
+									.orElse(null); //
+							if (fieldDescriptor != null) {
+								Object value = fieldDescriptor.getReadMethod().invoke(dto);
+								results.put(field.getName(), value);
+							}
+						} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+							throw new CoreException(e);
+						}
+					});
+		} catch (IntrospectionException e) {
+			throw new CoreException(e);
+		}
+
+		return results;
 	}
 
 	/**
@@ -808,8 +872,8 @@ public class DefaultRequestManager implements RequestManager {
 			descriptors = Lists.newArrayList(Introspector.getBeanInfo(filter.getClass()).getMethodDescriptors()) //
 					.stream() //
 					.filter(methodDescriptor -> UUID.class.equals(methodDescriptor.getMethod().getReturnType())) //
-					.filter(methodDescriptor -> methodDescriptor.getParameterDescriptors() == null
-							|| methodDescriptor.getParameterDescriptors().length == 0) //
+					.filter(methodDescriptor -> methodDescriptor.getMethod().getParameterTypes() == null
+							|| methodDescriptor.getMethod().getParameterTypes().length == 0) //
 					.collect(Collectors.toList());
 		} catch (IntrospectionException e) {
 			throw new CoreException(e);

@@ -16,6 +16,7 @@ class RequestInfo extends Basic.AbstractContent {
 
   _gotToRequest() {
     const {requestId} = this.props.params;
+    debugger;
     // Redirect to request
     this.context.router.push(`requests/${requestId}/detail`);
   }

@@ -1743,6 +1743,14 @@
        },
        "edit": {
          "header": "Edit the request change"
+       },
+       "itemDetail": {
+         "header": "Requested changes",
+         "changes": {
+           "property": "Attribute name",
+           "oldValue": "Previous value",
+           "newValue": "New value"
+        }
        }
       },
     "role": {

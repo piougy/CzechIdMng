@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Relation(collectionRelation = "attributes")
 @ApiModel(description = "Attribute of request item")
-public class IdmRequestItemAttributeDto extends AbstractDto {
+public class IdmRequestItemAttributeDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

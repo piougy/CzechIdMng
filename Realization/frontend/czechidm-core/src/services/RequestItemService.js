@@ -54,6 +54,27 @@ class RequestItemService extends AbstractService {
     });
   }
 
+  /**
+   * Get changes for given request item
+   * @param  id Id of request item
+   */
+  getChanges(id) {
+    return RestApiService
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}/changes`)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (ResponseUtils.hasError(jsonResponse)) {
+          throw ResponseUtils.getFirstError(jsonResponse);
+        }
+        if (ResponseUtils.hasInfo(jsonResponse)) {
+          throw ResponseUtils.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
+  }
+
 }
 
 export default RequestItemService;

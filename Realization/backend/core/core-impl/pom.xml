@@ -138,9 +138,9 @@
 
 		<!-- There must be specified profiles for testing real database connections -->
 		<profile>
-			<id>mssql-test</id>
+			<id>test-mssql</id>
 			<properties>
-				<spring.profiles.active>test,mssql-test</spring.profiles.active>
+				<spring.profiles.active>test,test-mssql</spring.profiles.active>
 			</properties>
 		</profile>
 	</profiles>

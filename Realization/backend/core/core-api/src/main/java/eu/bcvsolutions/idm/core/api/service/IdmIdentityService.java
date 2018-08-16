@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -44,6 +45,15 @@ public interface IdmIdentityService extends
 	 * @return
 	 */
 	String getNiceLabel(IdmIdentityDto identity);
+	
+	/**
+	 * Changes given identity's password by the event processing. New passworn property has to be set in event properties.
+	 * 
+	 * @param passwordChangeEvent
+	 * @return
+	 * @since 8.1.4 - use {@link #passwordChange(CoreEvent)}
+	 */
+	List<OperationResult> passwordChange(CoreEvent<IdmIdentityDto> passwordChangeEvent);
 	
 	/**
 	 * Changes given identity's password

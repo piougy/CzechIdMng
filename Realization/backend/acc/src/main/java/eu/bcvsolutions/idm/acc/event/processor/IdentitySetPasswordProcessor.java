@@ -1,35 +1,31 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
-import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
-import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordChangeNotificationProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
@@ -46,10 +42,10 @@ public class IdentitySetPasswordProcessor
 	
 	public static final String PROCESSOR_NAME = "identity-set-password-processor";
 	
-	@Autowired private IdmIdentityService identityService;
-	@Autowired private NotificationManager notificationManager;
 	@Autowired private IdmPasswordPolicyService passwordPolicyService;
 	@Autowired private AccAccountService accountService; 
+	@Autowired private IdentityPasswordChangeNotificationProcessor passwordChangeProcessor;
+	@Autowired private EntityEventManager entityEventManager;
 	
 	public IdentitySetPasswordProcessor() {
 		super(IdentityEventType.UPDATE);
@@ -74,40 +70,18 @@ public class IdentitySetPasswordProcessor
 			// TODO: how to generate password for all system policies
 			GuardedString password = new GuardedString(passwordPolicyService.generatePasswordByDefault());
 			passwordChangeDto.setNewPassword(password);
-			//
-			List<OperationResult> results = identityService.passwordChange(newIdentity, passwordChangeDto);
-			//
-			List<IdmAccountDto> successAccounts = new ArrayList<>();
-			List<OperationResult> failureResults = new ArrayList<>();	
-			List<String> systemNames = new ArrayList<>();
-			results.forEach(result -> {
-				if (result.getModel() != null) {
-					boolean success = result.getModel().getStatusEnum().equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name());
-					if (success) {	
-						IdmAccountDto account = (IdmAccountDto) result.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
-						systemNames.add(account.getSystemName());
-						successAccounts.add(account);
-					} else {
-						// exception is logged before
-						failureResults.add(result);
-					}
-				}
-			});
-			//
-			// send notification if at least one system success
-			if (!successAccounts.isEmpty()) {
-				notificationManager.send(
-						CoreModuleDescriptor.TOPIC_PASSWORD_CHANGED,
-						new IdmMessageDto.Builder()
-						.setLevel(NotificationLevel.SUCCESS)
-						.addParameter("successSystemNames", StringUtils.join(systemNames, ", "))
-						.addParameter("successAccounts", successAccounts)
-						.addParameter("failureResults", failureResults)
-						.addParameter("name", identityService.getNiceLabel(newIdentity))
-						.addParameter("password", password)
-						.build(),
-						newIdentity);
-			}
+			// 
+			// publish event for changing password
+			IdentityEvent identityEvent = new IdentityEvent(
+					IdentityEventType.PASSWORD,
+					newIdentity, 
+					ImmutableMap.of(
+							IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto,
+							EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFICATION, true)); // we are sending notification with newly generated password from this processor
+			EventContext<IdmIdentityDto> context = entityEventManager.process(identityEvent);
+			// 
+			// send notification with then newly generated password
+			passwordChangeProcessor.sendNotification(context, CoreModuleDescriptor.TOPIC_PASSWORD_SET, password);
 		}
 		return new DefaultEventResult<>(event, this);
 	}

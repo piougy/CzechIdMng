@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -327,26 +328,18 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		Assert.notNull(contract.getId());
 		Assert.notNull(slice);
 		Assert.notNull(slice.getId());
-
-		IdmFormDefinitionDto defaultDefinition = formService.getDefinition(IdmIdentityContract.class);
-		// Load extended values for this contract
-		List<IdmFormValueDto> contractValues = formService.getValues(contract.getId(), IdmIdentityContract.class,
-				defaultDefinition);
-		// Delete all current values
-		contractValues.forEach(value -> {
-			identityContractFormValueService.delete(value);
-		});
-
+		// TODO: all definitions should be copied - fix acc sync, i don't know why IdentityContractSyncTest fails ... (RT)
+		IdmFormDefinitionDto definition = formService.getDefinition(contract.getClass());
+		// delete all current values
+		formService.deleteValues(contract, definition);
+		// copy all values from slice to contract 
 		// Load extended values for this slice
-		List<IdmFormValueDto> sliceValues = formService.getValues(slice.getId(), IdmContractSlice.class,
-				defaultDefinition);
+		List<IdmFormValueDto> sliceValues = formService.getValues(slice, definition);
 		sliceValues.forEach(value -> {
-			value.setOwner(identityContractRepository.findOne(contract.getId()));
-			// Clear audit fields
-			EntityUtils.clearAuditFields(value);
+			DtoUtils.clearAuditFields(value);
 			value.setId(null);
-			identityContractFormValueService.save(value);
 		});
+		formService.saveValues(contract, definition, sliceValues);
 	}
 
 	@Transactional

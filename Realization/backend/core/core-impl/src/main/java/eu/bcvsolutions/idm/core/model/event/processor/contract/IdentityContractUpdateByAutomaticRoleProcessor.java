@@ -100,7 +100,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 					})
 					.collect(Collectors.toSet());
 			Set<IdmRoleTreeNodeDto> addedAutomaticRoles = new HashSet<>();
-			if (newPosition != null) {
+			if (newPosition != null && contract.isValidNowOrInFuture()) {
 				addedAutomaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(newPosition);
 			}
 			// prevent to remove newly added or still exists roles

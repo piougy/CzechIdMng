@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -69,24 +68,9 @@ class RequestDetail extends Advanced.AbstractTableContent {
   _initComponent(props) {
     const { entityId} = props;
     const _entityId = entityId ? entityId : props.params.entityId;
-    if (this._getIsNew(props)) {
-      // const _automaticRoleId = props.location.query.automaticRoleId;
-      // this.setState({
-      //   showLoading: false,
-      //   request: {
-      //     role: props.location.query.roleId,
-      //     automaticRole: _automaticRoleId,
-      //     state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
-      //     operation: _automaticRoleId ?
-      //               ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)
-      //               : ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD),
-      //     requestedByType: 'MANUALLY'
-      //   }}, () => {
-      //   this.save(this, false, false);
-      // });
-    } else {
+    if (!this._getIsNew(props)) {
       this.context.store.dispatch(requestManager.fetchEntity(_entityId));
-      this._reloadRuleRequests({id: _entityId});
+      this._reloadRequestItems({id: _entityId});
     }
   }
 
@@ -189,7 +173,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
     return false;
   }
 
-  _reloadRuleRequests(_request) {
+  _reloadRequestItems(_request) {
     let forceSearchParameters = requestItemManager.getDefaultSearchParameters();
     if (_request.id) {
       forceSearchParameters = forceSearchParameters.setFilter('requestId', _request.id);
@@ -211,24 +195,20 @@ class RequestDetail extends Advanced.AbstractTableContent {
       this.setState({
         showLoading: false
       });
-      this.context.router.goBack();
-      if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
-        this.addMessage({ message: this.i18n('content.requests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
-        return;
-      }
-      if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
+      // this.context.router.goBack();
+      if (json.result.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
         this.addMessage({ message: this.i18n('content.requests.action.startRequest.exception'), level: 'error' });
+        this._initComponent(this.props);
         return;
       }
       this.addMessage({ message: this.i18n('content.requests.action.startRequest.started') });
+      this._initComponent(this.props);
     }).catch(ex => {
       this.setState({
         showLoading: false
       });
       this.addError(ex);
-      if (this.refs.table) {
-        this.refs.table.getWrappedInstance().reload();
-      }
+      this._initComponent(this.props);
     });
     return;
   }

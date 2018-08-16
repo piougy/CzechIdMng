@@ -150,13 +150,8 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 		}
 	}
 	
-	/**
-	 * Validates JRS303 before dto is saved
-	 * 
-	 * @param dto
-	 * @return
-	 */
-	protected DTO validateDto(DTO dto) {
+	@Override
+	public DTO validateDto(DTO dto) {
 		return validate(dto);
 	}
 	

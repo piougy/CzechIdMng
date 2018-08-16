@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
-import eu.bcvsolutions.idm.core.api.service.RequestService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
@@ -284,7 +283,9 @@ public class IdmRequestController extends AbstractReadWriteDtoController<IdmRequ
 	public ResponseEntity<?> startRequest(
 			@ApiParam(value = "Request's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
-		((RequestService<?>)this.getService()).startRequest(UUID.fromString(backendId), true);
+		
+		requestManager.startRequest(UUID.fromString(backendId), true);
+		
 		return this.get(backendId);
 	}
 	

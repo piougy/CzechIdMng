@@ -87,6 +87,9 @@ class RequestService extends AbstractService {
     return RestApiService
       .get(this.getApiPath() + `/${encodeURIComponent(id)}/entity/${encodeURIComponent(entityId)}/changes`)
       .then(response => {
+        if (response.status === 204) {
+          return null;
+        }
         return response.json();
       })
       .then(jsonResponse => {

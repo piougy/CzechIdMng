@@ -254,7 +254,9 @@ public enum CoreResultCode implements ResultCode {
 	REQUEST_EXECUTED_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Request [%s] in EXECUTED state cannot be deleted!"),
 	DTO_CANNOT_BE_CONVERT_TO_JSON(HttpStatus.INTERNAL_SERVER_ERROR, "DTO [%] cannot be convert to the JSON!"),
 	JSON_CANNOT_BE_CONVERT_TO_DTO(HttpStatus.INTERNAL_SERVER_ERROR, "JSON [%] cannot be convert to the DTO!"),
-	REQUEST_CUD_OPERATIONS_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "CUD operations are not allowed on that controller [%s]. Use request endpoint!");
+	REQUEST_CUD_OPERATIONS_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "CUD operations are not allowed on that controller [%s]. Use request endpoint!"),
+	REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT(HttpStatus.FORBIDDEN, "You do not have right for immidiately execute request [%s]!");
+	
 	
 	
 	private final HttpStatus status;

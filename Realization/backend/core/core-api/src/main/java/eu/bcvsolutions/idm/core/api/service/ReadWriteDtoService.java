@@ -87,4 +87,13 @@ public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> 
 	 */
 	@Beta
 	void deleteInternalById(Serializable id);
+
+	/**
+	 * Validates JRS303 before dto is saved
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	@Beta
+	DTO validateDto(DTO dto);
 }

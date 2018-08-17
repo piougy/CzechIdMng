@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -38,4 +40,12 @@ public interface SysProvisioningOperationRepository extends AbstractEntityReposi
         	+ " and "
     		+ " (?#{[0].batchId} is null or e.batch.id = ?#{[0].batchId})")
 	Page<SysProvisioningOperation> find(SysProvisioningOperationFilter filter, Pageable pageable);
+	
+	/**
+	 * Delete operations by given system id
+	 * 
+	 * @param systemId
+	 * @return
+	 */
+	long deleteBySystem_Id(UUID systemId);
 }

@@ -362,7 +362,6 @@ public class DefaultSysProvisioningOperationService
 		return operation;
 	}
 	
-	
 	@Override
 	@Transactional(readOnly = true)
 	public SysSystemEntityDto getByProvisioningOperation(SysProvisioningOperationDto operation) {
@@ -519,6 +518,18 @@ public class DefaultSysProvisioningOperationService
 	@Override
 	public String createConnectorObjectPropertyKey(IcAttribute property, int index) {
 		return String.format(CONFIDENTIAL_KEY_PATTERN, CONNECTOR_OBJECT_PROPERTY_PREFIX, property.getName(), index);
+	}
+	
+	@Override
+	@Transactional
+	public long deleteOperations(UUID systemId) {
+		Assert.notNull(systemId);
+		//
+		long deleted = repository.deleteBySystem_Id(systemId);
+		LOG.warn("Deleted [{}] operations from provisioning queue of target system [{}], executed by identity [{}].",
+				deleted, systemId, securityService.getCurrentId());
+		//
+		return deleted;
 	}
 	
 	/**

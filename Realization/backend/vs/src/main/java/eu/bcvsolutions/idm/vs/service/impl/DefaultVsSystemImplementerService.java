@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.vs.dto.VsSystemImplementerDto;
 import eu.bcvsolutions.idm.vs.dto.filter.VsSystemImplementerFilter;
@@ -68,6 +69,12 @@ public class DefaultVsSystemImplementerService
 		if (filter.getIdentityId() != null) {
 			predicates.add(builder.equal(root.get(VsSystemImplementer_.identity).get(IdmIdentity_.id),
 					filter.getIdentityId()));
+		}
+
+		// Role ID
+		if (filter.getRoleId() != null) {
+			predicates.add(builder.equal(root.get(VsSystemImplementer_.role).get(IdmRole_.id),
+					filter.getRoleId()));
 		}
 		return predicates;
 	}

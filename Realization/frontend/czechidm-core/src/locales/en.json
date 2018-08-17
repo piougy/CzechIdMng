@@ -1363,6 +1363,11 @@
         },
         "filter": {
           "text": "Name of automatic role or role name"
+        },
+        "attributeCantBeUsed": {
+          "text": "Attribute [{{name}}] can't be used for create new rule",
+          "confidential": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute is marked as confidential.",
+          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute has persistent type TEXT."
         }
       },
       "recalculate": {
@@ -2580,6 +2585,17 @@
         "header": "Entity states",
         "detail": {
           "header": "State detail"
+        }
+      },
+      "action": {
+        "deleteAll": {
+          "button": {
+            "label": "Delete all entity events",
+            "title": "Delete all entity events"
+          },
+          "header": "Delete entity events",
+          "message": "Do you want to delete all persisted entity events and their states? <strong>All entity events in all states will be deleted!</strong>",
+          "success": "Entity events successfully deleted."
         }
       }
     }

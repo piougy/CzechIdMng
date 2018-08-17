@@ -30,6 +30,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent_;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmEntityStateRepository;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * CRUD for entity changes
@@ -41,10 +43,13 @@ public class DefaultIdmEntityEventService
 		extends AbstractEventableDtoService<IdmEntityEventDto, IdmEntityEvent, IdmEntityEventFilter> 
 		implements IdmEntityEventService {
 
-	private IdmEntityEventRepository repository;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmEntityEventService.class);
+	private final IdmEntityEventRepository repository;
 	//
 	// @Autowired private ConfidentialStorage confidentialStorage;
 	@Autowired private IdmEntityStateService entityStateService;
+	@Autowired private IdmEntityStateRepository entityStateRepository;
+	@Autowired private SecurityService securityService;
 	
 	@Autowired
 	public DefaultIdmEntityEventService(
@@ -119,6 +124,15 @@ public class DefaultIdmEntityEventService
 		//
 		// TODO: return confidentialStorage.getGuardedString(requestId, getEntityClass(), PROPERTY_PASSWORD);
 		return change.getProperties();
+	}
+	
+	@Override
+	@Transactional
+	public void deleteAll() {
+		LOG.warn("Entity events were truncated by identity [{}].", securityService.getCurrentId());
+		//
+		entityStateRepository.deleteByEventIsNotNull();
+		repository.deleteAllInBatch();
 	}
 	
 	@Override

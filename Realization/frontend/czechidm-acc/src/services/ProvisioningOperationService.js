@@ -53,6 +53,35 @@ export default class ProvisioningOperationService extends Services.AbstractServi
   }
 
   /**
+   * Delete all provisioning operation from queue for the given system identifier.
+   *
+   * @param  {string} system identifier
+   * @return {Promise}
+   */
+  deleteAll(system) {
+    return Services.RestApiService
+      .delete(Services.RestApiService.getUrl(this.getApiPath() + `/action/bulk/delete?system=${encodeURIComponent(system)}`))
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
    * Retry or cancel provisioning operation
    *
    * @param  {string} operation id

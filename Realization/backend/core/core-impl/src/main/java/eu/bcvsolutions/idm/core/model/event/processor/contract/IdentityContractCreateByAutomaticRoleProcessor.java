@@ -51,7 +51,7 @@ public class IdentityContractCreateByAutomaticRoleProcessor
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
 		IdmIdentityContractDto contract = event.getContent();
 		// contract is or could be valid in future
-		if(contract.isValidNowOrInFuture() && contract.getWorkPosition() != null) {
+		if (contract.isValidNowOrInFuture() && contract.getWorkPosition() != null) {
 			Set<IdmRoleTreeNodeDto> automaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(contract.getWorkPosition());
 			if (!automaticRoles.isEmpty()) {
 				roleTreeNodeService.addAutomaticRoles(contract, automaticRoles);

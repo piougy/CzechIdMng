@@ -18,6 +18,7 @@ public class VsSystemImplementerFilter extends DataFilter {
 
 	UUID systemId;
 	UUID identityId;
+	UUID roleId;
 
 	public VsSystemImplementerFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -41,5 +42,13 @@ public class VsSystemImplementerFilter extends DataFilter {
 
 	public void setIdentityId(UUID identityId) {
 		this.identityId = identityId;
+	}
+
+	public UUID getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(UUID roleId) {
+		this.roleId = roleId;
 	}
 }

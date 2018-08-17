@@ -39,6 +39,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -265,23 +266,27 @@ public class DefaultIdmIdentityService
 		return predicates;
 	}
 	
-	/**
-	 * Changes given identity's password
-	 * 
-	 * @param identity
-	 * @param passwordChangeDto
-	 */
+
 	@Override
 	@Transactional
 	public List<OperationResult> passwordChange(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto) {
 		Assert.notNull(identity);
 		//
-		LOG.debug("Changing password for identity [{}]", identity.getUsername());
-		EventContext<IdmIdentityDto> context = entityEventManager.process(
-					new IdentityEvent(
-							IdentityEventType.PASSWORD,
-							identity, 
-							ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto)));
+		return passwordChange(new IdentityEvent(
+				IdentityEventType.PASSWORD,
+				identity, 
+				ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto)));
+	}
+	
+	@Override
+	@Transactional
+	public List<OperationResult> passwordChange(CoreEvent<IdmIdentityDto> passwordChangeEvent) {
+		Assert.notNull(passwordChangeEvent);
+		Assert.notNull(passwordChangeEvent.getProperties().get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO));
+		//
+		LOG.debug("Changing password for identity [{}]", passwordChangeEvent.getContent().getUsername());
+		EventContext<IdmIdentityDto> context = entityEventManager.process(passwordChangeEvent);
+		//
 		// get all password change results
 		// more provisioning operation can be executed for one password change - we need to distinct them by account id
 		Map<UUID, OperationResult> passwordChangeResults = new HashMap<>(); // accountId / result

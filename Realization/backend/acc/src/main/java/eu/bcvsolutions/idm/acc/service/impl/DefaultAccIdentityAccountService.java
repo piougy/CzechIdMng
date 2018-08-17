@@ -122,7 +122,7 @@ public class DefaultAccIdentityAccountService extends
 	@Override
 	@Transactional
 	public void forceDelete(AccIdentityAccountDto dto, BasePermission... permission) {
-		this.delete(dto, true, true,permission);
+		this.delete(dto, true, true, permission);
 	}
 
 	private void delete(AccIdentityAccountDto entity, boolean deleteTargetAccount, boolean forceDelete, BasePermission... permission) {

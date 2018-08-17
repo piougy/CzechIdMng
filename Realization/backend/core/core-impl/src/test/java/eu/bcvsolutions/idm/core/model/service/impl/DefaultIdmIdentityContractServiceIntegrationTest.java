@@ -1023,4 +1023,52 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
 		Assert.assertTrue(identity.isDisabled());
 	}
+	
+	@Test
+	public void testDontAssingRoleForDisabledContractWhenPositionIsChanged() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		//
+		IdmIdentityContractDto contractD = new IdmIdentityContractDto();
+		contractD.setIdentity(identity.getId());
+		contractD.setState(ContractState.DISABLED);
+		contractD = service.save(contractD);
+		//
+		// create new automatic role
+		automaticRoleD = new IdmRoleTreeNodeDto();
+		automaticRoleD.setRecursionType(RecursionType.NO);
+		automaticRoleD.setRole(roleA.getId());
+		automaticRoleD.setTreeNode(nodeD.getId());
+		automaticRoleD = saveAutomaticRole(automaticRoleD, true);
+		//
+		contractD.setWorkPosition(nodeD.getId());
+		contractD = service.save(contractD);
+		//
+		// check
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contractD.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
+	public void testDontAssingRoleForInvalidContractWhenPositionIsChanged() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		//
+		IdmIdentityContractDto contractD = new IdmIdentityContractDto();
+		contractD.setIdentity(identity.getId());
+		contractD.setValidTill(LocalDate.now().minusDays(1));
+		contractD = service.save(contractD);
+		//
+		// create new automatic role
+		automaticRoleD = new IdmRoleTreeNodeDto();
+		automaticRoleD.setRecursionType(RecursionType.NO);
+		automaticRoleD.setRole(roleA.getId());
+		automaticRoleD.setTreeNode(nodeD.getId());
+		automaticRoleD = saveAutomaticRole(automaticRoleD, true);
+		//
+		contractD.setWorkPosition(nodeD.getId());
+		contractD = service.save(contractD);
+		//
+		// check
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contractD.getId());
+		assertEquals(0, identityRoles.size());
+	}
 }

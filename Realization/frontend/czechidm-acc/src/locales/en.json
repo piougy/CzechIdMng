@@ -553,12 +553,25 @@
         },
         "cancelAll": {
           "button": {
-            "label": "Cancel all operations",
-            "title": "Cancel all operations from provisioning queue of filtered records"
+            "label": "Cancel operations",
+            "title": "Cancel operations from provisioning queue of filtered records"
           },
           "header": "Cancel operations from provisioning queue",
-          "message": "Do you want to cancel all operations from provisioning queue of filtered records? All operations for filtered entities will be canceled.",
+          "message": "Do you want to cance operations from provisioning queue of filtered records? All operations for filtered entities will be canceled.",
           "accepted": "Long running task, which will cancel operations from provisioning queue, was started."
+        },
+        "deleteAll": {
+          "button": {
+            "label": "Delete all operations",
+            "title": "Delete all operations from provisioning queue"
+          },
+          "system": {
+            "label": "$t(acc:entity.System._type)",
+            "placeholder": "Select target system ..."
+          },
+          "header": "Delete operations from provisioning queue",
+          "message": "Do you want to delete operations from provisioning queue? All operations for selected system will be deleted.",
+          "success": "Operations successfully deleted."
         }
       },
       "tabs": {

@@ -5,7 +5,7 @@ import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { EntityEventManager } from '../../../redux';
+import { EntityEventManager, SecurityManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import EntityStateTableComponent, { EntityStateTable } from './EntityStateTable';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
@@ -96,6 +96,26 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
     this.refs.stateTable.getWrappedInstance().reload();
   }
 
+  _deleteAll() {
+    const { uiKey, } = this.props;
+    //
+    this.refs['confirm-deleteAll'].show(
+      this.i18n(`action.deleteAll.message`),
+      this.i18n(`action.deleteAll.header`)
+    ).then(() => {
+      this.context.store.dispatch(manager.deleteAll(uiKey, (entity, error) => {
+        if (!error) {
+          this.addMessage({ level: 'success', message: this.i18n('action.deleteAll.success')});
+          this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+        } else {
+          this.addError(error);
+        }
+      }));
+    }, () => {
+      // nothing
+    });
+  }
+
   render() {
     const {
       columns,
@@ -118,6 +138,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Confirm ref="confirm-deleteAll" level="danger"/>
 
         <Advanced.Table
           ref="table"
@@ -183,7 +204,20 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this) }
             ]
-          }>
+          }
+          buttons={[
+            <Basic.Button
+              level="danger"
+              key="delete-all-button"
+              className="btn-xs"
+              onClick={ this._deleteAll.bind(this) }
+              rendered={ SecurityManager.hasAnyAuthority('APP_ADMIN') }
+              title={ this.i18n('action.deleteAll.button.title') }
+              titlePlacement="bottom"
+              icon="fa:trash">
+              { this.i18n('action.deleteAll.button.label') }
+            </Basic.Button>
+          ]}>
           <Advanced.Column
             property=""
             header=""

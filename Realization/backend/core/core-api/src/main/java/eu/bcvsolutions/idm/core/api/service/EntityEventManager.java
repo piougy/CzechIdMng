@@ -44,7 +44,8 @@ public interface EntityEventManager {
 	String EVENT_PROPERTY_PARENT_EVENT_TYPE = "idm:parent-event-type"; // parent event type
 	String EVENT_PROPERTY_SUPER_OWNER_ID = "idm:super-owner-id"; // entity event super owner id (e.g. identity (~super owner) - identityRole (event owner))
 	//
-	String EVENT_PROPERTY_SKIP_NOTIFY = "idm:skip-notify";
+	String EVENT_PROPERTY_SKIP_NOTIFY = "idm:skip-notify"; // skip publish notify event
+	String EVENT_PROPERTY_SKIP_NOTIFICATION = "idm:skip-notification"; // skip sending notifications
 	
 	/**
 	 * Cancel all previously ran events

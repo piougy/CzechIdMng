@@ -42,9 +42,6 @@ public class DefaultIdmRequestService extends
 		AbstractReadWriteDtoService<IdmRequestDto, IdmRequest, IdmRequestFilter>
 		implements IdmRequestService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(DefaultIdmRequestService.class);
-
 	@Autowired
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
 

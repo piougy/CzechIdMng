@@ -52,7 +52,6 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
-import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestAttributeValueDto;
@@ -154,10 +153,19 @@ public class DefaultRequestManager implements RequestManager {
 			request = requestService.get(requestId);
 			Throwable exceptionToLog = resolveException(ex);
 
-			// TODO: I set only cause of exception, not code and properties. If are
-			// properties set, then request cannot be save!
-			request.setResult(
-					new OperationResultDto.Builder(OperationState.EXCEPTION).setCause(exceptionToLog).build());
+			if (exceptionToLog instanceof ResultCodeException) {
+				request.setResult( //
+						new OperationResultDto //
+								.Builder(OperationState.EXCEPTION) //
+										.setException((ResultCodeException) exceptionToLog) //
+										.build()); //
+			} else {
+				request.setResult( //
+						new OperationResultDto //
+								.Builder(OperationState.EXCEPTION) //
+										.setCause(exceptionToLog) //
+										.build()); //
+			}
 			request.setState(RequestState.EXCEPTION);
 			return requestService.save(request);
 		}
@@ -262,15 +270,18 @@ public class DefaultRequestManager implements RequestManager {
 						|| RequestOperationType.UPDATE == item.getOperation()) //
 				.forEach(item -> { //
 					// Get DTO service
+					BaseDto dto = null;
 					try {
 						@SuppressWarnings("unchecked")
 						Class<? extends Requestable> dtoClass = (Class<? extends Requestable>) Class
 								.forName(item.getOwnerType());
 						ReadWriteDtoService<Requestable, BaseFilter> dtoService = (ReadWriteDtoService<Requestable, BaseFilter>) this
 								.getDtoService(dtoClass);
-						dtoService.validateDto((Requestable) this.convertStringToDto(item.getData(), dtoClass));
-					} catch (ClassNotFoundException | IOException e) {
-						throw new CoreException(e);
+						dto = this.convertStringToDto(item.getData(), dtoClass);
+						dtoService.validateDto((Requestable) dto);
+					} catch (Exception e) {
+						throw new RoleRequestException(CoreResultCode.REQUEST_ITEM_IS_NOT_VALID,
+								ImmutableMap.of("dto", dto != null ? dto.toString() : null, "item", item.toString()), e);
 					}
 				});
 
@@ -1010,6 +1021,11 @@ public class DefaultRequestManager implements RequestManager {
 		Map<UUID, IdmFormValueDto> unprocessedPreviousValues = new LinkedHashMap<>(); // ordered by seq
 		if (CollectionUtils.isNotEmpty(previousValues)) {
 			previousValues.forEach(previousValue -> {
+				// Set owner to the form value
+				previousValue.setOwnerAndAttribute(null, attribute);
+				previousValue.setOwnerId(owner.getId());
+				previousValue.setOwnerType(ownerClass);
+				
 				unprocessedPreviousValues.put(previousValue.getId(), previousValue);
 			});
 		}

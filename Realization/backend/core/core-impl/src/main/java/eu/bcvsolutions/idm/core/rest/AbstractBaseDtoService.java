@@ -141,4 +141,8 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 	public void deleteInternalById(Serializable id) {
 	}
 
+	@Override
+	public DTO validateDto(DTO dto) {
+		throw new UnsupportedOperationException();
+	}
 }

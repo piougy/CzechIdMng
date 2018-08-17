@@ -118,6 +118,10 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
   render() {
     const { uiKey, manager, showRowSelection, actions, showDetail, forceSearchParameters, columns, isArchive } = this.props;
     const { filterOpened } = this.state;
+    let systemId = null;
+    if (forceSearchParameters && forceSearchParameters.getFilters().has('systemId')) {
+      systemId = forceSearchParameters.getFilters().get('systemId');
+    }
     //
     return (
       <div>
@@ -130,7 +134,9 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 label={ this.i18n('action.deleteAll.system.label') }
                 placeholder={ this.i18n('action.deleteAll.system.placeholder') }
                 manager={ systemManager }
-                required/>
+                value={ systemId }
+                required
+                readOnly={ systemId !== null }/>
             </Basic.AbstractForm>
           </div>
         </Basic.Confirm>

@@ -58,7 +58,7 @@ export default class PasswordPreValidation extends Basic.AbstractFormComponent {
               <Basic.Button
                 level="link"
                 style={{ padding: 0, marginLeft: 3, marginBottom: 5 }}
-                title={ this.i18n('link.popover.title') }>
+                title={ this.i18n('content.passwordPolicies.validation.prevalidationLink.title') }>
                 {this.i18n('content.passwordPolicies.validation.passwordHintPreValidatePwd')}
                 </Basic.Button>
           }

@@ -10,8 +10,6 @@ import DateValue from '../DateValue/DateValue';
  */
 const PASSWORD_POLICIES_NAMES = 'policiesNames';
 
-const POLICY_NAME_PREVALIDATION = 'policiesNamesPreValidation';
-
 /**
  * Enchanced control, minimal rules to fulfill.
  * Value of parameter MIN_RULES_TO_FULFILL is map with rules
@@ -30,6 +28,12 @@ const MIN_RULES_TO_FULFILL_COUNT = 'minRulesToFulfillCount';
  * @type {String}
  */
 const SPECIAL_CHARACTER_BASE = 'specialCharacterBase';
+
+/**
+ * Merge similar password lines
+ * @type {String}
+ */
+const PWD_SIMILAR = 'passwordSimilarPreValidate';
 
 /**
  * Error message with date, date is format by local
@@ -72,7 +76,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     }
   }
 
-  _showSpecialCharacterBase(parameter, validationMessage, level) {
+  _showSpecialCharacterBase(parameter) {
     let rules = '<ul style="padding-left: 20px">';
     for (const ruleKey in parameter) {
       if (parameter.hasOwnProperty(ruleKey)) {
@@ -80,37 +84,25 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
       }
     }
     rules += '</ul></span>';
-    validationMessage.push(
-      <Basic.Alert level={level} className="no-margin">
-        <span dangerouslySetInnerHTML={{
-          __html: this.i18n('content.passwordPolicies.validation.specialCharacterBase') + ' ' + rules}}
-        />
-      </Basic.Alert>);
+    return this.i18n('content.passwordPolicies.validation.specialCharacterBase') + ' ' + rules;
   }
 
   /**
    * Method prepare error from password validation.
    * Only validation message is required, other will be skiped.
    */
-  _prepareValidationMessage(error, validationDefinition) {
+  _prepareValidationMessage(error) {
     if (!error || !error.parameters) {
       return null;
     }
     // For pre validate it shows as info (blue)
-    let levelWarning = `warning`;
-    let levelDanger = `danger`;
-    if (validationDefinition) {
-      levelWarning = `info`;
-      levelDanger = `info`;
-    }
+    const levelWarning = `warning`;
+    const levelDanger = `danger`;
+
     const validationMessage = [];
-    let policies = '';
 
     // iterate over all parameters in error
     for (const key in error.parameters) {
-      if (key === SPECIAL_CHARACTER_BASE) {
-        this._showSpecialCharacterBase(error.parameters[key], validationMessage, levelWarning);
-      }
       // error prameters must contain key and VALIDATION_WARNINGS must also contain key
       if (error.parameters.hasOwnProperty(key) && _.indexOf(VALIDATION_WARNINGS, key) !== -1) {
         // enchanced control special message, minimal rules to fulfill
@@ -150,16 +142,79 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
       }
     }
     // first message is password policies names, with danger class
-    if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES) || error.parameters.hasOwnProperty(POLICY_NAME_PREVALIDATION)) {
-      policies = error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES) ? this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES] : this.i18n('content.passwordPolicies.validation.' + POLICY_NAME_PREVALIDATION) + error.parameters[POLICY_NAME_PREVALIDATION];
+    if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES)) {
       validationMessage.unshift(
         <Basic.Alert level={levelDanger} className="no-margin">
-          {policies}
+          {this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES]}
         </Basic.Alert>
       );
     }
     //
     return validationMessage;
+  }
+
+  _preparePreValidationMessage(error) {
+    if (!error || !error.parameters) {
+      return null;
+    }
+
+    const validationMessage = [];
+    let lines = '<ul style="padding-left: 20px">'; // every one of these rules must be met
+    let rules = ''; // one of two following rules must be met....
+    let result = ''; // for merging lines, rules and char base
+    let charBase = ''; // for shown special character base
+    const similar = []; // for merging pwd must not be similar to name, mail, username
+
+    // iterate over all parameters in error
+    for (const key in error.parameters) {
+      if (key === SPECIAL_CHARACTER_BASE) {
+        charBase = this._showSpecialCharacterBase(error.parameters[key], validationMessage, `info`);
+      }
+      // error prameters must contain key and VALIDATION_WARNINGS must also contain key
+      if (error.parameters.hasOwnProperty(key) && _.indexOf(VALIDATION_WARNINGS, key) !== -1) {
+        // enchanced control special message, minimal rules to fulfill
+        if (key === MIN_RULES_TO_FULFILL) {
+          // fill rules with not required messages
+          rules = '<ul style="padding-left: 20px">';
+          for (const ruleKey in error.parameters[key]) {
+            if (error.parameters[key].hasOwnProperty(ruleKey)) {
+              rules += '<span><li>' + this.i18n('content.passwordPolicies.validation.' + ruleKey) + error.parameters[key][ruleKey] + '</li>';
+            }
+          }
+          rules += '</ul></span>';
+          rules = this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ) + ' ' + rules;
+          // to merge - pwd must not be similar to name, mail, username
+        } else if (key === 'passwordSimilarUsernamePreValidate' || key === 'passwordSimilarEmailPreValidate' || key === 'passwordSimilarFirstNamePreValidate' || key === 'passwordSimilarLastNamePreValidate') {
+          similar.push(this.i18n('content.passwordPolicies.validation.' + key));
+        } else if ( key !== MIN_RULES_TO_FULFILL_COUNT ) {
+          // other validation messages
+          lines += '<span><li>' + this.i18n('content.passwordPolicies.validation.' + key, { 0: error.parameters[key] }) + '</li>';
+        }
+      }
+    }
+    if (similar.length > 0) {
+      lines += '<span><li>' + this.i18n('content.passwordPolicies.validation.' + PWD_SIMILAR) + ' ' + this._toMyString(similar) + '.';
+    }
+    lines += '</ul></span>';
+    result = lines + rules + charBase;
+    validationMessage.push(
+      <Basic.Alert level={'info'} className="no-margin last">
+        <span dangerouslySetInnerHTML={{ __html: result }} />
+      </Basic.Alert>
+    );
+    return validationMessage;
+  }
+
+  /**
+   * Method prepare nice toString of items with comma and space
+   */
+  _toMyString(similar) {
+    let items = similar[0];
+    let i;
+    for ( i = 1; i < similar.length; i++) {
+      items += ', ' + similar[i];
+    }
+    return items;
   }
 
   render() {
@@ -168,7 +223,12 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
       return null;
     }
 
-    const validation = this._prepareValidationMessage(error, validationDefinition);
+    let validation;
+    if (validationDefinition) {
+      validation = this._preparePreValidationMessage(error);
+    } else {
+      validation = this._prepareValidationMessage(error);
+    }
 
     return (
       <div>

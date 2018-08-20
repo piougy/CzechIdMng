@@ -9,7 +9,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { IdentityManager } from '../../redux';
 
-const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
+const PASSWORD_PREVALIDATION = 'PASSWORD_PREVALIDATION';
 
 const identityManager = new IdentityManager();
 
@@ -72,8 +72,14 @@ class Create extends Basic.AbstractContent {
       return response.json();
     })
     .then(json => {
-      if (Utils.Response.hasError(json)) {
-        const error = Utils.Response.getFirstError(json);
+      let error;
+      if (Utils.Response.getFirstError(json)) {
+        error = Utils.Response.getFirstError(json);
+      } else {
+        error = json._errors.pop();
+      }
+
+      if (error) {
         this.setState({
           validationError: error,
           validationDefinition: true
@@ -87,7 +93,7 @@ class Create extends Basic.AbstractContent {
       if (!error) {
         return {};
       }
-      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+      if (error.statusEnum === PASSWORD_PREVALIDATION) {
         this.addErrorMessage({hidden: true}, error);
       } else {
         this.addError(error);
@@ -301,7 +307,8 @@ class Create extends Basic.AbstractContent {
                 </div>
 
                 <Basic.Panel className="col-lg-5 no-border">
-                  <Advanced.ValidationMessage error={validationError} validationDefinition={validationDefinition}/>
+                  <Advanced.ValidationMessage rendered={!validationDefinition} error={validationError} validationDefinition={validationDefinition}/>
+                  <Advanced.PasswordPreValidation rendered={validationDefinition && validationError !== undefined} error={validationError} />
                 </Basic.Panel>
               </Basic.AbstractForm>
 

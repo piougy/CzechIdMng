@@ -404,13 +404,13 @@ public class DefaultIdmPasswordPolicyService
 				int notRequiredRules = passwordPolicy.getNotRequiredRules();
 				int missingRules = notRequiredRules - notPassRules.size();
 				if (missingRules - minRulesToFulfill < 0) {
-					errors.put(MIN_RULES_TO_FULFILL_COUNT, minRulesToFulfill - missingRules);
+					errors.put(MIN_RULES_TO_FULFILL_COUNT, minRulesToFulfill - missingRules); 
 					errors.put(MIN_RULES_TO_FULFILL, notPassRules);
 				}
 			}
 
 			// if not success we want password policy name
-			if (validateNotSuccess && !errors.isEmpty()) {
+			if (validateNotSuccess && !errors.isEmpty() && !prevalidation) {
 				policyNames.add(passwordPolicy.getName());
 			}
 
@@ -428,7 +428,7 @@ public class DefaultIdmPasswordPolicyService
 			errors.put(SPECIAL_CHARACTER_BASE, specialCharBase); 
 		}
 
-		if (!policyNames.isEmpty()) {
+		if (!policyNames.isEmpty() && !prevalidation) {
 			String name = prevalidation ? POLICY_NAME_PREVALIDATION : POLICY_NAME;
 			errors.put(name, String.join(", ", policyNames));
 		}
@@ -450,9 +450,12 @@ public class DefaultIdmPasswordPolicyService
 				}
 			}
 		}
-
+		
 		if (!errors.isEmpty()) {
 			// TODO: password policy audit
+			if(prevalidation) {
+				throw new ResultCodeException(CoreResultCode.PASSWORD_PREVALIDATION, errors);
+			}
 			throw new ResultCodeException(CoreResultCode.PASSWORD_DOES_NOT_MEET_POLICY, errors);
 		}
 	}

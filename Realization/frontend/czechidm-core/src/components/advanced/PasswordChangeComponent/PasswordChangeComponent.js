@@ -7,6 +7,7 @@ import * as Utils from '../../../utils';
 import * as Basic from '../../basic';
 import PasswordField from '../PasswordField/PasswordField';
 import ValidationMessage from '../ValidationMessage/ValidationMessage';
+import PasswordPreValidation from '../PasswordPreValidation/PasswordPreValidation';
 import { IdentityService } from '../../../services';
 import { IdentityManager, SecurityManager, ConfigurationManager } from '../../../redux';
 
@@ -14,6 +15,7 @@ const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 const RESOURCE_IDM = `0:${IDM_NAME}`;
 
 const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
+const PASSWORD_PREVALIDATION = 'PASSWORD_PREVALIDATION';
 
 /**
  * Basic password change fields (old password and new password) and validation message
@@ -107,8 +109,14 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       return response.json();
     })
     .then(json => {
-      if (Utils.Response.hasError(json)) {
-        const error = Utils.Response.getFirstError(json);
+      let error;
+      if (Utils.Response.getFirstError(json)) {
+        error = Utils.Response.getFirstError(json);
+      } else {
+        error = json._errors.pop();
+      }
+
+      if (error) {
         this.setState({
           validationError: error,
           validationDefinition: true
@@ -122,7 +130,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       if (!error) {
         return {};
       }
-      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+      if (error.statusEnum === PASSWORD_PREVALIDATION) {
         this.addErrorMessage({hidden: true}, error);
       } else {
         this.addError(error);
@@ -292,8 +300,11 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           style={{ margin: '15px 0'}}/>
       );
       content.push(
-        <ValidationMessage error={validationError} validationDefinition={validationDefinition} />
+        <ValidationMessage rendered={!validationDefinition} error={validationError} validationDefinition={validationDefinition} />
       );
+      content.push(
+        <PasswordPreValidation rendered={validationDefinition && validationError !== undefined} error={validationError} />
+    );
       content.push(
         <Basic.AbstractForm ref="form">
           <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')}

@@ -1,6 +1,6 @@
-# ValidationMessage Component
+# PasswordPreValidation Component
 
-Component show validation message for password validation.
+Component show validation message for password validation in popup component.
 
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |

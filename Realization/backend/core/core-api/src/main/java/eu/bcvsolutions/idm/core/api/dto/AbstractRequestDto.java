@@ -5,6 +5,9 @@ import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
@@ -22,6 +25,7 @@ public abstract class AbstractRequestDto extends AbstractDto {
 	
 	@Size(max = DefaultFieldLengths.NAME)
 	protected String wfProcessId;
+	@JsonProperty(access = Access.READ_ONLY)
 	protected OperationResultDto result;
 	@NotNull
 	protected RequestState state = RequestState.CONCEPT;

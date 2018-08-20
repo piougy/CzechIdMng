@@ -96,15 +96,15 @@ public class DefaultIdmRequestItemService extends
 					root.get(IdmRequestItem_.request).get(IdmRequestItem_.id),
 					filter.getRequestId()));
 		}
-		if (filter.getOriginalOwnerId() != null) {
+		if (filter.getOwnerId() != null) {
 			predicates.add(builder.equal(
-					root.get(IdmRequestItem_.originalOwnerId),
-					filter.getOriginalOwnerId()));
+					root.get(IdmRequestItem_.ownerId),
+					filter.getOwnerId()));
 		}
-		if (filter.getOriginalType() != null) {
+		if (filter.getOwnerType() != null) {
 			predicates.add(builder.equal(
 					root.get(IdmRequestItem_.ownerType),
-					filter.getOriginalType()));
+					filter.getOwnerType()));
 		}
 		if (filter.getOperationType() != null) {
 			predicates.add(builder.equal(

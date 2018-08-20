@@ -720,4 +720,12 @@ public interface FormService extends ScriptEnabled {
 	 */
 	IdmFormValueDto[] resolvePreviousValues(Map<UUID, IdmFormValueDto> unprocessedPreviousValues,
 			List<IdmFormValueDto> newValues);
+
+	/**
+	 * Returns FormValueService for given owner class
+	 * 
+	 * @param ownerClass
+	 * @return
+	 */
+	<O extends FormableEntity> FormValueService<O> getFormValueService(Class<? extends O> ownerClass);
 }

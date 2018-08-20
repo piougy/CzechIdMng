@@ -1787,9 +1787,18 @@
       },
       "itemDetail": {
         "header": "Požadované změny",
+        "title": {
+          "add": "Požadavek na vytvoření nového objektu s těmito hodnotami",
+          "remove": "Požadavek na odstranění tohoto objektu",
+          "update": "Požadavek na změnu tohoto objektu"
+        },
+        "nochanges": {
+          "title": "Nebyly nalezeny žádné změny.",
+          "text": "Pro tento objekt nebyly nalezeny žádné požadované změny."
+        },
         "changes": {
           "property": "Název atributu",
-          "oldValue": "Původní hodnota",
+          "oldValue": "Aktuální hodnota",
           "newValue": "Nová hodnota"
         }
       }
@@ -3488,6 +3497,8 @@
       "candicateUsers": "Schvalují",
       "currentActivity": "Stav schvalování",
       "wfProcessId": "WF",
+      "implementer": "Žadatel",
+      "entity": "Žádost pro",
       "result": "Výsledek"
     },
     "RequestItem": {
@@ -3495,7 +3506,7 @@
       "modified": "Upraveno",
       "ownerType": "Typ objektu",
       "operation": "Požadovaná změna",
-      "originalOwnerId":"Cílový objekt",
+      "ownerId":"Cílový objekt",
       "candicateUsers": "Schvalují",
       "currentActivity": "Stav schvalování",
       "wfProcessId": "WF",

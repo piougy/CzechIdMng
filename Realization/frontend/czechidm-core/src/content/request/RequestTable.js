@@ -150,8 +150,8 @@ export class RequestTable extends Advanced.AbstractTableContent {
             face="text"
             />
           <Advanced.Column
-            property="originalOwnerId"
-            header={ this.i18n('entity.RequestItem.originalOwnerId') }
+            property="ownerId"
+            header={ this.i18n('entity.RequestItem.ownerId') }
             face="text"
             cell={
               /* eslint-disable react/no-multi-comp */

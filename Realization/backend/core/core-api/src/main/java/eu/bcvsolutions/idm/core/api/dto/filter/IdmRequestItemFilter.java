@@ -17,11 +17,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
  * @author svandav
  */
 public class IdmRequestItemFilter extends DataFilter {
-	
+
 	private List<RequestState> states;
 	private UUID requestId;
-	private UUID originalOwnerId;
-	private String originalType;
+	private UUID ownerId;
+	private String ownerType;
 	private RequestOperationType operationType;
 
 	public IdmRequestItemFilter() {
@@ -51,20 +51,20 @@ public class IdmRequestItemFilter extends DataFilter {
 		this.requestId = requestId;
 	}
 
-	public UUID getOriginalOwnerId() {
-		return originalOwnerId;
+	public UUID getOwnerId() {
+		return ownerId;
 	}
 
-	public void setOriginalOwnerId(UUID originalOwnerId) {
-		this.originalOwnerId = originalOwnerId;
+	public void setOwnerId(UUID ownerId) {
+		this.ownerId = ownerId;
 	}
 
-	public String getOriginalType() {
-		return originalType;
+	public String getOwnerType() {
+		return ownerType;
 	}
 
-	public void setOriginalType(String originalType) {
-		this.originalType = originalType;
+	public void setOwnerType(String ownerType) {
+		this.ownerType = ownerType;
 	}
 
 	public RequestOperationType getOperationType() {

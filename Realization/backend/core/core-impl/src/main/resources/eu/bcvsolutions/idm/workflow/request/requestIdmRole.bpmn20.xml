@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.idm.wf.request">
+  <process id="request-idm-role" name="Approving request change of idm-role" isExecutable="true">
+    <documentation>Approving request change of idm-role.
+
+TODO
+Input variables:
+- applicantIdentifier
+- applicantUsername
+- operationType (add/change/remove)
+- applicantDescription</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <sequenceFlow id="flow43" sourceRef="startevent1" targetRef="scripttask11"></sequenceFlow>
+    <scriptTask id="scripttask11" name="Set IN_PROGRESS state to request" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import eu.bcvsolutions.idm.core.api.domain.RequestState;
+ 
+// Set and save state IN_PROGRESS to concept
+def requestDto = requestService.get(entityEvent.content.id);
+requestDto.setState(RequestState.IN_PROGRESS);
+// Save process ID 
+// requestDto.setWfProcessId(processInstanceId);
+// requestService.save(requestDto);</script>
+    </scriptTask>
+    <sequenceFlow id="flow45" sourceRef="scripttask11" targetRef="load-role-name"></sequenceFlow>
+    <scriptTask id="scripttask12" name="Find all role guarantees and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>boolean skip = false;
+def candidates = null;
+
+//Find all role guarantees
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(entityEvent.content.ownerId, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
+if(candidates.isEmpty()){
+	// TODO: find super admin by role
+  candidates.add(identityService.getByUsername("admin"));
+}
+
+//Is current logged user = implementer user and is between candidates? If yes, then we can skip task.
+if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
+  skip = identityService.containsUser(candidates, implementerIdentifier);
+}else{
+  skip = false; 
+}
+
+// If is skip == true, then set decision for next task on approve
+if (skip) {
+ execution.setVariable("decision", "approve");
+}
+
+//Save skip resolution to variables
+execution.setVariable("skipApproveByAuthorizers", skip);
+
+if(!skip){
+  // Convert all candidates to string separate by comma		
+  def candidatesString = identityService.convertIdentitiesToString(candidates);
+
+  //Save candidates to variables
+  execution.setVariable("candidatesApproveByAuthorizers", candidatesString);
+}</script>
+    </scriptTask>
+    <userTask id="approveAutomaticRole" name="Approve automatic role by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:formKey="dynamicRequestRoleTaskDetail" activiti:skipExpression="#{skipApproveByAuthorizers}">
+      <documentation>${processInstanceName}</documentation>
+      <extensionElements>
+        <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow47" sourceRef="scripttask12" targetRef="approveAutomaticRole"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow48" sourceRef="approveAutomaticRole" targetRef="exclusivegateway7"></sequenceFlow>
+    <scriptTask id="scripttask13" name="Set DISAPPROVED state to request" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import eu.bcvsolutions.idm.core.api.domain.RequestState;
+ 
+// Set and save state DISAPPROVED to request
+def requestDto = requestService.get(entityEvent.content.id);
+requestDto.setState(RequestState.DISAPPROVED);
+requestService.save(requestDto);</script>
+    </scriptTask>
+    <sequenceFlow id="flow49" sourceRef="exclusivegateway7" targetRef="scripttask13">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent6" name="End"></endEvent>
+    <sequenceFlow id="flow50" sourceRef="scripttask13" targetRef="endevent6"></sequenceFlow>
+    <scriptTask id="scripttask14" name="Set APPROVED state to request" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import eu.bcvsolutions.idm.core.api.domain.RequestState;
+ 
+// Set and save state APPROVED to concept
+def requestDto = requestService.get(entityEvent.content.id);
+requestDto.setState(RequestState.APPROVED);
+requestService.save(requestDto);</script>
+    </scriptTask>
+    <sequenceFlow id="flow52" sourceRef="exclusivegateway7" targetRef="scripttask14">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetaskEvokeEvent" name="Realization of request (evoke event)" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
+    <sequenceFlow id="flow53" sourceRef="scripttask14" targetRef="servicetaskEvokeEvent"></sequenceFlow>
+    <sequenceFlow id="flow54" sourceRef="servicetaskEvokeEvent" targetRef="endevent7"></sequenceFlow>
+    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
+    <scriptTask id="load-role-name" name="Load name of role" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+
+IdmRoleDto roleDto = new IdmRoleDto(entityEvent.content.ownerId);
+// Get role via request manager
+roleDto = requestManager.get(entityEvent.content.id, roleDto);
+
+//Save role name
+execution.setVariable("roleName", roleDto.getCode());</script>
+    </scriptTask>
+    <serviceTask id="generate-process-name" name="Generate process name" activiti:expression="Request for change/create/remove role with name '{{roleName}}'" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <sequenceFlow id="flow55" sourceRef="load-role-name" targetRef="generate-process-name"></sequenceFlow>
+    <sequenceFlow id="flow56" sourceRef="generate-process-name" targetRef="scripttask12"></sequenceFlow>
+    <endEvent id="endevent7" name="End"></endEvent>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_request-idm-role">
+    <bpmndi:BPMNPlane bpmnElement="request-idm-role" id="BPMNPlane_request-idm-role">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="10.0" y="230.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask11" id="BPMNShape_scripttask11">
+        <omgdc:Bounds height="67.0" width="160.0" x="73.0" y="213.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask12" id="BPMNShape_scripttask12">
+        <omgdc:Bounds height="72.0" width="162.0" x="360.0" y="211.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approveAutomaticRole" id="BPMNShape_approveAutomaticRole">
+        <omgdc:Bounds height="86.0" width="171.0" x="580.0" y="204.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway7" id="BPMNShape_exclusivegateway7">
+        <omgdc:Bounds height="40.0" width="40.0" x="872.0" y="226.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask13" id="BPMNShape_scripttask13">
+        <omgdc:Bounds height="67.0" width="160.0" x="813.0" y="296.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent6" id="BPMNShape_endevent6">
+        <omgdc:Bounds height="35.0" width="35.0" x="1111.0" y="312.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask14" id="BPMNShape_scripttask14">
+        <omgdc:Bounds height="67.0" width="160.0" x="813.0" y="102.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskEvokeEvent" id="BPMNShape_servicetaskEvokeEvent">
+        <omgdc:Bounds height="70.0" width="177.0" x="1040.0" y="101.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="load-role-name" id="BPMNShape_load-role-name">
+        <omgdc:Bounds height="67.0" width="160.0" x="130.0" y="70.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="generate-process-name" id="BPMNShape_generate-process-name">
+        <omgdc:Bounds height="61.0" width="146.0" x="320.0" y="73.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent7" id="BPMNShape_endevent7">
+        <omgdc:Bounds height="35.0" width="35.0" x="1270.0" y="118.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
+        <omgdi:waypoint x="45.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="73.0" y="246.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow45" id="BPMNEdge_flow45">
+        <omgdi:waypoint x="153.0" y="213.0"></omgdi:waypoint>
+        <omgdi:waypoint x="210.0" y="137.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow47" id="BPMNEdge_flow47">
+        <omgdi:waypoint x="522.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="580.0" y="247.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
+        <omgdi:waypoint x="751.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="872.0" y="246.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow49" id="BPMNEdge_flow49">
+        <omgdi:waypoint x="892.0" y="266.0"></omgdi:waypoint>
+        <omgdi:waypoint x="893.0" y="296.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow50" id="BPMNEdge_flow50">
+        <omgdi:waypoint x="973.0" y="329.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1111.0" y="329.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow52" id="BPMNEdge_flow52">
+        <omgdi:waypoint x="892.0" y="226.0"></omgdi:waypoint>
+        <omgdi:waypoint x="893.0" y="169.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow53" id="BPMNEdge_flow53">
+        <omgdi:waypoint x="973.0" y="135.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1040.0" y="136.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow54" id="BPMNEdge_flow54">
+        <omgdi:waypoint x="1217.0" y="136.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1270.0" y="135.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow55" id="BPMNEdge_flow55">
+        <omgdi:waypoint x="290.0" y="103.0"></omgdi:waypoint>
+        <omgdi:waypoint x="320.0" y="103.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow56" id="BPMNEdge_flow56">
+        <omgdi:waypoint x="393.0" y="134.0"></omgdi:waypoint>
+        <omgdi:waypoint x="441.0" y="211.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

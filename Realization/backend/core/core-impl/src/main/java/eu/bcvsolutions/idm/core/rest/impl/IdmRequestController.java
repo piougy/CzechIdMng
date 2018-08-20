@@ -313,7 +313,7 @@ public class IdmRequestController extends AbstractReadWriteDtoController<IdmRequ
 		// Find item by entity ID and request ID
 		IdmRequestItemFilter itemFilter = new IdmRequestItemFilter();
 		itemFilter.setRequestId(dto.getId());
-		itemFilter.setOriginalOwnerId(UUID.fromString(entityId));
+		itemFilter.setOwnerId(UUID.fromString(entityId));
 		List<IdmRequestItemDto> items = requestItemService.find(itemFilter, null, IdmBasePermission.READ).getContent();
 		if (items.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);

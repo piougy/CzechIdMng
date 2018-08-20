@@ -133,23 +133,11 @@ class RequestDetail extends Advanced.AbstractTableContent {
   showItemChanges(entity) {
     this.getManager().getService().getChanges(entity.id)
     .then(json => {
-      this.setState({itemDetail: {changes: json, show: true}});
+      this.setState({itemDetail: {changes: json, show: true, item: entity}});
     })
     .catch(error => {
       this.addError(error);
     });
-  }
-
-  /**
-   * Return data (attributes) for table of changes
-   */
-  _getDataWithChanges() {
-    const {itemDetail} = this.state;
-    if (itemDetail && itemDetail.changes) {
-      // sort by name
-      return _(itemDetail.changes.attributes).sortBy('name').value();
-    }
-    return null;
   }
 
   _getNameOfDTO(ownerType) {
@@ -233,7 +221,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
     return (
       <Advanced.EntityInfo
         entityType={ entityType }
-        entityIdentifier={ entity.originalOwnerId }
+        entityIdentifier={ entity.ownerId }
         face="popover"/>
     );
   }
@@ -285,7 +273,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
                 }
               }/>
             <Advanced.Column
-              property="originalOwnerId"
+              property="ownerId"
               header={ this.i18n('entity.RequestItem.originalOwnerId') }
               face="text"
               cell={this._renderOriginalOwnerCell.bind(this)}/>
@@ -379,34 +367,33 @@ class RequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
-  _getApplicantAndImplementer() {
-    return <div/>;
-    // return (
-    //   <div>
-    //     <Basic.LabelWrapper
-    //       rendered={(request && request.role) ? true : false}
-    //       readOnly
-    //       ref="role"
-    //       label={this.i18n('entity.Request.role')}>
-    //       <Advanced.RoleInfo
-    //         entityIdentifier={request && request.role}
-    //         showLoading={!request}
-    //         face="full"
-    //         showLink/>
-    //     </Basic.LabelWrapper>
-    //
-    //     <Basic.LabelWrapper
-    //       rendered={(request && request.creatorId) ? true : false}
-    //       readOnly
-    //       ref="implementer"
-    //       label={this.i18n('entity.Request.implementer')}>
-    //       <Advanced.IdentityInfo
-    //         face="popover"
-    //         entityIdentifier={request && request.creatorId}
-    //         showLoading={!request}/>
-    //     </Basic.LabelWrapper>
-    //   </div>
-    // );
+  _getApplicantAndImplementer(request) {
+    const entityType = this._getNameOfDTO(request.ownerType);
+    return (
+      <div>
+        <Basic.LabelWrapper
+          rendered={(request && request.ownerId) ? true : false}
+          readOnly
+          ref="entity"
+          label={this.i18n('entity.Request.entity')}>
+          <Advanced.EntityInfo
+            entityType={entityType}
+            entityIdentifier={ request.ownerId }
+            showLink
+            face="full"/>
+        </Basic.LabelWrapper>
+        <Basic.LabelWrapper
+          rendered={(request && request.creatorId) ? true : false}
+          readOnly
+          ref="implementer"
+          label={this.i18n('entity.Request.implementer')}>
+          <Advanced.IdentityInfo
+            face="popover"
+            entityIdentifier={request && request.creatorId}
+            showLoading={!request}/>
+        </Basic.LabelWrapper>
+      </div>
+    );
   }
 
   _onChangeRequestType(requestType) {
@@ -465,7 +452,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
       _permissions} = this.props;
     const {itemDetail} = this.state;
     //
-    const itemData = this._getDataWithChanges();
     const forceSearchParameters = new SearchParameters().setFilter('requestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
@@ -493,7 +479,10 @@ class RequestDetail extends Advanced.AbstractTableContent {
     if (request && request.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)) {
       isDeleteRequest = true;
     }
-    const isOperationUpdate = itemDetail && itemDetail.changes && itemDetail.changes.requestItem.operation === 'UPDATE';
+    let operation = 'update';
+    if (itemDetail && itemDetail.changes && itemDetail.changes.requestItem) {
+      operation = itemDetail.changes.requestItem.operation.toLowerCase();
+    }
 
     return (
       <div>
@@ -514,6 +503,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
               </Basic.Row>
               <Basic.TextField
                 ref="name"
+                rendered={false}
                 label={this.i18n('entity.Request.name')}/>
               <Basic.EnumLabel
                 ref="state"
@@ -614,9 +604,10 @@ class RequestDetail extends Advanced.AbstractTableContent {
           onHide={this.closeDetail.bind(this)}
           backdrop="static"
           keyboard={!_showLoading}>
-            <Basic.Modal.Header closeButton={ !_showLoading } text={this.i18n('itemDetail.header')}/>
+            <Basic.Modal.Header closeButton={ !_showLoading } text={this.i18n(`itemDetail.title.${operation}`)}/>
             <Basic.Modal.Body>
-              <RequestItemChangesTable itemData={itemData} isOperationUpdate={isOperationUpdate}/>
+              <RequestItemChangesTable
+                itemData={itemDetail ? itemDetail.changes : null}/>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button

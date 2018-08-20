@@ -20,82 +20,100 @@ import eu.bcvsolutions.idm.core.api.domain.RequestState;
 @Relation(collectionRelation = "requestItems")
 public class IdmRequestItemDto extends AbstractDto {
 
-  private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-  @Embedded(dtoClass = IdmRequestDto.class)
-  private UUID request;
+	@Embedded(dtoClass = IdmRequestDto.class)
+	private UUID request;
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	private String ownerType;
+	private UUID ownerId;
+	@NotNull
+	private RequestOperationType operation = RequestOperationType.ADD;
+	private OperationResultDto result;
+	private String data; // JSON represented target DTO
+	private String wfProcessId;
+	private String superOwnerType; // Super owner ... using for form value where super owner is FormableEntity
+	private UUID superOwnerId;
+	@NotNull
+	protected RequestState state = RequestState.CONCEPT;
 
-  @Size(min = 1, max = DefaultFieldLengths.NAME)
-  private String ownerType;
+	public UUID getRequest() {
+		return request;
+	}
 
-  private UUID originalOwnerId;
-  @NotNull private RequestOperationType operation = RequestOperationType.ADD;
-  private OperationResultDto result;
-  private String data; // JSON represented target DTO
-  private RequestState state = RequestState.CONCEPT;
-  private String wfProcessId;
+	public void setRequest(UUID request) {
+		this.request = request;
+	}
 
-  public UUID getRequest() {
-    return request;
-  }
+	public String getOwnerType() {
+		return ownerType;
+	}
 
-  public void setRequest(UUID request) {
-    this.request = request;
-  }
+	public void setOwnerType(String ownerType) {
+		this.ownerType = ownerType;
+	}
 
-  public String getOwnerType() {
-    return ownerType;
-  }
+	public UUID getOwnerId() {
+		return ownerId;
+	}
 
-  public void setOwnerType(String ownerType) {
-    this.ownerType = ownerType;
-  }
+	public void setOwnerId(UUID ownerId) {
+		this.ownerId = ownerId;
+	}
 
-  public UUID getOriginalOwnerId() {
-    return originalOwnerId;
-  }
+	public RequestOperationType getOperation() {
+		return operation;
+	}
 
-  public void setOriginalOwnerId(UUID originalOwnerId) {
-    this.originalOwnerId = originalOwnerId;
-  }
+	public void setOperation(RequestOperationType operation) {
+		this.operation = operation;
+	}
 
-  public RequestOperationType getOperation() {
-    return operation;
-  }
+	public OperationResultDto getResult() {
+		return result;
+	}
 
-  public void setOperation(RequestOperationType operation) {
-    this.operation = operation;
-  }
+	public void setResult(OperationResultDto result) {
+		this.result = result;
+	}
 
-  public OperationResultDto getResult() {
-    return result;
-  }
+	public String getData() {
+		return data;
+	}
 
-  public void setResult(OperationResultDto result) {
-    this.result = result;
-  }
+	public void setData(String data) {
+		this.data = data;
+	}
 
-  public String getData() {
-    return data;
-  }
+	public String getSuperOwnerType() {
+		return superOwnerType;
+	}
 
-  public void setData(String data) {
-    this.data = data;
-  }
+	public void setSuperOwnerType(String superOwnerType) {
+		this.superOwnerType = superOwnerType;
+	}
 
-  public RequestState getState() {
-    return state;
-  }
+	public UUID getSuperOwnerId() {
+		return superOwnerId;
+	}
 
-  public void setState(RequestState state) {
-    this.state = state;
-  }
+	public void setSuperOwnerId(UUID superOwnerId) {
+		this.superOwnerId = superOwnerId;
+	}
 
-  public String getWfProcessId() {
-    return wfProcessId;
-  }
+	public String getWfProcessId() {
+		return wfProcessId;
+	}
 
-  public void setWfProcessId(String wfProcessId) {
-    this.wfProcessId = wfProcessId;
-  }
+	public void setWfProcessId(String wfProcessId) {
+		this.wfProcessId = wfProcessId;
+	}
+
+	public RequestState getState() {
+		return state;
+	}
+
+	public void setState(RequestState state) {
+		this.state = state;
+	}
 }

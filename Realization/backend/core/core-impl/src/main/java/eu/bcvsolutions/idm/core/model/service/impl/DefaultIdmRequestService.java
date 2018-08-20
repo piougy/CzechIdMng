@@ -97,6 +97,9 @@ public class DefaultIdmRequestService extends
 		if (this.isNew(dto)) { 
 			dto.setResult(new OperationResultDto(OperationState.CREATED));
 			dto.setState(RequestState.CONCEPT);
+		}else if(dto.getResult() == null) {
+			IdmRequestDto persistedDto = this.get(dto.getId());
+			dto.setResult(persistedDto.getResult());
 		}
 		IdmRequest requestEntity = super.toEntity(dto, entity);
 

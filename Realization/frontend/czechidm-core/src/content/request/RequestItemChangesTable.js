@@ -4,6 +4,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import {RequestItemManager } from '../../redux';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
+import _ from 'lodash';
 
 const uiKey = 'universal-request';
 const requestItemManager = new RequestItemManager();
@@ -68,21 +69,68 @@ class RequestItemChangesTable extends Advanced.AbstractTableContent {
     if (!old && entity.value.change && showChanges) {
       return (<Basic.Label
         title={entity.value.change ? this.i18n(`attribute.diff.${entity.value.change}`) : null}
-        level={ConceptRoleRequestOperationEnum.getLevel(entity.value.change)}
+        level={'warning'}
         text={value !== null ? value + '' : '' }/>);
     }
     return value !== null ? value + '' : '';
   }
 
-  render() {
-    const {itemData, isOperationUpdate} = this.props;
+  _getNameOfDTO(ownerType) {
+    const types = ownerType.split('.');
+    return types[types.length - 1];
+  }
 
+  _getRowClass(updated, deleted, added, { rowIndex, data}) {
+    const value = data[rowIndex];
+    if (value.changed && updated) {
+      return 'warning';
+    }
+    if (value.changed && deleted) {
+      return 'danger';
+    }
+    if (value.changed && added) {
+      return 'success';
+    }
+    return null;
+  }
+
+  /**
+   * Return data (attributes) for table of changes
+   */
+  _getDataWithChanges() {
+    const {itemData} = this.props;
+    if (itemData) {
+      // sort by name
+      return _(itemData.attributes).sortBy('name').value();
+    }
+    return null;
+  }
+
+  render() {
+    const {itemData} = this.props;
+    if (!itemData || !itemData.requestItem) {
+      return (<Basic.Alert
+        level="info"
+        title={this.i18n('itemDetail.nochanges.title')}
+        text={this.i18n('itemDetail.nochanges.text')}
+      />);
+    }
+    const isOperationUpdate = itemData && itemData.requestItem.operation === 'UPDATE';
+    const isOperationRemove = itemData && itemData.requestItem.operation === 'REMOVE';
+    const isOperationAdd = itemData && itemData.requestItem.operation === 'ADD';
+
+    const entityType = this._getNameOfDTO(itemData.requestItem.ownerType);
+    const sortedItemData = this._getDataWithChanges();
     return (
       <div>
+        <Advanced.EntityInfo
+          entityType={entityType}
+          entityIdentifier={ itemData.requestItem.ownerId }
+          face="full"/>
         <Basic.Table
-          data={itemData}
+          data={sortedItemData}
           noData={this.i18n('component.basic.Table.noData')}
-          rowClass={({rowIndex, data}) => { return (data[rowIndex].changed) && isOperationUpdate ? 'warning' : ''; }}
+          rowClass={this._getRowClass.bind(this, isOperationUpdate, isOperationRemove, isOperationAdd)}
           className="table-bordered">
           <Basic.Column
             property="name"
@@ -91,11 +139,11 @@ class RequestItemChangesTable extends Advanced.AbstractTableContent {
             property="oldValue"
             rendered={isOperationUpdate}
             header={this.i18n('itemDetail.changes.oldValue')}
-            cell={this._getWishValueCell.bind(this, true, true)}/>
+            cell={this._getWishValueCell.bind(this, true, isOperationUpdate)}/>
           <Basic.Column
             property="value"
             header={this.i18n('itemDetail.changes.newValue')}
-            cell={this._getWishValueCell.bind(this, false, true)}/>
+            cell={this._getWishValueCell.bind(this, false, isOperationUpdate)}/>
         </Basic.Table>
       </div>
     );

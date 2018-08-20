@@ -1746,9 +1746,18 @@
        },
        "itemDetail": {
          "header": "Requested changes",
+         "title": {
+           "add": "Request for create new object",
+           "remove": "Request for delete that object",
+           "update": "Request for change that object"
+         },
+         "nochanges": {
+           "title": "No changes found.",
+           "text": "No requested changes was found for this object."
+         },
          "changes": {
            "property": "Attribute name",
-           "oldValue": "Previous value",
+           "oldValue": "Current value",
            "newValue": "New value"
         }
        }
@@ -3445,14 +3454,16 @@
       "candicateUsers": "Approvers",
       "currentActivity": "Approval state",
       "wfProcessId": "WF identifier",
-      "result": "Result"
+      "result": "Result",
+      "implementer": "Žadatel",
+      "entity": "Žádost pro"
     },
     "RequestItem": {
       "created": "Created",
       "modified": "Modified",
       "ownerType": "Object type",
       "operation": "Requested change",
-      "originalOwnerId":"Target object",
+      "ownerId":"Target object",
       "candicateUsers": "Approvers",
       "currentActivity": "Approval state",
       "wfProcessId": "WF identifier",

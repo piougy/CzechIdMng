@@ -24,23 +24,23 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  * @author svandav
  * 
  */
-public interface RequestManager
+public interface RequestManager<R extends Requestable> 
 		extends RequestService<IdmRequestDto> {
 
-	Requestable post(Serializable requestId, Requestable dto);
+	R post(Serializable requestId, R dto);
 
-	Requestable delete(Serializable requestId, Requestable dto);
+	R delete(Serializable requestId, R dto);
+	
+	R get(Serializable requestId, R dto);
 
-	Requestable get(Serializable requestId, Requestable dto);
+	IdmRequestDto createRequest(R dto);
 
-	IdmRequestDto createRequest(Requestable dto);
+	Page<R> find(Class<? extends R> dtoClass, Serializable requestId, BaseFilter filter, Pageable pageable, IdmBasePermission permission);
 
-	Page<Requestable> find(Class<? extends Requestable> dtoClass, Serializable requestId, BaseFilter filter, Pageable pageable, IdmBasePermission permission);
-
-	IdmFormInstanceDto saveFormInstance(UUID requestId, Requestable owner, IdmFormDefinitionDto formDefinition,
+	IdmFormInstanceDto saveFormInstance(UUID requestId, R owner, IdmFormDefinitionDto formDefinition,
 			List<IdmFormValueDto> newValues, BasePermission... permission);
 
-	IdmFormInstanceDto getFormInstance(UUID fromString, Requestable owner, IdmFormDefinitionDto formDefinition,
+	IdmFormInstanceDto getFormInstance(UUID fromString, R owner, IdmFormDefinitionDto formDefinition,
 			BasePermission... permission);
 
 	IdmRequestItemChangesDto getChanges(IdmRequestItemDto item);

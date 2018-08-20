@@ -965,6 +965,18 @@ public class DefaultFormService implements FormService {
 				.sorted()
 				.collect(Collectors.toList());
 	}
+	
+	
+	@Override
+	@SuppressWarnings({ "unchecked" })
+	public <O extends FormableEntity> FormValueService<O> getFormValueService(Class<? extends O> ownerClass) {
+		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(ownerClass);
+		if (formValueService == null) {
+			throw new IllegalStateException(MessageFormat.format(
+					"FormValueService for class [{0}] not found, please check configuration", ownerClass));
+		}
+		return formValueService;
+	}
 
 	/**
 	 * Returns FormValueService for given owner
@@ -979,12 +991,7 @@ public class DefaultFormService implements FormService {
 	@SuppressWarnings({ "unchecked" })
 	private <O extends FormableEntity> FormValueService<O> getFormValueService(Identifiable owner) {
 		O ownerEntity = getOwnerEntity(owner);
-		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(ownerEntity.getClass());
-		if (formValueService == null) {
-			throw new IllegalStateException(MessageFormat.format(
-					"FormValueService for class [{0}] not found, please check configuration", ownerEntity.getClass()));
-		}
-		return formValueService;
+		return (FormValueService<O>) getFormValueService(ownerEntity.getClass());
 	}
 
 	/**

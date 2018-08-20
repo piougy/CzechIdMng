@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.config.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
@@ -15,10 +16,16 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 public interface RequestConfiguration extends Configurable {
 	
 	/**
+	 * Prefix of WF definition key
+	 */
+	String PROPERTY_WF_PREFIX = 
+			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.request";
+	/**
 	 * Enable requesting of role
 	 */
 	String PROPERTY_ROLE_ENABLE = 
 			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.request.idm-role.enabled";
+	String CAMEL_SPLIT_REGEX = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
 	
 	
 	
@@ -49,4 +56,12 @@ public interface RequestConfiguration extends Configurable {
 	 * @return
 	 */
 	boolean isRoleRequestEnabled();
+
+	/**
+	 * Get approval process key
+	 * 
+	 * @param entityType
+	 * @return
+	 */
+	String getRequestApprovalProcessKey(Class<Requestable> entityType);
 }

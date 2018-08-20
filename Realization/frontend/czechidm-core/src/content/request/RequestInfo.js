@@ -1,6 +1,5 @@
 import React from 'react';
 import * as Basic from '../../components/basic';
-import _ from 'lodash';
 import RequestItemChangesTable from './RequestItemChangesTable';
 import {RequestManager } from '../../redux';
 
@@ -52,23 +51,10 @@ class RequestInfo extends Basic.AbstractContent {
     this.setState({itemDetail: {show: false}});
   }
 
-  /**
-   * Return data (attributes) for table of changes
-   */
-  _getDataWithChanges(itemDetail) {
-    if (itemDetail && itemDetail.changes) {
-      // sort by name
-      return _(itemDetail.changes.attributes).sortBy('name').value();
-    }
-    return null;
-  }
-
   render() {
     const {_showLoading} = this.props;
     const itemDetail = this.state ? this.state.itemDetail : null;
-    //
-    const itemData = this._getDataWithChanges(itemDetail);
-    const isOperationUpdate = itemDetail && itemDetail.changes && itemDetail.changes.requestItem.operation === 'UPDATE';
+
     return (
       <div>
         <Basic.Alert
@@ -105,7 +91,8 @@ class RequestInfo extends Basic.AbstractContent {
             keyboard={!_showLoading}>
               <Basic.Modal.Header closeButton={ !_showLoading } text={this.i18n('content.requestDetail.itemDetail.header')}/>
               <Basic.Modal.Body>
-                <RequestItemChangesTable itemData={itemData} isOperationUpdate={isOperationUpdate}/>
+                <RequestItemChangesTable
+                  itemData={itemDetail ? itemDetail.changes : null}/>
               </Basic.Modal.Body>
               <Basic.Modal.Footer>
                 <Basic.Button

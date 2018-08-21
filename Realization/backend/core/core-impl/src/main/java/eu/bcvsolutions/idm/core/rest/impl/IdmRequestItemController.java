@@ -1,10 +1,13 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -27,6 +30,8 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
+import eu.bcvsolutions.idm.core.api.dto.AbstractRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemChangesDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
@@ -37,10 +42,12 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
+import eu.bcvsolutions.idm.core.api.service.IdmRequestService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem_;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -66,12 +73,32 @@ public class IdmRequestItemController extends AbstractReadWriteDtoController<Idm
 
 	protected static final String TAG = "Request's items";
 	@Autowired
-	private RequestManager requestManager;
+	private RequestManager<Requestable> requestManager;
+	@Autowired
+	private IdmRequestService requestService;
 		
 	@Autowired
 	public IdmRequestItemController(
 			IdmRequestItemService service) {
 		super(service);
+	}
+	
+	@Override
+	public Page<IdmRequestItemDto> find(IdmRequestItemFilter filter,
+			Pageable pageable, BasePermission permission) {
+		// Check access
+		// Beware, if has filter requestId filled, then we check permission via right on
+		// the request.
+		if (filter == null || filter.getRequestId() == null) {
+			return super.find(filter, pageable, permission);
+		}
+		AbstractRequestDto roleRequest = requestService.get(filter.getRequestId(), permission);
+		if (roleRequest == null) {
+			// return empty result (find method doesn't throw 404)
+			return new PageImpl<>(new ArrayList<>());
+		} else {
+			return super.find(filter, pageable, null);
+		}
 	}
 	
 	@Override
@@ -287,8 +314,6 @@ public class IdmRequestItemController extends AbstractReadWriteDtoController<Idm
 		//
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
-
-	
 
 	@Override
 	protected IdmRequestItemFilter toFilter(MultiValueMap<String, Object> parameters) {

@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -129,14 +130,10 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	private IdmFormDefinitionService formDefinitionService;
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
-
 	@Autowired
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
-
 	private RequestManager<R> requestManager;
-
-	private IdmFormValueDto formValueDto;
 
 	@Override
 	@Transactional
@@ -280,7 +277,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 						@SuppressWarnings("unchecked")
 						ReadWriteDtoService<Requestable, BaseFilter> dtoService = (ReadWriteDtoService<Requestable, BaseFilter>) getServiceByItem(
 								item, dtoClass);
-						dto = this.convertStringToDto(item.getData(), dtoClass);
+						dto = this.convertItemToDto(item, dtoClass);
 						dtoService.validateDto((Requestable) dto);
 					} catch (Exception e) {
 						throw new RoleRequestException(CoreResultCode.REQUEST_ITEM_IS_NOT_VALID,
@@ -454,13 +451,13 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 
 		try {
 			@SuppressWarnings("unchecked")
-			R requestedDto = this.convertStringToDto(item.getData(), (Class<? extends R>) dto.getClass());
+			R requestedDto = this.convertItemToDto(item, (Class<? extends R>) dto.getClass());
 			addRequestItemToDto((R) requestedDto, item);
 			this.addEmbedded((AbstractDto) requestedDto, request.getId());
 			return (R) requestedDto;
 
 		} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| IntrospectionException | InstantiationException e) {
+				| IntrospectionException | InstantiationException | ClassNotFoundException e) {
 			throw new ResultCodeException(CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
 					ImmutableMap.of("json", item.getData()), e);
 		}
@@ -497,14 +494,14 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 
 			try {
 				// Item with data found. Data in the request is result
-				R requestedDto = this.convertStringToDto(item.getData(), dtoClass);
+				R requestedDto = this.convertItemToDto(item, dtoClass);
 				addEmbedded((AbstractDto) requestedDto, request.getId());
 				addRequestItemToDto((Requestable) requestedDto, item);
 				results.add(requestedDto);
 				return;
 
 			} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-					| InstantiationException | IntrospectionException e) {
+					| InstantiationException | IntrospectionException | ClassNotFoundException e) {
 				throw new ResultCodeException(CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
 						ImmutableMap.of("json", item.getData()));
 			}
@@ -727,7 +724,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		LOG.debug(MessageFormat.format("End of reading the request item with changes [{0}].", item));
 		return result;
 	}
-
+	
 	private Object makeNiceValue(Object value) {
 		if (value == null) {
 			return null;
@@ -755,6 +752,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 					.stream() //
 					.filter(field -> !Requestable.REQUEST_ITEM_FIELD.equals(field.getName())) //
 					.filter(field -> !Requestable.REQUEST_FIELD.equals(field.getName())) //
+					.filter(field -> !field.isAnnotationPresent(JsonIgnore.class)) //
 					.collect(Collectors.toList()); //
 			// Embedded objects
 			fields.stream() //
@@ -813,7 +811,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 
 		itemsToAdd.forEach(item -> {
 			try {
-				R requestedDto = this.convertStringToDto(item.getData(), dtoClass);
+				R requestedDto = this.convertItemToDto(item, dtoClass);
 				AbstractDto requested = (AbstractDto) requestedDto;
 				addEmbedded(requested, request.getId());
 				addRequestItemToDto((Requestable) requested, item);
@@ -821,7 +819,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 				return;
 
 			} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-					| IntrospectionException | InstantiationException e) {
+					| IntrospectionException | InstantiationException | ClassNotFoundException e) {
 				throw new ResultCodeException(CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
 						ImmutableMap.of("json", item.getData()), e);
 			}
@@ -888,7 +886,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	private IdmRequestItemDto createRequestItem(UUID requestId, Requestable dto) {
 		IdmRequestItemDto item = new IdmRequestItemDto();
 		if (dto instanceof IdmFormValueDto) {
-			formValueDto = (IdmFormValueDto) dto;
+			IdmFormValueDto formValueDto = (IdmFormValueDto) dto;
 			item.setSuperOwnerType(formValueDto.getOwnerType().getName());
 			item.setSuperOwnerId((UUID) formValueDto.getOwnerId());
 		}
@@ -1205,7 +1203,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		Assert.notNull(requestItem);
 
 		// Save confidential value to ConfidentialStorage - owner is request item
-		confidentialStorage.save(requestItem, IdmRequestItem.class, getConfidentialStorageKey(requestItem),
+		confidentialStorage.save(requestItem, IdmRequestItem.class, RequestManager.getConfidentialStorageKey(requestItem),
 				confidentialValue);
 		LOG.debug("Confidential FormValue [{}]  is persisted in RequestItem [{}] and value in the confidential storage",
 				confidentialFormValue.getId(), requestItem);
@@ -1269,17 +1267,11 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		return this.requestManager;
 	}
 
-	private String getConfidentialStorageKey(UUID itemId) {
-		Assert.notNull(itemId);
-		//
-		return FormValueService.CONFIDENTIAL_STORAGE_VALUE_PREFIX + ":" + itemId;
-	}
-
 	private Serializable getConfidentialPersistentValue(IdmRequestItemDto confidentialItem) {
 		Assert.notNull(confidentialItem);
 		//
 		return confidentialStorage.get(confidentialItem.getId(), IdmRequestItem.class,
-				getConfidentialStorageKey(confidentialItem.getId()));
+				RequestManager.getConfidentialStorageKey(confidentialItem.getId()));
 	}
 
 	/**

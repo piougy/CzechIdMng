@@ -12,15 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
+import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRuleRequest_;
-import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRequestItemRepository;
@@ -37,9 +36,9 @@ public class DefaultIdmRequestItemService extends
 		AbstractReadWriteDtoService<IdmRequestItemDto, IdmRequestItem, IdmRequestItemFilter>
 		implements IdmRequestItemService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(DefaultIdmRequestItemService.class);
-
+	@Autowired
+	private ConfidentialStorage confidentialStorage;
+	
 	@Autowired
 	public DefaultIdmRequestItemService(IdmRequestItemRepository repository) {
 		super(repository);
@@ -47,7 +46,7 @@ public class DefaultIdmRequestItemService extends
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.AUTOMATICROLEREQUEST, getEntityClass());
+		return new AuthorizableType(CoreGroupPermission.REQUESTITEM, getEntityClass());
 	}
 
 	@Override
@@ -61,15 +60,10 @@ public class DefaultIdmRequestItemService extends
 	@Transactional
 	public void deleteInternal(IdmRequestItemDto dto) {
 
-		// First we have to delete all rule concepts for this request
+		// We try to find value in the confidential storage and delete it
 		if (dto.getId() != null) {
-//			IdmAutomaticRoleAttributeRuleRequestFilter ruleFilter = new IdmAutomaticRoleAttributeRuleRequestFilter();
-//			ruleFilter.setRoleRequestId(dto.getId());
-//			List<IdmAutomaticRoleAttributeRuleRequestDto> ruleConcepts = automaticRoleRuleRequestService
-//					.find(ruleFilter, null).getContent();
-//			ruleConcepts.forEach(concept -> {
-//				automaticRoleRuleRequestService.delete(concept);
-//			});
+			String storageKey = RequestManager.getConfidentialStorageKey(dto.getId());
+			confidentialStorage.delete(dto, storageKey);
 		}
 		super.deleteInternal(dto);
 	}

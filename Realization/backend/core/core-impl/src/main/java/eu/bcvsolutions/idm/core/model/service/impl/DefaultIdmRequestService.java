@@ -17,10 +17,13 @@ import com.google.common.base.Strings;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequest;
@@ -44,6 +47,8 @@ public class DefaultIdmRequestService extends
 
 	@Autowired
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
+	@Autowired
+	private IdmRequestItemService requestItemService;
 
 	@Autowired
 	public DefaultIdmRequestService(IdmRequestRepository repository) {
@@ -52,7 +57,7 @@ public class DefaultIdmRequestService extends
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.AUTOMATICROLEREQUEST, getEntityClass());
+		return new AuthorizableType(CoreGroupPermission.REQUEST, getEntityClass());
 	}
 
 	@Override
@@ -71,6 +76,14 @@ public class DefaultIdmRequestService extends
 
 		return requestDto;
 	}
+	
+	@Override
+	public IdmRequestDto saveInternal(IdmRequestDto dto) {
+		if(dto != null && RequestState.DISAPPROVED == dto.getState()) {
+			dto.setResult(new OperationResultDto(OperationState.NOT_EXECUTED));
+		}
+		return super.saveInternal(dto);
+	}
 
 	@Override
 	@Transactional
@@ -78,15 +91,15 @@ public class DefaultIdmRequestService extends
 		// Stop connected WF process
 		cancelWF(dto);
 
-		// First we have to delete all rule concepts for this request
+		// We have to delete all items for this request
 		if (dto.getId() != null) {
-//			IdmAutomaticRoleAttributeRuleRequestFilter ruleFilter = new IdmAutomaticRoleAttributeRuleRequestFilter();
-//			ruleFilter.setRoleRequestId(dto.getId());
-//			List<IdmAutomaticRoleAttributeRuleRequestDto> ruleConcepts = automaticRoleRuleRequestService
-//					.find(ruleFilter, null).getContent();
-//			ruleConcepts.forEach(concept -> {
-//				automaticRoleRuleRequestService.delete(concept);
-//			});
+			IdmRequestItemFilter ruleFilter = new IdmRequestItemFilter();
+			ruleFilter.setRequestId(dto.getId());
+			List<IdmRequestItemDto> items = requestItemService
+					.find(ruleFilter, null).getContent();
+			items.forEach(item -> {
+				requestItemService.delete(item);
+			});
 		}
 		super.deleteInternal(dto);
 	}

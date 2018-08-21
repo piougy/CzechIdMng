@@ -72,36 +72,43 @@ class DecisionButtons extends Basic.AbstractContent {
   }
 
   render() {
-    const {task, showLoading} = this.props;
+    const {task, showLoading, showBackButton} = this.props;
     let decisions;
     if (task) {
       decisions = task.decisions;
     }
 
     return (
-        <div>
+        <span>
           {decisions ?
-            <div>
-              <Basic.Button type="button" level="link" onClick={this._goBack.bind(this)}
-                showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
+            <span>
+              <Basic.Button
+                rendered={showBackButton}
+                type="button"
+                level="link"
+                onClick={this._goBack.bind(this)}
+                showLoading={showLoading}>{this.i18n('button.back')}
+              </Basic.Button>
               {this._getDecisionsButton(decisions, showLoading)}
-            </div>
+            </span>
           :
           <Basic.Well showLoading/>
           }
-        </div>
+        </span>
     );
   }
 }
 
 DecisionButtons.propTypes = {
   task: PropTypes.object,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  showBackButton: PropTypes.bool
 };
 
 DecisionButtons.defaultProps = {
   task: null,
-  readOnly: false
+  readOnly: false,
+  showBackButton: true
 };
 
 function select() {

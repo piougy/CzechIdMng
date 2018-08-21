@@ -56,7 +56,7 @@ if(!skip){
   execution.setVariable("candidatesApproveByAuthorizers", candidatesString);
 }</script>
     </scriptTask>
-    <userTask id="approveAutomaticRole" name="Approve automatic role by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:formKey="dynamicRequestRoleTaskDetail" activiti:skipExpression="#{skipApproveByAuthorizers}">
+    <userTask id="approveAutomaticRole" name="Approve changes for role by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:formKey="dynamicRequestTaskDetail" activiti:skipExpression="#{skipApproveByAuthorizers}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>

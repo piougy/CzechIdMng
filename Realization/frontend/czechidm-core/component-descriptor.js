@@ -12,6 +12,10 @@ module.exports = {
       'component': require('./src/content/task/identityRole/DynamicTaskAutomaticRoleDetail')
     },
     {
+      'id': 'dynamicRequestTaskDetail',
+      'component': require('./src/content/task/request/DynamicRequestTaskDetail')
+    },
+    {
       'id': 'role-tree-node-task-detail',
       'component': require('./src/content/task/roleTreeNode/AutomaticRoleTaskDetail')
     },

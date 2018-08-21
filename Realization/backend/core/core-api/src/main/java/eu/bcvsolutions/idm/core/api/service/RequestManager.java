@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
@@ -15,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
@@ -44,6 +46,18 @@ public interface RequestManager<R extends Requestable>
 			BasePermission... permission);
 
 	IdmRequestItemChangesDto getChanges(IdmRequestItemDto item);
+	
+	/**
+	 * Returns confidential storage key for given request item
+	 * 
+	 * @param itemId
+	 * @return
+	 */
+	public static String getConfidentialStorageKey(UUID itemId) {
+		Assert.notNull(itemId);
+		//
+		return FormValueService.CONFIDENTIAL_STORAGE_VALUE_PREFIX + ":" + itemId;
+	}
 
 
 }

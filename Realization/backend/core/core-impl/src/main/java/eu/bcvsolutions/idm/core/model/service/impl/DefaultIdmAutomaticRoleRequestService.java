@@ -371,13 +371,17 @@ public class DefaultIdmAutomaticRoleRequestService extends
 	@Override
 	protected IdmAutomaticRoleRequest toEntity(IdmAutomaticRoleRequestDto dto, IdmAutomaticRoleRequest entity) {
 
-		if (this.isNew(dto)) { 
+		if (this.isNew(dto)) {
 			dto.setResult(new OperationResultDto(OperationState.CREATED));
 			dto.setState(RequestState.CONCEPT);
-			if(dto.getRequestType() == null) {
+			if (dto.getRequestType() == null) {
 				dto.setRequestType(AutomaticRoleRequestType.ATTRIBUTE);
 			}
+		} else if (dto.getResult() == null) {
+			IdmAutomaticRoleRequestDto persistedDto = this.get(dto.getId());
+			dto.setResult(persistedDto.getResult());
 		}
+		
 		IdmAutomaticRoleRequest requestEntity = super.toEntity(dto, entity);
 
 		// Convert type of automatic role

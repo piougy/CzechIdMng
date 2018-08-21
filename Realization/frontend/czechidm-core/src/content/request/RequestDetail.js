@@ -205,12 +205,12 @@ class RequestDetail extends Advanced.AbstractTableContent {
     return (
       <Basic.Button
         type="button"
-        level="warning"
+        level="info"
         title={ this.i18n('button.showChanges.tooltip')}
         titlePlacement="bottom"
         onClick={this.showItemChanges.bind(this, data[rowIndex])}
         className="btn-xs">
-        <Basic.Icon type="fa" icon="exchange"/>
+        <Basic.Icon type="fa" icon="eye"/>
       </Basic.Button>
     );
   }
@@ -226,7 +226,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
-  _renderRequestItemsTable(request, forceSearchParameters, rendered) {
+  _renderRequestItemsTable(request, forceSearchParameters, rendered, showLoading) {
     if (!rendered) {
       return null;
     }
@@ -237,7 +237,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={request}>
+        <Basic.Panel showLoading={showLoading} rendered={request}>
           <Advanced.Table
             ref="table"
             uiKey={uiKeyRequestItems}
@@ -255,12 +255,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
               className="detail-button"
               cell={this._renderDetailCell.bind(this)}/>
             <Advanced.Column
-              property="operation"
-              face="enum"
-              enumClass={ConceptRoleRequestOperationEnum}
-              header={this.i18n('entity.RequestItem.operation')}
-              sort/>
-            <Advanced.Column
               property="result"
               header={this.i18n('entity.RequestItem.result')}
               face="text"
@@ -273,8 +267,14 @@ class RequestDetail extends Advanced.AbstractTableContent {
                 }
               }/>
             <Advanced.Column
+              property="operation"
+              face="enum"
+              enumClass={ConceptRoleRequestOperationEnum}
+              header={this.i18n('entity.RequestItem.operation')}
+              sort/>
+            <Advanced.Column
               property="ownerId"
-              header={ this.i18n('entity.RequestItem.originalOwnerId') }
+              header={ this.i18n('entity.RequestItem.ownerId') }
               face="text"
               cell={this._renderOriginalOwnerCell.bind(this)}/>
             <Advanced.Column
@@ -301,7 +301,9 @@ class RequestDetail extends Advanced.AbstractTableContent {
   }
 
   _operationResultComponent(request) {
-    if (!request.result || Utils.Entity.isNew(request)) {
+    const {simpleMode} = this.props;
+
+    if (simpleMode || !request.result || Utils.Entity.isNew(request)) {
       return null;
     }
     return (
@@ -449,7 +451,9 @@ class RequestDetail extends Advanced.AbstractTableContent {
       _request,
       editableInStates,
       showRequestDetail,
-      _permissions} = this.props;
+      _permissions,
+    additionalButtons,
+    simpleMode} = this.props;
     const {itemDetail} = this.state;
     //
     const forceSearchParameters = new SearchParameters().setFilter('requestId', _request ? _request.id : SearchParameters.BLANK_UUID);
@@ -459,6 +463,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
     const _adminMode = Utils.Permission.hasPermission(_permissions, 'ADMIN');
     const showLoading = !request || _showLoading || this.state.showLoading || this.props.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
+
     let requestType = request ? request.requestType : null;
     requestType = this.state.requestType ? this.state.requestType : requestType;
 
@@ -495,7 +500,12 @@ class RequestDetail extends Advanced.AbstractTableContent {
             <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
           </Basic.ContentHeader>
           <Basic.Panel rendered={showRequestDetail}>
-            <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
+            <Basic.AbstractForm
+              readOnly={!isEditable}
+              ref="form"
+              data={request}
+              showLoading={showLoading}
+              style={{ padding: '15px 15px 0 15px' }}>
               <Basic.Row>
                 <div className="col-lg-6">
                   {this._getApplicantAndImplementer(request)}
@@ -507,10 +517,12 @@ class RequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.Request.name')}/>
               <Basic.EnumLabel
                 ref="state"
+                rendered={!simpleMode}
                 enum={RoleRequestStateEnum}
                 label={this.i18n('entity.Request.state')}/>
               <Basic.Checkbox
                 ref="executeImmediately"
+                rendered={!simpleMode}
                 hidden={!_adminMode}
                 label={this.i18n('entity.Request.executeImmediately')}/>
               <Basic.TextArea
@@ -521,12 +533,12 @@ class RequestDetail extends Advanced.AbstractTableContent {
             </Basic.AbstractForm>
             <div style={{ padding: '15px 15px 0 15px' }}>
               {
-                this._renderRequestItemsTable(request, forceSearchParameters, !isDeleteRequest)
+                this._renderRequestItemsTable(request, forceSearchParameters, !isDeleteRequest, showLoading)
               }
               <Basic.AbstractForm
                 readOnly
                 ref="form-wf"
-                rendered={request.wfProcessId ? true : false}
+                rendered={!simpleMode && request.wfProcessId ? true : false}
                 data={request}
                 showLoading={showLoading}>
                 <Basic.LabelWrapper
@@ -589,13 +601,17 @@ class RequestDetail extends Advanced.AbstractTableContent {
                 disabled={!isEditable}
                 showLoading={showLoading}
                 onClick={this.save.bind(this, this, true, true)}
-                rendered={ request && requestManager.canSave(request, _permissions)}
+                rendered={ request
+                  && (request.state === 'CONCEPT' || request.state === 'EXCEPTION')
+                  && requestManager.canSave(request, _permissions)}
                 titlePlacement="bottom"
                 title={this.i18n('button.createRequest.tooltip')}>
                 <Basic.Icon type="fa" icon="object-group"/>
                 {' '}
                 { this.i18n('button.createRequest.label') }
               </Basic.Button>
+              {additionalButtons ? ' ' : ''}
+              {additionalButtons ? additionalButtons : ''}
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
@@ -626,15 +642,16 @@ class RequestDetail extends Advanced.AbstractTableContent {
 RequestDetail.propTypes = {
   _showLoading: PropTypes.bool,
   editableInStates: PropTypes.arrayOf(PropTypes.string),
+  entityId: PropTypes.string,
   showRequestDetail: PropTypes.bool,
-  showCurrentRules: PropTypes.bool,
   canExecute: PropTypes.bool,
+  simpleMode: PropTypes.bool,
 };
 RequestDetail.defaultProps = {
   editableInStates: ['CONCEPT', 'EXCEPTION', 'DUPLICATED'],
   showRequestDetail: true,
-  showCurrentRules: true,
-  canExecute: true
+  canExecute: true,
+  simpleMode: false
 };
 
 function select(state, component) {

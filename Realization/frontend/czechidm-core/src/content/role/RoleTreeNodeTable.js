@@ -203,20 +203,24 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
             sort
             rendered={_.includes(columns, 'recursionType')}/>
         </Advanced.Table>
-        <div className="tab-pane-table-body"
-          rendered={ SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_READ') }>
-          <Basic.ContentHeader style={{ marginBottom: 0 }} text={this.i18n('content.automaticRoles.request.header')}/>
-          <AutomaticRoleRequestTableComponent
-            ref="automatic-role-requests-table"
-            uiKey="role-automatic-role-requests-table"
-            forceSearchParameters={requestForceSearch}
-            columns={ _.difference(AutomaticRoleRequestTable.defaultProps.columns,
-               roleId ? ['role', 'executeImmediately', 'startRequest', 'createNew']
-                      : ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified']
-            )}
-            showFilter={false}
-            manager={automaticRoleRequestManager}/>
-        </div>
+
+        {
+          !SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_READ')
+          ||
+          <div className="tab-pane-table-body">
+            <Basic.ContentHeader style={{ marginBottom: 0 }} text={this.i18n('content.automaticRoles.request.header')}/>
+            <AutomaticRoleRequestTableComponent
+              ref="automatic-role-requests-table"
+              uiKey="role-automatic-role-requests-table"
+              forceSearchParameters={requestForceSearch}
+              columns={ _.difference(AutomaticRoleRequestTable.defaultProps.columns,
+                 roleId ? ['role', 'executeImmediately', 'startRequest', 'createNew']
+                        : ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified']
+              )}
+              showFilter={false}
+              manager={automaticRoleRequestManager}/>
+          </div>
+        }
 
         <Basic.Modal
           bsSize="large"

@@ -34,6 +34,22 @@ class RoleTable extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     //
+    this._loadCatalogue();
+    this.refs.text.focus();
+  }
+
+  getContentKey() {
+    return 'content.roles';
+  }
+
+  _loadCatalogue() {
+    if (!SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE')) {
+      this.setState({
+        showLoading: false
+      });
+      return;
+    }
+    //
     const searchParametersRoots = this.roleCatalogueManager.getService().getRootSearchParameters();
     this.context.store.dispatch(this.roleCatalogueManager.fetchEntities(searchParametersRoots, rootsKey, (loadedRoots) => {
       const rootNodes = loadedRoots._embedded[this.roleCatalogueManager.getCollectionType()];
@@ -42,11 +58,6 @@ class RoleTable extends Advanced.AbstractTableContent {
         showLoading: false
       });
     }));
-    this.refs.text.focus();
-  }
-
-  getContentKey() {
-    return 'content.roles';
   }
 
   useFilter(event) {

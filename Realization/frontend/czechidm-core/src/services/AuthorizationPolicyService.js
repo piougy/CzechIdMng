@@ -41,7 +41,7 @@ export default class AuthorizationPolicyService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('seq', 'asc').setSort('evaluatorType').setSize(50);
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('seq', 'asc').setSort('groupPermission').setSize(50);
   }
 
   /**

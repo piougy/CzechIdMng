@@ -356,6 +356,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             property="authorizableType"
             header={ this.i18n('entity.AuthorizationPolicy.authorizableType.label') }
             sort
+            sortProperty="groupPermission"
             rendered={_.includes(columns, 'authorizableType')}
             width={ 175 }
             cell={

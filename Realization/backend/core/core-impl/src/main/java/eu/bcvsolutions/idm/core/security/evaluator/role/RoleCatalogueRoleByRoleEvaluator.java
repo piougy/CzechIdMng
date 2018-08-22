@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
  * Permissions to assigned role catalogue relations by role.
  * 
  * @author Radek Tomiška
- *
+ * @since 9.0.0
  */
 @Component(RoleCatalogueRoleByRoleEvaluator.EVALUATOR_NAME)
 @Description("Permissions to assigned role catalogue relations by role.")

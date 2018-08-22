@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * Long running task for remove assigned roles by given composition from identities.
  *
  * @author Radek Tomiška
- *
+ * @since 9.0.0
  */
 @Service
 @Description("Long running task for remove assigned roles by given composition from identities.")

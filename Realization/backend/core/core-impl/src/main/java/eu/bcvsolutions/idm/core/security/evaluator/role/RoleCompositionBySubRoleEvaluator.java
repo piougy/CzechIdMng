@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
  * Permissions to business roles by sub role.
  * 
  * @author Radek Tomiška
- *
+ * @since 9.0.0
  */
 @Component(RoleCompositionBySubRoleEvaluator.EVALUATOR_NAME)
 @Description("Permissions to business roles by sub role.")

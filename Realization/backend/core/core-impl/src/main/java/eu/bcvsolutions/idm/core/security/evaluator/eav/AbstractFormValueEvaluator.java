@@ -105,10 +105,7 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 					));
 			//
 			predicates.add(builder.exists(subquery));
-		}
-		//
-		// owner update
-		
+		}		
 		//
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}

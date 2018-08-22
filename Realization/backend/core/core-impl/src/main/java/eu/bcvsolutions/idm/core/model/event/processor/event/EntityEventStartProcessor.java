@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
  * @author Radek Tomiška
  * @since 8.0.0
  */
-@Component
+@Component(EntityEventStartProcessor.PROCESSOR_NAME)
 @Description("Starts execution of entity event.")
 public class EntityEventStartProcessor extends CoreEventProcessor<IdmEntityEventDto> {
 	
@@ -41,8 +41,10 @@ public class EntityEventStartProcessor extends CoreEventProcessor<IdmEntityEvent
 	public EventResult<IdmEntityEventDto> process(EntityEvent<IdmEntityEventDto> event) {
 		IdmEntityEventDto entity = event.getContent();
 		//
-		entity = entityEventManager.saveResult(entity.getId(), new OperationResultDto.Builder(OperationState.RUNNING).build());
-		event.setContent(entity);
+		if (entity.getResult().getState() != OperationState.RUNNING) {
+			entity = entityEventManager.saveResult(entity.getId(), new OperationResultDto.Builder(OperationState.RUNNING).build());
+			event.setContent(entity);
+		}
 		//
 		return new DefaultEventResult<>(event, this);
 	}

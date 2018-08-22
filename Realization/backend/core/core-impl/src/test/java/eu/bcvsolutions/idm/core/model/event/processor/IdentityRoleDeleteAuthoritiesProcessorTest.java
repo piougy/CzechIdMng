@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.model.event.processor;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -114,9 +113,7 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 	@Test
 	public void testRoleRemovedSuperAuthorityStays() {
 		// role with APP_ADMIN authority
-		IdmRoleDto r = new IdmRoleDto();
-		r.setName(UUID.randomUUID().toString());
-		r = saveInTransaction(r, roleService);
+		IdmRoleDto r = getHelper().createRole();
 		createTestPolicy(r, IdmBasePermission.ADMIN, IdmGroupPermission.APP);
 		//
 		IdmRoleDto role2 = getTestRole();

@@ -24,6 +24,7 @@ import UuidInfo from './UuidInfo/UuidInfo';
 import RoleInfo from './RoleInfo/RoleInfo';
 import RoleCatalogueInfo from './RoleCatalogueInfo/RoleCatalogueInfo';
 import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
+import IdentityRoleInfo from './IdentityRoleInfo/IdentityRoleInfo';
 import WorkflowProcessInfo from './WorkflowProcessInfo/WorkflowProcessInfo';
 import WorkflowTaskInfo from './WorkflowTaskInfo/WorkflowTaskInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
@@ -39,8 +40,10 @@ import ValidationMessage from './ValidationMessage/ValidationMessage';
 import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
 import DecisionButtons from '../../content/task/DecisionButtons';
 import OperationResult from './OperationResult/OperationResult';
+import ImageDropzone from './ImageDropzone/ImageDropzone';
 import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
+import ImageCropper from './ImageCropper/ImageCropper';
 import LongRunningTask from './LongRunningTask/LongRunningTask';
 import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
 
@@ -73,6 +76,7 @@ const Components = {
   RoleInfo,
   RoleCatalogueInfo,
   IdentityContractInfo,
+  IdentityRoleInfo,
   WorkflowProcessInfo,
   NotificationTemplateInfo,
   ScriptArea,
@@ -87,9 +91,11 @@ const Components = {
   DecisionButtons,
   DynamicTaskDetail,
   OperationResult,
+  ImageDropzone,
   WorkflowTaskInfo,
   TreeTypeInfo,
   TreeNodeInfo,
+  ImageCropper,
   LongRunningTask,
   CreatableSelectBox
 };

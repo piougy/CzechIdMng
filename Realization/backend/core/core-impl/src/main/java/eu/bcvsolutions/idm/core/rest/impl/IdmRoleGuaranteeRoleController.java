@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeRoleFilter;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
@@ -51,7 +51,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmRoleGuaranteeRoleController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmRoleGuaranteeRoleController extends AbstractReadWriteDtoController<IdmRoleGuaranteeRoleDto, IdmRoleGuaranteeRoleFilter> {
+public class IdmRoleGuaranteeRoleController extends AbstractEventableDtoController<IdmRoleGuaranteeRoleDto, IdmRoleGuaranteeRoleFilter> {
 	
 	protected static final String TAG = "Role guarantees - by roles";
 	

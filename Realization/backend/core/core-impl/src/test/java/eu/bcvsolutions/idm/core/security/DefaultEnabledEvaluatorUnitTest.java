@@ -31,13 +31,10 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractVerifiableUnitTest 
 	private static final String MODULE_TWO = "test-module-two";
 	private static final String PROPERTY_ONE = "test-property-one";
 	private static final String PROPERTY_TWO = "test-property-two";
-
-	@Mock
-	private ConfigurationService configurationService;
-
-	@Mock
-	private ModuleService moduleService;
-
+	//
+	@Mock private ConfigurationService configurationService;
+	@Mock private ModuleService moduleService;
+	//
 	private DefaultEnabledEvaluator evaluator;
 
 	@Before

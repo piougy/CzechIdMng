@@ -28,10 +28,10 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
 import eu.bcvsolutions.idm.core.config.domain.OperationResultConverter;
 import eu.bcvsolutions.idm.core.config.domain.StringToStringConverter;
+import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToUuidConverter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
 
 /**
  * Configuration for model mapper. Set specific converters ...
@@ -136,7 +136,7 @@ public class ModelMapperConfig {
 				
 				@Override
 				protected void configure() {
-					this.skip().setAutomaticRole(this.source.getAutomaticRole() != null);
+					this.skip().setAutomaticRole(null);
 				}
 			});
 		}
@@ -154,7 +154,7 @@ public class ModelMapperConfig {
 				}
 			});
 		}
-
+		//
 		return modeler;
 	}
 

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
@@ -42,8 +44,6 @@ import io.swagger.annotations.AuthorizationScope;
 
 /**
  * Role catalogue controller
- * 
- * TODO: use AbstractEventableDtoController - add missing methods, because DefaultReadWriteDtoController is used now :/ => read role catalogues is public now
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -56,7 +56,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operations with role catalogues", 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<IdmRoleCatalogueDto, IdmRoleCatalogueFilter> {
+public class IdmRoleCatalogueController extends AbstractReadWriteDtoController<IdmRoleCatalogueDto, IdmRoleCatalogueFilter> {
 	
 	protected static final String TAG = "Role catalogues";
 	private final IdmRoleCatalogueService service;
@@ -66,6 +66,105 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 		super(service);
 		//
 		this.service = service;
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_READ + "')")
+	@ApiOperation(
+			value = "Search role catalogues (/search/quick alias)", 
+			nickname = "searchRoleCatalogues", 
+			tags = { IdmRoleCatalogueController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_READ, description = "") })
+				})
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
+	}
+
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_READ + "')")
+	@ApiOperation(
+			value = "Search role catalogues", 
+			nickname = "searchQuickRoleCatalogues", 
+			tags = { IdmRoleCatalogueController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_READ, description = "") })
+				})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.findQuick(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete role catalogues (selectbox usage)", 
+			nickname = "autocompleteRoleCatalogues", 
+			tags = { IdmRoleCatalogueController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countRoleCatalogues", 
+			tags = { IdmRoleCatalogueController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
+
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_READ + "')")
+	@ApiOperation(
+			value = "RoleCatalogue detail", 
+			nickname = "getRoleCatalogue", 
+			response = IdmRoleCatalogueDto.class, 
+			tags = { IdmRoleCatalogueController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_READ, description = "") })
+				})
+	public ResponseEntity<?> get(
+			@ApiParam(value = "RoleCatalogue's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
 	
 	@Override
@@ -153,6 +252,29 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 			@ApiParam(value = "Role catalogue's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_READ + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnRoleCatalogue", 
+			tags = { IdmRoleCatalogueController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_AUTOCOMPLETE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_AUTOCOMPLETE, description = "")})
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "RoleCatalogue's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 	
 	@ResponseBody

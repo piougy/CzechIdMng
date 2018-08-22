@@ -1,8 +1,6 @@
 package eu.bcvsolutions.idm;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
@@ -86,22 +83,18 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		securityService.setSystemAuthentication();
 		//
 		try {
-			IdmRoleDto superAdminRole = this.roleService.getByCode(InitApplicationData.ADMIN_ROLE);
 			IdmTreeNodeDto rootOrganization = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1)).getContent().get(0);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		
 				//
 				IdmRoleDto role1 = new IdmRoleDto();
-				role1.setName(TEST_USER_ROLE);
+				role1.setCode(TEST_USER_ROLE);
 				role1 = this.roleService.save(role1);
 				log.info(MessageFormat.format("Test role created [id: {0}]", role1.getId()));
 				//
 				IdmRoleDto role2 = new IdmRoleDto();
-				role2.setName(TEST_CUSTOM_ROLE);
-				List<IdmRoleCompositionDto> subRoles = new ArrayList<>();
-				subRoles.add(new IdmRoleCompositionDto(role2.getId(), superAdminRole.getId()));
-				role2.setSubRoles(subRoles);
+				role2.setCode(TEST_CUSTOM_ROLE);
 				role2 = this.roleService.save(role2);
 				log.info(MessageFormat.format("Test role created [id: {0}]", role2.getId()));
 				//

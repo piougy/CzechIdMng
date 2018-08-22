@@ -86,10 +86,12 @@ BasicModal.defaultProps = {
   bsSize: 'default'
 };
 
-
+/**
+ * FIXME: show loading icon has to be in <h2> tag
+ */
 class BasicModalHeader extends AbstractComponent {
   render() {
-    const { rendered, text, children, help, showLoading, ...others } = this.props;
+    const { rendered, text, children, help, showLoading, icon, ...others } = this.props;
     if (!rendered) {
       return null;
     }
@@ -102,7 +104,10 @@ class BasicModalHeader extends AbstractComponent {
             ||
             text
             ?
-            <h2><span dangerouslySetInnerHTML={{__html: text}}/></h2>
+            <h2>
+              <Icon value={ icon } showLoading={ showLoading } style={{ marginRight: 5 }}/>
+              <span dangerouslySetInnerHTML={{__html: text}}/>
+            </h2>
             :
             null
           }

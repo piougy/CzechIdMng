@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * Role guarantees - by role
  * 
  * @author Radek Tomiška
+ * @since 8.2.0
  *
  */
 public class DefaultIdmRoleGuaranteeRoleService 

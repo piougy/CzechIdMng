@@ -94,6 +94,13 @@ class RoleSelect extends Basic.AbstractFormComponent {
     return this.refs.role.validate();
   }
 
+  /**
+   * Focus input field
+   */
+  focus() {
+    this.refs.role.focus();
+  }
+
   _addRole(index, value, event) {
     //
     if (event) {

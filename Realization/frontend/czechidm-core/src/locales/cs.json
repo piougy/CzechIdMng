@@ -20,6 +20,7 @@
     "date": "DD.MM.YYYY",
     "time": "HH:mm",
     "datetime": "DD.MM.YYYY HH:mm:ss",
+    "datetimemilis": "DD.MM.YYYY HH:mm:ss.SSS",
     "times": "HH:mm:ss",
     "duration": "DD HH:mm:ss"
   },
@@ -90,7 +91,8 @@
     "saveAndNew": "Uložit a přidat další",
     "saving": "Ukládám ...",
     "yes": "Ano",
-    "set": "Nastavit"
+    "set": "Nastavit",
+    "crop": "Ořezat a uložit"
   },
   "filter": {
     "dateFrom": {
@@ -352,7 +354,8 @@
         "label": "$t(component.basic.ProgressBar.processed) {{now}} / {{max}}"
       },
       "Dropzone": {
-        "infoText": "Přetáhněte soubory na tuto plochu a nebo na ní klikněte pro výběr souborů."
+        "infoText": "Přetáhněte soubory na tuto plochu a nebo na ní klikněte pro výběr souborů.",
+        "readOnly": "Náhled není k dispozici."
       },
       "TextField": {
         "confidential": {
@@ -772,6 +775,7 @@
       "IDENTITY": "Uživatelé",
       "IDENTITYROLE": "Přiřazené role uživatelům",
       "IDENTITYCONTRACT": "Pracovně právní vztahy",
+      "PROFILE": "Profil identity (fotka)",
       "CONTRACTSLICE": "Časové řezy",
       "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
       "CONTRACTSLICEGUARANTEE": "Garanti časových řezů PPV",
@@ -1401,6 +1405,11 @@
         },
         "filter": {
           "text": "Název automatické role, nebo role"
+        },
+        "attributeCantBeUsed": {
+          "text": "Atribut [{{name}}] nemůže být použit pro vytvoření nového pravidla",
+          "confidential": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), atribut je označen jako tajný.",
+          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), atribut je typu TEXT."
         }
       },
       "recalculate": {
@@ -1474,6 +1483,25 @@
         "text": {
           "label": "Text",
           "placeholder": "Kód / Název / Popis"
+        }
+      },
+      "detail": {
+        "title": "Základní informace"
+      }
+    },
+    "form-values": {
+      "header": "Hodnoty atributů",
+      "title": "Hodnoty atributů",
+      "filter": {
+        "text": {
+          "label": "Text",
+          "placeholder": "Kód / Název"
+        },
+        "type": {
+          "placeholder": "Vyberte typ atributu"
+        },
+        "value": {
+          "placeholder": "Hodnota atributu"
         }
       }
     },
@@ -1815,8 +1843,18 @@
           "header": "Přidat garanta role"
         },
         "edit": {
-          "header": "{{name}} <small>detail garanta role</small>",
-          "disabled": "Garant lze editovat pouze v základních informacích."
+          "header": "{{name}} <small>detail garanta role</small>"
+        },
+        "role": {
+          "header": "$t(entity.RoleGuaranteeRole._type)",
+          "title": "$t(entity.RoleGuaranteeRole._type)"
+        },
+        "identity": {
+          "header": "$t(entity.RoleGuarantee._type)",
+          "title": "$t(entity.RoleGuarantee._type)"
+        },
+        "save": {
+          "success": "Garant [{{record}}] byl úspěšně uložen."
         }
       },
       "eav": {
@@ -1875,6 +1913,43 @@
         "evaluator": {
           "default": "Bude použit výchozí typ vyhodnocení pro zvolenou agendu. Agenda nepodporuje jiné typy vyhodnocení."
         }
+      },
+      "catalogues": {
+        "header": "Katalog rolí",
+        "title": "Katalog rolí",
+        "create": {
+          "header": "Zařadit roli do katalogu"
+        },
+        "edit": {
+          "header": "{{name}} <small>role zařazena do katalogu</small>"
+        },
+        "save": {
+          "success": "Role byla zařazenena do katalogu [{{record}}]."
+        }
+      },
+      "compositions": {
+        "header": "Business role",
+        "title": "Business role",
+        "create": {
+          "header": "Přidat"
+        },
+        "edit": {
+          "header": "{{name}} <small>detail</small>"
+        },
+        "superior": {
+          "header": "Nadřazené role"
+        },
+        "sub": {
+          "header": "Podřazené role"
+        },
+        "save": {
+          "success": "Business role [{record}] byla úspěšně uložena. Přidělení business role uživatelům proběhne na pozadí."
+        },
+        "action": {
+          "delete": {
+            "success": "Odebrání business role uživatelům proběhne na pozadí. Poté bude business role [{record}] odebrána."
+          }
+        }
       }
     },
     "identity": {
@@ -1894,6 +1969,12 @@
         "externalCode": "$t(entity.Identity.externalCode)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
+        "fileRejected": "$t(entity.Identity.fileRejected)",
+        "fileUploaded": "$t(entity.Identity.fileUploaded)",
+        "deleteImage": {
+          "title": "Smazat fotku",
+          "message": "Opravdu chcete smazat profilovou fotku?"
+        },
         "email": {
           "label": "$t(entity.Identity.email)",
           "placeholder": "Email uživatele"
@@ -1972,6 +2053,7 @@
           "deleteSuccess": "Žádost o změnu oprávnění byla úspěšně smazána."
         },
         "changePermissionRequests": {
+          "label": "Žádosti",
           "header": "Žádosti o změnu oprávnění"
         },
         "conceptPermissionRequests": {
@@ -1989,11 +2071,24 @@
         "delete": {
           "success": "Role [{{role}}] uživatele [{{username}}] byla úspěšně odebrána."
         },
+        "detail": {
+          "directRole": {
+            "subRoles": {
+              "header": "Role přiřazené dle této role"
+            }
+          }
+        },
         "contracts": {
           "empty": {
             "message": "Uživatel nemá žádné platné pracovně právní vztahy, ke kterým by mohly býti přiřazeny role. Přidejte prosím alespoň jeden platný pracovně právní vztah.",
             "button": "Přidat PPV"
           }
+        },
+        "directRoles": {
+          "header": "Napřímo přiřazené role"
+        },
+        "subRoles": {
+          "header": "Role přiřazené dle rolí napřímo"
         }
       },
       "authorities": {
@@ -2556,7 +2651,7 @@
         "resourceName": "$t(content.workflow.definition.resourceName)",
         "fileRejected": "Soubor s definicí workflow musí mít příponu bpmn20.xml ({{name}})!",
         "filesRejected": "Soubor/y s definicí workflow musí mít příponu bpmn20.xml!",
-        "fileUploded": "Definice ({{name}}) byla úspěšně nahrána.",
+        "fileUploaded": "Definice ({{name}}) byla úspěšně nahrána.",
         "id":"$t(content.workflow.definition.id)"
       },
       "history":{
@@ -2684,6 +2779,17 @@
         "detail": {
           "header": "Detail stavu"
         }
+      },
+      "action": {
+        "deleteAll": {
+          "button": {
+            "label": "Smazat události",
+            "title": "Smazat události"
+          },
+          "header": "Smazat uložené události",
+          "message": "Opravdu chcete smazat všechny uložené události a jejich stavy? <strong>Budou smazány všechny události ve všech stavech!</strong>",
+          "success": "Události byly smazány"
+        }
       }
     }
   },
@@ -2695,6 +2801,9 @@
     },
     "name": "Název",
     "created": "Vytvořeno",
+    "modified": {
+      "label": "Naposledy upraveno"
+    },
     "creator": "Vytvořil",
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
@@ -2716,6 +2825,8 @@
       "externe": "Externista",
       "titleBefore": "Titul před",
       "titleAfter": "Titul za",
+      "fileRejected": "Soubor profilové fotky ({{name}}) musí být formát grafického souboru - jpg, png, gif.",
+      "fileUploaded": "Soubor s profilovou fotkou ({{name}}) byl úspěšně nahrán.",
       "state": {
         "label": "Stav",
         "help": "Stav uživatele. Stav je řízen pracovně právními vztahy. Uživatele lze manuálně deaktivovat (akce nad tabulkou uživatelů).",
@@ -2743,8 +2854,26 @@
         "name": "Nadřazená složka v katalogu"
       }
     },
+    "RoleCatalogueRole": {
+      "_type": "Role zařazena do katalogu",
+      "roleCatalogue": {
+        "label": "$t(entity.RoleCatalogue._type)",
+        "help": "Role bude zařazena do vybrané složky katalogu."
+      }
+    },
+    "RoleComposition": {
+      "_type": "Kompozice rolí",
+      "superior": {
+        "label": "Nadřazená role",
+        "help": ""
+      },
+      "sub": {
+        "label": "Podřazená role",
+        "help": ""
+      }
+    },
     "RoleGuarantee": {
-      "_type": "Garant role - identita",
+      "_type": "Garant role - definovaný uživatelem",
       "role": {
         "label": "Role"
       },
@@ -2754,7 +2883,7 @@
       }
     },
     "RoleGuaranteeRole": {
-      "_type": "Garant role - role",
+      "_type": "Garant role - definovaný rolí",
       "role": {
         "label": "Role"
       },
@@ -2843,8 +2972,23 @@
         "label": "Systémový atribut"
        }
     },
+    "FormValue": {
+      "ownerId": {
+        "label": "Vlastník"
+      },
+      "value": {
+        "label": "Hodnota atributu"
+      },
+      "persistentType": {
+        "label": "Typ atributu"
+      }
+    },
     "Role": {
       "_type": "Role",
+      "code": {
+        "label": "Kód",
+        "help": "Technický název role"
+      },
       "name": "Název role",
       "roleType": "Typ role",
       "priority": "Kritičnost",
@@ -2930,6 +3074,7 @@
       }
     },
     "IdentityRole": {
+      "_type": "Přiřazená role",
       "role" : "Název role",
       "identityContract": {
         "label": "PPV",
@@ -2937,13 +3082,18 @@
         "placeholder": "Pracovně právní vztah",
         "help": "Vazba na pozici, organizační či jinou stromovou strukturu"
       },
-      "roleTreeNode": {
+      "automaticRole": {
         "label": "Automatická role",
         "title": "Automatická role",
         "placeholder": "Automatická role",
         "help": "Role vychází z pozice v PPV"
       },
-      "roleCataloguePicker": "Výběr složky z katalogu"
+      "roleCataloguePicker": "Výběr složky z katalogu",
+      "directRole": {
+        "label": "Role napřímo",
+        "title": "Napřímo přidělená role, díky které je přidělena i tato role. Napřímo přidělená role zahrnuje tuto roli.",
+        "help": "$t(entity.IdentityRole.directRole.title)"
+      }
     },
     "IdentityAccount": {
       "attribute": {
@@ -3552,6 +3702,9 @@
         "label": "$t(entity.EntityEventProcessor.eventType)",
         "title": "Typ události, který vyvolal změnu"
       },
+      "rootId": {
+        "label": "Root"
+      },
       "parent": {
         "label": "Vychází z"
       },
@@ -3881,6 +4034,11 @@
         "label": "Odebrat",
         "help": "Odstraní vybrané role.",
         "icon": "fa:trash"
+      },
+      "core-entity-event-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané události.",
+        "icon": "fa:trash"
       }
     },
     "authorization-evaluator": {
@@ -3918,6 +4076,15 @@
             "label": "Definice formuláře",
             "help": "Definice formuláře, které bude nastaveno oprávnění.",
             "placeholder": "Vyberte definici ..."
+          }
+        }
+      },
+      "core-profile-by-identity-evaluator": {
+        "help": "Oprávnění pro profil uživatele (fotka)",
+        "attributes": {
+          "identity-read": {
+            "label": "Dle oprávnění číst uživatele",
+            "help": "Nastaví oprávnění pro profily uživatelů, které aktuálně přihlášený uživatel může číst (například pokud může číst uživatele, může editovat jeho profil)."
           }
         }
       }
@@ -4329,9 +4496,9 @@
       "title": "Nenalezeno",
       "message": "Událost již neexistuje, zpracované události jsou automaticky mazány."
     },
-    "EVENT_DELETE_FAILED_HAS_CHILDREN": {
-      "title": "Událost nelze smazat",
-      "message": "Událost nelze smazat. Na událost navazují další události, odeberte nejprve navazující události. Při odebrání poslední z navazujících událostí bude smazána i tato událost."
+    "IDENTITYIMAGE_WRONG_FORMAT": {
+      "title": "Neplatný formát",
+      "message": "Soubor má správnou příponu, ale není to obrázek. Soubor musí obsahovat obrázek v jednom z těchto formátů: jpg, png, gif."
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Nebyla vyplněna povinná položka",
@@ -4376,6 +4543,10 @@
     "OK": {
       "title": "Operace proběhla úspěšně",
       "message": "Požadavek byl úspěšně dokončen."
+    },
+    "DELETED": {
+      "title": "Záznam označen pro smazání",
+      "message": "Záznam bude smazán."
     },
     "AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE": {
       "title": "Není vyplněn atribut 'groupPermission'",
@@ -4632,6 +4803,26 @@
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "message": "Role <strong>{{role}}</strong> obsahuje  <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele. <strong>Před smazáním musíte nejdříve odstranit všechny vazby na uživatele.</strong>",
       "title": ""
+    },
+    "ROLE_COMPOSITION_ASSIGN_ROLE_FAILED": {
+      "title": "Role nebyla přiřazena",
+      "message": "Role [{{role}}] nebyla přiřazena."
+    },
+    "ROLE_COMPOSITION_ASSIGNED_ROLE_REMOVAL_FAILED": {
+      "title": "Role nebyla odebrána",
+      "message": "Přiřažená Role [{{identityRole}}] nebyla odebrána."
+    },
+    "ROLE_DELETE_FAILED_HAS_COMPOSITION": {
+      "title": "Role nelze smazat",
+      "message": "Role [{{role}}] nelze smazat, protože je používána v definici business rolí. Odeberte definice business rolí."
+    },
+    "ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING": {
+      "title": "Business role je využívána jiným procesem",
+      "message": "Business role [{{roleCompositionId}}] je využívána souběžně úlohou [{{taskId}}], počkejta na dokončení."
+    },
+    "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
+      "title": "Business role je mazána jiným procesem",
+      "message": "Business role [{{roleCompositionId}}] je mazána souběžnou úlohou [{{taskId}}]."
     }
   },
   "validationError": {

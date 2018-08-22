@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 @Entity
 @Table(name = "idm_entity_state", indexes = {
 		@Index(name = "idx_idm_entity_state_o_id", columnList = "owner_id"),
+		@Index(name = "idx_idm_entity_state_so_id", columnList = "super_owner_id"),
 		@Index(name = "idx_idm_entity_state_o_type", columnList = "owner_type"),
 		@Index(name = "idx_idm_entity_state_event", columnList = "event_id")})
 public class IdmEntityState extends AbstractEntity {
@@ -47,6 +48,9 @@ public class IdmEntityState extends AbstractEntity {
 	@NotNull
 	@Column(name = "owner_id", length = 16, nullable = false)
 	private UUID ownerId;
+	
+	@Column(name = "super_owner_id", length = 16)
+	private UUID superOwnerId;
 	
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "event_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
@@ -114,6 +118,14 @@ public class IdmEntityState extends AbstractEntity {
 
 	public void setOwnerId(UUID ownerId) {
 		this.ownerId = ownerId;
+	}
+	
+	public UUID getSuperOwnerId() {
+		return superOwnerId;
+	}
+	
+	public void setSuperOwnerId(UUID superOwnerId) {
+		this.superOwnerId = superOwnerId;
 	}
 
 	public Integer getProcessedOrder() {

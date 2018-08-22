@@ -1,16 +1,12 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Index;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
@@ -39,12 +35,19 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
  */
 @Entity
 @Table(name = "idm_role", indexes = { 
-		@Index(name = "ux_idm_role_name", columnList = "name", unique = true),
+		@Index(name = "ux_idm_role_code", columnList = "code", unique = true),
+		@Index(name = "idx_idm_role_name", columnList = "name"),
 		@Index(name = "idx_idm_role_external_id", columnList = "external_id")})
 public class IdmRole extends AbstractEntity implements Codeable, FormableEntity, Disableable, ExternalIdentifiable {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
+	@Audited
+	@NotEmpty
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "code", length = DefaultFieldLengths.NAME, nullable = false)
+	private String code;
+	
 	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
@@ -79,30 +82,6 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
-
-	@Deprecated // @since 8.2.0 - will be removed in 9 - business role redesign
-	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )	
-	private List<IdmRoleComposition> subRoles;
-	
-	@Deprecated // @since 8.2.0 - will be removed in 9 - business role redesign
-	@OneToMany(mappedBy = "sub")
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )	
-	private List<IdmRoleComposition> superiorRoles;
-
-	@Deprecated // @since 8.2.0 - use solo endpoint
-	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )	
-	private List<IdmRoleGuarantee> guarantees;
-
-	@Deprecated // @since 8.2.0 - use solo endpoint
-	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )	
-	private List<IdmRoleCatalogueRole> roleCatalogues;
 	
 	@Audited
 	@NotNull
@@ -120,35 +99,20 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	public IdmRole(UUID id) {
 		super(id);
 	}
-
-	public List<IdmRoleCatalogueRole> getRoleCatalogues() {
-		if (roleCatalogues == null) {
-			roleCatalogues = new ArrayList<>();
-		}
-		return roleCatalogues;
+	
+	@Override
+	public String getCode() {
+		return code;
 	}
-
-	public void setRoleCatalogues(List<IdmRoleCatalogueRole> roleCatalogues) {
-		if (this.roleCatalogues == null) {
-	        this.roleCatalogues = roleCatalogues;
-	    } else {
-	        this.roleCatalogues.clear();
-	        if(roleCatalogues != null){
-	        	this.roleCatalogues.addAll(roleCatalogues);
-	        }
-	    }
+	
+	public void setCode(String code) {
+		this.code = code;
 	}
-
+	
 	public String getName() {
 		return name;
 	}
 	
-	@Override
-	@JsonIgnore
-	public String getCode() {
-		return getName();
-	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -159,55 +123,6 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	
 	public RoleType getRoleType() {
 		return roleType;
-	}
-	
-	public List<IdmRoleComposition> getSubRoles() {
-		if (subRoles == null) {
-			subRoles = new ArrayList<>();
-		}
-		return subRoles;
-	}
-	
-	public void setSubRoles(List<IdmRoleComposition> subRoles) {
-		// workaround - orphan removal needs to preserve original list reference
-		if (this.subRoles == null) {
-	        this.subRoles = subRoles;
-	    } else {
-	        this.subRoles.clear();
-	        if(subRoles != null){
-	        	this.subRoles.addAll(subRoles);
-	        }
-	    }
-	}
-	
-	public List<IdmRoleGuarantee> getGuarantees() {
-		if (guarantees == null) {
-			guarantees = new ArrayList<>();
-		}
-		return guarantees;
-	}
-
-	public void setGuarantees(List<IdmRoleGuarantee> guarantees) {
-		// workaround - orphan removal needs to preserve original list reference
-		if (this.guarantees == null) {
-	        this.guarantees = guarantees;
-	    } else {
-	        this.guarantees.clear();
-	        if(guarantees != null){
-	        	this.guarantees.addAll(guarantees);
-	        }
-	    }
-	}
-
-	public List<IdmRoleComposition> getSuperiorRoles() {
-		if (superiorRoles == null) {
-			superiorRoles = new ArrayList<>();
-		}
-		return superiorRoles;
-	}
-	
-	public void setSuperiorRoles(List<IdmRoleComposition> superiorRoles) {
-		this.superiorRoles = superiorRoles;
 	}
 	
 	public void setDescription(String description) {

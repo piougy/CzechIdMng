@@ -68,9 +68,13 @@ class SortHeaderCell extends AbstractComponent {
 
 SortHeaderCell.propTypes = {
   /**
-   * Property for sorting
+   * Property for header and sorting
    */
-  property: PropTypes.string.isRequired,
+  property: PropTypes.string,
+  /**
+   * Property for sorting - higher priority than property
+   */
+  sortProperty: PropTypes.string,
   /**
    * Column header text - if isn't set, then property is shown
    */

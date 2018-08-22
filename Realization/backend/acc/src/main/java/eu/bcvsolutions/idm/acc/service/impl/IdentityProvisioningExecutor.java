@@ -163,7 +163,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 				IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
 				SysSystemDto systemDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system);
 				throw new ProvisioningException(AccResultCode.PROVISIONING_DUPLICATE_ROLE_MAPPING,
-						ImmutableMap.of("role", roleDto.getName(), "system",
+						ImmutableMap.of("role", roleDto.getCode(), "system",
 								systemDto.getName(), "entityType", entityType));
 			}
 			if (!roleSystems.isEmpty()) {

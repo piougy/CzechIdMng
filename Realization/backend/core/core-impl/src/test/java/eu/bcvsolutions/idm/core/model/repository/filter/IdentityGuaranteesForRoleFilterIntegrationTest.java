@@ -62,7 +62,7 @@ public class IdentityGuaranteesForRoleFilterIntegrationTest extends AbstractInte
 		getHelper().createIdentityRole(identityThree, roleGuarantee);
 		getHelper().createIdentityRole(identityTwo, role);
 		//
-		List<IdmIdentityDto> identities = identityService.findAllGuaranteesByRoleId(role.getId());
+		List<IdmIdentityDto> identities = identityService.findGuaranteesByRoleId(role.getId(), null).getContent();
 		//
 		Assert.assertEquals(2, identities.size());
 		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityOne.getId())));

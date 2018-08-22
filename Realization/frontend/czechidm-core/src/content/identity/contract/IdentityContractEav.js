@@ -37,7 +37,7 @@ class IdentityContractEav extends Basic.AbstractContent {
         formableManager={manager}
         entityId={entityId}
         contentKey={this.getContentKey()}
-        showSaveButton={ manager.canSave(_entity, _permissions) }/>
+        showSaveButton={ manager.canSaveContract(_entity, _permissions) }/>
     );
   }
 }

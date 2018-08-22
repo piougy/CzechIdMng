@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.GenericTypeResolver;
@@ -24,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -93,6 +95,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		if (dto != null && entity != null) {
 			dto.setOwnerId(entity.getOwner().getId());
 			dto.setOwnerType(entity.getOwner().getClass());
+			// TODO: put owner to embedded => depends on #978
 		}
 		return dto;
 	}
@@ -190,22 +193,42 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	}
 	
 	@Override
-	protected List<Predicate> toPredicates(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-			IdmFormValueFilter<O> filter) {
+	protected List<Predicate> toPredicates(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder,IdmFormValueFilter<O> filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
-		if (filter.getDefinitionId() != null) {
-			predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.id), filter.getDefinitionId()));
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
+			predicates.add(builder.or(
+					builder.like(builder.lower(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.code)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.name)), "%" + text + "%")
+			));
 		}
 		//
-		if (filter.getAttributeId() != null) {
-			predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.id), filter.getAttributeId()));
+		PersistentType persistentType = filter.getPersistentType();
+		if (persistentType != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.persistentType), persistentType));
 		}
 		//
-		if (filter.getOwner() != null) {
+		UUID definitionId = filter.getDefinitionId();
+		if (definitionId != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.id), definitionId));
+		}
+		//
+		UUID attributeId = filter.getAttributeId();
+		if (attributeId != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.id), attributeId));
+		}
+		//
+		O owner = filter.getOwner();
+		if (owner != null) {
 			// by id - owner doesn't need to be persisted
-			predicates.add(builder.equal(root.get(FormValueService.PROPERTY_OWNER).get(BaseEntity.PROPERTY_ID), filter.getOwner().getId()));
+			Serializable ownerId = owner.getId();
+			if (ownerId != null) {
+				predicates.add(builder.equal(root.get(FormValueService.PROPERTY_OWNER).get(BaseEntity.PROPERTY_ID), ownerId));
+			}
 		}
+		
 		//
 		return predicates;
 	}

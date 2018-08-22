@@ -20,6 +20,7 @@
     "date": "DD.MM.YYYY",
     "time": "HH:mm",
     "datetime": "DD.MM.YYYY HH:mm:ss",
+    "datetimemilis": "DD.MM.YYYY HH:mm:ss.SSS",
     "times": "HH:mm:ss",
     "duration": "DD HH:mm:ss"
   },
@@ -90,7 +91,8 @@
     "saveAndNew": "Save and add another",
     "saving": "Saving",
     "yes": "Yes",
-    "set": "Set"
+    "set": "Set",
+    "crop": "Crop & save"
   },
   "filter": {
     "dateFrom": {
@@ -322,7 +324,8 @@
         "label": "$t(component.basic.ProgressBar.processed) {{now}} / {{max}}"
       },
       "Dropzone": {
-        "infoText": "Drag files here, or click to select files."
+        "infoText": "Drag files here, or click to select files.",
+        "readOnly": "Preview is not available."
       },
       "TextField": {
         "confidential": {
@@ -741,6 +744,7 @@
       "IDENTITY": "Users",
       "IDENTITYROLE": "Assigned roles",
       "IDENTITYCONTRACT": "Contracted positions",
+      "PROFILE": "User profile (picture)",
       "CONTRACTSLICE": "Time slices",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
       "CONTRACTSLICEGUARANTEE": "Time slices 's guarantees",
@@ -1360,6 +1364,11 @@
         },
         "filter": {
           "text": "Name of automatic role or role name"
+        },
+        "attributeCantBeUsed": {
+          "text": "Attribute [{{name}}] can't be used for create new rule",
+          "confidential": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute is marked as confidential.",
+          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute has persistent type TEXT."
         }
       },
       "recalculate": {
@@ -1433,6 +1442,25 @@
         "text": {
           "label": "Text",
           "placeholder": "Code / Name / Description"
+        }
+      },
+      "detail": {
+        "title": "Basic information"
+      }
+    },
+    "form-values": {
+      "header": "Attribute's values",
+      "title": "Attribute's values",
+      "filter": {
+        "text": {
+          "label": "Text",
+          "placeholder": "Code / Name"
+        },
+        "type": {
+          "placeholder": "Select attribute type"
+        },
+        "value": {
+          "placeholder": "Attribute value"
         }
       }
     },
@@ -1774,8 +1802,18 @@
           "header": "Create role authorizer"
         },
         "edit": {
-          "header": "{{name}} <small>role authorizer detail</small>",
-          "disabled": "Authorizer can be edited directly from basic information tab."
+          "header": "{{name}} <small>role authorizer detail</small>"
+        },
+        "role": {
+          "header": "$t(entity.RoleGuaranteeRole._type)",
+          "title": "$t(entity.RoleGuaranteeRole._type)"
+        },
+        "identity": {
+          "header": "$t(entity.RoleGuarantee._type)",
+          "title": "$t(entity.RoleGuarantee._type)"
+        },
+        "save": {
+          "success": "Authorizer [{{record}}] successfully saved."
         }
       },
       "eav": {
@@ -1831,6 +1869,43 @@
         "evaluator": {
           "default": "Default evaluator will be used. Agenda doesn't support other evaluator types."
         }
+      },
+      "catalogues": {
+        "header": "Role catalogue",
+        "title": "Role catalogue",
+        "create": {
+          "header": "Assign role to catalogue"
+        },
+        "edit": {
+          "header": "{{name}} <small>role asigned to catalogue</small>"
+        },
+        "save": {
+          "success": "Role was assigned to catalogue [{{record}}]."
+        }
+      },
+      "compositions": {
+        "header": "Business role",
+        "title": "Business role",
+        "create": {
+          "header": "New"
+        },
+        "edit": {
+          "header": "{{name}} <small>detail</small>"
+        },
+        "superior": {
+          "header": "Superior roles"
+        },
+        "sub": {
+          "header": "Sub roles"
+        },
+        "save": {
+          "success": "Business role [{record}] successfully saved. Role will be assigned to the users on the background asynchronously."
+        },
+        "action": {
+          "delete": {
+            "success": "Business role [{record}] successfully removed. Assigned role will be removed from the users on the background asynchronously."
+          }
+        }
       }
     },
     "identity": {
@@ -1850,6 +1925,12 @@
         "externalCode": "$t(entity.Identity.externalCode)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
+        "fileRejected": "$t(entity.Identity.fileRejected)",
+        "fileUploaded": "$t(entity.Identity.fileUploaded)",
+        "deleteImage": {
+          "title": "Delete profile image",
+          "message": "Do you really want to delete profile image?"
+        },
         "email": {
           "label": "$t(entity.Identity.email)",
           "placeholder": "Users e-mail"
@@ -1928,6 +2009,7 @@
           "deleteSuccess": "Request successfully deleted."
         },
         "changePermissionRequests": {
+          "label": "Requests",
           "header": "Requests for authorization change"
         },
         "conceptPermissionRequests": {
@@ -1945,11 +2027,24 @@
         "delete": {
           "success": "Role [{{role}}] of user [{{username}}] successfully removed."
         },
+        "detail": {
+          "directRole": {
+            "subRoles": {
+              "header": "Roles assigned by direct role"
+            }
+          }
+        },
         "contracts": {
           "empty": {
             "message": "User doesn't have any valid contracted positions, on which you can assign roles. Please, add valid contracted position.",
             "button": "Add contracted position"
           }
+        },
+        "directRoles": {
+          "header": "Directly assigned roles"
+        },
+        "subRoles": {
+          "header": "Roles assigned by direct roles"
         }
       },
       "authorities": {
@@ -2512,7 +2607,7 @@
         "resourceName": "$t(content.workflow.definition.resourceName)",
         "fileRejected": "Workflow definition file must be of type bpmn20.xml ({{name}})!",
         "filesRejected": "Workflow definition types must be of type bpmn20.xml!",
-        "fileUploded": "Workflow definition ({{name}}) was successfully uploaded.",
+        "fileUploaded": "Workflow definition ({{name}}) was successfully uploaded.",
         "id":"$t(content.workflow.definition.id)"
       },
       "history":{
@@ -2640,6 +2735,17 @@
         "detail": {
           "header": "State detail"
         }
+      },
+      "action": {
+        "deleteAll": {
+          "button": {
+            "label": "Delete all entity events",
+            "title": "Delete all entity events"
+          },
+          "header": "Delete entity events",
+          "message": "Do you want to delete all persisted entity events and their states? <strong>All entity events in all states will be deleted!</strong>",
+          "success": "Entity events successfully deleted."
+        }
       }
     }
   },
@@ -2651,6 +2757,9 @@
     },
     "name": "Name",
     "created": "Created",
+    "modified": {
+      "label": "Last changed"
+    },
     "creator": "Creator",
     "validFrom": "Valid from",
     "validTill": "Valid till",
@@ -2672,6 +2781,8 @@
       "externe": "External contractor",
       "titleBefore": "Titles before",
       "titleAfter": "Titles after",
+      "fileRejected": "Profile picture file ({{name}}) must be of image type - jpg, png, gif.",
+      "fileUploaded": "Profile picture ({{name}}) was successfully uploaded.",
       "state": {
         "label": "State",
         "help": "Identity state. It's controlled by contracted positions or can be manually deactivated from the table actions.",
@@ -2699,8 +2810,26 @@
         "name": "Parent folder in catalog"
       }
     },
+    "RoleCatalogueRole": {
+      "_type": "Role assigned into catalogue",
+      "roleCatalogue": {
+        "label": "$t(entity.RoleCatalogue._type)",
+        "help": "Role will be in selected catalogue folder."
+      }
+    },
+    "RoleComposition": {
+      "_type": "Role composition",
+      "superior": {
+        "label": "Superior role",
+        "help": ""
+      },
+      "sub": {
+        "label": "Sub role",
+        "help": ""
+      }
+    },
     "RoleGuarantee": {
-      "_type": "Role authorizer - identity",
+      "_type": "Role authorizer - defined by identity",
       "role": {
         "label": "Role"
       },
@@ -2710,7 +2839,7 @@
       }
     },
     "RoleGuaranteeRole": {
-      "_type": "Role authorizer- role",
+      "_type": "Role authorizer - defined by role",
       "role": {
         "label": "Role"
       },
@@ -2799,8 +2928,23 @@
         "label": "System attribute"
       }
     },
+    "FormValue": {
+      "ownerId": {
+        "label": "Owner"
+      },
+      "value": {
+        "label": "Attribute's value"
+      },
+      "persistentType": {
+        "label": "Attribute type"
+      }
+    },
     "Role": {
       "_type": "Role",
+      "code": {
+        "label": "Code",
+        "help": "Technical name"
+      },
       "name": "Name",
       "roleType": "Type",
       "priority": "Priority",
@@ -2886,6 +3030,7 @@
       }
     },
     "IdentityRole": {
+      "_type": "Assigned role",
       "role" : "Role",
       "identityContract": {
         "label": "Contracted position",
@@ -2893,13 +3038,18 @@
         "placeholder": "Contracted position",
         "help": "Connection to organization or another tree structure"
       },
-      "roleTreeNode": {
+      "automaticRole": {
         "label": "Automatic role",
         "title": "Automatic role",
         "placeholder": "Automatic role",
         "help": "Role from contracted position"
       },
-      "roleCataloguePicker": "Select a folder from the catalog"
+      "roleCataloguePicker": "Select a folder from the catalog",
+      "directRole": {
+        "label": "Direct role",
+        "title": "Directly assigned role, which assigned this role as well (business role).",
+        "help": "$t(entity.IdentityRole.directRole.title)"
+      }
     },
     "IdentityAccount": {
       "attribute": {
@@ -3509,6 +3659,9 @@
         "label": "$t(entity.EntityEventProcessor.eventType)",
         "title": "Event type"
       },
+      "rootId": {
+        "label": "Root"
+      },
       "parent": {
         "label": "Parent event"
       },
@@ -3838,6 +3991,11 @@
         "label": "Remove",
         "help": "Remove selected roles.",
         "icon": "fa:trash"
+      },
+      "core-entity-event-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected events.",
+        "icon": "fa:trash"
       }
     },
     "authorization-evaluator": {
@@ -3875,6 +4033,15 @@
             "label": "Form definition",
             "help": "",
             "placeholder": "Select form definition ..."
+          }
+        }
+      },
+      "core-profile-by-identity-evaluator": {
+        "help": "Permissions to identity profile (picture)",
+        "attributes": {
+          "identity-read": {
+            "label": "By permission to read user",
+            "help": "Add permission to profile of users, which can be read by the logged user (for example, when logged user can read identity, then he can update her profile)."
           }
         }
       }
@@ -4286,9 +4453,9 @@
       "title": "Not found",
       "message": "Event does not exist, processed events are deleted automatically."
     },
-    "EVENT_DELETE_FAILED_HAS_CHILDREN": {
-      "title": "Event cannot be deleted",
-      "message": "Event cannot be deleted. Delete events at first, where this event is set as parent."
+    "IDENTITYIMAGE_WRONG_FORMAT": {
+      "title": "Wrong format",
+      "message": "File has got image suffix but It's not an image. File should contains image in one of this formats: jpg, png, gif"
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Required property wasn't filled",
@@ -4333,6 +4500,10 @@
     "OK": {
       "title": "Operation was successful",
       "message": "Request was successfully completed."
+    },
+    "DELETED": {
+      "title": "Record deleted",
+      "message": "Record will be deleted."
     },
     "AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE": {
       "title": "Missing attribute 'groupPermission'",
@@ -4589,6 +4760,26 @@
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "message": "Role <strong>{{role}}</strong> contains  <strong class=\"highlight\">{{count}}</strong> user relationships. <strong>Remove user relationships befor role delete.</strong>",
       "title": ""
+    },
+    "ROLE_COMPOSITION_ASSIGN_ROLE_FAILED": {
+      "title": "Role wasn't assigned",
+      "message": "Role [{{role}}] wasn't assigned."
+    },
+    "ROLE_COMPOSITION_ASSIGNED_ROLE_REMOVAL_FAILED": {
+      "title": "Role wasn't removed",
+      "message": "Assigned role [{{identityRole}}] wasn't removed."
+    },
+    "ROLE_DELETE_FAILED_HAS_COMPOSITION": {
+      "title": "Role nelze smazat",
+      "message": "Role [{{role}}] can not be deleted, because is used in the business role definition. Remove business role difinition at first."
+    },
+    "ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING": {
+      "title": "Business role is used by concurrent task",
+      "message": "Business role [{{autoRole}}] is used by concurrent task [{{task}}], wait for task completion."
+    },
+    "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
+      "title": "Role is removed by concurrent task",
+      "message": "Business role [{{autoRole}}] is removed by concurrent task [{{task}}]."
     }
   },
   "validationError": {

@@ -43,4 +43,11 @@ public interface IdmEntityEventService extends
 			DateTime executeDate,
 			PriorityType priority,
 			Pageable pageable);
+	
+	/**
+	 * Delete all persisted events and their states.
+	 * 
+	 * @since 8.1.4
+	 */
+	void deleteAll();
 }

@@ -132,21 +132,21 @@ class NodeDetail extends Basic.AbstractContent {
                   readOnly/>
 
                 <Basic.Row>
-                  <div className="col-lg-2">
+                  <Basic.Col lg={ 2 }>
                     <Basic.TextField
                       ref="code"
                       label={this.i18n('entity.TreeType.code')}
                       required
                       max={255}/>
-                  </div>
-                  <div className="col-lg-10">
+                  </Basic.Col>
+                  <Basic.Col lg={ 10 }>
                     <Basic.TextField
                       ref="name"
                       label={this.i18n('entity.TreeNode.name')}
                       required
                       min={0}
                       max={255}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
 
                 <Basic.SelectBox

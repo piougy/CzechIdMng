@@ -11,9 +11,9 @@ import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EntityEventEvent.EntityEventType;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.event.EntityEventEvent.EntityEventType;
 import eu.bcvsolutions.idm.core.api.exception.EventContentDeletedException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 
@@ -45,11 +45,12 @@ public class EntityEventExecuteProcessor extends CoreEventProcessor<IdmEntityEve
 	public EventResult<IdmEntityEventDto> process(EntityEvent<IdmEntityEventDto> event) {
 		IdmEntityEventDto entityEvent = event.getContent();
 		//
-		EntityEvent<Identifiable> resurectedEvent;
+		EntityEvent<? extends Identifiable> resurectedEvent;
 		try {
 			resurectedEvent = entityEventManager.toEvent(entityEvent);
 			// execute
-			EventContext<Identifiable> context = entityEventManager.process(resurectedEvent);
+			EventContext<? extends Identifiable> context = entityEventManager.process(resurectedEvent);
+			entityEvent.setContent(context.getContent()); // use current processed content
 			entityEvent.setProcessedOrder(context.getProcessedOrder());
 			entityEvent.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
 		} catch (EventContentDeletedException ex) {

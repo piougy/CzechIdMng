@@ -1,7 +1,10 @@
-import { PropTypes} from 'react';
+import React, { PropTypes} from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
+import classNames from 'classnames';
 //
-import { IdentityManager } from '../../../redux/';
+import * as Basic from '../../basic';
+import { IdentityManager, DataManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new IdentityManager();
@@ -19,6 +22,14 @@ export class IdentityInfo extends AbstractEntityInfo {
 
   getManager() {
     return manager;
+  }
+
+  onEnter() {
+    super.onEnter();
+    //
+    if (this.getEntityId()) {
+      this.context.store.dispatch(this.getManager().downloadProfileImage(this.getEntityId()));
+    }
   }
 
   /**
@@ -71,7 +82,7 @@ export class IdentityInfo extends AbstractEntityInfo {
     if (this.isDisabled(entity)) {
       return 'fa:user-times';
     }
-    return 'fa:user';
+    return 'user';
   }
 
   /**
@@ -79,7 +90,8 @@ export class IdentityInfo extends AbstractEntityInfo {
    * Renders nicelabel used in text and link face
    */
   _renderNiceLabel() {
-    const{showOnlyUsername} = this.props;
+    const{ showOnlyUsername } = this.props;
+    //
     if (!showOnlyUsername) {
       return super._renderNiceLabel();
     }
@@ -90,23 +102,102 @@ export class IdentityInfo extends AbstractEntityInfo {
     return '';
   }
 
+  renderImage(entity) {
+    const { _imageLoading, _imageUrl } = this.props;
+    //
+    let content = null;
+    if (_imageLoading) {
+      content = (
+        <div className="text-center img-thumbnail img-loading" style={{ backgroundColor: '#DFF0D8' }}>
+          <Basic.Icon
+            value="fa:refresh"
+            showLoading
+            color={ '#FFFFFF' }
+            />
+        </div>
+      );
+    } else if (_imageUrl) {
+      content = (
+        <img src={ _imageUrl } className="img-thumbnail" />
+      );
+    } else {
+      content = (
+        <Basic.Icon
+          value="user"
+          className="text-center img-thumbnail img-none"
+          style={{ backgroundColor: this.isDisabled(entity) ? '#FCF8E3' : '#DFF0D8' }}
+          color={ '#FFFFFF' }
+          />
+      );
+    }
+    //
+    return (
+      <div className="image-wrapper">
+        { content }
+      </div>
+    );
+  }
 
-  /**
-   * Returns popover info content
-   *
-   * @param  {array} table data
-   */
-  getPopoverContent(entity) {
-    return [
-      {
-        label: this.i18n('entity.Identity.email'),
-        value: entity.email
-      },
-      {
-        label: this.i18n('entity.Identity.phone'),
-        value: entity.phone
-      }
-    ];
+  renderRow(icon, entityAttr) {
+    if (entityAttr) {
+      return (
+        <tr>
+          <td>
+            <Basic.Icon value={ icon } style={{ marginRight: 5 }} />
+            { entityAttr }
+          </td>
+        </tr>
+      );
+    }
+  }
+
+  _renderFull() {
+    const { className, style } = this.props;
+    const _entity = this.getEntity();
+    //
+    const panelClassNames = classNames(
+      'abstract-entity-info',
+      'identity-info',
+      { 'panel-success': _entity && !this.isDisabled(_entity) },
+      { 'panel-warning': _entity && this.isDisabled(_entity) },
+      className
+    );
+    //
+    return (
+      <Basic.Panel className={panelClassNames} style={style}>
+        <Basic.PanelHeader>
+          <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
+          { this.getPopoverTitle(_entity) }
+          {
+            !this.isDisabled(_entity)
+            ||
+            <div className="pull-right">
+              <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
+            </div>
+          }
+        </Basic.PanelHeader>
+        <div className="image-field-container">
+          <div className="image-col">
+            { this.renderImage(_entity) }
+          </div>
+          <div className="field-col">
+            <table className="table table-condensed">
+              <tbody>
+                { this.renderRow('fa:envelope', _entity.email) }
+                { this.renderRow('fa:phone', _entity.phone) }
+                { this.renderRow(null, (
+                  <Link to={ this.getLink() }>
+                    <Basic.Icon value="fa:angle-double-right"/>
+                    {' '}
+                    {this.i18n('component.advanced.EntityInfo.link.detail.label')}
+                  </Link>
+                )) }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Basic.Panel>
+    );
   }
 }
 
@@ -130,23 +221,33 @@ IdentityInfo.propTypes = {
   showOnlyUsername: PropTypes.bool,
   //
   _showLoading: PropTypes.bool,
-  _permissions: PropTypes.arrayOf(PropTypes.string)
+  _permissions: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.arrayOf(PropTypes.string)
+  ]),
+  _imageLoading: PropTypes.bool,
 };
 IdentityInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
   entity: null,
   face: 'full',
   showOnlyUsername: false,
-  _showLoading: true
+  _showLoading: true,
+  _imageLoading: true,
+  _imageUrl: null
 };
 
 function select(state, component) {
   const identifier = component.entityIdentifier || component.username;
   const identity = component.entity || manager.getEntity(state, identifier);
+  const profileUiKey = manager.resolveProfileUiKey(identifier);
+  const profile = DataManager.getData(state, profileUiKey);
   //
   return {
     _entity: identity,
     _showLoading: manager.isShowLoading(state, null, identifier),
+    _imageLoading: DataManager.isShowLoading(state, profileUiKey),
+    _imageUrl: profile ? profile.imageUrl : null,
     userContext: state.security.userContext, // is needed for refresh after login
     _permissions: manager.getPermissions(state, null, identity)
   };

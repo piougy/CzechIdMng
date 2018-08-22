@@ -115,4 +115,13 @@ public interface SysProvisioningOperationService extends ReadWriteDtoService<Sys
 	 * @return
 	 */
 	SysSystemEntityDto getByProvisioningOperation(SysProvisioningOperationDto operation);
+	
+	/**
+	 * Delete all operations for the given system. Archive is not used, delete operations directly.
+	 * 
+	 * @param systemId
+	 * @return
+	 * @since 8.1.4
+	 */
+	long deleteOperations(UUID systemId);
 }

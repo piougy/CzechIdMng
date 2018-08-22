@@ -95,7 +95,7 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			//
 			// skip already assigned automatic roles
 			for (IdmIdentityRoleDto roleByContract : allByContract) {
-				if (ObjectUtils.equals(roleByContract.getRoleTreeNode(), getRoleTreeNode().getId())) {
+				if (ObjectUtils.equals(roleByContract.getAutomaticRole(), getRoleTreeNode().getId())) {
 					IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
 					IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role);
 					return Optional.of(new OperationResult

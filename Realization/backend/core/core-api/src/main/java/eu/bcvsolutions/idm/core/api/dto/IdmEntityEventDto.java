@@ -30,6 +30,7 @@ public class IdmEntityEventDto extends AbstractDto {
 	private String ownerType;
 	@NotNull
 	private UUID ownerId;
+	private UUID superOwnerId;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String eventType; // persisted event type
 	private ConfigurationMap properties;
@@ -43,6 +44,7 @@ public class IdmEntityEventDto extends AbstractDto {
 	@Embedded(dtoClass = IdmEntityEventDto.class)
 	private UUID parent;
 	private String parentEventType; // parent event type
+	private UUID rootId;
 	@NotNull
 	private String instanceId;
 	private OperationResultDto result;
@@ -68,6 +70,14 @@ public class IdmEntityEventDto extends AbstractDto {
 
 	public void setOwnerId(UUID ownerId) {
 		this.ownerId = ownerId;
+	}
+	
+	public UUID getSuperOwnerId() {
+		return superOwnerId;
+	}
+	
+	public void setSuperOwnerId(UUID superOwnerId) {
+		this.superOwnerId = superOwnerId;
 	}
 
 	public DateTime getExecuteDate() {
@@ -175,5 +185,13 @@ public class IdmEntityEventDto extends AbstractDto {
 	
 	public void setPriority(PriorityType priority) {
 		this.priority = priority;
+	}
+	
+	public UUID getRootId() {
+		return rootId;
+	}
+	
+	public void setRootId(UUID rootId) {
+		this.rootId = rootId;
 	}
 }

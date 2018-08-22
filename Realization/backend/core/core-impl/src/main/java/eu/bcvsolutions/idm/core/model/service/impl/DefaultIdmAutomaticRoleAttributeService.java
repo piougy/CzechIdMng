@@ -211,7 +211,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void removeAutomaticRoles(IdmIdentityRoleDto identityRole) {
-		Assert.notNull(identityRole.getRoleTreeNode());
+		Assert.notNull(identityRole.getAutomaticRole());
 		// skip check granted authorities
 		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole);
 		event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
@@ -252,7 +252,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
 			// create identity role directly
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setRoleTreeNode(autoRole.getId());
+			identityRole.setAutomaticRole(autoRole.getId());
 			identityRole.setIdentityContract(contract.getId());
 			identityRole.setRole(autoRole.getRole());
 			identityRole.setValidFrom(contract.getValidFrom());
@@ -334,10 +334,13 @@ public class DefaultIdmAutomaticRoleAttributeService
 			predicates.add(builder.equal(root.get(IdmAutomaticRoleAttribute_.role).get(AbstractEntity_.id), filter.getRoleId()));
 		}
 		//
-		if (StringUtils.isNotEmpty(filter.getText())) {
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
 			predicates.add(builder.or(
-				builder.like(builder.lower(root.get(IdmAutomaticRoleAttribute_.name)), "%" + filter.getText().toLowerCase() + "%"),
-				builder.like(builder.lower(root.get(IdmAutomaticRoleAttribute_.role).get(IdmRole_.name)), "%" + filter.getText().toLowerCase() + "%")
+				builder.like(builder.lower(root.get(IdmAutomaticRoleAttribute_.name)), "%" + text + "%"),
+				builder.like(builder.lower(root.get(IdmAutomaticRoleAttribute_.role).get(IdmRole_.name)), "%" + text + "%"),
+				builder.like(builder.lower(root.get(IdmAutomaticRoleAttribute_.role).get(IdmRole_.code)), "%" + text + "%")
 			));
 		}
 		//

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -22,7 +23,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
-import eu.bcvsolutions.idm.core.api.exception.EventDeleteFailedHasChildrenException;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
@@ -30,6 +30,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent_;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmEntityStateRepository;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * CRUD for entity changes
@@ -41,10 +43,13 @@ public class DefaultIdmEntityEventService
 		extends AbstractEventableDtoService<IdmEntityEventDto, IdmEntityEvent, IdmEntityEventFilter> 
 		implements IdmEntityEventService {
 
-	private IdmEntityEventRepository repository;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmEntityEventService.class);
+	private final IdmEntityEventRepository repository;
 	//
 	// @Autowired private ConfidentialStorage confidentialStorage;
 	@Autowired private IdmEntityStateService entityStateService;
+	@Autowired private IdmEntityStateRepository entityStateRepository;
+	@Autowired private SecurityService securityService;
 	
 	@Autowired
 	public DefaultIdmEntityEventService(
@@ -87,24 +92,31 @@ public class DefaultIdmEntityEventService
 	@Override
 	@Transactional
 	public void deleteInternal(IdmEntityEventDto dto) {
-		if (repository.countByParentId(dto.getId()) > 0) {
-			throw new EventDeleteFailedHasChildrenException(dto);
-		}		
+		// delete child events
+		IdmEntityEventFilter filter = new IdmEntityEventFilter();
+		filter.setParentId(dto.getId());
+		find(filter, null).forEach(childEvent -> {
+			deleteInternal(childEvent);
+		});
+		//
 		// delete states
-		IdmEntityStateFilter filter = new IdmEntityStateFilter();
-		filter.setEventId(dto.getId());
-		entityStateService.find(filter, null).forEach(state -> {
+		IdmEntityStateFilter stateFilter = new IdmEntityStateFilter();
+		stateFilter.setEventId(dto.getId());
+		entityStateService.find(stateFilter, null).forEach(state -> {
 			entityStateService.delete(state);
 		});
 		//
 		// TODO: delete confidential properties
 		//
 		super.deleteInternal(dto);
+		//
 		// delete parent if children count is one (=> removed dto only)
 		if (dto.getParent() != null) {
-			if(repository.countByParentId(dto.getParent()) == 0) {
-				// delete parent 
-				deleteById(dto.getParent());
+			if (repository.countByParentId(dto.getParent()) == 0) {
+				// delete parent, if parent is processed
+				if (get(dto.getParent()).getResult().getState() == OperationState.EXECUTED) {
+					deleteById(dto.getParent());
+				}
 			}
 		}
 	}
@@ -119,6 +131,15 @@ public class DefaultIdmEntityEventService
 		//
 		// TODO: return confidentialStorage.getGuardedString(requestId, getEntityClass(), PROPERTY_PASSWORD);
 		return change.getProperties();
+	}
+	
+	@Override
+	@Transactional
+	public void deleteAll() {
+		LOG.warn("Entity events were truncated by identity [{}].", securityService.getCurrentId());
+		//
+		entityStateRepository.deleteByEventIsNotNull();
+		repository.deleteAllInBatch();
 	}
 	
 	@Override
@@ -140,6 +161,10 @@ public class DefaultIdmEntityEventService
 		if (filter.getOwnerId() != null) {
 			predicates.add(builder.equal(root.get(IdmEntityEvent_.ownerId), filter.getOwnerId()));
 		}
+		UUID superOwnerId = filter.getSuperOwnerId();
+		if (superOwnerId != null) {
+			predicates.add(builder.equal(root.get(IdmEntityEvent_.superOwnerId), superOwnerId));
+		}
 		if (filter.getCreatedFrom() != null) {
 			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmEntityEvent_.created), filter.getCreatedFrom()));
 		}
@@ -149,11 +174,18 @@ public class DefaultIdmEntityEventService
 		if (!filter.getStates().isEmpty()) {
 			predicates.add(root.get(IdmEntityEvent_.result).get(OperationResult_.state).in(filter.getStates()));
 		}
+		if (filter.getRootId() != null) {
+			predicates.add(builder.equal(root.get(IdmEntityEvent_.rootId), filter.getRootId()));
+		}
 		if (filter.getParentId() != null) {
 			predicates.add(builder.equal(root.get(IdmEntityEvent_.parent).get(IdmEntityEvent_.id), filter.getParentId()));
 		}
 		if (filter.getPriority() != null) {
 			predicates.add(builder.equal(root.get(IdmEntityEvent_.priority), filter.getPriority()));
+		}
+		String resultCode = filter.getResultCode();
+		if (StringUtils.isNotEmpty(resultCode)) {
+			predicates.add(builder.equal(root.get(IdmEntityEvent_.result).get(OperationResult_.code), resultCode));
 		}
 		//
 		return predicates;

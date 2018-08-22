@@ -109,7 +109,7 @@ public class InitAccApplicationData implements ApplicationListener<ContextRefres
 		}
 		//
 		defaultRole = new IdmRoleDto();
-		defaultRole.setName(InitDemoData.DEFAULT_ROLE_NAME);
+		defaultRole.setCode(InitDemoData.DEFAULT_ROLE_NAME);
 		return roleService.save(defaultRole);
 	}
 }

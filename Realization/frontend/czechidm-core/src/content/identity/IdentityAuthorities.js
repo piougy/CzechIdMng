@@ -8,7 +8,7 @@ import { HelpContent } from '../../domain';
 import { IdentityManager, DataManager } from '../../redux';
 import AuthoritiesPanel from '../role/AuthoritiesPanel';
 
-const uiKeyAuthorities = 'identity-roles';
+const uiKeyAuthorities = 'identity-authorities';
 const identityManager = new IdentityManager();
 
 /**

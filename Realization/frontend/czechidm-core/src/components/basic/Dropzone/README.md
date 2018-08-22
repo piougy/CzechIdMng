@@ -5,6 +5,7 @@ Component for select files.
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
 | onDrop | func.isRequired | Function call after droped or selected any files | |
+| readOnly | bool | read only | false |
 | multiple | bool | Can be select multiple files | true |
 | accept | string | Define accepted file extension | |
 | style  | object   | Define styles in object | default style (/styles.js) |

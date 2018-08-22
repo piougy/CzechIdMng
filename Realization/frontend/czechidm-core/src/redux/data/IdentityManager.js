@@ -2,7 +2,9 @@ import FormableEntityManager from './FormableEntityManager';
 import SecurityManager from '../security/SecurityManager';
 import { IdentityService } from '../../services';
 import DataManager from './DataManager';
+import ProfileManager from './ProfileManager';
 import * as Utils from '../../utils';
+import { RECEIVE_PERMISSIONS } from './EntityManager';
 
 /**
  * Manager for identities fetching
@@ -15,6 +17,7 @@ export default class IdentityManager extends FormableEntityManager {
     super();
     this.identityService = new IdentityService();
     this.dataManager = new DataManager();
+    this.profileManager = new ProfileManager();
   }
 
   getService() {
@@ -153,6 +156,113 @@ export default class IdentityManager extends FormableEntityManager {
   }
 
   /**
+   * Profile ui key
+   *
+   * @param  {[type]} identityId [description]
+   * @return {[type]}            [description]
+   */
+  resolveProfileUiKey(identityId) {
+    return `${IdentityManager.UIKEY_PROFILE}${identityId}`;
+  }
+
+  /**
+   * Upload image to BE
+   */
+  uploadProfileImage(identityId, formData) {
+    const uiKey = this.resolveProfileUiKey(identityId);
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().uploadProfileImage(identityId, formData)
+        .then(() => {
+          dispatch(this.dataManager.receiveData(uiKey, { imageUrl: null })); // enforce reload
+          dispatch(this.downloadProfileImage(identityId));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
+  downloadProfileImage(identityId) {
+    const uiKey = this.resolveProfileUiKey(identityId);
+    return (dispatch, getState) => {
+      const profile = DataManager.getData(getState(), uiKey);
+      if (profile && (profile.imageUrl || profile.imageUrl === false)) {
+        // profile already loaded or image not found before (imageUrl === false)
+      } else {
+        dispatch(this.dataManager.requestData(uiKey));
+        this.getService().downloadProfileImage(identityId)
+          .then(response => {
+            if (response.status === 404) {
+              return null;
+            } else if (response.status === 200) {
+              return response.blob();
+            }
+            const json = response.json();
+            if (Utils.Response.hasError(json)) {
+              throw Utils.Response.getFirstError(json);
+            }
+            if (Utils.Response.hasInfo(json)) {
+              throw Utils.Response.getFirstInfo(json);
+            }
+          })
+          .then(blob => {
+            let imageUrl = false;
+            if (blob) {
+              imageUrl = URL.createObjectURL(blob);
+            }
+            dispatch(this.dataManager.receiveData(uiKey, {
+              imageUrl
+            }));
+          })
+          .catch(error => {
+            dispatch(this.receiveError(null, uiKey, error));
+          });
+      }
+    };
+  }
+
+  deleteProfileImage(identityId) {
+    const uiKey = this.resolveProfileUiKey(identityId);
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().deleteProfileImage(identityId)
+        .then(() => {
+          dispatch(this.dataManager.receiveData(uiKey, { imageUrl: false }));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
+  /**
+   * Fetch profile permissions
+   *
+   * Lookout: permissions will be stored under identity identifier in reducer.
+   */
+  fetchProfilePermissions(id) {
+    return (dispatch, getState) => {
+      if (getState().security.userContext.isExpired) {
+        return;
+      }
+      //
+      this.getService().getProfilePermissions(id)
+      .then(permissions => {
+        const profileKey = this.profileManager.resolveUiKey(null, id);
+        //
+        dispatch({
+          type: RECEIVE_PERMISSIONS,
+          id,
+          entityType: this.profileManager.getEntityType(),
+          permissions,
+          uiKey: profileKey
+        });
+      });
+    };
+  }
+
+  /**
    * PreValidates password
    *
    * @param  {string} requestData
@@ -166,3 +276,4 @@ export default class IdentityManager extends FormableEntityManager {
 IdentityManager.PASSWORD_DISABLED = 'DISABLED';
 IdentityManager.PASSWORD_ALL_ONLY = 'ALL_ONLY';
 IdentityManager.PASSWORD_CUSTOM = 'CUSTOM';
+IdentityManager.UIKEY_PROFILE = 'identity-profile-';

@@ -22,7 +22,7 @@ public class IdmAutomaticRoleRequestFilter extends DataFilter {
 	private List<RequestState> states;
 	private UUID automaticRoleId;
 	private AutomaticRoleRequestType requestType;
-	private String role;
+	private String role; // role code
 
 	public IdmAutomaticRoleRequestFilter() {
 		this(new LinkedMultiValueMap<>());

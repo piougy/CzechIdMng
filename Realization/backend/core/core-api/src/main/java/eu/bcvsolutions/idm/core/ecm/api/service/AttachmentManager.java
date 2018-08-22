@@ -122,6 +122,17 @@ public interface AttachmentManager extends
 	void deleteAttachment(IdmAttachmentDto attachment, BasePermission... permission);
 	
 	/**
+	 * Deletes given attachment. All versions will be removed
+	 * 
+	 * @param attachmentId
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 9.0.0
+	 */
+	void deleteAttachment(UUID attachmentId, BasePermission... permission);
+	
+	/**
 	 * Deletes all attachments by given owner
 	 * 
 	 * @param owner
@@ -136,4 +147,13 @@ public interface AttachmentManager extends
 	 * @return
 	 */
 	File createTempFile();
+	
+	/**
+	 * Owner type has to be entity class - dto class can be given.
+	 * 
+	 * @param owner
+	 * @return
+	 * @since 9.0.0
+	 */
+	String getOwnerType(Identifiable owner);
 }

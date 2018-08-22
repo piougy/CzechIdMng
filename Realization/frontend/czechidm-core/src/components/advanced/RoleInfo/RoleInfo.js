@@ -2,11 +2,15 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import { RoleManager } from '../../../redux/';
+import * as Utils from '../../../utils';
+import { RoleManager, RoleCompositionManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import RolePriorityEnum from '../../../enums/RolePriorityEnum';
+import SearchParameters from '../../../domain/SearchParameters';
 
+const uiKeyRoles = 'role-composition-sub-table';
 const manager = new RoleManager();
+const roleCompositionManager = new RoleCompositionManager();
 
 /**
  * Role basic information (info card)
@@ -21,6 +25,16 @@ export class RoleInfo extends AbstractEntityInfo {
 
   getManager() {
     return manager;
+  }
+
+  onEnter() {
+    super.onEnter();
+
+    const entityId = this.getEntityId();
+    if (entityId) {
+      const forceSubSearchParameters = new SearchParameters().setFilter('superiorId', entityId);
+      this.context.store.dispatch(roleCompositionManager.fetchEntities(forceSubSearchParameters, `${uiKeyRoles}-${entityId}`));
+    }
   }
 
   showLink() {
@@ -63,13 +77,23 @@ export class RoleInfo extends AbstractEntityInfo {
     return this.i18n('entity.Role._type');
   }
 
+  getTableChildren() {
+    // component are used in #getPopoverContent => skip default column resolving
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value"/>
+    ];
+  }
+
   /**
    * Returns popover info content
    *
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    return [
+    const { _subRoles, _subRolesUi } = this.props;
+    //
+    const content = [
       {
         label: this.i18n('entity.name'),
         value: manager.getNiceLabel(entity)
@@ -79,6 +103,31 @@ export class RoleInfo extends AbstractEntityInfo {
         value: (<Basic.EnumValue enum={ RolePriorityEnum } value={ RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(entity.priority)) } />)
       }
     ];
+    // subroles
+    if (_subRolesUi) {
+      content.push({
+        label: this.i18n('entity.Role.subRoles'),
+        value: (
+          _subRolesUi.showLoading
+          ?
+          <Basic.Icon value="refresh" showLoading />
+          :
+          <span>
+            {
+              _subRoles
+                .map(subRole => {
+                  return subRole._embedded.sub.name;
+                })
+                .join(', ')
+            }
+            {' '}
+            ({ _subRolesUi.total })
+          </span>
+        )
+      });
+    }
+    //
+    return content;
   }
 }
 
@@ -94,7 +143,10 @@ RoleInfo.propTypes = {
   entityIdentifier: PropTypes.string,
   //
   _showLoading: PropTypes.bool,
-  _permissions: PropTypes.arrayOf(PropTypes.string)
+  _permissions: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.arrayOf(PropTypes.string)
+  ])
 };
 RoleInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
@@ -107,7 +159,9 @@ function select(state, component) {
   return {
     _entity: manager.getEntity(state, component.entityIdentifier),
     _showLoading: manager.isShowLoading(state, null, component.entityIdentifier),
-    _permissions: manager.getPermissions(state, null, component.entityIdentifier)
+    _permissions: manager.getPermissions(state, null, component.entityIdentifier),
+    _subRoles: roleCompositionManager.getEntities(state, `${uiKeyRoles}-${component.entityIdentifier}`),
+    _subRolesUi: Utils.Ui.getUiState(state, `${uiKeyRoles}-${component.entityIdentifier}`)
   };
 }
 export default connect(select)(RoleInfo);

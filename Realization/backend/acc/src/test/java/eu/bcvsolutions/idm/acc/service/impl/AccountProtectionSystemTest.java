@@ -46,7 +46,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	@Autowired
 	private TestHelper helper;
 	@Autowired
-	private IdmIdentityService idmIdentityService;
+	private IdmIdentityService identityService;
 	@Autowired
 	private AccAccountService accountService;
 	@Autowired
@@ -129,7 +129,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 	}
-	
+
 	@Test
 	public void deleteAccountOnProtectionSystemTest() {
 		IdmIdentityDto identity = helper.createIdentity();
@@ -146,10 +146,11 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		helper.createIdentityRole(identity, roleOne);
 
 		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
-		
+
 		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
 		identityAccountFilter.setAccountId(account.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null)
+				.getContent();
 		// Identity account have relation on the role
 		Assert.assertEquals(1, identityAccounts.size());
 		Assert.assertNotNull(identityAccounts.get(0).getIdentityRole());
@@ -170,7 +171,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
-		
+
 		// Identity account have not relation on the role now.
 		identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
 		Assert.assertEquals(1, identityAccounts.size());
@@ -277,7 +278,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		String changedValue = "changed";
 		identity.setFirstName(changedValue);
-		idmIdentityService.save(identity);
+		identityService.save(identity);
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
@@ -303,7 +304,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		// Change first name and emit provisioning (provisioning must be break)
 		identity.setFirstName(identity.getUsername());
-		idmIdentityService.save(identity);
+		identityService.save(identity);
 
 		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotEquals(identity.getFirstName(), createdAccount.getFirstname());
@@ -380,11 +381,64 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
 		identityAccountFilter.setAccountId(account.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null)
+				.getContent();
 		Assert.assertEquals(1, identityAccounts.size());
 		// Remove identity account again. Now must end on the exception (account is
 		// already in protection)
 		identityAccountService.delete(identityAccounts.get(0));
+	}
+
+	/**
+	 * On delete of the identity could deleted accounts in the protected mode too.
+	 */
+	@Test
+	public void protectedIdentityDeleteTest() {
+
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystemDto system = initSystem();
+		IdmRoleDto roleOne = roleService.getByCode(ROLE_ONE);
+
+		// Set system to protected mode
+		SysSystemMappingDto mapping = systemMappingService
+				.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
+		mapping.setProtectionEnabled(Boolean.TRUE);
+		mapping.setProtectionInterval(null);
+		systemMappingService.save(mapping);
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
+
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+
+		Assert.assertNotNull(account);
+		Assert.assertFalse(account.isInProtection());
+		TestResource createdAccount = helper.findResource(account.getUid());
+		Assert.assertNotNull(createdAccount);
+
+		// Remove role from identity
+		identityRoleService.deleteById(identityRole.getId());
+
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setAccountId(account.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null)
+				.getContent();
+		Assert.assertEquals(1, identityAccounts.size());
+
+		// On delete of the identity could deleted accounts in the protected mode too.
+		identityService.delete(identity);
+
+		// Identity have to be deleted
+		Assert.assertNull(identityService.get(identity.getId()));
+
+		// Force delete was used, so identity-account have to be deleted;
+		Assert.assertNull(identityAccountService.get(identityAccounts.get(0).getId()));
+
+		// Force delete does not delete the account. Account must exists and must be in
+		// the protection mode.
+		account = accountService.get(account.getId());
+		Assert.assertNotNull(account);
+		Assert.assertTrue(account.isInProtection());
+
 	}
 
 	/**

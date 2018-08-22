@@ -22,11 +22,14 @@ public class IdmEntityEventFilter extends DataFilter {
 	
 	private String ownerType;
 	private UUID ownerId;
+	private UUID superOwnerId;
 	private DateTime createdFrom; // >=
     private DateTime createdTill; // <=
     private List<OperationState> states;
     private UUID parentId;
+    private UUID rootId;
     private PriorityType priority;
+    private String resultCode;
 	
 	public IdmEntityEventFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -93,5 +96,29 @@ public class IdmEntityEventFilter extends DataFilter {
 	
 	public PriorityType getPriority() {
 		return priority;
+	}
+	
+	public void setRootId(UUID rootId) {
+		this.rootId = rootId;
+	}
+	
+	public UUID getRootId() {
+		return rootId;
+	}
+	
+	public UUID getSuperOwnerId() {
+		return superOwnerId;
+	}
+	
+	public void setSuperOwnerId(UUID superOwnerId) {
+		this.superOwnerId = superOwnerId;
+	}
+	
+	public void setResultCode(String resultCode) {
+		this.resultCode = resultCode;
+	}
+	
+	public String getResultCode() {
+		return resultCode;
 	}
 }

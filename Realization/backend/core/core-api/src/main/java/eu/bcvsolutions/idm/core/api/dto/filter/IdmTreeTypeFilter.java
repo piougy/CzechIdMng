@@ -27,8 +27,8 @@ public class IdmTreeTypeFilter extends DataFilter implements ExternalIdentifiabl
 		return (String) data.getFirst(PARAMETER_CODE);
 	}
 
-	public void setCode(String username) {
-		data.set(PARAMETER_CODE, username);
+	public void setCode(String code) {
+		data.set(PARAMETER_CODE, code);
 	}
 	
 	@Override

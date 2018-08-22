@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTokenFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmTokenService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmToken_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -35,6 +36,7 @@ public class DefaultTokenManager implements TokenManager {
 	//
 	@Autowired private IdmTokenService tokenService;	
 	@Autowired private SecurityService securityService;
+	@Autowired private LookupService lookupService;
 	
 	@Override
 	public IdmTokenDto getCurrentToken() {
@@ -161,7 +163,7 @@ public class DefaultTokenManager implements TokenManager {
 	}
 	
 	@Transactional
-	@Scheduled(fixedDelay = 3600000)
+	@Scheduled(fixedDelay = 86400000) // once per day
 	public void purgeTokens() {
 		// TODO: CONFIGURATION - ENABLE, TTL
 		// older then 2 weeks by default
@@ -199,12 +201,6 @@ public class DefaultTokenManager implements TokenManager {
 	 * @return
 	 */
 	private UUID getOwnerId(Identifiable owner) {
-		Assert.notNull(owner);
-		if (owner.getId() == null) {
-			return null;
-		}		
-		Assert.isInstanceOf(UUID.class, owner.getId(), "Entity with UUID identifier is supported as owner for tokens.");
-		//
-		return (UUID) owner.getId();
+		return lookupService.getOwnerId(owner);
 	}
 }

@@ -27,7 +27,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
@@ -41,6 +40,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
@@ -58,23 +58,17 @@ public class DefaultIdmIdentityRoleService
 		implements IdmIdentityRoleService {
 
 	private final IdmIdentityRoleRepository repository;
-	private final LookupService lookupService;
-	private final IdmAutomaticRoleRepository automaticRoleRepository;
+	//
+	@Autowired private LookupService lookupService;
+	@Autowired private IdmAutomaticRoleRepository automaticRoleRepository;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
 			IdmIdentityRoleRepository repository,
-			EntityEventManager entityEventManager,
-			LookupService lookupService,
-			IdmAutomaticRoleRepository automaticRoleRepository) {
+			EntityEventManager entityEventManager) {
 		super(repository, entityEventManager);
 		//
-		Assert.notNull(lookupService);
-		Assert.notNull(automaticRoleRepository);
-		//
 		this.repository = repository;
-		this.lookupService = lookupService;
-		this.automaticRoleRepository = automaticRoleRepository;
 	}
 	
 	@Override
@@ -91,8 +85,7 @@ public class DefaultIdmIdentityRoleService
 		//
 		IdmAutomaticRole automaticRole = entity.getAutomaticRole();
 		if (automaticRole != null) {
-			dto.setRoleTreeNode(automaticRole.getId());
-			dto.setAutomaticRole(true);
+			dto.setAutomaticRole(automaticRole.getId());
 			BaseDto baseDto = null;
 			Map<String, BaseDto> embedded = dto.getEmbedded();
 			if (automaticRole instanceof IdmAutomaticRoleAttribute) {
@@ -100,7 +93,7 @@ public class DefaultIdmIdentityRoleService
 			} else {
 				baseDto = lookupService.getDtoService(IdmRoleTreeNodeDto.class).get(automaticRole.getId());
 			}
-			embedded.put(IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, baseDto);
+			embedded.put(IdmIdentityRole_.automaticRole.getName(), baseDto);
 			dto.setEmbedded(embedded);
 		}
 		//
@@ -111,13 +104,13 @@ public class DefaultIdmIdentityRoleService
 	protected IdmIdentityRole toEntity(IdmIdentityRoleDto dto, IdmIdentityRole entity) {
 		IdmIdentityRole resultEntity = super.toEntity(dto, entity);
 		// set additional automatic role
-		if (resultEntity != null && dto.getRoleTreeNode() != null) {
+		if (resultEntity != null && dto.getAutomaticRole() != null) {
 			// it isn't possible use lookupService entity lookup
-			IdmAutomaticRole automaticRole = automaticRoleRepository.findOne(dto.getRoleTreeNode());
+			IdmAutomaticRole automaticRole = automaticRoleRepository.findOne(dto.getAutomaticRole());
 			resultEntity.setAutomaticRole(automaticRole);
 		}
 		return resultEntity;
-	}	
+	}
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityRoleFilter filter) {
@@ -157,24 +150,30 @@ public class DefaultIdmIdentityRoleService
                     		));
 			predicates.add(builder.exists(roleCatalogueRoleSubquery));
 		}
-		// Only valid identity-role include check on contract validity too
-		if (filter.getValid() != null && filter.getValid()) {
-			final LocalDate today = LocalDate.now();
-			predicates.add(
-					builder.and(
-							RepositoryUtils.getValidPredicate(root, builder, today),
-							RepositoryUtils.getValidPredicate(root.get(IdmIdentityRole_.identityContract), builder, today)
-					));
-		}
-		// Only unvalid identity-role
-		if (filter.getValid() != null && !filter.getValid()) {
-			final LocalDate today = LocalDate.now();
-			predicates.add(
-					builder.or(
-							builder.lessThan(root.get(IdmIdentityRole_.validTill), today),
-							builder.greaterThan(root.get(IdmIdentityRole_.validFrom), today)
-							)
-					);
+		//
+		Boolean valid = filter.getValid();
+		if (valid != null) {
+			// Only valid identity-role include check on contract validity too
+			if (valid) {
+				final LocalDate today = LocalDate.now();
+				predicates.add(
+						builder.and(
+								RepositoryUtils.getValidPredicate(root, builder, today),
+								RepositoryUtils.getValidPredicate(root.get(IdmIdentityRole_.identityContract), builder, today),
+								builder.equal(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.disabled), Boolean.FALSE)
+						));
+			}
+			// Only invalid identity-role
+			if (!valid) {
+				final LocalDate today = LocalDate.now();
+				predicates.add(
+						builder.or(
+								builder.not(RepositoryUtils.getValidPredicate(root, builder, today)),
+								builder.not(RepositoryUtils.getValidPredicate(root.get(IdmIdentityRole_.identityContract), builder, today)),
+								builder.equal(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.disabled), Boolean.TRUE)
+								)
+						);
+			}
 		}
 		//
 		// is automatic role
@@ -198,6 +197,26 @@ public class DefaultIdmIdentityRoleService
 					root.get(IdmIdentityRole_.identityContract).get(AbstractEntity_.id), 
 					filter.getIdentityContractId())
 					);
+		}
+		//
+		UUID directRoleId = filter.getDirectRoleId();
+		if (directRoleId != null) {
+			predicates.add(builder.equal(root.get(IdmIdentityRole_.directRole).get(IdmIdentityRole_.id), directRoleId));
+		}
+		//
+		UUID roleCompositionId = filter.getRoleCompositionId();
+		if (roleCompositionId != null) {
+			predicates.add(builder.equal(root.get(IdmIdentityRole_.roleComposition).get(IdmRoleComposition_.id), roleCompositionId));
+		}
+		//
+		// is automatic role
+		Boolean directRole = filter.getDirectRole();
+		if (directRole != null) {
+			if (directRole) {
+				predicates.add(builder.isNull(root.get(IdmIdentityRole_.directRole)));
+			} else {
+				predicates.add(builder.isNotNull(root.get(IdmIdentityRole_.directRole)));
+			}
 		}
 		//
 		return predicates;
@@ -236,6 +255,7 @@ public class DefaultIdmIdentityRoleService
 		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
 		identityRoleFilter.setValid(Boolean.TRUE);
 		identityRoleFilter.setIdentityId(identityId);
+		//
 		return this.find(identityRoleFilter, pageable);
 	}
 
@@ -253,6 +273,6 @@ public class DefaultIdmIdentityRoleService
 	 * @return
 	 */
 	private Sort getDefaultSort() {
-		return new Sort(IdmIdentityRole_.role.getName() + "." + IdmRole_.name.getName());
+		return new Sort(IdmIdentityRole_.role.getName() + "." + IdmRole_.code.getName());
 	}
 }

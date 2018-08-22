@@ -73,7 +73,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		assertEquals(1, result.size());
 
 		role = roleService.get(role.getId());
-		role.setName("audit_test_role_2");
+		role.setCode("audit_test_role_2");
 		role.setDescription("desc");
 		role = saveInTransaction(role, roleService);
 		result = auditService.findRevisions(IdmRole.class, role.getId());
@@ -82,7 +82,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 		IdmAuditDto audit = result.get(result.size() - 1);
 		// now is disabled changed attributes TODO: fix envers transaction
-		assertEquals(true, audit.getChangedAttributes().contains("name"));
+		assertEquals(true, audit.getChangedAttributes().contains("code"));
 		assertEquals(true, audit.getChangedAttributes().contains("description"));
 		assertEquals(RevisionType.MOD.toString(), audit.getModification());
 
@@ -354,7 +354,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	private IdmRoleDto constructRole(String name) {
 		IdmRoleDto role = new IdmRoleDto();
-		role.setName(name);
+		role.setCode(name);
 		return role;
 	}
 

@@ -89,8 +89,13 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, uiKey, startRequestFunc, createNewRequestFunc, columns, forceSearchParameters, showFilter} = this.props;
+    const { _showLoading, uiKey, startRequestFunc, createNewRequestFunc, columns, forceSearchParameters, showFilter, className, rendered } = this.props;
     const innerShowLoading = _showLoading;
+    //
+    if (!rendered) {
+      return null;
+    }
+    //
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
@@ -106,9 +111,12 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
                action: this.onDelete.bind(this), disabled: false }]
           }
           filterOpened
+          showFilter={ showFilter }
           filter={
             !showFilter
-            ||
+            ?
+            null
+            :
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
@@ -172,7 +180,8 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
               </Basic.Button>
             ]
           }
-          _searchParameters={ this.getSearchParameters() }>
+          _searchParameters={ this.getSearchParameters() }
+          className={ className }>
           <Advanced.Column
             property=""
             header=""
@@ -280,10 +289,15 @@ RoleRequestTable.propTypes = {
   forceSearchParameters: PropTypes.object,
   startRequestFunc: PropTypes.func,
   createNewRequestFunc: PropTypes.func,
-  columns: PropTypes.arrayOf(PropTypes.string)
+  columns: PropTypes.arrayOf(PropTypes.string),
+  /**
+   * Css
+   */
+  className: PropTypes.string
 };
 
 RoleRequestTable.defaultProps = {
+  rendered: true,
   _showLoading: false,
   showFilter: true,
   columns: ['state', 'created', 'modified', 'wf', 'applicant', 'executeImmediately', 'startRequest', 'createNew', 'detail']

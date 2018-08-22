@@ -24,18 +24,16 @@ export default class VsDashboard extends Basic.AbstractContent {
     return (
       <Basic.Panel>
         <Basic.PanelHeader text={this.i18n('header')}/>
-        <Basic.PanelBody >
-          <VsRequestTable
-            uiKey="vs-request-table-dashboard"
-            columns= {['uid', 'systemId', 'operationType', 'created', 'creator', 'operations']}
-            showFilter={false}
-            forceSearchParameters={searchActive}
-            showToolbar={false}
-            showPageSize={false}
-            showRowSelection={false}
-            showId={false}
-            filterOpened={false} />
-        </Basic.PanelBody>
+        <VsRequestTable
+          uiKey="vs-request-table-dashboard"
+          columns= {['uid', 'systemId', 'operationType', 'created', 'creator', 'operations']}
+          showFilter={false}
+          forceSearchParameters={searchActive}
+          showToolbar={false}
+          showPageSize={false}
+          showRowSelection={false}
+          showId={false}
+          filterOpened={false}/>
       </Basic.Panel>
     );
   }

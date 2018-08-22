@@ -15,5 +15,9 @@ export default {
   styleReject: {
     borderColor: '#DE140E',
     backgroundColor: 'rgba(217, 79, 79, 0.12)'
+  },
+  disabledStyle: {
+    opacity: '0.5',
+    filter: 'alpha(opacity=50)'
   }
 };

@@ -91,6 +91,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 
 		boolean deleteTargetAccount = (boolean) event.getProperties()
 				.get(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY);
+		boolean deleteAccAccount = true;
 
 		// If is account in protection, then we will not delete
 		// identity-account
@@ -104,8 +105,8 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 		if (!moreIdentityAccounts && entity.isOwnership()) {
 			if (accountDto.isAccountProtectedAndValid()) {
 				if (forceDeleteIdentityAccount) {
-					// Target account and AccAccount will deleted!
-					deleteTargetAccount = true;
+					// Target account and AccAccount will NOT be deleted!
+					deleteAccAccount = false;
 				} else {
 					throw new ResultCodeException(AccResultCode.ACCOUNT_CANNOT_BE_DELETED_IS_PROTECTED,
 							ImmutableMap.of("uid", accountDto.getUid()));
@@ -125,8 +126,8 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 				// If is account in protection, then we will not delete
 				// identity-account
 				if (forceDeleteIdentityAccount) {
-					// Target account and AccAccount will be deleted!
-					deleteTargetAccount = true;
+					// Target account and AccAccount will NOT be deleted!
+					deleteAccAccount = false;
 				} else {
 					return new DefaultEventResult<>(event, this);
 				}
@@ -134,15 +135,15 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 		}
 
 		service.deleteInternal(entity);
-		if (!moreIdentityAccounts && entity.isOwnership()) {
-			// We delete all identity accounts first
+		// Finally we can delete AccAccount
+		if (!moreIdentityAccounts && entity.isOwnership() && deleteAccAccount) {
+			// We delete all NOT ownership identity accounts first
 			identityAccounts.stream()
-					.filter(identityAccount -> identityAccount.isOwnership() && !identityAccount.equals(entity))
+					.filter(identityAccount -> !identityAccount.isOwnership() && !identityAccount.equals(entity))
 					.forEach(identityAccount -> {
 						service.delete(identityAccount);
 					});
-			// Finally we can delete account
-		    accountService.publish(new AccountEvent(AccountEventType.DELETE, accountDto,
+			accountService.publish(new AccountEvent(AccountEventType.DELETE, accountDto,
 					ImmutableMap.of(AccAccountService.DELETE_TARGET_ACCOUNT_PROPERTY, deleteTargetAccount,
 							AccAccountService.ENTITY_ID_PROPERTY, entity.getEntity())));
 

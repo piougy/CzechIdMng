@@ -17,10 +17,6 @@ class IdentityService extends FormableEntityService {
     return '/identities';
   }
 
-  supportsAuthorization() {
-    return true;
-  }
-
   supportsPatch() {
     return false;
   }
@@ -237,6 +233,76 @@ class IdentityService extends FormableEntityService {
       if (response.status === 404) {
         throw new Error(404);
       }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  /**
+   * Upload image to BE
+   */
+  uploadProfileImage(identityId, formData) {
+    return RestApiService
+      .upload(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/image`, formData)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Get image from BE
+   */
+  downloadProfileImage(identityId) {
+    return RestApiService.download(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/image`);
+  }
+
+  /**
+   * Delete image from BE
+   */
+  deleteProfileImage(identityId) {
+    return RestApiService
+      .delete(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/image`)
+      .then(response => {
+        if (response.status === 204) { // no content - ok
+          return null;
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Fetch profile permissions
+   *
+   * @param  {string, number} identityId entity id
+   * @return {Promise}
+   */
+  getProfilePermissions(identityId) {
+    return RestApiService
+    .get(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/permissions`)
+    .then(response => {
       return response.json();
     })
     .then(json => {

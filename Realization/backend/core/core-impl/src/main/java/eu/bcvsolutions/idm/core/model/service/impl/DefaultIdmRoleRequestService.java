@@ -34,14 +34,18 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -60,6 +64,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
@@ -347,7 +353,16 @@ public class DefaultIdmRoleRequestService
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
 					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
 		}
-
+		
+		// Create parent event for whole request, listeners can intercept this event
+		// event is created as processed
+		IdmEntityEventDto requestEventDto = entityEventManager.prepareEvent(request, null);
+		requestEventDto.setResult(new OperationResultDto.Builder(OperationState.RUNNING).build());
+		requestEventDto.setEventType(RoleRequestEventType.EXCECUTE.name());
+		requestEventDto.setPriority(PriorityType.HIGH); // TODO: propagate from FE?
+		requestEventDto = entityEventManager.saveEvent(requestEventDto);
+		final EntityEvent<?> requestEvent = entityEventManager.toEvent(requestEventDto);
+		//
 		// Create new identity role
 		concepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.ADD == concept.getOperation();
@@ -358,8 +373,12 @@ public class DefaultIdmRoleRequestService
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole = identityRoleService.save(
-					convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole));
+			identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
+			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole);
+			
+			// propagate event
+			identityRole = identityRoleService.publish(event, requestEvent).getContent();
+			
 			// Save created identity role id
 			concept.setIdentityRole(identityRole.getId());
 			concept.setState(RoleRequestState.EXECUTED);
@@ -381,8 +400,12 @@ public class DefaultIdmRoleRequestService
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-			identityRole = identityRoleService.save(
-					convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole));
+			identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
+			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.UPDATE, identityRole);
+			
+			// propagate event
+			identityRole = identityRoleService.publish(event, requestEvent).getContent();
+
 			// Save created identity role id
 			concept.setIdentityRole(identityRole.getId());
 			concept.setState(RoleRequestState.EXECUTED);
@@ -416,7 +439,10 @@ public class DefaultIdmRoleRequestService
 				conceptRoleRequestService.addToLog(concept, message);
 				conceptRoleRequestService.addToLog(request, message);
 				conceptRoleRequestService.save(concept);
-				identityRoleService.delete(identityRole);
+				
+				IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole);
+				
+				identityRoleService.publish(event, requestEvent);
 			}
 		});
 
@@ -604,11 +630,11 @@ public class DefaultIdmRoleRequestService
 		identityRole.setValidTill(conceptRole.getValidTill());
 		identityRole.setOriginalCreator(conceptRole.getOriginalCreator());
 		identityRole.setOriginalModifier(conceptRole.getOriginalModifier());
-		identityRole.setRoleTreeNode(conceptRole.getAutomaticRole());
+		identityRole.setAutomaticRole(conceptRole.getAutomaticRole());
 		//
 		// if exists role tree node, set automatic role
 		if (conceptRole.getAutomaticRole() != null) {
-			identityRole.setRoleTreeNode(conceptRole.getAutomaticRole());
+			identityRole.setAutomaticRole(conceptRole.getAutomaticRole());
 		}
 		return identityRole;
 	}

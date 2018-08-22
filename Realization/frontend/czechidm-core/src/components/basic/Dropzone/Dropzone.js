@@ -28,7 +28,8 @@ class Dropzone extends AbstractContextComponent {
       showLoading,
       rendered,
       children,
-      hidden
+      hidden,
+      readOnly
     } = this.props;
     //
     if (!rendered) {
@@ -37,23 +38,29 @@ class Dropzone extends AbstractContextComponent {
     if (showLoading) {
       return <Well showLoading/>;
     }
+    let content = children;
+    if (!content) {
+      if (readOnly) {
+        content = this.i18n('component.basic.Dropzone.readOnly');
+      } else {
+        content = this.i18n('component.basic.Dropzone.infoText');
+      }
+    }
     //
     return (
       <div className={ hidden ? 'hidden' : '' }>
-        <ReactDropzone ref="dropzone"
+        <ReactDropzone
+          ref="dropzone"
           style={style ? style : defaultStyle.style}
           activeStyle={styleActive ? styleActive : defaultStyle.styleActive}
           rejectStyle={styleReject ? styleReject : defaultStyle.styleReject}
           multiple={multiple}
           accept={accept}
           disablePreview
+          disabled={ readOnly }
           onDrop={onDrop}>
           <div style={{color: '#777'}}>
-            {
-              children
-              ||
-              this.i18n('component.basic.Dropzone.infoText')
-            }
+            { content }
           </div>
         </ReactDropzone>
       </div>
@@ -98,14 +105,19 @@ Dropzone.propTypes = {
   /**
   * Object with styles for reject state (when are files rejected)
   */
-  styleReject: PropTypes.object
+  styleReject: PropTypes.object,
+  /**
+   * html readonlye]}
+   */
+  readOnly: PropTypes.bool
 };
 
 Dropzone.defaultProps = {
   rendered: true,
   showLoading: false,
   multiple: true,
-  hidden: false
+  hidden: false,
+  readOnly: false
 };
 
 

@@ -66,9 +66,8 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
 		implements ReadDtoService<DTO, F> {
 
-	private final Class<E> entityClass;
-	private final Class<F> filterClass;
-	private final Class<DTO> dtoClass;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadDtoService.class);
+	//
 	@Autowired
 	protected ModelMapper modelMapper;
 	@Autowired
@@ -76,10 +75,13 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Autowired
 	private EntityManager entityManager;
 	//
+	private final Class<E> entityClass;
+	private final Class<F> filterClass;
+	private final Class<DTO> dtoClass;
+	private final AbstractEntityRepository<E> repository;
 	private AuthorizationManager authorizationManager;
 	private FilterManager filterManager;
-	private final AbstractEntityRepository<E> repository;
-
+	
 	@SuppressWarnings("unchecked")
 	public AbstractReadDtoService(AbstractEntityRepository<E> repository) {
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), AbstractReadDtoService.class);
@@ -279,7 +281,12 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
-		return getRepository().findAll(toCriteria(filter, permission), pageable);
+		LOG.trace("Find entities for the filter [{}] with pageable [{}] starts", filter != null, pageable != null);
+		//
+		Page<E> entities = getRepository().findAll(toCriteria(filter, permission), pageable);
+		//
+		LOG.trace("Found entities [{}].", entities.getTotalElements());
+		return entities;
 	}
 	
 	/**

@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.DuplicateExternalIdException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -115,12 +116,40 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	protected abstract DTO prepareDto();
 	
 	/**
+	 * True - only "read" controller method will be tested. 
+	 * Shortcut for turn off all "write" method test (TODO: create AbstractReadDtoControllerRestTest superclass instead)
+	 * 
+	 * @return
+	 */
+	protected boolean isReadOnly() {
+		return false;
+	}
+	
+	/**
+	 * True - post method will be tested
+	 * 
+	 * @return
+	 */
+	protected boolean supportsPost() {
+		return !isReadOnly();
+	}
+	
+	/**
+	 * True - put method will be tested
+	 * 
+	 * @return
+	 */
+	protected boolean supportsPut() {
+		return !isReadOnly();
+	}
+	
+	/**
 	 * True - patch method will be tested
 	 * 
 	 * @return
 	 */
 	protected boolean supportsPatch() {
-		return true;
+		return !isReadOnly();
 	}
 	
 	/**
@@ -128,7 +157,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 * @return
 	 */
 	protected boolean supportsDelete() {
-		return true;
+		return !isReadOnly();
 	}
 	
 	/**
@@ -171,6 +200,10 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testPost() throws Exception {
+		if (!supportsPost()) {
+			LOG.info("Controller [{}] doesn't support POST method. Method will not be tested.", getController().getClass());
+			return;
+		}
 		DTO dto = prepareDto();
 		ObjectMapper mapper = getMapper();
 		//
@@ -198,6 +231,10 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	
 	@Test
 	public void testPut() throws Exception {
+		if (!supportsPut()) {
+			LOG.info("Controller [{}] doesn't support PUT method. Method will not be tested.", getController().getClass());
+			return;
+		}
 		DTO dto = createDto();
 		//
 		getMockMvc().perform(put(getDetailUrl(dto.getId()))
@@ -311,6 +348,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 			LOG.warn("Controller [{}] doesn't support DataFilter. Find by external id will not be tested.", getController().getClass());
 			return;
 		}
+		
 		//
 		DTO dto = prepareDto();
 		if (!(dto instanceof ExternalIdentifiable)) {
@@ -322,13 +360,22 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		String name = getHelper().createName();
 		externalIdentifiableDto.setExternalId(name);
 		//
-		createDto(dto);
+		DTO duplicate = createDto(dto);
 		//
-		getMockMvc().perform(post(getBaseUrl())
-        		.with(authentication(getAdminAuthentication()))
-        		.content(getMapper().writeValueAsString(dto))
-                .contentType(TestHelper.HAL_CONTENT_TYPE))
-				.andExpect(status().isConflict());
+		if (!supportsPost()) {
+			try {
+				createDto(dto);
+				Assert.fail();
+			} catch (DuplicateExternalIdException ex) {
+				Assert.assertEquals(duplicate.getId(), ex.getDuplicateId());
+			}
+		} else {
+			getMockMvc().perform(post(getBaseUrl())
+	        		.with(authentication(getAdminAuthentication()))
+	        		.content(getMapper().writeValueAsString(dto))
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isConflict());
+		}
 	}
 	
 	@Test

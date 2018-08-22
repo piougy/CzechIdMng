@@ -112,31 +112,9 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
     public void setIdentityRole(UUID identityRole) {
         this.identityRole = identityRole;
     }
-
-    /**
-     * Automatic role
-     * 
-     * @return
-     * @deprecated since 7.8.0 - use {@link #getAutomaticRole()}
-     */
-    @Deprecated
-    public UUID getRoleTreeNode() {
-        return this.getAutomaticRole();
-    }
-
-    /**
-     * Automatic role
-     * 
-     * @param roleTreeNode
-     * @deprecated since 7.8.0- use {@link #setAutomaticRole(UUID)}
-     */
-    @Deprecated
-    public void setRoleTreeNode(UUID roleTreeNode) {
-        this.setAutomaticRole(roleTreeNode);
-    }
     
     public UUID getAutomaticRole() {
-    	return this.roleTreeNode;
+    	return roleTreeNode;
     }
     
     public void setAutomaticRole(UUID automaticRole) {

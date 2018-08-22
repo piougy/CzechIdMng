@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
@@ -27,28 +26,27 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  * Identity provisioning after role has been deleted.
  *
  * @author Jan Helbich
+ * @author Radek Tomiška
  */
-@Component
+@Component(IdentityRoleDeleteProvisioningProcessor.PROCESSOR_NAME)
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes provisioning after identity role is deleted.")
 public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-delete-provisioning-processor";
 	private static final Logger LOG = LoggerFactory.getLogger(IdentityRoleDeleteProvisioningProcessor.class);
-	private final ProvisioningService provisioningService;
-	private final IdmIdentityContractService identityContractService;
+	//
+	@Autowired private ProvisioningService provisioningService;
+	@Autowired private IdmIdentityContractService identityContractService;
 
-	@Autowired
-	public IdentityRoleDeleteProvisioningProcessor(
-			ProvisioningService provisioningService,
-			IdmIdentityContractService identityContractService) {
+	public IdentityRoleDeleteProvisioningProcessor() {
 		super(IdentityRoleEventType.DELETE);
-		//
-		Assert.notNull(provisioningService);
-		Assert.notNull(identityContractService);
-		//
-		this.provisioningService = provisioningService;
-		this.identityContractService = identityContractService;
+	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmIdentityRoleDto> event) {
+		return super.conditional(event)
+				&& event.getRootId() == null; // account management should be executed from parent event
 	}
 
 	@Override
@@ -58,7 +56,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
-		
+		// TODO: contract is loaded to early ... 
 		IdmIdentityRoleDto identityRole = event.getContent();
 		IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
 		IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);

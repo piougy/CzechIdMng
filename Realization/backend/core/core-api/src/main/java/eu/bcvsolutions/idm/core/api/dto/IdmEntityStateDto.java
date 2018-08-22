@@ -27,6 +27,7 @@ public class IdmEntityStateDto extends AbstractDto {
 	private String ownerType;
 	@NotNull
 	private UUID ownerId;
+	private UUID superOwnerId;
 	@Embedded(dtoClass = IdmEntityEventDto.class)
 	private UUID event;
 	private Integer processedOrder;
@@ -46,15 +47,11 @@ public class IdmEntityStateDto extends AbstractDto {
 	}
 	
 	public IdmEntityStateDto(IdmEntityEventDto event) {
-		if (event == null) {
-			this.event = null;
-			this.ownerType = null;
-			this.ownerId = null;
-			this.instanceId = null;
-		} else {
+		if (event != null) {
 			this.event = event.getId();
 			this.ownerType = event.getOwnerType();
 			this.ownerId = event.getOwnerId();
+			this.superOwnerId = event.getSuperOwnerId();
 			this.instanceId = event.getInstanceId();
 		}
 	}
@@ -73,6 +70,14 @@ public class IdmEntityStateDto extends AbstractDto {
 
 	public void setOwnerId(UUID ownerId) {
 		this.ownerId = ownerId;
+	}
+	
+	public UUID getSuperOwnerId() {
+		return superOwnerId;
+	}
+	
+	public void setSuperOwnerId(UUID superOwnerId) {
+		this.superOwnerId = superOwnerId;
 	}
 	
 	public UUID getEvent() {

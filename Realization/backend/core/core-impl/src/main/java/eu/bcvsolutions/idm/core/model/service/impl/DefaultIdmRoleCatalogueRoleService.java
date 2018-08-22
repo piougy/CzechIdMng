@@ -18,10 +18,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Default implementation for {@link IdmRoleCatalogueRoleService}
@@ -39,6 +41,11 @@ public class DefaultIdmRoleCatalogueRoleService
 	public DefaultIdmRoleCatalogueRoleService(
 			IdmRoleCatalogueRoleRepository repository) {
 		super(repository);
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.ROLECATALOGUEROLE, getEntityClass());
 	}
 
 	@Override

@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
 import Joi from 'joi';
 //
 import * as Basic from '../../components/basic';
+import * as Utils from '../../utils';
 import { FormAttributeManager } from '../../redux';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 import ComponentService from '../../services/ComponentService';
@@ -33,15 +33,16 @@ class FormAttributeDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     super.componentDidMount();
+    //
     const { entityId } = this.props.params;
-
-    if (this._getIsNew()) {
+    const { isNew, formDefinitionId } = this.props;
+    if (isNew) {
       this.context.store.dispatch(manager.receiveEntity(entityId,
         {
           persistentType: PersistentTypeEnum.TEXT,
           seq: 0,
           unmodifiable: false,
-          formDefinition: this._getFormDefinitionId()
+          formDefinition: formDefinitionId
         }, null, () => {
           this.refs.code.focus();
           this.setState({
@@ -60,27 +61,14 @@ class FormAttributeDetail extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'forms';
-  }
-
-  /**
-   * Function check if exist params new
-   */
-  _getIsNew() {
-    const { query } = this.props.location;
-    return (query) ? query.new : null;
-  }
-
-  _getFormDefinitionId() {
-    const { query } = this.props.location;
-    return (query) ? query.formDefinition : null;
+    return 'forms-attribute-detail';
   }
 
   /**
    * Default save method that catch save event from form.
    */
   save(event) {
-    const { uiKey } = this.props;
+    const { uiKey, formDefinition } = this.props;
 
     if (event) {
       event.preventDefault();
@@ -99,7 +87,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
     };
 
     if (entity.id === undefined) {
-      saveEntity.formDefinition = this._getFormDefinitionId();
+      saveEntity.formDefinition = formDefinition;
       this.context.store.dispatch(manager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
@@ -117,6 +105,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
    * Method set showLoading to false and if is'nt error then show success message
    */
   _afterSave(entity, error) {
+    const { isNew } = this.props;
     if (error) {
       this.setState({
         _showLoading: false
@@ -128,7 +117,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
       _showLoading: false
     });
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    if (this._getIsNew()) {
+    if (isNew) {
       this.context.router.goBack();
     }
   }
@@ -183,38 +172,15 @@ class FormAttributeDetail extends Basic.AbstractContent {
     //
     return (
       <div>
-        {
-          this._getIsNew()
-          ?
-          <Helmet title={this.i18n('create.title')} />
-          :
-          <Helmet title={this.i18n('edit.title')} />
-        }
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        {
-          !entity
-          ||
-          <Basic.PageHeader>
-            <Basic.Icon value="fa:wpforms"/>
-            {' '}
-            {
-              this._getIsNew()
-              ?
-              this.i18n('create.header')
-              :
-              <span>{entity.name} <small>{this.i18n('edit.header')}</small></span>
-            }
-          </Basic.PageHeader>
-        }
-
-        <Basic.Panel>
-            <form onSubmit={this.save.bind(this)}>
+        <form onSubmit={this.save.bind(this)}>
+          <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+            <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.formAttributes.detail.title') } />
+            <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
               <Basic.AbstractForm
                 ref="form"
                 data={ entity }
                 showLoading={showLoading || _showLoading}
-                readOnly={ !manager.canSave(entity, _permissions) }
-                style={{ padding: '15px 15px 0 15px' }}>
+                readOnly={ !manager.canSave(entity, _permissions) }>
                 <Basic.Row>
                   <Basic.Col lg={ 4 }>
                     <Basic.TextField
@@ -310,30 +276,34 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   label={this.i18n('entity.FormAttribute.unmodifiable.label')}
                   helpBlock={this.i18n('entity.FormAttribute.unmodifiable.help')}/>
               </Basic.AbstractForm>
-              <Basic.PanelFooter showLoading={showLoading || _showLoading} >
-                <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-                <Basic.Button
-                  type="submit"
-                  level="success"
-                  showLoadingIcon
-                  showLoadingText={this.i18n('button.saving')}
-                  rendered={ manager.canSave(entity, _permissions) }>
-                  {this.i18n('button.save')}
-                </Basic.Button>
-              </Basic.PanelFooter>
-            </form>
-        </Basic.Panel>
-
+            </Basic.PanelBody>
+            <Basic.PanelFooter showLoading={showLoading || _showLoading} >
+              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoadingIcon
+                showLoadingText={this.i18n('button.saving')}
+                rendered={ manager.canSave(entity, _permissions) }>
+                {this.i18n('button.save')}
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
+        </form>
       </div>
     );
   }
 }
 
 FormAttributeDetail.propTypes = {
-  _permissions: PropTypes.arrayOf(PropTypes.string)
+  _permissions: PropTypes.arrayOf(PropTypes.string),
+  isNew: PropTypes.bool,
+  formDefinition: PropTypes.string,
 };
 FormAttributeDetail.defaultProps = {
-  _permissions: null
+  _permissions: null,
+  isNew: false,
+  formDefinition: null,
 };
 
 function select(state, component) {

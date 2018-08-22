@@ -22,14 +22,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
-import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.AsyncEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -37,7 +38,6 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.EventContentDeletedException;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -275,6 +275,10 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any()))
 				.thenReturn(new PageImpl<>(normalEvents));
 		//
+		when(entityEventService
+				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
+				.thenReturn(new PageImpl<>(new ArrayList<>()));
+		//
 		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
 		//
 		// normalEventTwo (high now) - highEventOne - normalEventOne
@@ -336,6 +340,9 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						eq(PriorityType.NORMAL), 
 						any()))
 				.thenReturn(new PageImpl<>(normalEvents));
+		when(entityEventService
+				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
+				.thenReturn(new PageImpl<>(new ArrayList<>()));
 		//
 		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
 		//
@@ -414,6 +421,10 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any()))
 				.thenReturn(new PageImpl<>(new ArrayList<>()));
 		//
+		when(entityEventService
+				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
+				.thenReturn(new PageImpl<>(new ArrayList<>()));
+		//
 		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
 		Assert.assertEquals(1, events.size());
 		Assert.assertTrue(events.stream().anyMatch(e -> e.getId().equals(highEventTwo.getId())));
@@ -472,6 +483,10 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any()))
 				.thenReturn(new PageImpl<>(normalEvents));
 		//
+		when(entityEventService
+				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
+				.thenReturn(new PageImpl<>(new ArrayList<>()));
+		//
 		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
 		//
 		// normalEventTwo (high now)
@@ -501,6 +516,10 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testResurrectEventWithPersistedContent() {
+		when(lookupService
+				.getOwnerType(MockOwner.class))
+				.thenReturn(MockOwner.class.getCanonicalName());
+		//
 		IdmEntityEventDto entityEvent = new IdmEntityEventDto(UUID.randomUUID());
 		MockOwner mockOwner =  new MockOwner();
 		entityEvent.setOwnerType(eventManager.getOwnerType(mockOwner.getClass()));
@@ -512,14 +531,14 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		entityEvent.getProperties().put("one", "one");
 		entityEvent.setParentEventType(CoreEventType.UPDATE.name());
 		//
-		EntityEvent<Identifiable> event = eventManager.toEvent(entityEvent);
+		EntityEvent<?> event = eventManager.toEvent(entityEvent);
 		//
 		Assert.assertEquals(mockOwner, event.getContent());
 		Assert.assertEquals(CoreEventType.NOTIFY.name(), event.getType().name());
-		Assert.assertEquals(entityEvent.getId(), event.getProperties().get(EntityEventManager.EVENT_PROPERTY_EVENT_ID));
-		Assert.assertEquals(entityEvent.getPriority(), event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PRIORITY));
-		Assert.assertEquals(entityEvent.getExecuteDate(), event.getProperties().get(EntityEventManager.EVENT_PROPERTY_EXECUTE_DATE));
-		Assert.assertEquals(CoreEventType.UPDATE.name(), event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PARENT_EVENT_TYPE));
+		Assert.assertEquals(entityEvent.getId(), event.getId());
+		Assert.assertEquals(entityEvent.getPriority(), event.getPriority());
+		Assert.assertEquals(entityEvent.getExecuteDate(), event.getExecuteDate());
+		Assert.assertEquals(CoreEventType.UPDATE.name(), event.getParentType());
 		Assert.assertEquals("one", event.getProperties().get("one"));
 	}
 	
@@ -533,7 +552,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		//
 		when(lookupService.lookupDto(IdmIdentity.class, mockOwner.getId())).thenReturn(mockOwner);
 		//
-		EntityEvent<Identifiable> event = eventManager.toEvent(entityEvent);
+		EntityEvent<?> event = eventManager.toEvent(entityEvent);
 		//
 		Assert.assertEquals(mockOwner, event.getContent());
 		Assert.assertEquals(CoreEventType.NOTIFY.name(), event.getType().name());
@@ -557,11 +576,14 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		//
 		DateTime executeDate = new DateTime();
 		IdmIdentity identity = new IdmIdentity(UUID.randomUUID());
+		when(lookupService
+				.getOwnerId(any()))
+				.thenReturn(identity.getId());
 		Map<String, Serializable> props = new HashMap<>();
-		props.put(EntityEventManager.EVENT_PROPERTY_EXECUTE_DATE, executeDate);
-		props.put(EntityEventManager.EVENT_PROPERTY_PRIORITY, PriorityType.HIGH);
+		props.put(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE, executeDate);
+		props.put(EntityEvent.EVENT_PROPERTY_PRIORITY, PriorityType.HIGH);
 		//
-		IdmEntityEventDto entityEvent = eventManager.createEvent(identity, new CoreEvent<>(CoreEventType.CREATE, identity, props));
+		IdmEntityEventDto entityEvent = eventManager.prepareEvent(identity, new CoreEvent<>(CoreEventType.CREATE, identity, props));
 		//
 		Assert.assertEquals("mockInstance", entityEvent.getInstanceId());
 		Assert.assertEquals(executeDate, entityEvent.getExecuteDate());

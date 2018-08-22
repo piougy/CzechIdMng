@@ -214,7 +214,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		Assert.assertEquals(0, roles.size());
 		
 		IdmRoleDto role = new IdmRoleDto();
-		role.setName(ROLE_NAME);
+		role.setCode(ROLE_NAME);
 		roleService.save(role);
 		
 		final String wfExampleKey =  "syncRoleAd";

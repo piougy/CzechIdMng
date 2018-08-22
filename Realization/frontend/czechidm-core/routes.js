@@ -294,9 +294,19 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
         },
         {
+          path: 'compositions',
+          component: require('./src/content/role/RoleCompositions'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECOMPOSITION_READ'] } ]
+        },
+        {
           path: 'guarantees',
           component: require('./src/content/role/RoleGuarantees'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
+        },
+        {
+          path: 'catalogues',
+          component: require('./src/content/role/RoleCatalogueRoles'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUEROLE_READ'] } ]
         },
         {
           path: 'identities',
@@ -665,15 +675,32 @@ module.exports = {
         },
         {
           path: ':entityId/localization',
-          component: require('./src/content/form/FormLocalization'),
+          component: require('./src/content/form/FormDefinitionLocalization'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] } ]
+        },
+        {
+          path: ':entityId/values',
+          component: require('./src/content/form/FormDefinitionValues'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
         }
       ]
     },
     {
-      path: 'forms/attribute/:entityId',
-      component: require('./src/content/form/FormAttributeDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
+      path: 'forms/attribute/',
+      component: require('./src/content/form/FormAttributeRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId/detail',
+          component: require('./src/content/form/FormAttributeDetail'),
+          access: [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] }]
+        },
+        {
+          path: ':entityId/values',
+          component: require('./src/content/form/FormAttributeValues'),
+          access: [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] }]
+        }
+      ]
     },
     {
       path: 'password-policies',

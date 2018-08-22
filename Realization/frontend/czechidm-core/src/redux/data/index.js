@@ -24,6 +24,8 @@ import ConfigurationManager from './ConfigurationManager';
 import EmailManager from './EmailManager';
 import BackendModuleManager from './BackendModuleManager';
 import RoleCatalogueManager from './RoleCatalogueManager';
+import RoleCatalogueRoleManager from './RoleCatalogueRoleManager';
+import RoleCompositionManager from './RoleCompositionManager';
 import AuditManager from './AuditManager';
 import ScriptManager from './ScriptManager';
 import NotificationConfigurationManager from './NotificationConfigurationManager';
@@ -38,6 +40,7 @@ import ConceptRoleRequestManager from './ConceptRoleRequestManager';
 import RoleTreeNodeManager from './RoleTreeNodeManager';
 import FormDefinitionManager from './FormDefinitionManager';
 import FormAttributeManager from './FormAttributeManager';
+import FormValueManager from './FormValueManager';
 import AuthorizationPolicyManager from './AuthorizationPolicyManager';
 import ScriptAuthorityManager from './ScriptAuthorityManager';
 import ContractGuaranteeManager from './ContractGuaranteeManager';
@@ -61,6 +64,7 @@ import RequestManager from './RequestManager';
 import RequestItemManager from './RequestItemManager';
 import AbstractRequestFormableManager from './AbstractRequestFormableManager';
 import AbstractRequestManager from './AbstractRequestManager';
+import ProfileManager from './ProfileManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -82,6 +86,8 @@ const ManagerRoot = {
   EmailManager,
   BackendModuleManager,
   RoleCatalogueManager,
+  RoleCatalogueRoleManager,
+  RoleCompositionManager,
   AuditManager,
   ScriptManager,
   NotificationConfigurationManager,
@@ -96,6 +102,7 @@ const ManagerRoot = {
   RoleTreeNodeManager,
   FormDefinitionManager,
   FormAttributeManager,
+  FormValueManager,
   AuthorizationPolicyManager,
   ScriptAuthorityManager,
   ContractGuaranteeManager,
@@ -118,7 +125,8 @@ const ManagerRoot = {
   RequestManager,
   RequestItemManager,
   AbstractRequestFormableManager,
-  AbstractRequestManager
+  AbstractRequestManager,
+  ProfileManager
 };
 
 ManagerRoot.version = '0.0.1';

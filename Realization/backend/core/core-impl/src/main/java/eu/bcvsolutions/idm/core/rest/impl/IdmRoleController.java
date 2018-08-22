@@ -39,6 +39,8 @@ import eu.bcvsolutions.idm.core.api.config.domain.RequestConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
@@ -53,7 +55,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -572,10 +573,9 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 	@Override
 	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmRoleFilter filter = new IdmRoleFilter(parameters);
-		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", RoleType.class));
-		filter.setRoleCatalogueId(getParameterConverter().toUuid(parameters, "roleCatalogue"));
-		filter.setGuaranteeId(getParameterConverter().toEntityUuid(parameters, "guarantee", IdmIdentity.class));
+		filter.setRoleCatalogueId(getParameterConverter().toEntityUuid(parameters, IdmRoleFilter.PARAMETER_ROLE_CATALOGUE, IdmRoleCatalogueDto.class));
+		filter.setGuaranteeId(getParameterConverter().toEntityUuid(parameters, IdmRoleFilter.PARAMETER_GUARANTEE, IdmIdentityDto.class));
 		return filter;
 	}
 }

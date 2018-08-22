@@ -179,7 +179,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmRoleDto role1 = this.roleService.getByCode(DEFAULT_ROLE_NAME);
 				if (role1 == null) {
 					role1 = new IdmRoleDto();
-					role1.setName(DEFAULT_ROLE_NAME);
+					role1.setCode(DEFAULT_ROLE_NAME);
 					role1 = this.roleService.save(role1);
 				}
 				// self policy
@@ -273,7 +273,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//
 				IdmRoleDto role2 = new IdmRoleDto();
-				role2.setName("customRole");
+				role2.setCode("customRole");
 				// TODO: subroles are disabled for now
 				//List<IdmRoleComposition> subRoles = new ArrayList<>();
 				//subRoles.add(new IdmRoleComposition(role2, superAdminRole));
@@ -282,7 +282,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role2.getId()));
 				//
 				IdmRoleDto roleManager = new IdmRoleDto();
-				roleManager.setName("manager");
+				roleManager.setCode("manager");
 				roleManager = this.roleService.save(roleManager);
 				LOG.info(MessageFormat.format("Role created [id: {0}]", roleManager.getId()));
 				//

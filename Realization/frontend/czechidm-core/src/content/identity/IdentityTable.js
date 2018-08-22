@@ -5,12 +5,13 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import { SearchParameters } from '../../domain';
 import { DataManager, TreeNodeManager, SecurityManager, ConfigurationManager, RoleManager } from '../../redux';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
 
 /**
- * Table of users
+ * Table of identities
  *
  * @author Radek Tomiška
  */
@@ -40,10 +41,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
 
   getManager() {
     return this.props.identityManager;
-  }
-
-  getUiKey() {
-    return this.props.uiKey;
   }
 
   setTreeNodeId(treeNodeId, cb) {
@@ -96,20 +93,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     });
   }
 
-  onActivate(bulkActionValue, usernames) {
-    const { identityManager } = this.props;
-    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), usernames);
-    //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, username: this.getManager().getNiceLabel(selectedEntities[0]) }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length})
-    ).then(() => {
-      this.context.store.dispatch(identityManager.setUsersActivity(selectedEntities, bulkActionValue));
-    }, () => {
-      // nothing
-    });
-  }
-
   render() {
     const {
       uiKey,
@@ -121,7 +104,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       showFilter,
       showRowSelection,
       rendered,
-      treeType
+      treeType,
+      className
     } = this.props;
     const { filterOpened } = this.state;
     //
@@ -152,13 +136,13 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           manager={ identityManager }
           showRowSelection={ showRowSelection && (SecurityManager.hasAuthority('IDENTITY_UPDATE') || SecurityManager.hasAuthority('IDENTITY_DELETE')) }
           filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('filter.name.placeholder')}
+                      placeholder={ this.i18n('filter.name.placeholder') }
                       help={ Advanced.Filter.getTextHelp() }/>
                   </Basic.Col>
                   <Basic.Col lg={ 3 }>
@@ -169,7 +153,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                       rendered={ !roleDisabled }/>
                   </Basic.Col>
                   <Basic.Col lg={ 3 } className="text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
@@ -222,7 +206,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           }
           filterOpened={ filterOpened }
           showFilter={ showFilter }
-          forceSearchParameters={_forceSearchParameters}
+          forceSearchParameters={ _forceSearchParameters }
           buttons={
             [
               <Basic.Button
@@ -230,14 +214,15 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                 key="add_button"
                 type="submit"
                 className="btn-xs"
-                onClick={this.showDetail.bind(this, {})}
-                rendered={showAddButton && SecurityManager.hasAuthority('IDENTITY_CREATE')}
+                onClick={ this.showDetail.bind(this, {}) }
+                rendered={ showAddButton && SecurityManager.hasAuthority('IDENTITY_CREATE') }
                 icon="fa:user-plus">
-                {this.i18n('content.identity.create.button.add')}
+                { this.i18n('content.identity.create.button.add') }
               </Basic.Button>
             ]
           }
-          _searchParameters={ this.getSearchParameters() }>
+          _searchParameters={ this.getSearchParameters() }
+          className={ className }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -245,12 +230,11 @@ export class IdentityTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 return (
                   <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    title={ this.i18n('button.detail') }
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
               }
             }
-            sort={ false }
             rendered={ showDetailButton }/>
           <Advanced.Column
             header={ this.i18n('entity.Identity._type') }
@@ -317,6 +301,10 @@ IdentityTable.propTypes = {
    */
   rendered: PropTypes.bool,
   /**
+   * Css
+   */
+  className: PropTypes.string,
+  /**
    * Filter tree type structure - given id ur default - false
    * @deprecated Remove after better tree type - node filter component
    */
@@ -338,7 +326,7 @@ IdentityTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : null,
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     deleteEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.delete')
   };
 }

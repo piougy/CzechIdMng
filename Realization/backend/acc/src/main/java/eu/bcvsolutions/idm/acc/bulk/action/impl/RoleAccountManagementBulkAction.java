@@ -95,7 +95,7 @@ public class RoleAccountManagementBulkAction extends AbstractBulkAction<IdmRoleD
 
 		OperationResult operationResult = new OperationResult(OperationState.EXECUTED);
 		operationResult.setCause(MessageFormat.format(
-				"For role [{0}] was processed/notified [{1}] identity roles. With this UUIDs:\n {2}", dto.getName(),
+				"For role [{0}] was processed/notified [{1}] identity roles. With this UUIDs:\n {2}", dto.getCode(),
 				allIdentityRoles.size(), message.toString()));
 		return operationResult;
 	}
@@ -115,7 +115,7 @@ public class RoleAccountManagementBulkAction extends AbstractBulkAction<IdmRoleD
 			long count = identityRoleService.find(identityRoleFilter, new PageRequest(0, 1)).getTotalElements();
 			if (count > 0) {
 				models.put(new DefaultResultModel(AccResultCode.ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES,
-						ImmutableMap.of("role", role.getName(), "count", count)), count);
+						ImmutableMap.of("role", role.getCode(), "count", count)), count);
 			}
 		});
 

@@ -130,12 +130,12 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		SysRoleSystemFilter filter = new SysRoleSystemFilter();
 		filter.setRoleId(role.getId());
 		
-		assertNotNull(roleService.getByCode(role.getName()));
+		assertNotNull(roleService.getByCode(role.getCode()));
 		assertEquals(1, roleSystemService.find(filter, null).getTotalElements());
 		
 		roleService.delete(role);
 		
-		assertNull(roleService.getByCode(role.getName()));
+		assertNull(roleService.getByCode(role.getCode()));
 		assertEquals(0, roleSystemService.find(filter, null).getTotalElements());
 	}
 

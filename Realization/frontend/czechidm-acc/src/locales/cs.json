@@ -559,12 +559,25 @@
         },
         "cancelAll": {
           "button": {
-            "label": "Zrušit všechny operace",
-            "title": "Zrušit všechny operace z fronty provisioningu dle aktuálního filtru"
+            "label": "Zrušit operace",
+            "title": "Zrušit operace z fronty provisioningu dle aktuálního filtru"
           },
           "header": "Zrušit operace z fronty provisioningu",
-          "message": "Opravdu chcete zrušit všechny operace z fronty provisioningu dle aktuálního filtru? Budou zrušeny všechny operace pro danou entitu na koncovém systému",
+          "message": "Opravdu chcete zrušit operace z fronty provisioningu dle aktuálního filtru? Budou zrušeny všechny operace pro danou entitu na koncovém systému. Zrušené operace naleznete v archívu.",
           "accepted": "Úloha, která zruší vyfiltrované operace, byla spuštěna."
+        },
+        "deleteAll": {
+          "button": {
+            "label": "Smazat operace",
+            "title": "Smazat operace z fronty provisioningu"
+          },
+          "system": {
+            "label": "$t(acc:entity.System._type)",
+            "placeholder": "Vyberte systém, na kterém budou smazány operace ..."
+          },
+          "header": "Smazat operace z fronty provisioningu",
+          "message": "Opravdu chcete smazat operace z fronty provisioningu? Budou smazány (bez archivace) všechny operace pro vybraný koncový systém.",
+          "success": "Operace z fronty provisioningu byly smazány"
         }
       },
       "tabs": {
@@ -1389,7 +1402,7 @@
     },
     "PROVISIONING_IDM_FIELD_NOT_FOUND": {
       "title": "Položka pro provisioning nenalezena",
-      "message": "IdM položka [{{field}}] pro entitu [{{entity}}] nebyla nalezena!"
+      "message": "IdM položka [{{property}}] pro entitu [{{entityType}}] nebyla nalezena!"
     },
     "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
       "title": "System [{{system}}] nepodporuje změnu hesla",

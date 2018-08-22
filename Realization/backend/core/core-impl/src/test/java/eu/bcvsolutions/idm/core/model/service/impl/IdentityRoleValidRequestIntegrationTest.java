@@ -174,11 +174,8 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 	}
 	
 	private IdmRoleDto createAndSaveRole() {
-		IdmRoleDto entity = new IdmRoleDto();
-		entity.setName("valid_role_" + System.currentTimeMillis());
-		return saveInTransaction(entity, roleService);
+		return getHelper().createRole();
 	}
-
 	
 	private IdmTreeTypeDto createAndSaveTreeType() {
 		IdmTreeTypeDto entity = new IdmTreeTypeDto();

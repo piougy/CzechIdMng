@@ -110,7 +110,7 @@ public class DefaultSysRoleSystemAttributeService extends
 				IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
 				SysSystemDto systemDto = DtoUtils.getEmbedded(dto, SysRoleSystem_.system);
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID,
-						ImmutableMap.of("role", roleDto.getName(), "system", systemDto.getName()));
+						ImmutableMap.of("role", roleDto.getCode(), "system", systemDto.getName()));
 			}
 		}
 

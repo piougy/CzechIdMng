@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractRemoveBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -30,7 +29,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Delete given roles
@@ -38,8 +36,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  * @author svandav
  *
  */
-
-@Enabled(module = CoreModuleDescriptor.MODULE_ID)
 @Component("roleDeleteBulkAction")
 @Description("Delete given roles.")
 public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, IdmRoleFilter> {
@@ -76,7 +72,7 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 			long count = identityRoleService.find(identityRoleFilter, new PageRequest(0, 1)).getTotalElements();
 			if (count > 0) {
 				models.put(new DefaultResultModel(CoreResultCode.ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES,
-						ImmutableMap.of("role", role.getName(), "count", count)), count);
+						ImmutableMap.of("role", role.getCode(), "count", count)), count);
 			}
 		});
 

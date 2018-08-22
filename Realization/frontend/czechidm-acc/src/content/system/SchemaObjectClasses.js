@@ -119,7 +119,7 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
           </div>
         </Basic.PanelBody>
 
-        <Basic.ContentHeader>
+        <Basic.ContentHeader style={{ marginBottom: 0 }}>
           <Basic.Icon value="compressed"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('schemaObjectClassesHeader') }}/>

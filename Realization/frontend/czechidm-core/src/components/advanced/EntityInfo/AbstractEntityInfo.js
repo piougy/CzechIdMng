@@ -58,7 +58,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           this.context.store.dispatch(manager.autocompleteEntityIfNeeded(entityId, uiKey, (e, ex) => {
             // TODO: move to other place - is called only when entity is not given
             if (!ex && (face === 'full' || (face === 'link' && this.getLink()))) {
-              this._onEnter();
+              this.onEnter();
             }
             this.setState({
               error: ex
@@ -74,7 +74,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    *
    * @return {[type]} [description]
    */
-  _onEnter() {
+  onEnter() {
     const { _permissions } = this.props;
     const manager = this.getManager();
     const entityId = this.getEntityId();
@@ -83,7 +83,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
       // nothing to load
       return;
     }
-    if (!_permissions) {
+    if (!_permissions && entityId) {
       const uiKey = manager.resolveUiKey(null, entityId);
       this.context.store.dispatch(manager.fetchPermissions(entityId, uiKey));
     }
@@ -241,8 +241,6 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * Renders link face
    */
   _renderLink() {
-    const _entity = this.getEntity();
-    //
     if (!this.showLink()) {
       return this._renderNiceLabel();
     }
@@ -252,7 +250,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         <Link
           to={ this.getLink() }
           title={ this.i18n('component.advanced.EntityInfo.link.detail.label') }>
-          { this.getManager().getNiceLabel(_entity) }
+          { this.getNiceLabel() }
         </Link>
       </span>
     );
@@ -269,7 +267,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         trigger={['click']}
         value={ this._renderFull() }
         className="abstract-entity-info-popover"
-        onEnter={ this._onEnter.bind(this) }>
+        onEnter={ this.onEnter.bind(this) }>
         {
           <span
             style={ style }>

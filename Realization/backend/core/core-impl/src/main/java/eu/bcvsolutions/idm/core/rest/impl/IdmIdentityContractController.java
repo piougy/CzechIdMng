@@ -39,6 +39,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
@@ -69,6 +70,8 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 	
 	protected static final String TAG = "Contracts";
 	private final IdmFormDefinitionController formDefinitionController;
+	@Autowired
+	private FormService formService;
 	
 	@Autowired
 	public IdmIdentityContractController(
@@ -320,8 +323,19 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 		checkAccess(dto, IdmBasePermission.READ);
 		//
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
+		IdmFormInstanceDto formInstance = formService.getFormInstance(dto, formDefinition);
 		//
-		return formDefinitionController.getFormValues(dto, formDefinition);
+		// If is contract controlled by slice, then we make all
+		// attributes in main definition readOnly!
+		if (formInstance.getFormDefinition().isMain() && dto.getControlledBySlices()) {
+			formInstance.getFormDefinition() //
+					.getFormAttributes() //
+					.stream() //
+					.forEach(attribute -> {
+						attribute.setReadonly(true);
+					});
+		}
+		return new Resource<>(formInstance);
 	}
 	
 	/**

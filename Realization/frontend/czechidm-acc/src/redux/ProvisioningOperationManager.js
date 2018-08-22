@@ -47,6 +47,27 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
   }
 
   /**
+   * Delete all provisioning operation from queue for the given system identifier.
+   *
+   * @param  {string} system
+   * @return {Promise}
+   */
+  deleteAll(system, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    //
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().deleteAll(system)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
+    };
+  }
+
+  /**
    * Retry or cancel provisioning operation
    *
    * @param  {[type]} _ids           [description]

@@ -89,7 +89,7 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
 OrganizationPosition.propTypes = {
   ...Basic.AbstractContextComponent.propTypes,
   identity: PropTypes.string,
-  _workPosition: PropTypes.arrayOf(PropTypes.object),
+  _workPosition: PropTypes.object,
   defaultTreeType: PropTypes.object,
 };
 OrganizationPosition.defaultProps = {

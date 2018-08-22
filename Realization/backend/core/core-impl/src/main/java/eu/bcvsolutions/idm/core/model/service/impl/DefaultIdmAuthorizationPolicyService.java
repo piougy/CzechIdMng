@@ -160,7 +160,7 @@ public class DefaultIdmAuthorizationPolicyService
 			return Collections.<GrantedAuthority>emptySet();
 		}
 		if (defaultRole.isDisabled()) {
-			LOG.debug("Default role [{}] is disabled, no default authorities will be added.", defaultRole.getName());
+			LOG.debug("Default role [{}] is disabled, no default authorities will be added.", defaultRole.getCode());
 			return Collections.<GrantedAuthority>emptySet();
 		}
 		//
@@ -179,7 +179,7 @@ public class DefaultIdmAuthorizationPolicyService
 			return Collections.<IdmAuthorizationPolicyDto>emptyList();
 		}
 		if (defaultRole.isDisabled()) {
-			LOG.debug("Default role [{}] is disabled, no default authorization policies will be added.", defaultRole.getName());
+			LOG.debug("Default role [{}] is disabled, no default authorization policies will be added.", defaultRole.getCode());
 			return Collections.<IdmAuthorizationPolicyDto>emptyList();
 		}
 		//

@@ -60,7 +60,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		addToItemLog(logItem,
 				MessageFormat.format(
 						"Call provisioning (process RoleEventType.SAVE) for role ({0}) with username ({1}).",
-						entity.getId(), entity.getName()));
+						entity.getId(), entity.getCode()));
 		entityEventManager.process(new RoleEvent(RoleEventType.UPDATE, entity)).getContent();
 	}
 

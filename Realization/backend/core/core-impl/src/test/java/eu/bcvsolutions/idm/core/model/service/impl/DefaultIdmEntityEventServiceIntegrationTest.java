@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -16,7 +17,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
-import eu.bcvsolutions.idm.core.api.exception.EventDeleteFailedHasChildrenException;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -27,6 +29,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 /**
  * Entity events integration tests
  * - referential integrity
+ * - delete all (with states, which is owning by event)
  * 
  * @author Radek Tomiška
  *
@@ -109,9 +112,8 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		Assert.assertNull(entityStateService.get(entityState));
 	}
 	
-	@Test(expected = EventDeleteFailedHasChildrenException.class)
 	@Transactional
-	public void testReferentialIntegritParentIsDeleted() {
+	public void testReferentialIntegrityParentIsDeleted() {
 		IdmEntityEventDto parentEvent = new IdmEntityEventDto();
 		parentEvent.setOwnerType("empty");
 		parentEvent.setEventType("empty");
@@ -134,7 +136,10 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		Assert.assertNotNull(entityEvent.getId());
 		//
 		entityEventService.delete(parentEvent);
-	}
+		//
+		Assert.assertNull(entityEventService.get(parentEvent.getId()));
+		Assert.assertNull(entityEventService.get(entityEvent.getId()));
+	}	
 	
 	@Transactional
 	public void testReferentialIntegrityLastChildIsDeleted() {
@@ -182,5 +187,49 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		Assert.assertNull(entityEventService.get(parentEvent.getId()));
 		Assert.assertNull(entityEventService.get(entityEventOne.getId()));
 		Assert.assertNull(entityEventService.get(entityEventTwo.getId()));
+	}
+	
+	@Test
+	@Transactional
+	public void testDeleteAll() {
+		String mockOwnerType = getHelper().createName();
+		//
+		IdmEntityEventDto entityEvent = new IdmEntityEventDto();
+		entityEvent.setOwnerType(mockOwnerType);
+		entityEvent.setEventType("empty");
+		entityEvent.setOwnerId(UUID.randomUUID());
+		entityEvent.setInstanceId("empty");
+		entityEvent.setResult(new OperationResultDto(OperationState.BLOCKED));
+		entityEvent.setPriority(PriorityType.NORMAL);
+		entityEvent = entityEventService.save(entityEvent);
+		//
+		Assert.assertNotNull(entityEvent.getId());
+		//
+		IdmEntityStateDto entityState = new IdmEntityStateDto(entityEvent);
+		entityState.setResult(new OperationResultDto(OperationState.BLOCKED));
+		entityState = entityStateService.save(entityState);
+		IdmEntityStateDto otherState = new IdmEntityStateDto();
+		otherState.setInstanceId("mock");
+		otherState.setOwnerId(UUID.randomUUID());
+		otherState.setOwnerType(mockOwnerType);
+		otherState.setResult(new OperationResultDto(OperationState.BLOCKED));
+		otherState = entityStateService.save(otherState);
+		//
+		Assert.assertNotNull(entityState.getId());
+		Assert.assertNotNull(otherState.getId());
+		//
+		//
+		IdmEntityEventFilter eventFilter = new IdmEntityEventFilter();
+		eventFilter.setOwnerType(mockOwnerType);
+		Assert.assertEquals(1, entityEventService.find(eventFilter, null).getTotalElements());
+		IdmEntityStateFilter stateFilter = new IdmEntityStateFilter();
+		stateFilter.setOwnerType(mockOwnerType);
+		Assert.assertEquals(2, entityStateService.find(stateFilter, null).getTotalElements());
+		//
+		entityEventService.deleteAll();
+		Assert.assertEquals(0, entityEventService.find(eventFilter, null).getTotalElements());
+		List<IdmEntityStateDto> states = entityStateService.find(stateFilter, null).getContent();
+		Assert.assertEquals(1, states.size());
+		Assert.assertEquals(otherState.getId(), states.get(0).getId());
 	}
 }

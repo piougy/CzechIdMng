@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmProfileFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -31,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
+import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
@@ -63,7 +65,8 @@ public class IdentityDeleteProcessor
 	@Autowired private IdmPasswordHistoryService passwordHistoryService;
 	@Autowired private IdmContractSliceService contractSliceService;
 	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
-	
+	@Autowired private IdmProfileService profileService;
+
 	public IdentityDeleteProcessor() {
 		super(IdentityEventType.DELETE);
 	}
@@ -124,6 +127,13 @@ public class IdentityDeleteProcessor
 		roleRequestFilter.setApplicantId(identity.getId());
 		roleRequestService.find(roleRequestFilter, null).forEach(request ->{
 			roleRequestService.delete(request);
+		});
+		//
+		// delete all identity's profiles
+		IdmProfileFilter profileFilter = new IdmProfileFilter();
+		profileFilter.setIdentityId(identity.getId());
+		profileService.find(profileFilter,  null).forEach(profile -> {
+			profileService.delete(profile);
 		});
 		// remove all IdentityRoleValidRequest for this identity
 		List<IdmIdentityRoleValidRequestDto> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityId(identity.getId());

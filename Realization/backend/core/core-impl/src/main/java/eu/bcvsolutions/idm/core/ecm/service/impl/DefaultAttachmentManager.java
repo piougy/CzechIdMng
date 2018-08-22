@@ -236,7 +236,13 @@ public class DefaultAttachmentManager
 	@Override
 	@Transactional
 	public void deleteAttachment(IdmAttachmentDto attachment, BasePermission... permission) {
-		getAttachmentVersions(attachment.getId()).forEach(version -> {
+		deleteAttachment(attachment.getId(), permission);
+	}
+	
+	@Override
+	@Transactional
+	public void deleteAttachment(UUID attachmentId, BasePermission... permission) {
+		getAttachmentVersions(attachmentId).forEach(version -> {
 			delete(version, permission);
 		});
 	}
@@ -298,7 +304,7 @@ public class DefaultAttachmentManager
 	 * 
 	 * @return purged files count
 	 */
-	@Scheduled(fixedDelay = 3600000) 
+	@Scheduled(fixedDelay = 86400000) // once per day
 	public void purgeTempFiles() {	
 		int purgedFiles = 0;
 		long ttl = attachmentConfiguration.getTempTtl();
@@ -326,6 +332,13 @@ public class DefaultAttachmentManager
 		    }
 		}
 		LOG.debug("Temporary files were purged [{}]", purgedFiles);
+	}
+	
+	@Override
+	public String getOwnerType(Identifiable owner) {
+		Assert.notNull(owner);
+		//
+		return getOwnerType(owner.getClass());
 	}
 	
 	@Override
@@ -477,18 +490,6 @@ public class DefaultAttachmentManager
 		Assert.isInstanceOf(UUID.class, owner.getId(), "Entity with UUID identifier is supported as owner for attachments.");
 		//
 		return (UUID) owner.getId();
-	}
-	
-	/**
-	 * Owner type has to be entity class - dto class can be given.
-	 * 
-	 * @param owner
-	 * @return
-	 */
-	private String getOwnerType(Identifiable owner) {
-		Assert.notNull(owner);
-		//
-		return getOwnerType(owner.getClass());
 	}
 	
 	/**

@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityRoleProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -21,9 +22,11 @@ import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventT
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(IdentityRoleSaveProcessor.PROCESSOR_NAME)
 @Description("Persists identity role.")
-public class IdentityRoleSaveProcessor extends CoreEventProcessor<IdmIdentityRoleDto> {
+public class IdentityRoleSaveProcessor 
+		extends CoreEventProcessor<IdmIdentityRoleDto> 
+		implements IdentityRoleProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-role-save-processor";
 	private final IdmIdentityRoleService service;

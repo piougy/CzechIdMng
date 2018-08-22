@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
@@ -41,6 +42,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
+import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
@@ -73,7 +76,6 @@ import eu.bcvsolutions.idm.core.ecm.service.impl.DefaultAttachmentManager;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRuleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmContractGuaranteeRepository;
@@ -85,7 +87,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordHistoryRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmProfileRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleCompositionRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
@@ -96,6 +99,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.repository.filter.DefaultFilterManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityStateManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAutomaticRoleAttributeService;
@@ -110,6 +114,8 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmProfileService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
@@ -163,7 +169,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmConfigurationRepository configurationRepository;
 	@Autowired private IdmIdentityRepository identityRepository;
 	@Autowired private IdmRoleRepository roleRepository;
-	@Autowired private IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
+	@Autowired private IdmRoleCompositionRepository roleCompositionRepository;
 	@Autowired private IdmRoleTreeNodeRepository roleTreeNodeRepository;
 	@Autowired private IdmTreeTypeRepository treeTypeRepository;
 	@Autowired private IdmTreeNodeRepository treeNodeRepository;
@@ -184,12 +190,12 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmFormRepository formRepository;
 	@Autowired private IdmAttachmentRepository attachmentRepository;
 	@Autowired private IdmAutomaticRoleAttributeRepository automaticRoleAttributeRepository;
-	@Autowired private IdmAutomaticRoleRepository automaticRoleRepository;
 	@Autowired private IdmAutomaticRoleAttributeRuleRepository automaticRoleAttributeRuleRepository;
 	@Autowired private IdmEntityEventRepository entityEventRepository;
 	@Autowired private IdmEntityStateRepository entityStateRepository;
 	@Autowired private IdmPasswordHistoryRepository passwordHistoryRepository;
 	@Autowired private IdmTokenRepository tokenRepository;
+	@Autowired private IdmProfileRepository profileRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -284,6 +290,17 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(EntityEventManager.class)
 	public EntityEventManager entityEventManager() {
 		return new DefaultEntityEventManager(context, publisher, enabledEvaluator(), lookupService());
+	}
+	
+	/**
+	 * State manager for entities.
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(EntityStateManager.class)
+	public EntityStateManager entityStateManager() {
+		return new DefaultEntityStateManager();
 	}
 	
 	/**
@@ -396,7 +413,7 @@ public class IdmServiceConfiguration {
 	public FormService formService() {
 		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager(), lookupService());
 	}
-	
+
 	/**
 	 * Configuration for role agenda
 	 * 
@@ -428,12 +445,22 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(IdmRoleService.class)
 	public IdmRoleService roleService() {
 		return new DefaultIdmRoleService(
-				roleRepository, 
-				roleCatalogueRoleRepository,
+				roleRepository,
 				entityEventManager(), 
 				formService(), 
 				configurationService(),
 				roleConfiguration());
+	}
+	
+	/**
+	 * Role composition - defines business role
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmRoleCompositionService.class)
+	public IdmRoleCompositionService roleCompositionService() {
+		return new DefaultIdmRoleCompositionService(roleCompositionRepository, entityEventManager());
 	}
 	
 	/**
@@ -492,6 +519,19 @@ public class IdmServiceConfiguration {
 				roleConfiguration(),
 				identityContractService(),
 				passwordService());
+	}
+	
+	/***
+	 * Profiles
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmProfileService.class)
+	public IdmProfileService profileService() {
+		return new DefaultIdmProfileService(
+				profileRepository, 
+				entityEventManager());
 	}
 	
 	/**
@@ -619,11 +659,12 @@ public class IdmServiceConfiguration {
 	@Bean(name = {"identityRoleService", "idmIdentityRoleService"})
 	@ConditionalOnMissingBean(IdmIdentityRoleService.class)
 	public IdmIdentityRoleService identityRoleService() {
-		return new DefaultIdmIdentityRoleService(identityRoleRepository, entityEventManager(), lookupService(), automaticRoleRepository);
+		return new DefaultIdmIdentityRoleService(identityRoleRepository, entityEventManager());
 	}
 
 	/**
 	 * Processed long running task items service.
+	 * 
 	 * @return
 	 */
 	@Bean
@@ -634,6 +675,7 @@ public class IdmServiceConfiguration {
 	
 	/**
 	 * Scheduled tasks service for stateful tasks support.
+	 * 
 	 * @return
 	 */
 	@Bean
@@ -651,7 +693,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmRoleGuaranteeService.class)
 	public IdmRoleGuaranteeService roleGuaranteeService() {
-		return new DefaultIdmRoleGuaranteeService(roleGuaranteeRepository);
+		return new DefaultIdmRoleGuaranteeService(roleGuaranteeRepository, entityEventManager());
 	}
 	
 	/**
@@ -673,7 +715,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmConfidentialStorageValueService.class)
 	public IdmConfidentialStorageValueService confidentialStorageValueService() {
-		return new DefaultIdmConfidentialStorageValueService(confidentialStorageValueRepository, cryptService());
+		return new DefaultIdmConfidentialStorageValueService(confidentialStorageValueRepository);
 	}
 	
 	/**

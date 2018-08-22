@@ -69,7 +69,7 @@ public class IdmConfidentialStorageValueController
 		return super.find(parameters, pageable);
 	}
 
-	//
+	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIDENTIAL_STORAGE_VALUE_READ + "')")
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)

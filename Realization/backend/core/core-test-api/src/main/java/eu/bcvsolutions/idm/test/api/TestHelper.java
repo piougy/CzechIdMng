@@ -20,7 +20,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
@@ -158,11 +161,21 @@ public interface TestHelper {
 
 	/**
 	 * Creates test RoleCatalogue with given code = name and parent.
+	 * 
 	 * @param code
 	 * @param parentId
 	 * @return
 	 */
 	IdmRoleCatalogueDto createRoleCatalogue(String code, UUID parentId);
+	
+	/**
+	 * assign role catalogue to tole
+	 * 
+	 * @param role
+	 * @param catalogue
+	 * @return
+	 */
+	IdmRoleCatalogueRoleDto createRoleCatalogueRole(IdmRoleDto role, IdmRoleCatalogueDto catalogue);
 
 	/**
 	 * Deletes identity
@@ -221,21 +234,30 @@ public interface TestHelper {
 	IdmRoleDto createRole();
 
 	/**
-	 * Creates role with given name
+	 * Creates role with given code (name will be the same as code)
 	 *
-	 * @param name
+	 * @param code
 	 * @return
 	 */
-	IdmRoleDto createRole(String name);
+	IdmRoleDto createRole(String code);
 
 	/**
-	 * Creates role with given id and name
+	 * Creates role with given id and code (name will be the same as code)
 	 *
 	 * @param id [optional] if no id is given, then new id is generated
-	 * @param name
+	 * @param code
 	 * @return
 	 */
-	IdmRoleDto createRole(UUID id, String name);
+	IdmRoleDto createRole(UUID id, String code);
+	
+	/**
+	 * Creates role composition
+	 * 
+	 * @param superior
+	 * @param sub
+	 * @return
+	 */
+	IdmRoleCompositionDto createRoleComposition(IdmRoleDto superior, IdmRoleDto sub);
 	
 	/**
 	 * Create role guarantee - identity
@@ -486,6 +508,24 @@ public interface TestHelper {
 	IdmContractSliceGuaranteeDto createContractSliceGuarantee(UUID sliceId, UUID identityId);
 
 	/**
+	 * Create role request - request is not executed
+	 * 
+	 * @param identity - prime identity contract is used
+	 * @param roles
+	 * @return
+	 */
+	IdmRoleRequestDto createRoleRequest(IdmIdentityDto identity, IdmRoleDto... roles);
+	
+	/**
+	 * Create role request - request is not executed
+	 * 
+	 * @param contract
+	 * @param roles
+	 * @return
+	 */
+	IdmRoleRequestDto createRoleRequest(IdmIdentityContractDto contract, IdmRoleDto... roles);
+	
+	/**
 	 * Assign roles through role request (manual, execute immediately)
 	 *
 	 * @param contract
@@ -502,6 +542,15 @@ public interface TestHelper {
 	* @return
 	*/
  	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, boolean startInNewTransaction, IdmRoleDto... roles);
+ 	
+ 	/**
+ 	 * Execute created role request
+ 	 * 
+ 	 * @param roleRequest
+ 	 * @param startInNewTransaction
+ 	 * @return
+ 	 */
+ 	IdmRoleRequestDto executeRequest(IdmRoleRequestDto roleRequest, boolean startInNewTransaction);
 
 	/**
 	 * Prepare processed item instance by given LRT
@@ -637,6 +686,13 @@ public interface TestHelper {
 	IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(UUID automaticRoleId,
 			AutomaticRoleAttributeRuleComparison comparsion, AutomaticRoleAttributeRuleType type, String attrName,
 			UUID formAttrId, String value);
-
+	
+	/**
+	 * Create or get identity profile
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	IdmProfileDto createProfile(IdmIdentityDto identity);
 
 }

@@ -26,6 +26,8 @@ import ConfigurationService from './ConfigurationService';
 import EmailService from './EmailService';
 import BackendModuleService from './BackendModuleService';
 import RoleCatalogueService from './RoleCatalogueService';
+import RoleCatalogueRoleService from './RoleCatalogueRoleService';
+import RoleCompositionService from './RoleCompositionService';
 import AuditService from './AuditService';
 import ScriptService from './ScriptService';
 import NotificationConfigurationService from './NotificationConfigurationService';
@@ -40,6 +42,7 @@ import ConceptRoleRequestService from './ConceptRoleRequestService';
 import RoleTreeNodeService from './RoleTreeNodeService';
 import FormDefinitionService from './FormDefinitionService';
 import FormAttributeService from './FormAttributeService';
+import FormValueService from './FormValueService';
 import AuthorizationPolicyService from './AuthorizationPolicyService';
 import ScriptAuthorityService from './ScriptAuthorityService';
 import ContractGuaranteeService from './ContractGuaranteeService';
@@ -64,6 +67,7 @@ import RequestService from './RequestService';
 import RequestItemService from './RequestItemService';
 import AbstractRequestFormableService from './AbstractRequestFormableService';
 import AbstractRequestService from './AbstractRequestService';
+import ProfileService from './ProfileService';
 
 const ServiceRoot = {
   RestApiService,
@@ -87,6 +91,8 @@ const ServiceRoot = {
   EmailService,
   BackendModuleService,
   RoleCatalogueService,
+  RoleCatalogueRoleService,
+  RoleCompositionService,
   AuditService,
   ScriptService,
   NotificationConfigurationService,
@@ -101,6 +107,7 @@ const ServiceRoot = {
   RoleTreeNodeService,
   FormDefinitionService,
   FormAttributeService,
+  FormValueService,
   AuthorizationPolicyService,
   ScriptAuthorityService,
   ContractGuaranteeService,
@@ -124,7 +131,8 @@ const ServiceRoot = {
   RequestService,
   RequestItemService,
   AbstractRequestFormableService,
-  AbstractRequestService
+  AbstractRequestService,
+  ProfileService
 };
 
 ServiceRoot.version = '0.0.1';

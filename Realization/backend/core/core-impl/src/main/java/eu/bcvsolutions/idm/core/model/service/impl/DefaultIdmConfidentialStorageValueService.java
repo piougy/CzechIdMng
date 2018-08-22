@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -8,10 +7,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmConfidentialStorageValueDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConfidentialStorageValueFilter;
@@ -20,28 +17,22 @@ import eu.bcvsolutions.idm.core.api.service.IdmConfidentialStorageValueService;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue_;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
-import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 
 /**
  * service for Confidential Storage Value Dto
  * 
  * @author Patrik Stloukal
+ * @author Radek Tomiška
  */
 public class DefaultIdmConfidentialStorageValueService extends
 		AbstractReadDtoService<IdmConfidentialStorageValueDto, IdmConfidentialStorageValue, IdmConfidentialStorageValueFilter>
 		implements IdmConfidentialStorageValueService {
 
-	private final CryptService cryptService;
-
 	@Autowired
-	public DefaultIdmConfidentialStorageValueService(IdmConfidentialStorageValueRepository repository,
-			CryptService cryptService) {
+	public DefaultIdmConfidentialStorageValueService(IdmConfidentialStorageValueRepository repository) {
 		super(repository);
-		//
-		Assert.notNull(cryptService);
-		//
-		this.cryptService = cryptService;
 	}
 
 	@Override
@@ -55,9 +46,9 @@ public class DefaultIdmConfidentialStorageValueService extends
 			IdmConfidentialStorageValueDto dto) {
 		IdmConfidentialStorageValueDto result = super.toDto(entity, dto);
 		//
-		// for trimmed is not possible get decrypted value
-		if (!result.isTrimmed()) {
-			result.setSerializableValue(fromStorageValue(result.getValue()));
+		// indicate, if value is filled only
+		if (result.getValue() != null && result.getValue().length > 0) {
+			result.setSerializableValue(GuardedString.SECRED_PROXY_STRING);
 		}
 		//
 		return result;
@@ -88,21 +79,6 @@ public class DefaultIdmConfidentialStorageValueService extends
 			predicates.add(builder.equal(root.get(IdmConfidentialStorageValue_.key), filter.getKey()));
 		}
 		return predicates;
-	}
-
-	/**
-	 * Converts storage byte value to Serializable
-	 * 
-	 * @param type
-	 * @param value
-	 * @return
-	 */
-	private Serializable fromStorageValue(byte[] value) {
-		if (value == null) {
-			return null;
-		}
-		byte[] decryptValue = cryptService.decrypt(value);
-		return SerializationUtils.deserialize(decryptValue);
 	}
 
 }

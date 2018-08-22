@@ -936,7 +936,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 						IdmRoleDto roleDto1 = roleService.get(roleSystem1.getRole());
 						IdmRoleDto roleDto2 = roleService.get(roleSystem2.getRole());
 						//
-						return roleDto2.getName().compareTo(roleDto1.getName());
+						return roleDto2.getCode().compareTo(roleDto1.getCode());
 					}).findFirst();
 
 			if (highestPriorityAttributeOptional.isPresent()) {

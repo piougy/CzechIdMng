@@ -52,6 +52,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Java
   * Class - fields first, then constructors, then public methods, then private methods
   * ``final`` modifier only there, when is needed (its discutable, but we are using it this way)
+  * keep formatting like author - e.g. inline @Autocomplete, stream formating
 * Modules
   * Spring bean names, component names, services, entities etc. should start with module identifier prefix.
   * Registrable bean names (e.g. ``AuthorizationEvaluator``, ``FilterBuilder``, ``IdmAuthenticationFilter`` ...) should start with module prefix ``core-sso-authentication-filter``. This name could be used as bean name in Spring context.

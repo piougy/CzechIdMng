@@ -11,5 +11,5 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
  */
 public interface IdmEntityStateService extends 
 		EventableDtoService<IdmEntityStateDto, IdmEntityStateFilter> {
-
+	
 }

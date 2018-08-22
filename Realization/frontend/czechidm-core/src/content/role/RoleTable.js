@@ -166,7 +166,7 @@ class RoleTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, roleManager, columns, showCatalogue, forceSearchParameters, _requestsEnabled } = this.props;
+    const { uiKey, roleManager, columns, showCatalogue, forceSearchParameters, _requestsEnabled, className } = this.props;
     const { filterOpened, showLoading, rootNodes } = this.state;
     const showTree = showCatalogue && !showLoading && rootNodes && rootNodes.length !== 0;
     return (
@@ -266,7 +266,7 @@ class RoleTable extends Advanced.AbstractTableContent {
               ]
             }
             _searchParameters={ this.getSearchParameters() }
-            >
+            className={ className }>
 
             <Advanced.Column
               header=""
@@ -306,6 +306,10 @@ RoleTable.propTypes = {
    * "Hard filters"
    */
   forceSearchParameters: PropTypes.object,
+  /**
+   * Css
+   */
+  className: PropTypes.string
 };
 
 RoleTable.defaultProps = {

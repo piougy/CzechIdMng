@@ -60,8 +60,24 @@ public interface IdmProcessedTaskItemService extends
 	 */
 	Page<IdmProcessedTaskItemDto> findLogItems(IdmLongRunningTaskDto longRunningTask, Pageable pageable);
 	
+	/**
+	 * Persist processed item
+	 * 
+	 * @param processedItem
+	 * @param result
+	 * @param lrt
+	 * @return
+	 */
 	<DTO extends AbstractDto> IdmProcessedTaskItemDto createLogItem(DTO processedItem, OperationResult result, IdmLongRunningTaskDto lrt);
 	
+	/**
+	 * Persist item into queue
+	 * 
+	 * @param processedItem
+	 * @param result
+	 * @param st
+	 * @return
+	 */
 	<DTO extends AbstractDto> IdmProcessedTaskItemDto createQueueItem(DTO processedItem, OperationResult result, IdmScheduledTaskDto st);
 
 }

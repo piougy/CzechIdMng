@@ -48,6 +48,7 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String TOPIC_PASSWORD_EXPIRED = String.format("%s:passwordExpired", MODULE_ID);
 	public static final String TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS = String.format("%s:%s", MODULE_ID, IdentityMonitoredFieldsProcessor.TOPIC);
 	public static final String TOPIC_PASSWORD_CHANGED = String.format("%s:passwordChanged", MODULE_ID);
+	public static final String TOPIC_PASSWORD_SET = String.format("%s:passwordSet", MODULE_ID);
 	public static final String TOPIC_EVENT = String.format("%s:event", MODULE_ID);
 	public static final String TOPIC_LOGIN_BLOCKED = String.format("%s:loginBlocked", MODULE_ID);
 	public static final String TOPIC_BULK_ACTION_END = String.format("%s:bulkActionEnd", MODULE_ID);
@@ -163,6 +164,14 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"Password has been changed.", 
 				getNotificationTemplateId("passwordChanged")));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_PASSWORD_SET, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Password has been set.", 
+				getNotificationTemplateId("passwordChanged")));
+		//
 		configs.add(new NotificationConfigurationDto(
 				TOPIC_EVENT, 
 				null, 

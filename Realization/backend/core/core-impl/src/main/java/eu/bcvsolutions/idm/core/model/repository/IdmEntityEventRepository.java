@@ -30,7 +30,16 @@ public interface IdmEntityEventRepository extends AbstractEntityRepository<IdmEn
 	 */
 	List<IdmEntityEvent> findByInstanceIdAndResult_StateOrderByCreatedAsc(String instanceId, OperationState state);
 	
-
+	/**
+	 * Find event ready to be executed
+	 * 
+	 * @param instanceId
+	 * @param state
+	 * @param executeDate
+	 * @param priority
+	 * @param pageable
+	 * @return
+	 */
 	@Query(value = "SELECT e FROM #{#entityName} e WHERE"
 			+ " instanceId = :instanceId"
 			+ " AND"
@@ -53,5 +62,10 @@ public interface IdmEntityEventRepository extends AbstractEntityRepository<IdmEn
 	 * @return
 	 */
 	int countByParentId(UUID parentId);
+	
+	/**
+	 * Delete all events
+	 */
+	void deleteAllInBatch();
 	
 }

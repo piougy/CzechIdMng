@@ -486,7 +486,9 @@ public class DefaultSysSystemAttributeMappingService extends
 				} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
 						| InvocationTargetException | ProvisioningException o_O) {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND, ImmutableMap.of(
-							"property", attributeHandling.getIdmPropertyName(), "entityType", entity.getClass()), o_O);
+							"property", attributeHandling.getIdmPropertyName(), 
+							"entityType", entity.getClass(),
+							"schemaAtribute", attributeHandling.getSchemaAttribute().toString()), o_O);
 				}
 			}
 		} else {

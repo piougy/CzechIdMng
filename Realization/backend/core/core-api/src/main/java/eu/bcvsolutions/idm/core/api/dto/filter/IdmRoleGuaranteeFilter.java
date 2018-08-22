@@ -5,18 +5,19 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 
 /**
- * Filter for {@link IdmRoleGuarantee}
+ * Filter for {@link IdmRoleGuaranteeDto}
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  *
  */
-public class IdmRoleGuaranteeFilter extends DataFilter {
+public class IdmRoleGuaranteeFilter extends DataFilter implements ExternalIdentifiable {
 	
 	/**
 	 * Owner role
@@ -49,5 +50,15 @@ public class IdmRoleGuaranteeFilter extends DataFilter {
 	
 	public void setGuarantee(UUID guarantee) {
 		data.set(PARAMETER_GUARANTEE, guarantee);
+	}
+	
+	@Override
+	public String getExternalId() {
+		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
+	}
+	
+	@Override
+	public void setExternalId(String externalId) {
+		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 }

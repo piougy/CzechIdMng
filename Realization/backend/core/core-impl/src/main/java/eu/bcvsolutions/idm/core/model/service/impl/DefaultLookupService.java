@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
@@ -65,7 +66,11 @@ public class DefaultLookupService implements LookupService {
 		if (lookup == null) {
 			throw new IllegalArgumentException(String.format("Entity lookup for identifiable type [%s] is not supported", identifiableType));
 		}
-		return lookup.lookup(entityId);
+		BaseEntity entity = lookup.lookup(entityId);
+		//
+		LOG.trace("Identifiable type [{}] with identifier [{}] found [{}]", identifiableType, entityId, entity != null);
+		return entity;
+		
 	}
 	
 	@Override
@@ -74,7 +79,10 @@ public class DefaultLookupService implements LookupService {
 		if (lookup == null) {
 			throw new IllegalArgumentException(String.format("Dto lookup for identifiable type [%s] is not supported", identifiableType));
 		}
-		return lookup.lookup(entityId);
+		BaseDto dto = lookup.lookup(entityId);
+		//
+		LOG.trace("Identifiable type [{}] with identifier [{}] found [{}]", identifiableType, entityId, dto != null);
+		return dto;
 	}
 	
 	@Override
@@ -145,6 +153,36 @@ public class DefaultLookupService implements LookupService {
 		return ((ReadDtoService) service).getEntityClass();
 	}
 	
+	@Override
+	public UUID getOwnerId(Identifiable owner) {
+		Assert.notNull(owner);
+		if (owner.getId() == null) {
+			return null;
+		}		
+		Assert.isInstanceOf(UUID.class, owner.getId(), "Entity with UUID identifier is supported as owner for some related entity.");
+		//
+		return (UUID) owner.getId();
+	}
+	
+	@Override
+	public String getOwnerType(Identifiable owner) {
+		Assert.notNull(owner);
+		//
+		return getOwnerType(owner.getClass());
+	}
+	
+	@Override
+	public String getOwnerType(Class<? extends Identifiable> ownerType) {
+		Assert.notNull(ownerType);
+		//
+		// dto class was given
+		Class<? extends BaseEntity> ownerEntityType = getOwnerClass(ownerType);
+		if (ownerEntityType == null) {
+			throw new IllegalArgumentException(String.format("Owner type [%s] has to generalize [BaseEntity]", ownerType));
+		}
+		return ownerEntityType.getCanonicalName();
+	}
+	
 	/**
 	 * Returns service for given {@link Identifiable} type.
 	 * 
@@ -160,5 +198,29 @@ public class DefaultLookupService implements LookupService {
 			});
 		}
 		return services.get(identifiableType);
+	}
+	
+	/**
+	 * Returns {@link BaseEntity} class. Owner type has to be entity class - dto class can be given.
+	 * 
+	 * @param ownerType
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private Class<? extends BaseEntity> getOwnerClass(Class<? extends Identifiable> ownerType) {
+		Assert.notNull(ownerType, "Owner type is required!");
+		// formable entity class was given
+		if (BaseEntity.class.isAssignableFrom(ownerType)) {
+			return (Class<? extends BaseEntity>) ownerType;
+		}
+		// dto class was given
+		Class<?> ownerEntityType = getEntityClass(ownerType);
+		if (ownerEntityType == null) {
+			return null;
+		}
+		if (BaseEntity.class.isAssignableFrom(ownerEntityType)) {
+			return (Class<? extends BaseEntity>) ownerEntityType;
+		}
+		return null;
 	}
 }

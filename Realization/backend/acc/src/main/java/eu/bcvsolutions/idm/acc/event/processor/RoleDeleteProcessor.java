@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
@@ -34,29 +33,16 @@ import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 @Description("Ensures referential integrity. Cannot be disabled.")
 public class RoleDeleteProcessor extends CoreEventProcessor<IdmRoleDto> implements RoleProcessor {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleDeleteProcessor.class);
-
 	public static final String PROCESSOR_NAME = "role-delete-processor";
-	private final SysRoleSystemService roleSystemService;
-	private final AccRoleAccountService roleAccountService;
-	private final SysProvisioningBreakRecipientService provisioningBreakRecipientService;
-	private final SysSyncConfigRepository syncConfigRepository;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleDeleteProcessor.class);
+	//
+	@Autowired private SysRoleSystemService roleSystemService;
+	@Autowired private AccRoleAccountService roleAccountService;
+	@Autowired private SysProvisioningBreakRecipientService provisioningBreakRecipientService;
+	@Autowired private SysSyncConfigRepository syncConfigRepository;
 
-	@Autowired
-	public RoleDeleteProcessor(SysRoleSystemService roleSystemService, AccRoleAccountService roleAccountService,
-			SysProvisioningBreakRecipientService provisioningBreakRecipientService,
-			SysSyncConfigRepository syncConfigRepository) {
+	public RoleDeleteProcessor() {
 		super(RoleEventType.DELETE);
-		//
-		Assert.notNull(roleSystemService);
-		Assert.notNull(roleAccountService);
-		Assert.notNull(provisioningBreakRecipientService);
-		Assert.notNull(syncConfigRepository);
-		//
-		this.roleSystemService = roleSystemService;
-		this.roleAccountService = roleAccountService;
-		this.provisioningBreakRecipientService = provisioningBreakRecipientService;
-		this.syncConfigRepository = syncConfigRepository;
 	}
 
 	@Override

@@ -30,6 +30,7 @@ class FormDefinitionDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     super.componentDidMount();
+    //
     const { entityId } = this.props.params;
     const { isNew } = this.props;
     this.context.store.dispatch(manager.fetchTypes(TYPES_UIKEY));
@@ -109,40 +110,40 @@ class FormDefinitionDetail extends Basic.AbstractContent {
               data={entity}
               rendered={types !== undefined}
               readOnly={ !manager.canSave(entity, _permissions) }>
-            <Basic.EnumSelectBox
-              ref="type"
-              label={this.i18n('entity.FormDefinition.type')}
-              placeholder={this.i18n('entity.FormDefinition.type')}
-              required
-              readOnly={!entity || entity.unmodifiable || !Utils.Entity.isNew(entity)}
-              options={types}
-              searchable/>
-            <Basic.TextField
-              ref="code"
-              label={this.i18n('entity.FormDefinition.code')}
-              readOnly={!entity || entity.unmodifiable}
-              max={255}
-              required/>
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.FormDefinition.name')}
-              max={255}
-              required/>
-            <Basic.Checkbox
-              ref="main"
-              label={this.i18n('entity.FormDefinition.main.label')}
-              helpBlock={this.i18n('entity.FormDefinition.main.help')}/>
-            <Basic.Checkbox
-              ref="unmodifiable"
-              readOnly
-              label={this.i18n('entity.FormDefinition.unmodifiable.label')}
-              helpBlock={this.i18n('entity.FormDefinition.unmodifiable.help')}/>
-            <Basic.TextArea
-              ref="description"
-              label={ this.i18n('entity.FormDefinition.description') }
-              rows={4}
-              max={1000}/>
-          </Basic.AbstractForm>
+              <Basic.EnumSelectBox
+                ref="type"
+                label={this.i18n('entity.FormDefinition.type')}
+                placeholder={this.i18n('entity.FormDefinition.type')}
+                required
+                readOnly={!entity || entity.unmodifiable || !Utils.Entity.isNew(entity)}
+                options={types}
+                searchable/>
+              <Basic.TextField
+                ref="code"
+                label={this.i18n('entity.FormDefinition.code')}
+                readOnly={!entity || entity.unmodifiable}
+                max={255}
+                required/>
+              <Basic.TextField
+                ref="name"
+                label={this.i18n('entity.FormDefinition.name')}
+                max={255}
+                required/>
+              <Basic.Checkbox
+                ref="main"
+                label={this.i18n('entity.FormDefinition.main.label')}
+                helpBlock={this.i18n('entity.FormDefinition.main.help')}/>
+              <Basic.Checkbox
+                ref="unmodifiable"
+                readOnly
+                label={this.i18n('entity.FormDefinition.unmodifiable.label')}
+                helpBlock={this.i18n('entity.FormDefinition.unmodifiable.help')}/>
+              <Basic.TextArea
+                ref="description"
+                label={ this.i18n('entity.FormDefinition.description') }
+                rows={4}
+                max={1000}/>
+            </Basic.AbstractForm>
           </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>

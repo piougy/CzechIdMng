@@ -23,6 +23,7 @@ public interface IdmTokenService extends
 	 * Returns owner type - owner type has to be entity class - dto class can be given.
 	 * Its used as default definition type for given owner type.
 	 * 
+	 * @see LookupService#getOwnerType(Class)
 	 * @param ownerType
 	 * @return
 	 */

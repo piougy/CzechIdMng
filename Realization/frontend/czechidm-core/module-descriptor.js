@@ -289,12 +289,31 @@ module.exports = {
                 'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
               },
               {
+                'id': 'role-compositions',
+                'type': 'TAB',
+                'icon': 'fa:universal-access',
+                'labelKey': 'content.role.compositions.title',
+                'order': 120,
+                'path': '/role/:entityId/compositions',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+              },
+              {
                 'id': 'role-guarantees',
                 'type': 'TAB',
                 'labelKey': 'content.role.guarantees.title',
-                'order': 120,
+                'icon': 'fa:group',
+                'order': 130,
                 'path': '/role/:entityId/guarantees',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
+              },
+              {
+                'id': 'role-catalogue-roles',
+                'type': 'TAB',
+                'labelKey': 'content.role.catalogues.title',
+                'icon': 'fa:list-alt',
+                'order': 140,
+                'path': '/role/:entityId/catalogues',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUEROLE_READ'] } ]
               },
               {
                 'id': 'role-authorization-policies',
@@ -310,6 +329,7 @@ module.exports = {
                 'type': 'TAB',
                 'labelKey': 'content.role.tree-nodes.label',
                 'titleKey': 'content.role.tree-nodes.title',
+                'icon': 'fa:universal-access',
                 'order': 400,
                 'path': '/role/:entityId/automatic-roles/trees',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ],
@@ -1128,7 +1148,36 @@ module.exports = {
                 'path': '/forms/:entityId/attributes',
                 'icon': '',
                 'type': 'TAB',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ],
+                'items': [
+                  {
+                    'id': 'forms-attribute-detail',
+                    'labelKey': 'content.formAttributes.detail.title',
+                    'order': 10,
+                    'path': '/forms/attribute/:entityId/detail',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMDEFINITION_READ'] }]
+                  },
+                  {
+                    'id': 'form-attribute-values',
+                    'labelKey': 'content.form-values.title',
+                    'order': 505,
+                    'path': '/forms/attribute/:entityId/values',
+                    'icon': '',
+                    'type': 'TAB',
+                    'access': [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] }]
+                  }
+                ]
+              },
+              {
+                'id': 'form-definition-values',
+                'labelKey': 'content.form-values.title',
+                'order': 200,
+                'path': '/forms/:entityId/values',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
               },
               {
                 'id': 'forms-localization',

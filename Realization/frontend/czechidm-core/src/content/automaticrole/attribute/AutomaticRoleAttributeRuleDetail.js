@@ -263,6 +263,20 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       // when component doesn't exists show default field
       return this._getDefaultTextField(value);
     }
+    if (formAttribute.persistentType === 'TEXT') {
+      return (
+        <Basic.LabelWrapper label={ this.i18n('entity.AutomaticRole.attribute.value.label') }>
+          <Basic.Alert text={this.i18n('attributeCantBeUsed.persistentTypeText', {name: formAttribute.name})}/>
+        </Basic.LabelWrapper>
+      );
+    }
+    if (formAttribute.confidential) {
+      return (
+        <Basic.LabelWrapper label={ this.i18n('entity.AutomaticRole.attribute.value.label') }>
+          <Basic.Alert text={this.i18n('attributeCantBeUsed.confidential', {name: formAttribute.name})}/>
+        </Basic.LabelWrapper>
+      );
+    }
     const FormValueComponent = component.component;
     //
     // override helpBlock, label and placeholder
@@ -271,6 +285,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     formAttribute.placeholder = '';
     formAttribute.defaultValue = null;
     formAttribute.required = valueRequired;
+    formAttribute.readonly = readOnly; // readnOnly from props has prio, default value is false
     //
     // is neccessary transform value to array
     return (

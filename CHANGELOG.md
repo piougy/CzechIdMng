@@ -1,6 +1,22 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.0.0]
+- [#1200](https://redmine.czechidm.com/issues/1200) - Business roles:
+ - ``code`` unique attribute added to ``IdmRole`` entity - filled by ``name`` values by default . ``name`` attribute is not unique anymore - **use code attribute in your modules** for lookup roles. ``name`` is used as user friendly role name on frontend. Both fields ``name`` and ``code`` are required on controller layer.
+ - Deprecated ``IdmRoleService#getByName`` method was removed - use ``IdmRoleService#getByCode`` method.
+ - Deprecated lazy lists were removed from ``IdmRole``, ``IdmRoleDto`` - ``subRoles``, ``superiorRoles``, ``guarantees``, ``roleCatalogues``. Check usage of this lists in your modules and replace them with appropriate services.
+ - make sure all your workflow processes are correctly ended - ``IdmRole``, ``IdmRoleDto``, ``IdmIdentityRole`, ``IdmIdentityRoleDto``, ``IdmConceptRoleRequestDto``  structure changes:
+  - lazy list were removed - see above.
+  - ``roleTreeNode`` attribute was renamed to ``automaticRole`` (previous ``automaticRole`` boolean flag was removed) in dtos ``IdmIdentityRoleDto``, ``IdmConceptRoleRequestDto``.Check attribute ``automaticRole`` (for automatic role) or ``directRole`` (for sub roles of business role) - this assigned roles cannot be removed directly. ``IdmAutomaticRoleAttributeService#ROLE_TREE_NODE_ATTRIBUTE_NAME`` was removed (used just for compatibility issues, which is not needed anymore) - use standard ``IdmIdentityRole_.automaticRole`` metamodel.
+ - Obsolete, deprecated and unused methods ``IdmRoleRepository#findOneByName``,``IdmRoleRepository#getPersistedRole`` and ``IdmRoleRepository#getSubroles`` removed. Use ``IdmRoleService`` instead (with filter usage).
+ - ``RoleGuaranteeEvaluator`` - evaluator supports guarantees configured by identity and by role now.
+ - Role guarantees, sub roles, role catalogues supports authorization policies now - configure [authorization policies](https://wiki.czechidm.com/devel/documentation/security/dev/authorization#default_settings_of_permissions_for_a_role_detail)
+- Event mechanism was improved:
+ - ``EntityEventManager`` constants for event properties were moved directly into ``EntityEvent``. Use event getters and setters to use property values.
+ - Parent event can be propagated, when sub event is created by the parent event. Executing account management was improved thanks to this mechanism - is called after change role request is executed (not for the all single assigned roles). When role is assigned outside the request (directly in some backend business logic), then account management s executed the same way as before - for each assigned role.
+ - child events are deleted automatically - remove events from event queue will be easier.
+
 ## [8.2.0]
 
 - [#1125](https://redmine.czechidm.com/issues/1125) - Identity extended attributes supports authorization policies, read [more](https://wiki.czechidm.com/devel/documentation/security/dev/authorization#secure_identity_form_extended_attribute_values).
@@ -8,7 +24,7 @@ All notable changes to this project will be documented in this file.
  - SynchronizationService is no longer LRT (Long Running Task).
  - Event types and processors to start and cancel sync has been removed.
 - [#636](https://redmine.czechidm.com/issues/636) - JWT token are persisted now. **JWT token doesn't contain authorities now - use ''LoginDto.authorities'' instead**. JWT contains only authentication data. Logout feature is supported now. ``AuthenticationTestUtils`` was removed - this utility used SecurityContext directly and this was dangerous (identity id was not filled and authorization policies was skipped). ``IdmAuthorityChange`` entity and repository was removed at all - ``IdmTokenDto`` and ``DefaultTokenManager`` can be used now.
-- [#1163](https://redmine.czechidm.com/issues/1163) - ``ConfidentialStorage`` service supports ``AbstractDto`` as value owner now. Check your module, where ``AbstractDto`` as owner for ``ConfidentialStorage`` was used before this update and provide appropriate change script if needed (see ``V8_02_006__confidential-storage-support-identifiable-owner.sql``). 
+- [#1163](https://redmine.czechidm.com/issues/1163) - ``ConfidentialStorage`` service supports ``AbstractDto`` as value owner now. Check your module, where ``AbstractDto`` as owner for ``ConfidentialStorage`` was used before this update and provide appropriate change script if needed (see ``V8_02_006__confidential-storage-support-identifiable-owner.sql``).
 
 ## [8.1.3]
 

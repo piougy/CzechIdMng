@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
@@ -56,6 +58,10 @@ public class DefaultIdmEntityStateService
 		if (filter.getOwnerId() != null) {
 			predicates.add(builder.equal(root.get(IdmEntityState_.ownerId), filter.getOwnerId()));
 		}
+		UUID superOwnerId = filter.getSuperOwnerId();
+		if (superOwnerId != null) {
+			predicates.add(builder.equal(root.get(IdmEntityState_.superOwnerId), superOwnerId));
+		}
 		// change id
 		if (filter.getEventId() != null) {
 			predicates.add(builder.equal(root.get(IdmEntityState_.event).get(IdmEntityEvent_.id), filter.getEventId()));
@@ -65,6 +71,10 @@ public class DefaultIdmEntityStateService
 		}
 		if (filter.getCreatedTill() != null) {
 			predicates.add(builder.lessThanOrEqualTo(root.get(IdmEntityState_.created), filter.getCreatedTill()));
+		}
+		String resultCode = filter.getResultCode();
+		if (StringUtils.isNotEmpty(resultCode)) {
+			predicates.add(builder.equal(root.get(IdmEntityState_.result).get(OperationResult_.code), resultCode));
 		}
 		//
 		return predicates;

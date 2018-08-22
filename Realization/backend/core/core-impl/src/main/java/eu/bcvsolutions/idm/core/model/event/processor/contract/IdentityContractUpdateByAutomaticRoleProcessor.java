@@ -21,12 +21,11 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
@@ -61,7 +60,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	@Override
 	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
 		return super.conditional(event)
-				&& IdentityContractEventType.UPDATE.name().equals(event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PARENT_EVENT_TYPE));
+				&& IdentityContractEventType.UPDATE.name().equals(event.getParentType());
 	}
 
 	@Override
@@ -83,7 +82,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			// remove all automatic roles by attribute
 			if (!assignedRoles.isEmpty()) {
 				assignedRoles = assignedRoles.stream().filter(autoRole -> {
-					AbstractIdmAutomaticRoleDto automaticRoleDto = DtoUtils.getEmbedded(autoRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, (AbstractIdmAutomaticRoleDto) null);
+					AbstractIdmAutomaticRoleDto automaticRoleDto = DtoUtils.getEmbedded(autoRole, IdmIdentityRole_.automaticRole, (AbstractIdmAutomaticRoleDto) null);
 					if (automaticRoleDto instanceof IdmRoleTreeNodeDto) {
 						return true;
 					}
@@ -93,14 +92,14 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			//
 			Set<UUID> previousAutomaticRoles = assignedRoles.stream()
 					.filter(identityRole -> {
-						return identityRole.getRoleTreeNode() != null;
+						return identityRole.getAutomaticRole() != null;
 					})
 					.map(identityRole -> {
-						return identityRole.getRoleTreeNode();
+						return identityRole.getAutomaticRole();
 					})
 					.collect(Collectors.toSet());
 			Set<IdmRoleTreeNodeDto> addedAutomaticRoles = new HashSet<>();
-			if (newPosition != null) {
+			if (newPosition != null && contract.isValidNowOrInFuture()) {
 				addedAutomaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(newPosition);
 			}
 			// prevent to remove newly added or still exists roles
@@ -118,7 +117,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 				Iterator<IdmIdentityRoleDto> iter = assignedRoles.iterator();
 				while (iter.hasNext()){
 					IdmIdentityRoleDto identityRole = iter.next();				
-					if (Objects.equals(identityRole.getRoleTreeNode(), removedAutomaticRole)) {					
+					if (Objects.equals(identityRole.getAutomaticRole(), removedAutomaticRole)) {					
 						// check, if role will be added by new automatic roles and prevent removing
 						IdmRoleTreeNodeDto addedAutomaticRole = getByRole(identityRole.getRole(), addedAutomaticRoles);
 						if (addedAutomaticRole == null) {
@@ -127,7 +126,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 							iter.remove();
 						} else {
 							// change relation only
-							identityRole.setRoleTreeNode(addedAutomaticRole.getId());
+							identityRole.setAutomaticRole(addedAutomaticRole.getId());
 							updateIdentityRole(identityRole);
 							//
 							// new automatic role is not needed
@@ -177,7 +176,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			.stream()
 			.filter(identityRole -> {
 				// automatic roles only
-				return identityRole.getRoleTreeNode() != null;
+				return identityRole.getAutomaticRole() != null;
 			})
 			.forEach(identityRole -> {				
 				identityRole.setValidFrom(contract.getValidFrom());

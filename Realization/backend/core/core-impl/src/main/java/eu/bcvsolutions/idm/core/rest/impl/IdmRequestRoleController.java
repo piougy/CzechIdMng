@@ -73,25 +73,16 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	protected static final String REQUEST_SUB_PATH = "/roles";
 	
 	private final IdmFormDefinitionController formDefinitionController;
-	private final IdmAuthorizationPolicyService authorizationPolicyService;
-	private final SecurityService securityService;
 	
 	@Autowired
 	public IdmRequestRoleController(
 			IdmRoleService roleService,
-			IdmAuthorizationPolicyService authorizationPolicyService,
-			IdmFormDefinitionController formDefinitionController,
-			SecurityService securityService,
-			FormService formService) {
+			IdmFormDefinitionController formDefinitionController
+	) {
 		super(roleService);
 		//
 		Assert.notNull(formDefinitionController);
-		Assert.notNull(authorizationPolicyService);
-		Assert.notNull(securityService);
-		//
 		this.formDefinitionController = formDefinitionController;
-		this.authorizationPolicyService = authorizationPolicyService;
-		this.securityService = securityService;
 	}
 	
 	@Override

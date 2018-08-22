@@ -4,15 +4,13 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
-import * as Advanced from '../../components/advanced';
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import RolePriorityEnum from '../../enums/RolePriorityEnum';
-import { RoleManager, RoleCatalogueManager, SecurityManager } from '../../redux';
+import { RoleManager, SecurityManager } from '../../redux';
 
 let roleManager = null;
-const roleCatalogueManager = new RoleCatalogueManager();
 
 /**
  * Role detail
@@ -25,7 +23,8 @@ class RoleDetail extends Basic.AbstractContent {
   constructor(props) {
     super(props);
     this.state = {
-      _showLoading: true
+      _showLoading: true,
+      oldCode: null,
     };
   }
 
@@ -56,7 +55,7 @@ class RoleDetail extends Basic.AbstractContent {
       // universal request manager (depends on existing of 'requestId' param)
       roleManager = this.getRequestManager(nextProps.params, new RoleManager());
     }
-    if (nextProps.entity && nextProps.entity !== entity && nextProps.entity.subRoles) {
+    if (nextProps.entity && nextProps.entity !== entity && nextProps.entity) {
       this._setSelectedEntity(this._prepareEntity(nextProps.entity));
     }
   }
@@ -64,10 +63,6 @@ class RoleDetail extends Basic.AbstractContent {
   _prepareEntity(entity) {
     const copyOfEntity = _.merge({}, entity); // we can not modify given entity
     // we dont need to load entities again - we have them in embedded objects
-    copyOfEntity.subRoles = !entity.subRoles ? [] : entity.subRoles.map(subRole => { return subRole._embedded.sub; });
-    copyOfEntity.superiorRoles = !entity.superiorRoles ? [] : entity.superiorRoles.map(superiorRole => { return superiorRole._embedded.superior; });
-    copyOfEntity.guarantees = !entity.guarantees ? [] : entity.guarantees.map(guarantee => { return guarantee.guarantee; });
-    copyOfEntity.roleCatalogues = !entity.roleCatalogues ? [] : entity.roleCatalogues.map(roleCatalogue => { return roleCatalogue.roleCatalogue; } );
     copyOfEntity.priorityEnum = RolePriorityEnum.getKeyByPriority(copyOfEntity.priority);
     copyOfEntity.priority = copyOfEntity.priority + ''; // We have to do convert form int to string (cause TextField and validator)
     return copyOfEntity;
@@ -75,10 +70,11 @@ class RoleDetail extends Basic.AbstractContent {
 
   _setSelectedEntity(entity) {
     this.setState({
-      _showLoading: false
+      _showLoading: false,
+      oldCode: entity.code
     }, () => {
       this.refs.form.setData(entity);
-      this.refs.name.focus();
+      this.refs.code.focus();
     });
   }
 
@@ -98,31 +94,6 @@ class RoleDetail extends Basic.AbstractContent {
       if (this.refs.authorities) {
         entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
       }
-      // append subroles
-      if (entity.subRoles) {
-        entity.subRoles = entity.subRoles.map(subRoleId => {
-          return {
-            sub: subRoleId
-          };
-        });
-      }
-      if (entity.guarantees) {
-        entity.guarantees = entity.guarantees.map(guaranteeId => {
-          return {
-            guarantee: guaranteeId
-          };
-        });
-      }
-      // transform roleCatalogues to self links
-      if (entity.roleCatalogues) {
-        entity.roleCatalogues = entity.roleCatalogues.map(roleCatalogue => {
-          return {
-            roleCatalogue: roleCatalogue.id
-          };
-        });
-      }
-      // delete superior roles - we dont want to save them (they are ignored on BE anyway)
-      delete entity.superiorRoles;
       //
       this.getLogger().debug('[RoleDetail] save entity', entity);
       if (Utils.Entity.isNew(entity)) {
@@ -175,6 +146,23 @@ class RoleDetail extends Basic.AbstractContent {
     }
   }
 
+  /**
+   * TODO: move to new Codeable component
+   */
+  _onChangeCode(event) {
+    // check guarded depents on new entity name
+    const name = this.refs.name.getValue();
+    const code = event.currentTarget.value;
+    //
+    if (!name || this.state.oldCode === name) {
+      this.setState({
+        oldCode: code,
+      }, () => {
+        this.refs.name.setValue(code);
+      });
+    }
+  }
+
   render() {
     const { entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
@@ -195,12 +183,26 @@ class RoleDetail extends Basic.AbstractContent {
                 ref="form"
                 showLoading={ _showLoading || showLoading }
                 readOnly={ !roleManager.canSave(entity, _permissions) }>
-                <Basic.TextField
-                  ref="name"
-                  label={this.i18n('entity.Role.name')}
-                  required
-                  min={0}
-                  max={255}/>
+
+                <Basic.Row>
+                  <Basic.Col lg={ 2 }>
+                    <Basic.TextField
+                      ref="code"
+                      label={ this.i18n('entity.Role.code.label') }
+                      required
+                      max={ 255 }
+                      onChange={ this._onChangeCode.bind(this) }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 10 }>
+                    <Basic.TextField
+                      ref="name"
+                      label={this.i18n('entity.Role.name')}
+                      required
+                      min={ 0 }
+                      max={ 255 }/>
+                  </Basic.Col>
+                </Basic.Row>
+
                 <Basic.EnumSelectBox
                   ref="roleType"
                   label={ this.i18n('entity.Role.roleType') }
@@ -218,32 +220,6 @@ class RoleDetail extends Basic.AbstractContent {
                   label={this.i18n('entity.Role.priority')}
                   readOnly
                   required/>
-                <Basic.SelectBox
-                  multiSelect
-                  ref="roleCatalogues"
-                  label={ this.i18n('entity.Role.roleCatalogue.name') }
-                  manager={ roleCatalogueManager }
-                  returnProperty={ false }/>
-                <Basic.SelectBox
-                  ref="superiorRoles"
-                  label={this.i18n('entity.Role.superiorRoles')}
-                  manager={roleManager}
-                  multiSelect
-                  readOnly
-                  placeholder=""
-                  rendered={ false }/> {/* TODO: redesign subroles agenda */}
-                <Basic.SelectBox
-                  ref="subRoles"
-                  label={this.i18n('entity.Role.subRoles')}
-                  manager={roleManager}
-                  multiSelect
-                  rendered={ false }/> {/* TODO: redesign subroles agenda */}
-                <Advanced.EntitySelectBox
-                  ref="guarantees"
-                  label={this.i18n('entity.Role.guarantees')}
-                  multiSelect
-                  entityType="identity"
-                  showDefaultHelpBlock/>
                 <Basic.Checkbox
                   ref="approveRemove"
                   label={this.i18n('entity.Role.approveRemove')}/>

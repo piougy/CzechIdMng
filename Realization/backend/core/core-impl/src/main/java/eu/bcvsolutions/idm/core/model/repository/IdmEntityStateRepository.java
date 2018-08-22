@@ -11,4 +11,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmEntityState;
  */
 public interface IdmEntityStateRepository extends AbstractEntityRepository<IdmEntityState> {
 
+	/**
+	 * Delete all state, which are related to entity events
+	 */
+	void deleteByEventIsNotNull();
 }

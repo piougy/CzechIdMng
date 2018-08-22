@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -18,11 +19,16 @@ import org.springframework.util.Assert;
 import com.google.common.base.Strings;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -37,15 +43,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuaranteeRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuaranteeRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -61,16 +65,16 @@ public class DefaultIdmRoleService
 		implements IdmRoleService {
 
 	private final IdmRoleRepository repository;
-	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	private final ConfigurationService configurationService;
 	private final RoleConfiguration roleConfiguration;
 	//
-	@Autowired private IdmRoleCatalogueRepository roleCatalogueRepository;
+	@Autowired private IdmRoleCatalogueRoleService roleCatalogueRoleService;
+	@Autowired private IdmRoleCompositionService roleCompositionService;
+	
 	
 	@Autowired
 	public DefaultIdmRoleService(
 			IdmRoleRepository repository,
-			IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository,
 			EntityEventManager entityEventManager,
 			FormService formService,
 			ConfigurationService configurationService,
@@ -79,12 +83,10 @@ public class DefaultIdmRoleService
 		//
 		Assert.notNull(configurationService);
 		Assert.notNull(roleConfiguration);
-		Assert.notNull(roleCatalogueRoleRepository);
 		//
 		this.repository = repository;
 		this.configurationService = configurationService;
 		this.roleConfiguration = roleConfiguration;
-		this.roleCatalogueRoleRepository = roleCatalogueRoleRepository;
 	}
 	
 	@Override
@@ -93,49 +95,35 @@ public class DefaultIdmRoleService
 	}
 	
 	@Override
-	protected IdmRole toEntity(IdmRoleDto dto, IdmRole entity) {
-		entity = super.toEntity(dto, entity);
-		if (entity == null) {
-			return null;
-		}
-		// fill lists references
-		for (IdmRoleGuarantee guarantee : entity.getGuarantees()) {
-			guarantee.setRole(entity);
-		}
-		for (IdmRoleCatalogueRole roleCatalogueRole : entity.getRoleCatalogues()) {
-			roleCatalogueRole.setRole(entity);
-		}
-		for (IdmRoleComposition roleComposition : entity.getSubRoles()) {
-			roleComposition.setSuperior(entity);
-		}
-		return entity;
-	}
-
-	/**
-	 * @deprecated use {@link #getByCode(String)}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	@Deprecated
-	public IdmRoleDto getByName(String name) {
-		return getByCode(name);
+	@Transactional
+	public IdmRoleDto saveInternal(IdmRoleDto dto) {
+		if (StringUtils.isEmpty(dto.getName())) {
+			dto.setName(dto.getCode());
+		} else if (StringUtils.isEmpty(dto.getCode())) {
+			dto.setCode(dto.getName());
+		} 
+		//
+		return super.saveInternal(dto);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmRoleDto getByCode(String name) {
-		return toDto(repository.findOneByCode(name));
+	public IdmRoleDto getByCode(String code) {
+		return toDto(repository.findOneByCode(code));
 	}
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmRoleFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// quick
-		if (StringUtils.isNotEmpty(filter.getText())) {
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
 			predicates.add(
 					builder.or(
-							builder.like(builder.lower(root.get(IdmRole_.name)), "%" + filter.getText().toLowerCase() + "%"),
-							builder.like(builder.lower(root.get(IdmRole_.description)), "%" + filter.getText().toLowerCase() + "%")
+							builder.like(builder.lower(root.get(IdmRole_.code)), "%" + text + "%"),
+							builder.like(builder.lower(root.get(IdmRole_.name)), "%" + text + "%"),
+							builder.like(builder.lower(root.get(IdmRole_.description)), "%" + text + "%")
 							));
 		}
 		// role type
@@ -183,20 +171,29 @@ public class DefaultIdmRoleService
 		}
 		// role catalogue by forest index
 		if (filter.getRoleCatalogueId() != null) {
-			// TODO: use subquery - see DefaultIdmIdentityService#toPredicates
-			IdmRoleCatalogue roleCatalogue = roleCatalogueRepository.findOne(filter.getRoleCatalogueId());
 			Subquery<IdmRoleCatalogueRole> subquery = query.subquery(IdmRoleCatalogueRole.class);
 			Root<IdmRoleCatalogueRole> subRoot = subquery.from(IdmRoleCatalogueRole.class);
 			subquery.select(subRoot);
-		
+			
+			Subquery<IdmRoleCatalogue> subqueryCatalogue = query.subquery(IdmRoleCatalogue.class);
+			Root<IdmRoleCatalogue> subRootCatalogue = subqueryCatalogue.from(IdmRoleCatalogue.class);
+			subqueryCatalogue.select(subRootCatalogue);
+			subqueryCatalogue.where(
+					builder.and(
+							builder.equal(subRootCatalogue.get(IdmRoleCatalogue_.id), filter.getRoleCatalogueId()),
+							builder.between(
+                    				subRoot.get(IdmRoleCatalogueRole_.roleCatalogue).get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft), 
+                    				subRootCatalogue.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft),
+                    				subRootCatalogue.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.rgt)
+                    		)
+					));				
+
 			subquery.where(
                     builder.and(
                     		builder.equal(subRoot.get(IdmRoleCatalogueRole_.role), root), // correlation attr
-                    		builder.between(subRoot.get(
-                    				IdmRoleCatalogueRole_.roleCatalogue).get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft), 
-                    				roleCatalogue.getLft(), roleCatalogue.getRgt())
+                    		builder.exists(subqueryCatalogue)
                     		)
-            );
+                    );
 			predicates.add(builder.exists(subquery));
 		}
 		//
@@ -256,19 +253,30 @@ public class DefaultIdmRoleService
 	}
 	
 	@Override
+	@Deprecated
 	public List<IdmRoleDto> getSubroles(UUID roleId) {
-		Assert.notNull(roleId);
-		//
-		return toDtos(repository.getSubroles(roleId), false);
+		return roleCompositionService
+				.findDirectSubRoles(roleId)
+				.stream()
+				.map(roleComposition -> {
+					return DtoUtils.getEmbedded(roleComposition, IdmRoleComposition_.sub, IdmRoleDto.class);
+				})
+				.collect(Collectors.toList());
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleDto> findAllByRoleCatalogue(UUID roleCatalogueId) {
-		List<IdmRole> roles = new ArrayList<>();
-		for (IdmRoleCatalogueRole roleCatalogueRole : roleCatalogueRoleRepository.findAllByRoleCatalogue_Id(roleCatalogueId)) {
-			roles.add(roleCatalogueRole.getRole());
+		Assert.notNull(roleCatalogueId);
+		//
+		IdmRoleCatalogueRoleFilter filter = new IdmRoleCatalogueRoleFilter();
+		filter.setRoleCatalogueId(roleCatalogueId);
+		//
+		List<IdmRoleDto> roles = new ArrayList<>();
+		for (IdmRoleCatalogueRoleDto roleCatalogueRole : roleCatalogueRoleService.find(filter, null).getContent()) {
+			IdmRoleDto role = DtoUtils.getEmbedded(roleCatalogueRole, IdmRoleCatalogueRole_.role);
+			roles.add(role);
 		}
-		return toDtos(roles, false);
+		return roles;
 	}	
 }

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -108,7 +109,7 @@ public class PasswordExpiredIntegrationTest extends AbstractIntegrationTest {
 			password.setValidTill(new LocalDate().minusDays(1));		
 			passwordService.save(password);
 			// disable identity
-			identity.setDisabled(true);
+			identity.setState(IdentityState.DISABLED_MANUALLY);
 			identityService.save(identity);
 			// prepare task
 			IdmScheduledTaskDto scheduledTask = scheduledTaskService.save(SchedulerTestUtils.createIdmScheduledTask(UUID.randomUUID().toString()));

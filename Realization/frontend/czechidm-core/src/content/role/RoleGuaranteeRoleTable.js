@@ -10,7 +10,7 @@ const manager = new RoleGuaranteeRoleManager();
 const roleManager = new RoleManager();
 
 /**
-* Table of role guarantees
+* Table of role guarantees - by roles
 *
 * @author Radek Tomiška
 */
@@ -48,8 +48,16 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
     super.save(formEntity, event);
   }
 
+  afterSave(entity, error) {
+    if (!error) {
+      this.addMessage({ message: this.i18n('save.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+    }
+    //
+    super.afterSave(entity, error);
+  }
+
   render() {
-    const { uiKey, forceSearchParameters, _showLoading, _permissions } = this.props;
+    const { uiKey, forceSearchParameters, _showLoading, _permissions, className } = this.props;
     const { detail } = this.state;
     const role = forceSearchParameters.getFilters().get('role');
     //
@@ -62,6 +70,7 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
           manager={ manager }
           forceSearchParameters={ forceSearchParameters }
           showRowSelection={ manager.canDelete() }
+          className={ className }
           _searchParameters={ this.getSearchParameters() }
           actions={
             [

@@ -110,7 +110,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			if (existsSuperAdminRole == null && this.roleService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
 				//
 				final IdmRoleDto superAdminRole = new IdmRoleDto();
-				superAdminRole.setName(ADMIN_ROLE);
+				superAdminRole.setCode(ADMIN_ROLE);
 				superAdminRole.setRoleType(RoleType.SYSTEM);
 				existsSuperAdminRole = this.roleService.save(superAdminRole);
 				// super admin authorization policy

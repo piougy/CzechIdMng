@@ -35,14 +35,13 @@ export default class IdentityGarantedRoles extends Basic.AbstractContent {
       <div className="tab-pane-table-body">
         { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
-        <Basic.Panel className="no-border last">
-          <RoleTable
-            uiKey="identity-garanted-role-table"
-            roleManager={this.getManager()}
-            filterOpened={false}
-            showCatalogue={false}
-            forceSearchParameters={forceSearchParameters} />
-        </Basic.Panel>
+        <RoleTable
+          uiKey="identity-garanted-role-table"
+          roleManager={this.getManager()}
+          filterOpened={false}
+          showCatalogue={false}
+          forceSearchParameters={forceSearchParameters}
+          className="no-margin"/>
       </div>
     );
   }

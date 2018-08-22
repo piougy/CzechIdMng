@@ -1,16 +1,11 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -31,7 +26,10 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
     private static final long serialVersionUID = 1L;
 
     @NotEmpty
-	@Size(min = 1, max = DefaultFieldLengths.NAME)
+    @Size(min = 1, max = DefaultFieldLengths.NAME)
+    private String code;
+    @NotEmpty
+    @Size(min = 1, max = DefaultFieldLengths.NAME)
     private String name;
     @Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(notes = "Unique external identifier.")
@@ -43,16 +41,6 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
     private boolean approveRemove;
     @Size(max = DefaultFieldLengths.DESCRIPTION)
     private String description;
-    //
-    @Deprecated // @since 8.2.0 - will be removed in 9 - business role redesign
-    private List<IdmRoleCompositionDto> subRoles;
-    @Deprecated // @since 8.2.0 - will be removed in 9 - business role redesign
-    @JsonProperty(access = Access.READ_ONLY)
-    private List<IdmRoleCompositionDto> superiorRoles;
-    @Deprecated // @since 8.2.0 - use solo endpoint
-    private List<IdmRoleGuaranteeDto> guarantees;
-    @Deprecated // @since 8.2.0 - use solo endpoint
-    private List<IdmRoleCatalogueRoleDto> roleCatalogues;
 
     public IdmRoleDto() {
 	}
@@ -61,17 +49,21 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
     	super(id);
 	}
     
+    @Override
+    public String getCode() {
+    	return code;
+    }
+    
+    public void setCode(String code) {
+		this.code = code;
+	}
+    
     public String getName() {
         return name;
     }
     
-    @Override
-    public String getCode() {
-    	return getName();
-    }
-
     public void setName(String name) {
-        this.name = name;
+    	this.name = name;
     }
 
     public boolean isDisabled() {
@@ -107,28 +99,6 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
 
     }
 
-    public List<IdmRoleCompositionDto> getSubRoles() {
-    	if (subRoles == null) {
-    		subRoles = new ArrayList<>();
-    	}
-        return subRoles;
-    }
-
-    public void setSubRoles(List<IdmRoleCompositionDto> subRoles) {
-        this.subRoles = subRoles;
-    }
-
-    public List<IdmRoleCompositionDto> getSuperiorRoles() {
-    	if (superiorRoles == null) {
-    		superiorRoles = new ArrayList<>();
-    	}
-        return superiorRoles;
-    }
-
-    public void setSuperiorRoles(List<IdmRoleCompositionDto> superiorRoles) {
-        this.superiorRoles = superiorRoles;
-    }
-
     public boolean isApproveRemove() {
         return approveRemove;
     }
@@ -143,28 +113,6 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
     
     public void setCanBeRequested(boolean canBeRequested) {
 		this.canBeRequested = canBeRequested;
-	}
-
-	public List<IdmRoleGuaranteeDto> getGuarantees() {
-		if (guarantees == null) {
-			guarantees = new ArrayList<>();
-		}
-		return guarantees;
-	}
-
-	public void setGuarantees(List<IdmRoleGuaranteeDto> guarantees) {
-		this.guarantees = guarantees;
-	}
-
-	public List<IdmRoleCatalogueRoleDto> getRoleCatalogues() {
-		if (roleCatalogues == null) {
-			roleCatalogues = new ArrayList<>();
-		}
-		return roleCatalogues;
-	}
-
-	public void setRoleCatalogues(List<IdmRoleCatalogueRoleDto> roleCatalogues) {
-		this.roleCatalogues = roleCatalogues;
 	}
 	
 	@Override

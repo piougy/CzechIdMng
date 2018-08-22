@@ -208,7 +208,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		Assert.assertEquals(5, items.size());
 		
 		IdmRoleFilter roleFilter = new IdmRoleFilter();
-		roleFilter.setProperty(IdmRole_.name.getName());
+		roleFilter.setProperty(IdmRole_.code.getName());
 		roleFilter.setValue("1");
 		
 		Assert.assertEquals(1, roleService.find(roleFilter, null).getTotalElements());
@@ -251,7 +251,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 		// Check state before sync
 		IdmRoleFilter roleFilter = new IdmRoleFilter();
-		roleFilter.setProperty(IdmRole_.name.getName());
+		roleFilter.setProperty(IdmRole_.code.getName());
 		roleFilter.setValue("1");
 		Assert.assertEquals("1", roleService.find(roleFilter, null).getContent().get(0).getDescription());
 
@@ -310,7 +310,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 		// Check state before sync
 		IdmRoleFilter roleFilter = new IdmRoleFilter();
-		roleFilter.setProperty(IdmRole_.name.getName());
+		roleFilter.setProperty(IdmRole_.code.getName());
 		roleFilter.setValue("1");
 		IdmRoleDto roleOne = roleService.find(roleFilter, null).getContent().get(0);
 		Assert.assertNotNull(roleOne);
@@ -359,7 +359,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
 		IdmRoleFilter roleFilter = new IdmRoleFilter();
-		roleFilter.setProperty(IdmRole_.name.getName());
+		roleFilter.setProperty(IdmRole_.code.getName());
 		roleFilter.setValue("3");
 		IdmRoleDto roleThree = roleService.find(roleFilter, null).getContent().get(0);
 		Assert.assertNotNull(roleThree);
@@ -426,7 +426,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		
 		// Create role in IDM tree
 		IdmRoleDto roleTen = new IdmRoleDto();
-		roleTen.setName(ROLE_NAME_TEN);
+		roleTen.setCode(ROLE_NAME_TEN);
 		roleTen.setPriority(2);
 		roleTen = roleService.save(roleTen);
 		
@@ -439,7 +439,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	public void provisioningB_CreateAccounts() {
 
 		IdmRoleFilter filter = new IdmRoleFilter();
-		filter.setProperty(IdmRole_.name.getName());
+		filter.setProperty(IdmRole_.code.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
 		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
@@ -464,7 +464,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	public void provisioningD_UpdateAccount() {
 		
 		IdmRoleFilter filter = new IdmRoleFilter();
-		filter.setProperty(IdmRole_.name.getName());
+		filter.setProperty(IdmRole_.code.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
 		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
@@ -490,7 +490,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	public void provisioningD_UpdateAccount_Extended_Attribute() {
 		
 		IdmRoleFilter filter = new IdmRoleFilter();
-		filter.setProperty(IdmRole_.name.getName());
+		filter.setProperty(IdmRole_.code.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
 		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
@@ -519,7 +519,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	public void provisioningF_DeleteAccount() {
 		
 		IdmRoleFilter filter = new IdmRoleFilter();
-		filter.setProperty(IdmRole_.name.getName());
+		filter.setProperty(IdmRole_.code.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
 		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
@@ -534,8 +534,6 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
 		Assert.assertNull(ten);
 	}
-	
-	
 
 	@Transactional
 	public void deleteAllResourceData() {

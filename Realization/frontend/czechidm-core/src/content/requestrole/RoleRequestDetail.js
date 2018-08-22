@@ -346,8 +346,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             ref="table"
             uiKey={uiKeyAttributes}
             manager={conceptRoleRequestManager}
-            forceSearchParameters={forceSearchParameters}
-            >
+            forceSearchParameters={forceSearchParameters}>
             <Advanced.Column
               header={this.i18n('entity.ConceptRoleRequest.role')}
               cell={

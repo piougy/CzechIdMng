@@ -61,6 +61,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	IDENTITYROLE(
 			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -75,6 +76,22 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
 	ROLECATALOGUE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	ROLECATALOGUEROLE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	ROLECOMPOSITION(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
 			IdmBasePermission.AUTOCOMPLETE,
@@ -275,6 +292,14 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String PROFILE_UPDATE = "PROFILE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String PROFILE_DELETE = "PROFILE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String IDENTITYROLE_ADMIN = "IDENTITYROLE" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String IDENTITYROLE_COUNT = "IDENTITYROLE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String IDENTITYROLE_AUTOCOMPLETE = "IDENTITYROLE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String IDENTITYROLE_READ = "IDENTITYROLE" + BasePermission.SEPARATOR + "READ";
+	public static final String IDENTITYROLE_CREATE = "IDENTITYROLE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String IDENTITYROLE_UPDATE = "IDENTITYROLE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String IDENTITYROLE_DELETE = "IDENTITYROLE" + BasePermission.SEPARATOR + "DELETE";
+	//
 	public static final String IDENTITYCONTRACT_COUNT = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "COUNT";
 	public static final String IDENTITYCONTRACT_AUTOCOMPLETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String IDENTITYCONTRACT_READ = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "READ";
@@ -332,10 +357,25 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLE_DELETE = "ROLE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String ROLECATALOGUE_COUNT = "ROLECATALOGUE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String ROLECATALOGUE_AUTOCOMPLETE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String ROLECATALOGUE_READ = "ROLECATALOGUE" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLECATALOGUE_CREATE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLECATALOGUE_UPDATE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLECATALOGUE_DELETE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String ROLECATALOGUEROLE_COUNT = "ROLECATALOGUEROLE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String ROLECATALOGUEROLE_AUTOCOMPLETE = "ROLECATALOGUEROLE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String ROLECATALOGUEROLE_READ = "ROLECATALOGUEROLE" + BasePermission.SEPARATOR + "READ";
+	public static final String ROLECATALOGUEROLE_CREATE = "ROLECATALOGUEROLE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLECATALOGUEROLE_UPDATE = "ROLECATALOGUEROLE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ROLECATALOGUEROLE_DELETE = "ROLECATALOGUEROLE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String ROLECOMPOSITION_COUNT = "ROLECOMPOSITION" + BasePermission.SEPARATOR + "COUNT";
+	public static final String ROLECOMPOSITION_AUTOCOMPLETE = "ROLECOMPOSITION" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String ROLECOMPOSITION_READ = "ROLECOMPOSITION" + BasePermission.SEPARATOR + "READ";
+	public static final String ROLECOMPOSITION_CREATE = "ROLECOMPOSITION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLECOMPOSITION_UPDATE = "ROLECOMPOSITION" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ROLECOMPOSITION_DELETE = "ROLECOMPOSITION" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String ROLETREENODE_READ = "ROLETREENODE" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLETREENODE_CREATE = "ROLETREENODE" + BasePermission.SEPARATOR + "CREATE";

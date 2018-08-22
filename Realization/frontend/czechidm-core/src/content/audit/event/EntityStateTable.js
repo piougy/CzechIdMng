@@ -64,7 +64,8 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
       forceSearchParameters,
       rendered,
       showFilter,
-      showToolbar
+      showToolbar,
+      className
     } = this.props;
     const { filterOpened, detail } = this.state;
     //
@@ -130,7 +131,8 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
           showFilter={ showFilter }
           forceSearchParameters={_forceSearchParameters}
           _searchParameters={ this.getSearchParameters() }
-          showToolbar={ showToolbar }>
+          showToolbar={ showToolbar }
+          className={ className }>
           <Advanced.Column
             property=""
             header=""

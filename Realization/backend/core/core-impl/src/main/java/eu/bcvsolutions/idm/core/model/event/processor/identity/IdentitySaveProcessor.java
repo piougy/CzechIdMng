@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(IdentitySaveProcessor.PROCESSOR_NAME)
 @Description("Persists identity.")
 public class IdentitySaveProcessor
 		extends CoreEventProcessor<IdmIdentityDto> 

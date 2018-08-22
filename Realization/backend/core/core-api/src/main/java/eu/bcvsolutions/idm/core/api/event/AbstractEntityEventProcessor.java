@@ -215,7 +215,10 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 							ImmutableMap.of(
 									"eventId", eventId,
 									"processor", getName()));
-				}				
+				}
+				//
+				LOG.error(resultModel.toString(), ex);
+				//
 				result = new DefaultEventResult.Builder<>(event, this)
 						.setResult(new OperationResult
 								.Builder(OperationState.EXCEPTION)

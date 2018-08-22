@@ -91,6 +91,13 @@ module.exports = {
       'manager': require('./src/redux').IdentityContractManager
     },
     {
+      'id': 'identity-role-info',
+      'type': 'entity-info',
+      'entityType': ['identityRole', 'IdmIdentityRole', 'IdmIdentityRoleDto'],
+      'component': require('./src/components/advanced/IdentityRoleInfo/IdentityRoleInfo').default,
+      'manager': require('./src/redux').IdentityRoleManager
+    },
+    {
       'id': 'contract-slice-info',
       'type': 'entity-info',
       'entityType': ['contractSlice', 'contractSlice', 'IdmContractSlice', 'IdmContractSliceDto'],

@@ -20,6 +20,7 @@
     "date": "DD.MM.YYYY",
     "time": "HH:mm",
     "datetime": "DD.MM.YYYY HH:mm:ss",
+    "datetimemilis": "DD.MM.YYYY HH:mm:ss.SSS",
     "times": "HH:mm:ss",
     "duration": "DD HH:mm:ss"
   },
@@ -1714,8 +1715,18 @@
           "header": "Create role authorizer"
         },
         "edit": {
-          "header": "{{name}} <small>role authorizer detail</small>",
-          "disabled": "Authorizer can be edited directly from basic information tab."
+          "header": "{{name}} <small>role authorizer detail</small>"
+        },
+        "role": {
+          "header": "$t(entity.RoleGuaranteeRole._type)",
+          "title": "$t(entity.RoleGuaranteeRole._type)"
+        },
+        "identity": {
+          "header": "$t(entity.RoleGuarantee._type)",
+          "title": "$t(entity.RoleGuarantee._type)"
+        },
+        "save": {
+          "success": "Authorizer [{{record}}] successfully saved."
         }
       },
       "eav": {
@@ -1770,6 +1781,43 @@
         },
         "evaluator": {
           "default": "Default evaluator will be used. Agenda doesn't support other evaluator types."
+        }
+      },
+      "catalogues": {
+        "header": "Role catalogue",
+        "title": "Role catalogue",
+        "create": {
+          "header": "Assign role to catalogue"
+        },
+        "edit": {
+          "header": "{{name}} <small>role asigned to catalogue</small>"
+        },
+        "save": {
+          "success": "Role was assigned to catalogue [{{record}}]."
+        }
+      },
+      "compositions": {
+        "header": "Business role",
+        "title": "Business role",
+        "create": {
+          "header": "New"
+        },
+        "edit": {
+          "header": "{{name}} <small>detail</small>"
+        },
+        "superior": {
+          "header": "Superior roles"
+        },
+        "sub": {
+          "header": "Sub roles"
+        },
+        "save": {
+          "success": "Business role [{record}] successfully saved. Role will be assigned to the users on the background asynchronously."
+        },
+        "action": {
+          "delete": {
+            "success": "Business role [{record}] successfully removed. Assigned role will be removed from the users on the background asynchronously."
+          }
         }
       }
     },
@@ -1874,6 +1922,7 @@
           "deleteSuccess": "Request successfully deleted."
         },
         "changePermissionRequests": {
+          "label": "Requests",
           "header": "Requests for authorization change"
         },
         "conceptPermissionRequests": {
@@ -1891,11 +1940,24 @@
         "delete": {
           "success": "Role [{{role}}] of user [{{username}}] successfully removed."
         },
+        "detail": {
+          "directRole": {
+            "subRoles": {
+              "header": "Roles assigned by direct role"
+            }
+          }
+        },
         "contracts": {
           "empty": {
             "message": "User doesn't have any valid contracted positions, on which you can assign roles. Please, add valid contracted position.",
             "button": "Add contracted position"
           }
+        },
+        "directRoles": {
+          "header": "Directly assigned roles"
+        },
+        "subRoles": {
+          "header": "Roles assigned by direct roles"
         }
       },
       "authorities": {
@@ -2608,6 +2670,9 @@
     },
     "name": "Name",
     "created": "Created",
+    "modified": {
+      "label": "Last changed"
+    },
     "creator": "Creator",
     "validFrom": "Valid from",
     "validTill": "Valid till",
@@ -2658,8 +2723,26 @@
         "name": "Parent folder in catalog"
       }
     },
+    "RoleCatalogueRole": {
+      "_type": "Role assigned into catalogue",
+      "roleCatalogue": {
+        "label": "$t(entity.RoleCatalogue._type)",
+        "help": "Role will be in selected catalogue folder."
+      }
+    },
+    "RoleComposition": {
+      "_type": "Role composition",
+      "superior": {
+        "label": "Superior role",
+        "help": ""
+      },
+      "sub": {
+        "label": "Sub role",
+        "help": ""
+      }
+    },
     "RoleGuarantee": {
-      "_type": "Role authorizer - identity",
+      "_type": "Role authorizer - defined by identity",
       "role": {
         "label": "Role"
       },
@@ -2669,7 +2752,7 @@
       }
     },
     "RoleGuaranteeRole": {
-      "_type": "Role authorizer- role",
+      "_type": "Role authorizer - defined by role",
       "role": {
         "label": "Role"
       },
@@ -2771,6 +2854,10 @@
     },
     "Role": {
       "_type": "Role",
+      "code": {
+        "label": "Code",
+        "help": "Technical name"
+      },
       "name": "Name",
       "roleType": "Type",
       "priority": "Priority",
@@ -2856,6 +2943,7 @@
       }
     },
     "IdentityRole": {
+      "_type": "Assigned role",
       "role" : "Role",
       "identityContract": {
         "label": "Contracted position",
@@ -2863,13 +2951,18 @@
         "placeholder": "Contracted position",
         "help": "Connection to organization or another tree structure"
       },
-      "roleTreeNode": {
+      "automaticRole": {
         "label": "Automatic role",
         "title": "Automatic role",
         "placeholder": "Automatic role",
         "help": "Role from contracted position"
       },
-      "roleCataloguePicker": "Select a folder from the catalog"
+      "roleCataloguePicker": "Select a folder from the catalog",
+      "directRole": {
+        "label": "Direct role",
+        "title": "Directly assigned role, which assigned this role as well (business role).",
+        "help": "$t(entity.IdentityRole.directRole.title)"
+      }
     },
     "IdentityAccount": {
       "attribute": {
@@ -3449,6 +3542,9 @@
         "label": "$t(entity.EntityEventProcessor.eventType)",
         "title": "Event type"
       },
+      "rootId": {
+        "label": "Root"
+      },
       "parent": {
         "label": "Parent event"
       },
@@ -3777,6 +3873,11 @@
       "role-delete-bulk-action": {
         "label": "Remove",
         "help": "Remove selected roles.",
+        "icon": "fa:trash"
+      },
+      "core-entity-event-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected events.",
         "icon": "fa:trash"
       }
     },
@@ -4235,10 +4336,6 @@
       "title": "Not found",
       "message": "Event does not exist, processed events are deleted automatically."
     },
-    "EVENT_DELETE_FAILED_HAS_CHILDREN": {
-      "title": "Event cannot be deleted",
-      "message": "Event cannot be deleted. Delete events at first, where this event is set as parent."
-    },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Wrong format",
       "message": "File has got image suffix but It's not an image. File should contains image in one of this formats: jpg, png, gif"
@@ -4286,6 +4383,10 @@
     "OK": {
       "title": "Operation was successful",
       "message": "Request was successfully completed."
+    },
+    "DELETED": {
+      "title": "Record deleted",
+      "message": "Record will be deleted."
     },
     "AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE": {
       "title": "Missing attribute 'groupPermission'",
@@ -4542,6 +4643,26 @@
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "message": "Role <strong>{{role}}</strong> contains  <strong class=\"highlight\">{{count}}</strong> user relationships. <strong>Remove user relationships befor role delete.</strong>",
       "title": ""
+    },
+    "ROLE_COMPOSITION_ASSIGN_ROLE_FAILED": {
+      "title": "Role wasn't assigned",
+      "message": "Role [{{role}}] wasn't assigned."
+    },
+    "ROLE_COMPOSITION_ASSIGNED_ROLE_REMOVAL_FAILED": {
+      "title": "Role wasn't removed",
+      "message": "Assigned role [{{identityRole}}] wasn't removed."
+    },
+    "ROLE_DELETE_FAILED_HAS_COMPOSITION": {
+      "title": "Role nelze smazat",
+      "message": "Role [{{role}}] can not be deleted, because is used in the business role definition. Remove business role difinition at first."
+    },
+    "ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING": {
+      "title": "Business role is used by concurrent task",
+      "message": "Business role [{{autoRole}}] is used by concurrent task [{{task}}], wait for task completion."
+    },
+    "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
+      "title": "Role is removed by concurrent task",
+      "message": "Business role [{{autoRole}}] is removed by concurrent task [{{task}}]."
     }
   },
   "validationError": {

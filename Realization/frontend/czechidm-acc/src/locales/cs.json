@@ -1402,7 +1402,7 @@
     },
     "PROVISIONING_IDM_FIELD_NOT_FOUND": {
       "title": "Položka pro provisioning nenalezena",
-      "message": "IdM položka [{{field}}] pro entitu [{{entity}}] nebyla nalezena!"
+      "message": "IdM položka [{{property}}] pro entitu [{{entityType}}] nebyla nalezena!"
     },
     "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
       "title": "System [{{system}}] nepodporuje změnu hesla",

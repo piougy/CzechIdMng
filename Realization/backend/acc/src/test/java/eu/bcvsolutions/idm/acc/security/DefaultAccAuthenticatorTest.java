@@ -330,9 +330,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		}
 		
 		// create two roles with same system and different override username
-		IdmRoleDto role1 = new IdmRoleDto();
-		role1.setName(ROLE_NAME);
-		role1 = roleService.save(role1);
+		IdmRoleDto role1 = getHelper().createRole(ROLE_NAME);
 		SysRoleSystemDto role1System = new SysRoleSystemDto();
 		role1System.setRole(role1.getId());
 		role1System.setSystem(system.getId());
@@ -340,8 +338,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		role1System = roleSystemService.save(role1System);
 
 		
-		IdmRoleDto role2 = new IdmRoleDto();
-		role2.setName(ROLE_NAME + "2");
+		IdmRoleDto role2 =  getHelper().createRole(ROLE_NAME + "2");
 		role2 = roleService.save(role2);
 		SysRoleSystemDto roleSystem2 = new SysRoleSystemDto();
 		roleSystem2.setSystem(system.getId());

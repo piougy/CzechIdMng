@@ -24,6 +24,7 @@ import MenuItem from './Button/MenuItem';
 import DateTimePicker from './DateTimePicker/DateTimePicker';
 import Alert from './Alert/Alert';
 import Label from './Label/Label';
+import Badge from './Badge/Badge';
 import Modal from './Modal/Modal';
 import ProgressBar from './ProgressBar/ProgressBar';
 import Confirm from './Confirm/Confirm';
@@ -86,6 +87,7 @@ const Components = {
   MenuItem,
   Alert,
   Label,
+  Badge,
   Modal,
   ProgressBar,
   Confirm,

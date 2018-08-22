@@ -84,7 +84,9 @@ public class IdentityContractDeleteProcessor
 		//
 		// delete referenced roles
 		identityRoleService.findAllByContract(contract.getId()).forEach(identityRole -> {
-			identityRoleService.delete(identityRole);
+			if (identityRole.getDirectRole() == null) { // sub roles are removed different way (processor on direct identity role)
+				identityRoleService.delete(identityRole);
+			}
 		});
 		
 		// Find all concepts and remove relation on role

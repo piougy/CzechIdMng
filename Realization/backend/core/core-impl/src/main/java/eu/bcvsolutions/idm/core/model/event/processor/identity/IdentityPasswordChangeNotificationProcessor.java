@@ -113,7 +113,7 @@ public class IdentityPasswordChangeNotificationProcessor extends CoreEventProces
 					.addParameter("password", newPassword)
 					.build(),
 					identity);
-		}	
+		}
 	}
 
 	@Override

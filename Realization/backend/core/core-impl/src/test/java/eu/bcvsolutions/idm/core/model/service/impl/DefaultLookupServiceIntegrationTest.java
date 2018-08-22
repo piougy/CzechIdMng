@@ -5,23 +5,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Default lookup service test:
  * - get dto by uuid / code
  * - get entity by uuid / code
+ * - deg default owner type / id
  * 
  * @author Radek Tomiška
  *
  */
+@Transactional
 public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	//
 	private DefaultLookupService lookupService;
@@ -33,7 +36,7 @@ public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest
 	
 	@Test
 	public void testIdentityLookupByUuid() {
-		IdmIdentityDto dto = helper.createIdentity();
+		IdmIdentityDto dto = getHelper().createIdentity((GuardedString) null);
 		//
 		// by dto class
 		Assert.assertEquals(dto.getId(), lookupService.lookupDto(IdmIdentityDto.class, dto.getId()).getId());
@@ -45,7 +48,7 @@ public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest
 	
 	@Test
 	public void testIdentityLookupByCode() {
-		IdmIdentityDto dto = helper.createIdentity();
+		IdmIdentityDto dto = getHelper().createIdentity((GuardedString) null);
 		//
 		// by dto class
 		Assert.assertEquals(dto.getId(), lookupService.lookupDto(IdmIdentityDto.class, dto.getCode()).getId());
@@ -57,7 +60,7 @@ public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest
 	
 	@Test
 	public void testIdentityLookupByStringUuid() {
-		IdmIdentityDto dto = helper.createIdentity();
+		IdmIdentityDto dto = getHelper().createIdentity((GuardedString) null);
 		//
 		// by dto class
 		Assert.assertEquals(dto.getId(), lookupService.lookupDto(IdmIdentityDto.class, dto.getId().toString()).getId());
@@ -65,5 +68,28 @@ public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest
 		// by entity class
 		Assert.assertEquals(dto.getId(), lookupService.lookupDto(IdmIdentity.class, dto.getId().toString()).getId());
 		Assert.assertEquals(dto.getId(), lookupService.lookupEntity(IdmIdentity.class, dto.getId().toString()).getId());
+	}
+	
+	@Test
+	public void getOwnerId() {
+		IdmIdentityDto dto = getHelper().createIdentity((GuardedString) null);
+		//
+		Assert.assertEquals(dto.getId(), lookupService.getOwnerId(dto));
+		Assert.assertNull(lookupService.getOwnerId(new IdmIdentityDto()));
+	}
+	
+	@Test
+	public void getOwnerType() {
+		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null);
+		//
+		Assert.assertEquals(IdmIdentity.class.getCanonicalName(), lookupService.getOwnerType(IdmIdentity.class));
+		Assert.assertEquals(IdmIdentity.class.getCanonicalName(), lookupService.getOwnerType(IdmIdentityDto.class));
+		//
+		Assert.assertEquals(IdmIdentity.class.getCanonicalName(), lookupService.getOwnerType(owner));
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void getWrongOwnerType() {
+		lookupService.getOwnerType(ModuleDescriptorDto.class);
 	}
 }

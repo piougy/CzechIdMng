@@ -19,7 +19,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
-import eu.bcvsolutions.idm.core.api.exception.EventDeleteFailedHasChildrenException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -113,9 +112,8 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		Assert.assertNull(entityStateService.get(entityState));
 	}
 	
-	@Test(expected = EventDeleteFailedHasChildrenException.class)
 	@Transactional
-	public void testReferentialIntegritParentIsDeleted() {
+	public void testReferentialIntegrityParentIsDeleted() {
 		IdmEntityEventDto parentEvent = new IdmEntityEventDto();
 		parentEvent.setOwnerType("empty");
 		parentEvent.setEventType("empty");
@@ -138,7 +136,10 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		Assert.assertNotNull(entityEvent.getId());
 		//
 		entityEventService.delete(parentEvent);
-	}
+		//
+		Assert.assertNull(entityEventService.get(parentEvent.getId()));
+		Assert.assertNull(entityEventService.get(entityEvent.getId()));
+	}	
 	
 	@Transactional
 	public void testReferentialIntegrityLastChildIsDeleted() {

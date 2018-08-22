@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.workflow.notification;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,7 +11,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 
-import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -22,7 +20,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
@@ -1278,17 +1275,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	/**
 	 * Creates role
 	 * 
-	 * @param name
+	 * @param code
 	 * @return IdmRoleDto
 	 */
-	private IdmRoleDto createRole(String name) {
-		IdmRoleDto role = helper.createRole();
-		role.setName(name);
-		role.setId(UUID.randomUUID());
+	private IdmRoleDto createRole(String code) {
+		IdmRoleDto role = helper.createRole(code);
 		role.setCanBeRequested(true);
-		roleService.save(role);
-
-		return role;
+		//
+		return roleService.save(role);
 	}
 
 	/**
@@ -1321,15 +1315,11 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	 * 
 	 */
 	private void createStructure() {
-		IdmRoleDto superAdminRole = this.roleService.getByCode(InitApplicationData.ADMIN_ROLE);
 		IdmTreeNodeDto rootOrganization = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1)).getContent()
 				.get(0);
 
 		IdmRoleDto role2 = new IdmRoleDto();
-		role2.setName("TestCustomRole002" + System.currentTimeMillis());
-		List<IdmRoleCompositionDto> subRoles = new ArrayList<>();
-		subRoles.add(new IdmRoleCompositionDto(role2.getId(), superAdminRole.getId()));
-		role2.setSubRoles(subRoles);
+		role2.setCode("TestCustomRole002" + System.currentTimeMillis());
 		role2 = this.roleService.save(role2);
 
 		testUser2 = new IdmIdentityDto();

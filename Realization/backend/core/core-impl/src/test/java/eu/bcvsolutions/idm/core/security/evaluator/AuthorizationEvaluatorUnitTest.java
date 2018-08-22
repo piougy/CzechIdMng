@@ -26,7 +26,7 @@ public class AuthorizationEvaluatorUnitTest extends AbstractUnitTest {
 	@Test
 	public void testSupportsEvaluatorType() {
 		BasePermissionEvaluator e = new BasePermissionEvaluator();
-		RoleGuaranteeEvaluator r = new RoleGuaranteeEvaluator(securityService);
+		RoleGuaranteeEvaluator r = new RoleGuaranteeEvaluator();
 		//
 		assertTrue(e.supports(BaseEntity.class));
 		assertTrue(e.supports(AbstractEntity.class));

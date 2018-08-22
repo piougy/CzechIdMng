@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -75,4 +76,33 @@ public interface LookupService extends ScriptEnabled {
 	 * @return
 	 */
 	Class<? extends BaseEntity> getEntityClass(Class<? extends Identifiable> identifiableType);
+	
+	/**
+	 * If {@link BaseDto} instance is given as identifiable type, then {@link BaseEntity} type will be found by registered {@link ReadDtoService}.
+	 * Returns simple string representing owner class (e.g. canonical name by default).
+	 * 
+	 * @param owner
+	 * @return
+	 * @since 9.0.0
+	 */
+	String getOwnerType(Identifiable owner);
+	
+	/**
+	 * If {@link BaseDto} class is given as identifiable type, then {@link BaseEntity} type will be found by registered {@link ReadDtoService}.
+	 * Returns simple string representing owner class (e.g. canonical name by default).
+	 * 
+	 * @param ownerType
+	 * @return
+	 * @since 9.0.0
+	 */
+	String getOwnerType(Class<? extends Identifiable> ownerType);
+	
+	/**
+	 * {@link UUID} identifier from given owner. Only owners with {@link UUID} can own something (e.g. attachments, tokens ...).
+	 * 
+	 * @param owner
+	 * @return
+	 * @since 9.0.0
+	 */
+	UUID getOwnerId(Identifiable owner);
 }

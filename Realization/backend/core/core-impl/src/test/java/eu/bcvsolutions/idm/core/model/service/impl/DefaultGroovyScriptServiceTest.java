@@ -2,8 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,8 +12,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
@@ -117,27 +116,25 @@ public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 
 	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptListDeepUnvalid() {
-		String script = "return entity.guarantees.get(0);";
+		String script = "return entity.identityContract;";
 		groovyScriptService.validateScript(script);
-		IdmRole role = new IdmRole();
-		List<IdmRoleGuarantee> guarantees = new ArrayList<>();
-		guarantees.add(new IdmRoleGuarantee());
-		role.setGuarantees(guarantees);
-		role.setName(TEST_ONE);
+		IdmIdentityRole role = new IdmIdentityRole();
+		role.setIdentityContract(new IdmIdentityContract());
+		role.setExternalId("sdsd");
 		groovyScriptService.evaluate(script, ImmutableMap.of("entity", role));
 	}
 
 	@Test
 	public void testSecurityScriptListValid() {
-		String script = "return list;";
+		String script = "return contract;";
 		groovyScriptService.validateScript(script);
-		IdmRole role = new IdmRole();
-		List<IdmRoleGuarantee> guarantees = new ArrayList<>();
-		guarantees.add(new IdmRoleGuarantee());
-		role.setGuarantees(guarantees);
-		role.setName(TEST_ONE);
-		Object result = groovyScriptService.evaluate(script, ImmutableMap.of("entity", role, "list", guarantees));
-		assertEquals(role.getGuarantees(), result);
+		IdmIdentityRole role = new IdmIdentityRole();
+		role.setIdentityContract(new IdmIdentityContract(UUID.randomUUID()));
+		role.setExternalId("sdsd");
+		//
+		Object result = groovyScriptService.evaluate(script, ImmutableMap.of("entity", role, "contract", role.getIdentityContract()));
+		//
+		assertEquals(role.getIdentityContract(), result);
 	}
 
 	@Test(expected = IdmSecurityException.class)

@@ -24,16 +24,6 @@ public interface IdmRoleService extends
 	String PROPERTY_DEFAULT_ROLE = RoleConfiguration.PROPERTY_DEFAULT_ROLE;
 	
 	/**
-	 * Returns role by name
-	 * 
-	 * @param name
-	 * @return
-	 * @deprecated - use {@link #getByCode(String)}
-	 */
-	@Deprecated
-	IdmRoleDto getByName(String name);
-	
-	/**
 	 * Return roles by uuids in string
 	 * 
 	 * @param roles
@@ -89,7 +79,9 @@ public interface IdmRoleService extends
 	 * 
 	 * @param roleId
 	 * @return
+	 * @deprecated since 9.0.0 use {@link IdmRoleCompositionService#findDirectSubRoles(UUID)}
 	 */
+	@Deprecated
 	List<IdmRoleDto> getSubroles(UUID roleId);
 	
 	/**

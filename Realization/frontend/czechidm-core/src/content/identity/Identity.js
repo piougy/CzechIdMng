@@ -10,7 +10,7 @@ import OrganizationPosition from './OrganizationPosition';
 const identityManager = new IdentityManager();
 
 /**
- * Identitz routes / tabs
+ * Identity routes / tabs
  *
  * @author Radek Tomiška
  * @author Petr Hanák
@@ -28,8 +28,8 @@ class IdentityContent extends Basic.AbstractContent {
     //
     this._selectNavigationItem();
     const { entityId } = this.props.params;
-    //
-    this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId));
+    // FIXME: look out - entity is loaded thx to OrganizationPosition => it's commented for now. Find a way to prevent multiple loading
+    // this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId));
     //
     if (entityId) {
       this.context.store.dispatch(identityManager.downloadProfileImage(entityId));
@@ -39,11 +39,13 @@ class IdentityContent extends Basic.AbstractContent {
   componentDidUpdate() {
     this._selectNavigationItem();
     // TODO: move to componentWillReceiveNextProps
-    const { entityId } = this.props.params;
+    // const { entityId } = this.props.params;
     //
+    // FIXME: look out - entity is loaded thx to OrganizationPosition => it's commented for now. Find a way to prevent multiple loading
+    /*
     this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
       this.handleError(error);
-    }));
+    }));*/
   }
 
   _selectNavigationItem() {

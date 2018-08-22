@@ -4,6 +4,7 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 
 public interface AccAccountManagementService {
 
@@ -20,6 +21,13 @@ public interface AccAccountManagementService {
 	 * @param entity
 	 */
 	void deleteIdentityAccount(IdmIdentityRoleDto identityRole);
+	
+	/**
+	 * Identity role is deleting, we have to delete linked identity accounts, or mark them for delete
+	 * 
+	 * @param event
+	 */
+	void deleteIdentityAccount(EntityEvent<IdmIdentityRoleDto> event);
 	
 	/**
 	 * Return UID for this dto and roleSystem. First will be find and use

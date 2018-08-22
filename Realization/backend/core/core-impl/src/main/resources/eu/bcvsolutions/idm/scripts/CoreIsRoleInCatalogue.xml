@@ -47,10 +47,7 @@
 		return false;
 	}
 
-	List roleCatalogues = role.getRoleCatalogues();
-	if (roleCatalogues == null) {
-		return false;
-	}
+	List roleCatalogues = roleCatalogueService.findAllByRole(role.getId());
 
 	for (IdmRoleCatalogueRoleDto roleCatalogue : roleCatalogues) {
 		UUID catalogueId = roleCatalogue.getRoleCatalogue();

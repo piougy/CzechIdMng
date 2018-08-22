@@ -18,7 +18,6 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
@@ -66,7 +65,7 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 		UUID identityId = identity.getId();
 		//
 		AutomaticRoleAttributeRuleType type = AutomaticRoleAttributeRuleType.IDENTITY;
-		if (CoreEventType.EAV_SAVE.name().equals(event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PARENT_EVENT_TYPE))) {
+		if (CoreEventType.EAV_SAVE.name().equals(event.getParentType())) {
 			type = AutomaticRoleAttributeRuleType.IDENTITY_EAV;
 		}
 		//

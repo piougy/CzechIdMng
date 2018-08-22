@@ -5,8 +5,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -85,13 +83,9 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 			tokens = tokenManager.getTokens(i);
 			Assert.assertEquals(1, tokens.size());
 			Assert.assertFalse(tokens.get(0).isDisabled());
-		
-			getTransactionTemplate().execute(new TransactionCallback<Object>() {
-				public Object doInTransaction(TransactionStatus transactionStatus) {
-					createTestPolicy(role, IdmBasePermission.EXECUTE, IdmGroupPermission.APP);
-					return null;
-				}
-			});
+			//
+			createTestPolicy(role, IdmBasePermission.EXECUTE, IdmGroupPermission.APP);
+			//
 			// add role - token should not be removed
 			tokens = tokenManager.getTokens(i);
 			Assert.assertEquals(1, tokens.size());
@@ -137,26 +131,16 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 	}
 
 	private void changeAuthorizationPolicyPermissions(IdmRoleDto role) {
-		getTransactionTemplate().execute(new TransactionCallback<Object>() {
-			public Object doInTransaction(TransactionStatus status) {
-				authorizationPolicyService.getRolePolicies(role.getId(), false)
-				.forEach(policy -> {
-					policy.setGroupPermission(CoreGroupPermission.AUDIT_READ);
-					authorizationPolicyService.save(policy);
-				});
-				return null;
-			}
+		authorizationPolicyService.getRolePolicies(role.getId(), false)
+		.forEach(policy -> {
+			policy.setGroupPermission(CoreGroupPermission.AUDIT_READ);
+			authorizationPolicyService.save(policy);
 		});
 	}
 
 	private void clearAuthPolicies(IdmRoleDto role) {
-		getTransactionTemplate().execute(new TransactionCallback<Object>() {
-			public Object doInTransaction(TransactionStatus transactionStatus) {
-				List<IdmAuthorizationPolicy> policies = policyRepository.getPolicies(role.getId(), false);
-				policies.forEach(policy -> authorizationPolicyService.deleteById(policy.getId()));
-				return null;
-			}
-		});
+		List<IdmAuthorizationPolicy> policies = policyRepository.getPolicies(role.getId(), false);
+		policies.forEach(policy -> authorizationPolicyService.deleteById(policy.getId()));
 	}
 
 }

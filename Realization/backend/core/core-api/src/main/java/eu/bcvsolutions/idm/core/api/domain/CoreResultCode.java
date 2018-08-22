@@ -21,6 +21,7 @@ public enum CoreResultCode implements ResultCode {
 	// 2xx
 	OK(HttpStatus.OK, "ok"),
 	ACCEPTED(HttpStatus.ACCEPTED, "	"),
+	DELETED(HttpStatus.ACCEPTED, "Request to delete content accepted."),
 	DRY_RUN(HttpStatus.NO_CONTENT, "Dry run mode"),
 	//
 	// Commons 4xx
@@ -99,6 +100,7 @@ public enum CoreResultCode implements ResultCode {
 	ROLE_DELETE_FAILED_IDENTITY_ASSIGNED(HttpStatus.CONFLICT, "Role [%s] cannot be deleted - some identites have role assigned."),
 	ROLE_DELETE_FAILED_HAS_TREE_NODE(HttpStatus.CONFLICT, "Role [%s] has assigned automatic roles. Remove automatic roles at first."),
 	ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED(HttpStatus.CONFLICT, "Role [%s] cannot be deleted - some automatic roles by attribe has assigned this role."),
+	ROLE_DELETE_FAILED_HAS_COMPOSITION(HttpStatus.CONFLICT, "Role [%s] cannot be deleted - composition is defined. Remove role composition at first."),
 	// groovy script
 	GROOVY_SCRIPT_VALIDATION(HttpStatus.BAD_REQUEST, "Script contains compillation errors."),
 	GROOVY_SCRIPT_SYNTAX_VALIDATION(HttpStatus.BAD_REQUEST, "Script contains syntaxt error: [%s] at line [%s]."),
@@ -234,7 +236,6 @@ public enum CoreResultCode implements ResultCode {
 	EVENT_EXECUTE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Event [%s] type [%s] for owner [%s] on instance [%s] failed."),
 	EVENT_EXECUTE_PROCESSOR_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Event [%s] failed in processor [%s]."),
 	EVENT_CONTENT_DELETED(HttpStatus.CONFLICT, "Content for event [%s] type [%s] for owner [%s] on instance [%s] was deleted. Event cannot be executed and will be canceled."),
-	EVENT_DELETE_FAILED_HAS_CHILDREN(HttpStatus.CONFLICT, "Event [%s] type [%s] for owner [%s] on instance [%s] cannot be deleted. Delete events at first, where this event is set as parent."),
 	//
 	// Identity bulk actions
 	BULK_ACTION_BAD_FILTER(HttpStatus.BAD_REQUEST, "Filter must be instance of [%s], given instance [%s]."),
@@ -250,8 +251,15 @@ public enum CoreResultCode implements ResultCode {
 	//
 	// Contract slices
 	CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. Cannot be deleted directly!"),
-	CONTRACT_SLICE_DUPLICATE_CANDIDATES(HttpStatus.CONFLICT, "We found more then once slice which should be use as contract. This is not allowed. None from this slices will be used as contract. It means contracts [%s] are in incorrect state now!");
-
+	CONTRACT_SLICE_DUPLICATE_CANDIDATES(HttpStatus.CONFLICT, "We found more then once slice which should be use as contract. This is not allowed. None from this slices will be used as contract. It means contracts [%s] are in incorrect state now!"),
+	//
+	// role composition
+	ROLE_COMPOSITION_ASSIGN_ROLE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Role [%s] by role composition was not assigned."),
+	ROLE_COMPOSITION_ASSIGNED_ROLE_REMOVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Identity role [%s] was removed."),
+	ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Role composition [%s] is removed in concurent task [%s]"),
+	ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Role composition [%s] is added in concurent task [%s], wait for task is complete, before composition can be removed.");
+	
+	
 	private final HttpStatus status;
 	private final String message;
 	

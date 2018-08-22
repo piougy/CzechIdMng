@@ -1394,7 +1394,7 @@
     },
     "PROVISIONING_IDM_FIELD_NOT_FOUND": {
       "title": "Item for provisioning not found",
-      "message": "IdM item [{{field}}] for entity [{{entity}}] was not found!"
+      "message": "IdM item [{{property}}] for entity [{{entityType}}] was not found!"
     },
     "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
       "title": "System [{{system}}] not support change password",

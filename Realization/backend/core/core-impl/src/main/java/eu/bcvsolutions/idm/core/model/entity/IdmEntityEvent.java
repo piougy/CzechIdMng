@@ -36,10 +36,12 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 @Entity
 @Table(name = "idm_entity_event", indexes = {
 		@Index(name = "idx_idm_entity_event_o_id", columnList = "owner_id"),
+		@Index(name = "idx_idm_entity_event_so_id", columnList = "super_owner_id"),
 		@Index(name = "idx_idm_entity_event_o_type", columnList = "owner_type"),
 		@Index(name = "idx_idm_entity_event_created", columnList = "created"),
 		@Index(name = "idx_idm_entity_event_exe", columnList = "execute_date"),
-		@Index(name = "idx_idm_entity_event_inst", columnList = "instance_id")})
+		@Index(name = "idx_idm_entity_event_inst", columnList = "instance_id"),
+		@Index(name = "idx_idm_entity_event_root", columnList = "root_id")})
 public class IdmEntityEvent extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -52,6 +54,9 @@ public class IdmEntityEvent extends AbstractEntity {
 	@NotNull
 	@Column(name = "owner_id", length = 16, nullable = false)
 	private UUID ownerId;
+	
+	@Column(name = "super_owner_id", length = 16)
+	private UUID superOwnerId;
 	
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "event_type", length = DefaultFieldLengths.NAME)
@@ -91,6 +96,9 @@ public class IdmEntityEvent extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmEntityEvent parent; // parent event
 	
+	@Column(name = "root_id")
+	private UUID rootId; // root event
+	
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "parent_event_type", length = DefaultFieldLengths.NAME)
 	private String parentEventType; // parent event type
@@ -116,6 +124,14 @@ public class IdmEntityEvent extends AbstractEntity {
 
 	public void setOwnerId(UUID ownerId) {
 		this.ownerId = ownerId;
+	}
+	
+	public UUID getSuperOwnerId() {
+		return superOwnerId;
+	}
+	
+	public void setSuperOwnerId(UUID superOwnerId) {
+		this.superOwnerId = superOwnerId;
 	}
 
 	public DateTime getExecuteDate() {
@@ -223,5 +239,13 @@ public class IdmEntityEvent extends AbstractEntity {
 	
 	public void setPriority(PriorityType priority) {
 		this.priority = priority;
+	}
+	
+	public void setRootId(UUID rootId) {
+		this.rootId = rootId;
+	}
+	
+	public UUID getRootId() {
+		return rootId;
 	}
 }

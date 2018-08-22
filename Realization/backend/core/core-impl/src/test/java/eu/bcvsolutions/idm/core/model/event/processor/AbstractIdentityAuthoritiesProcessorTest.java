@@ -1,10 +1,5 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
-import java.util.UUID;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
@@ -43,8 +38,6 @@ public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractI
 	@Autowired protected IdmIdentityContractService contractService;
 	@Autowired protected IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired protected TokenManager tokenManager;
-	//
-	@PersistenceContext protected EntityManager entityManager;
 	
 	protected IdmIdentityRoleDto getTestIdentityRole(IdmRoleDto role, IdmIdentityContractDto c) {
 		IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
@@ -61,9 +54,7 @@ public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractI
 	}
 
 	protected IdmRoleDto getTestRole() {
-		IdmRoleDto role = new IdmRoleDto();
-		role.setName(UUID.randomUUID().toString());
-		role = saveInTransaction(role, roleService);
+		IdmRoleDto role = getHelper().createRole();
 		createTestPolicy(role);
 		return role;
 	}
@@ -78,6 +69,7 @@ public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractI
 		policy.setPermissions(base);
 		policy.setRole(role.getId());
 		policy.setEvaluator(BasePermissionEvaluator.class);
-		return authorizationPolicyService.get(authorizationPolicyService.save(policy).getId());		
+		//
+		return authorizationPolicyService.save(policy);		
 	}
 }

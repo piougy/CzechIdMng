@@ -464,9 +464,9 @@ public class DefaultIdmAutomaticRoleRequestService extends
 		if (filter.getRequestType() != null) {
 			predicates.add(builder.equal(root.get(IdmAutomaticRoleRequest_.requestType), filter.getRequestType()));
 		}
-		// Role name
+		// Role code
 		if (filter.getRole() != null) {
-			predicates.add(builder.equal(root.get(IdmAutomaticRoleRequest_.role).get(IdmRole_.name), filter.getRole()));
+			predicates.add(builder.equal(root.get(IdmAutomaticRoleRequest_.role).get(IdmRole_.code), filter.getRole()));
 		}
 		// States
 		List<RequestState> states = filter.getStates();

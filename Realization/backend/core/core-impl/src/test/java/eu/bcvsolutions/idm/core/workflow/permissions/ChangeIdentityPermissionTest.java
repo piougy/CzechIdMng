@@ -30,7 +30,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -250,10 +249,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		int priority = 500;
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
 		adminRole.setPriority(priority);
-		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
-		guarantee.setRole(adminRole.getId());
-		guarantee.setGuarantee(test2.getId());
-		adminRole.getGuarantees().add(guarantee);
+		getHelper().createRoleGuarantee(adminRole, test2);
 		adminRole = roleService.save(adminRole);
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_GUARANTEE_KEY);
@@ -311,9 +307,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// Set security role test
 		configurationService.setValue(APPROVE_BY_SECURITY_ROLE, SECURITY_ROLE_TEST);
 		// Create test role for load candidates on security department (TEST_USER_1)
-		IdmRoleDto role = new IdmRoleDto();
-		role.setName(SECURITY_ROLE_TEST);
-		role = roleService.save(role);
+		IdmRoleDto role = getHelper().createRole(SECURITY_ROLE_TEST);
 		helper.createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
 
 		loginAsAdmin();
@@ -367,11 +361,9 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		int priority = 500;
 		IdmRoleDto role = helper.createRole();
 		role.setPriority(priority);
-		IdmRoleGuaranteeDto roleGuarantee = new IdmRoleGuaranteeDto();
-		roleGuarantee.setRole(role.getId());
-		roleGuarantee.setGuarantee(guarantee.getId());
-		role.getGuarantees().add(roleGuarantee);
 		role = roleService.save(role);
+		getHelper().createRoleGuarantee(role, guarantee);
+		//
 		// set approve by guarantee
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_GUARANTEE_KEY);
@@ -558,10 +550,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		int priority = 500;
 		IdmRoleDto role = helper.createRole();
 		role.setPriority(priority);
-		IdmRoleGuaranteeDto roleGuarantee = new IdmRoleGuaranteeDto();
-		roleGuarantee.setRole(role.getId());
-		roleGuarantee.setGuarantee(guarantee.getId());
-		role.getGuarantees().add(roleGuarantee);
+		getHelper().createRoleGuarantee(role, guarantee);
 		role = roleService.save(role);
 		// set approve by guarantee
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
@@ -733,10 +722,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		int priority = 500;
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
 		adminRole.setPriority(priority);
-		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
-		guarantee.setRole(adminRole.getId());
-		guarantee.setGuarantee(test2.getId());
-		adminRole.getGuarantees().add(guarantee);
+		getHelper().createRoleGuarantee(adminRole, test2);
 		adminRole = roleService.save(adminRole);
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_SECURITY_KEY);
@@ -809,10 +795,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		int priority = 500;
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
 		adminRole.setPriority(priority);
-		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
-		guarantee.setRole(adminRole.getId());
-		guarantee.setGuarantee(test2.getId());
-		adminRole.getGuarantees().add(guarantee);
+		getHelper().createRoleGuarantee(adminRole, test2);
 		adminRole = roleService.save(adminRole);
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_MANAGER_KEY);
@@ -873,10 +856,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		int priority = 500;
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
 		adminRole.setPriority(priority);
-		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
-		guarantee.setRole(adminRole.getId());
-		guarantee.setGuarantee(test2.getId());
-		adminRole.getGuarantees().add(guarantee);
+		getHelper().createRoleGuarantee(adminRole, test2);
 		adminRole = roleService.save(adminRole);
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_GUARANTEE_KEY);
@@ -989,10 +969,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// Guarantee
 		int priority = 500;
 		adminRole.setPriority(priority);
-		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
-		guarantee.setRole(adminRole.getId());
-		guarantee.setGuarantee(test2.getId());
-		adminRole.getGuarantees().add(guarantee);
+		getHelper().createRoleGuarantee(adminRole, test2);
 		adminRole = roleService.save(adminRole);
 
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + (priority + priority),
@@ -1107,10 +1084,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		int priority = 500;
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
 		adminRole.setPriority(priority);
-		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
-		guarantee.setRole(adminRole.getId());
-		guarantee.setGuarantee(test2.getId());
-		adminRole.getGuarantees().add(guarantee);
+		getHelper().createRoleGuarantee(adminRole, test2);
 		adminRole = roleService.save(adminRole);
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_MANAGER_KEY);
@@ -1182,10 +1156,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		int priority = 500;
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
 		adminRole.setPriority(priority);
-		IdmRoleGuaranteeDto guarantee = new IdmRoleGuaranteeDto();
-		guarantee.setRole(adminRole.getId());
-		guarantee.setGuarantee(test2.getId());
-		adminRole.getGuarantees().add(guarantee);
+		getHelper().createRoleGuarantee(adminRole, test2);
 		adminRole = roleService.save(adminRole);
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_MANAGER_KEY);

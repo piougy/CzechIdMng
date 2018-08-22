@@ -23,7 +23,7 @@ public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> 
 	 * Saves a given DTO. Event could be published instead persisting dto directly. Authorization policies are evaluated.
 	 * 
 	 * @param dto
-	 * @param permission permissions to evaluate
+	 * @param permission permissions to evaluate (AND)
 	 * @return the saved DTO
 	 * @throws IllegalArgumentException in case the given DTO is {@literal null}.
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
@@ -34,7 +34,7 @@ public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> 
 	 * Saves all given DTO. Event could be published instead persisting directly.
 	 * 
 	 * @param dtos
-	 * @param permission permissions to evaluate
+	 * @param permission permissions to evaluate (AND)
 	 * @return the saved DTOs
 	 * @throws IllegalArgumentException in case the given DTO is {@literal null}.
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
@@ -55,7 +55,7 @@ public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> 
 	 * Deletes DTO by given identifier.
 	 * 
 	 * @param id
-	 * @param permission permissions to evaluate
+	 * @param permission permissions to evaluate (AND)
 	 * @throws IllegalArgumentException in case the given DTO is {@literal null}.
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */

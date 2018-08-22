@@ -16,6 +16,8 @@ import eu.bcvsolutions.idm.core.api.event.EventType;
 public class IdentityRoleEvent extends CoreEvent<IdmIdentityRoleDto> {
 
 	private static final long serialVersionUID = 1L;
+	//
+	public static final String PROPERTY_PROCESSED_ROLES = "idm:processed-roles"; // event property, contains Set<UUID>
 
 	/**
 	 * Supported identity events

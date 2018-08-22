@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.security.evaluator.impl.identity;
+package eu.bcvsolutions.idm.core.security.evaluator.eav;
 
 import java.util.List;
 

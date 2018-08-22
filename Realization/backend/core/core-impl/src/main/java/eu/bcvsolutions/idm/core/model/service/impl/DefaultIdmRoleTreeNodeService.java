@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -208,7 +206,7 @@ public class DefaultIdmRoleTreeNodeService
 		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
 			// create identity role directly
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setRoleTreeNode(autoRole.getId());
+			identityRole.setAutomaticRole(autoRole.getId());
 			identityRole.setIdentityContract(contract.getId());
 			identityRole.setRole(autoRole.getRole());
 			identityRole.setValidFrom(contract.getValidFrom());

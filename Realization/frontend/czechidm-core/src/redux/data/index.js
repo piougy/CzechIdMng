@@ -24,6 +24,8 @@ import ConfigurationManager from './ConfigurationManager';
 import EmailManager from './EmailManager';
 import BackendModuleManager from './BackendModuleManager';
 import RoleCatalogueManager from './RoleCatalogueManager';
+import RoleCatalogueRoleManager from './RoleCatalogueRoleManager';
+import RoleCompositionManager from './RoleCompositionManager';
 import AuditManager from './AuditManager';
 import ScriptManager from './ScriptManager';
 import NotificationConfigurationManager from './NotificationConfigurationManager';
@@ -80,6 +82,8 @@ const ManagerRoot = {
   EmailManager,
   BackendModuleManager,
   RoleCatalogueManager,
+  RoleCatalogueRoleManager,
+  RoleCompositionManager,
   AuditManager,
   ScriptManager,
   NotificationConfigurationManager,

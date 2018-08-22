@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.exception.EventContentDeletedException;
 
 /**
  * Entity processing based on synchronous {@link ApplicationEvent} publishing.
@@ -38,13 +39,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
  */
 public interface EntityEventManager {
 	
-	String EVENT_PROPERTY_EVENT_ID = "idm:event-id"; // persisted event id
-	String EVENT_PROPERTY_EXECUTE_DATE = "idm:execute-date"; // asynchronous event processing time
-	String EVENT_PROPERTY_PRIORITY = "idm:priority"; // event priority
-	String EVENT_PROPERTY_PARENT_EVENT_TYPE = "idm:parent-event-type"; // parent event type
-	String EVENT_PROPERTY_SUPER_OWNER_ID = "idm:super-owner-id"; // entity event super owner id (e.g. identity (~super owner) - identityRole (event owner))
-	//
-	String EVENT_PROPERTY_SKIP_NOTIFY = "idm:skip-notify"; // skip publish notify event
+	String EVENT_PROPERTY_SKIP_NOTIFY = "idm:skip-notify";
 	String EVENT_PROPERTY_SKIP_NOTIFICATION = "idm:skip-notification"; // skip sending notifications
 	
 	/**
@@ -60,6 +55,16 @@ public interface EntityEventManager {
 	 * @return
 	 */
 	<E extends Serializable> EventContext<E> process(EntityEvent<E> event);
+	
+	/**
+	 * Process event through all registered entity processor in configured order with default context (newly created context). 
+	 * Suspended event will continue.
+	 * 
+	 * @param event
+	 * @param parentEvent event is based on parent event
+	 * @return
+	 */
+	<E extends Serializable> EventContext<E> process(EntityEvent<E> event, EntityEvent<?> parentEvent);
 	
 	/**
 	 * Returns all registered entity event processors
@@ -84,6 +89,15 @@ public interface EntityEventManager {
 	 * @return
 	 */
 	EntityEventProcessor<?> getProcessor(String processorId);
+	
+	/**
+	 * Constructs new entity event.
+	 * 
+	 * @param identifiable
+	 * @param originalEvent parent event
+	 * @return
+	 */
+	IdmEntityEventDto prepareEvent(Identifiable identifiable, EntityEvent<? extends Identifiable> originalEvent);
 	
 	/**
 	 * Publish common event to all listeners
@@ -132,6 +146,15 @@ public interface EntityEventManager {
 				Class<? extends Identifiable> ownerType, 
 				UUID ownerId, 
 				EntityEvent<? extends Identifiable> originalEvent);
+	
+	/**
+	 * Owner type has to be entity class - dto instance can be given.
+	 * 
+	 * @param owner
+	 * @return
+	 * @since 9.0.0
+	 */
+	String getOwnerType(Identifiable owner);
 	
 	/**
 	 * Owner type has to be entity class - dto class can be given.
@@ -189,7 +212,7 @@ public interface EntityEventManager {
 	 * @throws EventContentDeletedException if event content was deleted already - event cannot be constructed again.
 	 * @since 8.0.0
 	 */
-	EntityEvent<Identifiable> toEvent(IdmEntityEventDto entityEvent);
+	EntityEvent<? extends Identifiable> toEvent(IdmEntityEventDto entityEvent);
 	
 	/**
 	 * Execute given persisted event. Event will be executed by event priority:
@@ -201,6 +224,15 @@ public interface EntityEventManager {
 	 * @since 8.0.0
 	 */
 	void executeEvent(IdmEntityEventDto event);
+	
+	/**
+	 * Saves event
+	 * 
+	 * @param event
+	 * @param result
+	 * @since 8.0.0
+	 */
+	IdmEntityEventDto saveEvent(IdmEntityEventDto event);
 	
 	/**
 	 * Saves event result
@@ -219,10 +251,10 @@ public interface EntityEventManager {
 	 * @param result
 	 * @return
 	 */
-	<E extends Serializable> List<IdmEntityStateDto> saveStates(
-			EntityEvent<E> event, 
+	List<IdmEntityStateDto> saveStates(
+			EntityEvent<?> event, 
 			List<IdmEntityStateDto> previousStates,
-			EventResult<E> result);
+			EventResult<?> result);
 	
 	/**
 	 * Enable given processor. Throws {@link IllegalArgumentException} when processorId is not installed.

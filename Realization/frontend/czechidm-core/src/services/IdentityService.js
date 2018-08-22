@@ -17,10 +17,6 @@ class IdentityService extends FormableEntityService {
     return '/identities';
   }
 
-  supportsAuthorization() {
-    return true;
-  }
-
   supportsPatch() {
     return false;
   }

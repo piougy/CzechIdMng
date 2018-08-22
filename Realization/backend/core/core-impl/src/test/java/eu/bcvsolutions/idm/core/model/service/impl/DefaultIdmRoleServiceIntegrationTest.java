@@ -6,22 +6,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
@@ -32,7 +33,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -50,20 +50,18 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 @Transactional
 public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTest {
 
+	@Autowired private ApplicationContext context;
 	@Autowired private IdmRoleCatalogueRoleService idmRoleCatalogueRoleService;
-	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmRoleGuaranteeService roleGuaranteeService;
 	@Autowired private IdmRoleGuaranteeRoleService roleGuaranteeRoleService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
-	
+	@Autowired private RoleConfiguration roleConfiguration;
+	//
+	private DefaultIdmRoleService roleService;
+
 	@Before
 	public void init() {
-		loginAsAdmin();
-	}
-	
-	@After 
-	public void logout() {
-		super.logout();
+		 roleService = context.getAutowireCapableBeanFactory().createBean(DefaultIdmRoleService.class);
 	}
 	
 	@Test
@@ -71,11 +69,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString("heslo"));
 		// role
 		IdmRoleDto role = getHelper().createRole();
-		IdmRoleGuaranteeDto roleGuarantee = new IdmRoleGuaranteeDto();
-		roleGuarantee.setRole(role.getId());
-		roleGuarantee.setGuarantee(identity.getId());
-		role.setGuarantees(Lists.newArrayList(roleGuarantee));
-		role = roleService.save(role);
+		getHelper().createRoleGuarantee(role, identity);
 		//
 		// guarantee by role
 		IdmRoleGuaranteeRoleDto roleGuaranteeOne = new IdmRoleGuaranteeRoleDto();
@@ -120,6 +114,17 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		roleService.delete(role);
 	}
 	
+	@Test(expected = ResultCodeException.class)
+	public void testReferentialIntegrityHasRoleComposition() {
+		// prepare data
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleDto subrole = getHelper().createRole();
+		// assigned role
+		getHelper().createRoleComposition(role, subrole);
+		//
+		roleService.delete(role);
+	}
+	
 	@Test
 	public void testReferentialIntegrityAuthorizationPolicies() {
 		// prepare data
@@ -143,7 +148,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 
 		IdmRoleDto role5 = new IdmRoleDto();
 		role5.setDescription("SomeName005");
-		role5.setName("SomeName105");
+		role5.setCode("SomeName105");
 		role5 = roleService.save(role5);
 
 		IdmRoleFilter filter = new IdmRoleFilter();
@@ -189,12 +194,8 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	public void guaranteeFilterTest(){
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmRoleDto role = getHelper().createRole();
-		IdmRoleGuaranteeDto roleGuarantee = new IdmRoleGuaranteeDto();
-		roleGuarantee.setRole(role.getId());
-		roleGuarantee.setGuarantee(identity.getId());
-		role.setGuarantees(Lists.newArrayList(roleGuarantee));
-		role = roleService.save(role);
-
+		getHelper().createRoleGuarantee(role, identity);
+		//
 		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setGuaranteeId(identity.getId());
 		Page<IdmRoleDto> result = roleService.find(filter, null);
@@ -226,19 +227,25 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 
 	@Test
 	public void catalogueFilterTest(){
-		IdmRoleDto role = getHelper().createRole();
-
-		IdmRoleCatalogueDto catalogue = getHelper().createRoleCatalogue();
-		IdmRoleCatalogueRoleDto catalogueRole = new IdmRoleCatalogueRoleDto();
-		catalogueRole.setRole(role.getId());
-		catalogueRole.setRoleCatalogue(catalogue.getId());
-		catalogueRole = idmRoleCatalogueRoleService.save(catalogueRole);
-
-		IdmRoleFilter filter = new IdmRoleFilter();
-		filter.setRoleCatalogueId(catalogue.getId());
-		Page<IdmRoleDto> result = roleService.find(filter,null);
-		Assert.assertEquals("Wrong catalogue", 1, result.getTotalElements());
-		Assert.assertTrue("Wrong catalogue id #1", result.getContent().contains(role));
+		try {
+			loginAsAdmin();
+		
+			IdmRoleDto role = getHelper().createRole();
+	
+			IdmRoleCatalogueDto catalogue = getHelper().createRoleCatalogue();
+			IdmRoleCatalogueRoleDto catalogueRole = new IdmRoleCatalogueRoleDto();
+			catalogueRole.setRole(role.getId());
+			catalogueRole.setRoleCatalogue(catalogue.getId());
+			catalogueRole = idmRoleCatalogueRoleService.save(catalogueRole);
+	
+			IdmRoleFilter filter = new IdmRoleFilter();
+			filter.setRoleCatalogueId(catalogue.getId());
+			Page<IdmRoleDto> result = roleService.find(filter,null);
+			Assert.assertEquals("Wrong catalogue", 1, result.getTotalElements());
+			Assert.assertTrue("Wrong catalogue id #1", result.getContent().contains(role));
+		} finally {
+			logout();
+		}
 	}
 	
 	/**
@@ -248,7 +255,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	public void testCorrelableFilter() {
 		IdmRoleDto role = getHelper().createRole();
 		role.setExternalId(getHelper().createName());
-		role.setName(getHelper().createName());
+		role.setCode(getHelper().createName());
 		role.setDescription(getHelper().createName());
 		IdmRoleDto roleFull = roleService.save(role);
 
@@ -274,5 +281,44 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 
 		});
 
+	}
+	
+	@Test
+	public void testAutoFillCodeAndName() {
+		IdmRoleDto role = new IdmRoleDto();
+		role.setName(getHelper().createName());
+		//
+		role = roleService.save(role);
+		Assert.assertEquals(role.getName(), role.getCode());
+		//
+		role = new IdmRoleDto();
+		role.setCode(getHelper().createName());
+		//
+		role = roleService.save(role);
+		Assert.assertEquals(role.getCode(), role.getName());
+		//
+		role = new IdmRoleDto();
+		role.setCode(getHelper().createName());
+		role.setName(getHelper().createName());
+		//
+		role = roleService.save(role);
+		Assert.assertNotEquals(role.getCode(), role.getName());
+	}
+	
+	@Test
+	public void testGetAdminRole() {
+		Assert.assertEquals(roleConfiguration.getAdminRole(), roleService.getAdminRole());
+	}
+	
+	@Test
+	public void testGetRolesByIds() {
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		//
+		List<IdmRoleDto> roles = roleService.getRolesByIds(StringUtils.join(Lists.newArrayList(roleOne.getId(), roleTwo.getId()), ','));
+		//
+		Assert.assertEquals(2, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOne.getId())));
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleTwo.getId())));
 	}
 }

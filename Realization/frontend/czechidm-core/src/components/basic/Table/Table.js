@@ -254,7 +254,7 @@ class Table extends AbstractComponent {
 
   renderRow(columns, rowIndex) {
     const { onRowClick, onRowDoubleClick, showRowSelection, rowClass, isRowSelectedCb } = this.props;
-    const key = 'row_' + rowIndex;
+    const key = 'row-' + rowIndex;
     return (
        <Row
          key={key}
@@ -306,7 +306,7 @@ class Table extends AbstractComponent {
     if (!data || data.length === 0) {
       if (showLoading) {
         content.push(
-          <tr>
+          <tr key={ `row-show-loading` }>
             <td colSpan={ columns.length }>
               <Loading showLoading className="static"/>
             </td>
@@ -314,7 +314,7 @@ class Table extends AbstractComponent {
         );
       } else {
         content.push(
-          <tr>
+          <tr key={ `row-no-data` }>
             <td colSpan={ columns.length }>
               <Alert text={ noData } className="no-data"/>
             </td>

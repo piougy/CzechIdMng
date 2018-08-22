@@ -16,6 +16,10 @@ export default class EntityEventService extends AbstractService {
     return '/entity-events';
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';

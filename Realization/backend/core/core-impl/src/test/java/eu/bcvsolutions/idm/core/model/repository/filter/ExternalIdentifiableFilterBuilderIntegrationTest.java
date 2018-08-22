@@ -13,12 +13,12 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.exception.DuplicateExternalIdException;
 import eu.bcvsolutions.idm.core.api.exception.EntityTypeNotExternalIdentifiableException;
+import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -32,7 +32,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class ExternalIdentifiableFilterBuilderIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private IdmIdentityService identityService;
-	@Autowired private IdmRoleGuaranteeService roleGuaranteeService;
 
 	@Test
 	public void testFindIdentityByExternalId() {
@@ -81,8 +80,8 @@ public class ExternalIdentifiableFilterBuilderIntegrationTest extends AbstractIn
 	public void testTryFindNotExternalIdentifiableEntity() {
 		MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
 		params.set(ExternalIdentifiable.PROPERTY_EXTERNAL_ID, "wrong");
-		IdmRoleGuaranteeFilter filter = new IdmRoleGuaranteeFilter(params);
-		roleGuaranteeService.find(filter, null);
+		IdmEntityEventFilter filter = new IdmEntityEventFilter(params);
+		getHelper().getService(IdmEntityEventService.class).find(filter, null);
 	}
 	
 	@Test

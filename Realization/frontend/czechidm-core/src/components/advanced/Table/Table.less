@@ -29,6 +29,37 @@
     }
   }
 
+  /* extends border to parent border */
+  &.marginable {
+    margin-left: -15px;
+    margin-right: -15px;
+  }
+
+  /* embedded table */
+  &.no-margin {
+
+    > .basic-toolbar {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    > div > .basic-table > .alert {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    tr {
+
+      td:first-child {
+        padding-left: 3px;
+      }
+
+      td:last-child {
+        padding-right: 3px;
+      }
+    }
+  }
+
   td .column-face-bool,
   td .column-face-boolean {
     text-align: center;

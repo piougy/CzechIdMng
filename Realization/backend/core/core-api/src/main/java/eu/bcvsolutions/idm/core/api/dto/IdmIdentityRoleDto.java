@@ -26,7 +26,9 @@ import io.swagger.annotations.ApiModelProperty;
 public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity, ExternalIdentifiable {
 	
 	private static final long serialVersionUID = 1L;
+	//
 	public static final String PROPERTY_IDENTITY_CONTRACT = "identityContract";
+	public static final String PROPERTY_ROLE = "role";
 	//
 	@Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(notes = "Unique external identifier.")
@@ -37,10 +39,15 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity, 
     private UUID role;
     private LocalDate validFrom;
     private LocalDate validTill;
-    @Deprecated
-    private boolean automaticRole;
+	@Deprecated
+	@SuppressWarnings("unused")
+    private boolean automaticRole; // this attribute can't be removed (serializable backward compatibility)
     @Embedded(dtoClass = AbstractIdmAutomaticRoleDto.class)
     private UUID roleTreeNode; // this attribute can't be renamed (backward compatibility) - AutomaticRole reference
+    @Embedded(dtoClass = IdmIdentityRoleDto.class)
+    private UUID directRole; // direct identity role
+    @Embedded(dtoClass = IdmRoleCompositionDto.class)
+    private UUID roleComposition; // direct role
 
     public IdmIdentityRoleDto() {
     }
@@ -88,23 +95,14 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity, 
     public void setRole(UUID role) {
         this.role = role;
     }
-
-    public boolean isAutomaticRole() {
-        return automaticRole;
-    }
-
-    @Deprecated
-    public void setAutomaticRole(boolean automaticRole) {
-        this.automaticRole = automaticRole;
-    }
-
-    public UUID getRoleTreeNode() {
-        return roleTreeNode;
-    }
-
-    public void setRoleTreeNode(UUID roleTreeNode) {
-        this.roleTreeNode = roleTreeNode;
-    }
+    
+    public UUID getAutomaticRole() {
+		return roleTreeNode;
+	}
+    
+    public void setAutomaticRole(UUID automaticRole) {
+		this.roleTreeNode = automaticRole;
+	}
     
     @Override
 	public void setExternalId(String externalId) {
@@ -114,5 +112,21 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity, 
 	@Override
 	public String getExternalId() {
 		return externalId;
+	}
+
+	public UUID getDirectRole() {
+		return directRole;
+	}
+
+	public void setDirectRole(UUID directRole) {
+		this.directRole = directRole;
+	}
+
+	public UUID getRoleComposition() {
+		return roleComposition;
+	}
+
+	public void setRoleComposition(UUID roleComposition) {
+		this.roleComposition = roleComposition;
 	}
 }

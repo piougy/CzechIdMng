@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.event.processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
@@ -21,21 +20,17 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  *
  * @author Radek Tomiška
  */
-@Component
+@Component(IdentityRoleDeleteAccountProcessor.PROCESSOR_NAME)
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes delete of identity-account before identity-role is deleted.")
 public class IdentityRoleDeleteAccountProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-delete-account-processor";
-	private final AccAccountManagementService accountManagementService;
+	//
+	@Autowired private AccAccountManagementService accountManagementService;
 
-	@Autowired
-	public IdentityRoleDeleteAccountProcessor(AccAccountManagementService accountManagementService) {
+	public IdentityRoleDeleteAccountProcessor() {
 		super(IdentityRoleEventType.DELETE);
-		//
-		Assert.notNull(accountManagementService);
-		//
-		this.accountManagementService = accountManagementService;
 	}
 
 	@Override
@@ -45,9 +40,8 @@ public class IdentityRoleDeleteAccountProcessor extends AbstractEntityEventProce
 
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
-		IdmIdentityRoleDto identityRole = event.getContent();
-		accountManagementService.deleteIdentityAccount(identityRole);
-		
+		accountManagementService.deleteIdentityAccount(event);
+		//
 		return new DefaultEventResult<>(event, this);
 	}
 

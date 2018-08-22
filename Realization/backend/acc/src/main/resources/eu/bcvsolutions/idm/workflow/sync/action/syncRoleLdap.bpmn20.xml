@@ -429,7 +429,6 @@ import org.springframework.data.domain.Page;
                 logItem.addToLog("Putting role ${catRoleDto.getRole()} into catalogue ${catRoleDto.getRoleCatalogue()}");
                 catRoleDto = roleCatalogueRoleService.save(catRoleDto);
                 finalCatalogues.add(catRoleDto);
-                role.setRoleCatalogues(finalCatalogues);
                 role = roleService.save(role);
             }
           }
@@ -501,7 +500,7 @@ import org.springframework.data.domain.Page;
               automaticRoleManager.createAutomaticRoleByAttribute(autoRole, true, attributes);
             } else {
               IdmAutomaticRoleAttributeDto autoRole = list.get(0);
-              autoRole.setName(role.getName());
+              autoRole.setName(role.getCode());
               IdmAutomaticRoleAttributeRuleDto [] attributes = automaticAttributes;
               addAutoRoleId(autoRole, attributes);
 
@@ -512,7 +511,7 @@ import org.springframework.data.domain.Page;
           IdmAutomaticRoleAttributeDto createAutoRole(IdmRoleDto role) {
             IdmAutomaticRoleAttributeDto autoRole = new IdmAutomaticRoleAttributeDto(); // create automatic role with two attributes
           	autoRole.setRole(role.getId());
-          	autoRole.setName(role.getName());
+          	autoRole.setName(role.getCode());
           	autoRole.setConcept(true);
             return autoRole;
         }
@@ -695,7 +694,7 @@ import org.springframework.data.domain.Page;
           }
           IdmTreeNodeDto eav = organizationTreeNode; // treeNodeDto
         	if (eav == null){
-        		logItem.addToLog("The organization was not found for role name:" + role.getName() + " id: " + role.getId());
+        		logItem.addToLog("The organization was not found for role name:" + role.getCode() + " id: " + role.getId());
         		return;
         	}
           IdmRoleTreeNodeDto treeNode = new IdmRoleTreeNodeDto();
@@ -728,7 +727,7 @@ import org.springframework.data.domain.Page;
           }
           	IdmAutomaticRoleAttributeDto autoRole = new IdmAutomaticRoleAttributeDto(); // create automatic role with two attributes
           	autoRole.setRole(role.getId());
-          	autoRole.setName(role.getName());
+          	autoRole.setName(role.getCode());
           	autoRole.setConcept(true);
 
          		IdmAutomaticRoleAttributeRuleDto [] attributes = automaticAttributes;
@@ -800,7 +799,7 @@ import org.springframework.data.domain.Page;
             conceptRoleRequest.setIdentityRole(null);
             conceptRoleRequest.setValidTill(primeContract?.getValidTill());
             conceptRoleRequest.setRole(roleId);
-            conceptRoleRequest.setRoleTreeNode(null);
+            conceptRoleRequest.setAutomaticRole(null);
             conceptRoleRequest.setOperation(operation);
             conceptRoleRequestService.save(conceptRoleRequest);
             roleRequestService.startRequestInternal(roleRequest.getId(), true);

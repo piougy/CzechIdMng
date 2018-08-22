@@ -18,9 +18,11 @@ public class IdmEntityStateFilter extends DataFilter {
 	
 	private String ownerType;
 	private UUID ownerId;
+	private UUID superOwnerId;
 	private UUID eventId;
 	private DateTime createdFrom;
     private DateTime createdTill;
+    private String resultCode;
 	
 	public IdmEntityStateFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -68,5 +70,21 @@ public class IdmEntityStateFilter extends DataFilter {
 
 	public void setCreatedTill(DateTime createdTill) {
 		this.createdTill = createdTill;
+	}
+	
+	public UUID getSuperOwnerId() {
+		return superOwnerId;
+	}
+	
+	public void setSuperOwnerId(UUID superOwnerId) {
+		this.superOwnerId = superOwnerId;
+	}
+	
+	public void setResultCode(String resultCode) {
+		this.resultCode = resultCode;
+	}
+	
+	public String getResultCode() {
+		return resultCode;
 	}
 }

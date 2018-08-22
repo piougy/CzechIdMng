@@ -137,7 +137,6 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
     //
     return (
       <div>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Confirm ref="confirm-deleteAll" level="danger"/>
 
         <Advanced.Table
@@ -200,11 +199,6 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
           forceSearchParameters={_forceSearchParameters}
           _searchParameters={ this.getSearchParameters() }
           showRowSelection
-          actions={
-            [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this) }
-            ]
-          }
           buttons={[
             <Basic.Button
               level="danger"
@@ -275,6 +269,21 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="eventType" sort rendered={_.includes(columns, 'eventType')} />
           <Advanced.Column property="priority" face="enum" enumClass={ PriorityTypeEnum } sort width="100px" rendered={_.includes(columns, 'priority')}/>
           <Advanced.Column property="instanceId" width={ 100 } rendered={_.includes(columns, 'instanceId')} />
+            <Advanced.Column
+              width={ 125 }
+              property="rootId"
+              rendered={_.includes(columns, 'root')}
+              cell={
+                ({ rowIndex, data, property }) => {
+                  if (data[rowIndex][property]) {
+                    // TODO: info card?
+                    return (
+                      <Advanced.UuidInfo value={ data[rowIndex][property] }/>
+                    );
+                  }
+                  return null;
+                }
+              }/>
           <Advanced.Column
             width={ 125 }
             property="parent"
@@ -305,7 +314,10 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   <Basic.LabelWrapper label={ this.i18n('entity.created') }>
-                    <Advanced.DateValue value={ detail.entity.created } showTime/>
+                    <Advanced.DateValue value={ detail.entity.created } format={ this.i18n('format.datetimemilis') }/>
+                  </Basic.LabelWrapper>
+                  <Basic.LabelWrapper label={ this.i18n('entity.modified.label') }>
+                    <Advanced.DateValue value={ detail.entity.modified } format={ this.i18n('format.datetimemilis') }/>
                   </Basic.LabelWrapper>
                   <Basic.LabelWrapper
                     label={ this.i18n('entity.EntityEvent.executeDate.label') }
@@ -360,26 +372,15 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
 
             <Basic.ContentHeader text={ this.i18n('state.header') } style={{ marginBottom: 0 }} rendered={ !detail.message } />
 
-            <Basic.Panel className="no-border" rendered={ !detail.message }>
-              <Basic.Toolbar>
-                <div>
-                  <div className="pull-right">
-                    <Advanced.RefreshButton
-                      onClick={ this._refreshDetail.bind(this) }
-                      title={ this.i18n('button.refresh') }/>
-                  </div>
-                  <div className="clearfix"></div>
-                </div>
-              </Basic.Toolbar>
-              <EntityStateTableComponent
-                ref="stateTable"
-                uiKey={ `entity-event-state-table-${detail.entity.id}` }
-                rendered={ detail.entity.id !== undefined && detail.entity.id !== null }
-                showFilter={ false }
-                showToolbar={ false }
-                forceSearchParameters={ stateForceSearchParameters }
-                columns={ _.difference(EntityStateTable.defaultProps.columns, ['ownerType', 'ownerId', 'event', 'instanceId']) }/>
-            </Basic.Panel>
+            <EntityStateTableComponent
+              ref="stateTable"
+              uiKey={ `entity-event-state-table-${detail.entity.id}` }
+              rendered={ !detail.message && detail.entity.id !== undefined && detail.entity.id !== null }
+              showFilter={ false }
+              showToolbar
+              forceSearchParameters={ stateForceSearchParameters }
+              columns={ _.difference(EntityStateTable.defaultProps.columns, ['ownerType', 'ownerId', 'event', 'instanceId']) }
+              className="no-margin"/>
           </Basic.Modal.Body>
 
           <Basic.Modal.Footer>
@@ -410,7 +411,7 @@ EntityEventTable.propTypes = {
 };
 
 EntityEventTable.defaultProps = {
-  columns: ['result', 'created', 'ownerType', 'ownerId', 'eventType', 'priority', 'instanceId', 'parent'],
+  columns: ['result', 'created', 'ownerType', 'ownerId', 'eventType', 'priority', 'instanceId', 'root', 'parent'],
   filterOpened: false,
   forceSearchParameters: null,
   rendered: true

@@ -279,9 +279,19 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
         },
         {
+          path: 'compositions',
+          component: require('./src/content/role/RoleCompositions'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECOMPOSITION_READ'] } ]
+        },
+        {
           path: 'guarantees',
           component: require('./src/content/role/RoleGuarantees'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
+        },
+        {
+          path: 'catalogues',
+          component: require('./src/content/role/RoleCatalogueRoles'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUEROLE_READ'] } ]
         },
         {
           path: 'identities',

@@ -56,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
@@ -817,7 +818,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		if (profile.getImage() == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", profile.getId()));
+			return new ResponseEntity<InputStreamResource>(HttpStatus.NOT_FOUND);
 		}
 		IdmAttachmentDto attachment = attachmentManager.get(profile.getImage());
 		String mimetype = attachment.getMimetype();
@@ -930,8 +931,17 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId) {
 		IdmProfileDto profile = profileService.findOneByIdentity(backendId);
+		if (profile == null) {
+			IdmIdentityDto identity = (IdmIdentityDto) getLookupService().lookupDto(IdmIdentityDto.class, backendId);
+			if (identity == null) {
+				throw new EntityNotFoundException(IdmIdentity.class, backendId);
+			}
+			profile = new IdmProfileDto();
+			profile.setIdentity(identity.getId());
+		}
 		//
-		return profileController.getPermissions(profile.getId().toString());
+		// profile can be null (create)
+		return profileController.getService().getPermissions(profile);
 	}
 	
 	@Override

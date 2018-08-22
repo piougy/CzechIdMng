@@ -28,4 +28,12 @@ public enum OperationState {
 	public static boolean isSuccessful(OperationState state) {
 		return EXECUTED == state;
 	}
+	
+	public boolean isRunnable() {
+		return isRunnable(this);
+	}
+	
+	public boolean isSuccessful() {
+		return isSuccessful(this);
+	}
 }

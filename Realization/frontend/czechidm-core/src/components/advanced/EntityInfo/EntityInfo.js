@@ -50,7 +50,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showLoading, entity, entityType, entityIdentifier, face, style, className, showLink, showEntityType, showIcon} = this.props;
+    const { rendered, showLoading, entity, entityType, entityIdentifier, face, style, className, showLink, showEntityType, showIcon, ...other } = this.props;
     // standard rendered - we dont propagate rendered to underliyng component
     if (!rendered) {
       return null;
@@ -83,7 +83,8 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
           showLink={ showLink }
           showIcon={ showIcon }
           style={ style }
-          manager={ manager }/>
+          manager={ manager }
+          {...other}/>
       );
     }
     //

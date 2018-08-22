@@ -221,7 +221,10 @@ IdentityInfo.propTypes = {
   showOnlyUsername: PropTypes.bool,
   //
   _showLoading: PropTypes.bool,
-  _permissions: PropTypes.arrayOf(PropTypes.string),
+  _permissions: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.arrayOf(PropTypes.string)
+  ]),
   _imageLoading: PropTypes.bool,
 };
 IdentityInfo.defaultProps = {

@@ -18,12 +18,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
  * @author Radek Tomiška
  * @since 8.0.0
  */
-@Component
+@Component(EntityEventDeleteProcessor.PROCESSOR_NAME)
 @Description("Deletes entity event from repository.")
 public class EntityEventDeleteProcessor
 		extends CoreEventProcessor<IdmEntityEventDto> {
 	
 	public static final String PROCESSOR_NAME = "entity-event-delete-processor";
+	//
 	@Autowired private IdmEntityEventService service;
 	
 	public EntityEventDeleteProcessor() {

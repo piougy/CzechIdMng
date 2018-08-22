@@ -512,7 +512,7 @@ public class IdentityAccountManagementTest extends AbstractIntegrationTest {
 		 * Create role with link on system (default)
 		 */
 		IdmRoleDto roleDefault = new IdmRoleDto();
-		roleDefault.setName(ROLE_DEFAULT);
+		roleDefault.setCode(ROLE_DEFAULT);
 		roleDefault = roleService.save(roleDefault);
 		SysRoleSystemDto roleSystemDefault = new SysRoleSystemDto();
 		roleSystemDefault.setRole(roleDefault.getId());
@@ -524,7 +524,7 @@ public class IdentityAccountManagementTest extends AbstractIntegrationTest {
 		 * Create role with link on system (overloading last name attribute)
 		 */
 		IdmRoleDto roleOverloadingLastName = new IdmRoleDto();
-		roleOverloadingLastName.setName(ROLE_OVERLOADING_LAST_NAME);
+		roleOverloadingLastName.setCode(ROLE_OVERLOADING_LAST_NAME);
 		roleOverloadingLastName = roleService.save(roleOverloadingLastName);
 		SysRoleSystemDto roleSystemLastName = new SysRoleSystemDto();
 		roleSystemLastName.setRole(roleOverloadingLastName.getId());
@@ -545,7 +545,7 @@ public class IdentityAccountManagementTest extends AbstractIntegrationTest {
 		 * Create role with link on system (overloading password attribute)
 		 */
 		IdmRoleDto roleOverloadingPassword = new IdmRoleDto();
-		roleOverloadingPassword.setName(ROLE_OVERLOADING_PASSWORD);
+		roleOverloadingPassword.setCode(ROLE_OVERLOADING_PASSWORD);
 		roleOverloadingPassword = roleService.save(roleOverloadingPassword);
 		SysRoleSystemDto roleSystemPassword = new SysRoleSystemDto();
 		roleSystemPassword.setRole(roleOverloadingPassword.getId());
@@ -569,7 +569,7 @@ public class IdentityAccountManagementTest extends AbstractIntegrationTest {
 		 * attribute)
 		 */
 		IdmRoleDto roleOverloadingFirstName = new IdmRoleDto();
-		roleOverloadingFirstName.setName(ROLE_OVERLOADING_FIRST_NAME);
+		roleOverloadingFirstName.setCode(ROLE_OVERLOADING_FIRST_NAME);
 		roleOverloadingFirstName = roleService.save(roleOverloadingFirstName);
 		SysRoleSystemDto roleSystemFirstName = new SysRoleSystemDto();
 		roleSystemFirstName.setRole(roleOverloadingFirstName.getId());
@@ -590,7 +590,7 @@ public class IdentityAccountManagementTest extends AbstractIntegrationTest {
 		 * create Y account)
 		 */
 		IdmRoleDto roleOverloadingName = new IdmRoleDto();
-		roleOverloadingName.setName(ROLE_OVERLOADING_Y_ACCOUNT);
+		roleOverloadingName.setCode(ROLE_OVERLOADING_Y_ACCOUNT);
 		roleOverloadingName = roleService.save(roleOverloadingName);
 		SysRoleSystemDto roleSystemName = new SysRoleSystemDto();
 		roleSystemName.setRole(roleOverloadingName.getId());

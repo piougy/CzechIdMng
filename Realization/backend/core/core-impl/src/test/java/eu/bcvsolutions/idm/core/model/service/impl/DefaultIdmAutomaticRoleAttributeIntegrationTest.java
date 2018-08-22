@@ -45,6 +45,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
@@ -341,8 +342,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(1, identityRoles.size());
 		//
 		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
-		assertNotNull(identityRoleDto.getRoleTreeNode());
-		assertEquals(automaticRole.getId(), identityRoleDto.getRoleTreeNode());
+		assertNotNull(identityRoleDto.getAutomaticRole());
+		assertEquals(automaticRole.getId(), identityRoleDto.getAutomaticRole());
 		assertEquals(automaticRole.getRole(), identityRoleDto.getRole());
 		//
 		// change value and recalculate
@@ -371,8 +372,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(1, identityRoles.size());
 		//
 		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
-		assertNotNull(identityRoleDto.getRoleTreeNode());
-		assertEquals(automaticRole.getId(), identityRoleDto.getRoleTreeNode());
+		assertNotNull(identityRoleDto.getAutomaticRole());
+		assertEquals(automaticRole.getId(), identityRoleDto.getAutomaticRole());
 		assertEquals(automaticRole.getRole(), identityRoleDto.getRole());
 		//
 		// change value and recalculate
@@ -407,8 +408,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(1, identityRoles.size());
 		//
 		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
-		assertNotNull(identityRoleDto.getRoleTreeNode());
-		assertEquals(automaticRole.getId(), identityRoleDto.getRoleTreeNode());
+		assertNotNull(identityRoleDto.getAutomaticRole());
+		assertEquals(automaticRole.getId(), identityRoleDto.getAutomaticRole());
 		assertEquals(automaticRole.getRole(), identityRoleDto.getRole());
 		//
 		// change value and recalculate
@@ -442,8 +443,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(1, identityRoles.size());
 		//
 		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
-		assertNotNull(identityRoleDto.getRoleTreeNode());
-		assertEquals(automaticRole.getId(), identityRoleDto.getRoleTreeNode());
+		assertNotNull(identityRoleDto.getAutomaticRole());
+		assertEquals(automaticRole.getId(), identityRoleDto.getAutomaticRole());
 		assertEquals(automaticRole.getRole(), identityRoleDto.getRole());
 		//
 		// change value and recalculate
@@ -480,8 +481,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(1, identityRoles.size());
 		//
 		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
-		assertNotNull(identityRoleDto.getRoleTreeNode());
-		assertEquals(automaticRole.getId(), identityRoleDto.getRoleTreeNode());
+		assertNotNull(identityRoleDto.getAutomaticRole());
+		assertEquals(automaticRole.getId(), identityRoleDto.getAutomaticRole());
 		assertEquals(automaticRole.getRole(), identityRoleDto.getRole());
 		//
 		// change value and recalculate
@@ -516,8 +517,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(1, identityRoles.size());
 		//
 		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
-		assertNotNull(identityRoleDto.getRoleTreeNode());
-		assertEquals(automaticRole.getId(), identityRoleDto.getRoleTreeNode());
+		assertNotNull(identityRoleDto.getAutomaticRole());
+		assertEquals(automaticRole.getId(), identityRoleDto.getAutomaticRole());
 		assertEquals(automaticRole.getRole(), identityRoleDto.getRole());
 		//
 		// change value and recalculate
@@ -627,7 +628,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(1, identityRoles.size());
 		IdmIdentityRoleDto identityRole = identityRoles.get(0);
-		assertNull(identityRole.getRoleTreeNode());
+		assertNull(identityRole.getAutomaticRole());
 		assertEquals(role.getId(), identityRole.getRole());
 		//
 		identity.setEmail(testEmail);
@@ -639,7 +640,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		int classicRoleCount = 0;
 		for (IdmIdentityRoleDto idenityRole : identityRoles) {
 			assertEquals(role.getId(), idenityRole.getRole());
-			if (idenityRole.getRoleTreeNode() == null) {
+			if (idenityRole.getAutomaticRole() == null) {
 				classicRoleCount++;
 			}
 		}
@@ -655,7 +656,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		classicRoleCount = 0;
 		for (IdmIdentityRoleDto idenityRole : identityRoles) {
 			assertEquals(role.getId(), idenityRole.getRole());
-			if (idenityRole.getRoleTreeNode() == null) {
+			if (idenityRole.getAutomaticRole() == null) {
 				classicRoleCount++;
 			}
 		}
@@ -940,7 +941,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(1, identityRoles.size());
 		IdmIdentityRoleDto identityRole = identityRoles.get(0);
 		assertEquals(automaticRole.getRole(), identityRole.getRole());
-		assertEquals(automaticRole.getId(), identityRole.getRoleTreeNode());
+		assertEquals(automaticRole.getId(), identityRole.getAutomaticRole());
 		//
 		identity.setEmail(testEmail + "-not-passed");
 		identity = identityService.save(identity);
@@ -955,7 +956,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		identityRole = identityRoles.get(0);
 		assertEquals(automaticRole2.getRole(), identityRole.getRole());
-		assertEquals(automaticRole2.getId(), identityRole.getRoleTreeNode());
+		assertEquals(automaticRole2.getId(), identityRole.getAutomaticRole());
 		//
 		identity.setEmail(testEmail);
 		identity = identityService.save(identity);
@@ -965,10 +966,10 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		for (IdmIdentityRoleDto identityRol : identityRoles) {
 			if (identityRol.getRole().equals(role.getId())) {
 				assertEquals(automaticRole.getRole(), identityRol.getRole());
-				assertEquals(automaticRole.getId(), identityRol.getRoleTreeNode());
+				assertEquals(automaticRole.getId(), identityRol.getAutomaticRole());
 			} else {
 				assertEquals(automaticRole2.getRole(), identityRol.getRole());
-				assertEquals(automaticRole2.getId(), identityRol.getRoleTreeNode());
+				assertEquals(automaticRole2.getId(), identityRol.getAutomaticRole());
 			}
 		}
 		//
@@ -979,7 +980,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertEquals(1, identityRoles.size());
 		identityRole = identityRoles.get(0);
 		assertEquals(automaticRole.getRole(), identityRole.getRole());
-		assertEquals(automaticRole.getId(), identityRole.getRoleTreeNode());
+		assertEquals(automaticRole.getId(), identityRole.getAutomaticRole());
 		//
 		automaticRoleAttributeService.delete(automaticRole);
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
@@ -1516,8 +1517,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		for (IdmIdentityRoleDto identityRole : identityRoles) {
-			assertEquals(automaticRole.getId(), identityRole.getRoleTreeNode());
-			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmAutomaticRoleAttributeService.ROLE_TREE_NODE_ATTRIBUTE_NAME, (AbstractIdmAutomaticRoleDto) null);
+			assertEquals(automaticRole.getId(), identityRole.getAutomaticRole());
+			AbstractIdmAutomaticRoleDto embedded = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.automaticRole, (AbstractIdmAutomaticRoleDto) null);
 			assertEquals(automaticRole, embedded);
 			assertEquals(role.getId(), embedded.getRole());
 			assertEquals(role.getId(), identityRole.getRole());

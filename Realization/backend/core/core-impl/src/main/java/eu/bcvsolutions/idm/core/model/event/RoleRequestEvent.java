@@ -21,7 +21,7 @@ public class RoleRequestEvent extends CoreEvent<IdmRoleRequestDto> {
 	 *
 	 */
 	public enum RoleRequestEventType implements EventType {
-		CREATE, UPDATE, DELETE, EXCECUTE // i know EXECUTE!, but it too late ...
+		CREATE, UPDATE, DELETE, EXCECUTE, NOTIFY // i know EXECUTE!, but it's too late ...
 	}
 	
 	public RoleRequestEvent(RoleRequestEventType operation, IdmRoleRequestDto content) {

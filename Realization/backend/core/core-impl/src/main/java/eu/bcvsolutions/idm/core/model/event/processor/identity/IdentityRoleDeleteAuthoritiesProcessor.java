@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityRoleProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -35,10 +36,12 @@ import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
  */
 @Component
 @Description("Checks modifications in identity authorities after role removal and disable authentication tokens.")
-public class IdentityRoleDeleteAuthoritiesProcessor extends CoreEventProcessor<IdmIdentityRoleDto> {
+public class IdentityRoleDeleteAuthoritiesProcessor 
+		extends CoreEventProcessor<IdmIdentityRoleDto>
+		implements IdentityRoleProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-role-delete-authorities-processor";
-
+	//
 	@Autowired private TokenManager tokenManager;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private GrantedAuthoritiesFactory authoritiesFactory;

@@ -1208,18 +1208,25 @@ export default class EntityManager {
    *
    * @return {object} - action
    */
-  fetchAvailableBulkActions() {
+  fetchAvailableBulkActions(cb = null) {
     const uiKey = this.getUiKeyForBulkActions();
     //
-    return (dispatch) => {
-      dispatch(this.dataManager.requestData(uiKey));
-      this.getService().getAvailableBulkActions()
-        .then(json => {
-          dispatch(this.dataManager.receiveData(uiKey, json));
-        })
-        .catch(error => {
-          dispatch(this.receiveError(null, uiKey, error));
-        });
+    return (dispatch, getState) => {
+      const actions = DataManager.getData(getState(), uiKey);
+      if (actions) {
+        if (cb) {
+          cb(actions, null);
+        }
+      } else {
+        dispatch(this.dataManager.requestData(uiKey));
+        this.getService().getAvailableBulkActions()
+          .then(json => {
+            dispatch(this.dataManager.receiveData(uiKey, json, cb));
+          })
+          .catch(error => {
+            dispatch(this.receiveError(null, uiKey, error, cb));
+          });
+      }
     };
   }
 

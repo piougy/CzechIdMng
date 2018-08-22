@@ -33,7 +33,7 @@ export default class AbstractService {
    * @return {string]}
    */
   getNiceLabel(entity) {
-    return entity._links.self.href;
+    return entity.id;
   }
 
   /**

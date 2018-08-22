@@ -8,12 +8,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -39,33 +36,16 @@ import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
  * Load identity's granted authorities
  * 
  * @author svandav
+ * @author Radek Tomiška
  */
-@Component
+@Component("grantedAuthoritiesFactory")
 public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFactory {
 
-	private final IdmIdentityService identityService;
-	private final IdmRoleService roleService;
-	private final IdmIdentityRoleService identityRoleService;
-	private final IdmAuthorizationPolicyService authorizationPolicyService;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	
-	@Autowired
-	public DefaultGrantedAuthoritiesFactory(
-		IdmIdentityService identityService,
-		IdmIdentityRoleService identityRoleService,
-		IdmAuthorizationPolicyService authorizationPolicyService,
-		IdmRoleService roleService, ModelMapper modelMapper) {
-		Assert.notNull(identityService);
-		Assert.notNull(identityRoleService);
-		Assert.notNull(authorizationPolicyService);
-		Assert.notNull(roleService);
-		//
-		this.identityService = identityService;
-		this.identityRoleService = identityRoleService;
-		this.authorizationPolicyService = authorizationPolicyService;
-		this.roleService = roleService;
-	}
-	
-	@Transactional(readOnly = true)
 	@Override
 	public List<GrantedAuthority> getGrantedAuthorities(String username) {
 		IdmIdentityDto identity = identityService.getByUsername(username);
@@ -76,25 +56,26 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	}
 
 	@Override
-	@Transactional(readOnly = true)
 	public Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(UUID identityId) {
 		return getGrantedAuthoritiesForValidRoles(identityId, identityRoleService.findValidRoles(identityId, null).getContent());
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
 	public Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(UUID identityId, Collection<IdmIdentityRoleDto> identityRoles) {
 		// unique set of authorities from all active identity roles and subroles
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		identityRoles.stream()
 			.filter(EntityUtils::isValid) // valid identity role
 			.filter(ir -> { // valid role's contract
-				// TODO: jpa metamodel generation in unit tests
 				IdmIdentityContractDto contract = DtoUtils.getEmbedded(ir, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT);
 				return contract.isValid() && contract.getState() != ContractState.EXCLUDED;
 			})
 			.forEach(identityRole -> {
-				grantedAuthorities.addAll(getActiveRoleAuthorities(identityId, roleService.get(identityRole.getRole()), new HashSet<>()));
+				IdmRoleDto role = DtoUtils.getEmbedded(identityRole, IdmIdentityRoleDto.PROPERTY_ROLE, (IdmRoleDto) null);
+				if (role == null) {
+					role = roleService.get(identityRole.getRole());
+				}
+				grantedAuthorities.addAll(getActiveRoleAuthorities(identityId, role, new HashSet<>()));
 			});
 		// add default authorities
 		grantedAuthorities.addAll(authorizationPolicyService.getDefaultAuthorities(identityId));
@@ -104,11 +85,17 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 			    .sorted(Comparator.comparing(GrantedAuthority::getAuthority))
 			    .collect(Collectors.toList());
 	}
-	
-	@Transactional(readOnly = true)
+
 	@Override
 	public Collection<GrantedAuthority> getActiveRoleAuthorities(UUID identityId, IdmRoleDto role) {
 		return getActiveRoleAuthorities(identityId, role, new HashSet<>());
+	}
+	
+	@Override
+	public boolean containsAllAuthorities(
+			Collection<? extends GrantedAuthority> original,
+			Collection<? extends GrantedAuthority> subset) {
+		return original.containsAll(subset);
 	}
 	
 	/**
@@ -126,12 +113,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 			return grantedAuthorities;
 		}
 		grantedAuthorities.addAll(authorizationPolicyService.getEnabledRoleAuthorities(identityId, role.getId()));
-		// sub roles
-		roleService.getSubroles(role.getId()).forEach(subRole -> {
-			if (!processedRoles.contains(subRole)) {
-				grantedAuthorities.addAll(getActiveRoleAuthorities(identityId, subRole, processedRoles));
-			}
-		});		
+		//
 		return grantedAuthorities;
 	}
 	
@@ -160,12 +142,4 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		});
 		return trimmedAuthorities;
 	}
-
-	@Override
-	public boolean containsAllAuthorities(
-			Collection<? extends GrantedAuthority> original,
-			Collection<? extends GrantedAuthority> subset) {
-		return original.containsAll(subset);
-	}
-
 }

@@ -2,10 +2,13 @@ package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.springframework.core.ResolvableTypeProvider;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
@@ -17,14 +20,122 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
  * @author Radek Tomiška
  */
 public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvider, Serializable {
-	public static final String EVENT_PROPERTY = "entityEvent";
-
+	
+	String EVENT_PROPERTY = "entityEvent";
+	String EVENT_PROPERTY_EVENT_ID = "idm:event-id"; // persisted event id
+	String EVENT_PROPERTY_EXECUTE_DATE = "idm:execute-date"; // asynchronous event processing time
+	String EVENT_PROPERTY_PRIORITY = "idm:priority"; // event priority
+	String EVENT_PROPERTY_ROOT_EVENT_ID = "idm:root-event-id"; // root event id
+	String EVENT_PROPERTY_PARENT_EVENT_ID = "idm:parent-event-id"; // parent event id
+	String EVENT_PROPERTY_PARENT_EVENT_TYPE = "idm:parent-event-type"; // parent event type
+	String EVENT_PROPERTY_SUPER_OWNER_ID = "idm:super-owner-id"; // entity event super owner id (e.g. identity (~super owner) - identityRole (event owner))
+	
 	/**
 	 * Operation type
 	 * 
 	 * @return
 	 */
 	EventType getType();
+	
+	/**
+	 * Persistent event id. Can be {@code null} if event is not persisted.
+	 * 
+	 * @return
+	 */
+	UUID getId();
+	
+	/**
+	 * Persistent event id.
+	 * 
+	 * @param id
+	 */
+	void setId(UUID id);
+	
+	/**
+	 * Content's super owner identifier - e.g. event is for identity role, but we want to work with identity as super owner (~batch). 
+	 * 
+	 * @return
+	 */
+	UUID getSuperOwnerId();
+	
+	/**
+	 * Content's super owner identifier
+	 * 
+	 * @param superOwnerId
+	 */
+	void setSuperOwnerId(UUID superOwnerId);
+	
+	/**
+	 * Persistent root event id. Can be {@code null} if event is root, or all events are not persisted.
+	 * If root event is set, then event will be persisted.
+	 * 
+	 * @return
+	 */
+	UUID getRootId();
+	
+	/**
+	 * Persistent root event id.
+	 * 
+	 * @param rootId
+	 */
+	void setRootId(UUID rootId);
+	
+	/**
+	 * Persistent parent event id. Can be {@code null} if event doesn't have parent, or all events are not persisted.
+	 * If parent event is set, then event will be persisted.
+	 * 
+	 * @return
+	 */
+	UUID getParentId();
+	
+	/**
+	 * Persistent parent event id.
+	 * 
+	 * @param parentId
+	 */
+	void setParentId(UUID parentId);
+	
+	/**
+	 * Parent event type.
+	 * 
+	 * @return
+	 */
+	String getParentType();
+	
+	/**
+	 * Parent event type.
+	 * 
+	 * @param parentType
+	 */
+	void setParentType(String parentType);
+	
+	/**
+	 * Event execute date. Can be {@code null}, if event is not processed completely.
+	 * 
+	 * @return
+	 */
+	DateTime getExecuteDate();
+	
+	/**
+	 * Event execute date.
+	 * 
+	 * @param executeDate
+	 */
+	void setExecuteDate(DateTime executeDate);
+	
+	/**
+	 * Event priority. 
+	 * 
+	 * @return
+	 */
+	PriorityType getPriority();
+	
+	/**
+	 * Event priority.
+	 * 
+	 * @param priority
+	 */
+	void setPriority(PriorityType priority);
 
 	/**
 	 * Starting event content =~ source entity. Could not be null. Events with empty content could not be processed.

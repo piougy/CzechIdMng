@@ -11,10 +11,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -24,7 +23,6 @@ import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -47,7 +45,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška 
  *
  */
-public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
+public class DefaultGrantedAuthoritiesFactoryUnitTest extends AbstractUnitTest {
 	
 	private static final IdmIdentityDto TEST_IDENTITY;
 	private static final IdmRoleDto TEST_ROLE;
@@ -66,19 +64,16 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	@Mock private ModuleService moduleService;
 	@Mock private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Mock private IdmRoleService roleService;
-	@Mock private ModelMapper modelMapper;
 	//
+	@InjectMocks
 	private DefaultGrantedAuthoritiesFactory defaultGrantedAuthoritiesFactory;
 	
 	
 	static {
 		// prepare roles and authorities
-		IdmRole subRole = new IdmRole();
-		subRole.setName("sub_role");
 		TEST_ROLE = new IdmRoleDto();
 		TEST_ROLE.setId(UUID.randomUUID());
-		TEST_ROLE.setName("superior_role");
-		TEST_ROLE.getSubRoles().add(new IdmRoleCompositionDto(TEST_ROLE.getId(), subRole.getId()));
+		TEST_ROLE.setCode("superior_role");
 		
 		// prepare identity		
 		IdmIdentityDto identity = new IdmIdentityDto();
@@ -98,40 +93,16 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		groupPermissions.addAll(Arrays.asList(CoreGroupPermission.values()));
 	}
 	
-	@Before
-	public void init() {
-		defaultGrantedAuthoritiesFactory = new DefaultGrantedAuthoritiesFactory(
-				identityService, 
-				identityRoleService, 
-				authorizationPolicyService,
-				roleService,
-				modelMapper);
-	}
-	
-	// TODO: enable after subroles rewrite
-//	@Test
-//	public void testRoleComposition() {	
-//		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
-//		when(identityRoleService.getRoles(TEST_IDENTITY)).thenReturn(IDENTITY_ROLES);
-//		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(new HashSet<GrantedAuthority>());
-//		
-//		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
-//		
-//		assertEquals(SUB_ROLE_AUTHORITY.getAuthority(), grantedAuthorities.get(0).getAuthority());
-//		
-//	}
-	
 	@Test
 	public void testUniqueAuthorities() {
 		IdmRoleDto role = new IdmRoleDto();
-		role.setName("role");
+		role.setCode("role");
 		role.setId(UUID.randomUUID());
 		//
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		when(identityRoleService.findValidRoles(TEST_IDENTITY.getId(), null)).thenReturn(new PageImpl<>(new ArrayList<>(IDENTITY_ROLES)));
 		when(roleService.get(TEST_ROLE.getId())).thenReturn(TEST_ROLE);
 		when(authorizationPolicyService.getDefaultAuthorities(any())).thenReturn(DEFAULT_AUTHORITIES);
-		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
 		
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
 		
@@ -144,7 +115,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	@Test
 	public void testSystemAdmin() {
 		IdmRole role = new IdmRole();
-		role.setName("role");
+		role.setCode("role");
 		role.setId(UUID.randomUUID());
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setId(UUID.randomUUID());
@@ -160,7 +131,6 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		when(moduleService.getAvailablePermissions()).thenReturn(groupPermissions);
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(identityRoleService.findValidRoles(identity.getId(), null)).thenReturn(new PageImpl<>(new ArrayList<>(roles)));
-		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
 		when(authorizationPolicyService.getDefaultAuthorities(any())).thenReturn(Sets.newHashSet(
 				new DefaultGrantedAuthority(IdmGroupPermission.APP, IdmBasePermission.ADMIN),
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.READ),
@@ -179,7 +149,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	@Test
 	public void testGroupAdmin() {
 		IdmRoleDto role = new IdmRoleDto();
-		role.setName("role");
+		role.setCode("role");
 		role.setId(UUID.randomUUID());
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setId(UUID.randomUUID());
@@ -196,7 +166,6 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(roleService.get(role.getId())).thenReturn(role);
 		when(identityRoleService.findValidRoles(identity.getId(), null)).thenReturn(new PageImpl<>(new ArrayList<>(roles)));
-		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
 		when(authorizationPolicyService.getDefaultAuthorities(any())).thenReturn(Sets.newHashSet(
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.ADMIN),
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.READ),
@@ -214,13 +183,10 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		when(identityRoleService.findAllByIdentity(TEST_IDENTITY.getId())).thenReturn(new ArrayList<>());
 		when(identityRoleService.findValidRoles(TEST_IDENTITY.getId(), null)).thenReturn(new PageImpl<>(new ArrayList<>()));
-		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
 		when(authorizationPolicyService.getDefaultAuthorities(any())).thenReturn(DEFAULT_AUTHORITIES);
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
 		
 		assertEquals(2, grantedAuthorities.size());
 		assertTrue(grantedAuthorities.containsAll(DEFAULT_AUTHORITIES));
 	}
-	
-	
 }

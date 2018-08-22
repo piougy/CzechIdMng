@@ -20,6 +20,9 @@ const identityManager = new IdentityManager();
 const identityContractManager = new IdentityContractManager();
 const roleTreeNodeManager = new RoleTreeNodeManager();
 
+/**
+ * @author VS
+ */
 export class RoleConceptTable extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -37,6 +40,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
     // We have to create concept from props here, because same instance this component
     //  could be used in past (in this case may be this.prosp and nextProps same)
     this._setConcept(this.props);
@@ -81,7 +85,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     this.setState({
       detail: {
         show: true,
-        edit: isEdit && !entity.automaticRole,
+        edit: isEdit && !entity.automaticRole && !entity.directRole,
         entity: entityFormData,
         add: multiAdd
       }
@@ -251,6 +255,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
     }
   }
 
+  _sortRoles(one, two) {
+    if (!one._embedded.role || !two._embedded.role) {
+      return false;
+    }
+    return one._embedded.role.name > two._embedded.role.name;
+  }
+
   /**
    * Create final data for concept table by input arrays
    * @param  {array}  identityRoles         Original not modified data
@@ -260,14 +271,32 @@ export class RoleConceptTable extends Basic.AbstractContent {
    * @return {array}  conceptData           Final data for concept table
    */
   _compileConceptData({ identityRoles, addedIdentityRoles, removedIdentityRoles, changedIdentityRoles}) {
-    let concepts = _.merge([], identityRoles);
+    // sort added - direct - automatic - sub roles
+    const directRoles = [];
+    const automaticRoles = [];
+    const subRoles = [];
+    //
+    identityRoles.forEach(identityRole => {
+      if (identityRole.directRole) {
+        subRoles.push(identityRole);
+      } else if (identityRole.automaticRole) {
+        automaticRoles.push(identityRole);
+      } else {
+        directRoles.push(identityRole);
+      }
+    });
+    directRoles.sort(this._sortRoles);
+    subRoles.sort(this._sortRoles);
+    automaticRoles.sort(this._sortRoles);
+    //
+    // fill added flag
     if (addedIdentityRoles) {
       for (const addedIdentityRole of addedIdentityRoles) {
         addedIdentityRole._added = true;
       }
-      concepts = _.concat(concepts, addedIdentityRoles);
     }
-
+    const concepts = _.concat(addedIdentityRoles, directRoles, automaticRoles, subRoles);
+    //
     for (const concept of concepts) {
       if (removedIdentityRoles && removedIdentityRoles.includes(concept.id)) {
         concept._removed = true;
@@ -388,14 +417,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
     const actions = [];
     const value = data[rowIndex];
     const notModificated = !(value._added || value._removed || value._changed);
-    const isAutomaticRole = value.automaticRole;
-
+    const manualRole = !value.automaticRole && !value.directRole;
+    //
     actions.push(
       <Basic.Button
         level={'danger'}
         onClick={this._deleteConcept.bind(this, data[rowIndex])}
         className="btn-xs"
-        disabled={readOnly || isAutomaticRole}
+        disabled={readOnly || !manualRole}
         showLoading={showLoadingButtonRemove}
         role="group"
         title={this.i18n('button.delete')}
@@ -409,7 +438,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
           level={'warning'}
           onClick={this._showDetail.bind(this, data[rowIndex], true, false)}
           className="btn-xs"
-          disabled={readOnly || isAutomaticRole}
+          disabled={readOnly || !manualRole}
           role="group"
           title={this.i18n('button.edit')}
           titlePlacement="bottom">
@@ -530,9 +559,33 @@ export class RoleConceptTable extends Basic.AbstractContent {
             header={this.i18n('label.validTill')}
             cell={this._conceptDateCell.bind(this)}/>
           <Basic.Column
+            property="directRole"
+            header={this.i18n('entity.IdentityRole.directRole.label')}
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data, property }) => {
+                return (
+                  <Advanced.EntityInfo
+                    entityType="identityRole"
+                    entityIdentifier={ data[rowIndex][property] }
+                    entity={ data[rowIndex]._embedded[property] }
+                    showIdentity={ false }
+                    face="popover" />
+                );
+              }
+            }
+            width={ 150 }/>
+          <Basic.Column
             property="automaticRole"
-            header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.roleTreeNode.label')}</Basic.Cell>}
-            cell={<Basic.BooleanCell className="column-face-bool"/>}/>
+            header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.automaticRole.label')}</Basic.Cell>}
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data }) => {
+                return (
+                  <Basic.BooleanCell propertyValue={ data[rowIndex].automaticRole !== null } className="column-face-bool"/>
+                );
+              }
+            }/>
           <Basic.Column
             header={this.i18n('label.action')}
             className="action"
@@ -586,30 +639,30 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   useFirst/>
 
                 <Basic.LabelWrapper
-                  label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
-                  helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}
-                  rendered={ detail.entity.roleTreeNode }
+                  label={this.i18n('entity.IdentityRole.automaticRole.label')}
+                  helpBlock={this.i18n('entity.IdentityRole.automaticRole.help')}
+                  rendered={ detail.entity.automaticRole !== null }
                   hidden={ detail.entity._added || showRoleCatalogue}>
-                  { detail.entity.roleTreeNode ? roleTreeNodeManager.getNiceLabel(detail.entity._embedded.roleTreeNode) : null }
+                  { detail.entity.automaticRole ? roleTreeNodeManager.getNiceLabel(detail.entity._embedded.automaticRole) : null }
                 </Basic.LabelWrapper>
 
                 <Basic.Row>
-                  <div className="col-md-6">
+                  <Basic.Col lg={ 6 }>
                     <Basic.DateTimePicker
                       mode="date"
                       className={detail.entity.hasOwnProperty('_validFromChanged') ? 'text-danger' : null}
                       ref={detail.entity.hasOwnProperty('_validFromChanged') ? '_validFromChanged' : 'validFrom'}
                       hidden={showRoleCatalogue}
                       label={this.i18n('label.validFrom')}/>
-                  </div>
-                  <div className="col-md-6">
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
                     <Basic.DateTimePicker
                       mode="date"
                       className={detail.entity.hasOwnProperty('_validTillChanged') ? 'text-danger' : null}
                       ref={detail.entity.hasOwnProperty('_validTillChanged') ? '_validTillChanged' : 'validTill'}
                       hidden={showRoleCatalogue}
                       label={this.i18n('label.validTill')}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
 
               </Basic.AbstractForm>

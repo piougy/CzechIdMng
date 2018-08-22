@@ -10,7 +10,6 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
@@ -44,8 +43,7 @@ public class LogIdentityUpdateAsyncProcessor
 	public boolean conditional(EntityEvent<IdmIdentityDto> event) {
 		// we want to process original UPDATE event only
 		// async NOTIFY event is published for CREATE, UPDATE, EAV_SAVE event types
-		return super.conditional(event)
-				&& IdentityEventType.UPDATE.name().equals(event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PARENT_EVENT_TYPE));
+		return super.conditional(event) && IdentityEventType.UPDATE.name().equals(event.getParentType());
 	}
 
 	@Override

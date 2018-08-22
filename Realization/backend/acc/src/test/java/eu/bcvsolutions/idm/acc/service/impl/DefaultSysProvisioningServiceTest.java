@@ -804,7 +804,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		defaultAttributes.add(defTwo);
 
 		IdmRoleDto roleOne = new IdmRoleDto();
-		roleOne.setName("roleOne");
+		roleOne.setCode("roleOne");
 		roleOne.setPriority(100);
 		roleOne = roleService.save(roleOne);
 
@@ -853,7 +853,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SysRoleSystemDto roleSystem = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
 		
 		IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
-		roleDto.setName("zroleOne");
+		roleDto.setCode("zroleOne");
 		roleDto = roleService.save(roleDto);
 		
 		roleSystem = roleSystemService.save(roleSystem);
@@ -1418,12 +1418,12 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		defaultAttributes.add(defTwo);
 
 		IdmRoleDto roleTwo = new IdmRoleDto();
-		roleTwo.setName("roleTwo");
+		roleTwo.setCode("roleTwo");
 		roleTwo.setPriority(100);
 		roleTwo = roleService.save(roleTwo);
 
 		IdmRoleDto roleOne = new IdmRoleDto();
-		roleOne.setName("roleOne");
+		roleOne.setCode("roleOne");
 		roleOne.setPriority(100);
 		roleOne = roleService.save(roleOne);
 		

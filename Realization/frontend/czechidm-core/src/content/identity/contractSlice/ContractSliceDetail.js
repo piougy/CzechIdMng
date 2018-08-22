@@ -155,8 +155,8 @@ class ContractSliceDetail extends Basic.AbstractContent {
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title')} />
         <Basic.Panel
           className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}
-          style={Utils.Entity.isNew(entity) ? {paddingLeft: '10px', paddingRight: '10px'} : {}}>
-        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
+          style={Utils.Entity.isNew(entity) ? {paddingLeft: 15, paddingRight: 15 } : {}}>
+          <form onSubmit={this.save.bind(this, 'CONTINUE')}>
               <Basic.AbstractForm
                 ref="form"
                 data={entityFormData}

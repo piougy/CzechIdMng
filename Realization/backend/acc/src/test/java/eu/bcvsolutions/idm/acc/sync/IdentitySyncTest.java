@@ -538,7 +538,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		assertEquals(0, identityRoles3.size());
 
 		IdmIdentityRoleDto foundIdentityRole = identityRoles1.get(0);
-		assertEquals(automaticRole.getId(), foundIdentityRole.getRoleTreeNode());
+		assertEquals(automaticRole.getId(), foundIdentityRole.getAutomaticRole());
 
 		// synchronization immediately recalculate is disabled
 		int size = testIdentityProcessor.getRolesByUsername(user1).size();

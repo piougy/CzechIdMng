@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.event.domain;
 
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -11,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * @author Radek Tomiška
  *
  */
-public class MockOwner extends AbstractEntity {
+public class MockOwner extends AbstractEntity implements BaseDto {
 
 	private static final long serialVersionUID = 1L;
 	private UUID id = UUID.randomUUID();

@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTokenFilter;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmTokenService;
@@ -55,11 +54,7 @@ public class DefaultIdmTokenService
 	
 	@Override
 	public String getOwnerType(Class<? extends Identifiable> ownerType) {
-		Class<? extends BaseEntity> ownerEntityType = lookupService.getEntityClass(ownerType);
-		if (ownerEntityType == null) {
-			throw new IllegalArgumentException(String.format("Owner type [%s] has to generatize [AbstractEntity]", ownerType));
-		}
-		return ownerEntityType.getCanonicalName();
+		return lookupService.getOwnerType(ownerType);
 	}
 	
 	@Override

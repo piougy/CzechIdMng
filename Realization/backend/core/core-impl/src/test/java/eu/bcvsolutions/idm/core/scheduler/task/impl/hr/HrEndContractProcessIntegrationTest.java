@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
 
 /**
  * Test for HR contract exclusion process.
+ * 
  * @author Jan Helbich
  *
  */
@@ -168,7 +169,6 @@ public class HrEndContractProcessIntegrationTest extends AbstractHrProcessIntegr
 		roleService.find(new PageRequest(0, 5)).forEach(role -> {
 			IdmIdentityRoleDto d = new IdmIdentityRoleDto();
 			d.setRole(role.getId());
-			d.setAutomaticRole(false);
 			d.setIdentityContract(contract.getId());
 			identityRoleService.save(d);
 		});

@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl.hr;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.spy;
 
 import java.util.UUID;
@@ -61,7 +61,7 @@ public class HrContractExclusionProcessIntegrationTest extends AbstractHrProcess
 		assertEquals(1, logItems.getTotalElements());
 		SchedulerTestUtils.checkLogItems(lrt, IdmIdentityContractDto.class, logItems);
 		SchedulerTestUtils.checkQueueItems(scheduledTask, IdmIdentityContractDto.class, queueItems);
-		identityRoleService.findAllByContract(dto.getId()).forEach(r -> assertTrue(r.isAutomaticRole()));
+		identityRoleService.findAllByContract(dto.getId()).forEach(r -> assertNotNull(r.getAutomaticRole()));
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class HrContractExclusionProcessIntegrationTest extends AbstractHrProcess
 		assertEquals(1, logItems.getTotalElements());
 		SchedulerTestUtils.checkLogItems(lrt, IdmIdentityContractDto.class, logItems);
 		SchedulerTestUtils.checkQueueItems(scheduledTask, IdmIdentityContractDto.class, queueItems);
-		identityRoleService.findAllByContract(dto.getId()).forEach(r -> assertTrue(r.isAutomaticRole()));
+		identityRoleService.findAllByContract(dto.getId()).forEach(r -> assertNotNull(r.getAutomaticRole()));
 	}
 	
 	@Test
@@ -99,7 +99,7 @@ public class HrContractExclusionProcessIntegrationTest extends AbstractHrProcess
 		assertEquals(1, logItems.getTotalElements());
 		SchedulerTestUtils.checkLogItems(lrt, IdmIdentityContractDto.class, logItems);
 		SchedulerTestUtils.checkQueueItems(scheduledTask, IdmIdentityContractDto.class, queueItems);
-		identityRoleService.findAllByContract(dto.getId()).forEach(r -> assertTrue(r.isAutomaticRole()));
+		identityRoleService.findAllByContract(dto.getId()).forEach(r -> assertNotNull(r.getAutomaticRole()));
 	}
 	
 	@Test

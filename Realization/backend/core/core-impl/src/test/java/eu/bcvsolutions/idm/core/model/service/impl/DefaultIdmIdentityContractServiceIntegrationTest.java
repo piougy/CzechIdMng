@@ -259,13 +259,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		for(IdmIdentityRoleDto identityRole : identityRoles) {
 			assertEquals(contract.getValidFrom(), identityRole.getValidFrom());
 			assertEquals(contract.getValidTill(), identityRole.getValidTill());
-			if (identityRole.getRoleTreeNode().equals(nodeA.getId())) {
+			if (identityRole.getAutomaticRole().equals(nodeA.getId())) {
 				assertEquals(roleA, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeD.getId())) {
+			if (identityRole.getAutomaticRole().equals(nodeD.getId())) {
 				assertEquals(roleB, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeF.getId())) {
+			if (identityRole.getAutomaticRole().equals(nodeF.getId())) {
 				assertEquals(roleC, identityRole.getRole());
 			}
 		}
@@ -324,13 +324,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(3, identityRoles.size());
 		for(IdmIdentityRoleDto identityRole : identityRoles) {
-			if (identityRole.getRoleTreeNode().equals(nodeA.getId())) {
+			if (identityRole.getAutomaticRole().equals(nodeA.getId())) {
 				assertEquals(roleA, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeD.getId())) {
+			if (identityRole.getAutomaticRole().equals(nodeD.getId())) {
 				assertEquals(roleB, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeF.getId())) {
+			if (identityRole.getAutomaticRole().equals(nodeF.getId())) {
 				assertEquals(roleC, identityRole.getRole());
 			}
 		}
@@ -342,13 +342,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(3, identityRoles.size());
 		for(IdmIdentityRoleDto identityRole : identityRoles) {
-			if (identityRole.getRoleTreeNode().equals(nodeA.getId())) {
+			if (identityRole.getAutomaticRole().equals(nodeA.getId())) {
 				assertEquals(roleA, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeD.getId())) {
+			if (identityRole.getAutomaticRole().equals(nodeD.getId())) {
 				assertEquals(roleB, identityRole.getRole());
 			}
-			if (identityRole.getRoleTreeNode().equals(nodeE.getId())) {
+			if (identityRole.getAutomaticRole().equals(nodeE.getId())) {
 				assertEquals(roleD, identityRole.getRole());
 			}
 		}
@@ -399,7 +399,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(1, identityRoles.size());
 		assertEquals(roleA.getId(), identityRoles.get(0).getRole());
-		assertEquals(automaticRoleF.getId(), identityRoles.get(0).getRoleTreeNode());
+		assertEquals(automaticRoleF.getId(), identityRoles.get(0).getAutomaticRole());
 		//
 		UUID id = identityRoles.get(0).getId();
 		//
@@ -411,7 +411,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(1, identityRoles.size());
 		assertEquals(roleA.getId(), identityRoles.get(0).getRole());
-		assertEquals(automaticRoleE.getId(), identityRoles.get(0).getRoleTreeNode());
+		assertEquals(automaticRoleE.getId(), identityRoles.get(0).getAutomaticRole());
 		assertEquals(id, identityRoles.get(0).getId());
 	}
 	
@@ -452,11 +452,11 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		//
 		identityRoles = identityRoleService.findAllByContract(contractD.getId());
 		assertEquals(1, identityRoles.size());
-		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getRoleTreeNode());
+		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getAutomaticRole());
 		//
 		identityRoles = identityRoleService.findAllByContract(contractF.getId());
 		assertEquals(1, identityRoles.size());
-		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getRoleTreeNode());
+		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getAutomaticRole());
 	}
 	
 	@Test
@@ -479,7 +479,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		// check
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contractD.getId());
 		assertEquals(1, identityRoles.size());
-		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getRoleTreeNode());
+		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getAutomaticRole());
 	}
 	
 	@Test

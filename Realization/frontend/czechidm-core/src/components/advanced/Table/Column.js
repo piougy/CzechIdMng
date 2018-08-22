@@ -42,7 +42,7 @@ AdvancedColumn.propTypes = {
   /**
    * Column data type
    */
-  face: PropTypes.oneOf(['text', 'date', 'datetime', 'bool', 'enum']),
+  face: PropTypes.oneOf(['text', 'date', 'datetime', 'bool', 'boolean', 'enum']),
   /**
    * This is the body cell that will be cloned for this column.
    * This can either be a string a React element, or a function that generates

@@ -217,7 +217,7 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		try {
 			loginService.login(new LoginDto(user.getUsername(), new GuardedString(TEST_PWD)));
 			//
-			IdmRoleFilter rf = getRoleFilter("name", role.getName());
+			IdmRoleFilter rf = getRoleFilter("code", role.getCode());
 			Page<IdmRoleDto> readRole = roleService.find(rf, null, IdmBasePermission.READ);
 			return readRole;
 		} finally {
@@ -232,10 +232,10 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		return rf;
 	}
 
-	private IdmRoleDto createRole(String name, boolean canBeRequested, IdmBasePermission... permissions) {
+	private IdmRoleDto createRole(String code, boolean canBeRequested, IdmBasePermission... permissions) {
 		IdmRoleDto roleWithNoRights = new IdmRoleDto();
 		roleWithNoRights.setCanBeRequested(canBeRequested);
-		roleWithNoRights.setName(name);
+		roleWithNoRights.setCode(code);
 		final IdmRoleDto result = this.roleService.save(roleWithNoRights);
 		//
 		if (permissions != null && permissions.length > 0) {

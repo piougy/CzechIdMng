@@ -9,7 +9,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 
 /**
  * Role guarantee repository
- * - role guarantee is controlled (CRUD) by role, but some operations are needed to call directly (remove etc.)
  * 
  * @author Radek Tomiška
  *

@@ -5,14 +5,17 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
- * Default servervice for intersection between role catalogue and role
+ * Default service for relation between role catalogue and role
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public interface IdmRoleCatalogueRoleService extends ReadWriteDtoService<IdmRoleCatalogueRoleDto, IdmRoleCatalogueRoleFilter> {
+public interface IdmRoleCatalogueRoleService extends 
+		ReadWriteDtoService<IdmRoleCatalogueRoleDto, IdmRoleCatalogueRoleFilter>,
+		AuthorizableService<IdmRoleCatalogueRoleDto> {
 	
 	/**
 	 * Get list of {@link IdmRoleCatalogueRoleDto} by role given in parameter.

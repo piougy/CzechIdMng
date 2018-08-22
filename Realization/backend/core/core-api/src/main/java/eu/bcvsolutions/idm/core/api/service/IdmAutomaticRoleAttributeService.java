@@ -26,11 +26,6 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 public interface IdmAutomaticRoleAttributeService
 		extends ReadWriteDtoService<IdmAutomaticRoleAttributeDto, IdmAutomaticRoleFilter>,
 		AuthorizableService<IdmAutomaticRoleAttributeDto> {
-
-	/**
-	 * For backward compatibility in metamodel doesn't exists attribute roleTreeNode
-	 */
-	String ROLE_TREE_NODE_ATTRIBUTE_NAME = "roleTreeNode";
 	
 	/**
 	 * Property in event. If is value TRUE, then will be recalculation skipped.

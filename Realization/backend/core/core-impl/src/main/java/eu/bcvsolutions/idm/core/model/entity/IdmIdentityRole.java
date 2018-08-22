@@ -36,7 +36,9 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 		@Index(name = "idx_idm_identity_role_ident_c", columnList = "identity_contract_id"),
 		@Index(name = "idx_idm_identity_role_role", columnList = "role_id"),
 		@Index(name = "idx_idm_identity_role_aut_r", columnList = "automatic_role_id"),
-		@Index(name = "idx_idm_identity_role_ext_id", columnList = "external_id")
+		@Index(name = "idx_idm_identity_role_ext_id", columnList = "external_id"),
+		@Index(name = "idx_idm_identity_role_d_r_id", columnList = "direct_role_id"),
+		@Index(name = "idx_idm_identity_role_comp_id", columnList = "role_composition_id")
 })
 public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, AuditSearchable, ExternalIdentifiable {
 
@@ -77,6 +79,20 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, 
 	@Audited
 	@Column(name = "valid_till")
 	private LocalDate validTill;
+	
+	@Audited
+	@ManyToOne
+	@JoinColumn(name = "direct_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmIdentityRole directRole;
+	
+	@Audited
+	@ManyToOne
+	@JoinColumn(name = "role_composition_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmRoleComposition roleComposition;
 
 	public IdmIdentityRole() {
 	}
@@ -179,5 +195,21 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, 
 	@Override
 	public String getExternalId() {
 		return externalId;
+	}
+
+	public IdmIdentityRole getDirectRole() {
+		return directRole;
+	}
+
+	public void setDirectRole(IdmIdentityRole directRole) {
+		this.directRole = directRole;
+	}
+
+	public IdmRoleComposition getRoleComposition() {
+		return roleComposition;
+	}
+
+	public void setRoleComposition(IdmRoleComposition roleComposition) {
+		this.roleComposition = roleComposition;
 	}
 }

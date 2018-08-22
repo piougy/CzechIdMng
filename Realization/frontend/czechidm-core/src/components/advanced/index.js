@@ -24,6 +24,7 @@ import UuidInfo from './UuidInfo/UuidInfo';
 import RoleInfo from './RoleInfo/RoleInfo';
 import RoleCatalogueInfo from './RoleCatalogueInfo/RoleCatalogueInfo';
 import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
+import IdentityRoleInfo from './IdentityRoleInfo/IdentityRoleInfo';
 import WorkflowProcessInfo from './WorkflowProcessInfo/WorkflowProcessInfo';
 import WorkflowTaskInfo from './WorkflowTaskInfo/WorkflowTaskInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
@@ -75,6 +76,7 @@ const Components = {
   RoleInfo,
   RoleCatalogueInfo,
   IdentityContractInfo,
+  IdentityRoleInfo,
   WorkflowProcessInfo,
   NotificationTemplateInfo,
   ScriptArea,

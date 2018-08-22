@@ -76,7 +76,6 @@ export default class ConfidentialStorageValueDetail extends Basic.AbstractConten
           <Basic.TextField ref="serializableValue" label={this.i18n('entity.ConfidentialStorageValue.serializableValue')} />
           <Basic.Row>
             <div className="col-lg-6">
-              {/* TODO: this will be nice new advanced component, add this component also for ownerId */}
               <Basic.LabelWrapper
                 label={ this.i18n('entity.ConfidentialStorageValue.creator') }>
                 <Advanced.EntityInfo

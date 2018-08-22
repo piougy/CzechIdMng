@@ -21,15 +21,14 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecu
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(RoleTreeNodeSaveProcessor.PROCESSOR_NAME)
 @Description("Persists automatic role.")
 public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNodeDto> {
 	
 	public static final String PROCESSOR_NAME = "role-tree-node-save-processor";
-	@Autowired
-	private IdmRoleTreeNodeService service;
-	@Autowired
-	private LongRunningTaskManager longRunningTaskManager;
+	//
+	@Autowired private IdmRoleTreeNodeService service;
+	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	
 	public RoleTreeNodeSaveProcessor() {
 		super(RoleTreeNodeEventType.CREATE); // update is not supported

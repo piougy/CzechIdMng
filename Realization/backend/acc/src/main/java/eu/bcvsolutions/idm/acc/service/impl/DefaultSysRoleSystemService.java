@@ -101,7 +101,7 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 			IdmRoleDto roleDto = roleService.get(dto.getRole());
 			SysSystemDto systemDto = DtoUtils.getEmbedded(dto, SysRoleSystem_.system);
 			throw new ResultCodeException(AccResultCode.ROLE_SYSTEM_ALREADY_EXISTS,
-					ImmutableMap.of("role", roleDto.getName(), "system", systemDto.getName()));
+					ImmutableMap.of("role", roleDto.getCode(), "system", systemDto.getName()));
 		}
 	    
 		return super.save(dto, permission);

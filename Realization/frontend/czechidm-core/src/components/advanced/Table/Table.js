@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import _ from 'lodash';
 import Immutable from 'immutable';
 import moment from 'moment';
+import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
@@ -24,12 +25,22 @@ class AdvancedTable extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
+    // resolve static frontend actions (backend actions are loaded asynchronously ... check componentDidMount)
+    const { manager, actions } = this.props;
+    let _actions = [];
+    if (!manager.supportsBulkAction() && actions !== null && actions.length > 0) {
+      _actions = actions.filter(action => {
+        return action.rendered === undefined || action.rendered === true || action.rendered === null;
+      });
+    }
+    //
     this.state = {
       filterOpened: this.props.filterOpened,
       selectedRows: this.props.selectedRows,
       removedRows: new Immutable.Set(),
       showBulkActionDetail: false,
-      bulkActionShowLoading: false
+      bulkActionShowLoading: false,
+      _actions
     };
     this.attributeManager = new FormAttributeManager();
     this.longRunningTaskManager = new LongRunningTaskManager();
@@ -49,7 +60,35 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     this.reload();
     //
     if (manager.supportsBulkAction()) {
-      this.context.store.dispatch(manager.fetchAvailableBulkActions());
+      this.context.store.dispatch(manager.fetchAvailableBulkActions((actions, error) => {
+        if (error) {
+          this.addErrorMessage({}, error);
+        } else {
+          const _actions = [];
+          // TODO: react elements are stored in state ... redesign raw data and move cached actions into reducer
+          for (const index in actions) {
+            if (actions.hasOwnProperty(index)) {
+              const backendBulkAction = actions[index];
+              const iconKey = backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.icon';
+              const icon = this.i18n(iconKey);
+              _actions.push({
+                value: backendBulkAction.name,
+                niceLabel: (
+                  <span key={ `b-a-${backendBulkAction.name}` }>
+                    <Basic.Icon value={ icon } rendered={ backendBulkAction.module + icon !== iconKey } style={{ marginRight: 5 }}/>
+                    { this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label') }
+                  </span>),
+                action: this.showBulkActionDetail.bind(this, backendBulkAction),
+                disabled: !SecurityManager.hasAllAuthorities(backendBulkAction.authorities)
+              });
+            }
+          }
+          //
+          this.setState({
+            _actions
+          });
+        }
+      }));
     }
   }
 
@@ -57,6 +96,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (!SearchParameters.is(newProps.forceSearchParameters, this.props.forceSearchParameters)) {
       this.reload(newProps);
     } else if (!SearchParameters.is(newProps.defaultSearchParameters, this.props.defaultSearchParameters)) {
+      this.reload(newProps);
+    } else if (newProps.rendered !== this.props.rendered) {
       this.reload(newProps);
     }
   }
@@ -551,25 +592,25 @@ class AdvancedTable extends Basic.AbstractContextComponent {
 
               <EavAttributeForm
                 ref="bulkActionAttributes"
-                localizationKey={backendBulkAction.name}
-                localizationModule={backendBulkAction.module}
-                formAttributes={backendBulkAction.formAttributes}
+                localizationKey={ backendBulkAction.name }
+                localizationModule={ backendBulkAction.module }
+                formAttributes={ backendBulkAction.formAttributes }
                 localizationType="bulk-action"/>
             </Basic.AbstractForm>
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
             <Basic.Button
               level="link"
-              onClick={this.showBulkActionDetail.bind(this)}>
-              {this.i18n('button.close')}
+              onClick={ this.showBulkActionDetail.bind(this) }>
+              { this.i18n('button.close') }
             </Basic.Button>
             <Basic.Button
               type="submit"
               level="success"
-              showLoading={bulkActionShowLoading}
+              showLoading={ bulkActionShowLoading }
               showLoadingIcon
               showLoadingText={ this.i18n('button.saving') }>
-              {this.i18n('bulkAction.button.execute')}
+              { this.i18n('bulkAction.button.execute') }
             </Basic.Button>
           </Basic.Modal.Footer>
         </form>
@@ -598,29 +639,30 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       pagination,
       onRowClick,
       onRowDoubleClick,
-      showRowSelection,
-      showLoading,
       rowClass,
       rendered,
       filter,
-      showFilter,
       filterCollapsible,
       filterViewportOffsetTop,
-      actions,
       buttons,
       noData,
       style,
+      showRowSelection,
+      showLoading,
+      showFilter,
       showPageSize,
       showToolbar,
+      showRefreshButton,
       condensed,
       header,
       forceSearchParameters,
-      _backendBulkActions
+      className
     } = this.props;
     const {
       filterOpened,
       selectedRows,
-      removedRows
+      removedRows,
+      _actions
     } = this.state;
     //
     if (!rendered) {
@@ -674,8 +716,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             className={ commonProps.className }
             title={ columnTitle }/>
         );
+      } else if (columnTitle) {
+        columnHeader = (
+          <span title={ columnTitle }>
+            { columnHeader }
+          </span>
+        );
       }
-
+      //
       const key = 'column_' + i;
       let cell = null;
       if (column.props.cell) {
@@ -742,39 +790,15 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       _rowClass = ({rowIndex, data}) => { return Utils.Ui.getDisabledRowClass(data[rowIndex]); };
     }
     //
-    let _actions = [];
-    if (manager.supportsBulkAction()) {
-      for (const index in _backendBulkActions) {
-        if (_backendBulkActions.hasOwnProperty(index)) {
-          const backendBulkAction = _backendBulkActions[index];
-          const iconKey = backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.icon';
-          const icon = this.i18n(iconKey);
-          _actions.push({
-            value: backendBulkAction.name,
-            niceLabel: <span><Basic.Icon value={icon} rendered={backendBulkAction.module + icon !== iconKey }/> {' ' + this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label')}</span>,
-            action: this.showBulkActionDetail.bind(this, backendBulkAction),
-            disabled: !SecurityManager.hasAllAuthorities(backendBulkAction.authorities)
-          });
-        }
-      }
-      //
-    } else {
-      if (actions !== null && actions.length > 0) {
-        _actions = actions.filter(action => {
-          return action.rendered === undefined || action.rendered === true || action.rendered === null;
-        });
-      }
-    }
-
     let count = 0;
     if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
       count = _total - removedRows.size;
     } else {
       count = selectedRows.length;
     }
-
+    //
     return (
-      <div className="advanced-table" style={style}>
+      <div className={ classnames('advanced-table', className) } style={ style }>
         {
           !filter && (_actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0)
           ||
@@ -806,7 +830,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 <RefreshButton
                   onClick={ this.fetchEntities.bind(this, _searchParameters, this.props) }
                   title={ this.i18n('button.refresh') }
-                  showLoading={ _showLoading }/>
+                  showLoading={ _showLoading }
+                  rendered={ showRefreshButton }/>
               </div>
               <div className="clearfix"></div>
             </div>
@@ -987,6 +1012,14 @@ AdvancedTable.propTypes = {
    * Shows toolbar.
    */
   showToolbar: PropTypes.bool,
+  /**
+   * Shows refresh button.
+   */
+  showRefreshButton: PropTypes.bool,
+  /**
+   * Css
+   */
+  className: PropTypes.string,
   //
   // Private properties, which are used internally for async data fetching
   //
@@ -1020,7 +1053,8 @@ AdvancedTable.defaultProps = {
   actions: [],
   buttons: [],
   showPageSize: true,
-  showToolbar: true
+  showToolbar: true,
+  showRefreshButton: true,
 };
 
 function select(state, component) {

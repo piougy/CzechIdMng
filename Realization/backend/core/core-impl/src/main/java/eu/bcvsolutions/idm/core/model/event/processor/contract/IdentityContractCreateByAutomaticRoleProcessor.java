@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
@@ -43,8 +42,7 @@ public class IdentityContractCreateByAutomaticRoleProcessor
 	
 	@Override
 	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
-		return super.conditional(event)
-				&& IdentityContractEventType.CREATE.name().equals(event.getProperties().get(EntityEventManager.EVENT_PROPERTY_PARENT_EVENT_TYPE));
+		return super.conditional(event) && IdentityContractEventType.CREATE.name().equals(event.getParentType());
 	}
 
 	@Override

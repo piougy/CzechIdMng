@@ -154,7 +154,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, columns, forceSearchParameters, showRowSelection, showFilter, showToolbar, showPageSize, showId } = this.props;
+    const { uiKey, columns, forceSearchParameters, showRowSelection, showFilter, showToolbar, showPageSize, showId, className } = this.props;
     const { filterOpened, showLoading} = this.state;
 
     return (
@@ -185,6 +185,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
           showLoading={showLoading}
           forceSearchParameters={ forceSearchParameters }
           showRowSelection={ Managers.SecurityManager.hasAuthority('VSREQUEST_UPDATE') && showRowSelection }
+          className={ className }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -255,7 +256,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
             width="55px"
             className="detail-button"
             cell={this._getButtonsCell.bind(this)}/>
-          </Advanced.Table>
+        </Advanced.Table>
       </div>
     );
   }

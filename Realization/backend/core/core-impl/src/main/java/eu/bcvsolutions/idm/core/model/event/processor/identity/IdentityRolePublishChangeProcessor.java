@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.processor.AbstractPublishEntityChangeProcessor;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.event.processor.IdentityRoleProcessor;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -24,7 +24,8 @@ import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventT
 @Component
 @Description("Publish identity role change event.")
 public class IdentityRolePublishChangeProcessor 
-		extends AbstractPublishEntityChangeProcessor<IdmIdentityRoleDto> {
+		extends AbstractPublishEntityChangeProcessor<IdmIdentityRoleDto>
+		implements IdentityRoleProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-role-publish-change-processor";
 	
@@ -48,7 +49,7 @@ public class IdentityRolePublishChangeProcessor
 		if (identityContract == null) {
 			identityContract = (IdmIdentityContractDto) lookupService.lookupDto(IdmIdentityContractDto.class, event.getContent().getIdentityContract());
 		}
-		event.getProperties().put(EntityEventManager.EVENT_PROPERTY_SUPER_OWNER_ID, identityContract.getIdentity());
+		event.setSuperOwnerId(identityContract.getIdentity());
 		//
 		return event;
 	}

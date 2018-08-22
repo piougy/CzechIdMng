@@ -83,7 +83,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
       // nothing to load
       return;
     }
-    if (!_permissions) {
+    if (!_permissions && entityId) {
       const uiKey = manager.resolveUiKey(null, entityId);
       this.context.store.dispatch(manager.fetchPermissions(entityId, uiKey));
     }
@@ -241,8 +241,6 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * Renders link face
    */
   _renderLink() {
-    const _entity = this.getEntity();
-    //
     if (!this.showLink()) {
       return this._renderNiceLabel();
     }
@@ -252,7 +250,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         <Link
           to={ this.getLink() }
           title={ this.i18n('component.advanced.EntityInfo.link.detail.label') }>
-          { this.getManager().getNiceLabel(_entity) }
+          { this.getNiceLabel() }
         </Link>
       </span>
     );

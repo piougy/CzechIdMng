@@ -45,7 +45,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -66,7 +65,6 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	
 	@Autowired private TestHelper helper;
 	@Autowired private IdmIdentityService identityService;
-	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private IdmTreeTypeService treeTypeService;
 	@Autowired private IdmIdentityContractService identityContractService;
@@ -270,9 +268,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	}
 	
 	private IdmRoleDto createAndSaveRole() {
-		IdmRoleDto entity = new IdmRoleDto();
-		entity.setName("valid_role_" + System.currentTimeMillis());
-		return saveInTransaction(entity, roleService);
+		return getHelper().createRole();
 	}
 	
 	private SysRoleSystemDto createAndSaveRoleSystem(IdmRoleDto role, SysSystemDto system) {

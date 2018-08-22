@@ -8,9 +8,12 @@ import org.springframework.util.MultiValueMap;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Filter for roles
+ * 
+ * Codeable filter paramter can be used
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -20,9 +23,10 @@ public class IdmRoleFilter
 		extends DataFilter 
 		implements CorrelationFilter, ExternalIdentifiable {
 
+	public static final String PARAMETER_ROLE_CATALOGUE = "roleCatalogue";
+	public static final String PARAMETER_GUARANTEE = "guarante";
+	
 	private RoleType roleType;
-	private UUID roleCatalogueId;
-	private UUID guaranteeId;
 	
 	public IdmRoleFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -61,19 +65,19 @@ public class IdmRoleFilter
 	}
 
 	public UUID getRoleCatalogueId() {
-		return roleCatalogueId;
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_ROLE_CATALOGUE));
 	}
 
 	public void setRoleCatalogueId(UUID roleCatalogueId) {
-		this.roleCatalogueId = roleCatalogueId;
+		data.set(PARAMETER_ROLE_CATALOGUE, roleCatalogueId);
 	}
 
 	public UUID getGuaranteeId() {
-		return guaranteeId;
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_GUARANTEE));
 	}
 
 	public void setGuaranteeId(UUID guaranteeId) {
-		this.guaranteeId = guaranteeId;
+		data.set(PARAMETER_GUARANTEE, guaranteeId);
 	}
 	
 	@Override

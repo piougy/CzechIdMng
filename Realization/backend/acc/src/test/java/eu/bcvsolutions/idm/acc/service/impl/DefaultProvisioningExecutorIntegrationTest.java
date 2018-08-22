@@ -368,7 +368,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNull(helper.findResource(uid));
 		//
 		// check batch
-		SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), readOnlyOperation.getEntityIdentifier(), systemEntity.getId());
+		SysProvisioningBatchDto batch = provisioningBatchService.findBatch(systemEntity.getId());
 		Assert.assertNotNull(batch);
 		//
 		// check provisioning operation requests
@@ -417,7 +417,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			filter.setSystemEntity(provisioningOperation.getSystemEntity());
 			filter.setSystemId(system.getId());
 			SysProvisioningOperationDto operation = provisioningOperationService.find(filter, null).getContent().get(0);
-			SysProvisioningBatchDto batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), operation.getSystemEntity());
+			SysProvisioningBatchDto batch = provisioningBatchService.findBatch(operation.getSystemEntity());
 			Assert.assertEquals(OperationState.EXCEPTION, operation.getResultState());
 			Assert.assertEquals(AccResultCode.PROVISIONING_FAILED.name(), operation.getResult().getModel().getStatusEnum());
 			Assert.assertEquals(1, operation.getCurrentAttempt());
@@ -435,7 +435,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			Boolean result = longRunningTaskManager.executeSync(retryProvisioningTaskExecutor);
 			Assert.assertTrue(result);
 			operation = provisioningOperationService.get(operation.getId());
-			batch = provisioningBatchService.findBatch(system.getId(), operation.getEntityIdentifier(), systemEntity.getId());
+			batch = provisioningBatchService.findBatch(systemEntity.getId());
 			Assert.assertEquals(2, operation.getCurrentAttempt());
 			Assert.assertNotNull(batch.getNextAttempt());
 			Assert.assertTrue(batch.getNextAttempt().isAfter(now));
@@ -547,7 +547,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	}
 	
 	/**
-	 * Return provisiong attribute by default mapping and strategy
+	 * Return provisioning attribute by default mapping and strategy
 	 * 
 	 * @return
 	 */

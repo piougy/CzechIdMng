@@ -423,6 +423,33 @@ module.exports = {
                 'icon': 'fa:newspaper-o'
               },
               {
+                'id': 'request-role-compositions',
+                'type': 'TAB',
+                'icon': 'fa:universal-access',
+                'labelKey': 'content.role.compositions.title',
+                'order': 120,
+                'path': 'requests/:requestId/role/:entityId/compositions',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+              },
+              {
+                'id': 'request-role-guarantees',
+                'type': 'TAB',
+                'labelKey': 'content.role.guarantees.title',
+                'icon': 'fa:group',
+                'order': 130,
+                'path': 'requests/:requestId/role/:entityId/guarantees',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
+              },
+              {
+                'id': 'request-role-catalogue-roles',
+                'type': 'TAB',
+                'labelKey': 'content.role.catalogues.title',
+                'icon': 'fa:list-alt',
+                'order': 140,
+                'path': 'requests/:requestId/role/:entityId/catalogues',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUEROLE_READ'] } ]
+              },
+              {
                 'id': 'request-role-eav',
                 'type': 'TAB',
                 'labelKey': 'content.role.eav.title',
@@ -430,14 +457,6 @@ module.exports = {
                 'priority': 0,
                 'path': 'requests/:requestId/role/:entityId/eav',
                 'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
-              },
-              {
-                'id': 'request-role-guarantees',
-                'type': 'TAB',
-                'labelKey': 'content.role.guarantees.title',
-                'order': 120,
-                'path': 'requests/:requestId/role/:entityId/guarantees',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
               },
               {
                 'id': 'request-role-authorization-policies',

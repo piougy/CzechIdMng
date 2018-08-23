@@ -6,8 +6,8 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { RoleGuaranteeManager, IdentityManager, RoleManager } from '../../redux';
 
-const manager = new RoleGuaranteeManager();
-const roleManager = new RoleManager();
+let manager = new RoleGuaranteeManager();
+let roleManager = new RoleManager();
 const identityManager = new IdentityManager();
 
 /**
@@ -26,6 +26,10 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
   }
 
   getManager() {
+    // Init manager - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    manager = this.getRequestManager(this.props.params, manager);
+    roleManager = this.getRequestManager(this.props.params, roleManager);
     return manager;
   }
 
@@ -106,6 +110,7 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
             property="guarantee"
             sortProperty="guarantee.name"
             face="text"
+            header={ this.i18n('entity.RoleGuarantee.guarantee.label') }
             sort
             cell={
               ({ rowIndex, data }) => {

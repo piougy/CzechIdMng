@@ -206,7 +206,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
       <Basic.Button
         type="button"
         level="info"
-        title={ this.i18n('button.showChanges.tooltip')}
+        title={ this.i18n('button.showItemChanges.tooltip')}
         titlePlacement="bottom"
         onClick={this.showItemChanges.bind(this, data[rowIndex])}
         className="btn-xs">
@@ -226,7 +226,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
-  _renderRequestItemsTable(request, forceSearchParameters, rendered, showLoading) {
+  _renderRequestItemsTable(request, forceSearchParameters, rendered, showLoading, isEditable) {
     if (!rendered) {
       return null;
     }
@@ -243,7 +243,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
             uiKey={uiKeyRequestItems}
             manager={requestItemManager}
             forceSearchParameters={forceSearchParameters}
-            showRowSelection={SecurityManager.hasAuthority('REQUEST_UPDATE')}
+            showRowSelection={isEditable && SecurityManager.hasAuthority('REQUEST_UPDATE')}
             actions={
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
                  action: this.onDelete.bind(this), disabled: false }]
@@ -533,7 +533,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
             </Basic.AbstractForm>
             <div style={{ padding: '15px 15px 0 15px' }}>
               {
-                this._renderRequestItemsTable(request, forceSearchParameters, !isDeleteRequest, showLoading)
+                this._renderRequestItemsTable(request, forceSearchParameters, !isDeleteRequest, showLoading, isEditable)
               }
               <Basic.AbstractForm
                 readOnly

@@ -22,7 +22,7 @@ export default class RoleGuarantees extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-guarantees';
+    return this.getRequestNavigationKey('role-guarantees', this.props.params);
   }
 
   render() {
@@ -36,13 +36,15 @@ export default class RoleGuarantees extends Basic.AbstractContent {
         <RoleGuaranteeRoleTable
           uiKey="role-guarantee-role-table"
           forceSearchParameters={ forceSearchParameters }
-          className="no-margin"/>
+          className="no-margin"
+          params={ this.props.params }/>
 
         <Basic.ContentHeader icon="fa:group" text={ this.i18n('identity.header') } style={{ marginBottom: 0 }}/>
         <RoleGuaranteeTable
           uiKey="role-guarantee-table"
           forceSearchParameters={ forceSearchParameters }
-          className="no-margin"/>
+          className="no-margin"
+          params={ this.props.params }/>
       </div>
     );
   }

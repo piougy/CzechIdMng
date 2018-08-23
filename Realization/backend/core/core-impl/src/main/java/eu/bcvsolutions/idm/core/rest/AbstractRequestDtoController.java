@@ -26,8 +26,6 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemChangesDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
@@ -55,14 +53,12 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 		extends AbstractReadWriteDtoController<DTO, F> {
 
 	@Autowired
-	private RequestManager requestManager;
+	private RequestManager<DTO> requestManager;
 
 	public AbstractRequestDtoController(ReadWriteDtoService<DTO, F> entityService) {
 		super(entityService);
 	}
 	
-	
-	@SuppressWarnings("unchecked")
 	public DTO getDto(String requestId, String backendId) {
 		DTO updatedDto = getDto(backendId);
 		if (updatedDto == null) {
@@ -215,7 +211,6 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			@ApiParam(value = "Request ID", required = true) String requestId, //
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, //
 			@PageableDefault Pageable pageable) { //
-		@SuppressWarnings("unchecked")
 		Page<DTO> page = (Page<DTO>) requestManager.find(getDtoClass(), requestId, toFilter(parameters), pageable,
 				IdmBasePermission.READ);
 
@@ -269,7 +264,6 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			@ApiParam(value = "Request ID", required = true) String requestId, //
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, //
 			@PageableDefault Pageable pageable) { //
-		@SuppressWarnings("unchecked")
 		Page<DTO> page = (Page<DTO>) requestManager.find(getDtoClass(), requestId, toFilter(parameters), pageable,
 				IdmBasePermission.AUTOCOMPLETE);
 		return toResources(page, getDtoClass());
@@ -315,7 +309,7 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 		return count(toFilter(parameters), IdmBasePermission.COUNT);
 	}
 	
-	public Resource<?> saveFormValues(String requestId, IdmRoleDto dto, IdmFormDefinitionDto formDefinition,
+	public Resource<?> saveFormValues(String requestId, DTO dto, IdmFormDefinitionDto formDefinition,
 			List<IdmFormValueDto> formValues, BasePermission... permission) {
 		Assert.notNull(dto);
 		Assert.notNull(requestId);
@@ -330,7 +324,8 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 		Assert.notNull(owner);
 		Assert.notNull(requestId);
 
-		IdmFormInstanceDto formInstance = requestManager.getFormInstance(UUID.fromString(requestId), (Requestable) owner,
+		@SuppressWarnings("unchecked")
+		IdmFormInstanceDto formInstance = requestManager.getFormInstance(UUID.fromString(requestId), (DTO) owner,
 				formDefinition, permission);
 		return new Resource<>(formInstance);
 	}

@@ -75,7 +75,7 @@ class DynamicRequestTaskDetail extends DynamicTaskDetail {
             <DecisionButtons
               task={task}
               onClick={this._validateAndCompleteTask.bind(this)}
-              readOnly={!canExecute}
+              readOnly={!canExecute || showLoadingInternal}
               showBackButton={false}
             />}
           canExecute={canExecute}/>

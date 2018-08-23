@@ -1805,6 +1805,9 @@
         "previewDetailByRequest":{
           "label": "Zobrazit náhled",
           "tooltip": "Zobrazí náhled spolu s požadovanými změnami."
+        },
+        "showItemChanges": {
+          "tooltip": "Zobrazí změněné položky objektu, vůči aktuálně platnému stavu."
         }
       },
       "create": {

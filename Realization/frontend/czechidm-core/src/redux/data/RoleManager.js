@@ -19,6 +19,9 @@ export default class RoleManager extends AbstractRequestFormableManager {
     return this.service;
   }
 
+  /**
+  * Using in the request
+  */
   getEntitySubType() {
     return 'Role';
   }

@@ -46,6 +46,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
@@ -134,6 +135,8 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
 	private RequestManager<R> requestManager;
+
+	private ConfigurationMap configurationMap;
 
 	@Override
 	@Transactional
@@ -324,8 +327,8 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 					formValueDto.setValue(this.getConfidentialPersistentValue(item));
 				}
 			}
-			dto = dtoService.save(dto,
-					RequestOperationType.ADD == type ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE);
+			// Save without check a permissions
+			dto = dtoService.save(dto);
 			item.setResult(new OperationResultDto(OperationState.EXECUTED));
 			requestItemService.save(item);
 			return;
@@ -344,7 +347,8 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 				requestItemService.save(item);
 				return;
 			}
-			dtoService.deleteById(dtoToDelete.getId(), IdmBasePermission.DELETE);
+			// Delete without check a permissions
+			dtoService.deleteById(dtoToDelete.getId());
 			item.setResult(new OperationResultDto(OperationState.EXECUTED));
 			requestItemService.save(item);
 			return;
@@ -672,32 +676,30 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 
 		// Second add all already exists attributes
 		currentFieldsValues.keySet().forEach(currentAttribute -> {
-			Object changedValue = makeNiceValue(changedFieldsValues.get(currentAttribute));
+			Object changedValue = changedFieldsValues.get(currentAttribute);
 			IdmRequestItemAttributeDto attribute;
-			Object currentValue = makeNiceValue(currentFieldsValues.get(currentAttribute));
+			Object currentValue = currentFieldsValues.get(currentAttribute);
 			attribute = new IdmRequestItemAttributeDto(currentAttribute, changedValue instanceof List, false);
 
 			if (attribute.isMultivalue()) {
 				if (changedValue != null && changedValue instanceof List) {
 					((List<?>) changedValue).forEach(value -> {
-						Object niceValue = makeNiceValue(value);
 						if (currentValue != null && currentValue instanceof List
 								&& ((List<?>) currentValue).contains(value)) {
-							attribute.getValues().add(new IdmRequestAttributeValueDto(niceValue, niceValue, null));
+							attribute.getValues().add(new IdmRequestAttributeValueDto(value, value, null));
 						} else {
 							attribute.setChanged(true);
 							attribute.getValues()
-									.add(new IdmRequestAttributeValueDto(niceValue, null, RequestOperationType.ADD));
+									.add(new IdmRequestAttributeValueDto(value, null, RequestOperationType.ADD));
 						}
 					});
 				}
 				if (currentValue != null && currentValue instanceof List) {
 					((List<?>) currentValue).forEach(value -> {
-						Object niceValue = makeNiceValue(value);
 						if (changedValue == null || !((List<?>) changedValue).contains(value)) {
 							attribute.setChanged(true);
 							attribute.getValues().add(
-									new IdmRequestAttributeValueDto(niceValue, niceValue, RequestOperationType.REMOVE));
+									new IdmRequestAttributeValueDto(value, value, RequestOperationType.REMOVE));
 						}
 					});
 				}
@@ -717,6 +719,18 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 			resultAttributes.add(attribute);
 		});
 
+		// Make all values nicer
+		resultAttributes.forEach(attribute -> {
+			attribute.getValue().setValue(this.makeNiceValue(attribute.getValue().getValue()));
+			attribute.getValue().setOldValue(this.makeNiceValue(attribute.getValue().getOldValue()));
+			
+			List<IdmRequestAttributeValueDto> attributeValues = attribute.getValues();
+			attributeValues.forEach(attributeValue -> {
+				attributeValue.setValue(this.makeNiceValue(attributeValue.getValue()));
+				attributeValue.setOldValue(this.makeNiceValue(attributeValue.getOldValue()));
+			});
+		});
+		
 		IdmRequestItemChangesDto result = new IdmRequestItemChangesDto();
 		result.setRequestItem(item);
 		result.getAttributes().addAll(resultAttributes);
@@ -736,6 +750,12 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		if (value instanceof Identifiable) {
 			Identifiable identifiable = (Identifiable) value;
 			return identifiable.getId();
+		}
+		if (value instanceof ConfigurationMap) {
+			configurationMap = (ConfigurationMap) value;
+			Map<String, Serializable> map = configurationMap.toMap();
+			return map.toString();
+			
 		}
 		return value;
 	}

@@ -10,6 +10,9 @@ import * as Utils from '../utils';
  */
 export default class RoleService extends AbstractRequestFormableService {
 
+  /**
+   * Using in the request
+   */
   getSubApiPath() {
     return '/roles';
   }

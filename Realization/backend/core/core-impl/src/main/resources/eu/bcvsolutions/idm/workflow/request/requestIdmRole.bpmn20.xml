@@ -114,7 +114,7 @@ roleDto = requestManager.get(entityEvent.content.id, roleDto);
 //Save role name
 execution.setVariable("roleName", roleDto.getCode());</script>
     </scriptTask>
-    <serviceTask id="generate-process-name" name="Generate process name" activiti:expression="Request for change/create/remove role with name '{{roleName}}'" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="generate-process-name" name="Generate process name" activiti:expression="Request for change/create/remove role with name &quot;{{${roleName}}}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow55" sourceRef="load-role-name" targetRef="generate-process-name"></sequenceFlow>
     <sequenceFlow id="flow56" sourceRef="generate-process-name" targetRef="scripttask12"></sequenceFlow>
     <endEvent id="endevent7" name="End"></endEvent>

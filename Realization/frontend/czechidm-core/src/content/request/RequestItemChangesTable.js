@@ -97,11 +97,13 @@ class RequestItemChangesTable extends Advanced.AbstractTableContent {
   /**
    * Return data (attributes) for table of changes
    */
-  _getDataWithChanges() {
+  _getDataWithChanges(onlyChangedAttributes) {
     const {itemData} = this.props;
-    if (itemData) {
+    if (itemData && itemData.attributes) {
+      const attributes = itemData.attributes
+        .filter(attribute => onlyChangedAttributes ? attribute.changed : true);
       // sort by name
-      return _(itemData.attributes).sortBy('name').value();
+      return _(attributes).sortBy('name').value();
     }
     return null;
   }
@@ -120,7 +122,14 @@ class RequestItemChangesTable extends Advanced.AbstractTableContent {
     const isOperationAdd = itemData && itemData.requestItem.operation === 'ADD';
 
     const entityType = this._getNameOfDTO(itemData.requestItem.ownerType);
-    const sortedItemData = this._getDataWithChanges();
+    const sortedItemData = this._getDataWithChanges(isOperationUpdate);
+    if (!sortedItemData || sortedItemData.length === 0) {
+      return (<Basic.Alert
+        level="info"
+        title={this.i18n('itemDetail.nochanges.title')}
+        text={this.i18n('itemDetail.nochanges.text')}
+      />);
+    }
     return (
       <div>
         <Advanced.EntityInfo

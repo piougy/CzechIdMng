@@ -1,4 +1,4 @@
-import AbstractService from './AbstractService';
+import AbstractRequestService from './AbstractRequestService';
 import SearchParameters from '../domain/SearchParameters';
 import RoleService from './RoleService';
 import RoleCatalogueService from './RoleCatalogueService';
@@ -11,9 +11,12 @@ const roleCatalogueService = new RoleCatalogueService();
  *
  * @author Radek Tomiška
  */
-export default class RoleCatalogueRoleService extends AbstractService {
+export default class RoleCatalogueRoleService extends AbstractRequestService {
 
-  getApiPath() {
+  /**
+   * Using in the request
+   */
+  getSubApiPath() {
     return '/role-catalogue-roles';
   }
 
@@ -30,6 +33,9 @@ export default class RoleCatalogueRoleService extends AbstractService {
   }
 
   supportsPatch() {
+    if (this.isRequestModeEnabled()) {
+      return false;
+    }
     return true;
   }
 

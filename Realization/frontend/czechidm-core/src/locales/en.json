@@ -1764,6 +1764,9 @@
          "previewDetailByRequest":{
            "label": "Show preview",
            "tooltip": "Show preview with all requested changes."
+         },
+         "showItemChanges": {
+           "tooltip": "Show changed attributes for this object."
          }
        },
        "create": {

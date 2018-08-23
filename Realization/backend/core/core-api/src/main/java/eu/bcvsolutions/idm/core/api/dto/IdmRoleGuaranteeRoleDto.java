@@ -10,6 +10,7 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -19,7 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @since 8.2.0
  */
 @Relation(collectionRelation = "roleGuaranteeRoles")
-public class IdmRoleGuaranteeRoleDto extends AbstractDto implements ExternalIdentifiable {
+public class IdmRoleGuaranteeRoleDto extends AbstractDto implements ExternalIdentifiable, Requestable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,6 +33,10 @@ public class IdmRoleGuaranteeRoleDto extends AbstractDto implements ExternalIden
 	@NotNull
 	@Embedded(dtoClass = IdmRoleDto.class)
 	private UUID guaranteeRole; // guarantee as role
+	@Embedded(dtoClass = IdmRequestItemDto.class)
+	private UUID requestItem; // Isn't persist in the entity
+	@Embedded(dtoClass = IdmRequestDto.class)
+	private UUID request; // Isn't persist in the entity
 
 	/**
 	 * Owner
@@ -77,5 +82,24 @@ public class IdmRoleGuaranteeRoleDto extends AbstractDto implements ExternalIden
 	@Override
 	public String getExternalId() {
 		return externalId;
+	}
+	@Override
+	public UUID getRequestItem() {
+		return requestItem;
+	}
+
+	@Override
+	public void setRequestItem(UUID requestItem) {
+		this.requestItem = requestItem;
+	}
+
+	@Override
+	public UUID getRequest() {
+		return request;
+	}
+
+	@Override
+	public void setRequest(UUID request) {
+		this.request = request;
 	}
 }

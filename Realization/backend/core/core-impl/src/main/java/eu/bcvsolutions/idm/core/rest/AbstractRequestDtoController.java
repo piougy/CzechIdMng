@@ -27,7 +27,6 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -60,17 +59,8 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 	}
 	
 	public DTO getDto(String requestId, String backendId) {
-		DTO updatedDto = getDto(backendId);
-		if (updatedDto == null) {
-			try {
-				updatedDto = getService().getDtoClass().newInstance();
-				updatedDto.setId(UUID.fromString(backendId));
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new CoreException(e);
-			}
-		}
-		
-		return (DTO) requestManager.get(UUID.fromString(requestId), updatedDto);
+		return (DTO) requestManager.get(UUID.fromString(requestId), UUID.fromString(backendId),
+				getService().getDtoClass(), IdmBasePermission.READ);
 	}
 
 	/**
@@ -86,7 +76,7 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 	})
 	public ResponseEntity<?> post(@ApiParam(value = "Request ID", required = true) String requestId, //
 			@ApiParam(value = "Record (dto).", required = true) DTO dto) { //
-		Requestable resultDto = requestManager.post(requestId, dto);
+		Requestable resultDto = requestManager.post(requestId, dto, IdmBasePermission.CREATE);
 		@SuppressWarnings("unchecked")
 		ResourceSupport resource = toResource(requestId, (DTO) resultDto);
 		if (resource == null) {
@@ -114,7 +104,7 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 
-		Requestable resultDto = requestManager.post(requestId, dto);
+		Requestable resultDto = requestManager.post(requestId, dto, IdmBasePermission.UPDATE);
 		@SuppressWarnings("unchecked")
 		ResourceSupport resource = toResource(requestId, (DTO) resultDto);
 		if (resource == null) {
@@ -138,7 +128,7 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 		if (dto == null) {
 			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
-		Requestable resultDto = requestManager.delete(requestId, dto);
+		Requestable resultDto = requestManager.delete(requestId, dto, IdmBasePermission.DELETE);
 		@SuppressWarnings("unchecked")
 		ResourceSupport resource = toResource(requestId, (DTO) resultDto);
 		if (resource == null) {
@@ -179,7 +169,7 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST) //
 	})
 	public ResponseEntity<?> createRequest(@ApiParam(value = "Record (dto).", required = true) DTO dto) {
-		IdmRequestDto request = requestManager.createRequest(dto);
+		IdmRequestDto request = requestManager.createRequest(dto, IdmBasePermission.CREATE);
 		Link selfLink = ControllerLinkBuilder.linkTo(IdmRequestController.class).slash(request.getId()).withSelfRel();
 		Resource<IdmRequestDto> resource = new Resource<IdmRequestDto>(request, selfLink);
 		return new ResponseEntity<>(resource, HttpStatus.CREATED);

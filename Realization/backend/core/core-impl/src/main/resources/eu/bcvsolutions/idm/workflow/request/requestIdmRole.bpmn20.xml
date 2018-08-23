@@ -107,9 +107,8 @@ requestService.save(requestDto);</script>
     <scriptTask id="load-role-name" name="Load name of role" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 
-IdmRoleDto roleDto = new IdmRoleDto(entityEvent.content.ownerId);
 // Get role via request manager
-roleDto = requestManager.get(entityEvent.content.id, roleDto);
+IdmRoleDto roleDto = requestManager.get(entityEvent.content.id, entityEvent.content.ownerId, IdmRoleDto.class);
 
 //Save role name
 execution.setVariable("roleName", roleDto.getCode());</script>

@@ -29,13 +29,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 public interface RequestManager<R extends Requestable> 
 		extends RequestService<IdmRequestDto> {
 
-	R post(Serializable requestId, R dto);
+	R post(Serializable requestId, R dto, BasePermission... permission);
 
-	R delete(Serializable requestId, R dto);
+	R delete(Serializable requestId, R dto, BasePermission... permission);
 	
-	R get(Serializable requestId, R dto);
+	R get(UUID requestId, UUID dtoId, Class<R> dtoClass, BasePermission... permission);
 
-	IdmRequestDto createRequest(R dto);
+	IdmRequestDto createRequest(R dto, BasePermission... permission);
 
 	Page<R> find(Class<? extends R> dtoClass, Serializable requestId, BaseFilter filter, Pageable pageable, IdmBasePermission permission);
 
@@ -45,7 +45,7 @@ public interface RequestManager<R extends Requestable>
 	IdmFormInstanceDto getFormInstance(UUID fromString, R owner, IdmFormDefinitionDto formDefinition,
 			BasePermission... permission);
 
-	IdmRequestItemChangesDto getChanges(IdmRequestItemDto item);
+	IdmRequestItemChangesDto getChanges(IdmRequestItemDto item, BasePermission... permission);
 	
 	/**
 	 * Returns confidential storage key for given request item
@@ -58,6 +58,5 @@ public interface RequestManager<R extends Requestable>
 		//
 		return FormValueService.CONFIDENTIAL_STORAGE_VALUE_PREFIX + ":" + itemId;
 	}
-
 
 }

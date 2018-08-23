@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +28,7 @@ public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole> {
 	@Query(value = "select e from #{#entityName} e where e.name = :code")
 	IdmRole findOneByCode(@Param("code") String code);
 	
-	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@Query(value = "select e from #{#entityName} e where e = :role")
 	IdmRole getPersistedRole(@Param("role") IdmRole role);
 

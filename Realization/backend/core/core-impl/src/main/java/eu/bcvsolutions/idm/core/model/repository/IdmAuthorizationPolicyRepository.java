@@ -74,7 +74,7 @@ public interface IdmAuthorizationPolicyRepository extends AbstractEntityReposito
 	 * @param disabled
 	 * @return
 	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@Query(value = "select e from #{#entityName} e join e.role r"
 			+ " where"
 			+ " r.id = :roleId"
@@ -92,7 +92,7 @@ public interface IdmAuthorizationPolicyRepository extends AbstractEntityReposito
 	 * @param policyId
 	 * @return
 	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@Query(value = "select e from #{#entityName} e where e.id = :policyId")
 	IdmAuthorizationPolicy getPersistedPolicy(@Param("policyId") UUID policyId);
 

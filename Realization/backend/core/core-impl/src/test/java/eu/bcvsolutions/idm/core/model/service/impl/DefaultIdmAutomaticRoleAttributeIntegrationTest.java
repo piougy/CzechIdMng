@@ -674,7 +674,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(1, identityRoles.size());
 		//
-		identity.setDescription(testDescription + " ");
+		// some databases padding/trim text (MsSQL)
+		identity.setDescription(testDescription + " " + System.currentTimeMillis());
 		identity = identityService.save(identity);
 		//
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());

@@ -242,7 +242,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 // TODO: generalize to advanced table - column position?
                 return (
-                  <Advanced.IdentityInfo entityId={ data[rowIndex].id } entity={ data[rowIndex] } face="popover"/>
+                  <Advanced.IdentityInfo entityIdentifier={ data[rowIndex].id } entity={ data[rowIndex] } face="popover"/>
                 );
               }
             }

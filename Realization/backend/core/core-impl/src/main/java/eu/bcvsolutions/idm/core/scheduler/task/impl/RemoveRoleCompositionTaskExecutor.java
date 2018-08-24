@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -103,14 +104,13 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 		filter.setRoleCompositionId(roleComposition.getId());
 		//
-		return identityRoleService
-			.find(filter, null);
+		return identityRoleService.find(filter, null);
 	}
 	
 	@Override
 	public Optional<OperationResult> processItem(IdmIdentityRoleDto identityRole) {
 		try {
-			removeAssignedRoles(identityRole);
+			removeAssignedRoles(new ArrayList<>(), identityRole);
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch (Exception ex) {
 			return Optional.of(new OperationResult
@@ -186,9 +186,10 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		return propertyNames;
 	}
 	
-	private void removeAssignedRoles(IdmIdentityRoleDto identityRole) {
+	private void removeAssignedRoles(List<UUID> processedIdentityRoles, IdmIdentityRoleDto identityRole) {
 		IdmRoleCompositionFilter compositionFilter = new IdmRoleCompositionFilter();
 		compositionFilter.setSuperiorId(identityRole.getRole());
+		processedIdentityRoles.add(identityRole.getId()); // prevent cycles ...
 		roleCompositionService.find(compositionFilter, null)
 			.forEach(composition -> {
 				IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
@@ -198,7 +199,9 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 					.find(filter, null)
 					.forEach(subIdentityRole -> {
 						// remove all sub
-						removeAssignedRoles(subIdentityRole);
+						if (!processedIdentityRoles.contains(subIdentityRole.getId())) {
+							removeAssignedRoles(processedIdentityRoles, subIdentityRole);
+						}
 					});
 			});
 		//

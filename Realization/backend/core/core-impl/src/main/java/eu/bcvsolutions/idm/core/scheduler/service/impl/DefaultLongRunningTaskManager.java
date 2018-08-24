@@ -234,6 +234,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		}
 		//
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).build());
+		task.setRunning(false);
 		LOG.info("Long running task with id: [{}] was canceled.", task.getId());
 		// running to false will be set by task himself
 		service.save(task);

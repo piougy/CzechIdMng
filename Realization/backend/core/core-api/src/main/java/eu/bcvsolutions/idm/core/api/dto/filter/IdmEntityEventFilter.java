@@ -11,6 +11,7 @@ import org.springframework.util.MultiValueMap;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Filter for entity events (changes)
@@ -20,14 +21,15 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
  */
 public class IdmEntityEventFilter extends DataFilter {
 	
+	public static final String PARAMETER_ROOT_ID = "rootId";
+	public static final String PARAMETER_PARENT_ID = "parentId";
+	//
 	private String ownerType;
 	private UUID ownerId;
 	private UUID superOwnerId;
 	private DateTime createdFrom; // >=
     private DateTime createdTill; // <=
     private List<OperationState> states;
-    private UUID parentId;
-    private UUID rootId;
     private PriorityType priority;
     private String resultCode;
 	
@@ -83,11 +85,11 @@ public class IdmEntityEventFilter extends DataFilter {
 	}
 	
 	public UUID getParentId() {
-		return parentId;
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT_ID));
 	}
 	
 	public void setParentId(UUID parentId) {
-		this.parentId = parentId;
+		data.set(PARAMETER_PARENT_ID, parentId);
 	}
 	
 	public void setPriority(PriorityType priority) {
@@ -99,11 +101,11 @@ public class IdmEntityEventFilter extends DataFilter {
 	}
 	
 	public void setRootId(UUID rootId) {
-		this.rootId = rootId;
+		data.set(PARAMETER_ROOT_ID, rootId);
 	}
 	
 	public UUID getRootId() {
-		return rootId;
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_ROOT_ID));
 	}
 	
 	public UUID getSuperOwnerId() {

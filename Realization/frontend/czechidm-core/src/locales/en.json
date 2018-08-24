@@ -1814,11 +1814,11 @@
           "header": "Sub roles"
         },
         "save": {
-          "success": "Business role [{record}] successfully saved. Role will be assigned to the users on the background asynchronously."
+          "success": "Business role [{{record}}] successfully saved. Role will be assigned to the users on the background asynchronously."
         },
         "action": {
           "delete": {
-            "success": "Business role [{record}] successfully removed. Assigned role will be removed from the users on the background asynchronously."
+            "success": "Business role [{{record}}] successfully removed. Assigned role will be removed from the users on the background asynchronously."
           }
         }
       }
@@ -4660,11 +4660,11 @@
     },
     "ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING": {
       "title": "Business role is used by concurrent task",
-      "message": "Business role [{{autoRole}}] is used by concurrent task [{{task}}], wait for task completion."
+      "message": "Business role [{{roleCompositionId}}] is used by concurrent task [{{taskId}}], wait for task completion."
     },
     "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role is removed by concurrent task",
-      "message": "Business role [{{autoRole}}] is removed by concurrent task [{{task}}]."
+      "message": "Business role [{{roleCompositionId}}] is removed by concurrent task [{{taskId}}]."
     }
   },
   "validationError": {

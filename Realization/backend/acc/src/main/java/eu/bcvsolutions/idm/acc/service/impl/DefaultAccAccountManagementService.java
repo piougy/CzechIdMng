@@ -163,8 +163,12 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		provisioningRequired = allIdentityAccountList.size() != identityAccountList.size() ? true : provisioningRequired;
 		identityAccountStates //
 			.stream() //
-			.forEach(state -> {	//		
-				identityAccountService.deleteById(state.getOwnerId());
+			.forEach(state -> {	//
+				AccIdentityAccountDto deleteIdentityAccount = identityAccountService.get(state.getOwnerId());
+				if (deleteIdentityAccount != null) {
+					// identity account can be deleted manually.
+					identityAccountService.delete(deleteIdentityAccount);
+				}
 				entityStateManager.deleteState(state);
 			});
 		//

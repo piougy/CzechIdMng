@@ -136,7 +136,6 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.Column property="entityType" width="75px" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="enum" enumClass={SystemEntityTypeEnum} />
             <Advanced.ColumnLink
               to={
                 ({ rowIndex, data }) => {
@@ -146,6 +145,7 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
               property="uid"
               header={this.i18n('acc:entity.SystemEntity.uid')}
               sort />
+            <Advanced.Column property="entityType" width="75px" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="enum" enumClass={SystemEntityTypeEnum} />
             <Advanced.Column
               property="wish"
               sort

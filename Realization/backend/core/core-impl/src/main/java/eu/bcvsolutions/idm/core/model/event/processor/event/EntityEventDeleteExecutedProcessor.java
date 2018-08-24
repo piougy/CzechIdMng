@@ -9,8 +9,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEventEvent.EntityEventType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
 
@@ -41,11 +41,8 @@ public class EntityEventDeleteExecutedProcessor extends CoreEventProcessor<IdmEn
 	@Override
 	public EventResult<IdmEntityEventDto> process(EntityEvent<IdmEntityEventDto> event) {
 		IdmEntityEventDto entityEvent = event.getContent();
-		if (OperationState.isSuccessful(entityEvent.getResult().getState())) {
-			if (repository.countByParentId(entityEvent.getId()) == 0) {
-				service.delete(entityEvent);
-			}
-		}
+		//
+		deleteEvent(entityEvent);
 		//
 		return new DefaultEventResult<>(event, this);
 	}
@@ -62,5 +59,30 @@ public class EntityEventDeleteExecutedProcessor extends CoreEventProcessor<IdmEn
 	public int getOrder() {
 		// after end process
 		return 5000;
+	}
+	
+	/**
+	 * Deletes event and all parents, if removed child event is the last and parent is also executed.
+	 * 
+	 * @param entityEvent
+	 */
+	private void deleteEvent(IdmEntityEventDto entityEvent) {
+		IdmEntityEventDto processEvent = entityEvent;
+		while (processEvent != null) {
+			if (!OperationState.isSuccessful(processEvent.getResult().getState())) {
+				break;
+			}
+			if (repository.countByParentId(processEvent.getId()) != 0) {
+				break;
+			}
+			service.delete(processEvent);
+			//
+			if (processEvent.getParent() != null) {
+				processEvent = service.get(processEvent.getParent());
+			} else {
+				break;
+			}
+			
+		}
 	}
 }

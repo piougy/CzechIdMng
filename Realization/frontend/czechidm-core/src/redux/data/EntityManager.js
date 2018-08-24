@@ -1142,7 +1142,7 @@ export default class EntityManager {
    */
   canRead(entity = null, permissions = null) {
     if (!this.getGroupPermission()) {
-      return false;
+      return SecurityManager.isAdmin();
     }
     if (!this.supportsAuthorization() || !entity) {
       return SecurityManager.hasAuthority(`${this.getGroupPermission()}_READ`);

@@ -189,18 +189,23 @@ export class Navigation extends Basic.AbstractContent {
     if (level === 1) { // collapse menu
       items.push(
         <li key="navigation-collapse">
-          <a href="#" onClick={ this.toogleNavigationCollapse.bind(this, navigationCollapsed) }>
-            <Basic.Icon value={ `arrow-${navigationCollapsed ? 'right' : 'left'}` }/>
-            <span className="item-text" style={{ color: '#bbb' }}>
-              {
-                navigationCollapsed
-                ?
-                <span>{ this.i18n('navigation.expand.label') }</span>
-                :
-                <span>{ this.i18n('navigation.collapse.label') }</span>
-              }
-            </span>
-          </a>
+          <Basic.Tooltip
+            id={ `navigation-collapse-tooltip` }
+            placement="right"
+            value={ navigationCollapsed ? this.i18n('navigation.expand.label') : this.i18n('navigation.collapse.label') }>
+            <a href="#" onClick={ this.toogleNavigationCollapse.bind(this, navigationCollapsed) }>
+              <Basic.Icon value={ `arrow-${navigationCollapsed ? 'right' : 'left'}` }/>
+              <span className="item-text" style={{ color: '#bbb' }}>
+                {
+                  navigationCollapsed
+                  ?
+                  <span>{ this.i18n('navigation.expand.label') }</span>
+                  :
+                  <span>{ this.i18n('navigation.collapse.label') }</span>
+                }
+              </span>
+            </a>
+          </Basic.Tooltip>
         </li>
       );
     }

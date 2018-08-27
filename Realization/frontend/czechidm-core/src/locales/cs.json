@@ -1859,7 +1859,7 @@
           "header": "Podřazené role"
         },
         "save": {
-          "success": "Business role [{}{record}}] byla úspěšně uložena. Přidělení business role uživatelům proběhne na pozadí."
+          "success": "Business role [{{record}}] byla úspěšně uložena. Přidělení business role uživatelům proběhne na pozadí."
         },
         "action": {
           "delete": {

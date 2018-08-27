@@ -978,9 +978,10 @@ public class DefaultFormService implements FormService {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", "formDefinition"));
 		}
 		filter.setOwner(getEmptyOwner(formDefinition));
-		Assert.notNull(filter.getOwner(), "Filter - attribute owner is required. Is possible to filter form values by given owner only");
+		Identifiable owner = (Identifiable) filter.getOwner();
+		Assert.notNull(owner, "Filter - attribute owner is required. Is possible to filter form values by given owner only");
 		//
-		FormValueService<FormableEntity> formValueService = getFormValueService(((Identifiable) filter.getOwner()).getClass());
+		FormValueService<FormableEntity> formValueService = getFormValueService(owner.getClass());
 		//
 		return formValueService.find(filter, pageable, permission);
 	}
@@ -1165,13 +1166,19 @@ public class DefaultFormService implements FormService {
 		return result.toString();
 	}
 	
+	/**
+	 * Prepares new owner instance
+	 * 
+	 * @param formDefinition
+	 * @return
+	 */
 	private FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition) {
 		Assert.notNull(formDefinition);
 		//
 		try {
 			return (FormableEntity) Class.forName(formDefinition.getType()).newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("formDefinition", formDefinition.getType()));
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("formDefinition", formDefinition.getType()), ex);
 		}
 	}
 }

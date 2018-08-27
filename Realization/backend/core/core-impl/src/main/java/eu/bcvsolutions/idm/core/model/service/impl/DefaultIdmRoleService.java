@@ -131,7 +131,8 @@ public class DefaultIdmRoleService
 			predicates.add(builder.equal(root.get(IdmRole_.roleType), filter.getRoleType()));
 		}
 		// guarantee	
-		if (filter.getGuaranteeId() != null) {
+		UUID guaranteeId = filter.getGuaranteeId();
+		if (guaranteeId != null) {
 			// guarante by identity
 			Subquery<IdmRoleGuarantee> subquery = query.subquery(IdmRoleGuarantee.class);
 			Root<IdmRoleGuarantee> subRoot = subquery.from(IdmRoleGuarantee.class);
@@ -140,7 +141,7 @@ public class DefaultIdmRoleService
 			subquery.where(
                     builder.and(
                     		builder.equal(subRoot.get(IdmRoleGuarantee_.role), root), // correlation attr
-                    		builder.equal(subRoot.get(IdmRoleGuarantee_.guarantee).get(IdmIdentity_.id), filter.getGuaranteeId())
+                    		builder.equal(subRoot.get(IdmRoleGuarantee_.guarantee).get(IdmIdentity_.id), guaranteeId)
                     		)
             );
 			// guarantee by role - identity has assigned role
@@ -149,7 +150,7 @@ public class DefaultIdmRoleService
 			subqueryIdentityRole.select(subRootIdentityRole.get(IdmIdentityRole_.role).get(IdmRole_.id));
 			subqueryIdentityRole.where(
                     builder.and(
-                    		builder.equal(subRootIdentityRole.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id), filter.getGuaranteeId()),
+                    		builder.equal(subRootIdentityRole.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id), guaranteeId),
                     		RepositoryUtils.getValidPredicate(subRootIdentityRole, builder)
                     		)
             );
@@ -170,6 +171,7 @@ public class DefaultIdmRoleService
 					));
 		}
 		// role catalogue by forest index
+		UUID roleCatalogueId = filter.getRoleCatalogueId();
 		if (filter.getRoleCatalogueId() != null) {
 			Subquery<IdmRoleCatalogueRole> subquery = query.subquery(IdmRoleCatalogueRole.class);
 			Root<IdmRoleCatalogueRole> subRoot = subquery.from(IdmRoleCatalogueRole.class);
@@ -180,7 +182,7 @@ public class DefaultIdmRoleService
 			subqueryCatalogue.select(subRootCatalogue);
 			subqueryCatalogue.where(
 					builder.and(
-							builder.equal(subRootCatalogue.get(IdmRoleCatalogue_.id), filter.getRoleCatalogueId()),
+							builder.equal(subRootCatalogue.get(IdmRoleCatalogue_.id), roleCatalogueId),
 							builder.between(
                     				subRoot.get(IdmRoleCatalogueRole_.roleCatalogue).get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft), 
                     				subRootCatalogue.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft),

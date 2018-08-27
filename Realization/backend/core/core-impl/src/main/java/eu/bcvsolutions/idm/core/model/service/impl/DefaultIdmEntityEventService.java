@@ -173,11 +173,13 @@ public class DefaultIdmEntityEventService
 		if (!filter.getStates().isEmpty()) {
 			predicates.add(root.get(IdmEntityEvent_.result).get(OperationResult_.state).in(filter.getStates()));
 		}
-		if (filter.getRootId() != null) {
-			predicates.add(builder.equal(root.get(IdmEntityEvent_.rootId), filter.getRootId()));
+		UUID rootId = filter.getRootId();
+		if (rootId != null) {
+			predicates.add(builder.equal(root.get(IdmEntityEvent_.rootId), rootId));
 		}
-		if (filter.getParentId() != null) {
-			predicates.add(builder.equal(root.get(IdmEntityEvent_.parent).get(IdmEntityEvent_.id), filter.getParentId()));
+		UUID parentId = filter.getParentId();
+		if (parentId != null) {
+			predicates.add(builder.equal(root.get(IdmEntityEvent_.parent).get(IdmEntityEvent_.id), parentId));
 		}
 		if (filter.getPriority() != null) {
 			predicates.add(builder.equal(root.get(IdmEntityEvent_.priority), filter.getPriority()));

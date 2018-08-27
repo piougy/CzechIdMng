@@ -120,25 +120,30 @@ public class DefaultIdmIdentityRoleService
 			predicates.add(builder.equal(root.get(AbstractEntity_.id), filter.getId()));
 		}
 		// quick - by identity's username
-		if (StringUtils.isNotEmpty(filter.getText())) {
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
 			predicates.add(builder.like(
 					builder.lower(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.username)),
-					"%" + filter.getText().toLowerCase() + "%")
+					"%" + text + "%")
 					);
 		}
-		if (filter.getIdentityId() != null) {
+		UUID identityId = filter.getIdentityId();
+		if (identityId != null) {
 			predicates.add(builder.equal(
 					root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id), 
-					filter.getIdentityId())
+					identityId)
 					);
 		}
-		if (filter.getRoleId() != null) {
+		UUID roleId = filter.getRoleId();
+		if (roleId != null) {
 			predicates.add(builder.equal(
 					root.get(IdmIdentityRole_.role).get(IdmRole_.id), 
-					filter.getRoleId())
+					roleId)
 					);
 		}
-		if (filter.getRoleCatalogueId() != null) {
+		UUID roleCatalogueId = filter.getRoleCatalogueId();
+		if (roleCatalogueId != null) {
 			Subquery<IdmRoleCatalogueRole> roleCatalogueRoleSubquery = query.subquery(IdmRoleCatalogueRole.class);
 			Root<IdmRoleCatalogueRole> subRootRoleCatalogueRole = roleCatalogueRoleSubquery.from(IdmRoleCatalogueRole.class);
 			roleCatalogueRoleSubquery.select(subRootRoleCatalogueRole);
@@ -146,7 +151,7 @@ public class DefaultIdmIdentityRoleService
 			roleCatalogueRoleSubquery.where(
                     builder.and(
                     		builder.equal(subRootRoleCatalogueRole.get(IdmRoleCatalogueRole_.role), root.get(IdmIdentityRole_.role)),
-                    		builder.equal(subRootRoleCatalogueRole.get(IdmRoleCatalogueRole_.roleCatalogue).get(AbstractEntity_.id), filter.getRoleCatalogueId())
+                    		builder.equal(subRootRoleCatalogueRole.get(IdmRoleCatalogueRole_.roleCatalogue).get(AbstractEntity_.id), roleCatalogueId)
                     		));
 			predicates.add(builder.exists(roleCatalogueRoleSubquery));
 		}
@@ -177,25 +182,28 @@ public class DefaultIdmIdentityRoleService
 		}
 		//
 		// is automatic role
-		if (filter.getAutomaticRole() != null) {
-			if (filter.getAutomaticRole()) {
+		Boolean automaticRole = filter.getAutomaticRole();
+		if (automaticRole != null) {
+			if (automaticRole) {
 				predicates.add(builder.isNotNull(root.get(IdmIdentityRole_.automaticRole)));
 			} else {
 				predicates.add(builder.isNull(root.get(IdmIdentityRole_.automaticRole)));
 			}
 		}
 		//
-		if (filter.getAutomaticRoleId() != null) {
+		UUID automaticRoleId = filter.getAutomaticRoleId();
+		if (automaticRoleId != null) {
 			predicates.add(builder.equal(
 					root.get(IdmIdentityRole_.automaticRole).get(IdmAutomaticRole_.id), 
-					filter.getAutomaticRoleId())
+					automaticRoleId)
 					);
 		}
 		//
-		if (filter.getIdentityContractId() != null) {
+		UUID identityContractId = filter.getIdentityContractId();
+		if (identityContractId != null) {
 			predicates.add(builder.equal(
 					root.get(IdmIdentityRole_.identityContract).get(AbstractEntity_.id), 
-					filter.getIdentityContractId())
+					identityContractId)
 					);
 		}
 		//

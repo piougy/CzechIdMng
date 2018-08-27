@@ -65,7 +65,6 @@ public class DefaultIdmRoleCompositionService
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
 	public List<IdmRoleCompositionDto> findDirectSubRoles(UUID superiorId, BasePermission... permission) {
 		Assert.notNull(superiorId);
 		//
@@ -76,7 +75,6 @@ public class DefaultIdmRoleCompositionService
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
 	public List<IdmRoleCompositionDto> findAllSuperiorRoles(UUID subId, BasePermission... permission) {
 		Assert.notNull(subId);
 		//
@@ -115,11 +113,11 @@ public class DefaultIdmRoleCompositionService
 		Assert.notNull(identityRole.getId());
 		//
 		List<IdmRoleCompositionDto> directSubRoles = findDirectSubRoles(identityRole.getRole());
-		LOG.debug("Assign sub roles [{}] for identity role [{}], role []",
+		LOG.debug("Assign sub roles [{}] for identity role [{}], role [{}]",
 				directSubRoles.size(), identityRole.getId(), identityRole.getRole());
 		//
 		Map<String, Serializable> props = resolveProperties(event);
-		Set<UUID> processedRoles = (HashSet<UUID>) props.get(IdentityRoleEvent.PROPERTY_PROCESSED_ROLES);
+		Set<UUID> processedRoles = (Set<UUID>) props.get(IdentityRoleEvent.PROPERTY_PROCESSED_ROLES);
 		processedRoles.add(identityRole.getRole());
 		//
 		directSubRoles

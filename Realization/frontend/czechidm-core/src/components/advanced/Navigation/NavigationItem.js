@@ -16,7 +16,7 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { id, className, to, icon, iconColor, active, title, titlePlacement, text, rendered, showLoading, collapsed } = this.props;
+    const { id, className, to, icon, iconColor, active, title, titlePlacement, text, rendered, showLoading } = this.props;
     const itemClassNames = classnames(className, { active });
     const linkClassNames = classnames({ active });
     //
@@ -40,7 +40,7 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
           {
             <Link to={to} className={linkClassNames}>
               <Basic.Icon icon={_icon} color={iconColor} showLoading={showLoading}/>
-              { collapsed ? null : text}
+              <span className="item-text">{ text }</span>
             </Link>
           }
         </Basic.Tooltip>

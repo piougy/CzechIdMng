@@ -31,6 +31,7 @@ FilterCreatableSelectBox.propTypes = {
    */
   relation: PropTypes.oneOf(['EQ'])
 };
+//
 const { labelSpan, componentSpan, ...otherDefaultProps } = CreatableSelectBox.defaultProps; // labelSpan etc. override
 FilterCreatableSelectBox.defaultProps = {
   ...otherDefaultProps,

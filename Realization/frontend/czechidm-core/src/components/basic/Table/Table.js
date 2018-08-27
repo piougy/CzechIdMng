@@ -223,8 +223,9 @@ class Table extends AbstractComponent {
     //
     const headerColumns = this._selectColumnElement(columns, HEADER);
     return (
-      <thead>
+      <thead key="basic-table-header">
         <Row
+          key="row-header"
           columns={headerColumns}
           rowIndex={-1}
           showLoading={showLoading}
@@ -246,7 +247,7 @@ class Table extends AbstractComponent {
       rows.push(this.renderRow(columns, i));
     }
     return (
-      <tbody>
+      <tbody key="basic-table-body">
         { rows }
       </tbody>
     );

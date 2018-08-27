@@ -249,6 +249,12 @@
   },
   "navigation" : {
     "toogle": "Toggle navigation",
+    "collapse": {
+      "label": "Collapse menu"
+    },
+    "expand": {
+      "label": "Expand menu"
+    },
     "menu": {
       "home": "Dashboard",
       "profile": {

@@ -333,8 +333,14 @@ IdentityDetail.propTypes = {
   entityId: PropTypes.string.isRequired,
   readOnly: PropTypes.bool,
   userContext: PropTypes.object,
-  _permissions: PropTypes.arrayOf(PropTypes.string),
-  _profilePermissions: PropTypes.arrayOf(PropTypes.string)
+  _permissions: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.arrayOf(PropTypes.string)
+  ]),
+  _profilePermissions: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.arrayOf(PropTypes.string)
+  ]),
 };
 IdentityDetail.defaultProps = {
   userContext: null,

@@ -52,19 +52,23 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
       //
     } else if (!_workPosition.path) {
       items.push(
-        <li>{ this.identityContractManager.getNiceLabel(_workPosition.contract) }</li>
+        <li key={`op-${ _workPosition.contract.id }`}>
+          { this.identityContractManager.getNiceLabel(_workPosition.contract) }
+        </li>
       );
     } else {
       _workPosition.path.forEach(treeNode => {
         if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ']})) {
           items.push(
-            <li>{ this.treeNodeManager.getNiceLabel(treeNode) }</li>
+            <li key={ `op-s-${ treeNode.id }` }>
+              { this.treeNodeManager.getNiceLabel(treeNode) }
+            </li>
           );
         } else {
           // link to tree node detail
           items.push(
-            <li key={`op-${treeNode.id}`} title={ this.i18n('content.identity.profile.organizationPosition.title') }>
-              <Link to={`/tree/nodes/${treeNode.id}/detail`}>
+            <li key={ `op-${treeNode.id}` } title={ this.i18n('content.identity.profile.organizationPosition.title') }>
+              <Link to={ `/tree/nodes/${ treeNode.id }/detail` }>
                 { this.treeNodeManager.getNiceLabel(treeNode) }
               </Link>
             </li>
@@ -73,7 +77,7 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
       });
     }
     items.push(
-      <li>
+      <li key={ `op-i-${ identity }` }>
         <Advanced.IdentityInfo username={identity} face="link"/>
       </li>
     );

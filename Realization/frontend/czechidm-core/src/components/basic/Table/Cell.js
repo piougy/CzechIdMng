@@ -73,13 +73,6 @@ class Cell extends AbstractComponent {
 // Properties will be passed to `cellRenderer` to render.
 Cell.propTypes = {
   /**
-   * Cell identifier in row scope
-   */
-  key: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
-  /**
    * The row index that will be passed to `cellRenderer` to render.
    */
   rowIndex: PropTypes.number,

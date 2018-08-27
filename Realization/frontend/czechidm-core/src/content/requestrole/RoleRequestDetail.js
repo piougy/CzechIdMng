@@ -336,12 +336,12 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     }
     return (
       <div>
-        <Basic.ContentHeader rendered={request}>
+        <Basic.ContentHeader rendered={ request !== null }>
           <Basic.Icon value="list"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={request}>
+        <Basic.Panel rendered={ request !== null }>
           <Advanced.Table
             ref="table"
             uiKey={uiKeyAttributes}
@@ -399,7 +399,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     return (
       <div>
         <Basic.LabelWrapper
-          rendered={request && request.applicant}
+          rendered={ request !== null && request.applicant !== null }
           readOnly
           ref="applicant"
           label={this.i18n('entity.RoleRequest.applicant')}>
@@ -409,7 +409,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         </Basic.LabelWrapper>
 
         <Basic.LabelWrapper
-          rendered={request && request.creatorId}
+          rendered={ request !== null && request.creatorId !== null }
           readOnly
           ref="implementer"
           label={this.i18n('entity.RoleRequest.implementer')}>
@@ -435,7 +435,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={request && _currentIdentityRoles}>
+        <Basic.Panel rendered={ request !== null && _currentIdentityRoles !== null }>
           <RoleConceptTable
             ref="identityRoleConceptTable"
             uiKey="identity-role-concept-table"
@@ -478,7 +478,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
     if (this.state.showLoading || !request) {
       return (<div>
-        <Basic.ContentHeader rendered={showRequestDetail}>
+        <Basic.ContentHeader rendered={ showRequestDetail }>
           <Basic.Icon value="compressed"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
@@ -515,12 +515,12 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         <form onSubmit={this.save.bind(this, false)}>
           <Helmet title={this.i18n('title')} />
           <Basic.Confirm ref="confirm-delete" level="danger"/>
-          <Basic.ContentHeader rendered={showRequestDetail}>
+          <Basic.ContentHeader rendered={ showRequestDetail }>
             <Basic.Icon value="compressed"/>
             {' '}
             <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
           </Basic.ContentHeader>
-          <Basic.Panel rendered={showRequestDetail}>
+          <Basic.Panel rendered={ showRequestDetail }>
             <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
               <Basic.Row>
                 <div className="col-lg-6">
@@ -552,19 +552,19 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.RoleRequest.candicateUsers')}/>
               <Basic.TextArea
                 ref="log"
-                rows="8"
+                rows={ 8 }
                 hidden={!_adminMode}
                 readOnly
                 label={this.i18n('entity.RoleRequest.log')}/>
               <Basic.TextArea
                 ref="originalRequest"
-                rows="5"
+                rows={ 5 }
                 hidden={!_adminMode}
                 readOnly
                 label={this.i18n('entity.RoleRequest.originalRequest')}/>
               <Basic.TextArea
                 ref="description"
-                rows="3"
+                rows={ 3 }
                 placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
                 label={this.i18n('entity.RoleRequest.description.label')}/>
             </Basic.AbstractForm>

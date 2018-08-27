@@ -194,7 +194,12 @@ CreatableSelectBox.propTypes = {
    * Use the component without check feature
    */
   useCheck: PropTypes.bool,
-  value: PropTypes.arrayOf
+  value: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.object),
+    PropTypes.object,
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.string
+  ])
 };
 
 CreatableSelectBox.defaultProps = {

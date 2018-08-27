@@ -7,7 +7,7 @@ import * as Basic from '../../basic';
 import { LocalizationService } from '../../../services';
 import { ConfigurationManager } from '../../../redux/data';
 import { SecurityManager } from '../../../redux';
-import { getNavigationItems, resolveNavigationParameters, collapseNavigation, i18nChange } from '../../../redux/config/actions';
+import { getNavigationItems, resolveNavigationParameters, collapseNavigation, i18nChange, selectNavigationItem, selectNavigationItems } from '../../../redux/config/actions';
 import NavigationItem from './NavigationItem';
 import NavigationSeparator from './NavigationSeparator';
 
@@ -20,55 +20,6 @@ export class Navigation extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-  }
-
-  componentDidMount() {
-    this.initSideMenu();
-  }
-
-  componentDidUpdate() {
-    // this is needed - menu is updated after login
-    this.initSideMenu();
-  }
-
-  initSideMenu() {
-    if (typeof $ === undefined) {
-      return;
-    }
-    const sideMenu = $('#side-menu');
-    if (!sideMenu || sideMenu === undefined) {
-      return;
-    }
-
-    sideMenu.metisMenu({
-      toggle: true
-    });
-
-    $(window).bind('load resize', function sidebarResize() {
-      let topOffset = 50;
-      const width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
-      if (width < 768) {
-        $('div.navbar-collapse').addClass('collapse');
-        topOffset = 100; // 2-row-menu
-      } else {
-        $('div.navbar-collapse').removeClass('collapse');
-      }
-
-      let height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
-      height = height - topOffset;
-      if (height < 1) height = 1;
-      if (height > topOffset) {
-        $('#content-wrapper').css('min-height', (height) + 'px');
-      }
-    });
-    // TODO: default menu collapse by url? Now is setted by react
-    /* const url = window.location;
-    const element = $('ul.nav a').filter(() => {
-      return this.href === url || url.href.indexOf(this.href) === 0;
-    }).addClass('active').parent().parent().addClass('in').parent();
-    if (element.is('li')) {
-      element.addClass('active');
-    }*/
   }
 
   renderNavigationItems(section = 'main') {
@@ -110,21 +61,20 @@ export class Navigation extends Basic.AbstractContent {
     );
   }
 
-  renderNavigationItem(item, userContext, activeItem, titlePlacement = 'bottom', navigationCollapsed = false) {
+  renderNavigationItem(item, userContext, activeItem, titlePlacement = 'bottom') {
     switch (item.type) {
       case 'DYNAMIC': {
         return (
           <NavigationItem
-            id={`nav-item-${item.id}`}
-            key={`nav-item-${item.id}`}
-            to={item.to}
-            title={this.i18n(item.titleKey, { defaultValue: item.title })}
-            titlePlacement={titlePlacement}
-            icon={item.icon}
-            iconColor={item.iconColor}
-            active={activeItem === item.id}
-            text={this._resolveNavigationItemText(item, userContext)}
-            collapsed={navigationCollapsed}/>
+            id={ `nav-item-${item.id}` }
+            key={ `nav-item-${item.id}` }
+            to={ item.to }
+            title={ this.i18n(item.titleKey, { defaultValue: item.title }) }
+            titlePlacement={ titlePlacement }
+            icon={ item.icon }
+            iconColor={ item.iconColor }
+            active={ activeItem === item.id }
+            text={ this._resolveNavigationItemText(item, userContext) }/>
         );
       }
       case 'TAB': {
@@ -134,9 +84,9 @@ export class Navigation extends Basic.AbstractContent {
       case 'SEPARATOR': {
         return (
           <NavigationSeparator
-            id={`nav-item-${item.id}`}
-            key={`nav-item-${item.id}`}
-            text={this._resolveNavigationItemText(item, userContext)} />
+            id={ `nav-item-${item.id}` }
+            key={ `nav-item-${item.id}` }
+            text={ this._resolveNavigationItemText(item, userContext) } />
         );
       }
       default: {
@@ -153,7 +103,21 @@ export class Navigation extends Basic.AbstractContent {
     this.context.store.dispatch(collapseNavigation(!navigationCollapsed));
   }
 
-  // TODO: refator all sibedars (react component, drop original sibebar = detailTabs)
+  toogleNavigationItem(item, level, isActive, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const { selectedNavigationItems } = this.props;
+    if (isActive) {
+      // hide
+      this.context.store.dispatch(selectNavigationItems(level > 0 ? selectedNavigationItems.slice(0, level - 1) : []));
+    } else {
+      // show
+      this.context.store.dispatch(selectNavigationItem(item.id));
+    }
+    return false;
+  }
+
   renderSidebarItems(parentId = null, level = 0) {
     const { navigation, navigationCollapsed, userContext, selectedNavigationItems } = this.props;
     level = level + 1;
@@ -171,7 +135,7 @@ export class Navigation extends Basic.AbstractContent {
       //
       if (childrenItems.length === 1 && childrenItems[0].path === levelItem.path) {
         // if menu contains only one subitem, which leeds to the same path - sub menu is truncated
-        const item = this.renderNavigationItem(levelItem, userContext, selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null, 'right', navigationCollapsed);
+        const item = this.renderNavigationItem(levelItem, userContext, selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null, 'right');
         if (item) {
           items.push(item);
         }
@@ -181,10 +145,15 @@ export class Navigation extends Basic.AbstractContent {
         //
         if (children && !navigationCollapsed) {
           items.push(
-            <li key={`nav-item-${levelItem.id}`} className={isActive ? 'has-children active' : 'has-children'}>
-              <Basic.Tooltip id={`${levelItem.id}-tooltip`} placement="right" value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) }>
-                <a href="#">
-                  <Basic.Icon icon={levelItem.icon} color={levelItem.iconColor}/>
+            <li
+              key={ `nav-item-${levelItem.id}` }
+              className={ isActive ? 'has-children active' : 'has-children' }>
+              <Basic.Tooltip
+                id={ `${levelItem.id}-tooltip` }
+                placement="right"
+                value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) }>
+                <a href="#" onClick={ this.toogleNavigationItem.bind(this, levelItem, level, isActive) }>
+                  <Basic.Icon icon={ levelItem.icon } color={ levelItem.iconColor }/>
                   {
                     navigationCollapsed
                     ?
@@ -192,7 +161,7 @@ export class Navigation extends Basic.AbstractContent {
                     :
                     <span>
                       { this._resolveNavigationItemText(levelItem, userContext) }
-                      <span className="fa arrow"></span>
+                      <Basic.Icon value={ `fa:angle-${ isActive ? 'down' : 'left' }` } className="arrow-icon" />
                     </span>
                   }
                 </a>
@@ -201,7 +170,11 @@ export class Navigation extends Basic.AbstractContent {
             </li>
           );
         } else {
-          const item = this.renderNavigationItem(levelItem, userContext, selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null, 'right', navigationCollapsed);
+          const item = this.renderNavigationItem(
+            levelItem,
+            userContext,
+            selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null,
+            'right');
           if (item) {
             items.push(item);
           }
@@ -213,20 +186,20 @@ export class Navigation extends Basic.AbstractContent {
       return null;
     }
 
-    if (level === 100) { // collapse menu prepare
+    if (level === 1) { // collapse menu
       items.push(
         <li key="navigation-collapse">
-          <a href="#" onClick={this.toogleNavigationCollapse.bind(this, navigationCollapsed)}>
-            <Basic.Icon value={`arrow-${navigationCollapsed ? 'right' : 'left'}`}/>
+          <a href="#" onClick={ this.toogleNavigationCollapse.bind(this, navigationCollapsed) }>
+            <Basic.Icon value={ `arrow-${navigationCollapsed ? 'right' : 'left'}` }/>
+            <span className="item-text" style={{ color: '#bbb' }}>
               {
                 navigationCollapsed
                 ?
-                null
+                <span>{ this.i18n('navigation.expand.label') }</span>
                 :
-                <span style={{ color: '#bbb' }}>
-                  Zmenšit menu
-                </span>
+                <span>{ this.i18n('navigation.collapse.label') }</span>
               }
+            </span>
           </a>
         </li>
       );
@@ -234,7 +207,6 @@ export class Navigation extends Basic.AbstractContent {
 
     const classNames = classnames(
       'nav',
-      { 'metismenu': level === 1 },
       { 'nav-second-level': level === 2 },
       { 'nav-third-level': level === 3 },
       { 'hidden': (level > 3 || (navigationCollapsed && level > 1)) }, // only three levels are supported
@@ -243,9 +215,9 @@ export class Navigation extends Basic.AbstractContent {
     );
     return (
       <ul
-        id={level === 1 ? 'side-menu' : 'side-menu-' + level}
-        className={classNames}>
-        {items}
+        id={ level === 1 ? 'side-menu' : 'side-menu-' + level }
+        className={ classNames }>
+        { items }
       </ul>
     );
   }
@@ -333,7 +305,7 @@ export class Navigation extends Basic.AbstractContent {
           <nav className="navbar navbar-default navbar-static-top" style={{ marginBottom: 0 }}>
             <div className="navbar-header">
               <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-                <span className="sr-only">{this.i18n('navigation.toogle')}</span>
+                <span className="sr-only">{ this.i18n('navigation.toogle') }</span>
                 <span className="icon-bar"></span>
                 <span className="icon-bar"></span>
                 <span className="icon-bar"></span>
@@ -347,7 +319,7 @@ export class Navigation extends Basic.AbstractContent {
                 !userContext.isExpired && !SecurityManager.isAuthenticated(userContext)
                 ?
                 <ul className="nav navbar-nav">
-                  {mainItems}
+                  { mainItems }
                 </ul>
                 :
                 null

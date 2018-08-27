@@ -157,13 +157,16 @@ export class RequestTable extends Advanced.AbstractTableContent {
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
+                if (!entity && entity._embedded) {
+                  return '';
+                }
+                const owner = entity._embedded.ownerId;
                 const types = entity.ownerType.split('.');
                 const entityType = types[types.length - 1];
                 return (
                   <Advanced.EntityInfo
                     entityType={ entityType }
-                    entityIdentifier={ entity.ownerId }
-                    /* entity={ entity._embedded.entity } */
+                    entity={owner}
                     face="popover"/>
                 );
               }

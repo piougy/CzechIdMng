@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.domain.RequestState;
 public class IdmRequestDto extends AbstractRequestDto {
 
 	private static final long serialVersionUID = 1L;
+	 public static final String OWNER_FIELD = "ownerId";
 
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	private String requestType;

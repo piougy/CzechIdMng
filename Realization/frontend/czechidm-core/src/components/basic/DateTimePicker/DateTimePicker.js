@@ -273,7 +273,11 @@ DateTimePicker.propTypes = {
   mode: PropTypes.oneOf(['date', 'time', 'datetime']),
   locale: PropTypes.oneOf(['cs', 'en']), // TODO: supports other locales needs import
   dateFormat: PropTypes.string,
-  timeFormat: PropTypes.string
+  timeFormat: PropTypes.string,
+  /**
+   * Define the dates that can be selected. The function receives (currentDate, selectedDate) and shall return a true or false whether the currentDate is valid or not.
+   */
+  isValidDate: PropTypes.func
 };
 
 const { componentSpan, ...otherDefaultProps} = AbstractFormComponent.defaultProps; // componentSpan override

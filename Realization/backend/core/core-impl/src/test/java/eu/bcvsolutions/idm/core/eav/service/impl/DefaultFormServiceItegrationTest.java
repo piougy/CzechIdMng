@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +33,12 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -42,11 +46,13 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
@@ -989,5 +995,41 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		Assert.assertEquals(valueOne.getId(), values.get(0).getId());
 		Assert.assertEquals(valueThree.getId(), values.get(1).getId());
 		Assert.assertNull(formService.getConfidentialPersistentValue(valueTwo));
+	}
+
+	@Test
+	public void testFindValues() {
+		IdmIdentityDto ownerIdentity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto ownerRole = getHelper().createRole();
+		IdmTreeNodeDto ownerTreeNode = getHelper().createTreeNode();
+		IdmIdentityContractDto ownerIdentityContract = getHelper().createIdentityContact(ownerIdentity);
+		//
+		Assert.assertEquals(1, prepareDataAndFind(IdmIdentity.class, ownerIdentity));
+		Assert.assertEquals(1, prepareDataAndFind(IdmRole.class, ownerRole));
+		Assert.assertEquals(1, prepareDataAndFind(IdmTreeNode.class, ownerTreeNode));
+		Assert.assertEquals(1, prepareDataAndFind(IdmIdentityContract.class, ownerIdentityContract));
+	}
+
+	private long prepareDataAndFind(Class<? extends AbstractEntity> type, AbstractDto owner) {
+		//
+		//create attribute
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = "name_" + System.currentTimeMillis();
+		attribute.setCode(attributeName);
+		attribute.setName(attribute.getCode());
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		//
+		//create definition
+		IdmFormDefinitionDto definition = formService.createDefinition(type, getHelper().createName(), Lists.newArrayList(attribute));
+		attribute = definition.getMappedAttributeByCode(attribute.getCode());
+		//
+		//save value
+		formService.saveValues(owner.getId(), type, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		//
+		//find
+		IdmFormValueFilter<?> filter = new IdmFormValueFilter<>();
+		filter.setDefinitionId(definition.getId());
+		Page<IdmFormValueDto> result = formService.findValues(filter, new PageRequest(0, Integer.MAX_VALUE));
+		return result.getTotalElements();
 	}
 }

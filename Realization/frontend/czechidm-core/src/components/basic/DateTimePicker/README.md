@@ -46,3 +46,16 @@ All parameters from AbstractFormComponent are supported. Added parameters:
   timeFormat="HH:mm"
   label='Expire Date'/>
 ```
+### Pick date only in future
+```html
+const valid = function(current) {
+  const date = new Date();
+  const yesterday = date.setDate(date.getDate() - 1);
+  return current.isAfter(yesterday);
+};
+    
+<DateTimePicker
+    ref="dateInFuture"
+    label="Pick some date in future"
+    isValidDate={valid}/>
+```

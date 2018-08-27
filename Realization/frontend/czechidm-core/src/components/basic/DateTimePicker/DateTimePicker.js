@@ -183,7 +183,8 @@ class DateTimePicker extends AbstractFormComponent {
       style,
       locale,
       dateFormat,
-      timeFormat
+      timeFormat,
+      isValidDate,
     } = this.props;
 
     const { readOnly, disabled, value } = this.state;
@@ -233,7 +234,8 @@ class DateTimePicker extends AbstractFormComponent {
                     style: {
                       zIndex: 0
                     }
-                  }}/>
+                  }}
+                  isValidDate={isValidDate}/>
               }
               <Button type="button"
                 level="default"

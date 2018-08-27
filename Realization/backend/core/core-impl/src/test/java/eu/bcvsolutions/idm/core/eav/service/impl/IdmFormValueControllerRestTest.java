@@ -1,11 +1,8 @@
 package eu.bcvsolutions.idm.core.eav.service.impl;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 
 import com.google.common.collect.Lists;
@@ -31,39 +28,34 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
+/**
+ * For values agenda tests 
+ * 
+ * @author Roman Kučera
+ * @author Radek Tomiška
+ */
 public class IdmFormValueControllerRestTest extends AbstractRestTest {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmFormValueControllerRestTest.class);
-
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private FormService formService;
-	@Autowired
-	private ApplicationContext context;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private FormService formService;
 
 	private Authentication getAuthentication() {
 		return new IdmJwtAuthentication(identityService.getByUsername(TestHelper.ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "core");
-	}
-
-	@Before
-	public void init() {
-		formService = context.getAutowireCapableBeanFactory().createBean(DefaultFormService.class);
-		getHelper().loginAdmin();
-	}
-
-	@After
-	public void logout() {
-		super.logout();
 	}
 
 	@Test
 	public void findValues() throws Exception {
 		IdmIdentityDto ownerIdentity = getHelper().createIdentity((GuardedString) null);
 		IdmRoleDto ownerRole = getHelper().createRole();
-		IdmTreeNodeDto ownerTreeNode = getHelper().createTreeNode();
 		IdmIdentityContractDto ownerIdentityContract = getHelper().createIdentityContact(ownerIdentity);
-
+		IdmTreeNodeDto ownerTreeNode = null;
+		try {
+			getHelper().loginAdmin();
+			ownerTreeNode = getHelper().createTreeNode();
+		} finally {
+			logout();
+		}
+		//
 		Assert.assertEquals(1, prepareDataAndSearch(IdmIdentity.class, ownerIdentity));
 		Assert.assertEquals(1, prepareDataAndSearch(IdmRole.class, ownerRole));
 		Assert.assertEquals(1, prepareDataAndSearch(IdmTreeNode.class, ownerTreeNode));
@@ -71,18 +63,18 @@ public class IdmFormValueControllerRestTest extends AbstractRestTest {
 	}
 
 	private int prepareDataAndSearch(Class<? extends AbstractEntity> type, AbstractDto owner) throws Exception {
-		//create attribute
+		// create attribute
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
 		String attributeName = "name_" + System.currentTimeMillis();
 		attribute.setCode(attributeName);
 		attribute.setName(attribute.getCode());
 		attribute.setPersistentType(PersistentType.SHORTTEXT);
 
-		//create definition
+		// create definition
 		IdmFormDefinitionDto definition = formService.createDefinition(type, getHelper().createName(), Lists.newArrayList(attribute));
 		attribute = definition.getMappedAttributeByCode(attribute.getCode());
 
-		//save value
+		// save value
 		formService.saveValues(owner.getId(), type, attribute, Lists.newArrayList("one"));
 		String response = getJsonAsString("/form-values", "definitionId=" + definition.getId(), 20l, 0l, null, null, getAuthentication());
 		return getEmbeddedList("formValues", response).size();

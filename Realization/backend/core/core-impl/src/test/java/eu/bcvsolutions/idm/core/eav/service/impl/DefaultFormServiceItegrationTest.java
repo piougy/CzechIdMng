@@ -1003,7 +1003,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		IdmRoleDto ownerRole = getHelper().createRole();
 		IdmTreeNodeDto ownerTreeNode = getHelper().createTreeNode();
 		IdmIdentityContractDto ownerIdentityContract = getHelper().createIdentityContact(ownerIdentity);
-
+		//
 		Assert.assertEquals(1, prepareDataAndFind(IdmIdentity.class, ownerIdentity));
 		Assert.assertEquals(1, prepareDataAndFind(IdmRole.class, ownerRole));
 		Assert.assertEquals(1, prepareDataAndFind(IdmTreeNode.class, ownerTreeNode));
@@ -1011,23 +1011,23 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	}
 
 	private long prepareDataAndFind(Class<? extends AbstractEntity> type, AbstractDto owner) {
-
+		//
 		//create attribute
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
 		String attributeName = "name_" + System.currentTimeMillis();
 		attribute.setCode(attributeName);
 		attribute.setName(attribute.getCode());
 		attribute.setPersistentType(PersistentType.SHORTTEXT);
-
+		//
 		//create definition
 		IdmFormDefinitionDto definition = formService.createDefinition(type, getHelper().createName(), Lists.newArrayList(attribute));
 		attribute = definition.getMappedAttributeByCode(attribute.getCode());
-
+		//
 		//save value
 		formService.saveValues(owner.getId(), type, attribute, Lists.newArrayList(FORM_VALUE_ONE));
-
+		//
 		//find
-		IdmFormValueFilter filter = new IdmFormValueFilter();
+		IdmFormValueFilter<?> filter = new IdmFormValueFilter<>();
 		filter.setDefinitionId(definition.getId());
 		Page<IdmFormValueDto> result = formService.findValues(filter, new PageRequest(0, Integer.MAX_VALUE));
 		return result.getTotalElements();

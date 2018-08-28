@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import static eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent.AuthorizationPolicyEventType.DELETE;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -37,10 +35,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
-import eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent;
-import eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent.AuthorizationPolicyEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -53,21 +48,20 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmAuthorizationPolicyService 
-		extends AbstractReadWriteDtoService<IdmAuthorizationPolicyDto, IdmAuthorizationPolicy, IdmAuthorizationPolicyFilter> 
+		extends AbstractEventableDtoService<IdmAuthorizationPolicyDto, IdmAuthorizationPolicy, IdmAuthorizationPolicyFilter> 
 		implements IdmAuthorizationPolicyService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmAuthorizationPolicyService.class);
 	private final IdmAuthorizationPolicyRepository repository;
 	private final IdmRoleService roleService;
 	private final ModuleService moduleService;
-	private final EntityEventManager eventManager;
 	
 	public DefaultIdmAuthorizationPolicyService(
 			IdmAuthorizationPolicyRepository repository, 
 			IdmRoleService roleService,
 			ModuleService moduleService,
 			EntityEventManager eventManager) {
-		super(repository);
+		super(repository, eventManager);
 		//
 		Assert.notNull(roleService);
 		Assert.notNull(moduleService);
@@ -76,23 +70,11 @@ public class DefaultIdmAuthorizationPolicyService
 		this.repository = repository;
 		this.roleService = roleService;
 		this.moduleService = moduleService;
-		this.eventManager = eventManager;
 	}
 	
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.AUTHORIZATIONPOLICY, getEntityClass());
-	}
-	
-	@Override
-	@Transactional
-	public IdmAuthorizationPolicyDto save(IdmAuthorizationPolicyDto dto, BasePermission... permissions) {
-		checkAccess(getPolicyEntity(dto), permissions);
-		//
-		if (isNew(dto)) { // create
-			return eventManager.process(new AuthorizationPolicyEvent(AuthorizationPolicyEventType.CREATE, dto)).getContent();
-		}
-		return eventManager.process(new AuthorizationPolicyEvent(AuthorizationPolicyEventType.UPDATE, dto)).getContent();
 	}
 	
 	@Override
@@ -103,14 +85,6 @@ public class DefaultIdmAuthorizationPolicyService
 		}
 		//
 		return super.saveInternal(dto);
-	}
-	
-	@Override
-	@Transactional
-	public void delete(IdmAuthorizationPolicyDto dto, BasePermission... permissions) {
-		checkAccess(getPolicyEntity(dto), permissions);
-		//
-		eventManager.process(new AuthorizationPolicyEvent(DELETE, dto));
 	}
 
 	@Override
@@ -205,12 +179,6 @@ public class DefaultIdmAuthorizationPolicyService
 	public List<IdmAuthorizationPolicyDto> getRolePolicies(UUID roleId, boolean disabled) {
 		return toDtos(repository.getPolicies(roleId, disabled), false);
 	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Set<GrantedAuthority> getEnabledPersistedRoleAuthorities(UUID identityId, UUID roleId) {
-		return getGrantedAuthorities(identityId, toDtos(repository.getPersistedPolicies(roleId, false), false));
-	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -251,9 +219,5 @@ public class DefaultIdmAuthorizationPolicyService
 		}
 		//
 		return authorities;
-	}
-
-	private IdmAuthorizationPolicy getPolicyEntity(IdmAuthorizationPolicyDto dto) {
-		return toEntity(dto, dto.getId() != null ? getEntity(dto.getId()) : null);
 	}
 }

@@ -265,11 +265,12 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			int count = 250; // 15s 
 			//
 			// create events
+			String eventType = getHelper().createName();
 			for (int i = 0; i < count; i++) {
 				MockOwner mockOwner = new MockOwner();
 				IdmEntityEventDto entityEvent = new IdmEntityEventDto();
 				entityEvent.setOwnerType(mockOwner.getClass().getCanonicalName());
-				entityEvent.setEventType("empty");
+				entityEvent.setEventType(eventType);
 				entityEvent.setOwnerId((UUID) mockOwner.getId());
 				entityEvent.setContent(mockOwner);
 				entityEvent.setInstanceId(configurationService.getInstanceId());
@@ -280,7 +281,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			//
 			IdmEntityEventFilter filter = new IdmEntityEventFilter();
 			filter.setOwnerType(MockOwner.class.getCanonicalName());
-			filter.setStates(Lists.newArrayList(OperationState.CREATED));
+			filter.setEventType(eventType);
+			filter.setStates(Lists.newArrayList(OperationState.CREATED, OperationState.RUNNING));
 			Assert.assertEquals(count, entityEventService.find(filter, new PageRequest(0, 1)).getTotalElements());
 			//
 			// execute

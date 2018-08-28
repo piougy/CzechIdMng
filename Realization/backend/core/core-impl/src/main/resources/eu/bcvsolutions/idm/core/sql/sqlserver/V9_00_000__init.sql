@@ -1512,6 +1512,7 @@ CREATE TABLE idm_role (
 	description nvarchar(2000),
 	disabled bit NOT NULL,
 	external_id nvarchar(255),
+	code nvarchar(255) NOT NULL,
 	name nvarchar(255) NOT NULL,
 	priority int NOT NULL,
 	role_type nvarchar(255) NOT NULL,
@@ -1519,7 +1520,8 @@ CREATE TABLE idm_role (
 	CONSTRAINT idm_role_pkey PRIMARY KEY (id)
 );
 CREATE INDEX idx_idm_role_external_id ON idm_role (external_id);
-CREATE UNIQUE INDEX ux_idm_role_name ON idm_role (name);
+CREATE INDEX idx_idm_role_name ON idm_role (name);
+CREATE UNIQUE INDEX ux_idm_role_code ON idm_role (code);
 
 
 CREATE TABLE idm_role_catalogue (
@@ -3259,6 +3261,8 @@ CREATE TABLE idm_role_a (
 	external_id_m bit,
 	name nvarchar(255),
 	name_m bit,
+	code nvarchar(255),
+	code_m bit,
 	priority int,
 	priority_m bit,
 	role_type nvarchar(255),

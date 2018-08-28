@@ -16,7 +16,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 public class IdmRoleTreeNodeFilter extends IdmAutomaticRoleFilter {
 
     private UUID treeNodeId;
-    
     private RecursionType recursionType;
     
     public IdmRoleTreeNodeFilter() {

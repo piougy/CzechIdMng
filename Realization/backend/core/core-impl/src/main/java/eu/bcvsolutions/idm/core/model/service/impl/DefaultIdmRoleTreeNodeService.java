@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -135,6 +136,16 @@ public class DefaultIdmRoleTreeNodeService
 	protected List<Predicate> toPredicates(Root<IdmRoleTreeNode> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmRoleTreeNodeFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// 
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
+			predicates.add(
+					builder.or(
+							builder.like(builder.lower(root.get(IdmRoleTreeNode_.name)), "%" + text + "%"),
+							builder.like(builder.lower(root.get(IdmRoleTreeNode_.role).get(IdmRole_.name)), "%" + text + "%"),
+							builder.like(builder.lower(root.get(IdmRoleTreeNode_.role).get(IdmRole_.code)), "%" + text + "%")
+							));
+		}
 		if (filter.getRoleId() != null) {
 			predicates.add(builder.equal(root.get(IdmRoleTreeNode_.role).get(IdmRole_.id), filter.getRoleId()));
 		}

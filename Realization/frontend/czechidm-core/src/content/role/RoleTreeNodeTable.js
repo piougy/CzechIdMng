@@ -38,6 +38,20 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
     return manager;
   }
 
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  }
+
   showDetail(entity) {
     const { forceSearchParameters } = this.props;
     //
@@ -110,9 +124,9 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
-          manager={manager}
-          forceSearchParameters={forceSearchParameters}
+          uiKey={ uiKey }
+          manager={ manager }
+          forceSearchParameters={ forceSearchParameters }
           showRowSelection={ manager.canDelete() }
           actions={
             [
@@ -132,6 +146,29 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                 { this.i18n('button.add') }
               </Basic.Button>
             ]
+          }
+          filter={
+            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+              <Basic.AbstractForm ref="filterForm">
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.TextField
+                      ref="text"
+                      placeholder={ this.i18n('filter.text.placeholder') }
+                      help={ Advanced.Filter.getTextHelp() }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.SelectBox
+                      ref="treeNodeId"
+                      placeholder={ this.i18n('filter.treeNodeId.placeholder') }
+                      manager={ treeNodeManager }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 } className="text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
+                  </Basic.Col>
+                </Basic.Row>
+              </Basic.AbstractForm>
+            </Advanced.Filter>
           }
           _searchParameters={ this.getSearchParameters() }>
 

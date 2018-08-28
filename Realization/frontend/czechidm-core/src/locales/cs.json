@@ -4110,7 +4110,8 @@
       "message": "Role s daným názvem již existuje"
     },
     "CONFLICT": {
-      "title": "Záznam koliduje s jiným unikátním záznamem"
+      "title": "Záznam koliduje s jiným unikátním záznamem",
+      "message": ""
     },
     "NAME_CONFLICT": {
       "title": "Konfliktní název",

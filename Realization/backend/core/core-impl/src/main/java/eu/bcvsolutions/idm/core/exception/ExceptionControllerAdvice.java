@@ -123,7 +123,7 @@ public class ExceptionControllerAdvice {
 			} else if (constraintEx.getConstraintName() != null && constraintEx.getConstraintName().contains("code")) {
 				errorModel = new DefaultErrorModel(CoreResultCode.CODE_CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
 			} else if (constraintEx.getConstraintName() == null) {
-				errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT);
+				errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ImmutableMap.of("name", "..."));
 			} else {
 				errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ImmutableMap.of("name", StringUtils.trimToEmpty(constraintEx.getConstraintName())));
 			}

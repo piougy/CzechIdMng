@@ -5,8 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -23,33 +23,33 @@ public class TestContractSliceResource {
 	public static final String TABLE_NAME = "test_contract_slice_resource";
 
 	@Id
-	@Column(name = "id", length = DefaultFieldLengths.NAME)
+	@Column(name = "ID", length = DefaultFieldLengths.NAME)
 	private String id;
-	@Column(name = "name", length = DefaultFieldLengths.NAME)
+	@Column(name = "NAME", length = DefaultFieldLengths.NAME)
 	private String name;
-	@Column(name = "state", length = DefaultFieldLengths.NAME)
+	@Column(name = "STATE", length = DefaultFieldLengths.NAME)
 	private String state;
-	@Column(name = "disabled", length = DefaultFieldLengths.NAME)
+	@Column(name = "DISABLED", length = DefaultFieldLengths.NAME)
 	private String disabled;
-	@Column(name = "description", length = DefaultFieldLengths.NAME)
+	@Column(name = "DESCRIPTION", length = DefaultFieldLengths.NAME)
 	private String description;
-	@Column(name = "validfrom")
+	@Column(name = "VALIDFROM")
 	private LocalDate validFrom;
-	@Column(name = "validtill")
+	@Column(name = "VALIDTILL")
 	private LocalDate validTill;
-	@Column(name = "leader", length = DefaultFieldLengths.NAME)
+	@Column(name = "LEADER", length = DefaultFieldLengths.NAME)
 	private String leader;
-	@Column(name = "main", length = DefaultFieldLengths.NAME)
+	@Column(name = "MAIN", length = DefaultFieldLengths.NAME)
 	private String main;
-	@Column(name = "owner", length = DefaultFieldLengths.NAME)
+	@Column(name = "OWNER", length = DefaultFieldLengths.NAME)
 	private String owner;
-	@Column(name = "workposition", length = DefaultFieldLengths.NAME)
+	@Column(name = "WORKPOSITION", length = DefaultFieldLengths.NAME)
 	private String workposition;
-	@Column(name = "modified")
-	private LocalDateTime modified;
-	@Column(name = "validfrom_slice")
+	@Column(name = "MODIFIED")
+	private DateTime modified;
+	@Column(name = "VALIDFROM_SLICE")
 	private LocalDate validFromSlice;
-	@Column(name = "contract_code", length = DefaultFieldLengths.NAME)
+	@Column(name = "CONTRACT_CODE", length = DefaultFieldLengths.NAME)
 	private String contractCode;
 
 	public String getId() {
@@ -132,11 +132,11 @@ public class TestContractSliceResource {
 		this.owner = owner;
 	}
 
-	public LocalDateTime getModified() {
+	public DateTime getModified() {
 		return modified;
 	}
 
-	public void setModified(LocalDateTime modified) {
+	public void setModified(DateTime modified) {
 		this.modified = modified;
 	}
 

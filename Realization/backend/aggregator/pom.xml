@@ -116,5 +116,20 @@
 				</plugins>
 			</build>
 		</profile>
+
+		<profile>
+			<id>test-mssql</id>
+			<properties>
+				<spring.profiles.active>test,test-mssql</spring.profiles.active>
+			</properties>
+			<!-- There must be explicit named all submodules that allow testing with MsSQL -->
+			<modules>
+				<module>../ic</module>
+				<module>../acc</module>
+				<module>../vs</module>
+				<module>../rpt</module>
+				<module>../example</module>
+			</modules>
+		</profile>
 	</profiles>
 </project>

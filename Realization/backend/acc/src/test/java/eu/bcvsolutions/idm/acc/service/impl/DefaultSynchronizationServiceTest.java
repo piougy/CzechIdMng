@@ -7,7 +7,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -321,7 +321,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		syncConfigCustom.setCustomFilter(false);
 		syncConfigCustom.setReconciliation(false);
-		syncConfigCustom.setToken(LocalDateTime.now().toString("yyyy-MM-dd HH:mm:ss")); // We want do sync for account changed in future
+		syncConfigCustom.setToken(DateTime.now().toString("yyyy-MM-dd HH:mm:ss")); // We want do sync for account changed in future
 		syncConfigCustom.setFilterOperation(IcFilterOperationType.ENDS_WITH); // We don`t use custom filter. This option will be not used.
 		syncConfigService.save(syncConfigCustom);
 
@@ -382,7 +382,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		syncConfigCustom.setCustomFilter(true);
 		syncConfigCustom.setReconciliation(false);
-		syncConfigCustom.setToken(LocalDateTime.now().toString("yyyy-MM-dd HH:mm:ss"));
+		syncConfigCustom.setToken(DateTime.now().toString("yyyy-MM-dd HH:mm:ss"));
 		syncConfigCustom.setFilterOperation(IcFilterOperationType.LESS_THAN);
 		syncConfigService.save(syncConfigCustom);
 		//
@@ -1379,8 +1379,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Query q = entityManager.createNativeQuery("DELETE FROM test_resource");
 		q.executeUpdate();
 		// Insert data to testResource table
-		LocalDateTime paste = LocalDateTime.now().minusYears(1);
-		LocalDateTime future = paste.plusYears(2);
+		DateTime paste = DateTime.now().minusYears(1);
+		DateTime future = paste.plusYears(2);
 		
 		TestResource resourceUserOne = new TestResource();
 		resourceUserOne.setName("x" + IDENTITY_USERNAME_ONE);

@@ -78,6 +78,13 @@
 			</properties>
 		</profile>
 
+		<profile>
+			<id>test-mssql</id>
+			<properties>
+				<spring.profiles.active>test,test-mssql</spring.profiles.active>
+			</properties>
+		</profile>
+
 		<!-- Full application release -->
 		<profile>
 			<id>release</id>

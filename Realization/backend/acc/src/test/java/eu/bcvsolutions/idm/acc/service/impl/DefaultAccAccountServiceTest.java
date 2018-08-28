@@ -4,6 +4,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Assert;
@@ -98,7 +99,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		authorizationPolicyService.save(policyAccount);
 
 		// Change resources (set state on exclude) .. must be call in transaction
-		this.getBean().persistResource(createResource(userOneName, new LocalDateTime()));
+		this.getBean().persistResource(createResource(userOneName, new DateTime()));
 		AccAccountDto account = new AccAccountDto();
 		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setSystem(system.getId());
@@ -149,7 +150,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		authorizationPolicyService.save(policyAccount);
 
 		// Change resources (set state on exclude) .. must be call in transaction
-		this.getBean().persistResource(createResource(userOneName, new LocalDateTime()));
+		this.getBean().persistResource(createResource(userOneName, new DateTime()));
 		AccAccountDto account = new AccAccountDto();
 		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setSystem(system.getId());
@@ -186,7 +187,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		schemaAttributeService.delete(eavAttribute);
 		Assert.assertNotNull(system);
 		// Change resources (set state on exclude) .. must be call in transaction
-		this.getBean().persistResource(createResource(userOneName, new LocalDateTime()));
+		this.getBean().persistResource(createResource(userOneName, new DateTime()));
 		AccAccountDto account = new AccAccountDto();
 		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setSystem(system.getId());
@@ -244,7 +245,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		schemaAttributeService.delete(eavAttribute);
 		Assert.assertNotNull(system);
 		// Change resources (set state on exclude) .. must be call in transaction
-		this.getBean().persistResource(createResource(userOneName, new LocalDateTime()));
+		this.getBean().persistResource(createResource(userOneName, new DateTime()));
 		AccAccountDto account = new AccAccountDto();
 		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setSystem(system.getId());
@@ -322,7 +323,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		entityManager.persist(resource);
 	}
 
-	private TestResource createResource(String code, LocalDateTime modified) {
+	private TestResource createResource(String code, DateTime modified) {
 		TestResource resource = new TestResource();
 		resource.setName(code);
 		resource.setEmail(code);

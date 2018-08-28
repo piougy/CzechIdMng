@@ -5,7 +5,8 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -503,12 +504,11 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		Assert.assertEquals(null, ten.getModified());
 	
 		// Create extended attribute
-		LocalDateTime now = LocalDateTime.now();
-		formService.saveValues(roleTen.getId(), IdmRole.class, "changed", ImmutableList.of(now.toString(DATE_TABLE_CONNECTOR_FORMAT)));
+		DateTime now = DateTime.now();
+		formService.saveValues(roleTen.getId(), IdmRole.class, "changed", ImmutableList.of(now.withZone(DateTimeZone.UTC).toString(DATE_TABLE_CONNECTOR_FORMAT)));
 		
 		// Save IDM changed node (must invoke provisioning)
 		roleService.save(roleTen);
-		
 		// Check state after provisioning
 		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
 		Assert.assertNotNull(ten);
@@ -595,7 +595,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	
 	private void initRoleData(){
 		deleteAllResourceData();
-		LocalDateTime now = LocalDateTime.now();
+		DateTime now = DateTime.now();
 		entityManager.persist(this.createRole("1", RoleType.TECHNICAL.name(), now.plusHours(1), 0));
 		entityManager.persist(this.createRole("2", RoleType.TECHNICAL.name(), now.plusHours(2), 0));
 		entityManager.persist(this.createRole("3", RoleType.TECHNICAL.name(), now.plusHours(3), 0));
@@ -604,7 +604,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 	}
 	
-	private TestRoleResource createRole(String code, String type, LocalDateTime changed, int priority){
+	private TestRoleResource createRole(String code, String type, DateTime changed, int priority){
 		TestRoleResource role = new TestRoleResource();
 		role.setType(type);
 		role.setName(code);

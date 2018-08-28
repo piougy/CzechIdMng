@@ -96,7 +96,7 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	 * @param identityContract
 	 * @return
 	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@Query("select e from #{#entityName} e where e.id = :identityContractId")
 	IdmIdentityContract getPersistedIdentityContract(@Param("identityContractId") UUID identityContractId);
 }

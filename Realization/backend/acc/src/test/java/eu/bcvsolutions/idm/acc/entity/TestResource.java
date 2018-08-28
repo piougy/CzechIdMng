@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -22,23 +22,23 @@ public class TestResource {
 	public static final String TABLE_NAME = "test_resource";
 
 	@Id
-	@Column(name = "name", length = DefaultFieldLengths.NAME)
+	@Column(name = "NAME", length = DefaultFieldLengths.NAME)
 	private String name;
-	@Column(name = "lastname", length = DefaultFieldLengths.NAME)
+	@Column(name = "LASTNAME", length = DefaultFieldLengths.NAME)
 	private String lastname;
-	@Column(name = "firstname", length = DefaultFieldLengths.NAME)
+	@Column(name = "FIRSTNAME", length = DefaultFieldLengths.NAME)
 	private String firstname;
-	@Column(name = "password", length = DefaultFieldLengths.NAME)
+	@Column(name = "PASSWORD", length = DefaultFieldLengths.NAME)
 	private String password;
-	@Column(name = "email", length = DefaultFieldLengths.NAME)
+	@Column(name = "EMAIL", length = DefaultFieldLengths.NAME)
 	private String email;
-	@Column(name = "descrip", length = DefaultFieldLengths.NAME)
+	@Column(name = "DESCRIP", length = DefaultFieldLengths.NAME)
 	private String descrip;
-	@Column(name = "status", length = DefaultFieldLengths.NAME)
+	@Column(name = "STATUS", length = DefaultFieldLengths.NAME)
 	private String status;
-	@Column(name = "modified", length = DefaultFieldLengths.NAME)
-	private LocalDateTime modified;
-	@Column(name = "eav_attribute", length = DefaultFieldLengths.NAME)
+	@Column(name = "MODIFIED", length = DefaultFieldLengths.NAME)
+	private DateTime modified;
+	@Column(name = "EAV_ATTRIBUTE", length = DefaultFieldLengths.NAME)
 	private String eavAttribute;
 
 	public String getEavAttribute() {
@@ -105,11 +105,11 @@ public class TestResource {
 		this.status = status;
 	}
 
-	public LocalDateTime getModified() {
+	public DateTime getModified() {
 		return modified;
 	}
 
-	public void setModified(LocalDateTime modified) {
+	public void setModified(DateTime modified) {
 		this.modified = modified;
 	}
 }

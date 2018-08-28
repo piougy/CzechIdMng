@@ -84,9 +84,15 @@
 			<artifactId>postgresql</artifactId>
 		</dependency>
 		<dependency>
-	    <groupId>com.github.tntim96</groupId>
-	    <artifactId>fakesmtp</artifactId>
-	    <version>2.0</version>
+		    <groupId>com.github.tntim96</groupId>
+		    <artifactId>fakesmtp</artifactId>
+		    <version>2.0</version>
+		</dependency>
+		<!-- Test via real MsSQL database -->
+		<dependency>
+		    <groupId>com.microsoft.sqlserver</groupId>
+		    <artifactId>sqljdbc4</artifactId>
+		    <version>4.0</version>
 		</dependency>
 	</dependencies>
 

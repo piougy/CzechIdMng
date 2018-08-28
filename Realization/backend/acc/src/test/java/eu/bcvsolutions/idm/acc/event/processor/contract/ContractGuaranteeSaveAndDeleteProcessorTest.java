@@ -1,15 +1,15 @@
 package eu.bcvsolutions.idm.acc.event.processor.contract;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Iterables;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
@@ -87,7 +88,7 @@ public class ContractGuaranteeSaveAndDeleteProcessorTest extends AbstractIntegra
 		// check after create contract
 		content = provisioningArchiveService.find(filter, null).getContent();
 		assertEquals(2, content.size());
-		sysProvisioningArchiveDto = Iterables.getLast(content);
+		sysProvisioningArchiveDto = content.stream().max(Comparator.comparing(SysProvisioningArchiveDto::getCreated)).orElse(null);
 		assertEquals(ProvisioningEventType.UPDATE, sysProvisioningArchiveDto.getOperationType());
 		assertEquals(SystemEntityType.IDENTITY, sysProvisioningArchiveDto.getEntityType());
 		assertEquals(identity.getId(), sysProvisioningArchiveDto.getEntityIdentifier());
@@ -116,7 +117,9 @@ public class ContractGuaranteeSaveAndDeleteProcessorTest extends AbstractIntegra
 		filter.setSystemId(system.getId());
 		List<SysProvisioningArchiveDto> content = provisioningArchiveService.find(filter, null).getContent();
 		assertEquals(3, content.size()); // create, add contract guarantee and update = 3 operation
-		SysProvisioningArchiveDto last = Iterables.getLast(content);
+		// sort by created and found last
+		SysProvisioningArchiveDto last = content.stream().max(Comparator.comparing(SysProvisioningArchiveDto::getCreated)).orElse(null);;
+		assertNotNull(last);
 		assertEquals(ProvisioningEventType.UPDATE, last.getOperationType());
 		assertEquals(SystemEntityType.IDENTITY, last.getEntityType());
 		assertEquals(identity.getId(), last.getEntityIdentifier());
@@ -142,7 +145,7 @@ public class ContractGuaranteeSaveAndDeleteProcessorTest extends AbstractIntegra
 		filter.setSystemId(system.getId());
 		List<SysProvisioningArchiveDto> content = provisioningArchiveService.find(filter, null).getContent();
 		assertEquals(3, content.size()); // create, add contract guarantee and delete = 3 operation
-		SysProvisioningArchiveDto last = Iterables.getLast(content);
+		SysProvisioningArchiveDto last = content.stream().max(Comparator.comparing(SysProvisioningArchiveDto::getCreated)).get();
 		assertEquals(ProvisioningEventType.UPDATE, last.getOperationType());
 		assertEquals(SystemEntityType.IDENTITY, last.getEntityType());
 		assertEquals(identity.getId(), last.getEntityIdentifier());

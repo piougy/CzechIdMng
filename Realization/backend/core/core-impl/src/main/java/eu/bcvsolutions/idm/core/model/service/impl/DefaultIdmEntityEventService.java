@@ -188,6 +188,10 @@ public class DefaultIdmEntityEventService
 		if (StringUtils.isNotEmpty(resultCode)) {
 			predicates.add(builder.equal(root.get(IdmEntityEvent_.result).get(OperationResult_.code), resultCode));
 		}
+		String eventType = filter.getEventType();
+		if (StringUtils.isNotEmpty(eventType)) {
+			predicates.add(builder.equal(root.get(IdmEntityEvent_.eventType), eventType));
+		}
 		//
 		return predicates;
 	}

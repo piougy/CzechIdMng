@@ -32,6 +32,7 @@ public class IdmEntityEventFilter extends DataFilter {
     private List<OperationState> states;
     private PriorityType priority;
     private String resultCode;
+    private String eventType;
 	
 	public IdmEntityEventFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -122,5 +123,13 @@ public class IdmEntityEventFilter extends DataFilter {
 	
 	public String getResultCode() {
 		return resultCode;
+	}
+	
+	public String getEventType() {
+		return eventType;
+	}
+	
+	public void setEventType(String eventType) {
+		this.eventType = eventType;
 	}
 }

@@ -1752,6 +1752,14 @@
         "header": "Automatic roles",
         "title": "Automatic roles",
         "label": "Automatic roles",
+        "filter": {
+          "text": {
+            "placeholder": "Name of automatic role or role name"
+          },
+          "treeNodeId": {
+            "placeholder": "Tree node"
+          }
+        },
         "edit": {
           "header": "{{name}} <small>automatic role detail</small>"
         },

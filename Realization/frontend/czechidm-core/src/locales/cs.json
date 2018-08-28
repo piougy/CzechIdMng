@@ -1794,6 +1794,14 @@
         "header": "Automatické role",
         "title": "Automatické role",
         "label": "Automatické role",
+        "filter": {
+          "text": {
+            "placeholder": "Název automatické role, nebo role"
+          },
+          "treeNodeId": {
+            "placeholder": "Prvek stromové struktury"
+          }
+        },
         "edit": {
           "header": "{{name}} <small>detail automatické role</small>"
         },

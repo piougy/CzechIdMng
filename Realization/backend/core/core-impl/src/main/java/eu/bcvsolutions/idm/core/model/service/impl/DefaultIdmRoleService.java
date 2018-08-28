@@ -172,7 +172,7 @@ public class DefaultIdmRoleService
 		}
 		// role catalogue by forest index
 		UUID roleCatalogueId = filter.getRoleCatalogueId();
-		if (filter.getRoleCatalogueId() != null) {
+		if (roleCatalogueId != null) {
 			Subquery<IdmRoleCatalogueRole> subquery = query.subquery(IdmRoleCatalogueRole.class);
 			Root<IdmRoleCatalogueRole> subRoot = subquery.from(IdmRoleCatalogueRole.class);
 			subquery.select(subRoot);

@@ -10,13 +10,14 @@ import static org.junit.Assert.fail;
 
 import java.util.UUID;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -27,33 +28,26 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Processed tasks service test.
  * 
+ * TODO: transactional
+ * 
  * @author Jan Helbich
- *
+ * @author Radek Tomiška
  */
-public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrationTest {
+public class DefaultIdmProcessedTaskItemServiceTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private IdmProcessedTaskItemService service;
-
-	@Autowired
-	private IdmScheduledTaskService scheduledTaskService;
-
-	@Autowired
-	private IdmLongRunningTaskService longrunningService;
-
-	@Autowired
-	private TestHelper helper;
+	@Autowired private IdmProcessedTaskItemService service;
+	@Autowired private IdmScheduledTaskService scheduledTaskService;
+	@Autowired private IdmLongRunningTaskService longrunningService;
 
 	@Test
 	public void testCreateItem() {
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
 		IdmLongRunningTaskDto lrt = this.createLongRunningTask(d);
-		IdmProcessedTaskItemDto item = helper.prepareProcessedItem(lrt);
+		IdmProcessedTaskItemDto item = getHelper().prepareProcessedItem(lrt);
 		//
 		IdmProcessedTaskItemDto retrieved = service.get(service.saveInternal(item).getId());
 		//
@@ -65,9 +59,9 @@ public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrati
 
 	@Test
 	public void testImmutable() {
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
 		IdmLongRunningTaskDto lrt = this.createLongRunningTask(d);
-		IdmProcessedTaskItemDto item = helper.prepareProcessedItem(lrt);
+		IdmProcessedTaskItemDto item = getHelper().prepareProcessedItem(lrt);
 		IdmProcessedTaskItemDto saved = service.get(service.saveInternal(item).getId());
 		// set fields to new value
 		saved.setReferencedDtoType(IdmIdentityContractDto.class.getCanonicalName());
@@ -87,9 +81,9 @@ public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrati
 
 	@Test
 	public void testItemTypeReference() {
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
 		IdmLongRunningTaskDto lrt = this.createLongRunningTask(d);
-		IdmProcessedTaskItemDto item = helper.prepareProcessedItem(lrt);
+		IdmProcessedTaskItemDto item = getHelper().prepareProcessedItem(lrt);
 		//
 		try {
 			item.setScheduledTaskQueueOwner(d.getId());
@@ -111,9 +105,9 @@ public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrati
 
 	@Test
 	public void testDeleteLogItemIntegrity() {
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
 		IdmLongRunningTaskDto lrt = this.createLongRunningTask(d);
-		IdmProcessedTaskItemDto item = service.saveInternal(helper.prepareProcessedItem(lrt));
+		IdmProcessedTaskItemDto item = service.saveInternal(getHelper().prepareProcessedItem(lrt));
 		//
 		longrunningService.deleteInternal(lrt);
 		//
@@ -124,8 +118,8 @@ public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrati
 
 	@Test
 	public void testDeleteQueueItemIntegrity() {
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
-		IdmProcessedTaskItemDto item = service.saveInternal(helper.prepareProcessedItem(d));
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
+		IdmProcessedTaskItemDto item = service.saveInternal(getHelper().prepareProcessedItem(d));
 		//
 		scheduledTaskService.deleteInternal(d);
 		//
@@ -135,46 +129,42 @@ public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrati
 
 	@Test
 	public void textFilter(){
-		// find number of all processed items in old tests
 		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
-		filter.setText(IdmIdentityDto.class.getCanonicalName());
-		Page<IdmProcessedTaskItemDto> result = service.find(filter,null);
-		long count = result.getTotalElements();
 		//
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
-		IdmProcessedTaskItemDto item = service.saveInternal(helper.prepareProcessedItem(d));
-		IdmProcessedTaskItemDto item2 = service.saveInternal(helper.prepareProcessedItem(d));
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
+		IdmProcessedTaskItemDto item = service.saveInternal(getHelper().prepareProcessedItem(d));
+		IdmProcessedTaskItemDto item2 = service.saveInternal(getHelper().prepareProcessedItem(d));
 		//
 		filter.setText(item.getReferencedDtoType());
-		result = service.find(filter,null);
-		assertEquals("Wrong number of items!", 2 + count, result.getTotalElements());
-		assertTrue(result.getContent().contains(item));
-		assertTrue(result.getContent().contains(item2));
+		Page<IdmProcessedTaskItemDto> result = service.find(filter,null);
+		//
+		Assert.assertTrue(result.getContent().contains(item));
+		Assert.assertTrue(result.getContent().contains(item2));
 	}
 
 	@Test
 	public void scheduledTaskIdFilter(){
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
-		IdmProcessedTaskItemDto item = service.saveInternal(helper.prepareProcessedItem(d));
-		IdmProcessedTaskItemDto item2 = service.saveInternal(helper.prepareProcessedItem(d));
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
+		IdmProcessedTaskItemDto item = service.saveInternal(getHelper().prepareProcessedItem(d));
+		IdmProcessedTaskItemDto item2 = service.saveInternal(getHelper().prepareProcessedItem(d));
 		//
 		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
 		filter.setScheduledTaskId(d.getId());
 		Page<IdmProcessedTaskItemDto> result = service.find(filter,null);
-		assertEquals("Wrong number of items!",2,result.getTotalElements());
+		assertEquals("Wrong number of items!", 2, result.getTotalElements());
 		assertTrue(result.getContent().contains(item));
 		assertTrue(result.getContent().contains(item2));
 	}
 
 	@Test
 	public void datesFilter(){
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
-		IdmProcessedTaskItemDto item = service.saveInternal(helper.prepareProcessedItem(d));
-		IdmProcessedTaskItemDto item2 = helper.prepareProcessedItem(d);
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
+		IdmProcessedTaskItemDto item = service.saveInternal(getHelper().prepareProcessedItem(d));
+		IdmProcessedTaskItemDto item2 = getHelper().prepareProcessedItem(d);
 		item2.setCreated(item.getCreated());
 		item2 = service.saveInternal(item2);
 		//
-		IdmProcessedTaskItemDto item3 = service.saveInternal(helper.prepareProcessedItem(d));
+		IdmProcessedTaskItemDto item3 = service.saveInternal(getHelper().prepareProcessedItem(d));
 		//
 		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
 		filter.setFrom(item.getCreated());
@@ -189,9 +179,9 @@ public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrati
 
 	@Test
 	public void referencedEntityIdFilter(){
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
-		IdmProcessedTaskItemDto item = service.saveInternal(helper.prepareProcessedItem(d));
-		IdmProcessedTaskItemDto item2 = service.saveInternal(helper.prepareProcessedItem(d));
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
+		IdmProcessedTaskItemDto item = service.saveInternal(getHelper().prepareProcessedItem(d));
+		IdmProcessedTaskItemDto item2 = service.saveInternal(getHelper().prepareProcessedItem(d));
 		//
 		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
 		filter.setReferencedEntityId(item.getReferencedEntityId());
@@ -209,13 +199,13 @@ public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrati
 
 	@Test
 	public void getLongRunningTaskIdFilter(){
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
 		IdmLongRunningTaskDto lrt = this.createLongRunningTask(d);
 		IdmLongRunningTaskDto lrt2 = this.createLongRunningTask(d);
 		//
-		IdmProcessedTaskItemDto item = service.saveInternal(helper.prepareProcessedItem(lrt));
-		IdmProcessedTaskItemDto item2 = service.saveInternal(helper.prepareProcessedItem(lrt));
-		IdmProcessedTaskItemDto item3 = service.saveInternal(helper.prepareProcessedItem(lrt2));
+		IdmProcessedTaskItemDto item = service.saveInternal(getHelper().prepareProcessedItem(lrt));
+		IdmProcessedTaskItemDto item2 = service.saveInternal(getHelper().prepareProcessedItem(lrt));
+		IdmProcessedTaskItemDto item3 = service.saveInternal(getHelper().prepareProcessedItem(lrt2));
 		//
 		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
 		filter.setLongRunningTaskId(lrt.getId());
@@ -228,11 +218,11 @@ public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrati
 
 	@Test
 	public void getOperationState(){
-		IdmScheduledTaskDto d = helper.createSchedulableTask();
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
 		//
-		IdmProcessedTaskItemDto item = service.saveInternal(helper.prepareProcessedItem(d));
-		IdmProcessedTaskItemDto item2 = service.saveInternal(helper.prepareProcessedItem(d));
-		IdmProcessedTaskItemDto item3 = service.saveInternal(helper.prepareProcessedItem(d,OperationState.CANCELED));
+		IdmProcessedTaskItemDto item = service.saveInternal(getHelper().prepareProcessedItem(d));
+		IdmProcessedTaskItemDto item2 = service.saveInternal(getHelper().prepareProcessedItem(d));
+		IdmProcessedTaskItemDto item3 = service.saveInternal(getHelper().prepareProcessedItem(d,OperationState.CANCELED));
 		//
 		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
 		filter.setOperationState(item.getOperationResult().getState());

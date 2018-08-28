@@ -41,13 +41,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Integration tests with identity contracts:
@@ -57,13 +55,14 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * - evaluate state
  * - filter
  * 
+ * TODO: @Transactional
+ * 
  * @author Radek Tomiška
  * @author Marek Klement
  *
  */
 public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmIdentityContractService service;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
@@ -72,7 +71,6 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private LookupService lookupService;
-	@Autowired protected IdmLongRunningTaskService longRunningTaskService;
 	//
 	private IdmTreeTypeDto treeType = null;
 	private IdmTreeNodeDto nodeA = null;
@@ -109,20 +107,20 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	private void prepareTreeStructureAndRoles() {
 		// tree type
-		treeType = helper.createTreeType();
+		treeType = getHelper().createTreeType();
 		// four levels
 		// https://proj.bcvsolutions.eu/ngidm/doku.php?id=roztridit:standardni_procesy#role_pridelovane_na_zaklade_zarazeni_v_organizacni_strukture
-		nodeA = helper.createTreeNode(treeType, null);
-		nodeB = helper.createTreeNode(treeType, nodeA);
-		nodeC = helper.createTreeNode(treeType, nodeB);
-		nodeD = helper.createTreeNode(treeType, nodeB);
-		nodeE = helper.createTreeNode(treeType, nodeD);
-		nodeF = helper.createTreeNode(treeType, nodeD);
+		nodeA = getHelper().createTreeNode(treeType, null);
+		nodeB = getHelper().createTreeNode(treeType, nodeA);
+		nodeC = getHelper().createTreeNode(treeType, nodeB);
+		nodeD = getHelper().createTreeNode(treeType, nodeB);
+		nodeE = getHelper().createTreeNode(treeType, nodeD);
+		nodeF = getHelper().createTreeNode(treeType, nodeD);
 		// create roles
-		roleA = helper.createRole();
-		roleB = helper.createRole();
-		roleC = helper.createRole();
-		roleD = helper.createRole();
+		roleA = getHelper().createRole();
+		roleB = getHelper().createRole();
+		roleC = getHelper().createRole();
+		roleD = getHelper().createRole();
 	}
 	
 	/**
@@ -389,7 +387,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		automaticRoleE = saveAutomaticRole(automaticRoleE, false);
 		//
 		// prepare identity and contract
-		IdmIdentityDto identity = helper.createIdentity((GuardedString) null);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setWorkPosition(nodeF.getId());
@@ -417,7 +415,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	@Test
 	public void testAssingRoleByNewAutomaticRoleForExistingContracts() {
-		IdmIdentityDto identity = helper.createIdentity((GuardedString) null);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		//
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
@@ -561,29 +559,29 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test(expected = ResultCodeException.class)
 	public void testReferentialIntegrityOnRole() {
 		// prepare data
-		IdmRoleDto role = helper.createRole();
-		IdmTreeNodeDto treeNode = helper.createTreeNode();
+		IdmRoleDto role = getHelper().createRole();
+		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		// automatic role
-		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
+		IdmRoleTreeNodeDto roleTreeNode = getHelper().createRoleTreeNode(role, treeNode, false);
 		//
 		assertNotNull(roleTreeNode.getId());
 		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
 		//
-		helper.deleteRole(role.getId());
+		getHelper().deleteRole(role.getId());
 	}
 	
 	@Test(expected = ResultCodeException.class)
 	public void testReferentialIntegrityOnTreeNode() {
 		// prepare data
-		IdmRoleDto role = helper.createRole();
-		IdmTreeNodeDto treeNode = helper.createTreeNode();
+		IdmRoleDto role = getHelper().createRole();
+		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		// automatic role
-		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
+		IdmRoleTreeNodeDto roleTreeNode = getHelper().createRoleTreeNode(role, treeNode, false);
 		//
 		assertNotNull(roleTreeNode.getId());
 		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
 		//
-		helper.deleteTreeNode(treeNode.getId());
+		getHelper().deleteTreeNode(treeNode.getId());
 	}
 	
 	@Test
@@ -591,15 +589,15 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		// prepare data
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityDto identityWithContract = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = helper.createIdentityContact(identityWithContract);
-		helper.createContractGuarantee(contract.getId(), identity.getId());
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identityWithContract);
+		getHelper().createContractGuarantee(contract.getId(), identity.getId());
 		//
 		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setIdentityContractId(contract.getId());
 		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(1, guarantees.size());
 		//
-		helper.deleteIdentity(identity.getId());
+		getHelper().deleteIdentity(identity.getId());
 		//
 		guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(0, guarantees.size());
@@ -610,15 +608,15 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		// prepare data
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityDto identityWithContract = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = helper.createIdentityContact(identityWithContract);
-		helper.createContractGuarantee(contract.getId(), identity.getId());
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identityWithContract);
+		getHelper().createContractGuarantee(contract.getId(), identity.getId());
 		//
 		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setGuaranteeId(identity.getId());
 		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(1, guarantees.size());
 		//
-		helper.deleteIdentityContact(contract.getId());
+		getHelper().deleteIdentityContact(contract.getId());
 		//
 		guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(0, guarantees.size());
@@ -638,7 +636,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	@Test
 	public void testSetStateByDateValidInFuture() {
-		IdmIdentityContractDto contract = helper.createIdentityContact(getHelper().createIdentity((GuardedString) null), null, new LocalDate().plusDays(1), null);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(getHelper().createIdentity((GuardedString) null), null, new LocalDate().plusDays(1), null);
 		//
 		Assert.assertNull(contract.getState());
 		Assert.assertFalse(((IdmIdentityContract) lookupService.lookupEntity(IdmIdentityContractDto.class, contract.getId())).isDisabled());
@@ -646,7 +644,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	@Test
 	public void testSetStateByDateValidInPast() {
-		IdmIdentityContractDto contract = helper.createIdentityContact(getHelper().createIdentity((GuardedString) null), null, new LocalDate().plusDays(1), new LocalDate().minusDays(1));
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(getHelper().createIdentity((GuardedString) null), null, new LocalDate().plusDays(1), new LocalDate().minusDays(1));
 		//
 		Assert.assertNull(contract.getState());
 		Assert.assertFalse(((IdmIdentityContract) lookupService.lookupEntity(IdmIdentityContractDto.class, contract.getId())).isDisabled());
@@ -659,26 +657,26 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity3 = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityDto identity4 = getHelper().createIdentity((GuardedString) null);
 
-		IdmTreeNodeDto node = helper.createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
 		node.setName("Position105");
 		treeNodeService.save(node);
 
-		IdmTreeNodeDto node2 = helper.createTreeNode();
+		IdmTreeNodeDto node2 = getHelper().createTreeNode();
 		node2.setName("Position006");
 		treeNodeService.save(node2);
 
-		IdmTreeNodeDto node3 = helper.createTreeNode();
+		IdmTreeNodeDto node3 = getHelper().createTreeNode();
 		node3.setCode("Position007");
 		treeNodeService.save(node3);
 
-		IdmTreeNodeDto node4 = helper.createTreeNode();
+		IdmTreeNodeDto node4 = getHelper().createTreeNode();
 		node4.setCode("Position108");
 		treeNodeService.save(node4);
 
-		IdmIdentityContractDto contract = helper.createIdentityContact(identity,node);
-		IdmIdentityContractDto contract2 = helper.createIdentityContact(identity2,node2);
-		IdmIdentityContractDto contract3 = helper.createIdentityContact(identity3,node3);
-		IdmIdentityContractDto contract4 = helper.createIdentityContact(identity4,node4);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity,node);
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity2,node2);
+		IdmIdentityContractDto contract3 = getHelper().createIdentityContact(identity3,node3);
+		IdmIdentityContractDto contract4 = getHelper().createIdentityContact(identity4,node4);
 
 		contract.setPosition("Position001");
 		contract = service.save(contract);
@@ -705,11 +703,11 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	public void identityFilterTest(){
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 
-		IdmTreeNodeDto node = helper.createTreeNode();
-		IdmTreeNodeDto node2 = helper.createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		IdmTreeNodeDto node2 = getHelper().createTreeNode();
 
-		IdmIdentityContractDto contract = helper.createIdentityContact(identity,node);
-		IdmIdentityContractDto contract2 = helper.createIdentityContact(identity,node2);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity,node);
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity,node2);
 
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setIdentity(identity.getId());
@@ -727,15 +725,15 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity3 = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityDto identity4 = getHelper().createIdentity((GuardedString) null);
 
-		IdmTreeNodeDto node = helper.createTreeNode();
-		IdmTreeNodeDto node2 = helper.createTreeNode();
-		IdmTreeNodeDto node3 = helper.createTreeNode();
-		IdmTreeNodeDto node4 = helper.createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		IdmTreeNodeDto node2 = getHelper().createTreeNode();
+		IdmTreeNodeDto node3 = getHelper().createTreeNode();
+		IdmTreeNodeDto node4 = getHelper().createTreeNode();
 
-		IdmIdentityContractDto contract = helper.createIdentityContact(identity,node, org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2021-06-05"));
-		IdmIdentityContractDto contract2 = helper.createIdentityContact(identity2,node2,org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2020-05-05"));
-		IdmIdentityContractDto contract3 = helper.createIdentityContact(identity3,node3,org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2016-05-05"));
-		IdmIdentityContractDto contract4 = helper.createIdentityContact(identity4,node4,org.joda.time.LocalDate.parse("2018-05-05"),org.joda.time.LocalDate.parse("2025-05-05"));
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity,node, org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2021-06-05"));
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity2,node2,org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2020-05-05"));
+		IdmIdentityContractDto contract3 = getHelper().createIdentityContact(identity3,node3,org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2016-05-05"));
+		IdmIdentityContractDto contract4 = getHelper().createIdentityContact(identity4,node4,org.joda.time.LocalDate.parse("2018-05-05"),org.joda.time.LocalDate.parse("2025-05-05"));
 
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setValidFrom(contract.getValidFrom());
@@ -769,11 +767,11 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityDto identity2 = getHelper().createIdentity((GuardedString) null);
 
-		IdmTreeNodeDto node = helper.createTreeNode();
-		IdmTreeNodeDto node2 = helper.createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		IdmTreeNodeDto node2 = getHelper().createTreeNode();
 
-		IdmIdentityContractDto contract = helper.createIdentityContact(identity,node);
-		IdmIdentityContractDto contract2 = helper.createIdentityContact(identity2,node2);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity,node);
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity2,node2);
 
 		contract.setExterne(true);
 		service.save(contract);
@@ -798,11 +796,11 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityDto identity2 = getHelper().createIdentity((GuardedString) null);
 
-		IdmTreeNodeDto node = helper.createTreeNode();
-		IdmTreeNodeDto node2 = helper.createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		IdmTreeNodeDto node2 = getHelper().createTreeNode();
 
-		IdmIdentityContractDto contract = helper.createIdentityContact(identity,node);
-		IdmIdentityContractDto contract2 = helper.createIdentityContact(identity2,node2);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity,node);
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity2,node2);
 
 		contract.setMain(true);
 		service.save(contract);
@@ -840,7 +838,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test
 	public void workPositionFilterTest() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmTreeNodeDto treeNode = helper.createTreeNode();
+		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setWorkPosition(treeNode.getId());
@@ -860,7 +858,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		List<IdmIdentityContractDto> contracts = service.findAllValidForDate(identity.getId(), LocalDate.now(), false);
 		Assert.assertEquals(1, contracts.size());
 		//
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		contract.setState(ContractState.DISABLED);
 		contract = service.save(contract);
 		//
@@ -868,7 +866,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		Assert.assertEquals(0, contracts.size());
 		//
 		// invalid
-		helper.createIdentityContact(identity, null, LocalDate.now().plusDays(1), null);
+		getHelper().createIdentityContact(identity, null, LocalDate.now().plusDays(1), null);
 		contracts = service.findAllValidForDate(identity.getId(), LocalDate.now(), false);
 		Assert.assertEquals(0, contracts.size());
 		contracts = service.findAllValidForDate(identity.getId(), LocalDate.now().plusDays(1), false);
@@ -885,11 +883,38 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	}
 	
 	@Test
+	public void testFindExcludedContracts() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		//
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
+		contract.setState(ContractState.EXCLUDED);
+		contract = service.save(contract);
+		IdmIdentityContractDto disabled = getHelper().createIdentityContact(identity);
+		disabled.setState(ContractState.DISABLED);
+		contract = service.save(contract);
+		IdmIdentityContractDto valid = getHelper().createIdentityContact(identity);
+		//
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+		filter.setIdentity(identity.getId());
+		filter.setExcluded(Boolean.TRUE);
+		List<IdmIdentityContractDto> contracts = service.find(filter, null).getContent();
+		//
+		Assert.assertEquals(1, contracts.size());
+		Assert.assertEquals(contract.getId(), contracts.get(0).getId());
+		//
+		filter.setExcluded(Boolean.FALSE);
+		contracts = service.find(filter, null).getContent();
+		Assert.assertEquals(2, contracts.size());
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(disabled.getId())));
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(valid.getId())));
+	}
+	
+	@Test
 	public void testDisableIdentityAfterExcludeContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		Assert.assertFalse(identity.isDisabled());
 		//
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		contract.setState(ContractState.EXCLUDED);
 		service.save(contract);
 		//
@@ -900,10 +925,10 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test
 	public void testEnableIdentityMoreContracts() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		helper.createIdentityContact(identity);
+		getHelper().createIdentityContact(identity);
 		Assert.assertFalse(identity.isDisabled());
 		//
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		contract.setState(ContractState.EXCLUDED);
 		service.save(contract);
 		//
@@ -914,7 +939,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test
 	public void testEnableIdentityAfterIncludeContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		contract.setState(ContractState.EXCLUDED);
 		contract = service.save(contract);
 		//
@@ -931,7 +956,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test
 	public void testEnableIdentityAfterEnableContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		contract.setState(ContractState.DISABLED);
 		contract = service.save(contract);
 		//
@@ -948,7 +973,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test
 	public void testDisableIdentityAfterDisableContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		contract.setState(ContractState.DISABLED);
 		contract = service.save(contract);
 		//
@@ -959,7 +984,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test
 	public void testDisableIdentityAfterInvalidateContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		contract.setValidFrom(LocalDate.now().plusDays(1));
 		contract = service.save(contract);
 		//
@@ -970,7 +995,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test
 	public void testEnableIdentityAfterValidateContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		contract.setValidFrom(LocalDate.now().plusDays(1));
 		contract = service.save(contract);
 		//
@@ -987,7 +1012,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test
 	public void testDisableIdentityAfterDeleteContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		service.delete(contract);
 		//
 		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
@@ -997,13 +1022,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test
 	public void testEnableIdentityAfterCreateValidContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		service.delete(contract);
 		//
 		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
 		Assert.assertTrue(identity.isDisabled());
 		//
-		helper.createIdentityContact(identity);
+		getHelper().createIdentityContact(identity);
 		//
 		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
 		Assert.assertFalse(identity.isDisabled());
@@ -1012,13 +1037,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Test
 	public void testDisableIdentityAfterCreateInvalidContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 		service.delete(contract);
 		//
 		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
 		Assert.assertTrue(identity.isDisabled());
 		//
-		helper.createIdentityContact(identity, null, LocalDate.now().plusDays(1), null);
+		getHelper().createIdentityContact(identity, null, LocalDate.now().plusDays(1), null);
 		//
 		identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identity.getId());
 		Assert.assertTrue(identity.isDisabled());

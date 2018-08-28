@@ -29,7 +29,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
 
 /**
@@ -42,7 +41,6 @@ import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
  */
 public abstract class AbstractHrProcessIntegrationTest<E extends AbstractDto> extends AbstractCoreWorkflowIntegrationTest {
 
-	@Autowired protected TestHelper helper;
 	@Autowired protected IdmIdentityContractService identityContractService;
 	@Autowired protected IdmIdentityService identityService;
 	@Autowired protected IdmScheduledTaskService scheduledTaskService;
@@ -61,9 +59,9 @@ public abstract class AbstractHrProcessIntegrationTest<E extends AbstractDto> ex
 	protected void before() {
 		super.loginAsAdmin();
 		//
-		helper.disable(IdentityContractEnableProcessor.class);
-		helper.disable(IdentityContractEndProcessor.class);
-		helper.disable(IdentityContractExclusionProcessor.class);
+		getHelper().disable(IdentityContractEnableProcessor.class);
+		getHelper().disable(IdentityContractEndProcessor.class);
+		getHelper().disable(IdentityContractExclusionProcessor.class);
 	}
 	
 	protected void after() {
@@ -73,9 +71,9 @@ public abstract class AbstractHrProcessIntegrationTest<E extends AbstractDto> ex
 	}
 	
 	protected void enableAllProcessors() {
-		helper.enable(IdentityContractEnableProcessor.class);
-		helper.enable(IdentityContractEndProcessor.class);
-		helper.enable(IdentityContractExclusionProcessor.class);
+		getHelper().enable(IdentityContractEnableProcessor.class);
+		getHelper().enable(IdentityContractEndProcessor.class);
+		getHelper().enable(IdentityContractExclusionProcessor.class);
 	}
 
 	protected IdmIdentityDto createTestIdentity(String username, boolean disabled) {
@@ -116,6 +114,8 @@ public abstract class AbstractHrProcessIntegrationTest<E extends AbstractDto> ex
 	
 	@SuppressWarnings("unchecked")
 	protected void process(IdmLongRunningTaskDto lrt, E dto) {
+		// TODO: remove mixing unit and integration test - filter and "black magic" is not tested ...
+		//
 		when(executor.getItemsToProcess(any(Pageable.class)))
 			.thenReturn(new PageImpl<>(Lists.newArrayList(dto)))
 			.thenReturn(new PageImpl<>(Lists.newArrayList()));

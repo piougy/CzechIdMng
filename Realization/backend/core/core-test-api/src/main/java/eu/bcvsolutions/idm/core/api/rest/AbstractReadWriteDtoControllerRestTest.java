@@ -290,7 +290,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		getMockMvc().perform(delete(getDetailUrl(dto.getId()))
         		.with(authentication(getAdminAuthentication()))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
-				.andExpect(status().isNoContent());
+				.andExpect(status().is2xxSuccessful()); // 204 or 202 (accepted)
 		//
 		getMockMvc().perform(get(getDetailUrl(dto.getId()))
         		.with(authentication(getAdminAuthentication()))

@@ -9,10 +9,12 @@ import java.util.UUID;
 
 import org.joda.time.LocalDate;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
@@ -66,7 +68,7 @@ public class HrEnableContractProcessIntegrationTest extends AbstractHrProcessInt
 	
 	@Test
 	public void testEnableWithEnabledProcessor() {
-		helper.enable(IdentityContractEnableProcessor.class);
+		getHelper().enable(IdentityContractEnableProcessor.class);
 		//
 		IdmIdentityContractDto dto = prepareTestData1();
 		// identity is enabled by processor
@@ -102,6 +104,24 @@ public class HrEnableContractProcessIntegrationTest extends AbstractHrProcessInt
 		assertEquals(1, logItems.getTotalElements());
 		SchedulerTestUtils.checkLogItems(lrt, IdmIdentityContractDto.class, logItems);
 		SchedulerTestUtils.checkQueueItems(scheduledTask, IdmIdentityContractDto.class, queueItems);
+	}
+
+	@Test
+	public void testEnableExcludedContract() {
+		IdmIdentityContractDto dto = createTestContract(createTestIdentity(UUID.randomUUID().toString(), true), true);
+		Assert.assertEquals(true, identityService.get(dto.getIdentity()).isDisabled());
+		Assert.assertEquals(ContractState.EXCLUDED, dto.getState());
+		//
+		assertEquals(true, identityService.get(dto.getIdentity()).isDisabled());
+		//
+		dto.setState(null);
+		identityContractService.save(dto);
+		//
+		Assert.assertEquals(true, identityService.get(dto.getIdentity()).isDisabled());
+		//
+		process(lrt, dto);
+		//
+		Assert.assertEquals(false, identityService.get(dto.getIdentity()).isDisabled());
 	}
 	
 	@Test

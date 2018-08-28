@@ -172,7 +172,7 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { identity, readOnly, _permissions, _profilePermissions, _imageUrl, _imageLoading } = this.props;
+    const { identity, readOnly, _permissions, _profilePermissions, _imageUrl, _imageLoading, userContext } = this.props;
     const { showLoading, showLoadingIdentityTrimmed, showCropper, cropperSrc } = this.state;
     //
     const blockLoginDate = identity && identity.blockLoginDate ? moment(identity.blockLoginDate).format(this.i18n('format.datetime')) : null;
@@ -180,7 +180,7 @@ class IdentityDetail extends Basic.AbstractContent {
     return (
       <div className="identity-detail">
         <Basic.Confirm ref="confirm-delete" level="danger"/>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={ identity && identity.id === userContext.id ? this.i18n('title') : this.i18n('content.identity.profile.userDetail') } />
         <form onSubmit={this.onSave.bind(this)}>
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('header')}/>

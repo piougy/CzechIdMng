@@ -38,7 +38,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Don't use abbreviations for fields, variables etc.
 * Don't use camelCase in package names
 * Database
- * [Convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
+  * [Convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
   * `Entity` / `Dto` has to contain jsr303 validations
   * Entity names in singular
 * Rest

@@ -31,37 +31,37 @@ public class TestSchemaResource {
 	public static final String TABLE_NAME = "test_schema_resource";
 
 	@Id
-	@Column(name = "name", length = DefaultFieldLengths.NAME)
+	@Column(name = "NAME", length = DefaultFieldLengths.NAME)
 	private String name;
 
 	@Type(type = "org.hibernate.type.StringClobType")
-	@Column(name = "string_value", nullable = true)
+	@Column(name = "STRING_VALUE", nullable = true)
 	private String stringValue;
 
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
-	@Column(name = "short_text_value", nullable = true, length = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "SHORT_TEXT_VALUE", nullable = true, length = DefaultFieldLengths.DESCRIPTION)
 	private String shortTextValue;
 
-	@Column(name = "boolean_value", nullable = true)
+	@Column(name = "BOOLEAN_VALUE", nullable = true)
 	private Boolean booleanValue;
 
-	@Column(name = "long_value", nullable = true)
+	@Column(name = "LONG_VALUE", nullable = true)
 	private Long longValue;
 	
-	@Column(name = "int_value", nullable = true)
+	@Column(name = "INT_VALUE", nullable = true)
 	private Integer intValue;
 
-	@Column(name = "double_value", nullable = true, precision = 38, scale = 4)
+	@Column(name = "DOUBLE_VALUE", nullable = true, precision = 38, scale = 4)
 	private BigDecimal doubleValue;
 
-	@Column(name = "date_value")
+	@Column(name = "DATE_VALUE")
 	private DateTime dateValue;
 
-	@Column(name = "byte_value")
+	@Column(name = "BYTE_VALUE")
 	private byte[] byteValue;
 
 	@JsonDeserialize(as = UUID.class)
-	@Column(name = "uuid_value", length = 16)
+	@Column(name = "UUID_VALUE", length = 16)
 	private UUID uuidValue;
 
 	public String getName() {

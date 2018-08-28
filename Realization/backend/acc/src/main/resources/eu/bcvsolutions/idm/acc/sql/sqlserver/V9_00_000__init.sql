@@ -29,7 +29,7 @@ CREATE TABLE acc_account (
 );
 CREATE INDEX idx_acc_account_sys_entity ON acc_account (system_entity_id);
 CREATE INDEX idx_acc_account_sys_id ON acc_account (system_id);
-CREATE UNIQUE INDEX ux_acc_account_sys_entity ON acc_account (system_entity_id);
+CREATE UNIQUE INDEX ux_acc_account_sys_entity ON acc_account (system_entity_id) WHERE system_entity_id IS NOT NULL;
 CREATE UNIQUE INDEX ux_account_uid ON acc_account (uid,system_id);
 
 

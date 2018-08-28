@@ -69,4 +69,5 @@ CREATE TABLE example_product_a (
 	price_m bit,
 	CONSTRAINT example_product_a_pkey PRIMARY KEY (id,rev),
 	CONSTRAINT fk_l8tlj6h1v48rav5nulvesvbg1 FOREIGN KEY (rev) REFERENCES idm_audit(id)
+);
 

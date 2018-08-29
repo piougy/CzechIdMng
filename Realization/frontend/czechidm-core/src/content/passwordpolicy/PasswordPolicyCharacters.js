@@ -6,6 +6,7 @@ import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import { PasswordPolicyManager, SecurityManager } from '../../redux';
 import PasswordPolicyIdentityAttributeEnum from '../../enums/PasswordPolicyIdentityAttributeEnum';
+import PasswordPolicyTypeEnum from '../../enums/PasswordPolicyTypeEnum';
 
 /**
 * Character detail for password policy
@@ -130,6 +131,10 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
     }
   }
 
+  _isValidateType(entity) {
+    return !entity || PasswordPolicyTypeEnum.findSymbolByKey(entity.type) === PasswordPolicyTypeEnum.VALIDATE;
+  }
+
   render() {
     const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
@@ -158,30 +163,32 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
                   hidden
                   label={this.i18n('entity.PasswordPolicy.weakPass')} />
 
-                <Basic.LabelWrapper label=" ">
-                  <Basic.Alert
-                    className="no-margin"
-                    icon="exclamation-sign"
-                    key="situationActionsAndWfInfo"
-                    text={this.i18n('entity.PasswordPolicy.help.bases')} />
-                </Basic.LabelWrapper>
+                <div hidden={this._isValidateType(entity)}>
+                  <Basic.LabelWrapper label=" ">
+                    <Basic.Alert
+                      className="no-margin"
+                      icon="exclamation-sign"
+                      key="passwordPolicyBasesInfo"
+                      text={this.i18n('entity.PasswordPolicy.help.bases')} />
+                  </Basic.LabelWrapper>
 
-                <Basic.TextField
-                  ref="lowerCharBase"
-                  label={this.i18n('entity.PasswordPolicy.lowerCharBase')}
-                  required/>
-                <Basic.TextField
-                  ref="upperCharBase"
-                  label={this.i18n('entity.PasswordPolicy.upperCharBase')}
-                  required/>
-                <Basic.TextField
-                  ref="numberBase"
-                  label={this.i18n('entity.PasswordPolicy.numberBase')}
-                  required/>
-                <Basic.TextField
-                  ref="specialCharBase"
-                  label={this.i18n('entity.PasswordPolicy.specialCharBase')}
-                  required/>
+                  <Basic.TextField
+                    ref="lowerCharBase"
+                    label={this.i18n('entity.PasswordPolicy.lowerCharBase')}
+                    required/>
+                  <Basic.TextField
+                    ref="upperCharBase"
+                    label={this.i18n('entity.PasswordPolicy.upperCharBase')}
+                    required/>
+                  <Basic.TextField
+                    ref="numberBase"
+                    label={this.i18n('entity.PasswordPolicy.numberBase')}
+                    required/>
+                  <Basic.TextField
+                    ref="specialCharBase"
+                    label={this.i18n('entity.PasswordPolicy.specialCharBase')}
+                    required/>
+                </div>
               </Basic.AbstractForm>
             </Basic.PanelBody>
             <Basic.PanelFooter showLoading={showLoading} >

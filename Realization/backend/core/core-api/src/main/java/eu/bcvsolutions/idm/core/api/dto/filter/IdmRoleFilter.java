@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 /**
  * Filter for roles
  * 
- * Codeable filter paramter can be used
+ * Codeable filter parameter can be used
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -24,7 +24,7 @@ public class IdmRoleFilter
 		implements CorrelationFilter, ExternalIdentifiable {
 
 	public static final String PARAMETER_ROLE_CATALOGUE = "roleCatalogue";
-	public static final String PARAMETER_GUARANTEE = "guarante";
+	public static final String PARAMETER_GUARANTEE = "guarantee";
 	
 	private RoleType roleType;
 	

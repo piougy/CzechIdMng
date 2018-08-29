@@ -4066,7 +4066,8 @@
       "message": "Role with this name already exists"
     },
     "CONFLICT": {
-      "title": "Record is on collision with another unique record"
+      "title": "Record is on collision with another unique record",
+      "message": ""
     },
     "NAME_CONFLICT": {
       "title": "Conflict with name",

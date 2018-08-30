@@ -45,7 +45,7 @@ public class GuaranteeManagersFilter
 	}
 	
 	/**
-	 * Predicate for manager as guarantee
+	 * Predicate for manager as guarantee configured manually
 	 * 
 	 * @param root
 	 * @param query
@@ -53,7 +53,7 @@ public class GuaranteeManagersFilter
 	 * @param filter
 	 * @return
 	 */
-	protected Predicate getGuaranteesPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+	public Predicate getGuaranteesPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		// manager as guarantee
 		Subquery<IdmIdentityContract> subqueryGuarantee = query.subquery(IdmIdentityContract.class);
 		Root<IdmContractGuarantee> subRootGuarantee = subqueryGuarantee.from(IdmContractGuarantee.class);

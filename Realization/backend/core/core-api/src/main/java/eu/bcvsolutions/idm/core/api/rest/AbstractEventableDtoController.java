@@ -54,7 +54,7 @@ public class AbstractEventableDtoController<DTO extends BaseDto, F extends BaseF
 	public DTO saveDto(DTO dto, BasePermission... permission) {
 		Assert.notNull(dto, "DTO is required");
 		//
-		if (this.supportsRequests()) {
+		if (this.isRequestModeEnabled()) {
 			throw new ResultCodeException(CoreResultCode.REQUEST_CUD_OPERATIONS_NOT_ALLOWED,
 					ImmutableMap.of("controller", this.getClass().getSimpleName()));
 		}

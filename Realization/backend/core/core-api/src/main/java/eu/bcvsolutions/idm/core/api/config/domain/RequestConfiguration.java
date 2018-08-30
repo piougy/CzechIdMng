@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
@@ -20,11 +21,15 @@ public interface RequestConfiguration extends Configurable {
 	 */
 	String PROPERTY_WF_PREFIX = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.request";
+	
 	/**
-	 * Enable requesting of role
+	 * Prefix of WF definition key
 	 */
-	String PROPERTY_ROLE_ENABLE = 
-			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.request.idm-role.enabled";
+	String PROPERTY_PUBLIC_PREFIX = 
+			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.request";
+
+	String ENABLED_SUFIX = "enabled";
+
 	String CAMEL_SPLIT_REGEX = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
 	
 	
@@ -47,15 +52,8 @@ public interface RequestConfiguration extends Configurable {
 	@Override
 	default List<String> getPropertyNames() {
 		List<String> properties = new ArrayList<>();
-		properties.add(getPropertyName(PROPERTY_ROLE_ENABLE));
 		return properties;
 	}
-	
-	/**
-	 * Are requests of role enabled?
-	 * @return
-	 */
-	boolean isRoleRequestEnabled();
 
 	/**
 	 * Get approval process key
@@ -63,5 +61,14 @@ public interface RequestConfiguration extends Configurable {
 	 * @param entityType
 	 * @return
 	 */
-	String getRequestApprovalProcessKey(Class<Requestable> entityType);
+	String getRequestApprovalProcessKey(Class<? extends Requestable> entityType);
+	
+	/**
+	 * Is request mode enabled for given requestable class.
+	 * !!!All requestable classes are controlled by IdmRoleDto property for now!!!
+	 * 
+	 * @param entityType
+	 * @return
+	 */
+	boolean isRequestModeEnabled(Class<? extends BaseDto> entityType);
 }

@@ -114,7 +114,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(java.lang.Object)
 	 */
 	@Override
-	public void onApplicationEvent(AbstractEntityEvent<E> event) {
+	public void onApplicationEvent(AbstractEntityEvent event) {
 		if (!supports(event)) {
 			// event is not supported with this processor
 			// its on the start to prevent debug logging

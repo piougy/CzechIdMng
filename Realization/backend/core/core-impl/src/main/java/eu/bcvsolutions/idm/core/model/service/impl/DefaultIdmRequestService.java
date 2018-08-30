@@ -76,9 +76,10 @@ public class DefaultIdmRequestService extends
 	public IdmRequestDto toDto(IdmRequest entity, IdmRequestDto dto) {
 		IdmRequestDto requestDto = super.toDto(entity, dto);
 
+		// Load and add WF process DTO to embedded. Prevents of many requests from FE.
 		if (requestDto != null && requestDto.getWfProcessId() != null) {
 			WorkflowHistoricProcessInstanceDto processDto = workflowHistoricProcessInstanceService.get(requestDto.getWfProcessId());
-			// TODO: create trimmed variant in workflow process instance service
+			// Trim a process variables - prevent security issues and too high of response size
 			if (processDto != null) {
 				processDto.setProcessVariables(null);
 			}
@@ -113,6 +114,15 @@ public class DefaultIdmRequestService extends
 			dto.setResult(new OperationResultDto(OperationState.NOT_EXECUTED));
 		}
 		return super.saveInternal(dto);
+	}
+	
+	@Override
+	@Transactional
+	public IdmRequestDto cancel(IdmRequestDto dto) {
+		cancelWF(dto);
+		dto.setState(RequestState.CANCELED);
+		dto.setResult(new OperationResultDto(OperationState.CANCELED));
+		return this.save(dto);
 	}
 
 	@Override
@@ -160,6 +170,16 @@ public class DefaultIdmRequestService extends
 		if (!states.isEmpty()) {
 			predicates.add(root.get(IdmRequest_.state).in(states));
 		}
+		if (filter.getOwnerId() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmRequest_.ownerId),
+					filter.getOwnerId()));
+		}
+		if (filter.getOwnerType() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmRequest_.ownerType),
+					filter.getOwnerType()));
+		}
 		return predicates;
 	}
 
@@ -181,7 +201,7 @@ public class DefaultIdmRequestService extends
 			}
 
 			workflowProcessInstanceService.delete(dto.getWfProcessId(),
-					"Role request use this WF, was deleted. This WF was deleted too.");
+					"Request was canceled.");
 		}
 	}
 

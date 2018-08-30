@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.core.api.config.domain.RequestConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
@@ -55,8 +54,6 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmRoleCatalogueRoleController extends AbstractReadWriteDtoController<IdmRoleCatalogueRoleDto, IdmRoleCatalogueRoleFilter> {
 	
 	protected static final String TAG = "Role catalogues - role relations";
-	@Autowired
-	private RequestConfiguration requestConfiguration;
 	
 	@Autowired
 	public IdmRoleCatalogueRoleController(IdmRoleCatalogueRoleService service) {
@@ -247,10 +244,6 @@ public class IdmRoleCatalogueRoleController extends AbstractReadWriteDtoControll
 		return super.delete(backendId);
 	}
 	
-	@Override
-	protected boolean supportsRequests() {
-		return requestConfiguration.isRoleRequestEnabled();
-	}
 	
 	@Override
 	@ResponseBody

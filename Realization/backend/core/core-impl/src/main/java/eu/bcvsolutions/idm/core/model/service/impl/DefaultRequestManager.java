@@ -40,7 +40,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -51,6 +50,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RequestFilterPredicate;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
@@ -63,10 +63,13 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemChangesDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto.Builder;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
@@ -80,6 +83,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -97,8 +101,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
@@ -154,7 +156,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		} catch (Exception ex) {
 			LOG.error(ex.getLocalizedMessage(), ex);
 			request = requestService.get(requestId);
-			Throwable exceptionToLog = resolveException(ex);
+			Throwable exceptionToLog = ExceptionUtils.resolveException(ex);
 
 			if (exceptionToLog instanceof ResultCodeException) {
 				request.setResult( //
@@ -258,57 +260,10 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		return this.executeRequestInternal(requestId);
 	}
 
-	private IdmRequestDto executeRequestInternal(UUID requestId) {
-		Assert.notNull(requestId, "Role request ID is required!");
-		IdmRequestDto request = requestService.get(requestId);
-		Assert.notNull(request, "Role request is required!");
-
-		List<IdmRequestItemDto> items = this.findRequestItems(request.getId(), null);
-		List<IdmRequestItemDto> sortedItems = items.stream().sorted(Comparator.comparing(IdmRequestItemDto::getCreated))
-				.collect(Collectors.toList());
-
-		// Validate items
-		sortedItems.stream() //
-				.filter(item -> RequestOperationType.ADD == item.getOperation()
-						|| RequestOperationType.UPDATE == item.getOperation()) //
-				.forEach(item -> { //
-					// Get DTO service
-					R dto = null;
-					try {
-						@SuppressWarnings("unchecked")
-						Class<? extends R> dtoClass = (Class<? extends R>) Class.forName(item.getOwnerType());
-						@SuppressWarnings("unchecked")
-						ReadWriteDtoService<Requestable, BaseFilter> dtoService = (ReadWriteDtoService<Requestable, BaseFilter>) getServiceByItem(
-								item, dtoClass);
-						dto = this.convertItemToDto(item, dtoClass);
-						dtoService.validateDto((Requestable) dto);
-					} catch (Exception e) {
-						throw new RoleRequestException(CoreResultCode.REQUEST_ITEM_IS_NOT_VALID,
-								ImmutableMap.of("dto", dto != null ? dto.toString() : null, "item", item.toString()),
-								e);
-					}
-				});
-
-		sortedItems.forEach(item -> {
-			try {
-				this.resolveItem(item);
-			} catch (ClassNotFoundException | IOException e) {
-				throw new CoreException(e);
-			}
-		});
-
-		request.setState(RequestState.EXECUTED);
-		request.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
-		return requestService.save(request);
-	}
-
 	@Override
 	@Transactional
 	public void cancel(IdmRequestDto dto) {
-		cancelWF(dto);
-		dto.setState(RequestState.CANCELED);
-		dto.setResult(new OperationResultDto(OperationState.CANCELED));
-		requestService.save(dto);
+		requestService.cancel(dto);
 	}
 
 	@Override
@@ -363,6 +318,14 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		// Check permissions on the target service
 		ReadDtoService<R, ?> dtoReadService = getDtoService(dtoClass);
 		R dto = dtoReadService.get(dtoId, permission);
+		if (dto == null) {
+			try {
+				dto = dtoClass.newInstance();
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new CoreException(e);
+			}
+			dto.setId(dtoId);
+		}
 
 		return get(requestId, dto);
 	}
@@ -416,7 +379,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		// only equals is implemented.
 
 		// Find potential parents
-		List<UUID> potencialParents = this.findPotencialParents(filter);
+		List<RequestPredicate> potencialParents = this.findPotencialParents(filter);
 
 		results.addAll(this.findRelatedAddedItems(request, potencialParents, items, dtoClass));
 
@@ -430,7 +393,6 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	@Transactional
 	public IdmRequestDto createRequest(R dto, BasePermission... permission) {
 		Assert.notNull(dto, "DTO is required!");
-		// TODO: Rights!
 
 		boolean createNew = false;
 		if (dto.getId() == null) {
@@ -438,12 +400,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 			createNew = true;
 		}
 		IdmRequestDto request = new IdmRequestDto();
-		request.setState(RequestState.CONCEPT);
-		request.setOwnerId((UUID) dto.getId());
-		request.setOwnerType(dto.getClass().getName());
-		request.setExecuteImmediately(false);
-		request.setRequestType(dto.getClass().getSimpleName());
-		request.setResult(new OperationResultDto(OperationState.CREATED));
+		initRequest(request, dto);
 		// Create request
 		request = requestService.save(request, permission);
 		// Create item
@@ -515,7 +472,8 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		List<IdmRequestItemDto> addedItems = this.findRequestItems(request.getId(), IdmFormValueDto.class,
 				RequestOperationType.ADD);
 		// Find added items for that owner ID
-		List<R> relatedAddedItems = this.findRelatedAddedItems(request, ImmutableList.of((UUID) owner.getId()),
+		List<R> relatedAddedItems = this.findRelatedAddedItems(request,
+				ImmutableList.of(new RequestPredicate((UUID) owner.getId(), "ownerId")),
 				addedItems, (Class<? extends R>) IdmFormValueDto.class);
 
 		requestValues.addAll((Collection<? extends IdmFormValueDto>) relatedAddedItems);
@@ -639,6 +597,180 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		return result;
 	}
 
+	@Override
+	@Transactional
+	public void onDeleteRequestable(R requestable) {
+		Assert.notNull(requestable, "Requestable DTO cannot be null!");
+
+		// Search request items with that deleting owner
+		IdmRequestFilter requestFilter = new IdmRequestFilter();
+		requestFilter.setOwnerType(requestable.getClass().getName());
+		requestFilter.setOwnerId((UUID) requestable.getId());
+		List<IdmRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		requests.forEach(request -> { //
+			changeRequestState(requestable, request, //
+					new ResultCodeException( //
+							CoreResultCode.REQUEST_OWNER_WAS_DELETED, //
+							ImmutableMap.of("owner", requestable.toString()) //
+			));
+			requestService.save(request);
+		});
+
+		// Search request items with that deleting owner
+		IdmRequestItemFilter requestItemFilter = new IdmRequestItemFilter();
+		requestItemFilter.setOwnerType(requestable.getClass().getName());
+		requestItemFilter.setOwnerId((UUID) requestable.getId());
+		List<IdmRequestItemDto> requestItems = requestItemService.find(requestItemFilter, null).getContent();
+		requestItems.forEach(item -> { //
+			changeItemState(requestable, item, //
+					new ResultCodeException( //
+							CoreResultCode.REQUEST_OWNER_WAS_DELETED, //
+							ImmutableMap.of("owner", requestable.toString()) //
+			));
+			requestItemService.save(item);
+
+			IdmRequestItemFilter subItemFilter = new IdmRequestItemFilter();
+			subItemFilter.setRequestId(item.getRequest());
+			// Search all items for that request
+			List<IdmRequestItemDto> subItems = requestItemService.find(subItemFilter, null).getContent();
+			// Check if items in same request does not contains same ID of deleting owner in
+			// the DATA Json.
+			// If yes, then state will be changed to cancel.
+			subItems.stream() //
+					.filter(subItem -> !requestable.getId().equals(subItem.getOwnerId())) //
+					.filter(subItem -> subItem.getData() != null) //
+					.filter(subItem -> subItem.getData() //
+							.indexOf(requestable.getId().toString()) != -1) //
+					.forEach(subItem -> { //
+						changeItemState(requestable, item, //
+								new ResultCodeException( //
+										CoreResultCode.REQUEST_OWNER_FROM_OTHER_REQUEST_WAS_DELETED, //
+										ImmutableMap.of("owner", requestable.toString(), "otherRequest",
+												item.toString()) //
+						));
+						requestItemService.save(item);
+					});
+
+		}); //
+	}
+	
+	@Override
+	@Transactional
+	public void deleteRequestable(R dto, boolean executeImmediately) {
+		Assert.notNull(dto);
+		Assert.notNull(dto.getId(), "Requestable DTO cannot be null!");
+
+		// Create and save request
+		IdmRequestDto request = new IdmRequestDto();
+		this.initRequest(request, dto);
+		request.setExecuteImmediately(executeImmediately);
+		request = requestService.save(request);
+		// Create item
+		this.delete(request.getId(), dto);
+		
+		// Start request
+		request = this.startRequestInternal(request.getId(), true);
+
+		if (RequestState.EXECUTED == request.getState()) {
+			return;
+		}
+		if (RequestState.IN_PROGRESS == request.getState()) {
+			throw new AcceptedException(request.getId().toString());
+		}
+		if (RequestState.EXCEPTION == request.getState()) {
+			throw new CoreException(ExceptionUtils.resolveException(request.getResult().getException()));
+		}
+	}
+	
+	private IdmRequestDto executeRequestInternal(UUID requestId) {
+		Assert.notNull(requestId, "Role request ID is required!");
+		IdmRequestDto request = requestService.get(requestId);
+		Assert.notNull(request, "Role request is required!");
+
+		List<IdmRequestItemDto> items = this.findRequestItems(request.getId(), null);
+		List<IdmRequestItemDto> sortedItems = items.stream().sorted(Comparator.comparing(IdmRequestItemDto::getCreated))
+				.collect(Collectors.toList());
+
+		// Validate items
+		sortedItems.stream() //
+				.filter(item -> RequestOperationType.ADD == item.getOperation()
+						|| RequestOperationType.UPDATE == item.getOperation()) //
+				.forEach(item -> { //
+					// Get DTO service
+					R dto = null;
+					try {
+						@SuppressWarnings("unchecked")
+						Class<? extends R> dtoClass = (Class<? extends R>) Class.forName(item.getOwnerType());
+						@SuppressWarnings("unchecked")
+						ReadWriteDtoService<Requestable, BaseFilter> dtoService = (ReadWriteDtoService<Requestable, BaseFilter>) getServiceByItem(
+								item, dtoClass);
+						dto = this.convertItemToDto(item, dtoClass);
+						dtoService.validateDto((Requestable) dto);
+					} catch (Exception e) {
+						throw new RoleRequestException(CoreResultCode.REQUEST_ITEM_IS_NOT_VALID,
+								ImmutableMap.of("dto", dto != null ? dto.toString() : null, "item", item.toString()),
+								e);
+					}
+				});
+
+		sortedItems.forEach(item -> {
+			try {
+				this.resolveItem(item);
+			} catch (ClassNotFoundException | IOException e) {
+				throw new CoreException(e);
+			}
+		});
+
+		request.setState(RequestState.EXECUTED);
+		request.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
+		return requestService.save(request);
+	}
+
+	/**
+	 * Change item state
+	 * 
+	 * @param requestable
+	 * @param item
+	 * @param ex
+	 */
+	private void changeItemState(R requestable, IdmRequestItemDto item, ResultCodeException ex) {
+		if (item.getState().isTerminatedState()) {
+			// If is item in the terminated state, then we only add result code exception,
+			// but don't modify the result state
+			item.setResult(new Builder(item.getResult().getState()) //
+					.setException(ex) //
+					.build()); //
+		} else {
+			item = requestItemService.cancel(item);
+			item.setResult(new Builder(OperationState.NOT_EXECUTED) //
+					.setException(ex) //
+					.build()); //
+		}
+	}
+
+	/**
+	 * Change request state
+	 * 
+	 * @param requestable
+	 * @param request
+	 * @param ex
+	 */
+	private void changeRequestState(R requestable, IdmRequestDto request, ResultCodeException ex) {
+		if (request.getState().isTerminatedState()) {
+			// If is request in the terminated state, then we only add result code
+			// exception,
+			// but don't modify the result state
+			request.setResult(new Builder(request.getResult().getState()) //
+					.setException(ex) //
+					.build()); //
+		} else {
+			request = requestService.cancel(request);
+			request.setResult(new Builder(OperationState.NOT_EXECUTED) //
+					.setException(ex) //
+					.build()); //
+		}
+	}
+
 	private R get(UUID requestId, R dto) {
 		Assert.notNull(dto, "DTO is required!");
 		Assert.notNull(requestId, "Request ID is required!");
@@ -752,6 +884,21 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 					ImmutableMap.of("dto", dto.toString()));
 		}
 	}
+	
+	/**
+	 * Init new request (without save)
+	 * 
+	 * @param request
+	 * @param dto
+	 */
+	private void initRequest(IdmRequestDto request, R dto) {
+		request.setState(RequestState.CONCEPT);
+		request.setOwnerId((UUID) dto.getId());
+		request.setOwnerType(dto.getClass().getName());
+		request.setExecuteImmediately(false);
+		request.setRequestType(dto.getClass().getSimpleName());
+		request.setResult(new OperationResultDto(OperationState.CREATED));
+	}
 
 	private Object makeNiceValue(Object value) {
 		if (value == null) {
@@ -825,42 +972,119 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	 * It means only equals is implemented.
 	 * 
 	 * @param request
-	 * @param potencialParents
+	 * @param predicates
 	 * @param items
 	 * @param dtoClass
 	 * @return
 	 */
-	private List<R> findRelatedAddedItems(IdmRequestDto request, List<UUID> potencialParents,
+	private List<R> findRelatedAddedItems(IdmRequestDto request, List<RequestPredicate> predicates,
 			List<IdmRequestItemDto> items, Class<? extends R> dtoClass) {
-		List<R> results = new ArrayList<>();
-		// Find items which should be added
-		List<IdmRequestItemDto> itemsToAdd = items.stream() //
+		List<R> requestables = new ArrayList<>();
+
+		items.stream() //
 				.filter(i -> RequestOperationType.ADD == i.getOperation()) //
-				.filter(i -> {
-					return potencialParents.stream() //
-							.filter(parentId -> i.getData().indexOf(parentId.toString()) != -1) //
-							.findFirst() //
-							.isPresent(); //
-				}).collect(Collectors.toList()); //
+				.forEach(item -> { //
+					try {
+						R requestedDto = this.convertItemToDto(item, dtoClass);
+						AbstractDto requested = (AbstractDto) requestedDto;
+						addEmbedded(requested, request.getId());
+						addRequestItemToDto((Requestable) requested, item);
+						requestables.add((R) requestedDto);
+						return;
 
-		itemsToAdd.forEach(item -> {
+					} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+							| IntrospectionException | InstantiationException | ClassNotFoundException e) {
+						throw new ResultCodeException(CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
+								ImmutableMap.of("json", item.getData()), e);
+					}
+				});
+
+		List<MethodDescriptor> descriptors;
+		try {
+			descriptors = Lists.newArrayList(Introspector.getBeanInfo(dtoClass).getMethodDescriptors()) //
+					.stream() //
+					.filter(methodDescriptor -> UUID.class.equals(methodDescriptor.getMethod().getReturnType()) 
+							// Serializable too, because some UUID are in DTO as Serializable :-)
+							|| Serializable.class.equals(methodDescriptor.getMethod().getReturnType())) //
+					.filter(methodDescriptor -> methodDescriptor.getMethod().getParameterTypes() == null
+							|| methodDescriptor.getMethod().getParameterTypes().length == 0) //
+					.collect(Collectors.toList());
+		} catch (IntrospectionException e) {
+			throw new CoreException(e);
+		} //
+
+		return requestables.stream() //
+				.filter(requestable -> {
+					return predicates.stream().allMatch(predicate -> {
+						return descriptors.stream() //
+								.filter(descriptor -> {
+									if(predicate.getField() == null) {
+										return true;
+									}
+									return getFieldName(descriptor.getName()).equals(predicate.getField());
+								}) //
+								.anyMatch(descriptor -> { //
+									try {
+										Object value = descriptor.getMethod().invoke(requestable, new Object[] {});
+										if (value == null) {
+											return false;
+										}
+										return value.equals(predicate.getValue());
+									} catch (IllegalAccessException | IllegalArgumentException
+											| InvocationTargetException e) {
+										throw new CoreException(e);
+									}
+								});
+					});
+				}).collect(Collectors.toList());
+	}
+	
+	private String getFieldName(String methodName) {
+		// Assume the method starts with either get or is.
+		return Introspector.decapitalize(methodName.substring(methodName.startsWith("is") ? 2 : 3));
+	} 
+
+	/**
+	 * Find potential parents. Invokes all method with UUID return type and without
+	 * input parameters.
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	private List<RequestPredicate> findPotencialParents(BaseFilter filter) {
+		Assert.notNull(filter, "Filter is mandatory!");
+
+		List<MethodDescriptor> descriptors;
+		try {
+			descriptors = Lists.newArrayList(Introspector.getBeanInfo(filter.getClass()).getMethodDescriptors()) //
+					.stream() //
+					.filter(methodDescriptor -> UUID.class.equals(methodDescriptor.getMethod().getReturnType())) //
+					.filter(methodDescriptor -> methodDescriptor.getMethod().getParameterTypes() == null
+							|| methodDescriptor.getMethod().getParameterTypes().length == 0) //
+					.collect(Collectors.toList());
+		} catch (IntrospectionException e) {
+			throw new CoreException(e);
+		} //
+
+		List<RequestPredicate> results = new ArrayList<>();
+		descriptors.stream().forEach(descriptor -> {
 			try {
-				R requestedDto = this.convertItemToDto(item, dtoClass);
-				AbstractDto requested = (AbstractDto) requestedDto;
-				addEmbedded(requested, request.getId());
-				addRequestItemToDto((Requestable) requested, item);
-				results.add((R) requestedDto);
-				return;
+				Object value = descriptor.getMethod().invoke(filter, new Object[] {});
+				if (value == null) {
+					return;
+				}
+				RequestFilterPredicate filterPredicate = descriptor.getMethod()
+						.getAnnotation(RequestFilterPredicate.class);
 
-			} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-					| IntrospectionException | InstantiationException | ClassNotFoundException e) {
-				throw new ResultCodeException(CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
-						ImmutableMap.of("json", item.getData()), e);
+				results.add(
+						new RequestPredicate((UUID) value, filterPredicate != null ? filterPredicate.field() : null));
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new CoreException(e);
 			}
 		});
-
 		return results;
 	}
+	
 
 	@SuppressWarnings("unchecked")
 	/*
@@ -937,43 +1161,6 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		item.setOwnerType(dto.getClass().getName());
 		item.setResult(new OperationResultDto(OperationState.CREATED));
 		return item;
-	}
-
-	/**
-	 * Find potential parents. Invokes all method with UUID return type and without
-	 * input parameters.
-	 * 
-	 * @param filter
-	 * @return
-	 */
-	private List<UUID> findPotencialParents(BaseFilter filter) {
-		Assert.notNull(filter, "Filter is mandatory!");
-
-		List<MethodDescriptor> descriptors;
-		try {
-			descriptors = Lists.newArrayList(Introspector.getBeanInfo(filter.getClass()).getMethodDescriptors()) //
-					.stream() //
-					.filter(methodDescriptor -> UUID.class.equals(methodDescriptor.getMethod().getReturnType())) //
-					.filter(methodDescriptor -> methodDescriptor.getMethod().getParameterTypes() == null
-							|| methodDescriptor.getMethod().getParameterTypes().length == 0) //
-					.collect(Collectors.toList());
-		} catch (IntrospectionException e) {
-			throw new CoreException(e);
-		} //
-
-		List<UUID> results = new ArrayList<>();
-		descriptors.stream().forEach(descriptor -> {
-			try {
-				Object value = descriptor.getMethod().invoke(filter, new Object[] {});
-				if (value == null) {
-					return;
-				}
-				results.add((UUID) value);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				throw new CoreException(e);
-			}
-		});
-		return results;
 	}
 
 	/**
@@ -1181,7 +1368,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 				}
 			} else {
 				//
-				// we using filled value only and set her into previous value => value id is
+				// We using filled value only and set her into previous value => value id is
 				// preserved
 				// the same value should not be updated
 				// confidential value is always updated - only new values are sent from client
@@ -1280,28 +1467,6 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		return false;
 	}
 
-	/**
-	 * Cancel unfinished workflow process for this automatic role.
-	 *
-	 * @param dto
-	 */
-	private void cancelWF(IdmRequestDto dto) {
-		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
-			WorkflowFilterDto filter = new WorkflowFilterDto();
-			filter.setProcessInstanceId(dto.getWfProcessId());
-
-			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService.find(filter, null)
-					.getContent();
-			if (resources.isEmpty()) {
-				// Process with this ID not exist ... maybe was ended
-				return;
-			}
-
-			workflowProcessInstanceService.delete(dto.getWfProcessId(),
-					"Role request use this WF, was deleted. This WF was deleted too.");
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	private RequestManager<R> getRequestManager() {
 		if (this.requestManager == null) {
@@ -1317,27 +1482,31 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 				RequestManager.getConfidentialStorageKey(confidentialItem.getId()));
 	}
 
-	/**
-	 * If exception causal chain contains cause instance of ResultCodeException,
-	 * then is return primary.
-	 * 
-	 * @param ex
-	 * @return
-	 */
-	private Throwable resolveException(Exception ex) {
-		Assert.notNull(ex);
-		Throwable exceptionToLog = null;
-		List<Throwable> causes = Throwables.getCausalChain(ex);
-		// If is some cause instance of ResultCodeException, then we will use only it
-		// (for better show on frontend)
-		Throwable resultCodeException = causes.stream().filter(cause -> {
-			if (cause instanceof ResultCodeException) {
-				return true;
-			}
-			return false;
-		}).findFirst().orElse(null);
+	public class RequestPredicate {
 
-		exceptionToLog = resultCodeException != null ? resultCodeException : ex;
-		return exceptionToLog;
+		private UUID value;
+		private String field;
+
+		public RequestPredicate(UUID value, String field) {
+			super();
+			this.value = value;
+			this.field = field;
+		}
+
+		public UUID getValue() {
+			return value;
+		}
+
+		public void setValue(UUID value) {
+			this.value = value;
+		}
+
+		public String getField() {
+			return field;
+		}
+
+		public void setField(String field) {
+			this.field = field;
+		}
 	}
 }

@@ -252,6 +252,7 @@ public enum CoreResultCode implements ResultCode {
 	// Contract slices
 	CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. Cannot be deleted directly!"),
 	CONTRACT_SLICE_DUPLICATE_CANDIDATES(HttpStatus.CONFLICT, "We found more then once slice which should be use as contract. This is not allowed. None from this slices will be used as contract. It means contracts [%s] are in incorrect state now!"),
+	//
 	// Universal requests
 	REQUEST_EXECUTED_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Request [%s] in EXECUTED state cannot be deleted!"),
 	DTO_CANNOT_BE_CONVERT_TO_JSON(HttpStatus.INTERNAL_SERVER_ERROR, "DTO [%] cannot be convert to the JSON!"),
@@ -260,8 +261,10 @@ public enum CoreResultCode implements ResultCode {
 	REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT(HttpStatus.FORBIDDEN, "You do not have right for immidiately execute request [%s]!"),
 	REQUEST_ITEM_IS_NOT_VALID(HttpStatus.BAD_REQUEST, "DTO [%s] in the request item [%s] is not valid!"),
 	REQUEST_NO_WF_DEF_FOUND(HttpStatus.BAD_REQUEST, "No approval workflow definition found for entity type [%s]!"),
+	REQUEST_OWNER_WAS_DELETED(HttpStatus.GONE, "Owner [%s] was deleted!"),
+	REQUEST_OWNER_FROM_OTHER_REQUEST_WAS_DELETED(HttpStatus.GONE, "Owner [%s] from other request [%s] was deleted!"),
 	//
-	// role composition
+	// Role composition
 	ROLE_COMPOSITION_ASSIGN_ROLE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Role [%s] by role composition was not assigned."),
 	ROLE_COMPOSITION_ASSIGNED_ROLE_REMOVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Identity role [%s] was removed."),
 	ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Role composition [%s] is removed in concurent task [%s]"),

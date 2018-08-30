@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -77,6 +78,8 @@ public class DefaultSysRoleSystemAttributeService extends
 	private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
+	@Autowired
+	private RequestManager<SysRoleSystemAttributeDto> requestManager;
 
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
@@ -131,6 +134,16 @@ public class DefaultSysRoleSystemAttributeService extends
 		SysRoleSystemAttributeDto roleSystemAttribute = super.save(dto, permission);
 
 		return roleSystemAttribute;
+	}
+	
+	@Override
+	@Transactional
+	public void delete(SysRoleSystemAttributeDto roleSystemAttribute, BasePermission... permission) {
+		Assert.notNull(roleSystemAttribute);
+		// Cancel requests and request items using that deleting DTO
+		requestManager.onDeleteRequestable(roleSystemAttribute);
+		
+		super.delete(roleSystemAttribute, permission);
 	}
 
 	@Transactional

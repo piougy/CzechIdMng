@@ -26,18 +26,18 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  * @author svandav
  * 
  */
-public interface RequestManager<R extends Requestable> 
-		extends RequestService<IdmRequestDto> {
+public interface RequestManager<R extends Requestable> extends RequestService<IdmRequestDto> {
 
 	R post(Serializable requestId, R dto, BasePermission... permission);
 
 	R delete(Serializable requestId, R dto, BasePermission... permission);
-	
+
 	R get(UUID requestId, UUID dtoId, Class<R> dtoClass, BasePermission... permission);
 
 	IdmRequestDto createRequest(R dto, BasePermission... permission);
 
-	Page<R> find(Class<? extends R> dtoClass, Serializable requestId, BaseFilter filter, Pageable pageable, IdmBasePermission permission);
+	Page<R> find(Class<? extends R> dtoClass, Serializable requestId, BaseFilter filter, Pageable pageable,
+			IdmBasePermission permission);
 
 	IdmFormInstanceDto saveFormInstance(UUID requestId, R owner, IdmFormDefinitionDto formDefinition,
 			List<IdmFormValueDto> newValues, BasePermission... permission);
@@ -46,7 +46,7 @@ public interface RequestManager<R extends Requestable>
 			BasePermission... permission);
 
 	IdmRequestItemChangesDto getChanges(IdmRequestItemDto item, BasePermission... permission);
-	
+
 	/**
 	 * Returns confidential storage key for given request item
 	 * 
@@ -58,5 +58,20 @@ public interface RequestManager<R extends Requestable>
 		//
 		return FormValueService.CONFIDENTIAL_STORAGE_VALUE_PREFIX + ":" + itemId;
 	}
+
+	/**
+	 * Cancel requests and request items using that deleting DTO
+	 * 
+	 * @param requestable
+	 */
+	void onDeleteRequestable(R requestable);
+
+	/**
+	 * Delete given requestable DTO. Creates and executes request.
+	 * 
+	 * @param dto
+	 * @param executeImmediately
+	 */
+	void deleteRequestable(R dto, boolean executeImmediately);
 
 }

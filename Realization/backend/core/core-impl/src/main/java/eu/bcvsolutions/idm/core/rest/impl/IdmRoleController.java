@@ -35,7 +35,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
-import eu.bcvsolutions.idm.core.api.config.domain.RequestConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
@@ -87,8 +86,6 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 	private final IdmFormDefinitionController formDefinitionController;
 	private final IdmAuthorizationPolicyService authorizationPolicyService;
 	private final SecurityService securityService;
-	@Autowired
-	private RequestConfiguration requestConfiguration;
 	
 	@Autowired
 	public IdmRoleController(
@@ -564,12 +561,7 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 		//
 		return authorizationPolicyService.getEnabledRoleAuthorities(securityService.getAuthentication().getCurrentIdentity().getId(), dto.getId());
 	}
-	
-	@Override
-	protected boolean supportsRequests() {
-		return requestConfiguration.isRoleRequestEnabled();
-	}
-	
+
 	@Override
 	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmRoleFilter filter = new IdmRoleFilter(parameters);

@@ -14,4 +14,6 @@ public interface IdmRequestItemService
 		extends ReadWriteDtoService<IdmRequestItemDto, IdmRequestItemFilter>,
 		AuthorizableService<IdmRequestItemDto> {
 
+	IdmRequestItemDto cancel(IdmRequestItemDto request);
+
 }

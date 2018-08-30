@@ -339,4 +339,13 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 	}
 
 	public abstract String getRequestSubPath();
+	
+	
+	/**
+	 * Request controllers are every allowed 
+	 */
+	@Override
+	protected boolean isRequestModeEnabled() {
+		return false;
+	}
 }

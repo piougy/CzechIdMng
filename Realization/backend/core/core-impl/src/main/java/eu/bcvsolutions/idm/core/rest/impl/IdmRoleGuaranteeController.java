@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.core.api.config.domain.RequestConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
@@ -55,8 +54,6 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmRoleGuaranteeController extends AbstractReadWriteDtoController<IdmRoleGuaranteeDto, IdmRoleGuaranteeFilter> {
 	
 	protected static final String TAG = "Role guarantees";
-	@Autowired
-	private RequestConfiguration requestConfiguration;
 	
 	@Autowired
 	public IdmRoleGuaranteeController(IdmRoleGuaranteeService service) {
@@ -245,11 +242,6 @@ public class IdmRoleGuaranteeController extends AbstractReadWriteDtoController<I
 			@ApiParam(value = "Role guarantee's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
-	}
-	
-	@Override
-	protected boolean supportsRequests() {
-		return requestConfiguration.isRoleRequestEnabled();
 	}
 	
 	@Override

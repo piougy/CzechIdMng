@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -41,6 +42,8 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final AccIdentityAccountRepository identityAccountRepository;
 	private final IdmRoleService roleService;
+	@Autowired
+	private RequestManager<SysRoleSystemDto> requestManager;
 	
 	@Autowired
 	public DefaultSysRoleSystemService(
@@ -79,6 +82,9 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 		// clear identityAccounts - only link on roleSystem
 		identityAccountRepository.clearRoleSystem(roleSystemEntity);
 		//
+		// Cancel requests and request items using that deleting DTO
+		requestManager.onDeleteRequestable(roleSystem);
+		
 		super.delete(roleSystem, permission);
 	}
 	

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -11,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Strings;
+
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
@@ -24,6 +28,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRequestItemRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
  * Default implementation of request's item service
@@ -38,6 +45,8 @@ public class DefaultIdmRequestItemService extends
 
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
+	@Autowired
+	private WorkflowProcessInstanceService workflowProcessInstanceService;
 	
 	@Autowired
 	public DefaultIdmRequestItemService(IdmRequestItemRepository repository) {
@@ -66,6 +75,15 @@ public class DefaultIdmRequestItemService extends
 			confidentialStorage.delete(dto, storageKey);
 		}
 		super.deleteInternal(dto);
+	}
+	
+	@Override
+	@Transactional
+	public IdmRequestItemDto cancel(IdmRequestItemDto dto) {
+		cancelWF(dto);
+		dto.setState(RequestState.CANCELED);
+		dto.setResult(new OperationResultDto(OperationState.CANCELED));
+		return this.save(dto);
 	}
 
 	@Override
@@ -107,6 +125,28 @@ public class DefaultIdmRequestItemService extends
 		}
 
 		return predicates;
+	}
+	
+	/**
+	 * Cancel unfinished workflow process for this automatic role.
+	 *
+	 * @param dto
+	 */
+	private void cancelWF(IdmRequestItemDto dto) {
+		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
+			WorkflowFilterDto filter = new WorkflowFilterDto();
+			filter.setProcessInstanceId(dto.getWfProcessId());
+
+			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService.find(filter, null)
+					.getContent();
+			if (resources.isEmpty()) {
+				// Process with this ID not exist ... maybe was ended
+				return;
+			}
+
+			workflowProcessInstanceService.delete(dto.getWfProcessId(),
+					"Request item was canceled.");
+		}
 	}
 
 

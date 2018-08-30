@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -60,6 +61,8 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	private final AbstractFormValueRepository<O, E> repository;
 	@Autowired @Lazy
 	private LookupService lookupService;
+	@Autowired @Lazy
+	private RequestManager<IdmFormValueDto> requestManager;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractFormValueService(AbstractFormValueRepository<O, E> repository, ConfidentialStorage confidentialStorage) {
@@ -189,6 +192,9 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 			LOG.debug("FormValue [{}] will be removed from confidential storage", dto.getId());
 			confidentialStorage.delete(dto.getId(), toEntity(dto).getClass(), getConfidentialStorageKey(dto.getFormAttribute()));
 		}
+		// Cancel requests and request items using that deleting DTO
+		requestManager.onDeleteRequestable(dto);
+		//
 		super.deleteInternal(dto);
 	}
 	

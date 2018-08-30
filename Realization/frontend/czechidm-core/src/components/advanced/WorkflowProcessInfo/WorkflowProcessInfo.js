@@ -38,8 +38,10 @@ export class WorkflowProcessInfo extends AbstractEntityInfo {
    * @return {string}
    */
   getLink() {
-    const { entityIdentifier } = this.props;
-    //
+    const { entityIdentifier, entity } = this.props;
+    if (entity && entity.id) {
+      return `/workflow/history/processes/${entity.id}`;
+    }
     return `/workflow/history/processes/${entityIdentifier}`;
   }
 

@@ -78,11 +78,11 @@ export class RequestTable extends Advanced.AbstractTableContent {
 
   _getWfProcessCell({ rowIndex, data}) {
     const entity = data[rowIndex];
-    if (!entity || !entity.wfProcessId) {
+    if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
       return '';
     }
     return (
-      <Advanced.WorkflowProcessInfo entityIdentifier={entity.wfProcessId}/>
+      <Advanced.WorkflowProcessInfo entity={entity._embedded.wfProcessId}/>
     );
   }
 
@@ -146,7 +146,7 @@ export class RequestTable extends Advanced.AbstractTableContent {
             enumClass={RoleRequestStateEnum}/>
           <Advanced.Column
             property="name"
-            rendered={_.includes(columns, 'name')}
+            rendered={false}
             face="text"
             />
           <Advanced.Column

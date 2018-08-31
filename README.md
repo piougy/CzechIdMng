@@ -31,6 +31,10 @@ The seventh version of [CzechIdM](http://www.czechidm.com/) will be based on tec
   * React
   * Redux
 
+### CzechIdM supported databases
+
+* PostgreSQL,
+* MsSQL.
 
 ## Instalation
 

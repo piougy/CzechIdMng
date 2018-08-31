@@ -71,7 +71,7 @@ class DateTimePicker extends AbstractFormComponent {
   }
 
   validate(showValidationError) {
-    const {required} = this.props;
+    const {required, isValidDate} = this.props;
     const {value} = this.state;
 
     const showValidations = showValidationError != null ? showValidationError : true;
@@ -86,6 +86,12 @@ class DateTimePicker extends AbstractFormComponent {
       if (result && value) {
         const iso8601Value = moment(value, this.getFormat(), true);
         if (iso8601Value && !iso8601Value.isValid()) {
+          result = false;
+          key = 'date.unvalid';
+        }
+      }
+      if (result && isValidDate && value) {
+        if (!isValidDate(value)) {
           result = false;
           key = 'date.unvalid';
         }

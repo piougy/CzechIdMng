@@ -62,6 +62,26 @@ export class RequestTable extends Advanced.AbstractTableContent {
     );
   }
 
+  _renderTargetCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity && entity._embedded) {
+      return '';
+    }
+    const owner = entity._embedded.ownerId;
+    const types = entity.ownerType.split('.');
+    const entityType = types[types.length - 1];
+    // If owner does not exists (was delete/not exists yet), the name will be returned;
+    if (!owner) {
+      return entity.name;
+    }
+    return (
+      <Advanced.EntityInfo
+        entityType={ entityType }
+        entity={owner}
+        face="popover"/>
+    );
+  }
+
   _getCurrentActivitiCell({ rowIndex, data}) {
     const entity = data[rowIndex];
     if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
@@ -117,14 +137,20 @@ export class RequestTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className="last">
-                  <Basic.Col lg={ 3 }>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.TextField
+                      ref="text"
+                      placeholder={ this.i18n('filter.text.placeholder') }
+                      help={ Advanced.Filter.getTextHelp() }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="states"
                       placeholder={ this.i18n('filter.states.placeholder') }
                       enum={ RoleRequestStateEnum }
                       multiSelect/>
                   </Basic.Col>
-                  <Basic.Col lg={ 3 } className="text-right">
+                  <Basic.Col lg={ 4 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </Basic.Col>
                 </Basic.Row>
@@ -153,24 +179,7 @@ export class RequestTable extends Advanced.AbstractTableContent {
             property="ownerId"
             header={ this.i18n('entity.RequestItem.ownerId') }
             face="text"
-            cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data }) => {
-                const entity = data[rowIndex];
-                if (!entity && entity._embedded) {
-                  return '';
-                }
-                const owner = entity._embedded.ownerId;
-                const types = entity.ownerType.split('.');
-                const entityType = types[types.length - 1];
-                return (
-                  <Advanced.EntityInfo
-                    entityType={ entityType }
-                    entity={owner}
-                    face="popover"/>
-                );
-              }
-            }/>
+            cell={this._renderTargetCell}/>
           <Advanced.Column
             property="candicateUsers"
             rendered={false}

@@ -9,17 +9,19 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Strings;
 
-import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.AbstractRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
@@ -28,7 +30,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestService;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.service.RequestManager;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequest_;
@@ -39,6 +42,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstan
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
+import groovy.lang.Lazy;
 
 /**
  * Default implementation of universal request service
@@ -47,10 +51,9 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  *
  */
 @Service("requestService")
-public class DefaultIdmRequestService extends
-		AbstractReadWriteDtoService<IdmRequestDto, IdmRequest, IdmRequestFilter>
+public class DefaultIdmRequestService extends AbstractReadWriteDtoService<IdmRequestDto, IdmRequest, IdmRequestFilter>
 		implements IdmRequestService {
-	
+
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRequestService.class);
 
 	@Autowired
@@ -60,7 +63,8 @@ public class DefaultIdmRequestService extends
 	@Autowired
 	private IdmRequestItemService requestItemService;
 	@Autowired
-	private LookupService lookupService;
+	@Lazy
+	private RequestManager<Requestable> requestManager;
 
 	@Autowired
 	public DefaultIdmRequestService(IdmRequestRepository repository) {
@@ -78,27 +82,39 @@ public class DefaultIdmRequestService extends
 
 		// Load and add WF process DTO to embedded. Prevents of many requests from FE.
 		if (requestDto != null && requestDto.getWfProcessId() != null) {
-			WorkflowHistoricProcessInstanceDto processDto = workflowHistoricProcessInstanceService.get(requestDto.getWfProcessId());
-			// Trim a process variables - prevent security issues and too high of response size
+			WorkflowHistoricProcessInstanceDto processDto = workflowHistoricProcessInstanceService
+					.get(requestDto.getWfProcessId());
+			// Trim a process variables - prevent security issues and too high of response
+			// size
 			if (processDto != null) {
 				processDto.setProcessVariables(null);
 			}
 			requestDto.getEmbedded().put(AbstractRequestDto.WF_PROCESS_FIELD, processDto);
 		}
-		
+
 		// Load and add owner DTO to embedded. Prevents of many requests from FE.
 		if (requestDto != null && requestDto.getOwnerId() != null && requestDto.getOwnerType() != null) {
 			try {
 				@SuppressWarnings("unchecked")
-				BaseDto lookupDto = lookupService.lookupDto(
-						(Class<? extends Identifiable>) Class.forName(requestDto.getOwnerType()),
-						requestDto.getOwnerId());
-				if (lookupDto == null) {
-					// Entity was not found ... maybe is deleted
-					LOG.warn(MessageFormat.format("Owner [{0}, {1}] not found for request {2}.",
+				Requestable requestable = requestManager.get(requestDto.getId(), requestDto.getOwnerId(),
+						(Class<Requestable>) Class.forName(requestDto.getOwnerType()));
+				if (requestable != null && requestable instanceof AbstractDto) {
+					// If is requestable realized REMOVE, then requestable DTO does not contains
+					// data (only ID). In this case we don't want send this DTO to FE.
+					AbstractDto requestableDto = (AbstractDto) requestable;
+					IdmRequestItemDto itemDto = DtoUtils.getEmbedded(requestableDto, Requestable.REQUEST_ITEM_FIELD,
+							IdmRequestItemDto.class, null);
+					if (itemDto != null && RequestOperationType.REMOVE == itemDto.getOperation()
+							&& itemDto.getState().isTerminatedState()) {
+						requestable = null;
+					}
+				}
+				if (requestable == null) {
+					// Entity was not found ... maybe was deleted or not exists yet
+					LOG.debug(MessageFormat.format("Owner [{0}, {1}] not found for request {2}.",
 							requestDto.getOwnerType(), requestDto.getOwnerId(), requestDto.getId()));
 				}
-				requestDto.getEmbedded().put(IdmRequestDto.OWNER_FIELD, lookupDto);
+				requestDto.getEmbedded().put(IdmRequestDto.OWNER_FIELD, requestable);
 			} catch (ClassNotFoundException e) {
 				// Only print warning
 				LOG.warn(MessageFormat.format("Class not found for request {0}.", requestDto.getId()), e);
@@ -107,15 +123,15 @@ public class DefaultIdmRequestService extends
 
 		return requestDto;
 	}
-	
+
 	@Override
 	public IdmRequestDto saveInternal(IdmRequestDto dto) {
-		if(dto != null && RequestState.DISAPPROVED == dto.getState()) {
+		if (dto != null && RequestState.DISAPPROVED == dto.getState()) {
 			dto.setResult(new OperationResultDto(OperationState.NOT_EXECUTED));
 		}
 		return super.saveInternal(dto);
 	}
-	
+
 	@Override
 	@Transactional
 	public IdmRequestDto cancel(IdmRequestDto dto) {
@@ -135,8 +151,7 @@ public class DefaultIdmRequestService extends
 		if (dto.getId() != null) {
 			IdmRequestItemFilter ruleFilter = new IdmRequestItemFilter();
 			ruleFilter.setRequestId(dto.getId());
-			List<IdmRequestItemDto> items = requestItemService
-					.find(ruleFilter, null).getContent();
+			List<IdmRequestItemDto> items = requestItemService.find(ruleFilter, null).getContent();
 			items.forEach(item -> {
 				requestItemService.delete(item);
 			});
@@ -147,10 +162,10 @@ public class DefaultIdmRequestService extends
 	@Override
 	protected IdmRequest toEntity(IdmRequestDto dto, IdmRequest entity) {
 
-		if (this.isNew(dto)) { 
+		if (this.isNew(dto)) {
 			dto.setResult(new OperationResultDto(OperationState.CREATED));
 			dto.setState(RequestState.CONCEPT);
-		}else if(dto.getResult() == null) {
+		} else if (dto.getResult() == null) {
 			IdmRequestDto persistedDto = this.get(dto.getId());
 			dto.setResult(persistedDto.getResult());
 		}
@@ -158,27 +173,30 @@ public class DefaultIdmRequestService extends
 
 		return requestEntity;
 	}
-	
 
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmRequest> root, CriteriaQuery<?> query,
-			CriteriaBuilder builder, IdmRequestFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			IdmRequestFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 
+		// text
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.or(
+					builder.like(builder.lower(root.get(IdmRequest_.name)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmRequest_.ownerType)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmRequest_.description)),
+							"%" + filter.getText().toLowerCase() + "%")));
+		}
 		// States
 		List<RequestState> states = filter.getStates();
 		if (!states.isEmpty()) {
 			predicates.add(root.get(IdmRequest_.state).in(states));
 		}
 		if (filter.getOwnerId() != null) {
-			predicates.add(builder.equal(
-					root.get(IdmRequest_.ownerId),
-					filter.getOwnerId()));
+			predicates.add(builder.equal(root.get(IdmRequest_.ownerId), filter.getOwnerId()));
 		}
 		if (filter.getOwnerType() != null) {
-			predicates.add(builder.equal(
-					root.get(IdmRequest_.ownerType),
-					filter.getOwnerType()));
+			predicates.add(builder.equal(root.get(IdmRequest_.ownerType), filter.getOwnerType()));
 		}
 		return predicates;
 	}
@@ -200,8 +218,7 @@ public class DefaultIdmRequestService extends
 				return;
 			}
 
-			workflowProcessInstanceService.delete(dto.getWfProcessId(),
-					"Request was canceled.");
+			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Request was canceled.");
 		}
 	}
 

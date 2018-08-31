@@ -1732,6 +1732,9 @@
        "filter": {
          "states":{
            "placeholder": "Search by states"
+         },
+         "text":{
+           "placeholder": "Search by target object code, type and description"
          }
        }
      },

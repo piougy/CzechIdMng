@@ -1773,6 +1773,9 @@
       "filter": {
         "states":{
           "placeholder": "Vyhledání podle stavů"
+        },
+        "text":{
+          "placeholder": "Vyhledání podle kódu, typu cílového objektu a poznámky"
         }
       }
     },

@@ -369,6 +369,21 @@ class RequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
+  _renderEntityInfo(request, entityType) {
+    const owner = request._embedded.ownerId;
+    // If owner does not exists (was delete/not exists yet), the name will be returned;
+    if (!owner) {
+      return request.name;
+    }
+    return (
+      <Advanced.EntityInfo
+        entityType={ entityType }
+        entity={owner}
+        showLink
+        face="full"/>
+    );
+  }
+
   _getApplicantAndImplementer(request) {
     const entityType = this._getNameOfDTO(request.ownerType);
     return (
@@ -378,11 +393,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
           readOnly
           ref="entity"
           label={this.i18n('entity.Request.entity')}>
-          <Advanced.EntityInfo
-            entityType={entityType}
-            entityIdentifier={ request.ownerId }
-            showLink
-            face="full"/>
+          {this._renderEntityInfo(request, entityType)}
         </Basic.LabelWrapper>
         <Basic.LabelWrapper
           rendered={(request && request.creatorId) ? true : false}
@@ -396,6 +407,11 @@ class RequestDetail extends Advanced.AbstractTableContent {
         </Basic.LabelWrapper>
       </div>
     );
+  }
+
+  _goToRequests() {
+    // Redirect to requests
+    this.context.router.push(`requests`);
   }
 
   _onChangeRequestType(requestType) {
@@ -569,7 +585,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
             </div>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
-                onClick={this.context.router.goBack}
+                onClick={this._goToRequests.bind(this)}
                 showLoading={showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>

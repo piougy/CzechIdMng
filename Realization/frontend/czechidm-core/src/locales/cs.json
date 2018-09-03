@@ -3658,6 +3658,7 @@
       "result": "Výsledek"
     },
     "RequestItem": {
+      "state": "Stav",
       "created": "Vytvořeno",
       "modified": "Upraveno",
       "ownerType": "Typ objektu",

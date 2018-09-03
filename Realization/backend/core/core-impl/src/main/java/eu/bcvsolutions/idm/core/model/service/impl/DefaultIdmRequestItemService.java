@@ -16,6 +16,7 @@ import com.google.common.base.Strings;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
+import eu.bcvsolutions.idm.core.api.dto.AbstractRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
@@ -29,7 +30,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRequestItemRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
@@ -39,15 +42,17 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  *
  */
 @Service("requestItemService")
-public class DefaultIdmRequestItemService extends
-		AbstractReadWriteDtoService<IdmRequestItemDto, IdmRequestItem, IdmRequestItemFilter>
+public class DefaultIdmRequestItemService
+		extends AbstractReadWriteDtoService<IdmRequestItemDto, IdmRequestItem, IdmRequestItemFilter>
 		implements IdmRequestItemService {
 
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
 	@Autowired
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
-	
+	@Autowired
+	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService;
+
 	@Autowired
 	public DefaultIdmRequestItemService(IdmRequestItemRepository repository) {
 		super(repository);
@@ -60,9 +65,33 @@ public class DefaultIdmRequestItemService extends
 
 	@Override
 	public IdmRequestItemDto toDto(IdmRequestItem entity, IdmRequestItemDto dto) {
-		IdmRequestItemDto requestDto = super.toDto(entity, dto);
+		IdmRequestItemDto requestItemDto = super.toDto(entity, dto);
+		// Load and add WF process DTO to embedded. Prevents of many requests from FE.
+		if (requestItemDto != null && requestItemDto.getWfProcessId() != null) {
+			if (RequestState.IN_PROGRESS == requestItemDto.getState()) {
+				// Instance of process should exists only in 'IN_PROGRESS' state
+				WorkflowProcessInstanceDto processInstanceDto = workflowProcessInstanceService
+						.get(requestItemDto.getWfProcessId());
+				// Trim a process variables - prevent security issues and too high of response
+				// size
+				if (processInstanceDto != null) {
+					processInstanceDto.setProcessVariables(null);
+				}
+				requestItemDto.getEmbedded().put(AbstractRequestDto.WF_PROCESS_FIELD, processInstanceDto);
+			} else {
+				// In others states we need load historic process
+				WorkflowHistoricProcessInstanceDto processHistDto = workflowHistoricProcessInstanceService
+						.get(requestItemDto.getWfProcessId());
+				// Trim a process variables - prevent security issues and too high of response
+				// size
+				if (processHistDto != null) {
+					processHistDto.setProcessVariables(null);
+				}
+				requestItemDto.getEmbedded().put(AbstractRequestDto.WF_PROCESS_FIELD, processHistDto);
+			}
+		}
 
-		return requestDto;
+		return requestItemDto;
 	}
 
 	@Override
@@ -76,7 +105,7 @@ public class DefaultIdmRequestItemService extends
 		}
 		super.deleteInternal(dto);
 	}
-	
+
 	@Override
 	@Transactional
 	public IdmRequestItemDto cancel(IdmRequestItemDto dto) {
@@ -89,44 +118,36 @@ public class DefaultIdmRequestItemService extends
 	@Override
 	protected IdmRequestItem toEntity(IdmRequestItemDto dto, IdmRequestItem entity) {
 
-		if (this.isNew(dto)) { 
+		if (this.isNew(dto)) {
 			dto.setResult(new OperationResultDto(OperationState.CREATED));
 		}
 		IdmRequestItem requestEntity = super.toEntity(dto, entity);
 
 		return requestEntity;
 	}
-	
 
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmRequestItem> root, CriteriaQuery<?> query,
-			CriteriaBuilder builder, IdmRequestItemFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmRequestItem> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			IdmRequestItemFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
-		
+
 		if (filter.getRequestId() != null) {
-			predicates.add(builder.equal(
-					root.get(IdmRequestItem_.request).get(IdmRequestItem_.id),
-					filter.getRequestId()));
+			predicates.add(
+					builder.equal(root.get(IdmRequestItem_.request).get(IdmRequestItem_.id), filter.getRequestId()));
 		}
 		if (filter.getOwnerId() != null) {
-			predicates.add(builder.equal(
-					root.get(IdmRequestItem_.ownerId),
-					filter.getOwnerId()));
+			predicates.add(builder.equal(root.get(IdmRequestItem_.ownerId), filter.getOwnerId()));
 		}
 		if (filter.getOwnerType() != null) {
-			predicates.add(builder.equal(
-					root.get(IdmRequestItem_.ownerType),
-					filter.getOwnerType()));
+			predicates.add(builder.equal(root.get(IdmRequestItem_.ownerType), filter.getOwnerType()));
 		}
 		if (filter.getOperationType() != null) {
-			predicates.add(builder.equal(
-					root.get(IdmRequestItem_.operation),
-					filter.getOperationType()));
+			predicates.add(builder.equal(root.get(IdmRequestItem_.operation), filter.getOperationType()));
 		}
 
 		return predicates;
 	}
-	
+
 	/**
 	 * Cancel unfinished workflow process for this automatic role.
 	 *
@@ -144,10 +165,8 @@ public class DefaultIdmRequestItemService extends
 				return;
 			}
 
-			workflowProcessInstanceService.delete(dto.getWfProcessId(),
-					"Request item was canceled.");
+			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Request item was canceled.");
 		}
 	}
-
 
 }

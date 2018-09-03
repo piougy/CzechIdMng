@@ -3611,10 +3611,11 @@
       "currentActivity": "Approval state",
       "wfProcessId": "WF identifier",
       "result": "Result",
-      "implementer": "Žadatel",
-      "entity": "Žádost pro"
+      "implementer": "Implementer",
+      "entity": "Request for"
     },
     "RequestItem": {
+      "state": "State",
       "created": "Created",
       "modified": "Modified",
       "ownerType": "Object type",

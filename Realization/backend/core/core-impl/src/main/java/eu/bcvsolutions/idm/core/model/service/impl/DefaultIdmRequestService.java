@@ -82,14 +82,27 @@ public class DefaultIdmRequestService extends AbstractReadWriteDtoService<IdmReq
 
 		// Load and add WF process DTO to embedded. Prevents of many requests from FE.
 		if (requestDto != null && requestDto.getWfProcessId() != null) {
-			WorkflowHistoricProcessInstanceDto processDto = workflowHistoricProcessInstanceService
-					.get(requestDto.getWfProcessId());
-			// Trim a process variables - prevent security issues and too high of response
-			// size
-			if (processDto != null) {
-				processDto.setProcessVariables(null);
+			if (RequestState.IN_PROGRESS == requestDto.getState()) {
+				// Instance of process should exists only in 'IN_PROGRESS' state
+				WorkflowProcessInstanceDto processInstanceDto = workflowProcessInstanceService
+						.get(requestDto.getWfProcessId());
+				// Trim a process variables - prevent security issues and too high of response
+				// size
+				if (processInstanceDto != null) {
+					processInstanceDto.setProcessVariables(null);
+				}
+				requestDto.getEmbedded().put(AbstractRequestDto.WF_PROCESS_FIELD, processInstanceDto);
+			} else {
+				// In others states we need load historic process
+				WorkflowHistoricProcessInstanceDto processHistDto = workflowHistoricProcessInstanceService
+						.get(requestDto.getWfProcessId());
+				// Trim a process variables - prevent security issues and too high of response
+				// size
+				if (processHistDto != null) {
+					processHistDto.setProcessVariables(null);
+				}
+				requestDto.getEmbedded().put(AbstractRequestDto.WF_PROCESS_FIELD, processHistDto);
 			}
-			requestDto.getEmbedded().put(AbstractRequestDto.WF_PROCESS_FIELD, processDto);
 		}
 
 		// Load and add owner DTO to embedded. Prevents of many requests from FE.
@@ -221,5 +234,4 @@ public class DefaultIdmRequestService extends AbstractReadWriteDtoService<IdmReq
 			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Request was canceled.");
 		}
 	}
-
 }

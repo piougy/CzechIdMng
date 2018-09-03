@@ -255,17 +255,11 @@ class RequestDetail extends Advanced.AbstractTableContent {
               className="detail-button"
               cell={this._renderDetailCell.bind(this)}/>
             <Advanced.Column
-              property="result"
-              header={this.i18n('entity.RequestItem.result')}
-              face="text"
-              cell={
-                ({ rowIndex, data }) => {
-                  const entity = data[rowIndex];
-                  return (
-                    <Advanced.OperationResult value={ entity.result }/>
-                  );
-                }
-              }/>
+              header={this.i18n('entity.RequestItem.state')}
+              property="state"
+              sort
+              face="enum"
+              enumClass={RoleRequestStateEnum}/>
             <Advanced.Column
               property="operation"
               face="enum"
@@ -279,7 +273,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
               cell={this._renderOriginalOwnerCell.bind(this)}/>
             <Advanced.Column
               property="candicateUsers"
-              rendered={false}
               face="text"
               cell={this._getCandidatesCell}
               />
@@ -293,7 +286,23 @@ class RequestDetail extends Advanced.AbstractTableContent {
               cell={this._getWfProcessCell}
               sort
               face="text"/>
-            <Advanced.Column property="created" header={this.i18n('entity.created')} sort face="datetime"/>
+            <Advanced.Column
+              property="result"
+              header={this.i18n('entity.RequestItem.result')}
+              face="text"
+              cell={
+                ({ rowIndex, data }) => {
+                  const entity = data[rowIndex];
+                  return (
+                    <Advanced.OperationResult value={ entity.result }/>
+                  );
+                }
+              }/>
+            <Advanced.Column
+              property="created"
+              header={this.i18n('entity.created')}
+              sort
+              face="datetime"/>
           </Advanced.Table>
         </Basic.Panel>
       </div>
@@ -361,11 +370,11 @@ class RequestDetail extends Advanced.AbstractTableContent {
 
   _getWfProcessCell({ rowIndex, data}) {
     const entity = data[rowIndex];
-    if (!entity || !entity.wfProcessId) {
+    if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
       return '';
     }
     return (
-      <Advanced.WorkflowProcessInfo entityIdentifier={entity.wfProcessId}/>
+      <Advanced.WorkflowProcessInfo entity={entity._embedded.wfProcessId}/>
     );
   }
 

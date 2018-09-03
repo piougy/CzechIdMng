@@ -78,6 +78,7 @@ export class RequestTable extends Advanced.AbstractTableContent {
       <Advanced.EntityInfo
         entityType={ entityType }
         entity={owner}
+        showLink
         face="popover"/>
     );
   }
@@ -179,11 +180,12 @@ export class RequestTable extends Advanced.AbstractTableContent {
             property="ownerId"
             header={ this.i18n('entity.RequestItem.ownerId') }
             face="text"
+            rendered={_.includes(columns, 'targetObject')}
             cell={this._renderTargetCell}/>
           <Advanced.Column
             property="candicateUsers"
-            rendered={false}
             face="text"
+            rendered={_.includes(columns, 'wf')}
             cell={this._getCandidatesCell}
             />
           <Advanced.Column
@@ -206,6 +208,7 @@ export class RequestTable extends Advanced.AbstractTableContent {
           <Advanced.Column
             property="result"
             face="text"
+            rendered={_.includes(columns, 'result')}
             cell={
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
@@ -266,8 +269,8 @@ RequestTable.propTypes = {
 RequestTable.defaultProps = {
   _showLoading: false,
   showFilter: true,
-  columns: ['state', 'created', 'modified', 'wf', 'executeImmediately',
-   'startRequest', 'createNew', 'detail', 'name', 'operation', 'wf_name']
+  columns: ['state', 'targetObject', 'created', 'modified', 'wf', 'executeImmediately',
+   'startRequest', 'detail', 'wf_name', 'result']
 };
 
 function select(state, component) {

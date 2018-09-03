@@ -332,6 +332,8 @@ public class IdmRequestController extends AbstractReadWriteDtoController<IdmRequ
 	@Override
 	protected IdmRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmRequestFilter filter = new IdmRequestFilter(parameters);
+		filter.setOwnerType(getParameterConverter().toString(parameters, "ownerType"));
+		filter.setOwnerId(getParameterConverter().toUuid(parameters, "ownerId"));
 		filter.setStates(getParameterConverter().toEnums(parameters, "states", RequestState.class));
 		return filter;
 	}

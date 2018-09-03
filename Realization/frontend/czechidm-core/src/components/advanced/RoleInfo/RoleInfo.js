@@ -158,12 +158,17 @@ RoleInfo.defaultProps = {
 };
 
 function select(state, component) {
+  const { entityIdentifier, entity } = component;
+  let entityId = entityIdentifier;
+  if (!entityId && entity) {
+    entityId = entity.id;
+  }
   return {
-    _entity: manager.getEntity(state, component.entityIdentifier),
-    _showLoading: manager.isShowLoading(state, null, component.entityIdentifier),
-    _permissions: manager.getPermissions(state, null, component.entityIdentifier),
-    _subRoles: roleCompositionManager.getEntities(state, `${uiKeyRoles}-${component.entityIdentifier}`),
-    _subRolesUi: Utils.Ui.getUiState(state, `${uiKeyRoles}-${component.entityIdentifier}`)
+    _entity: manager.getEntity(state, entityId),
+    _showLoading: manager.isShowLoading(state, null, entityId),
+    _permissions: manager.getPermissions(state, null, entityId),
+    _subRoles: roleCompositionManager.getEntities(state, `${uiKeyRoles}-${entityId}`),
+    _subRolesUi: Utils.Ui.getUiState(state, `${uiKeyRoles}-${entityId}`)
   };
 }
 export default connect(select)(RoleInfo);

@@ -225,17 +225,6 @@ module.exports = {
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEACCOUNT_READ'] } ]
       },
       {
-        'id': 'request-role-accounts',
-        'parentId': 'request-roles',
-        'type': 'TAB',
-        'labelKey': 'acc:content.identity.accounts.title',
-        'order': 500,
-        'priority': 0,
-        'path': 'requests/:requestId/role/:entityId/accounts',
-        'icon': 'fa:external-link',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEACCOUNT_READ'] } ]
-      },
-      {
         'id': 'tree-accounts',
         'parentId': 'tree-nodes',
         'type': 'TAB',

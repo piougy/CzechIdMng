@@ -843,6 +843,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 			// Save without check a permissions
 			dto = dtoService.save(dto);
 			item.setResult(new OperationResultDto(OperationState.EXECUTED));
+			item.setState(RequestState.EXECUTED);
 			requestItemService.save(item);
 			return;
 		}

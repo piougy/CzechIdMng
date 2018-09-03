@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.UUID;
 
@@ -56,7 +57,9 @@ public class DefaultSysSystemEntityServiceFilterTest extends AbstractIntegration
 		testFilter.setSystemId(system2.getId());
 		Page<SysSystemEntityDto> pages = entityService.find(testFilter, null);
 		assertEquals(2, pages.getTotalElements());
-		assertEquals(entity2.getId(), pages.getContent().get(0).getId());
+		
+		SysSystemEntityDto foundedSystem = pages.getContent().stream().filter(sys -> sys.getId().equals(entity2.getId())).findAny().get();
+		assertNotNull(foundedSystem);
 	}
 
 	@Test

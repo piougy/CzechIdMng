@@ -96,7 +96,10 @@ export default class HelpIcon extends AbstractContextComponent {
 
 HelpIcon.propTypes = {
   ...AbstractContextComponent.propTypes,
-  content: PropTypes.string,
+  content: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object
+  ]),
   /**
    * Help icon title position
    */

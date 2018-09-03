@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
@@ -77,6 +78,13 @@ public class DefaultIdentityRoleServiceTest extends AbstractIntegrationTest{
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 		filter.setRoleCatalogueId(catalogue.getId());
 		Page<IdmIdentityRoleDto> result = idmIdentityRoleService.find(filter, null);
-		assertEquals("Wrong CatalogueRoleId",roleCover.getId(), result.getContent().get(0).getId());
-		assertEquals("Wrong CatalogueRoleId2",roleCover2.getId(), result.getContent().get(1).getId());}
+		// behavior with result.getContent().get(0) is not good for use, order comes from DB!
+		result.getContent().stream().forEach(cat -> {
+			if (cat.getId().equals(roleCover.getId()) || cat.getId().equals(roleCover2.getId())) {
+				// success
+			} else {
+				fail("Wrong id founded: " + cat.getId());
+			}
+		});
+	}
 }

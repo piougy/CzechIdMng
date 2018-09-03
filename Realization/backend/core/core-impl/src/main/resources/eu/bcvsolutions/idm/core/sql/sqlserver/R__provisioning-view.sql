@@ -1,10 +1,6 @@
---
--- CzechIdM 9.0 Flyway script
--- BCV solutions s.r.o.
---
--- This SQL script creates identity role view
+-- public view for provisioning
 
-CREATE OR ALTER VIEW identity_role_view AS
+CREATE VIEW identity_role_view AS
  SELECT i.modified,
     i.username,
     i.first_name,

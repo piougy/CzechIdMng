@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -22,19 +22,19 @@ public class TestRoleResource {
 	public static final String TABLE_NAME = "test_role_resource";
 
 	@Id
-	@Column(name = "name", length = DefaultFieldLengths.NAME)
+	@Column(name = "NAME", length = DefaultFieldLengths.NAME)
 	private String name;
-	@Column(name = "type", length = DefaultFieldLengths.NAME)
+	@Column(name = "TYPE", length = DefaultFieldLengths.NAME)
 	private String type;
-	@Column(name = "priority")
+	@Column(name = "PRIORITY")
 	private int priority;
-	@Column(name = "description", length = DefaultFieldLengths.NAME)
+	@Column(name = "DESCRIPTION", length = DefaultFieldLengths.NAME)
 	private String description;
-	@Column(name = "approve_remove", length = DefaultFieldLengths.NAME)
+	@Column(name = "APPROVE_REMOVE", length = DefaultFieldLengths.NAME)
 	private Boolean approveRemove = Boolean.FALSE;
-	@Column(name = "modified", length = DefaultFieldLengths.NAME)
-	private LocalDateTime modified;
-	@Column(name = "status", length = DefaultFieldLengths.NAME)
+	@Column(name = "MODIFIED")
+	private DateTime modified;
+	@Column(name = "STATUS", length = DefaultFieldLengths.NAME)
 	private String status;
 
 	public String getName() {
@@ -77,11 +77,11 @@ public class TestRoleResource {
 		this.approveRemove = approveRemove;
 	}
 
-	public LocalDateTime getModified() {
+	public DateTime getModified() {
 		return modified;
 	}
 
-	public void setModified(LocalDateTime modified) {
+	public void setModified(DateTime modified) {
 		this.modified = modified;
 	}
 

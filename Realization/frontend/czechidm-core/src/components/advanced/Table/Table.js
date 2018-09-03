@@ -59,10 +59,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     const { manager } = this.props;
     this.reload();
     //
-    if (manager.supportsBulkAction()) {
+    if (manager.supportsBulkAction() && manager.canRead()) {
       this.context.store.dispatch(manager.fetchAvailableBulkActions((actions, error) => {
         if (error) {
-          this.addErrorMessage({}, error);
+          if (error.statusCode === 403) {
+            // user doesn't have permissions for work with entities in the table
+          } else {
+            this.addErrorMessage({}, error);
+          }
         } else {
           const _actions = [];
           // TODO: react elements are stored in state ... redesign raw data and move cached actions into reducer

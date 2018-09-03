@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.UUID;
@@ -180,7 +181,16 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		filter.setText("NameCat00");
 		Page<IdmRoleCatalogueDto> result = roleCatalogueService.find(filter,null);
 		assertEquals("Wrong text filter count", 3,result.getTotalElements());
-		assertEquals("Wrong text by Id",catalogue.getId(),result.getContent().get(0).getId());
+		
+		// Behavior with result.getContent().get(0) is bad
+		result.getContent().forEach(cat -> {
+			if (cat.getId().equals(catalogue.getId()) || cat.getId().equals(catalogue2.getId())
+					|| cat.getId().equals(catalogue4.getId())) {
+				// Catalog exists correct
+			} else {
+				fail("Wrong text by Id " + cat.getId());
+			}
+		});
 	}
 
 	@Test

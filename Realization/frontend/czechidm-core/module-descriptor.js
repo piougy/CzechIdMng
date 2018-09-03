@@ -295,7 +295,7 @@ module.exports = {
                 'labelKey': 'content.role.compositions.title',
                 'order': 120,
                 'path': '/role/:entityId/compositions',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECOMPOSITION_READ'] } ]
               },
               {
                 'id': 'role-guarantees',

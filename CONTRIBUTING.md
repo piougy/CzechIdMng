@@ -38,8 +38,9 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Don't use abbreviations for fields, variables etc.
 * Don't use camelCase in package names
 * Database
- * [Convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
+  * [Convention](https://wiki.czechidm.com/devel/documentation/conventions/dev/database-conventions)
   * `Entity` / `Dto` has to contain jsr303 validations
+  * Entity names in singular
 * Rest
   * Rest endpoints naming with snake-case lowercase in plural, e.g. `<server>/wf-identities`, `<server>/tasks`
 * Spring
@@ -47,7 +48,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
   * use `@Transaction` annotation for service methods
   * use interfaces
     * ``Configurable`` for configurations
-    * ``Codeable`` for entities with code and name - see database naming [convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
+    * ``Codeable`` for entities with code and name - see database naming [convention](https://wiki.czechidm.com/devel/documentation/conventions/dev/database-conventions)
     * ...
 * Java
   * Class - fields first, then constructors, then public methods, then private methods
@@ -96,7 +97,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 
 ### IDE
 
-* [Atom](https://wiki.czechidm.com/7.3/dev/quickstart/ide/atom)
+* [Atom](https://wiki.czechidm.com/devel/documentation/quickstart/dev/ide/atom)
 
 ## Documentation
 

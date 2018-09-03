@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -101,12 +101,16 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		// after create identity is create only one password history record
 		assertEquals(2, content.size());
 		
-		IdmPasswordHistoryDto passwordHistory1 = content.get(0);
-		IdmPasswordHistoryDto passwordHistory2 = content.get(1);
-		
 		IdmPasswordDto identityPassword = passwordService.findOneByIdentity(identity.getId());
-		assertNotEquals(identityPassword.getPassword(), passwordHistory1.getPassword());
-		assertEquals(identityPassword.getPassword(), passwordHistory2.getPassword());
+		
+		// behavior with content.get(0) is not good for use, order comes from DB!
+		boolean existsSamePassword = false;
+		for (IdmPasswordHistoryDto pass : content) {
+			if (pass.getPassword().equals(identityPassword.getPassword())) {
+				existsSamePassword = true;
+			}			
+		}
+		assertTrue(existsSamePassword);
 	}
 	
 	@Test

@@ -1,4 +1,4 @@
-# CzechIdM 8
+# CzechIdM 9
 
 CzechIdM is an opensource identity management tool for user accounts that automates the operations associated with establishing and managing identities.
 
@@ -12,7 +12,7 @@ CzechIdM manages user accounts, roles, groups, organizational structures, and th
   - **Automate identity lifecycle**: Synchronize identities in your systems. Simplify HR processes, grant users access and provision them automatically.
 
 ## Important links
-  - **CzechIDM documentation - admins and developers guide**: https://wiki.czechidm.com/start
+  - **CzechIdM documentation - admins and developers guide**: https://wiki.czechidm.com/start
   - Stable release: https://github.com/bcvsolutions/CzechIdMng/releases
   - Nightly build: [idm.war](http://download.czechidm.com/CzechIdM/nightly/current/idm.war)
   - Online demo: http://demo.czechidm.com/

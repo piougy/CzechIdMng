@@ -13,7 +13,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -46,7 +45,6 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 @SpringApplicationConfiguration(classes = IdmApplication.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
-@ActiveProfiles("test")
 @Rollback(true)
 public abstract class AbstractIntegrationTest {
 	

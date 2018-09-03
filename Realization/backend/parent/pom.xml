@@ -5,7 +5,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>9.0.0-SNAPSHOT</version>
+	<version>9.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -368,6 +368,12 @@
 			<groupId>net.tirasa.connid.bundles.db</groupId>
 			<artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
 			<version>2.2.4</version>
+		</dependency>
+		<!-- Our CSV connector -->
+		<dependency>
+			<groupId>eu.bcvsolutions.idm.connectors.csv</groupId>
+			<artifactId>csv-connector</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.reflections</groupId>
@@ -733,6 +739,29 @@
 				    <version>4.0</version>
 				</dependency>
 			</dependencies>
+		</profile>
+
+		<!-- There must be specified profiles for testing real database connections -->
+		<profile>
+			<id>test</id>
+			<properties>
+				<spring.profiles.active>test</spring.profiles.active>
+			</properties>
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories
+				- used by goal 'deploy' -->
+			<distributionManagement>
+				<snapshotRepository>
+					<id>nexus</id>
+					<name>Nexus Staging repo</name>
+					<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+		<profile>
+			<id>test-mssql</id>
+			<properties>
+				<spring.profiles.active>test,test-mssql</spring.profiles.active>
+			</properties>
 		</profile>
 
 		<profile>

@@ -44,7 +44,7 @@ public class GuaranteeSubordinatesFilter
 	}
 	
 	/**
-	 * Predicate for subordin as guarantee
+	 * Predicate for subordinate as guarantee configured manually
 	 * 
 	 * @param root
 	 * @param query
@@ -52,7 +52,7 @@ public class GuaranteeSubordinatesFilter
 	 * @param filter
 	 * @return
 	 */
-	protected Predicate getGuaranteesPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+	public Predicate getGuaranteesPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		// identity has to have identity contract
 		// manager as guarantee
 		Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);

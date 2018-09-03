@@ -163,7 +163,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </Basic.Col>
                 </Basic.Row>
-                <Basic.Row rendered={ _.includes(columns, 'ownerType') }>
+                <Basic.Row className={ _.includes(columns, 'ownerType') ? '' : 'last' }>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="states"
@@ -172,7 +172,15 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                       multiSelect
                       useSymbol={ false }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 8 }>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.TextField
+                      ref="rootId"
+                      placeholder={ this.i18n('entity.EntityEvent.rootId.label') }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.TextField
+                      ref="parentId"
+                      placeholder={ this.i18n('entity.EntityEvent.parent.label') }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row className="last" rendered={ _.includes(columns, 'ownerType') }>

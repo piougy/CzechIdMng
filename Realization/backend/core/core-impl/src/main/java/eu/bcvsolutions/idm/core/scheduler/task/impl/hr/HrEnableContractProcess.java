@@ -46,13 +46,15 @@ public class HrEnableContractProcess extends AbstractHrProcess {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Find all identity contracts, that are both valid and enabled.
+	 * Find all identity contracts, that are both valid, enabled and not excluded.
 	 */
 	@Override
 	public Page<IdmIdentityContractDto> getItemsToProcess(Pageable pageable) {
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setValid(Boolean.TRUE);
 		filter.setDisabled(Boolean.FALSE);
+		filter.setExcluded(Boolean.FALSE);
+		//
 		return identityContractService.find(filter, pageable);
 	}
 	

@@ -41,10 +41,13 @@ class IdentityRoles extends Basic.AbstractContent {
     return 'content.identity.roles';
   }
 
+  getNavigationKey() {
+    return 'profile-roles';
+  }
+
   componentDidMount() {
     super.componentDidMount();
     //
-    this.selectSidebarItem('profile-roles');
     const { entityId } = this.props.params;
     this.context.store.dispatch(identityContractManager.fetchEntities(new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('identity', entityId).setFilter('validNowOrInFuture', true), `${uiKeyContracts}-${entityId}`));
   }

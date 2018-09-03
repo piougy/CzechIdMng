@@ -30,7 +30,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -121,11 +120,12 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 			}
 			//
 			for (IdmRoleDto role : roles) {
-				IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-				filter.setIdentityContractId(contract.getId());
-				filter.setRoleId(role.getId());
-				//
-				List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
+				List<IdmIdentityRoleDto> identityRoles = allByContract
+						.stream()
+						.filter(ir -> ir.getRole().equals(role.getId()))
+						.filter(ir -> ir.getDirectRole() == null) // direct role
+						.filter(ir -> ir.getAutomaticRole() == null) // not automatic
+						.collect(Collectors.toList());
 				if (identityRoles.isEmpty()) {
 					continue;
 				}

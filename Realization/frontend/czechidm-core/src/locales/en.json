@@ -249,6 +249,12 @@
   },
   "navigation" : {
     "toogle": "Toggle navigation",
+    "collapse": {
+      "label": "Collapse menu"
+    },
+    "expand": {
+      "label": "Expand menu"
+    },
     "menu": {
       "home": "Dashboard",
       "profile": {
@@ -752,8 +758,10 @@
       "NOTIFICATION": "Notifications",
       "ROLE": "Roles",
       "ROLECATALOGUE": "Role catalog",
+      "ROLECATALOGUEROLE": "Role catalog - assigned roles",
       "ROLEGUARANTEE": "$t(entity.Role.guarantees) - by identity",
       "ROLEGUARANTEEROLE": "$t(entity.Role.guarantees) - by role",
+      "ROLECOMPOSITION": "Business roles definition",
       "ROLETREENODE": "Automatic roles (organization structure)",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
@@ -1837,6 +1845,14 @@
         "header": "Automatic roles",
         "title": "Automatic roles",
         "label": "Automatic roles",
+        "filter": {
+          "text": {
+            "placeholder": "Name of automatic role or role name"
+          },
+          "treeNodeId": {
+            "placeholder": "Tree node"
+          }
+        },
         "edit": {
           "header": "{{name}} <small>automatic role detail</small>"
         },
@@ -1905,11 +1921,11 @@
           "header": "Sub roles"
         },
         "save": {
-          "success": "Business role [{record}] successfully saved. Role will be assigned to the users on the background asynchronously."
+          "success": "Business role [{{record}}] successfully saved. Role will be assigned to the users on the background asynchronously."
         },
         "action": {
           "delete": {
-            "success": "Business role [{record}] successfully removed. Assigned role will be removed from the users on the background asynchronously."
+            "success": "Business role [{{record}}] successfully removed. Assigned role will be removed from the users on the background asynchronously."
           }
         }
       }
@@ -4174,7 +4190,8 @@
       "message": "Role with this name already exists"
     },
     "CONFLICT": {
-      "title": "Record is on collision with another unique record"
+      "title": "Record is on collision with another unique record",
+      "message": ""
     },
     "NAME_CONFLICT": {
       "title": "Conflict with name",
@@ -4782,11 +4799,11 @@
     },
     "ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING": {
       "title": "Business role is used by concurrent task",
-      "message": "Business role [{{autoRole}}] is used by concurrent task [{{task}}], wait for task completion."
+      "message": "Business role [{{roleCompositionId}}] is used by concurrent task [{{taskId}}], wait for task completion."
     },
     "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role is removed by concurrent task",
-      "message": "Business role [{{autoRole}}] is removed by concurrent task [{{task}}]."
+      "message": "Business role [{{roleCompositionId}}] is removed by concurrent task [{{taskId}}]."
     }
   },
   "validationError": {

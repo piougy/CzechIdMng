@@ -318,20 +318,6 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
-		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
-		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
-		Assert.assertEquals(3, actions.size());
-
-		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
-			return SynchronizationActionType.DELETE_ENTITY == action.getSyncAction();
-		}).findFirst().get();
-
-		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
-		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
-		Assert.assertEquals(1, items.size());
-
 		// Check state after sync
 		treeNode = treeNodeService.get(treeNode.getId());
 		Assert.assertNull(treeNode);

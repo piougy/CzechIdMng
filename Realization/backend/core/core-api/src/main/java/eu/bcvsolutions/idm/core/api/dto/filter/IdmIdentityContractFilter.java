@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.UUID;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.LocalDate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -21,6 +22,8 @@ public class IdmIdentityContractFilter
 		extends DataFilter
 		implements CorrelationFilter, ExternalIdentifiable {
 
+	public static final String PARAMETER_EXCLUDED = "excluded"; // true / false
+	//
 	private UUID identity;
 	private UUID workPosition;
 	private LocalDate validFrom;
@@ -162,5 +165,17 @@ public class IdmIdentityContractFilter
 	
 	public UUID getWorkPosition() {
 		return workPosition;
+	}
+	
+	public Boolean getExcluded() {
+		Object first = data.getFirst(PARAMETER_EXCLUDED);
+    	if (first == null) {
+    		return null;
+    	}
+    	return BooleanUtils.toBoolean(first.toString());
+	}
+	
+	public void setExcluded(Boolean excluded) {
+		data.set(PARAMETER_EXCLUDED, excluded);
 	}
 }

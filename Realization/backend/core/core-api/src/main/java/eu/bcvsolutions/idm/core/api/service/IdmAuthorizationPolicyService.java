@@ -48,14 +48,6 @@ public interface IdmAuthorizationPolicyService
 	List<IdmAuthorizationPolicyDto> getRolePolicies(UUID roleId, boolean disabled);
 	
 	/**
-	 * Returns active and persisted role's authorities by configured policies for given identity.
-	 * Persisted means persisted policies outside current transaction.
-	 * 
-	 * @param role
-	 */
-	Set<GrantedAuthority> getEnabledPersistedRoleAuthorities(UUID identityId, UUID roleId);
-	
-	/**
 	 * Returns authorities from default user role by configuration {@value #PROPERTY_DEFAULT_ROLE} for given identity.
 	 * 
 	 * Attention: Doesn't returns authorities from subroles

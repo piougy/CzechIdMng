@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
  * Permissions to assigned guarantees (by identity) by role.
  * 
  * @author Radek Tomiška
- *
+ * @since 9.0.0
  */
 @Component(RoleGuaranteeByRoleEvaluator.EVALUATOR_NAME)
 @Description("Permissions to assigned guarantees (by identity) by role.")

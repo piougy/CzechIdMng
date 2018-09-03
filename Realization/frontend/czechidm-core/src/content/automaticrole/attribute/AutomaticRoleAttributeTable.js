@@ -193,7 +193,8 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('filter.text')}/>
+                      placeholder={this.i18n('filter.text')}
+                      help={ Advanced.Filter.getTextHelp() }/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -275,20 +276,25 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
               }
             }/>
         </Advanced.Table>
-        <div className="tab-pane-table-body"
-          rendered={ SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_READ') }>
-          <Basic.ContentHeader style={{ marginBottom: 0 }} text={this.i18n('content.automaticRoles.request.header')}/>
-          <AutomaticRoleRequestTableComponent
-            ref="automatic-role-requests-table"
-            uiKey="role-automatic-role-requests-table"
-            forceSearchParameters={requestForceSearch}
-            columns={ _.difference(AutomaticRoleRequestTable.defaultProps.columns,
-               roleId ? ['role', 'executeImmediately', 'startRequest', 'createNew']
-                      : ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified']
-            ) }
-            showFilter={false}
-            manager={automaticRoleRequestManager}/>
-        </div>
+
+        {
+          !SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_READ')
+          ||
+          <div className="tab-pane-table-body">
+            <Basic.ContentHeader style={{ marginBottom: 0 }} text={this.i18n('content.automaticRoles.request.header')}/>
+            <AutomaticRoleRequestTableComponent
+              ref="automatic-role-requests-table"
+              uiKey="role-automatic-role-requests-table"
+              forceSearchParameters={requestForceSearch}
+              columns={ _.difference(AutomaticRoleRequestTable.defaultProps.columns,
+                 roleId ? ['role', 'executeImmediately', 'startRequest', 'createNew']
+                        : ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified']
+              ) }
+              showFilter={false}
+              manager={automaticRoleRequestManager}/>
+          </div>
+        }
+
         <Basic.Modal
           bsSize="default"
           show={detail.show}

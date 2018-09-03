@@ -28,7 +28,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      conceptData: {},
+      conceptData: [],
       showRoleCatalogue: false,
       filterOpened: this.props.filterOpened,
       detail: {

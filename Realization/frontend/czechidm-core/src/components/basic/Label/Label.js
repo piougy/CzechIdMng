@@ -57,11 +57,19 @@ Label.propTypes = {
   /**
    * Label text content
    */
-  text: PropTypes.string,
+  text: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node,
+    PropTypes.number
+  ]),
   /**
    * Label text content (text alias - text has higher priority)
    */
-  value: PropTypes.string
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node,
+    PropTypes.number
+  ])
 };
 
 Label.defaultProps = {

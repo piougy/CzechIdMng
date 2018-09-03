@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
-import { RoleManager, RoleCompositionManager } from '../../../redux/';
+import { RoleManager, RoleCompositionManager, SecurityManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import RolePriorityEnum from '../../../enums/RolePriorityEnum';
 import SearchParameters from '../../../domain/SearchParameters';
@@ -32,8 +32,10 @@ export class RoleInfo extends AbstractEntityInfo {
 
     const entityId = this.getEntityId();
     if (entityId) {
-      const forceSubSearchParameters = new SearchParameters().setFilter('superiorId', entityId);
-      this.context.store.dispatch(roleCompositionManager.fetchEntities(forceSubSearchParameters, `${uiKeyRoles}-${entityId}`));
+      if (SecurityManager.hasAuthority('ROLECOMPOSITION_AUTOCOMPLETE')) {
+        const forceSubSearchParameters = new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('superiorId', entityId);
+        this.context.store.dispatch(roleCompositionManager.fetchEntities(forceSubSearchParameters, `${uiKeyRoles}-${entityId}`));
+      }
     }
   }
 

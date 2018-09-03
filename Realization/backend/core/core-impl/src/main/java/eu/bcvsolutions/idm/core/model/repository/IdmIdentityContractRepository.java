@@ -9,9 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -89,14 +86,4 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 			" where"
 	        + " (validTill is not null and validTill < :expiration)")
 	Page<IdmIdentityContract> findExpiredContracts(@Param("expiration") LocalDate expiration, Pageable pageable);
-	
-	/**
-	 * Returns persisted identity contract
-	 * 
-	 * @param identityContract
-	 * @return
-	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
-	@Query("select e from #{#entityName} e where e.id = :identityContractId")
-	IdmIdentityContract getPersistedIdentityContract(@Param("identityContractId") UUID identityContractId);
 }

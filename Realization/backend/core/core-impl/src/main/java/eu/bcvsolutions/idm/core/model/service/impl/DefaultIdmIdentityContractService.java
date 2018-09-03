@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
@@ -33,6 +34,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -145,23 +147,17 @@ public class DefaultIdmIdentityContractService
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.main), filter.getMain()));
 		}
 		if (filter.getValid() != null) {
+			final LocalDate today = LocalDate.now();
+			//
 			if (filter.getValid()) {
-				final LocalDate today = LocalDate.now();
+				// EXCLUDED contracts remain valid ...
 				predicates.add(
 						builder.and(
-								builder.or(
-										builder.lessThanOrEqualTo(root.get(IdmIdentityContract_.validFrom), today),
-										builder.isNull(root.get(IdmIdentityContract_.validFrom))
-										),
-								builder.or(
-										builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), today),
-										builder.isNull(root.get(IdmIdentityContract_.validTill))
-										),
+								RepositoryUtils.getValidPredicate(root, builder, today),
 								builder.equal(root.get(IdmIdentityContract_.disabled), Boolean.FALSE)
 								)								
 						);
 			} else {
-				final LocalDate today = LocalDate.now();
 				predicates.add(
 						builder.or(
 								builder.lessThan(root.get(IdmIdentityContract_.validTill), today),
@@ -193,6 +189,20 @@ public class DefaultIdmIdentityContractService
 		}
 		if (filter.getWorkPosition() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.id), filter.getWorkPosition()));
+		}
+		Boolean excluded = filter.getExcluded();
+		if (excluded != null) {
+			Predicate excludedPredicate = builder.equal(root.get(IdmIdentityContract_.state), ContractState.EXCLUDED);
+			if (excluded) {
+				predicates.add(excludedPredicate);
+			} else {
+				predicates.add(
+						builder.or(
+								builder.not(excludedPredicate),
+								builder.isNull(root.get(IdmIdentityContract_.state))
+								)
+						);
+			}
 		}
 		//
 		return predicates;

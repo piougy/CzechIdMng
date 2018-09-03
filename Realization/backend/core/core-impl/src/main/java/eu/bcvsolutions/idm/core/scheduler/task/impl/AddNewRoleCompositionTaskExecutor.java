@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * Can be executed repetitively to assign unprocessed roles to identities, after process was stopped or interrupted (e.g. by server restart). 
  *
  * @author Radek Tomiška
- *
+ * @since 9.0.0
  */
 @Service
 @Description("Long running task for assign sub roles defined by this composition to identities having superior role."

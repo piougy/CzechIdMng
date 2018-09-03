@@ -4,7 +4,7 @@ import uuid from 'uuid';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
-import { AutomaticRoleAttributeManager } from '../../../redux';
+import { AutomaticRoleAttributeManager, SecurityManager } from '../../../redux';
 
 const manager = new AutomaticRoleAttributeManager();
 
@@ -53,7 +53,7 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
           <Basic.Icon value="fa:universal-access"/> {this.i18n('content.automaticRoles.attribute.header')}
         </Basic.PageHeader>
 
-        <Basic.Row>
+        <Basic.Row rendered={ SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_CREATE') }>
           <Basic.Col lg={ 6 }>
             <Basic.Alert
               level="warning"
@@ -70,8 +70,9 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
                   { this.i18n('button.change.label') }
                 </Basic.Button>
               ]}/>
-            </Basic.Col>
-          </Basic.Row>
+          </Basic.Col>
+        </Basic.Row>
+
         <Advanced.TabPanel position="left" parentId="automatic-role-attribute" params={this.props.params}>
           {this.props.children}
         </Advanced.TabPanel>

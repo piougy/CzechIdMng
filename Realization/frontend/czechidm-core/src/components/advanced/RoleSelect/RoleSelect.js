@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 //
-import { RoleManager, RoleCatalogueManager } from '../../../redux';
+import { RoleManager, RoleCatalogueManager, SecurityManager } from '../../../redux';
 import * as Basic from '../../basic';
 import EntitySelectBox from '../EntitySelectBox/EntitySelectBox';
 import Table from '../Table/Table';
@@ -16,7 +16,9 @@ const ROOTS_ROLE_CATALOGUE_UIKEY = 'roots-role-catalogue';
 
 /**
 * Component for select roles by role catalogue
+*
 * @author Ondrej Kopr
+* @author Radek Tomiška
 */
 class RoleSelect extends Basic.AbstractFormComponent {
 
@@ -35,10 +37,31 @@ class RoleSelect extends Basic.AbstractFormComponent {
   }
 
   componentDidMount() {
+    this._loadCatalogue();
+    //
+    this.cleanFilter();
+  }
+
+  componentWillReceiveProps() {
+  }
+
+  _loadCatalogue() {
+    if (!SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE')) {
+      this.setState({
+        showLoading: false
+      });
+      return;
+    }
+    //
     // find roots
     const searchParametersRoots = this.roleCatalogueManager.getRootSearchParameters();
     //
-    this.context.store.dispatch(this.roleCatalogueManager.fetchEntities(searchParametersRoots, ROOTS_ROLE_CATALOGUE_UIKEY, (loadedRoots) => {
+    this.context.store.dispatch(this.roleCatalogueManager.fetchEntities(searchParametersRoots, ROOTS_ROLE_CATALOGUE_UIKEY, (loadedRoots, error) => {
+      if (error) {
+        this.setState({
+          showLoading: false
+        });
+      }
       if (loadedRoots) {
         const uiState = Utils.Ui.getUiState(this.context.store.getState(), ROOTS_ROLE_CATALOGUE_UIKEY);
         const rootNodes = loadedRoots._embedded[this.roleCatalogueManager.getCollectionType()];
@@ -50,10 +73,6 @@ class RoleSelect extends Basic.AbstractFormComponent {
         });
       }
     }));
-    this.cleanFilter();
-  }
-
-  componentWillReceiveProps() {
   }
 
   getValue() {
@@ -294,7 +313,8 @@ class RoleSelect extends Basic.AbstractFormComponent {
       selectRowClass
     } = this.props;
     //
-    const { rootNodes,
+    const {
+      rootNodes,
       rootNodesCount,
       selectedRows,
       showLoading,
@@ -308,7 +328,7 @@ class RoleSelect extends Basic.AbstractFormComponent {
     return (
       <div>
         <Basic.Row className={ showRoleCatalogue ? 'hidden' : null }>
-          <Basic.Col lg={ 9 }>
+          <Basic.Col lg={ showTree ? 9 : 12 }>
             <EntitySelectBox
               ref="role"
               manager={this.roleManager}
@@ -319,7 +339,7 @@ class RoleSelect extends Basic.AbstractFormComponent {
               entityType="role"
               required/>
           </Basic.Col>
-          <Basic.Col lg={ 3 }>
+          <Basic.Col lg={ 3 } rendered={ showTree === true }>
             <Basic.Button
               style={{marginTop: '25px', width: '100%', display: 'block' }}
               level="primary"
@@ -334,8 +354,8 @@ class RoleSelect extends Basic.AbstractFormComponent {
         </Basic.Row>
 
         <Basic.Panel className="no-border last">
-          <Basic.Row rendered={showRoleCatalogue}>
-            <Basic.Col lg={ 3 } style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
+          <Basic.Row rendered={ showRoleCatalogue }>
+            <Basic.Col lg={ 3 } style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }} rendered={ showTree === true }>
               <div className="basic-toolbar" style={{ padding: '3px 15px 5px 0px', minHeight: 'auto' }}>
                 <div className="pull-left">
                   <h3 style={{ margin: 0 }}>
@@ -378,12 +398,13 @@ class RoleSelect extends Basic.AbstractFormComponent {
                 }
               </div>
             </Basic.Col>
-            <Basic.Col lg={ 9 }>
+            <Basic.Col lg={ showTree ? 9 : 12 }>
               <Table
                 showLoading={showLoading}
                 ref="table"
                 condensed
-                style={{ borderLeft: '1px solid #ddd' }}
+                className={ showTree ? '' : 'marginable' }
+                style={ showTree ? { borderLeft: '1px solid #ddd' } : {} }
                 forceSearchParameters={
                   this.roleManager.getDefaultSearchParameters()
                     .setName(SearchParameters.NAME_AUTOCOMPLETE)

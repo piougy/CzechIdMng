@@ -248,7 +248,10 @@ TextField.propTypes = {
   ...AbstractFormComponent.propTypes,
   type: PropTypes.string,
   placeholder: PropTypes.string,
-  help: PropTypes.string,
+  help: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object
+  ]),
   min: PropTypes.number,
   max: PropTypes.number,
   /**

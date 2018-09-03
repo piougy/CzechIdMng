@@ -77,7 +77,7 @@ public class IdentitySetPasswordProcessor
 					newIdentity, 
 					ImmutableMap.of(
 							IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto,
-							EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFICATION, true)); // we are sending notification with newly generated password from this processor
+							EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFICATION, Boolean.TRUE)); // we are sending notification with newly generated password from this processor
 			EventContext<IdmIdentityDto> context = entityEventManager.process(identityEvent);
 			// 
 			// send notification with then newly generated password

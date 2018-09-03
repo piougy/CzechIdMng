@@ -279,6 +279,7 @@ public class IdmRoleCatalogueController extends AbstractReadWriteDtoController<I
 	
 	@ResponseBody
 	@RequestMapping(value = "/search/roots", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_AUTOCOMPLETE + "')")
 	@ApiOperation(
 			value = "Search root catalogues", 
 			nickname = "searchRootRoleCatalogues", 
@@ -300,6 +301,7 @@ public class IdmRoleCatalogueController extends AbstractReadWriteDtoController<I
 	
 	@ResponseBody
 	@RequestMapping(value = "/search/children", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLECATALOGUE_AUTOCOMPLETE + "')")
 	@ApiOperation(
 			value = "Search sub catalogues", 
 			nickname = "searchChildrenRoleCatalogues", 

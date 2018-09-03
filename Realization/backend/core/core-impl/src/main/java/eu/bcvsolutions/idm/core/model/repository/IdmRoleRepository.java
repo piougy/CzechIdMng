@@ -16,5 +16,4 @@ public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole> {
 	
 	@Query(value = "select e from #{#entityName} e where e.name = :code")
 	IdmRole findOneByCode(@Param("code") String code);
-	
 }

@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -35,7 +35,7 @@ public class TestTreeResource {
 	@Column(name = "STATUS", length = DefaultFieldLengths.NAME)
 	private String status;
 	@Column(name = "MODIFIED", length = DefaultFieldLengths.NAME)
-	private LocalDateTime modified;
+	private DateTime modified;
 
 	public String getName() {
 		return name;
@@ -93,11 +93,11 @@ public class TestTreeResource {
 		this.status = status;
 	}
 
-	public LocalDateTime getModified() {
+	public DateTime getModified() {
 		return modified;
 	}
 
-	public void setModified(LocalDateTime modified) {
+	public void setModified(DateTime modified) {
 		this.modified = modified;
 	}
 

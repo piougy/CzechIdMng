@@ -279,6 +279,12 @@
   },
   "navigation" : {
     "toogle": "Toggle navigation",
+    "collapse": {
+      "label": "Zmenšit menu"
+    },
+    "expand": {
+      "label": "Zvětšit menu"
+    },
     "menu": {
       "home": "Nástěnka",
       "profile": {
@@ -783,8 +789,10 @@
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
       "ROLECATALOGUE": "Katalog rolí",
+      "ROLECATALOGUEROLE": "Katalog rolí - přiřazené role",
       "ROLEGUARANTEE": "$t(entity.Role.guarantees) - dle identity",
       "ROLEGUARANTEEROLE": "$t(entity.Role.guarantees) - dle role",
+      "ROLECOMPOSITION": "Definice business rolí",
       "ROLETREENODE": "Automatické role (organizační struktura)",
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
@@ -1878,6 +1886,14 @@
         "header": "Automatické role",
         "title": "Automatické role",
         "label": "Automatické role",
+        "filter": {
+          "text": {
+            "placeholder": "Název automatické role, nebo role"
+          },
+          "treeNodeId": {
+            "placeholder": "Prvek stromové struktury"
+          }
+        },
         "edit": {
           "header": "{{name}} <small>detail automatické role</small>"
         },
@@ -1949,11 +1965,11 @@
           "header": "Podřazené role"
         },
         "save": {
-          "success": "Business role [{record}] byla úspěšně uložena. Přidělení business role uživatelům proběhne na pozadí."
+          "success": "Business role [{{record}}] byla úspěšně uložena. Přidělení business role uživatelům proběhne na pozadí."
         },
         "action": {
           "delete": {
-            "success": "Odebrání business role uživatelům proběhne na pozadí. Poté bude business role [{record}] odebrána."
+            "success": "Odebrání business role uživatelům proběhne na pozadí. Poté bude business role [{{record}}] odebrána."
           }
         }
       }
@@ -4217,7 +4233,8 @@
       "message": "Role s daným názvem již existuje"
     },
     "CONFLICT": {
-      "title": "Záznam koliduje s jiným unikátním záznamem"
+      "title": "Záznam koliduje s jiným unikátním záznamem",
+      "message": ""
     },
     "NAME_CONFLICT": {
       "title": "Konfliktní název",

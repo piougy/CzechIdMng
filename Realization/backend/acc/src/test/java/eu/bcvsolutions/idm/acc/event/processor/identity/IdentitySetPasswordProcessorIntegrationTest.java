@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Generate single password to all identiy systems
+ * Generate single password to all identity systems
  * 
  * @author Radek Tomiška
  *

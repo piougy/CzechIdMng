@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCompositionFilter;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -241,7 +242,9 @@ public class IdmRoleCompositionController extends AbstractEventableDtoController
 	public ResponseEntity<?> delete(
 			@ApiParam(value = "Role composition's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return super.delete(backendId);
+		super.delete(backendId);
+		//
+		throw new AcceptedException();
 	}
 	
 	@Override

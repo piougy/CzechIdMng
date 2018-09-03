@@ -361,6 +361,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	}
 	
 	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_AUTOCOMPLETE + "')")
 	@RequestMapping(value = "/search/roots", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "Search root tree nodes", 
@@ -385,6 +386,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	}
 	
 	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_AUTOCOMPLETE + "')")
 	@RequestMapping(value = "/search/children", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "Search sub tree nodes", 

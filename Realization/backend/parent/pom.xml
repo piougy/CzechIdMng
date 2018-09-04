@@ -740,13 +740,22 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<!-- There must be specified profiles for testing real database connections -->
 		<profile>
 			<id>test</id>
 			<properties>
 				<spring.profiles.active>test</spring.profiles.active>
 			</properties>
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories
+				- used by goal 'deploy' -->
+			<distributionManagement>
+				<snapshotRepository>
+					<id>nexus</id>
+					<name>Nexus Staging repo</name>
+					<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
 		</profile>
 		<profile>
 			<id>test-mssql</id>

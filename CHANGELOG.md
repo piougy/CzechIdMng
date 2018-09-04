@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
  - Parent event can be propagated, when sub event is created by the parent event. Executing account management was improved thanks to this mechanism - is called after change role request is executed (not for the all single assigned roles). When role is assigned outside the request (directly in some backend business logic), then account management s executed the same way as before - for each assigned role.
  - child events are deleted automatically - remove events from event queue will be easier.
  - method ``IdmAuthorizationPolicyService#getEnabledPersistedRoleAuthorities`` was removed - use previously loaded dto in event processing.
+- [#1204](https://redmine.czechidm.com/issues/1204) - Reschedule HR long running task  ``HrEnableContractProcess`` - processed item queue should be cleared
 
 ## [8.2.0]
 

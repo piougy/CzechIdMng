@@ -10,6 +10,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -197,6 +198,51 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		PersistentType persistentType = filter.getPersistentType();
 		if (persistentType != null) {
 			predicates.add(builder.equal(root.get(AbstractFormValue_.persistentType), persistentType));
+		}
+		//
+		String stringValue = filter.getStringValue();
+		if (StringUtils.isNotEmpty(stringValue)) {
+			predicates.add(builder.like(builder.lower(root.get(AbstractFormValue_.stringValue)), "%" + stringValue + "%"));
+		}
+		//
+		String shortTextValue = filter.getShortTextValue();
+		if (StringUtils.isNotEmpty(shortTextValue)) {
+			predicates.add(builder.like(builder.lower(root.get(AbstractFormValue_.shortTextValue)), "%" + shortTextValue + "%"));
+		}
+		//
+		Boolean booleanValue = filter.getBooleanValue();
+		if (booleanValue != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.booleanValue), booleanValue));
+		}
+		//
+		Long longValue = filter.getLongValue();
+		if (longValue != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.longValue), longValue));
+		}
+		//
+		Double doubleValue = filter.getDoubleValue();
+		if (doubleValue != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.doubleValue), doubleValue));
+		}
+		//
+		DateTime dateValueFrom = filter.getDateValueFrom();
+		if (dateValueFrom != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(AbstractFormValue_.dateValue), dateValueFrom));
+		}
+		//
+		DateTime dateValueTo = filter.getDateValueTo();
+		if (dateValueTo != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(AbstractFormValue_.dateValue), dateValueTo));
+		}
+		//
+		byte[] byteValue = filter.getByteValue();
+		if (byteValue != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.byteValue), byteValue));
+		}
+		//
+		UUID uuidValue = filter.getUuidValue();
+		if (uuidValue != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.uuidValue), uuidValue));
 		}
 		//
 		UUID definitionId = filter.getDefinitionId();

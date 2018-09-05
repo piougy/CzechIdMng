@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import Joi from 'joi';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -22,7 +23,8 @@ export class FormValueTable extends Advanced.AbstractTableContent {
     super(props, context);
     this.state = {
       filterOpened: props.filterOpened,
-      showLoading: true
+      showLoading: true,
+      persistentType: null
     };
   }
 
@@ -50,11 +52,26 @@ export class FormValueTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.setState({
+      persistentType: null
+    });
+  }
+
+  _onChangeType(item) {
+    if (item) {
+      this.setState({
+        persistentType: item.value,
+      });
+    } else {
+      this.setState({
+        persistentType: null
+      });
+    }
   }
 
   render() {
     const { uiKey, forceSearchParameters, showFilter, columns } = this.props;
-    const { filterOpened } = this.state;
+    const { filterOpened, persistentType } = this.state;
     //
     return (
       <Advanced.Table
@@ -83,7 +100,108 @@ export class FormValueTable extends Advanced.AbstractTableContent {
                     ref="persistentType"
                     placeholder={this.i18n('filter.type.placeholder')}
                     multiSelect={false}
-                    enum={PersistentTypeEnum}/>
+                    enum={PersistentTypeEnum}
+                    onChange={this._onChangeType.bind(this)}/>
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={6}>
+                  <Basic.TextField
+                      ref="stringValue"
+                      placeholder={this.i18n('filter.value.placeholder')}
+                      hidden={persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CHAR) &&
+                      persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.TEXT)}
+                      validation={Joi.string()}
+                      min={0}
+                      max={2000}/>
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={6}>
+                  <Basic.TextField
+                      ref="shortTextValue"
+                      placeholder={this.i18n('filter.value.placeholder')}
+                      hidden={persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT)}
+                      validation={Joi.string()}
+                      min={0}
+                      max={2000}
+                  />
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={6}>
+                  <Basic.TextField
+                      ref="longValue"
+                      placeholder={this.i18n('filter.value.placeholder')}
+                      hidden={persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.INT) &&
+                      persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.LONG)}
+                      validation={Joi.number().integer().min(-9223372036854775808).max(9223372036854775807)}
+                  />
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={6}>
+                  <Basic.TextField
+                      ref="doubleValue"
+                      placeholder={this.i18n('filter.value.placeholder')}
+                      hidden={persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DOUBLE)}
+                      validation={Joi.number().min(-Math.pow(10, 33)).max(Math.pow(10, 33))}
+                  />
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={6}>
+                  <Basic.BooleanSelectBox
+                      ref="booleanValue"
+                      placeholder={this.i18n('filter.value.placeholder')}
+                      hidden={persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.BOOLEAN)}
+                  />
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={3}>
+                  <Advanced.Filter.DateTimePicker
+                      ref="dateValueFrom"
+                      placeholder={this.i18n('filter.dateFrom.placeholder')}
+                      hidden={persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DATE) &&
+                      persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DATETIME)}
+                      mode={persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DATE) ||
+                      persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DATETIME) ? persistentType.toLowerCase() : 'datetime'}
+                  />
+                </Basic.Col>
+                <Basic.Col lg={3}>
+                  <Advanced.Filter.DateTimePicker
+                      ref="dateValueTo"
+                      placeholder={this.i18n('filter.dateTo.placeholder')}
+                      hidden={persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DATE) &&
+                      persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DATETIME)}
+                      mode={persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DATE) ||
+                      persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DATETIME) ? persistentType.toLowerCase() : 'datetime'}
+                  />
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={6}>
+                  <Basic.TextField
+                      ref="byteValue"
+                      placeholder={this.i18n('filter.value.placeholder')}
+                      hidden={persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.BYTEARRAY)}
+                      validation={Joi.string()}
+                      min={0}
+                      max={2000}
+                  />
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={6}>
+                  <Basic.TextField
+                      ref="uuidValue"
+                      placeholder={this.i18n('filter.value.placeholder')}
+                      hidden={persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.UUID)}
+                      validation={Joi.string()}
+                      min={0}
+                      max={16}
+                  />
                 </Basic.Col>
               </Basic.Row>
             </Basic.AbstractForm>

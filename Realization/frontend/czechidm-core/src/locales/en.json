@@ -1469,6 +1469,12 @@
         },
         "value": {
           "placeholder": "Attribute value"
+        },
+        "dateFrom": {
+          "placeholder": "Date from"
+        },
+        "dateTo": {
+          "placeholder": "Date to"
         }
       }
     },

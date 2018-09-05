@@ -1510,6 +1510,12 @@
         },
         "value": {
           "placeholder": "Hodnota atributu"
+        },
+          "dateFrom": {
+          "placeholder": "Datum od"
+        },
+        "dateTo": {
+          "placeholder": "Datum do"
         }
       }
     },

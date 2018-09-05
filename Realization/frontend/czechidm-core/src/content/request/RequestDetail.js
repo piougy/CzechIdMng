@@ -183,7 +183,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
       this.setState({
         showLoading: false
       });
-      // this.context.router.goBack();
       if (json.result.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
         this.addMessage({ message: this.i18n('content.requests.action.startRequest.exception'), level: 'error' });
         this._initComponent(this.props);
@@ -215,13 +214,17 @@ class RequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
-  _renderOriginalOwnerCell({ rowIndex, data }) {
+  _renderOwnerCell({ rowIndex, data }) {
     const entity = data[rowIndex];
+    if (!entity && entity._embedded) {
+      return '';
+    }
     const entityType = this._getNameOfDTO(entity.ownerType);
+    const owner = entity._embedded.ownerId;
     return (
       <Advanced.EntityInfo
         entityType={ entityType }
-        entityIdentifier={ entity.ownerId }
+        entity={ owner }
         face="popover"/>
     );
   }
@@ -270,7 +273,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
               property="ownerId"
               header={ this.i18n('entity.RequestItem.ownerId') }
               face="text"
-              cell={this._renderOriginalOwnerCell.bind(this)}/>
+              cell={this._renderOwnerCell.bind(this)}/>
             <Advanced.Column
               property="candicateUsers"
               face="text"
@@ -354,6 +357,15 @@ class RequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
+  _getCandidates(entity) {
+    if (!entity || !entity.candicateUsers) {
+      return '';
+    }
+    return (
+      <Advanced.IdentitiesInfo identities={entity.candicateUsers} maxEntry={5} />
+    );
+  }
+
   _getCurrentActivitiCell({ rowIndex, data}) {
     const entity = data[rowIndex];
     if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
@@ -388,7 +400,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
       <Advanced.EntityInfo
         entityType={ entityType }
         entity={owner}
-        showLink
         face="full"/>
     );
   }
@@ -418,9 +429,14 @@ class RequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
-  _goToRequests() {
-    // Redirect to requests
-    this.context.router.push(`requests`);
+  _goBack() {
+    const {_request} = this.props;
+    if (_request && _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
+      // Redirect to requests - we want to prevent redirect back to executed request preview
+      this.context.router.push(`/requests/`);
+      return;
+    }
+    this.context.router.goBack();
   }
 
   _onChangeRequestType(requestType) {
@@ -482,8 +498,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
     const {itemDetail} = this.state;
     //
     const forceSearchParameters = new SearchParameters().setFilter('requestId', _request ? _request.id : SearchParameters.BLANK_UUID);
-    const isNew = this._getIsNew();
-    const request = isNew ? this.state.request : _request;
+    const request = _request;
     // We want show audit fields only for Admin, but not in concept state.
     const _adminMode = Utils.Permission.hasPermission(_permissions, 'ADMIN');
     const showLoading = !request || _showLoading || this.state.showLoading || this.props.showLoading;
@@ -500,7 +515,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
         <Basic.PanelBody>
-          <Basic.Loading show isStatic />
+          <Basic.Loading show isStatic style={{marginTop: '300px', marginBottom: '300px'}} />
         </Basic.PanelBody>
       </div>);
     }
@@ -534,6 +549,11 @@ class RequestDetail extends Advanced.AbstractTableContent {
               <Basic.Row>
                 <div className="col-lg-6">
                   {this._getApplicantAndImplementer(request)}
+                </div>
+              </Basic.Row>
+              <Basic.Row>
+                <div className="col-lg-6">
+                  {this._getCandidates(request)}
                 </div>
               </Basic.Row>
               <Basic.TextField
@@ -594,7 +614,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
             </div>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
-                onClick={this._goToRequests.bind(this)}
+                onClick={this._goBack.bind(this)}
                 showLoading={showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>

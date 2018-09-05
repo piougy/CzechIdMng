@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  * Entity for universal request item
  *
  * @author svandav
- * @since 9.0.0
+ * @since 9.1.0
  */
 @Entity
 @Table(name = "idm_request_item", indexes = { //

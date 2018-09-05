@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 
@@ -12,11 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.base.Strings;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
@@ -34,6 +40,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstan
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
+import groovy.lang.Lazy;
 
 /**
  * Default implementation of request's item service
@@ -45,6 +52,9 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 public class DefaultIdmRequestItemService
 		extends AbstractReadWriteDtoService<IdmRequestItemDto, IdmRequestItem, IdmRequestItemFilter>
 		implements IdmRequestItemService {
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRequestItemService.class);
+
 
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
@@ -52,6 +62,9 @@ public class DefaultIdmRequestItemService
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
 	@Autowired
 	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService;
+	@Autowired
+	@Lazy
+	private RequestManager<Requestable> requestManager;
 
 	@Autowired
 	public DefaultIdmRequestItemService(IdmRequestItemRepository repository) {
@@ -88,6 +101,32 @@ public class DefaultIdmRequestItemService
 					processHistDto.setProcessVariables(null);
 				}
 				requestItemDto.getEmbedded().put(AbstractRequestDto.WF_PROCESS_FIELD, processHistDto);
+			}
+		}
+		
+		// Load and add owner DTO to embedded. Prevents of many requests from FE.
+		if (requestItemDto != null && requestItemDto.getOwnerId() != null && requestItemDto.getOwnerType() != null) {
+			try {
+				@SuppressWarnings("unchecked")
+				Requestable requestable = requestManager.convertItemToDto(requestItemDto, (Class<Requestable>) Class.forName(requestItemDto.getOwnerType()));
+				if (requestable == null) {
+					// Entity was not found ... maybe was deleted or not exists yet
+					LOG.debug(MessageFormat.format("Owner [{0}, {1}] not found for request {2}.",
+							requestItemDto.getOwnerType(), requestItemDto.getOwnerId(), requestItemDto.getId()));
+				}
+				requestItemDto.getEmbedded().put(IdmRequestDto.OWNER_FIELD, requestable);
+			} catch (ClassNotFoundException e) {
+				// Only print warning
+				LOG.warn(MessageFormat.format("Class not found for request item {0}.", requestItemDto.getId()), e);
+			} catch (JsonParseException e) {
+				// Only print warning
+				LOG.warn(MessageFormat.format("JsonParseException for request item {0}.", requestItemDto.getId()), e);
+			} catch (JsonMappingException e) {
+				// Only print warning
+				LOG.warn(MessageFormat.format("JsonMappingException for request item {0}.", requestItemDto.getId()), e);
+			} catch (IOException e) {
+				// Only print warning
+				LOG.warn(MessageFormat.format("IOException for request item {0}.", requestItemDto.getId()), e);
 			}
 		}
 

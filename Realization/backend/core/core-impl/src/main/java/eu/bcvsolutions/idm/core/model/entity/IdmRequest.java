@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  * Entity for universal request
  * 
  * @author svandav
- * @since 9.0.0
+ * @since 9.1.0
  *
  */
 @Entity

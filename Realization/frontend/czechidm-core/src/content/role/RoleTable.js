@@ -90,7 +90,7 @@ class RoleTable extends Advanced.AbstractTableContent {
       this.setState({
         showLoading: false
       });
-      this.addError(ex);
+      this.handleError(ex);
     });
   }
 

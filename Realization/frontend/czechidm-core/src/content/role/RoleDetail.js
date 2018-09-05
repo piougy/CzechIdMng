@@ -188,12 +188,16 @@ class RoleDetail extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title') } />
-        <Basic.Tabs activeKey={ activeKey } onSelect={ this._onChangeSelectTabs.bind(this) }>
+        <Basic.Tabs
+          activeKey={ activeKey }
+          onSelect={ this._onChangeSelectTabs.bind(this)}
+          style={{ paddingTop: 15 }}>
           <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
             <form onSubmit={ this.save.bind(this, 'CONTINUE') }>
-              <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last' } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}>
+              <Basic.Panel
+                className={ Utils.Entity.isNew(entity) ? '' : 'no-border last' }
+                style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}>
                 <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic') } />
-
                 <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
                   <Basic.AbstractForm
                     ref="form"
@@ -201,7 +205,7 @@ class RoleDetail extends Basic.AbstractContent {
                     readOnly={ !roleManager.canSave(entity, _permissions) }>
 
                     <Basic.Row>
-                      <Basic.Col lg={ 2 }>
+                      <Basic.Col lg={ 4 }>
                         <Basic.TextField
                           ref="code"
                           label={ this.i18n('entity.Role.code.label') }
@@ -209,7 +213,7 @@ class RoleDetail extends Basic.AbstractContent {
                           max={ 255 }
                           onChange={ this._onChangeCode.bind(this) }/>
                       </Basic.Col>
-                      <Basic.Col lg={ 10 }>
+                      <Basic.Col lg={ 8 }>
                         <Basic.TextField
                           ref="name"
                           label={this.i18n('entity.Role.name')}
@@ -253,8 +257,12 @@ class RoleDetail extends Basic.AbstractContent {
                 </Basic.PanelBody>
 
                 <Basic.PanelFooter>
-                  <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={_showLoading}>{this.i18n('button.back')}</Basic.Button>
-
+                  <Basic.Button
+                    type="button"
+                    level="link"
+                    onClick={this.context.router.goBack}
+                    showLoading={_showLoading}>{this.i18n('button.back')}
+                  </Basic.Button>
                   <Basic.SplitButton
                     level="success"
                     title={ this.i18n('button.saveAndContinue') }
@@ -265,7 +273,11 @@ class RoleDetail extends Basic.AbstractContent {
                     rendered={ roleManager.canSave(entity, _permissions) }
                     pullRight
                     dropup>
-                    <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+                    <Basic.MenuItem
+                      eventKey="1"
+                      onClick={this.save.bind(this, 'CLOSE')}>
+                      {this.i18n('button.saveAndClose')}
+                    </Basic.MenuItem>
                     <Basic.MenuItem
                       eventKey="2"
                       onClick={ this.save.bind(this, 'NEW') }

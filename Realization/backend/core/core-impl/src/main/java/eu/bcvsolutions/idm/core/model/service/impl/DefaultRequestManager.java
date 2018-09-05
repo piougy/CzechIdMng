@@ -283,6 +283,14 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		Assert.notNull(requestId, "Request ID is required!");
 
 		IdmRequestDto request = requestService.get(requestId);
+		
+		// Only request in CONCEPT or IN_PROGRESS state could creates new item or
+		// update existing item
+		if (request != null && !(RequestState.CONCEPT == request.getState()
+				|| RequestState.IN_PROGRESS == request.getState())) {
+		throw new ResultCodeException(CoreResultCode.REQUEST_ITEM_CANNOT_BE_CREATED,
+				ImmutableMap.of("dto", dto.toString(), "state", request.getState().name())); 
+		}	
 		// Exists item for same original owner?
 		IdmRequestItemDto item = this.findRequestItem(request.getId(), dto);
 		// If this item already exists for ADD, then we want to delete him.
@@ -400,12 +408,15 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 			createNew = true;
 		}
 		IdmRequestDto request = new IdmRequestDto();
+		// I need set creator id here, because is checked in the SelfRequestEvaluator
+		request.setCreatorId(securityService.getCurrentId());
+		
 		initRequest(request, dto);
 		// Create request
 		request = requestService.save(request, permission);
 		// Create item
 		if (createNew) {
-			this.post(request.getId(), dto);
+			this.post(request.getId(), dto, permission);
 		}
 
 		return request;
@@ -876,6 +887,15 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		Assert.notNull(requestId, "Request ID is required!");
 
 		IdmRequestDto request = requestService.get(requestId);
+		
+		// Only request in CONCEPT or IN_PROGRESS state could creates new item or
+		// update existing item
+		if (request != null && !(RequestState.CONCEPT == request.getState()
+					|| RequestState.IN_PROGRESS == request.getState())) {
+			throw new ResultCodeException(CoreResultCode.REQUEST_ITEM_CANNOT_BE_CREATED,
+					ImmutableMap.of("dto", dto.toString(), "state", request.getState().name())); 
+		}
+		
 		// Exists item for same original owner?
 		IdmRequestItemDto item = this.findRequestItem(request.getId(), dto);
 		try {
@@ -1107,11 +1127,8 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	
 
 	@SuppressWarnings("unchecked")
-	/*
-	 * Get DTO from the request item. Place of additional conversion (EAV attribute
-	 * for example)
-	 */
-	private R convertItemToDto(IdmRequestItemDto item, Class<? extends R> type)
+	@Override
+	public R convertItemToDto(IdmRequestItemDto item, Class<? extends R> type)
 			throws JsonParseException, JsonMappingException, IOException, ClassNotFoundException {
 		R dto = convertStringToDto(item.getData(), type);
 		if (dto instanceof IdmFormValueDto) {

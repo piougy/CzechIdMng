@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -7,6 +8,9 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
@@ -73,5 +77,21 @@ public interface RequestManager<R extends Requestable> extends RequestService<Id
 	 * @param executeImmediately
 	 */
 	void deleteRequestable(R dto, boolean executeImmediately);
+
+	
+	/**
+	 * Get DTO from the request item. Place for additional conversion (EAV attribute
+	 * for example)
+	 *
+	 * @param item
+	 * @param type
+	 * @return
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	R convertItemToDto(IdmRequestItemDto item, Class<? extends R> type)
+			throws JsonParseException, JsonMappingException, IOException, ClassNotFoundException;
 
 }

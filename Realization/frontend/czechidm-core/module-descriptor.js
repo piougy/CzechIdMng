@@ -466,14 +466,6 @@ module.exports = {
                 'order': 200,
                 'path': 'requests/:requestId/role/:entityId/authorization-policies',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
-              },
-              {
-                'id': 'request-role-identities',
-                'type': 'TAB',
-                'labelKey': 'content.role.identities.title',
-                'order': 400,
-                'path': 'requests/:requestId/role/:entityId/identities',
-                'icon': 'fa:group'
               }
             ]
           },

@@ -1,10 +1,12 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import { RoleManager, RequestManager, ConfigurationManager} from '../../redux';
+import { RoleManager, RequestManager, ConfigurationManager, SecurityManager} from '../../redux';
 import * as Advanced from '../../components/advanced';
 
 let manager = null;
+// For call directly role api
+const originalRoleManager = new RoleManager();
 const requestManager = new RequestManager();
 
 /**
@@ -48,7 +50,7 @@ class Role extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading, _requestsEnabled } = this.props;
+    const { entity, showLoading, _requestsEnabled, _permissions } = this.props;
     if (!manager) {
       return null;
     }
@@ -60,16 +62,20 @@ class Role extends Basic.AbstractContent {
         {' '}
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
         </Basic.PageHeader>
-        <Basic.Row rendered={_requestsEnabled && !isRequest}>
+        <Basic.Row rendered={_requestsEnabled
+            && !isRequest
+            && originalRoleManager.canSave(entity, _permissions)
+            && SecurityManager.hasAuthority('REQUEST_CREATE')
+          }>
           <Basic.Col lg={ 12 }>
             <Basic.Alert
-              level="warning"
+              level="info"
               title={ this.i18n('content.roles.button.createRequest.header') }
               text={ this.i18n('content.roles.button.createRequest.text') }
               className="no-margin"
               buttons={[
                 <Basic.Button
-                  level="warning"
+                  level="info"
                   onClick={ this._createRequestRole.bind(this) }
                   titlePlacement="bottom">
                   <Basic.Icon type="fa" icon="key"/>
@@ -104,7 +110,8 @@ function select(state, component) {
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId),
-    _requestsEnabled: ConfigurationManager.getPublicValueAsBoolean(state, manager.getEnabledPropertyKey())
+    _requestsEnabled: ConfigurationManager.getPublicValueAsBoolean(state, manager.getEnabledPropertyKey()),
+    _permissions: manager.getPermissions(state, null, entityId)
   };
 }
 

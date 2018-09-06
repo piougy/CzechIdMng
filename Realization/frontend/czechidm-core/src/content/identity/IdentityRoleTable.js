@@ -152,6 +152,23 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             }
             rendered={ _.includes(columns, 'identityContract') }/>
           <Advanced.Column
+            header={this.i18n('entity.IdentityRole.contractPosition.label')}
+            property="contractPosition"
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data, property }) => {
+                return (
+                  <Advanced.EntityInfo
+                    entityType="contractPosition"
+                    entityIdentifier={ data[rowIndex][property] }
+                    entity={ data[rowIndex]._embedded[property] }
+                    showIdentity={ false }
+                    face="popover" />
+                );
+              }
+            }
+            rendered={ _.includes(columns, 'contractPosition') }/>
+          <Advanced.Column
             property="validFrom"
             header={this.i18n('label.validFrom')}
             face="date"
@@ -323,7 +340,7 @@ IdentityRoleTable.propTypes = {
 
 IdentityRoleTable.defaultProps = {
   rendered: true,
-  columns: ['role', 'identityContract', 'validFrom', 'validTill', 'directRole', 'automaticRole'],
+  columns: ['role', 'identityContract', 'contractPosition', 'validFrom', 'validTill', 'directRole', 'automaticRole'],
   forceSearchParameters: null,
   showAddButton: true,
   showDetailButton: true,

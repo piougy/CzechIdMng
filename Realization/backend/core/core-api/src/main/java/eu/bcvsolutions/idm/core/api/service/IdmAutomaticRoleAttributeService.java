@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -106,8 +107,17 @@ public interface IdmAutomaticRoleAttributeService
 	 * @param contract
 	 * @param automaticRoles
 	 */
-	void addAutomaticRoles(IdmIdentityContractDto contract,
-			Set<AbstractIdmAutomaticRoleDto> automaticRoles);
+	void addAutomaticRoles(IdmIdentityContractDto contract, Set<AbstractIdmAutomaticRoleDto> automaticRoles);
+	
+	/**
+	 * Add automatic role to contract position. This method doesn't use standard role request 
+	 * and add {@link IdmIdentityRoleDto} directly.
+	 * In this method skip check changed authorities by processor {@link IdentityRoleAddAuthoritiesProcessor}.
+	 * 
+	 * @param contract
+	 * @param automaticRoles
+	 */
+	void addAutomaticRoles(IdmContractPositionDto contractPosition, Set<AbstractIdmAutomaticRoleDto> automaticRoles);
 	
 	/**
 	 * Process new automatic roles for contract given in parameter.

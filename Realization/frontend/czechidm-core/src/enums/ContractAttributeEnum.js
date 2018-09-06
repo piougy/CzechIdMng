@@ -49,8 +49,11 @@ export default class ContractAttributeEnum extends AbstractEnum {
       case this.DESCRIPTION: {
         return 'description';
       }
-      case this.GUARANTESS: {
+      case this.GUARANTEES: {
         return 'guarantees';
+      }
+      case this.POSITIONS: {
+        return 'positions';
       }
       case this.STATE: {
         return 'state';
@@ -95,7 +98,10 @@ export default class ContractAttributeEnum extends AbstractEnum {
         return this.DISABLED;
       }
       case 'guarantees': {
-        return this.GUARANTESS;
+        return this.GUARANTEES;
+      }
+      case 'positions': {
+        return this.POSITIONS;
       }
       case 'state': {
         return this.STATE;
@@ -130,4 +136,5 @@ ContractAttributeEnum.VALID_FROM = Symbol('VALID_FROM');
 ContractAttributeEnum.VALID_TILL = Symbol('VALID_TILL');
 ContractAttributeEnum.EXTERNE = Symbol('EXTERNE');
 ContractAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
-ContractAttributeEnum.GUARANTESS = Symbol('GUARANTESS');
+ContractAttributeEnum.GUARANTEES = Symbol('GUARANTEES');
+ContractAttributeEnum.POSITIONS = Symbol('POSITIONS');

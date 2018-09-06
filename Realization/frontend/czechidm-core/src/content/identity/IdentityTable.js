@@ -123,6 +123,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     }
     //
     const roleDisabled = _forceSearchParameters.getFilters().has('role');
+    const treeNodeDisabled = _forceSearchParameters.getFilters().has('treeNodeId');
     //
     return (
       <div>
@@ -162,7 +163,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                       ref="treeNodeId"
                       placeholder={ this.i18n('filter.organization.placeholder') }
                       forceSearchParameters={ forceTreeNodeSearchParams }
-                      manager={ this.treeNodeManager }/>
+                      manager={ this.treeNodeManager }
+                      rendered={ !treeNodeDisabled }/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.BooleanSelectBox
@@ -238,11 +240,12 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             rendered={ showDetailButton }/>
           <Advanced.Column
             header={ this.i18n('entity.Identity._type') }
+            property="username"
+            sort
             cell={
               ({ rowIndex, data }) => {
-                // TODO: generalize to advanced table - column position?
                 return (
-                  <Advanced.IdentityInfo entityIdentifier={ data[rowIndex].id } entity={ data[rowIndex] } face="popover"/>
+                  <Advanced.EntityInfo entityType="identity" entityIdentifier={ data[rowIndex].id } entity={ data[rowIndex] } face="popover"/>
                 );
               }
             }

@@ -31,6 +31,7 @@ public class IdmIdentityContractDto extends AbstractDto implements ValidableEnti
 	private UUID identity;
 	private LocalDate validFrom;
 	private LocalDate validTill;
+	@Size(max = DefaultFieldLengths.NAME)
 	private String position;
 	private boolean externe;
 	private boolean disabled;

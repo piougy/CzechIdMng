@@ -46,6 +46,7 @@ import FormValueService from './FormValueService';
 import AuthorizationPolicyService from './AuthorizationPolicyService';
 import ScriptAuthorityService from './ScriptAuthorityService';
 import ContractGuaranteeService from './ContractGuaranteeService';
+import ContractPositionService from './ContractPositionService';
 import NotificationRecipientService from './NotificationRecipientService';
 import SmsService from './SmsService';
 import RecaptchaService from './RecaptchaService';
@@ -107,6 +108,7 @@ const ServiceRoot = {
   AuthorizationPolicyService,
   ScriptAuthorityService,
   ContractGuaranteeService,
+  ContractPositionService,
   NotificationRecipientService,
   SmsService,
   RecaptchaService,

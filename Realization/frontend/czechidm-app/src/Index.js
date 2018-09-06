@@ -38,6 +38,7 @@ import App from './layout/App';
 //
 //
 // global promise init
+// TODO: https://github.com/qubyte/fetch-ponyfill
 Promise.polyfill();
 //
 // logger setting e.g. http://stritti.github.io/log4js/docu/users-guide.html

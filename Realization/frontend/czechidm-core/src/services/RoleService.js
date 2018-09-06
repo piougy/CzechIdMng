@@ -18,7 +18,10 @@ export default class RoleService extends FormableEntityService {
     if (!role) {
       return '';
     }
-    return role.name;
+    if (role.name === role.code) {
+      return role.name;
+    }
+    return `${ role.name } (${ role.code })`;
   }
 
   supportsAuthorization() {

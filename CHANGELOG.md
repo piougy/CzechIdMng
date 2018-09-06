@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.1.0]
+- Authentication is not needed for using Spring Data queries in repositories (fixed mainly for test purposes).
+- Role code is used in role select boxes (code is shown, only if name is different than code).
+- [#1145](https://redmine.czechidm.com/issues/1145) - Other contract positions can be configured. Other positions are used for assign automatic roles by tree nodes.
+
 ## [9.0.0]
 - [#1200](https://redmine.czechidm.com/issues/1200) - Business roles:
   - ``code`` unique attribute added to ``IdmRole`` entity - filled by ``name`` values by default . ``name`` attribute is not unique anymore - **use code attribute in your modules** for lookup roles. ``name`` is used as user friendly role name on frontend. Both fields ``name`` and ``code`` are required on controller layer.

@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleForPositionTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
 
 /**
@@ -47,9 +48,15 @@ public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNod
 		event.setContent(dto);
 		//
 		// assign role by this added automatic role to all existing identity contracts with long running task
-		AddNewAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(AddNewAutomaticRoleTaskExecutor.class);
-		automaticRoleTask.setAutomaticRoleId(dto.getId());
-		longRunningTaskManager.execute(automaticRoleTask);
+		AddNewAutomaticRoleTaskExecutor automaticRoleContcatTask = AutowireHelper.createBean(AddNewAutomaticRoleTaskExecutor.class);
+		automaticRoleContcatTask.setAutomaticRoleId(dto.getId());
+		longRunningTaskManager.execute(automaticRoleContcatTask);
+		//
+		// assign role by this added automatic role to all existing contract positions with long running task
+		AddNewAutomaticRoleForPositionTaskExecutor automaticRolePositionTask = AutowireHelper.createBean(AddNewAutomaticRoleForPositionTaskExecutor.class);
+		automaticRolePositionTask.setAutomaticRoleId(dto.getId());
+		longRunningTaskManager.execute(automaticRolePositionTask);
+		//
 		return new DefaultEventResult<>(event, this);
 	}
 }

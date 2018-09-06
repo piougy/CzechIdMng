@@ -29,6 +29,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	public static final String PARAMETER_AUTOMATIC_ROLE = "automaticRole"; // true / false
 	public static final String PARAMETER_AUTOMATIC_ROLE_ID = "automaticRoleId";
 	public static final String PARAMETER_IDENTITY_CONTRACT_ID = "identityContractId";
+	public static final String PARAMETER_CONTRACT_POSITION_ID = "contractPositionId";
     
     public IdmIdentityRoleFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -138,5 +139,13 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 
 	public void setRoleCompositionId(UUID roleCompositionId) {
 		data.set(PARAMETER_ROLE_COMPOSITION_ID, roleCompositionId);
+	}
+	
+	public UUID getContractPositionId() {
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_CONTRACT_POSITION_ID));
+	}
+	
+	public void setContractPositionId(UUID contractPositionId) {
+		data.set(PARAMETER_CONTRACT_POSITION_ID, contractPositionId);
 	}
 }

@@ -34,6 +34,15 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     return this.getManager().getNiceLabel(_entity, showIdentity);
   }
 
+  /**
+   * Returns entity icon (null by default - icon will not be rendered)
+   *
+   * @param  {object} entity
+   */
+  getEntityIcon() {
+    return 'fa:building';
+  }
+
   showLink() {
     if (!super.showLink()) {
       return false;
@@ -177,7 +186,7 @@ function select(state, component) {
   return {
     _entity: entity,
     _showLoading: manager.isShowLoading(state, null, component.entityIdentifier),
-    _permissions: manager.getPermissions(state, null, entity)
+    _permissions: manager.getPermissions(state, null, component.entityIdentifier)
   };
 }
 export default connect(select)(IdentityContractInfo);

@@ -91,6 +91,13 @@ module.exports = {
       'manager': require('./src/redux').IdentityContractManager
     },
     {
+      'id': 'contract-position-info',
+      'type': 'entity-info',
+      'entityType': ['contractPosition', 'IdmContractPosition', 'IdmContractPositionDto'],
+      'component': require('./src/components/advanced/ContractPositionInfo/ContractPositionInfo').default,
+      'manager': require('./src/redux').ContractPositionManager
+    },
+    {
       'id': 'identity-role-info',
       'type': 'entity-info',
       'entityType': ['identityRole', 'IdmIdentityRole', 'IdmIdentityRoleDto'],

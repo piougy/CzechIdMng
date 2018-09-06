@@ -148,7 +148,7 @@ public interface IdmIdentityService extends
 	/**
 	 * Find all guarantees for given role ID. 
 	 * 
-	 * Lookout return all guarantess. Use {@link #findGuaranteesByRoleId(UUID, Pageable)} instead.
+	 * Lookout return all guarantees. Use {@link #findGuaranteesByRoleId(UUID, Pageable)} instead.
 	 * 
 	 * @param roleId
 	 * @return 

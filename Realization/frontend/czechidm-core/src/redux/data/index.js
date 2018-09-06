@@ -44,6 +44,7 @@ import FormValueManager from './FormValueManager';
 import AuthorizationPolicyManager from './AuthorizationPolicyManager';
 import ScriptAuthorityManager from './ScriptAuthorityManager';
 import ContractGuaranteeManager from './ContractGuaranteeManager';
+import ContractPositionManager from './ContractPositionManager';
 import ContractSliceGuaranteeManager from './ContractSliceGuaranteeManager';
 import NotificationRecipientManager from './NotificationRecipientManager';
 import SmsManager from './SmsManager';
@@ -102,6 +103,7 @@ const ManagerRoot = {
   AuthorizationPolicyManager,
   ScriptAuthorityManager,
   ContractGuaranteeManager,
+  ContractPositionManager,
   NotificationRecipientManager,
   SmsManager,
   LoggingEventManager,

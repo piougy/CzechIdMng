@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -59,6 +60,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
@@ -70,6 +72,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule_;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute_;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -249,20 +252,14 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void addAutomaticRoles(IdmIdentityContractDto contract, Set<AbstractIdmAutomaticRoleDto> automaticRoles) {		
-		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
-			// create identity role directly
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setAutomaticRole(autoRole.getId());
-			identityRole.setIdentityContract(contract.getId());
-			identityRole.setRole(autoRole.getRole());
-			identityRole.setValidFrom(contract.getValidFrom());
-			identityRole.setValidTill(contract.getValidTill());
-			//
-			// start event with skip check authorities
-			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole);
-			event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
-			identityRoleService.publish(event);
-		}
+		createIdentityRoles(contract, null, automaticRoles);
+	}
+	
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void addAutomaticRoles(IdmContractPositionDto contractPosition, Set<AbstractIdmAutomaticRoleDto> automaticRoles) {		
+		IdmIdentityContractDto contract = DtoUtils.getEmbedded(contractPosition, IdmContractPosition_.identityContract);
+		createIdentityRoles(contract, contractPosition, automaticRoles);
 	}
 
 	@Override
@@ -743,6 +740,24 @@ public class DefaultIdmAutomaticRoleAttributeService
 		}
 		default:
 			return value;
+		}
+	}
+	
+	private void createIdentityRoles(IdmIdentityContractDto contract, IdmContractPositionDto contractPosition, Set<AbstractIdmAutomaticRoleDto> automaticRoles) {		
+		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
+			// create identity role directly
+			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+			identityRole.setAutomaticRole(autoRole.getId());
+			identityRole.setIdentityContract(contract.getId());
+			identityRole.setContractPosition(contractPosition == null ? null : contractPosition.getId());
+			identityRole.setRole(autoRole.getRole());
+			identityRole.setValidFrom(contract.getValidFrom());
+			identityRole.setValidTill(contract.getValidTill());
+			//
+			// start event with skip check authorities
+			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole);
+			event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
+			identityRoleService.publish(event);
 		}
 	}
 	

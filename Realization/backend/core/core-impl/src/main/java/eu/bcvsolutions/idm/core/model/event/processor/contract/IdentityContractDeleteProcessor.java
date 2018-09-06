@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -23,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -35,41 +37,24 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(IdentityContractDeleteProcessor.PROCESSOR_NAME)
 @Description("Deletes identity contract.")
 public class IdentityContractDeleteProcessor
 		extends CoreEventProcessor<IdmIdentityContractDto> 
 		implements IdentityContractProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-contract-delete-processor";
-	private final IdmIdentityContractService service;
-	private final IdmIdentityRoleService identityRoleService;
-	private final IdmConceptRoleRequestService conceptRequestService;
-	private final IdmRoleRequestService roleRequestService;
-	private final IdmContractGuaranteeService contractGuaranteeService;
-	@Autowired
-	private IdmContractSliceService contractSliceService;
+	//
+	@Autowired private IdmIdentityContractService service;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmConceptRoleRequestService conceptRequestService;
+	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired private IdmContractPositionService contractPositionService;
+	@Autowired private IdmContractSliceService contractSliceService;
 	
-	@Autowired
-	public IdentityContractDeleteProcessor(
-			IdmIdentityContractService service,
-			IdmIdentityRoleService identityRoleService,
-			IdmConceptRoleRequestService conceptRequestService,
-			IdmRoleRequestService roleRequestService,
-			IdmContractGuaranteeService contractGuaranteeService) {
+	public IdentityContractDeleteProcessor() {
 		super(IdentityContractEventType.DELETE);
-		//
-		Assert.notNull(service);
-		Assert.notNull(identityRoleService);
-		Assert.notNull(conceptRequestService);
-		Assert.notNull(roleRequestService);
-		Assert.notNull(contractGuaranteeService);
-		//
-		this.service = service;
-		this.identityRoleService = identityRoleService;
-		this.conceptRequestService = conceptRequestService;
-		this.roleRequestService = roleRequestService;
-		this.contractGuaranteeService = contractGuaranteeService;	
 	}
 	
 	@Override
@@ -88,7 +73,7 @@ public class IdentityContractDeleteProcessor
 				identityRoleService.delete(identityRole);
 			}
 		});
-		
+		//
 		// Find all concepts and remove relation on role
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setIdentityContractId(contract.getId());
@@ -118,6 +103,12 @@ public class IdentityContractDeleteProcessor
 		filter.setIdentityContractId(contract.getId());
 		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
 			contractGuaranteeService.delete(guarantee);
+		});
+		// delete contract positions
+		IdmContractPositionFilter positionFilter = new IdmContractPositionFilter();
+		positionFilter.setIdentityContractId(contract.getId());
+		contractPositionService.find(positionFilter, null).forEach(position -> {
+			contractPositionService.delete(position);
 		});
 		// delete relation (from slices) on the contract
 		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();

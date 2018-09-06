@@ -686,7 +686,8 @@
       "MAIN": "Main relation (boolean)",
       "DESCRIPTION": "Description (String)",
       "DISABLED": "Disabled (boolean)",
-      "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
+      "GUARANTEES": "Guarantees (IdmIdentity - List of ids or usernames)",
+      "POSITIONS": "Other positions (IdmTreeNode - List of ids or codes)",
       "STATE": "State (ContractState - String)"
     },
     "ContractSliceAttributeEnum": {
@@ -700,7 +701,7 @@
       "MAIN": "Main relation (boolean)",
       "DESCRIPTION": "Description (String)",
       "DISABLED": "Disabled (boolean)",
-      "GUARANTESS": "Guarantess (IdmIdentity - List of ids or usernames)",
+      "GUARANTEES": "Guarantees (IdmIdentity - List of ids or usernames)",
       "STATE": "State (ContractState - String)",
       "CONTRACT_CODE": "Code of the parent contract (String - same for all slices)"
     },
@@ -753,6 +754,7 @@
       "PROFILE": "User profile (picture)",
       "CONTRACTSLICE": "Time slices",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
+      "CONTRACTPOSITION": "Contracted position's other positions",
       "CONTRACTSLICEGUARANTEE": "Time slices 's guarantees",
       "MODULE": "Modules",
       "NOTIFICATION": "Notifications",
@@ -1255,6 +1257,11 @@
           "save": {
             "success": "Automatic role [{{record}}] successfully saved"
           }
+        },
+        "identities": {
+          "header": "Users",
+          "title": "Users",
+          "label": "Users"
         }
       },
       "types": {
@@ -2176,6 +2183,19 @@
             "success_1": "For contracted position was successfully saved authorizer [{{record}}]"
           }
         }
+      },
+      "positions": {
+        "header": "Other positions",
+        "title": "Other positions",
+        "label": "Other positions",
+        "edit": {
+          "title": "Position detail",
+          "header": "Position detail"
+        },
+        "create": {
+          "title": "Add position",
+          "header": "Add position"
+        }
       }
     },
     "contract-slice": {
@@ -2967,6 +2987,10 @@
         "placeholder": "Contracted position",
         "help": "Connection to organization or another tree structure"
       },
+      "contractPosition": {
+        "label": "Other positon",
+        "title": "Other contracted positon"
+      },
       "automaticRole": {
         "label": "Automatic role",
         "title": "Automatic role",
@@ -3486,10 +3510,22 @@
       "modified": "Modified"
     },
     "ContractGuarantee": {
-      "identityContractId": "Contracted positions",
+      "identityContractId": "Contracted position",
       "guarantee": {
         "label": "Guarantee",
         "help": "Guarantee assigned to contracted position"
+      }
+    },
+    "ContractPosition": {
+      "_type": "Other contracted positon",
+      "identityContract": {
+        "label": "Contracted position"
+      },
+      "workPosition": {
+        "label": "Position"
+      },
+      "position": {
+        "label": "Name of the position"
       }
     },
     "ContractSliceGuarantee": {
@@ -4411,19 +4447,23 @@
     },
     "AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE": {
       "title": "Role wasn't assigned",
-      "message": "Role [{{role}}] wasn't assigned by automatic role [{{autoRole}}] for identity [{{identity}}]. Check role request agenda for reason."
+      "message": "Role [{{role}}] wasn't assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]. Check role request agenda for reason."
+    },
+    "AUTOMATIC_ROLE_ALREADY_ASSIGNED": {
+      "title": "Role was already assigned",
+      "message": "Role [{{role}}] was already assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING": {
       "title": "Role is used by concurrent task",
-      "message": "Automatic role [{{autoRole}}] is used by concurrent task [{{task}}], wait for task completion."
+      "message": "Automatic role [{{roleTreeNode}}] is used by concurrent task [{{taskId}}], wait for task completion."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE": {
       "title": "Role wasn't removed",
-      "message": "Role [{{role}}] wasn't removed by automatic role [{{autoRole}}] for identity [{{identity}}], Check role request agenda for reason."
+      "message": "Role [{{role}}] wasn't removed by automatic role [{{roleTreeNode}}] for identity [{{identity}}], Check role request agenda for reason."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role is used by concurrent task",
-      "message": "Automatic role [{{autoRole}}] is used by concurrent task [{{task}}]."
+      "message": "Automatic role [{{roleTreeNode}}] is used by concurrent task [{{taskId}}]."
     },
     "AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY": {
       "title": "Some attributes are missing",

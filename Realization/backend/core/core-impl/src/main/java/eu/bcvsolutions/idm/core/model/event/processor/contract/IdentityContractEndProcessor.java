@@ -115,7 +115,9 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 		// TODO: remove? It's solved by different process
 		if(!contract.isValidNowOrInFuture()) {
 			identityRoleService.findAllByContract(contract.getId()).forEach(role -> {
-				identityRoleService.delete(role);
+				if (role.getDirectRole() == null) {
+					identityRoleService.delete(role);
+				}
 			});
 		}
 		return new OperationResult.Builder(OperationState.EXECUTED).build();

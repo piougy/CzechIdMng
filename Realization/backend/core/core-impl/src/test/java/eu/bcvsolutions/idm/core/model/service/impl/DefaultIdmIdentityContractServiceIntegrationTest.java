@@ -16,6 +16,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 
@@ -23,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -31,10 +33,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
@@ -53,7 +57,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * - automatic role is defined, changed
  * - expiration
  * - evaluate state
- * - filter
+ * - filter - TODO: move to rest test
  * 
  * TODO: @Transactional
  * 
@@ -63,15 +67,17 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIntegrationTest {
 	
+	@Autowired private ApplicationContext context;
 	@Autowired private IdmIdentityRoleService identityRoleService;
-	@Autowired private IdmIdentityContractService service;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private LongRunningTaskManager taskManager;
 	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired private IdmContractPositionService contractPositionService;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private LookupService lookupService;
 	//
+	private DefaultIdmIdentityContractService service;
 	private IdmTreeTypeDto treeType = null;
 	private IdmTreeNodeDto nodeA = null;
 	private IdmTreeNodeDto nodeB = null;
@@ -90,7 +96,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	@Before
 	public void init() {
-		loginAsAdmin();
+		service = context.getAutowireCapableBeanFactory().createBean(DefaultIdmIdentityContractService.class);
 		prepareTreeStructureAndRoles();
 	}
 	
@@ -610,16 +616,24 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identityWithContract = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto contract = getHelper().createIdentityContact(identityWithContract);
 		getHelper().createContractGuarantee(contract.getId(), identity.getId());
+		getHelper().createContractPosition(contract);
 		//
 		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setGuaranteeId(identity.getId());
 		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(1, guarantees.size());
 		//
+		IdmContractPositionFilter positionFilter = new IdmContractPositionFilter();
+		positionFilter.setIdentityContractId(contract.getId());
+		List<IdmContractPositionDto> positions = contractPositionService.find(positionFilter, null).getContent();
+		assertEquals(1, positions.size());
+		//
 		getHelper().deleteIdentityContact(contract.getId());
 		//
 		guarantees = contractGuaranteeService.find(filter, null).getContent();
-		assertEquals(0, guarantees.size());
+		Assert.assertTrue(guarantees.isEmpty());
+		positions = contractPositionService.find(positionFilter, null).getContent();
+		Assert.assertTrue(positions.isEmpty());
 	}
 	
 	@Test

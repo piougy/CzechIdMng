@@ -5,11 +5,12 @@ import Joi from 'joi';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { FormValueManager } from '../../redux';
+import { FormValueManager, FormAttributeManager } from '../../redux';
 import * as Utils from '../../utils';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 
 const manager = new FormValueManager();
+const formAttributeManager = new FormAttributeManager();
 
 /**
  * Table of abstract form values
@@ -24,7 +25,7 @@ export class FormValueTable extends Advanced.AbstractTableContent {
     this.state = {
       filterOpened: props.filterOpened,
       showLoading: true,
-      persistentType: null
+      persistentType: props.entity ? props.entity.persistentType : null
     };
   }
 
@@ -51,9 +52,10 @@ export class FormValueTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
     this.setState({
       persistentType: null
+    }, () => {
+      this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
     });
   }
 
@@ -70,16 +72,20 @@ export class FormValueTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, forceSearchParameters, showFilter, columns } = this.props;
+    const { entity, uiKey, forceSearchParameters, showFilter, columns } = this.props;
     const { filterOpened, persistentType } = this.state;
     //
+    let _forceSearchParameters = forceSearchParameters;
+    if (entity) {
+      _forceSearchParameters = _forceSearchParameters.setFilter('persistentType', persistentType);
+    }
     return (
       <Advanced.Table
         ref="table"
         uiKey={ uiKey }
         manager={ manager }
         _searchParameters={ this.getSearchParameters() }
-        forceSearchParameters={ forceSearchParameters }
+        forceSearchParameters={ _forceSearchParameters }
         showFilter={ showFilter }
         filter={
           <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -278,8 +284,10 @@ FormValueTable.defaultProps = {
 };
 
 function select(state, component) {
+  const { entityId } = component;
   return {
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    entity: formAttributeManager.getEntity(state, entityId),
   };
 }
 

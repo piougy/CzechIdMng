@@ -31,8 +31,9 @@ export default class FormAttributeValues extends Basic.AbstractContent {
           <FormValueTableComponent
             uiKey="form-attribute-values-table"
             forceSearchParameters={ forceSearchParameters }
-            showFilter={ false }
-            columns={ _.difference(FormValueTable.defaultProps.columns, ['code', 'name']) }/>
+            showFilter
+            columns={ _.difference(FormValueTable.defaultProps.columns, ['code', 'name']) }
+            entityId={this.props.params.entityId}/>
         </Basic.PanelBody>
       </Basic.Panel>
     );

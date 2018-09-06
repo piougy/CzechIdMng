@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
@@ -356,6 +357,10 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 						Object idmValue = fullAccountObject.get(provisioningAttribute);
 						IcAttribute attribute = existsConnectorObject.getAttributeByName(schemaAttribute.getName());
 						Object connectorValue = attribute != null ? (attribute.isMultiValue() ? attribute.getValues() : attribute.getValue()) : null;
+						if (connectorValue != null && !(connectorValue instanceof List)) {
+							connectorValue = Lists.newArrayList(connectorValue);
+						}
+						
 						Object resultValue = idmValue;
 						
 						
@@ -432,7 +437,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 									idmValues = (List<Object>) idmValue;
 								}
 								if(idmValues != null){
-			
 									idmValues.stream().forEach(value -> {
 										if(!connectorValues.contains(value)){
 											connectorValues.add(value);

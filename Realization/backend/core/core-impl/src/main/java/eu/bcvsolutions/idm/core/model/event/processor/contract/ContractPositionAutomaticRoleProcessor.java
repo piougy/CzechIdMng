@@ -38,7 +38,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventT
  * @since 9.1.0
  */
 @Component(ContractPositionAutomaticRoleProcessor.PROCESSOR_NAME)
-@Description("Automatic roles recount while contract position is updated.")
+@Description("Automatic roles recount while contract position is created or updated.")
 public class ContractPositionAutomaticRoleProcessor
 		extends CoreEventProcessor<IdmContractPositionDto> 
 		implements ContractPositionProcessor {

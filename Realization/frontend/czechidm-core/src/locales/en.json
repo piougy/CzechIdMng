@@ -754,7 +754,7 @@
       "PROFILE": "User profile (picture)",
       "CONTRACTSLICE": "Time slices",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
-      "CONTRACTPOSITION": "Contracted position's other positions",
+      "CONTRACTPOSITION": "Other contract positions",
       "CONTRACTSLICEGUARANTEE": "Time slices 's guarantees",
       "MODULE": "Modules",
       "NOTIFICATION": "Notifications",

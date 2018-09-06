@@ -58,7 +58,7 @@ export class RequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <Advanced.IdentitiesInfo identities={entity._embedded.wfProcessId[property]} maxEntry={5} />
+      <Advanced.IdentitiesInfo identities={entity._embedded.wfProcessId[property]} maxEntry={2} />
     );
   }
 

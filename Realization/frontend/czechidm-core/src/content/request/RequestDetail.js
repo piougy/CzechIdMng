@@ -362,7 +362,12 @@ class RequestDetail extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <Advanced.IdentitiesInfo identities={entity.candicateUsers} maxEntry={5} />
+        <Basic.LabelWrapper
+          readOnly
+          ref="candidates"
+          label={this.i18n('entity.Request.candicateUsers')}>
+            <Advanced.IdentitiesInfo identities={entity.candicateUsers} maxEntry={5} />
+        </Basic.LabelWrapper>
     );
   }
 

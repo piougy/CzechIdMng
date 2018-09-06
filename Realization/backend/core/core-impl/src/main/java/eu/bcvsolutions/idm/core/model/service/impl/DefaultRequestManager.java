@@ -891,7 +891,8 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		// Only request in CONCEPT or IN_PROGRESS state could creates new item or
 		// update existing item
 		if (request != null && !(RequestState.CONCEPT == request.getState()
-					|| RequestState.IN_PROGRESS == request.getState())) {
+					|| RequestState.IN_PROGRESS == request.getState()
+					|| RequestState.EXCEPTION == request.getState())) {
 			throw new ResultCodeException(CoreResultCode.REQUEST_ITEM_CANNOT_BE_CREATED,
 					ImmutableMap.of("dto", dto.toString(), "state", request.getState().name())); 
 		}

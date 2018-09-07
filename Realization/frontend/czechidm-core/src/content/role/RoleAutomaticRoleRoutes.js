@@ -14,7 +14,46 @@ export default class RoleAutomaticRoleRoutes extends Basic.AbstractContent {
     return 'content.automaticRoles';
   }
 
+  getNavigationKey() {
+    const isRequest = this.isRequest(this.props.params);
+    if (isRequest) {
+      return this.getRequestNavigationKey('role-automatic-roles', this.props.params);
+    }
+    return super.getNavigationKey();
+  }
+
+  _gotToRequests() {
+    // Redirect to requests
+    this.context.router.push(`/automatic-role/trees`);
+  }
+
   render() {
+    const isRequest = this.isRequest(this.props.params);
+
+    if (isRequest) {
+      return (
+        <Basic.Row>
+          <div className="col-lg-6">
+            <Basic.Alert
+              level="info"
+              title={this.i18n('content.automaticRoles.universalRequestNotSupported.title')}
+              text={this.i18n('content.automaticRoles.universalRequestNotSupported.text')}
+              buttons={[
+                <Basic.Button
+                  level="primary"
+                  key="gotToRequests"
+                  style={{marginLeft: '5px'}}
+                  onClick={ this._gotToRequests.bind(this) }
+                  titlePlacement="bottom">
+                  <Basic.Icon type="fa" icon="universal-access"/>
+                  {' '}
+                  { this.i18n('content.automaticRoles.universalRequestNotSupported.gotToRequests.label') }
+                </Basic.Button>
+              ]}/>
+            </div>
+        </Basic.Row>
+      );
+    }
     return (
       <div>
         <Basic.ContentHeader>
@@ -25,7 +64,7 @@ export default class RoleAutomaticRoleRoutes extends Basic.AbstractContent {
 
         <Advanced.TabPanel
           position="top"
-          parentId={this.isRequest(this.props.params) ? 'request-role-automatic-roles' : 'role-automatic-roles'}
+          parentId={'role-automatic-roles'}
           params={this.props.params}>
           {this.props.children}
         </Advanced.TabPanel>

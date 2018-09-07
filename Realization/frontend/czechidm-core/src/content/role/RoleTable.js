@@ -75,22 +75,48 @@ class RoleTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
-  createRequest() {
-    const promise = requestManager.getService().createRequest('roles', {});
-    promise.then((json) => {
-      // Init universal request manager (manually)
-      const manager = this.getRequestManager({requestId: json.id}, new RoleManager());
-      // Fetch entity - we need init permissions for new manager
-      this.context.store.dispatch(manager.fetchEntityIfNeeded(json.ownerId, null, (e, error) => {
-        this.handleError(error);
-      }));
-      // Redirect to new request
-      this.context.router.push(`${this.addRequestPrefix('role', {requestId: json.id})}/${json.ownerId}/detail`);
-    }).catch(ex => {
-      this.setState({
-        showLoading: false
+  _validateCreateRequestDialog(result) {
+    if (result === 'reject') {
+      return true;
+    }
+    if (result === 'confirm' && this.refs['new-request-form'].isFormValid()) {
+      return true;
+    }
+    return false;
+  }
+
+  _focusOnRequestDialog() {
+    this.refs['role-name'].focus();
+  }
+
+  createRequest(event) {
+    if (event && event.preventDefault) {
+      event.preventDefault();
+    }
+
+    this.refs[`confirm-new-request`].show(
+      null,
+      this.i18n(`content.roles.action.createRequest.header`),
+      this._validateCreateRequestDialog.bind(this),
+      this._focusOnRequestDialog.bind(this)
+    ).then(() => {
+      const roleName = this.refs[`role-name`].getValue();
+      const promise = requestManager.getService().createRequest('roles', {name: roleName, code: roleName});
+      promise.then((json) => {
+        // Init universal request manager (manually)
+        const manager = this.getRequestManager({requestId: json.id}, new RoleManager());
+        // Fetch entity - we need init permissions for new manager
+        this.context.store.dispatch(manager.fetchEntityIfNeeded(json.ownerId, null, (e, error) => {
+          this.handleError(error);
+        }));
+        // Redirect to new request
+        this.context.router.push(`${this.addRequestPrefix('role', {requestId: json.id})}/${json.ownerId}/detail`);
+      }).catch(ex => {
+        this.setState({
+          showLoading: false
+        });
+        this.handleError(ex);
       });
-      this.handleError(ex);
     });
   }
 
@@ -182,6 +208,15 @@ class RoleTable extends Advanced.AbstractTableContent {
     const showTree = showCatalogue && !showLoading && rootNodes && rootNodes.length !== 0;
     return (
       <Basic.Row>
+        <Basic.Confirm ref="confirm-new-request" level="success">
+            <Basic.AbstractForm ref="new-request-form" uiKey="confirm-new-request" >
+              <Basic.TextField
+                label={this.i18n('content.roles.action.createRequest.name')}
+                ref="role-name"
+                placeholder={this.i18n('content.roles.action.createRequest.message')}
+                required/>
+            </Basic.AbstractForm>
+        </Basic.Confirm>
         {
           !showTree
           ||

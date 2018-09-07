@@ -1362,6 +1362,13 @@
     "automaticRoles": {
       "title": "Automatické role",
       "header": "Automatické role",
+      "universalRequestNotSupported": {
+        "title": "Automatické role není možné spravovat v rámci této žádosti.",
+        "text": "Automatické role májí vlastní agendu žádostí, pro jejich správu použíjte ji.",
+        "gotToRequests": {
+          "label": "Agenda automatických rolí"
+        }
+      },
       "tree": {
         "header": "Automatické role dle organizační struktury",
         "title": "Dle organizační struktury"
@@ -1643,6 +1650,13 @@
         "identityAssigned": {
           "title": "Odebíraná role je přiřazena uživatelům",
           "message": "Role [{{role}}] je přiřazena uživatelům. Před odebráním role je nutné uživatelům roli odebrat."
+        }
+      },
+      "action": {
+        "createRequest": {
+          "header": "Chcete vytvořit žádost o novou roli?",
+          "message": "Zadejte název nové role",
+          "name": "Název role"
         }
       }
     },

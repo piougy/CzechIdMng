@@ -7,17 +7,15 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import OperationStateEnum from '../../enums/OperationStateEnum';
-import {SecurityManager, RequestManager, RequestItemManager, WorkflowTaskInstanceManager } from '../../redux';
+import {RequestManager, RequestItemManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import SearchParameters from '../../domain/SearchParameters';
-import RequestItemChangesTable from './RequestItemChangesTable';
+import RequestItemTable from './RequestItemTable';
 
 const uiKey = 'universal-request';
-const uiKeyRequestItems = 'request-items';
 const requestItemManager = new RequestItemManager();
 const requestManager = new RequestManager();
-const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 
 /**
  * Detail for universal request
@@ -121,23 +119,9 @@ class RequestDetail extends Advanced.AbstractTableContent {
     }
   }
 
-  closeDetail() {
-    this.setState({itemDetail: {show: false}});
-  }
-
   previewDetailByRequest(entity) {
     const urlType = this._getUrlType(entity.ownerType);
     this.context.router.push(`/requests/${entity.id}/${urlType}/${entity.ownerId}/detail`);
-  }
-
-  showItemChanges(entity) {
-    this.getManager().getService().getChanges(entity.id)
-    .then(json => {
-      this.setState({itemDetail: {changes: json, show: true, item: entity}});
-    })
-    .catch(error => {
-      this.addError(error);
-    });
   }
 
   _getNameOfDTO(ownerType) {
@@ -168,7 +152,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
     } else {
       forceSearchParameters = forceSearchParameters.setFilter('requestId', SearchParameters.BLANK_UUID);
     }
-    this.context.store.dispatch(requestItemManager.fetchEntities(forceSearchParameters, `${uiKeyRequestItems}-${_request.id}`));
   }
 
   _startRequest(idRequest, event) {
@@ -200,35 +183,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
     return;
   }
 
-  _renderDetailCell({ rowIndex, data }) {
-    return (
-      <Basic.Button
-        type="button"
-        level="info"
-        title={ this.i18n('button.showItemChanges.tooltip')}
-        titlePlacement="bottom"
-        onClick={this.showItemChanges.bind(this, data[rowIndex])}
-        className="btn-xs">
-        <Basic.Icon type="fa" icon="eye"/>
-      </Basic.Button>
-    );
-  }
-
-  _renderOwnerCell({ rowIndex, data }) {
-    const entity = data[rowIndex];
-    if (!entity && entity._embedded) {
-      return '';
-    }
-    const entityType = this._getNameOfDTO(entity.ownerType);
-    const owner = entity._embedded.ownerId;
-    return (
-      <Advanced.EntityInfo
-        entityType={ entityType }
-        entity={ owner }
-        face="popover"/>
-    );
-  }
-
   _renderRequestItemsTable(request, forceSearchParameters, rendered, showLoading, isEditable) {
     if (!rendered) {
       return null;
@@ -241,72 +195,11 @@ class RequestDetail extends Advanced.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptHeader') }}/>
         </Basic.ContentHeader>
         <Basic.Panel showLoading={showLoading} rendered={request}>
-          <Advanced.Table
-            ref="table"
-            uiKey={uiKeyRequestItems}
-            manager={requestItemManager}
+          <RequestItemTable
             forceSearchParameters={forceSearchParameters}
-            showRowSelection={isEditable && SecurityManager.hasAuthority('REQUEST_UPDATE')}
-            actions={
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
-                 action: this.onDelete.bind(this), disabled: false }]
-            }
-            >
-            <Advanced.Column
-              property=""
-              header=""
-              className="detail-button"
-              cell={this._renderDetailCell.bind(this)}/>
-            <Advanced.Column
-              header={this.i18n('entity.RequestItem.state')}
-              property="state"
-              sort
-              face="enum"
-              enumClass={RoleRequestStateEnum}/>
-            <Advanced.Column
-              property="operation"
-              face="enum"
-              enumClass={ConceptRoleRequestOperationEnum}
-              header={this.i18n('entity.RequestItem.operation')}
-              sort/>
-            <Advanced.Column
-              property="ownerId"
-              header={ this.i18n('entity.RequestItem.ownerId') }
-              face="text"
-              cell={this._renderOwnerCell.bind(this)}/>
-            <Advanced.Column
-              property="candicateUsers"
-              face="text"
-              cell={this._getCandidatesCell}
-              />
-            <Advanced.Column
-              property="currentActivity"
-              face="text"
-              cell={this._getCurrentActivitiCell}
-              />
-            <Advanced.Column
-              property="wfProcessId"
-              cell={this._getWfProcessCell}
-              sort
-              face="text"/>
-            <Advanced.Column
-              property="result"
-              header={this.i18n('entity.RequestItem.result')}
-              face="text"
-              cell={
-                ({ rowIndex, data }) => {
-                  const entity = data[rowIndex];
-                  return (
-                    <Advanced.OperationResult value={ entity.result }/>
-                  );
-                }
-              }/>
-            <Advanced.Column
-              property="created"
-              header={this.i18n('entity.created')}
-              sort
-              face="datetime"/>
-          </Advanced.Table>
+            isEditable={isEditable}
+            showLoading={showLoading}
+          />
         </Basic.Panel>
       </div>
     );
@@ -347,16 +240,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
-  _getCandidatesCell({ rowIndex, data, property}) {
-    const entity = data[rowIndex];
-    if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
-      return '';
-    }
-    return (
-      <Advanced.IdentitiesInfo identities={entity._embedded.wfProcessId[property]} maxEntry={5} />
-    );
-  }
-
   _getCandidates(entity) {
     if (!entity || !entity.candicateUsers) {
       return '';
@@ -368,30 +251,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
           label={this.i18n('entity.Request.candicateUsers')}>
             <Advanced.IdentitiesInfo identities={entity.candicateUsers} maxEntry={5} />
         </Basic.LabelWrapper>
-    );
-  }
-
-  _getCurrentActivitiCell({ rowIndex, data}) {
-    const entity = data[rowIndex];
-    if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
-      return '';
-    }
-    const task = {taskName: entity._embedded.wfProcessId.currentActivityName,
-                  processDefinitionKey: entity._embedded.wfProcessId.processDefinitionKey,
-                  definition: {id: entity._embedded.wfProcessId.activityId}
-                };
-    return (
-      workflowTaskInstanceManager.localize(task, 'name')
-    );
-  }
-
-  _getWfProcessCell({ rowIndex, data}) {
-    const entity = data[rowIndex];
-    if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
-      return '';
-    }
-    return (
-      <Advanced.WorkflowProcessInfo entity={entity._embedded.wfProcessId}/>
     );
   }
 
@@ -500,7 +359,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
       _permissions,
     additionalButtons,
     simpleMode} = this.props;
-    const {itemDetail} = this.state;
     //
     const forceSearchParameters = new SearchParameters().setFilter('requestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const request = _request;
@@ -528,10 +386,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
     let isDeleteRequest = false;
     if (request && request.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)) {
       isDeleteRequest = true;
-    }
-    let operation = 'update';
-    if (itemDetail && itemDetail.changes && itemDetail.changes.requestItem) {
-      operation = itemDetail.changes.requestItem.operation.toLowerCase();
     }
 
     return (
@@ -665,25 +519,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-        <Basic.Modal
-          show={itemDetail && itemDetail.show}
-          onHide={this.closeDetail.bind(this)}
-          backdrop="static"
-          keyboard={!_showLoading}>
-            <Basic.Modal.Header closeButton={ !_showLoading } text={this.i18n(`itemDetail.title.${operation}`)}/>
-            <Basic.Modal.Body>
-              <RequestItemChangesTable
-                itemData={itemDetail ? itemDetail.changes : null}/>
-            </Basic.Modal.Body>
-            <Basic.Modal.Footer>
-              <Basic.Button
-                level="link"
-                onClick={ this.closeDetail.bind(this) }
-                showLoading={ _showLoading }>
-                { this.i18n('button.close') }
-              </Basic.Button>
-            </Basic.Modal.Footer>
-        </Basic.Modal>
       </div>
     );
   }
@@ -707,11 +542,6 @@ RequestDetail.defaultProps = {
 function select(state, component) {
   const entityId = component.entityId ? component.entityId : component.params.entityId;
   const entity = requestManager.getEntity(state, entityId);
-  let _requestItems = null;
-  if (entityId) {
-    _requestItems = requestItemManager.getEntities(state, `${uiKeyRequestItems}-${entityId}`);
-  }
-
   if (entity && entity._embedded && entity._embedded.wfProcessId) {
     entity.currentActivity = entity._embedded.wfProcessId.name;
     entity.candicateUsers = entity._embedded.wfProcessId.candicateUsers;
@@ -719,7 +549,6 @@ function select(state, component) {
   return {
     _request: entity,
     _showLoading: entity ? false : true,
-    _requestItems,
     _permissions: requestManager.getPermissions(state, null, entity)
   };
 }

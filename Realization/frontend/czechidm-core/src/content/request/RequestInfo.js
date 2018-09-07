@@ -1,7 +1,8 @@
 import React from 'react';
 import * as Basic from '../../components/basic';
-import RequestItemChangesTable from './RequestItemChangesTable';
-import {RequestManager } from '../../redux';
+import {RequestManager, RequestItemManager } from '../../redux';
+import RequestItemTable from './RequestItemTable';
+const requestItemManager = new RequestItemManager();
 
 /**
  * Request info component
@@ -9,6 +10,7 @@ import {RequestManager } from '../../redux';
  * @author Vít Švanda
  */
 class RequestInfo extends Basic.AbstractContent {
+
 
   componentDidMount() {
     super.componentDidMount();
@@ -53,12 +55,20 @@ class RequestInfo extends Basic.AbstractContent {
 
   render() {
     const {_showLoading} = this.props;
+    const {requestId} = this.props.params;
     const itemDetail = this.state ? this.state.itemDetail : null;
+
+    if (!requestId) {
+      return '';
+    }
+
+    let forceSearchParameters = requestItemManager.getDefaultSearchParameters();
+    forceSearchParameters = forceSearchParameters.setFilter('requestId', requestId);
 
     return (
       <div>
         <Basic.Alert
-          level="warning"
+          level="info"
           title={this.i18n('content.requestInfo.title')}
           text={this.i18n('content.requestInfo.text')}
           className="no-margin"
@@ -91,8 +101,12 @@ class RequestInfo extends Basic.AbstractContent {
             keyboard={!_showLoading}>
               <Basic.Modal.Header closeButton={ !_showLoading } text={this.i18n('content.requestDetail.itemDetail.header')}/>
               <Basic.Modal.Body>
-                <RequestItemChangesTable
-                  itemData={itemDetail ? itemDetail.changes : null}/>
+                <RequestItemTable
+                  forceSearchParameters={forceSearchParameters}
+                  isEditable={false}
+                  columns={['operation', 'owner']}
+                  showLoading={_showLoading}
+                />
               </Basic.Modal.Body>
               <Basic.Modal.Footer>
                 <Basic.Button

@@ -1,5 +1,6 @@
 import EntityManager from './EntityManager';
 import { RequestItemService } from '../../services';
+import { SearchParameters } from '../../domain';
 
 export default class RequestItemManager extends EntityManager {
 
@@ -18,5 +19,9 @@ export default class RequestItemManager extends EntityManager {
 
   getCollectionType() {
     return 'requestItems';
+  }
+
+  getDefaultSearchParameters() {
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('created', 'asc');
   }
 }

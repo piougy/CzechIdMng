@@ -466,6 +466,15 @@ module.exports = {
                 'order': 200,
                 'path': 'requests/:requestId/role/:entityId/authorization-policies',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
+              },
+              {
+                'id': 'request-role-automatic-roles',
+                'type': 'TAB',
+                'labelKey': 'content.role.tree-nodes.label',
+                'titleKey': 'content.role.tree-nodes.title',
+                'order': 400,
+                'path': 'requests/:requestId/role/:entityId/automatic-roles/trees',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
               }
             ]
           },

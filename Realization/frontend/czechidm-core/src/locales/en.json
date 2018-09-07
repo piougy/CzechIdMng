@@ -1325,6 +1325,13 @@
         "header": "Automatic roles from organizational structure",
         "title": "By organizational structure"
       },
+      "universalRequestNotSupported": {
+        "title": "Automatic roles can not be managed within this request.",
+        "text": "Automatic roles have their own agenda of requests, use them for their management.",
+        "gotToRequests": {
+          "label": "Automatic roles agenda"
+        }
+      },
       "emptyRules": "No rules found. The automatic role will not be assigned to any users.",
       "attribute": {
         "header": "Automatic roles based on the attribute",
@@ -1602,6 +1609,13 @@
         "identityAssigned": {
           "title": "Removing role is assign on users",
           "message": "Role [{{role}}] is assign to users. Before removing the role you need to take it from users."
+        }
+      },
+      "action": {
+        "createRequest": {
+          "header": "Do you want to create a new role request?",
+          "message": "Enter a new role name",
+          "name": "Name of role"
         }
       }
     },

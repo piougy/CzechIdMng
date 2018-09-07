@@ -27,7 +27,7 @@ class RoleEav extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-eav';
+    return this.getRequestNavigationKey('role-eav', this.props.params);
   }
 
   render() {

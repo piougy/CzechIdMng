@@ -258,10 +258,11 @@ public class IdmRequestItemController extends AbstractReadWriteDtoController<Idm
 					ImmutableMap.of("request", dto));
 		}
 		
-		// Only request item where his request is in the Concept state, can be deleted. In others states, will be request item set to Canceled result and save.
-		if(RequestState.CONCEPT == request.getState()){
+		// Only request item where his request is in the Concept state, can be deleted.
+		// In others states, will be request item set to Canceled result and save.
+		if (RequestState.CONCEPT == request.getState()) {
 			service.delete(dto);
-		}else {
+		} else {
 			dto.setState(RequestState.CANCELED);
 			dto.setResult(new OperationResultDto(OperationState.CANCELED));
 			service.save(dto);

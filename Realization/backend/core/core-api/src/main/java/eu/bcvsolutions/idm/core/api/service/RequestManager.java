@@ -105,6 +105,14 @@ public interface RequestManager<R extends Requestable> extends RequestService<Id
 	List<R> filterDtosByPredicates(List<R> requestables, Class<? extends R> dtoClass,
 			List<RequestPredicate> predicates);
 	
+	/**
+	 * Find request's items
+	 * @param requestId
+	 * @param dtoClass
+	 * @return
+	 */
+	List<IdmRequestItemDto> findRequestItems(UUID requestId, Class<? extends Requestable> dtoClass);
+	
 	
 	
 	/**

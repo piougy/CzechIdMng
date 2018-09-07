@@ -6,6 +6,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Throwables;
 
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
 /**
@@ -24,19 +25,23 @@ public abstract class ExceptionUtils {
 	 */
 	public static Throwable resolveException(Throwable ex) {
 		Assert.notNull(ex);
-		Throwable exceptionToLog = null;
 		List<Throwable> causes = Throwables.getCausalChain(ex);
 		// If is some cause instance of ResultCodeException, then we will use only it
 		// (for better show on frontend)
-		Throwable resultCodeException = causes.stream().filter(cause -> {
-			if (cause instanceof ResultCodeException) {
-				return true;
-			}
-			return false;
-		}).findFirst().orElse(null);
+		Throwable result = causes.stream()
+				.filter(cause -> cause instanceof ResultCodeException)
+				.findFirst().orElse(null);
+		
+		if(result != null) {
+			return result;
+		}
+		
+		// If ResultCodeException was not found, then we try to find CoreException
+		result = causes.stream()
+				.filter(cause -> cause instanceof CoreException)
+				.findFirst().orElse(null);
 
-		exceptionToLog = resultCodeException != null ? resultCodeException : ex;
-		return exceptionToLog;
+		return result != null ? result : ex;
 	}
 	
 }

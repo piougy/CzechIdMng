@@ -287,7 +287,8 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		// Only request in CONCEPT or IN_PROGRESS state could creates new item or
 		// update existing item
 		if (request != null && !(RequestState.CONCEPT == request.getState()
-				|| RequestState.IN_PROGRESS == request.getState())) {
+				|| RequestState.IN_PROGRESS == request.getState()
+				|| RequestState.EXCEPTION == request.getState())) {
 		throw new ResultCodeException(CoreResultCode.REQUEST_ITEM_CANNOT_BE_CREATED,
 				ImmutableMap.of("dto", dto.toString(), "state", request.getState().name())); 
 		}	
@@ -737,11 +738,18 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 				}).collect(Collectors.toList());
 	}
 	
+	@Override
+	public List<IdmRequestItemDto> findRequestItems(UUID requestId, Class<? extends Requestable> dtoClass) {
+		return this.findRequestItems(requestId, dtoClass, null);
+	}
+	
+	@SuppressWarnings("unchecked")
 	private IdmRequestDto executeRequestInternal(UUID requestId) {
 		Assert.notNull(requestId, "Role request ID is required!");
 		IdmRequestDto request = requestService.get(requestId);
 		Assert.notNull(request, "Role request is required!");
-
+		
+		// Validate request
 		List<IdmRequestItemDto> items = this.findRequestItems(request.getId(), null);
 		if(items.isEmpty()) {
 			throw new ResultCodeException(CoreResultCode.REQUEST_CANNOT_BE_EXECUTED_NONE_ITEMS,
@@ -766,9 +774,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 					// Get DTO service
 					R dto = null;
 					try {
-						@SuppressWarnings("unchecked")
 						Class<? extends R> dtoClass = (Class<? extends R>) Class.forName(item.getOwnerType());
-						@SuppressWarnings("unchecked")
 						ReadWriteDtoService<Requestable, BaseFilter> dtoService = (ReadWriteDtoService<Requestable, BaseFilter>) getServiceByItem(
 								item, dtoClass);
 						dto = this.convertItemToDto(item, dtoClass);
@@ -779,8 +785,46 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 								e);
 					}
 				});
-
+		
+		// We have to ensure the referential integrity, because some items (his DTOs) could be child of terminated item (DTO)
 		sortedItems.stream() //
+				.filter(item -> item.getState().isTerminatedState()) // We check terminated ADDed items
+				.filter(item -> RequestOperationType.ADD == item.getOperation()) // 
+				.filter(item -> item.getOwnerId() != null) // 
+				.forEach(terminatedItem -> {
+					// Create predicate - find all DTOs with that UUID value in any fields
+					ImmutableList<RequestPredicate> predicates = ImmutableList
+							.of(new RequestPredicate(terminatedItem.getOwnerId(), null));
+					sortedItems.stream() //
+							.filter(item -> !item.getState().isTerminatedState()) //
+							.filter(item -> { // Is that item child of terminated item?
+								try {
+									Class<? extends R> ownerType = (Class<? extends R>) Class.forName(item.getOwnerType());
+									R requestable = requestManager.convertItemToDto(item, ownerType);
+									List<R> filteredDtos = requestManager.filterDtosByPredicates(
+											ImmutableList.of(requestable), ownerType, predicates);
+									return filteredDtos.contains(requestable);
+								} catch (ClassNotFoundException | IOException e) {
+									throw new CoreException(e);
+								}
+							}).forEach(itemToCancel -> { // This item could be not executed, because is use in other already terminated (added) item.
+								itemToCancel.setState(RequestState.CANCELED);
+								itemToCancel.setResult(new OperationResultDto.Builder(OperationState.NOT_EXECUTED)
+										.setException(new RoleRequestException(
+												CoreResultCode.REQUEST_ITEM_NOT_EXECUTED_PARENT_CANCELED,
+												ImmutableMap.of("item", itemToCancel.toString(), "terminatedItem",
+														terminatedItem.toString())))
+										.build());
+								requestItemService.save(itemToCancel);
+							});
+				});
+		
+		// Reload items ... could be changed 
+		items = this.findRequestItems(request.getId(), null);
+		List<IdmRequestItemDto> sortedItemsResult = items.stream().sorted(Comparator.comparing(IdmRequestItemDto::getCreated))
+				.collect(Collectors.toList());
+
+		sortedItemsResult.stream() //
 		.filter(item -> !item.getState().isTerminatedState()) //
 		.forEach(item -> {
 			try {
@@ -1158,7 +1202,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 
 	private R convertStringToDto(String data, Class<? extends R> type)
 			throws JsonParseException, JsonMappingException, IOException {
-		return mapper.readValue(data, type);
+		return mapper.readValue(data == null ? "" : data, type);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1184,10 +1228,6 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 			return items.get(0);
 		}
 		return null;
-	}
-
-	private List<IdmRequestItemDto> findRequestItems(UUID requestId, Class<? extends Requestable> dtoClass) {
-		return this.findRequestItems(requestId, dtoClass, null);
 	}
 
 	private List<IdmRequestItemDto> findRequestItems(UUID requestId, Class<? extends Requestable> dtoClass,

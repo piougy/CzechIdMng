@@ -21,6 +21,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractRequestDto;
@@ -147,9 +148,9 @@ public class DefaultIdmRequestItemService
 			confidentialStorage.delete(dto, storageKey);
 		}
 		super.deleteInternal(dto);
-
-		// We have to ensure the referential integrity, because some item (his DTOs) could be child of  item (DTO)
-		if (dto.getId() != null && dto.getOwnerId() != null) {
+		
+		// We have to ensure the referential integrity, because some item (his DTOs) could be child of that item (DTO)
+		if (dto.getId() != null && dto.getOwnerId() != null && RequestOperationType.ADD == dto.getOperation()) {
 			if (dto.getRequest() != null) {
 				IdmRequestItemFilter requestItemFilter = new IdmRequestItemFilter();
 				requestItemFilter.setRequestId(dto.getRequest());

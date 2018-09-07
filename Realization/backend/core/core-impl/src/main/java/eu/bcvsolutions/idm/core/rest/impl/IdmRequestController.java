@@ -284,9 +284,18 @@ public class IdmRequestController extends AbstractReadWriteDtoController<IdmRequ
 	public ResponseEntity<?> startRequest(
 			@ApiParam(value = "Request's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
-		
-		requestManager.startRequest(UUID.fromString(backendId), true);
-		
+
+		UUID requestId = UUID.fromString(backendId);
+		IdmRequestDto request = this.getService().get(requestId, IdmBasePermission.EXECUTE);
+	
+		// Validate request
+		List<IdmRequestItemDto> items = requestManager.findRequestItems(request.getId(), null);
+		if (items.isEmpty()) {
+			throw new ResultCodeException(CoreResultCode.REQUEST_CANNOT_BE_EXECUTED_NONE_ITEMS,
+					ImmutableMap.of("request", request.toString()));
+		}
+		requestManager.startRequest(requestId, true);
+
 		return this.get(backendId);
 	}
 	

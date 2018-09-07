@@ -121,6 +121,8 @@ public class DefaultIdmRequestService extends AbstractReadWriteDtoService<IdmReq
 							&& itemDto.getState().isTerminatedState()) {
 						requestable = null;
 					}
+					// Minimise response size
+					requestableDto.setEmbedded(null);
 				}
 				if (requestable == null) {
 					// Entity was not found ... maybe was deleted or not exists yet

@@ -262,6 +262,7 @@ public class IdmRequestItemController extends AbstractReadWriteDtoController<Idm
 		if(RequestState.CONCEPT == request.getState()){
 			service.delete(dto);
 		}else {
+			dto.setState(RequestState.CANCELED);
 			dto.setResult(new OperationResultDto(OperationState.CANCELED));
 			service.save(dto);
 		}

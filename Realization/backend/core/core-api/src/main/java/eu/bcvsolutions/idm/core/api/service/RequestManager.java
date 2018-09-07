@@ -94,4 +94,51 @@ public interface RequestManager<R extends Requestable> extends RequestService<Id
 	R convertItemToDto(IdmRequestItemDto item, Class<? extends R> type)
 			throws JsonParseException, JsonMappingException, IOException, ClassNotFoundException;
 
+	/**
+	 * Find/filter all DTOs with UUID fields when values are equals to values in filter (predicates) 
+	 * 
+	 * @param requestables
+	 * @param dtoClass
+	 * @param predicates
+	 * @return
+	 */
+	List<R> filterDtosByPredicates(List<R> requestables, Class<? extends R> dtoClass,
+			List<RequestPredicate> predicates);
+	
+	
+	
+	/**
+	 * Wrapper class for request's predicates
+	 * 
+	 * @author svandav
+	 *
+	 */
+	public class RequestPredicate {
+
+		private UUID value;
+		private String field;
+
+		public RequestPredicate(UUID value, String field) {
+			super();
+			this.value = value;
+			this.field = field;
+		}
+
+		public UUID getValue() {
+			return value;
+		}
+
+		public void setValue(UUID value) {
+			this.value = value;
+		}
+
+		public String getField() {
+			return field;
+		}
+
+		public void setField(String field) {
+			this.field = field;
+		}
+	}
+
 }

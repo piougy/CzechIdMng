@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
@@ -26,10 +28,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestItemFilter;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestItemService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
+import eu.bcvsolutions.idm.core.api.service.RequestManager.RequestPredicate;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem_;
@@ -52,9 +56,8 @@ import groovy.lang.Lazy;
 public class DefaultIdmRequestItemService
 		extends AbstractReadWriteDtoService<IdmRequestItemDto, IdmRequestItem, IdmRequestItemFilter>
 		implements IdmRequestItemService {
-	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRequestItemService.class);
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRequestItemService.class);
 
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
@@ -103,12 +106,13 @@ public class DefaultIdmRequestItemService
 				requestItemDto.getEmbedded().put(AbstractRequestDto.WF_PROCESS_FIELD, processHistDto);
 			}
 		}
-		
+
 		// Load and add owner DTO to embedded. Prevents of many requests from FE.
 		if (requestItemDto != null && requestItemDto.getOwnerId() != null && requestItemDto.getOwnerType() != null) {
 			try {
 				@SuppressWarnings("unchecked")
-				Requestable requestable = requestManager.convertItemToDto(requestItemDto, (Class<Requestable>) Class.forName(requestItemDto.getOwnerType()));
+				Requestable requestable = requestManager.convertItemToDto(requestItemDto,
+						(Class<Requestable>) Class.forName(requestItemDto.getOwnerType()));
 				if (requestable == null) {
 					// Entity was not found ... maybe was deleted or not exists yet
 					LOG.debug(MessageFormat.format("Owner [{0}, {1}] not found for request {2}.",
@@ -137,12 +141,45 @@ public class DefaultIdmRequestItemService
 	@Transactional
 	public void deleteInternal(IdmRequestItemDto dto) {
 
-		// We try to find value in the confidential storage and delete it
 		if (dto.getId() != null) {
+			// We try to find value in the confidential storage and delete it
 			String storageKey = RequestManager.getConfidentialStorageKey(dto.getId());
 			confidentialStorage.delete(dto, storageKey);
 		}
 		super.deleteInternal(dto);
+
+		// We have to ensure the referential integrity, because some item (his DTOs) could be child of  item (DTO)
+		if (dto.getId() != null && dto.getOwnerId() != null) {
+			if (dto.getRequest() != null) {
+				IdmRequestItemFilter requestItemFilter = new IdmRequestItemFilter();
+				requestItemFilter.setRequestId(dto.getRequest());
+				// Find all items
+				List<IdmRequestItemDto> items = this.find(requestItemFilter, null).getContent();
+				
+				// Create predicate - find all DTOs with that UUID value in any fields
+				ImmutableList<RequestPredicate> predicates = ImmutableList
+						.of(new RequestPredicate(dto.getOwnerId(), null));
+
+				List<IdmRequestItemDto> itemsToDelete = items.stream() // Search items to delete
+						.filter(item -> {
+							try {
+								@SuppressWarnings("unchecked")
+								Class<? extends Requestable> ownerType = (Class<? extends Requestable>) Class
+										.forName(item.getOwnerType());
+								Requestable requestable;
+								requestable = requestManager.convertItemToDto(item, ownerType);
+								List<Requestable> filteredDtos = requestManager
+										.filterDtosByPredicates(ImmutableList.of(requestable), ownerType, predicates);
+								return filteredDtos.contains(requestable);
+							} catch (ClassNotFoundException | IOException e) {
+								throw new CoreException(e);
+							}
+						}).collect(Collectors.toList());
+				itemsToDelete.forEach(item -> {
+					this.delete(item);
+				});
+			}
+		}
 	}
 
 	@Override

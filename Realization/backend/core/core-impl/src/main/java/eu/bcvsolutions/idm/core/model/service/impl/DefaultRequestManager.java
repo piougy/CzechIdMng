@@ -693,12 +693,60 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		}
 	}
 	
+	@Override
+	public List<R> filterDtosByPredicates(List<R> requestables, Class<? extends R> dtoClass,
+			List<RequestPredicate> predicates) {
+		
+		List<MethodDescriptor> descriptors;
+		try {
+			descriptors = Lists.newArrayList(Introspector.getBeanInfo(dtoClass).getMethodDescriptors()) //
+					.stream() //
+					.filter(methodDescriptor -> UUID.class.equals(methodDescriptor.getMethod().getReturnType()) 
+							// Serializable too, because some UUID are in DTO as Serializable :-)
+							|| Serializable.class.equals(methodDescriptor.getMethod().getReturnType())) //
+					.filter(methodDescriptor -> methodDescriptor.getMethod().getParameterTypes() == null
+							|| methodDescriptor.getMethod().getParameterTypes().length == 0) //
+					.collect(Collectors.toList());
+		} catch (IntrospectionException e) {
+			throw new CoreException(e);
+		} //
+
+		return requestables.stream() // Find all DTOs with UUID fields when values are equals to values in filter  
+				.filter(requestable -> {
+					return predicates.stream().allMatch(predicate -> {
+						return descriptors.stream() //
+								.filter(descriptor -> {
+									if(predicate.getField() == null) {
+										return true;
+									}
+									return getFieldName(descriptor.getName()).equals(predicate.getField());
+								}) //
+								.anyMatch(descriptor -> { //
+									try {
+										Object value = descriptor.getMethod().invoke(requestable, new Object[] {});
+										if (value == null) {
+											return false;
+										}
+										return value.equals(predicate.getValue());
+									} catch (IllegalAccessException | IllegalArgumentException
+											| InvocationTargetException e) {
+										throw new CoreException(e);
+									}
+								});
+					});
+				}).collect(Collectors.toList());
+	}
+	
 	private IdmRequestDto executeRequestInternal(UUID requestId) {
 		Assert.notNull(requestId, "Role request ID is required!");
 		IdmRequestDto request = requestService.get(requestId);
 		Assert.notNull(request, "Role request is required!");
 
 		List<IdmRequestItemDto> items = this.findRequestItems(request.getId(), null);
+		if(items.isEmpty()) {
+			throw new ResultCodeException(CoreResultCode.REQUEST_CANNOT_BE_EXECUTED_NONE_ITEMS,
+					ImmutableMap.of("request", request.toString()));
+		}
 		List<IdmRequestItemDto> sortedItems = items.stream().sorted(Comparator.comparing(IdmRequestItemDto::getCreated))
 				.collect(Collectors.toList());
 
@@ -707,7 +755,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		.filter(item -> !item.getState().isTerminatedState()) //
 		.filter(item -> !(RequestState.CONCEPT == item.getState() || RequestState.APPROVED == item.getState())) //
 		.forEach(item -> { //
-			throw new RoleRequestException(CoreResultCode.REQUEST_ITEM_CANNOT_BE_EXECUTED,
+			throw new ResultCodeException(CoreResultCode.REQUEST_ITEM_CANNOT_BE_EXECUTED,
 					ImmutableMap.of("item", item.toString(), "state", item.getState()));
 		});
 		
@@ -1040,45 +1088,9 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 					}
 				});
 
-		List<MethodDescriptor> descriptors;
-		try {
-			descriptors = Lists.newArrayList(Introspector.getBeanInfo(dtoClass).getMethodDescriptors()) //
-					.stream() //
-					.filter(methodDescriptor -> UUID.class.equals(methodDescriptor.getMethod().getReturnType()) 
-							// Serializable too, because some UUID are in DTO as Serializable :-)
-							|| Serializable.class.equals(methodDescriptor.getMethod().getReturnType())) //
-					.filter(methodDescriptor -> methodDescriptor.getMethod().getParameterTypes() == null
-							|| methodDescriptor.getMethod().getParameterTypes().length == 0) //
-					.collect(Collectors.toList());
-		} catch (IntrospectionException e) {
-			throw new CoreException(e);
-		} //
-
-		return requestables.stream() //
-				.filter(requestable -> {
-					return predicates.stream().allMatch(predicate -> {
-						return descriptors.stream() //
-								.filter(descriptor -> {
-									if(predicate.getField() == null) {
-										return true;
-									}
-									return getFieldName(descriptor.getName()).equals(predicate.getField());
-								}) //
-								.anyMatch(descriptor -> { //
-									try {
-										Object value = descriptor.getMethod().invoke(requestable, new Object[] {});
-										if (value == null) {
-											return false;
-										}
-										return value.equals(predicate.getValue());
-									} catch (IllegalAccessException | IllegalArgumentException
-											| InvocationTargetException e) {
-										throw new CoreException(e);
-									}
-								});
-					});
-				}).collect(Collectors.toList());
+		return filterDtosByPredicates(requestables, dtoClass, predicates);
 	}
+
 	
 	private String getFieldName(String methodName) {
 		// Assume the method starts with either get or is.
@@ -1518,33 +1530,5 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		//
 		return confidentialStorage.get(confidentialItem.getId(), IdmRequestItem.class,
 				RequestManager.getConfidentialStorageKey(confidentialItem.getId()));
-	}
-
-	public class RequestPredicate {
-
-		private UUID value;
-		private String field;
-
-		public RequestPredicate(UUID value, String field) {
-			super();
-			this.value = value;
-			this.field = field;
-		}
-
-		public UUID getValue() {
-			return value;
-		}
-
-		public void setValue(UUID value) {
-			this.value = value;
-		}
-
-		public String getField() {
-			return field;
-		}
-
-		public void setField(String field) {
-			this.field = field;
-		}
 	}
 }

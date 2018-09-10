@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConfidentialStorageValueService;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue_;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 
@@ -55,7 +56,10 @@ public class DefaultIdmConfidentialStorageValueService extends
 			IdmConfidentialStorageValueDto dto) {
 		IdmConfidentialStorageValueDto result = super.toDto(entity, dto);
 		//
-		result.setSerializableValue(fromStorageValue(result.getValue()));
+		// indicate, if value is filled only
+		if (result != null && result.getValue() != null && result.getValue().length > 0) {
+			result.setSerializableValue(GuardedString.SECRED_PROXY_STRING);
+		}
 		//
 		return result;
 	}

@@ -955,6 +955,36 @@ export default class EntityManager {
   }
 
   /**
+   * Non blocking autocomplete requested entity by given id from BE, if entity is not in application state and entity loading does not processing
+   *
+   * @param  {store}  store - application store
+   * @param  {string|number} id - entity identifier
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   */
+  queueAutocompleteEntityIfNeeded(id, uiKey = null, cb = null) {
+    return (dispatchOuter) => {
+      dispatchOuter(this.requestEntity(id, uiKey));
+      dispatchOuter({
+        id,
+        queue: 'AUTOCOMPLETE_ENTITY',
+        callback: (next, dispatch, getState) => {
+          uiKey = this.resolveUiKey(uiKey, id);
+          const uiError = Utils.Ui.getError(getState(), uiKey);
+          //
+          if (!uiError || uiError.statusCode === 401) {
+            dispatch(this.autocompleteEntityIfNeeded(id, uiKey, (entity, error) => {
+              if (cb) {
+                cb(entity, error);
+              }
+              next();
+            }));
+          }
+        }
+      });
+    };
+  }
+
+  /**
    * Autocomplete requested entity by given id from BE, if entity is not in application state and entity loading does not processing
    *
    * @param  {store}  store - application store

@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
+import Waypoint from 'react-waypoint';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
@@ -19,14 +20,6 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     this.state = {
       error: null
     };
-  }
-
-  componentDidMount() {
-    this.loadEntityIfNeeded();
-  }
-
-  componentDidUpdate() {
-    this.loadEntityIfNeeded();
   }
 
   /**
@@ -55,7 +48,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         const error = Utils.Ui.getError(this.context.store.getState(), uiKey) || this.state.error;
         if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
             && (!error || error.statusCode === 401)) { // show loading check has to be here - new state is needed
-          this.context.store.dispatch(manager.autocompleteEntityIfNeeded(entityId, uiKey, (e, ex) => {
+          this.context.store.dispatch(manager.queueAutocompleteEntityIfNeeded(entityId, uiKey, (e, ex) => {
             // TODO: move to other place - is called only when entity is not given
             if (!ex && (face === 'full' || (face === 'link' && this.getLink()))) {
               this._onEnter();
@@ -345,14 +338,15 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     if (entity) { // identity prop has higher priority
       _entity = entity;
     }
+    const entityId = this.getEntityId();
     //
-    if (showLoading || (_showLoading && this.getEntityId() && !_entity)) {
+    if (showLoading || (_showLoading && entityId && !_entity)) {
       switch (face) {
         case 'text':
         case 'link':
         case 'popover': {
           return (
-            <Basic.Icon value="refresh" showLoading className={className} style={style}/>
+            <Basic.Icon value="refresh" showLoading className={ className } style={ style } title={ entityId }/>
           );
         }
         default: {
@@ -366,7 +360,13 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
       if (!this.getEntityId()) {
         return null;
       }
-      return (<UuidInfo className={className} value={ this.getEntityId() } style={style} />);
+      return (
+        <Waypoint onEnter={ this.loadEntityIfNeeded.bind(this) } scrollableAncestor={ window }>
+          <span>
+            <UuidInfo className={className} value={ this.getEntityId() } style={style} />
+          </span>
+        </Waypoint>
+      );
     }
     //
     switch (face) {

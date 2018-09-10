@@ -5,8 +5,10 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.envers.RevisionType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -37,6 +39,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -93,6 +96,20 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return this.find(parameters, pageable);
+	}
+	
+	@Override
+	public Page<IdmAuditDto> find(IdmAuditFilter filter, Pageable pageable, BasePermission permission) {
+		Page<IdmAuditDto> dtos = super.find(filter, pageable, permission);
+		dtos.forEach(dto -> {
+			if (!RevisionType.DEL.name().equals(dto.getModification())) {
+				dto.getEmbedded().put("entity", getLookupService().lookupDto(dto.getType(), dto.getEntityId()));
+			}
+		});
+		//
+		return dtos;
+		
+		
 	}
 	
 	@SuppressWarnings("unchecked")

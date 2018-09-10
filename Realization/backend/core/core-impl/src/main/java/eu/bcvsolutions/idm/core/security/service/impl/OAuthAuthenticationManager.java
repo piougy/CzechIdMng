@@ -92,7 +92,7 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 	}
 	
 	private IdmAuthorityChange getIdentityAuthorityChange(IdmIdentityDto identity) {
-		return authorityChangeRepo.findOneByIdentity_Id(identity.getId());
+		return null; // authorityChangeRepo.findOneByIdentity_Id(identity.getId());
 	}
 	
 }

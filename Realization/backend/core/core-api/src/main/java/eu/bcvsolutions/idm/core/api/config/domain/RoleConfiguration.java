@@ -24,6 +24,9 @@ public interface RoleConfiguration  extends Configurable {
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.admin";
 	String DEFAULT_ADMIN_ROLE = "superAdminRole";
 	
+	String PROPERTY_APPROVE_ROLE_CHANGE_ROLE = 
+			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.wf.approval.role-change.role";
+	
 	@Override
 	default String getConfigurableType() {
 		return "role";
@@ -44,6 +47,7 @@ public interface RoleConfiguration  extends Configurable {
 		List<String> properties = new ArrayList<>(); // we are not using superclass properties - enable and order does not make a sense here
 		properties.add(getPropertyName(PROPERTY_DEFAULT_ROLE));
 		properties.add(getPropertyName(PROPERTY_ADMIN_ROLE));
+		properties.add(getPropertyName(PROPERTY_APPROVE_ROLE_CHANGE_ROLE));
 		return properties;
 	}
 	
@@ -74,4 +78,12 @@ public interface RoleConfiguration  extends Configurable {
 	 * @return
 	 */
 	IdmRoleDto getAdminRole();
+
+	/**
+	 * Return role for approve change of role
+	 * If is not defined, then admin role will be used.
+	 * 
+	 * @return
+	 */
+	IdmRoleDto getRoleForApproveChangeOfRole();
 }

@@ -117,6 +117,10 @@ public class DefaultBulkActionManager implements BulkActionManager {
 				List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> actions = pluginExecutors.getPluginsFor((Class<? extends BaseEntity>) forName);
 				//
 				for (AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action : actions) {
+					// skip disabled modules 
+					if (!enabledEvaluator.isEnabled(action)) {
+						continue;
+					}
 					if (action.getName().equals(actionDto.getName())) {
 						return action;
 					}

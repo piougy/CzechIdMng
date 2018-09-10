@@ -13,18 +13,26 @@ import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -70,6 +78,7 @@ public class DefaultIdmRoleService
 	//
 	@Autowired private IdmRoleCatalogueRoleService roleCatalogueRoleService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
+	@Autowired @Lazy private IdmIdentityService identityService;
 	
 	
 	@Autowired
@@ -280,5 +289,33 @@ public class DefaultIdmRoleService
 			roles.add(role);
 		}
 		return roles;
-	}	
+	}
+	
+	@Override
+	public Page<IdmIdentityDto> findApproversByRoleId(UUID roleId, Pageable pageable) {
+		Assert.notNull(roleId, "Role is required.");
+
+		IdmRoleDto role = this.get(roleId);
+		// Given role should be null (new role created with request)
+		if (role != null) {
+			IdmIdentityFilter filter = new IdmIdentityFilter();
+			filter.setGuaranteesForRole(roleId);
+			long guaranteesCount = identityService.find(filter, pageable).getTotalElements();
+
+			if (guaranteesCount > 0) {
+				return identityService.find(filter, pageable);
+			}
+		}
+
+		IdmRoleDto approvingRole = roleConfiguration.getRoleForApproveChangeOfRole();
+
+		if (approvingRole != null) {
+			IdmIdentityFilter filter = new IdmIdentityFilter();
+			filter.setRoles(Lists.newArrayList(approvingRole.getId()));
+
+			return identityService.find(filter, pageable);
+		}
+
+		return new PageImpl<IdmIdentityDto>(Lists.newArrayList());
+	}
 }

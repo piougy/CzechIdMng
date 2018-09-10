@@ -20,13 +20,17 @@ requestService.save(requestDto);</script>
     </scriptTask>
     <sequenceFlow id="flow45" sourceRef="scripttask11" targetRef="load-role-name"></sequenceFlow>
     <scriptTask id="scripttask12" name="Find all role guarantees and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>boolean skip = false;
-def candidates = null;
+      <script>import org.springframework.data.domain.PageRequest;
+import java.util.List;
+import java.util.ArrayList;
 
-//Find all role guarantees
-candidates = new ArrayList(identityService.findGuaranteesByRoleId(entityEvent.content.ownerId, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
+boolean skip = false;
+List candidates = null;
+
+// Find guarantees for that role or approvers for approving change of role
+candidates = new ArrayList(roleService.findApproversByRoleId(entityEvent.content.ownerId, new PageRequest(0, 100)).getContent());
 if(candidates.isEmpty()){
-	// TODO: find super admin by role
+	// Only last fuse
   candidates.add(identityService.getByUsername("admin"));
 }
 

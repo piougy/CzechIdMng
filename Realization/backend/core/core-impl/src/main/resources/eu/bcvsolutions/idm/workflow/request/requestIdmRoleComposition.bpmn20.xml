@@ -21,21 +21,26 @@ requestItemService.save(requestItemDto);</script>
     </scriptTask>
     <sequenceFlow id="flow45" sourceRef="scripttask11" targetRef="load-business-role"></sequenceFlow>
     <scriptTask id="scripttask12" name="Find all role guarantees and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>boolean skip = false;
-def candidates = null;
+      <script>import org.springframework.data.domain.PageRequest;
+import java.util.List;
+import java.util.ArrayList;
 
-//Find all role guarantees
-candidates = new ArrayList(identityService.findGuaranteesByRoleId(targetRoleId, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
-if(candidates.isEmpty()){
-	// TODO: find super admin by role
-  candidates.add(identityService.getByUsername("admin"));
-}
+boolean skip = false;
+List candidates = null;
+
+// Find guarantees for that role or approvers for approving change of role
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(targetRoleId, new PageRequest(0, 100)).getContent());
 
 //Is current logged user = implementer user and is between candidates? If yes, then we can skip task.
 if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
   skip = identityService.containsUser(candidates, implementerIdentifier);
 }else{
   skip = false; 
+}
+
+// If none guarantees was found, then we don't want approving (skiping)
+if(candidates.isEmpty()){
+  skip = true;
 }
 
 // If is skip == true, then set decision for next task on approve

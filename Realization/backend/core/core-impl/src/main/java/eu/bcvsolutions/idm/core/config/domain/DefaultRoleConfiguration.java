@@ -73,4 +73,20 @@ public class DefaultRoleConfiguration extends AbstractConfiguration implements R
 		}
 		return role;
 	}
+	
+	@Override
+	public IdmRoleDto getRoleForApproveChangeOfRole() {
+		String roleCode = getConfigurationService().getValue(PROPERTY_APPROVE_ROLE_CHANGE_ROLE, DEFAULT_ADMIN_ROLE);
+		if (StringUtils.isBlank(roleCode)) {
+			LOG.debug("Role for approve change of role is not configured, returning null. Change configuration [{}]", PROPERTY_APPROVE_ROLE_CHANGE_ROLE);
+			return null;
+		}
+		// lookup - uuid or code could be given
+		IdmRoleDto role = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleCode);
+		if (role == null) {
+			LOG.warn("Role for approve change of role with code [{}] not found, returning null. Change configuration [{}]", roleCode, PROPERTY_APPROVE_ROLE_CHANGE_ROLE);
+			return null;
+		}
+		return role;
+	}
 }

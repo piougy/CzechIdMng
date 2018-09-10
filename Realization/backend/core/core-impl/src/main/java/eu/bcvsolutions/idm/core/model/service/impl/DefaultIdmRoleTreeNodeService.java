@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -27,10 +28,11 @@ import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
@@ -62,7 +64,6 @@ public class DefaultIdmRoleTreeNodeService
 	private final IdmRoleTreeNodeRepository repository;
 	private final IdmTreeNodeRepository treeNodeRepository;
 	private final EntityEventManager entityEventManager;
-	private final IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	private final IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
@@ -70,19 +71,16 @@ public class DefaultIdmRoleTreeNodeService
 			IdmRoleTreeNodeRepository repository,
 			IdmTreeNodeRepository treeNodeRepository,
 			EntityEventManager entityEventManager,
-			IdmAutomaticRoleAttributeService automaticRoleAttributeService,
 			IdmIdentityRoleService identityRoleService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
 		Assert.notNull(treeNodeRepository);
-		Assert.notNull(automaticRoleAttributeService);
 		Assert.notNull(identityRoleService);
 		//
 		this.repository = repository;
 		this.treeNodeRepository = treeNodeRepository;
 		this.entityEventManager = entityEventManager;
-		this.automaticRoleAttributeService = automaticRoleAttributeService;
 		this.identityRoleService = identityRoleService;
 	}
 	
@@ -173,13 +171,13 @@ public class DefaultIdmRoleTreeNodeService
 
 	@Override
 	public IdmRoleRequestDto prepareAssignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		this.createIdentityRole(contract, automaticRoles);
+		this.createIdentityRole(contract, null, automaticRoles);
 		return null;
 	}
 	
 	@Override
 	public IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		this.createIdentityRole(contract, automaticRoles);
+		this.createIdentityRole(contract, null, automaticRoles);
 		return null;
 	}
 
@@ -198,12 +196,20 @@ public class DefaultIdmRoleTreeNodeService
 		// @Transactional with required new - this doesn't works with processor
 		// IdentityContractCreateByAutomaticRoleProcessor (some test are not passed)
 		// original method assignAutomaticRoles has also only @Transactional without reguired new
-		createIdentityRole(contract, automaticRoles);
+		createIdentityRole(contract, null, automaticRoles);
+	}
+	
+	@Override
+	public void addAutomaticRoles(IdmContractPositionDto contractPosition, Set<IdmRoleTreeNodeDto> automaticRoles) {
+		IdmIdentityContractDto contract = DtoUtils.getEmbedded(contractPosition, IdmContractPosition_.identityContract);
+		createIdentityRole(contract, contractPosition, automaticRoles);
 	}
 
 	@Override
 	public void removeAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		automaticRoleAttributeService.removeAutomaticRoles(identityRole);
+		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole);
+		event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
+		identityRoleService.publish(event);
 	}
 
 	/**
@@ -213,12 +219,13 @@ public class DefaultIdmRoleTreeNodeService
 	 * @param contract
 	 * @param automaticRoles
 	 */
-	private void createIdentityRole(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
+	private void createIdentityRole(IdmIdentityContractDto contract, IdmContractPositionDto contractPosition, Set<IdmRoleTreeNodeDto> automaticRoles) {
 		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
 			// create identity role directly
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 			identityRole.setAutomaticRole(autoRole.getId());
 			identityRole.setIdentityContract(contract.getId());
+			identityRole.setContractPosition(contractPosition == null ? null : contractPosition.getId());
 			identityRole.setRole(autoRole.getRole());
 			identityRole.setValidFrom(contract.getValidFrom());
 			identityRole.setValidTill(contract.getValidTill());

@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 @Entity
 @Table(name = "idm_identity_role", indexes = {
 		@Index(name = "idx_idm_identity_role_ident_c", columnList = "identity_contract_id"),
+		@Index(name = "idx_idm_identity_role_con_pos", columnList = "contract_position_id"),
 		@Index(name = "idx_idm_identity_role_role", columnList = "role_id"),
 		@Index(name = "idx_idm_identity_role_aut_r", columnList = "automatic_role_id"),
 		@Index(name = "idx_idm_identity_role_ext_id", columnList = "external_id"),
@@ -56,6 +57,13 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, 
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityContract identityContract;
+	
+	@Audited
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "contract_position_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmContractPosition contractPosition;
 	
 	@NotNull
 	@Audited
@@ -211,5 +219,13 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, 
 
 	public void setRoleComposition(IdmRoleComposition roleComposition) {
 		this.roleComposition = roleComposition;
+	}
+	
+	public IdmContractPosition getContractPosition() {
+		return contractPosition;
+	}
+	
+	public void setContractPosition(IdmContractPosition contractPosition) {
+		this.contractPosition = contractPosition;
 	}
 }

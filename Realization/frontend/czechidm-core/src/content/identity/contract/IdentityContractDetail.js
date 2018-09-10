@@ -165,7 +165,8 @@ class IdentityContractDetail extends Basic.AbstractContent {
 
                 <Basic.TextField
                   ref="position"
-                  label={this.i18n('entity.IdentityContract.position')}/>
+                  label={ this.i18n('entity.IdentityContract.position') }
+                  max={ 255 }/>
                 <Basic.SelectBox
                   ref="treeTypeId" useFirst={Utils.Entity.isNew(entity)}
                   manager={this.treeTypeManager}

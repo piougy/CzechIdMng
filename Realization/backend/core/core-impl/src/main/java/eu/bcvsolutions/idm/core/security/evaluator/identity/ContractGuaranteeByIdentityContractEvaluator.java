@@ -30,12 +30,19 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(ContractGuaranteeByIdentityContractEvaluator.EVALUATOR_NAME)
 @Description("Permissions to contract guaratee by contracts")
 public class ContractGuaranteeByIdentityContractEvaluator extends AbstractTransitiveEvaluator<IdmContractGuarantee> {
 
+	public static final String EVALUATOR_NAME = "core-contract-guarantee-by-identity-contract-evaluator";
+	//
 	@Autowired private AuthorizationManager authorizationManager;
 	@Autowired private SecurityService securityService;
+	
+	@Override
+	public String getName() {
+		return EVALUATOR_NAME;
+	}
 	
 	@Override
 	protected Identifiable getOwner(IdmContractGuarantee entity) {

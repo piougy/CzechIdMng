@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -295,13 +296,24 @@ public interface TestHelper {
 	IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNodeDto treeNode, boolean skipLongRunningTask);
 
 	/**
-	 * Creates uuid permission evaluator authorization policy
-	 *
-	 * @param role
+	 * Creates simple uuid permission evaluator authorization policy
+	 * 
+	 * @param roleId - assigned role
+	 * @param authorizableEntity added permission to
 	 * @param permission
 	 * @return
 	 */
 	IdmAuthorizationPolicyDto createUuidPolicy(UUID roleId, UUID authorizableEntity, BasePermission... permission);
+	
+	/**
+	 * Creates simple uuid permission evaluator authorization policy
+	 * 
+	 * @param roleId assigned role
+	 * @param authorizableEntity added permission to
+	 * @param permission
+	 * @return
+	 */
+	IdmAuthorizationPolicyDto createUuidPolicy(IdmRoleDto roleId, Identifiable authorizableEntity, BasePermission... permission);
 
 	/**
 	 * Creates base permission evaluator authorization policy
@@ -404,6 +416,15 @@ public interface TestHelper {
 	/**
 	 * Creates assigned identity's role directly (without approving etc.)
 	 * 
+	 * @param contractPosition
+	 * @param role
+	 * @return
+	 */
+	IdmIdentityRoleDto createIdentityRole(IdmContractPositionDto contractPosition, IdmRoleDto role);
+	
+	/**
+	 * Creates assigned identity's role directly (without approving etc.)
+	 * 
 	 * @param identityContract
 	 * @param role
 	 * @param validFrom
@@ -411,6 +432,17 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role, LocalDate validFrom, LocalDate validTill);
+	
+	/**
+	 * Creates assigned identity's role directly (without approving etc.)
+	 * 
+	 * @param contractPosition
+	 * @param role
+	 * @param validFrom
+	 * @param validTill
+	 * @return
+	 */
+	IdmIdentityRoleDto createIdentityRole(IdmContractPositionDto contractPosition, IdmRoleDto role, LocalDate validFrom, LocalDate validTill);
 
 	/**
 	 * Returns prime identity contract
@@ -419,6 +451,14 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityContractDto getPrimeContract(UUID identityId);
+	
+	/**
+	 * Returns prime identity contract
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	IdmIdentityContractDto getPrimeContract(IdmIdentityDto identity);
 
 	/**
 	 * Creates simple identity contract
@@ -497,6 +537,40 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId);
+	
+	/**
+	 * Create contact position with random work position (tree node)
+	 * 
+	 * @param identityContractId
+	 * @return
+	 */
+	IdmContractPositionDto createContractPosition(UUID identityContractId);
+	
+	/**
+	 * Create contact position with given work position (tree node) and random name.
+	 * 
+	 * @param identityContractId
+	 * @param treeNodeId
+	 * @return
+	 */
+	IdmContractPositionDto createContractPosition(UUID identityContractId, UUID treeNodeId);
+	
+	/**
+	 * Create contact position with random work position (tree node)
+	 * 
+	 * @param contract
+	 * @return
+	 */
+	IdmContractPositionDto createContractPosition(IdmIdentityContractDto contract);
+	
+	/**
+	 *  Create contact position with given work position (tree node) and random name.
+	 *  
+	 * @param contract
+	 * @param treeNode
+	 * @return
+	 */
+	IdmContractPositionDto createContractPosition(IdmIdentityContractDto contract, IdmTreeNodeDto treeNode);
 	
 	/**
 	 * Creates identity contract's guarantee slice
@@ -686,6 +760,15 @@ public interface TestHelper {
 	IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(UUID automaticRoleId,
 			AutomaticRoleAttributeRuleComparison comparsion, AutomaticRoleAttributeRuleType type, String attrName,
 			UUID formAttrId, String value);
+	
+	/**
+	 * Creates automatic roles by tree structure without recursion.
+	 * 
+	 * @param role
+	 * @param treeNode
+	 * @return
+	 */
+	IdmRoleTreeNodeDto createAutomaticRole(IdmRoleDto role, IdmTreeNodeDto treeNode);
 	
 	/**
 	 * Create or get identity profile

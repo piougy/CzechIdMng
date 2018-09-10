@@ -33,7 +33,7 @@ require('babel/register');
 
 const paths = {
   bundle: 'app.js',
-  srcJs: ['node_modules/bootstrap-less/js/bootstrap.min.js', 'node_modules/jquery/dist/jquery.min.js', 'node_modules/metismenu/dist/metisMenu.min.js'],
+  srcJs: ['node_modules/bootstrap-less/js/bootstrap.min.js', 'node_modules/jquery/dist/jquery.min.js'],
   srcFont: ['node_modules/bootstrap-less/fonts/*', 'src/fonts/*', 'node_modules/font-awesome/fonts/*'],
   srcJsx: 'src/Index.js',
   srcLess: ['src/css/main.less'],
@@ -460,7 +460,7 @@ gulp.task('htmlReplace', () => {
         tpl: '<link rel="icon" href="%s" type="image/gif" />'
       },
       css: ['css/main.css', 'css/google.fonts.css'],
-      js: ['js/jquery.min.js', 'js/bootstrap.min.js', 'js/metisMenu.min.js', 'config.js', 'js/app.js']
+      js: ['js/jquery.min.js', 'js/bootstrap.min.js', 'config.js', 'js/app.js']
     })
   )
   .pipe(gulp.dest(paths.dist));

@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -130,5 +131,23 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		//
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getId().equals(notDirect.getId())));
+	}
+	
+	@Test
+	public void findByContractPosition() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
+		IdmContractPositionDto contractPositionOne = getHelper().createContractPosition(contract);
+		IdmContractPositionDto contractPositionOther = getHelper().createContractPosition(contract);
+		IdmIdentityRoleDto one = getHelper().createIdentityRole(contractPositionOne, getHelper().createRole());
+		getHelper().createIdentityRole(contractPositionOther, getHelper().createRole()); // other
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(identity.getId());
+		filter.setContractPositionId(contractPositionOne.getId());
+		List<IdmIdentityRoleDto> results = find(filter);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getId().equals(one.getId())));
 	}
 }

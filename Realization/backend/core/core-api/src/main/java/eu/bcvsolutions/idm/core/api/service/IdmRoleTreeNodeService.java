@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.Set;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -61,6 +62,17 @@ public interface IdmRoleTreeNodeService extends
 	 * @param automaticRoles
 	 */
 	void addAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles);
+	
+	/**
+	 * Add automatic role to contract. This method doesn't use standard role request 
+	 * and add {@link IdmIdentityRoleDto} directly.
+	 * In this method skip check changed authorities by processor {@link IdentityRoleAddAuthoritiesProcessor}.
+	 * 
+	 * @param contractPosition
+	 * @param automaticRoles
+	 */
+	void addAutomaticRoles(IdmContractPositionDto contractPosition, Set<IdmRoleTreeNodeDto> automaticRoles);
+	
 	/**
 	 * Remove automatic role directly by removing {@link IdmIdentityRoleDto}.
 	 * Beware after was method marked as deprecated, returns null instead role request

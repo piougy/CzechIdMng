@@ -45,18 +45,21 @@ import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -66,6 +69,8 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
+import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent;
+import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent.ContractPositionEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -92,6 +97,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	@Autowired
 	private AccContractAccountService contractAccoutnService;
 	@Autowired
+	private IdmContractPositionService contractPositionService;
+	@Autowired
 	private IdmContractGuaranteeService guaranteeService;
 	@Autowired
 	private IdmTreeNodeService treeNodeService;
@@ -112,6 +119,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
 	public final static String CONTRACT_IDENTITY_FIELD = "identity";
 	public final static String CONTRACT_WORK_POSITION_FIELD = "workPosition";
+	public final static String CONTRACT_POSITIONS_FIELD = "positions";
 	public final static String SYNC_CONTRACT_FIELD = "sync_contract";
 	public final static String DEFAULT_TASK = "Default";
 
@@ -264,9 +272,29 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			// Guarantees will be set no to the dto (we does not have field for
 			// they), but to the embedded map.
 			if (CONTRACT_GUARANTEES_FIELD.equals(attributeProperty)) {
+				SyncIdentityContractDto syncIdentityContractDto = (SyncIdentityContractDto) dto.getEmbedded().get(SYNC_CONTRACT_FIELD);
 				if (transformedValue instanceof SyncIdentityContractDto) {
-					dto.getEmbedded().put(SYNC_CONTRACT_FIELD, (SyncIdentityContractDto) transformedValue);
-				} else {
+					if (syncIdentityContractDto == null) {
+						dto.getEmbedded().put(SYNC_CONTRACT_FIELD, (SyncIdentityContractDto) transformedValue);
+					} else {
+						syncIdentityContractDto.setGuarantees(((SyncIdentityContractDto) transformedValue).getGuarantees());
+					}
+				} else if (syncIdentityContractDto == null) {
+					dto.getEmbedded().put(SYNC_CONTRACT_FIELD, new SyncIdentityContractDto());
+				}
+				return;
+			}
+			// Positions will be set no to the dto (we does not have field for
+			// they), but to the embedded map.
+			if (CONTRACT_POSITIONS_FIELD.equals(attributeProperty)) {
+				SyncIdentityContractDto syncIdentityContractDto = (SyncIdentityContractDto) dto.getEmbedded().get(SYNC_CONTRACT_FIELD);
+				if (transformedValue instanceof SyncIdentityContractDto) {
+					if (syncIdentityContractDto == null) {
+						dto.getEmbedded().put(SYNC_CONTRACT_FIELD, (SyncIdentityContractDto) transformedValue);
+					} else {
+						syncIdentityContractDto.setPositions(((SyncIdentityContractDto) transformedValue).getPositions());
+					}
+				} else if(syncIdentityContractDto == null) {
 					dto.getEmbedded().put(SYNC_CONTRACT_FIELD, new SyncIdentityContractDto());
 				}
 				return;
@@ -311,6 +339,10 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// Transform contract guarantees
 		if (CONTRACT_GUARANTEES_FIELD.equals(attribute.getIdmPropertyName()) && attribute.isEntityAttribute()) {
 			return transformGuarantees(context, transformedValue);
+		}
+		// Transform other positions
+		if (CONTRACT_POSITIONS_FIELD.equals(attribute.getIdmPropertyName()) && attribute.isEntityAttribute()) {
+			return transformPositions(context, transformedValue);
 		}
 		// Transform work position (tree node)
 		if (CONTRACT_WORK_POSITION_FIELD.equals(attribute.getIdmPropertyName()) && attribute.isEntityAttribute()) {
@@ -391,6 +423,38 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 									identity.getCode()));
 				}
 			}
+		}
+		return transformedValue;
+	}
+	
+	private Object transformPositions(SynchronizationContext context, Object transformedValue) {
+		if (transformedValue != null) {
+			SyncIdentityContractDto syncContract = new SyncIdentityContractDto();
+			if (transformedValue instanceof List) {
+				((List<?>) transformedValue).stream().forEach(position -> {
+
+					// Beware this DTO contains only tree node ID, not
+					// contract ... must be save separately.
+					context.getLogItem().addToLog(MessageFormat.format("Finding position [{0}].", position));
+					IdmTreeNodeDto positionDto = this.findTreeNode(position, context);
+					if (positionDto != null) {
+						context.getLogItem()
+								.addToLog(MessageFormat.format("Position [{0}] was found.", positionDto.getCode()));
+						syncContract.getPositions().add(positionDto);
+					}
+				});
+			} else {
+				// Beware this DTO contains only tree node ID, not
+				// contract ... must be save separately.
+				context.getLogItem().addToLog(MessageFormat.format("Finding position [{0}].", transformedValue));
+				IdmTreeNodeDto positionDto = this.findTreeNode(transformedValue, context);
+				if (positionDto != null) {
+					context.getLogItem()
+							.addToLog(MessageFormat.format("Position [{0}] was found.", positionDto.getCode()));
+					syncContract.getPositions().add(positionDto);
+				}
+			}
+			transformedValue = syncContract;
 		}
 		return transformedValue;
 	}
@@ -517,6 +581,46 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {
 			SyncIdentityContractDto syncContract = (SyncIdentityContractDto) entity.getEmbedded()
 					.get(SYNC_CONTRACT_FIELD);
+			// Positions
+			IdmContractPositionFilter positionFilter = new IdmContractPositionFilter();
+			positionFilter.setIdentityContractId(contract.getId());
+
+			List<IdmContractPositionDto> currentPositions = contractPositionService.find(positionFilter, null).getContent();
+
+			// Search positions to delete
+			List<IdmContractPositionDto> positionsToDelete = currentPositions.stream().filter(position -> {
+				return position.getWorkPosition() != null
+						&& !syncContract.getPositions().contains(new IdmTreeNodeDto(position.getWorkPosition()));
+			}).collect(Collectors.toList());
+
+			// Search positions to add
+			List<IdmTreeNodeDto> positionsToAdd = syncContract.getPositions().stream().filter(position -> {
+				return !currentPositions.stream().filter(currentPosition -> {
+					return position.getId().equals(currentPosition.getWorkPosition());
+				}).findFirst().isPresent();
+			}).collect(Collectors.toList());
+
+			// Delete positions
+			positionsToDelete.forEach(position -> {
+				EntityEvent<IdmContractPositionDto> positionEvent = new ContractPositionEvent(
+						ContractPositionEventType.DELETE, position,
+						ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+				contractPositionService.publish(positionEvent);
+			});
+
+			// Create new positions
+			positionsToAdd.forEach(position -> {
+				IdmContractPositionDto contractPosition = new IdmContractPositionDto();
+				contractPosition.setIdentityContract(contract.getId());
+				contractPosition.setWorkPosition(position.getId());
+				//
+				EntityEvent<IdmContractPositionDto> positionEvent = new ContractPositionEvent(
+						ContractPositionEventType.CREATE, contractPosition,
+						ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+				contractPositionService.publish(positionEvent);
+			});
+			
+			// Guarantees
 			IdmContractGuaranteeFilter guaranteeFilter = new IdmContractGuaranteeFilter();
 			guaranteeFilter.setIdentityContractId(contract.getId());
 

@@ -106,6 +106,15 @@ module.exports = {
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
               },
               {
+                'id': 'identity-contract-positions',
+                'type': 'TAB',
+                'labelKey': 'content.identity-contract.positions.label',
+                'order': 40,
+                'icon': 'fa:building',
+                'path': '/identity/:identityId/identity-contract/:entityId/positions',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTPOSITION_READ'] } ],
+              },
+              {
                 'id': 'identity-contract-slices',
                 'type': 'TAB',
                 'labelKey': 'entity.ContractSlice._type',
@@ -959,8 +968,19 @@ module.exports = {
                     'labelKey': 'content.tree.node.roles.label',
                     'titleKey': 'content.tree.node.roles.title',
                     'order': 30,
+                    'icon': 'fa:universal-access',
                     'path': '/tree/nodes/:entityId/roles',
                     'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
+                  },
+                  {
+                    'id': 'tree-node-identities',
+                    'type': 'TAB',
+                    'labelKey': 'content.tree.node.identities.label',
+                    'titleKey': 'content.tree.node.identities.title',
+                    'order': 40,
+                    'icon': 'fa:group',
+                    'path': '/tree/nodes/:entityId/identities',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
                   }
                 ]
               },

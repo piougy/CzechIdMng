@@ -266,12 +266,6 @@ public class DefaultIdmRoleCompositionServiceIntegrationTest extends AbstractInt
 	}
 	
 	@Test
-	public void testAssignRolesPreventAccountRemoval() {
-		// check notify event is published on role request
-		// move to acc ... check provisioning operation archive ...
-	}
-	
-	@Test
 	public void testRemoveAssignedRolesAfterRemoveRoleComposition() {
 		// prepare role composition
 		IdmRoleDto superior = getHelper().createRole();

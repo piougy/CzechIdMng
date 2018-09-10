@@ -165,6 +165,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			@Override
 			public SecurityExpressionRoot getRootObject() {
 				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+				if (authentication == null) {
+					// not authenticated
+					return null;
+				}
 				SecurityExpressionRoot root = new SecurityExpressionRoot(authentication) {};
 				root.setRoleHierarchy(roleHierarchy);
 				return root;

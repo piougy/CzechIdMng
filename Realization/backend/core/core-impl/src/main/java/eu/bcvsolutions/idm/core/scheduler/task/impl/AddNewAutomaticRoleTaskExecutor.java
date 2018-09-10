@@ -45,7 +45,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  *
  */
 @Service
-@Description("Add new automatic role from IdmRoleTreeNode. "
+@Description("Add new automatic role by tree structure for existing identity contacts. "
 		+ "Can be executed repetitively to assign role to unprocessed identities, "
 		+ "after process was stopped or interrupted (e.g. by server restart).")
 public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityContractDto> {
@@ -112,7 +112,7 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			}
 			//
 			// automatic role by tree node is added directly trough identity role
-			// TODO: why is role attribute service used? Role tree node service should be used.
+			// TODO: role attribute service is used - just added new transaction ... why is this needed?
 			automaticRoleAttributeService.addAutomaticRoles(identityContract, Sets.newHashSet(getRoleTreeNode()));
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch(Exception ex) {

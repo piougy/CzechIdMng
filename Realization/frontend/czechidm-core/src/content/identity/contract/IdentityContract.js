@@ -26,6 +26,9 @@ class IdentityContract extends Basic.AbstractContent {
     this._selectNavigationItem();
   }
 
+  /**
+   * Lookot: getNavigationKey cannot be used -> profile vs users main tab
+   */
   _selectNavigationItem() {
     const { identityId } = this.props.params;
     const { userContext } = this.props;

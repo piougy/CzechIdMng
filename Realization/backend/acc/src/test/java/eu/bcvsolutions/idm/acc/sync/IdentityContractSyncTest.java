@@ -65,20 +65,24 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.ContractSynchronizationExecutor;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
@@ -103,6 +107,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 	private static final String CONTRACT_OWNER_ONE = "contractOwnerOne";
 	private static final String CONTRACT_OWNER_TWO = "contractOwnerTwo";
+	private static final String CONTRACT_OWNER_THREE = "contractOwnerThree";
 	private static final String CONTRACT_LEADER_ONE = "contractLeaderOne";
 	private static final String CONTRACT_LEADER_TWO = "contractLeaderTwo";
 	private static final String SYNC_CONFIG_NAME = "syncConfigNameContract";
@@ -134,6 +139,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	@Autowired
 	private IdmIdentityContractService contractService;
 	@Autowired
+	private IdmContractPositionService contractPositionService;
+	@Autowired
 	private IdmContractGuaranteeService guaranteeService;
 	@Autowired
 	private IdmTreeNodeService treeNodeService;
@@ -160,6 +167,9 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		}
 		if (identityService.getByUsername(CONTRACT_OWNER_TWO) != null) {
 			identityService.delete(identityService.getByUsername(CONTRACT_OWNER_TWO));
+		}
+		if (identityService.getByUsername(CONTRACT_OWNER_THREE) != null) {
+			identityService.delete(identityService.getByUsername(CONTRACT_OWNER_THREE));
 		}
 		if (identityService.getByUsername(CONTRACT_LEADER_ONE) != null) {
 			identityService.delete(identityService.getByUsername(CONTRACT_LEADER_ONE));
@@ -312,9 +322,9 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	public void initContractCheckExcludeTest() {
 		deleteAllResourceData();
 		entityManager
-				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null, null));
-		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, "40", null));
-		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, "10", null));
+				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null, null, null));
+		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, "40", null, null));
+		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, "10", null, null));
 
 	}
 
@@ -672,6 +682,52 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		// Delete log
 		syncLogService.delete(log);
 	}
+	
+	@Test
+	public void testContractPositions() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		helper.createIdentity(CONTRACT_OWNER_THREE);
+
+		// Set default tree type to sync configuration
+		IdmTreeTypeDto treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
+		Assert.assertNotNull(treeType);
+		SysSyncContractConfigDto configContract = (SysSyncContractConfigDto) config;
+		configContract.setDefaultTreeType(treeType.getId());
+		config = syncConfigService.save(configContract);
+
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+
+		// Set work positions to resources
+		this.getBean().initContractPositionTest();
+
+		// Start sync again (we want to see some work positions)
+		helper.startSynchronization(config);
+	
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// For contract One must be found workposition (one)
+		contractFilter.setValue("1");
+		IdmIdentityContractDto contractOne = contractService.find(contractFilter, null).getContent().get(0);
+		Assert.assertNotNull(contractOne);
+		//
+		IdmContractPositionFilter positionFitler = new IdmContractPositionFilter();
+		positionFitler.setIdentityContractId(contractOne.getId());
+		List<IdmContractPositionDto> positions = contractPositionService.find(positionFitler, null).getContent();
+		Assert.assertEquals(1, positions.size());
+		Assert.assertEquals("one", DtoUtils.getEmbedded(positions.get(0), IdmContractPosition_.workPosition, IdmTreeNodeDto.class).getCode());
+
+		// Delete log
+		syncLogService.delete(log);
+	}
 
 	@Test
 	public void defaultWorkPositionTest() {
@@ -843,20 +899,24 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	@Transactional
 	public void initContractDefaultTreeTest() {
 		deleteAllResourceData();
-		entityManager
-				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", "one", null, null));
-		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, null, null));
-		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, null, null));
-
+		entityManager.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", "one", null, null, null));
+		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, null, null, null));
+		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, null, null, null));
+	}
+	
+	@Transactional
+	public void initContractPositionTest() {
+		deleteAllResourceData();
+		entityManager.persist(this.createContract("1", CONTRACT_OWNER_THREE, null, "true", null, null, null, "one"));
 	}
 
 	@Transactional
 	public void initContractCheckDisableTest() {
 		deleteAllResourceData();
 		entityManager
-				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null, "true"));
-		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, "40", "false"));
-		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, "10", "true"));
+				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null, "true", null));
+		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, "40", "false", null));
+		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, "10", "true", null));
 
 	}
 
@@ -864,10 +924,10 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	public void initContractCheckInvalidTest() {
 		deleteAllResourceData();
 		TestContractResource one = this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null,
-				null);
+				null, null);
 		one.setValidFrom(LocalDate.now().plusDays(1));
 		entityManager.persist(one);
-		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, null, "false"));
+		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, null, "false", null));
 
 	}
 
@@ -932,8 +992,10 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		return syncConfigCustom;
 	}
 
-	private TestContractResource createContract(String code, String owner, String leader, String main,
-			String workposition, String state, String disabled) {
+	private TestContractResource createContract(
+			String code, String owner, String leader, String main,
+			String workposition, String state, String disabled,
+			String positions) {
 		TestContractResource contract = new TestContractResource();
 		contract.setId(code);
 		contract.setName(code);
@@ -944,6 +1006,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		contract.setMain(main);
 		contract.setWorkposition(workposition);
 		contract.setDescription(code);
+		contract.setPositions(positions);
 		return contract;
 	}
 
@@ -971,21 +1034,22 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	}
 	
 	@Transactional
-	public void createContractData(String code, String owner, String leader, String main, 
+	public void createContractData(
+			String code, String owner, String leader, String main, 
 			String workposition, String state, String disabled) {
 		if (code == null) {
 			code = String.valueOf(System.currentTimeMillis());
 		}
-		entityManager.persist(this.createContract(code, owner, leader, main, workposition, state, disabled));
+		entityManager.persist(this.createContract(code, owner, leader, main, workposition, state, disabled, null));
 	}
 
 	@Transactional
 	public void initContractData() {
 		deleteAllResourceData();
 		entityManager
-				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null, null));
-		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, null, null));
-		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, null, null));
+				.persist(this.createContract("1", CONTRACT_OWNER_ONE, CONTRACT_LEADER_ONE, "true", null, null, null, null));
+		entityManager.persist(this.createContract("2", CONTRACT_OWNER_ONE, null, "false", null, null, null, null));
+		entityManager.persist(this.createContract("3", CONTRACT_OWNER_TWO, null, "true", null, null, null, null));
 
 	}
 
@@ -1051,6 +1115,15 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 			} else if ("leader".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName(ContractSynchronizationExecutor.CONTRACT_GUARANTEES_FIELD);
+				attributeHandlingName.setName(schemaAttr.getName());
+				attributeHandlingName.setEntityAttribute(true);
+				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
+				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
+				schemaAttributeMappingService.save(attributeHandlingName);
+			
+			} else if ("positions".equalsIgnoreCase(schemaAttr.getName())) {
+				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
+				attributeHandlingName.setIdmPropertyName(ContractSynchronizationExecutor.CONTRACT_POSITIONS_FIELD);
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());

@@ -13,14 +13,19 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -47,6 +52,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	//
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmContractPositionService contractPositionService;
 	
 	public IdentityContractUpdateByAutomaticRoleProcessor() {
 		super(IdentityContractEventType.NOTIFY);
@@ -73,9 +79,8 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 		//
 		// check if new and old work position are same
 		// check automatic roles - if position or disabled was changed
-		if (!Objects.equals(newPosition, previousPosition)
-				|| (contract.isValidNowOrInFuture() 
-						&& previous.isValidNowOrInFuture() != contract.isValidNowOrInFuture())) {
+		boolean validityChangedToValid = contract.isValidNowOrInFuture() && previous.isValidNowOrInFuture() != contract.isValidNowOrInFuture();
+		if (!Objects.equals(newPosition, previousPosition) || validityChangedToValid) {
 			// work positions has some difference or validity changes
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContract(contract.getId());
 			//
@@ -142,7 +147,22 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			}
 			//
 			// add identity roles
-			roleTreeNodeService.addAutomaticRoles(contract, addedAutomaticRoles);			
+			roleTreeNodeService.addAutomaticRoles(contract, addedAutomaticRoles);	
+			//
+			// contract is enabled => process all contract positions
+			if (validityChangedToValid) {
+				IdmContractPositionFilter filter = new IdmContractPositionFilter();
+				filter.setIdentityContractId(contract.getId());
+				contractPositionService
+					.find(filter, null)
+					.getContent()
+					.forEach(position -> {
+						CoreEvent<IdmContractPositionDto> positionEvent = new CoreEvent<>(CoreEventType.NOTIFY, position);
+						// positionEvent.setParentType(CoreEventType.UPDATE.name());
+						// recount automatic roles for given position
+						contractPositionService.publish(positionEvent, event);
+					});
+			}
 		}
 		//
 		// process validable change
@@ -163,6 +183,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	}
 	
 	/**
+	 * Change dates for roles assigned by given contract (roles assigned by contract positions are included)
 	 * 
 	 * @param contract
 	 * @param assignedRoles

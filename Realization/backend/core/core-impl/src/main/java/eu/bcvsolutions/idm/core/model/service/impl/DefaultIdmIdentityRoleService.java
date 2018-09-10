@@ -207,6 +207,14 @@ public class DefaultIdmIdentityRoleService
 					);
 		}
 		//
+		UUID contractPositionId = filter.getContractPositionId();
+		if (contractPositionId != null) {
+			predicates.add(builder.equal(
+					root.get(IdmIdentityRole_.contractPosition).get(AbstractEntity_.id), 
+					contractPositionId)
+					);
+		}
+		//
 		UUID directRoleId = filter.getDirectRoleId();
 		if (directRoleId != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityRole_.directRole).get(IdmIdentityRole_.id), directRoleId));
@@ -242,6 +250,16 @@ public class DefaultIdmIdentityRoleService
 		Assert.notNull(identityContractId);
 		//
 		return toDtos(repository.findAllByIdentityContract_Id(identityContractId, getDefaultSort()), false);
+	}
+	
+	@Override
+	public List<IdmIdentityRoleDto> findAllByContractPosition(UUID contractPositionId) {
+		Assert.notNull(contractPositionId);
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setContractPositionId(contractPositionId);
+		//
+		return find(filter, null).getContent();
 	}
 	
 	@Override

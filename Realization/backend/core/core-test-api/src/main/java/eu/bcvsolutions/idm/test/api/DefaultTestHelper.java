@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -53,6 +54,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -105,6 +107,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired private IdmContractPositionService contractPositionService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
@@ -318,6 +321,9 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNodeDto treeNode, boolean skipLongRunningTask) {
+		Assert.notNull(role);
+		Assert.notNull(treeNode);
+		//
 		IdmRoleTreeNodeDto roleTreeNode = new IdmRoleTreeNodeDto();
 		roleTreeNode.setRole(role.getId());
 		roleTreeNode.setTreeNode(treeNode.getId());
@@ -377,9 +383,20 @@ public class DefaultTestHelper implements TestHelper {
 	public IdmAuthorizationPolicyDto createBasePolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, BasePermission... permission) {
 		return this.createSpecificPolicy(role, groupPermission, authorizableType, "eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator", permission);
 	}
+	
+	@Override
+	public IdmAuthorizationPolicyDto createUuidPolicy(IdmRoleDto role, Identifiable authorizableEntity, BasePermission... permission) {
+		Assert.notNull(role);
+		Assert.notNull(authorizableEntity);
+		//
+		return createUuidPolicy(role.getId(), (UUID) authorizableEntity.getId(), permission);
+	}
 
 	@Override
-	public IdmAuthorizationPolicyDto createUuidPolicy(UUID role, UUID authorizableEntity, BasePermission... permission){
+	public IdmAuthorizationPolicyDto createUuidPolicy(UUID role, UUID authorizableEntity, BasePermission... permission) {
+		Assert.notNull(role);
+		Assert.notNull(authorizableEntity);
+		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role);
 		dto.setEvaluatorType("eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator"); // ouch: evaluator is in core-impl 
@@ -404,6 +421,11 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
+	public IdmIdentityRoleDto createIdentityRole(IdmContractPositionDto contractPosition, IdmRoleDto role) {
+		return createIdentityRole(contractPosition, role, null, null);
+	}
+	
+	@Override
 	public IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role, LocalDate validFrom, LocalDate validTill) {
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 		identityRole.setIdentityContract(identityContract.getId());
@@ -411,6 +433,28 @@ public class DefaultTestHelper implements TestHelper {
 		identityRole.setValidFrom(validFrom);
 		identityRole.setValidTill(validTill);
 		return identityRoleService.save(identityRole);
+	}
+	
+	@Override
+	public IdmIdentityRoleDto createIdentityRole(
+			IdmContractPositionDto contractPosition, 
+			IdmRoleDto role, 
+			LocalDate validFrom, 
+			LocalDate validTill) {
+		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+		identityRole.setIdentityContract(contractPosition.getIdentityContract());
+		identityRole.setContractPosition(contractPosition.getId());
+		identityRole.setRole(role.getId());
+		identityRole.setValidFrom(validFrom);
+		identityRole.setValidTill(validTill);
+		return identityRoleService.save(identityRole);
+	}
+	
+	@Override
+	public IdmIdentityContractDto getPrimeContract(IdmIdentityDto identity) {
+		Assert.notNull(identity);
+		//
+		return getPrimeContract(identity.getId());
 	}
 
 	@Override
@@ -474,6 +518,30 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId) {
 		return contractGuaranteeService.save(new IdmContractGuaranteeDto(identityContractId, identityId));
+	}
+	
+	@Override
+	public IdmContractPositionDto createContractPosition(UUID identityContractId, UUID treeNodeId) {
+		return contractPositionService.save(new IdmContractPositionDto(identityContractId, treeNodeId));
+	}
+	
+	@Override
+	public IdmContractPositionDto createContractPosition(UUID identityContractId) {
+		return createContractPosition(identityContractId, createTreeNode().getId());
+	}
+	
+	@Override
+	public IdmContractPositionDto createContractPosition(IdmIdentityContractDto contract) {
+		Assert.notNull(contract);
+		//
+		return createContractPosition(contract.getId());
+	}
+	
+	@Override
+	public IdmContractPositionDto createContractPosition(IdmIdentityContractDto contract, IdmTreeNodeDto treeNode) {
+		Assert.notNull(contract);
+		//
+		return createContractPosition(contract.getId(), treeNode == null ? null : treeNode.getId());
 	}
 	
 	@Override
@@ -721,6 +789,11 @@ public class DefaultTestHelper implements TestHelper {
 		automaticRole = automaticRoleAttributeService.save(automaticRole);
 		//
 		return rule;
+	}
+	
+	@Override
+	public IdmRoleTreeNodeDto createAutomaticRole(IdmRoleDto role, IdmTreeNodeDto treeNode) {
+		return createRoleTreeNode(role, treeNode, false);
 	}
 	
 	@Override

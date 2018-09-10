@@ -136,6 +136,7 @@ public class DefaultIdmRoleCompositionService
 						subIdentityRole.setRole(subRole.getId());
 						subIdentityRole.getEmbedded().put(IdmIdentityRoleDto.PROPERTY_ROLE, subRole);
 						subIdentityRole.setIdentityContract(identityRole.getIdentityContract());
+						subIdentityRole.setContractPosition(identityRole.getContractPosition());
 						subIdentityRole.getEmbedded().put(
 								IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT, 
 								identityRole.getEmbedded().get(IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT));
@@ -187,6 +188,7 @@ public class DefaultIdmRoleCompositionService
 			.find(filter, null)
 			.forEach(subIdentityRole -> {
 				subIdentityRole.setIdentityContract(identityRole.getIdentityContract());
+				subIdentityRole.setContractPosition(identityRole.getContractPosition());
 				subIdentityRole.getEmbedded().put(
 						IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT, 
 						identityRole.getEmbedded().get(IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT));

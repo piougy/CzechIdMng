@@ -7,6 +7,7 @@ import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
@@ -42,6 +43,14 @@ public interface IdmIdentityRoleService extends
 	 * @return
 	 */
 	List<IdmIdentityRoleDto> findAllByContract(UUID identityContractId);
+	
+	/**
+	 * Returns all roles related to given {@link IdmContractPositionDto}
+	 * 
+	 * @param identityContractId
+	 * @return
+	 */
+	List<IdmIdentityRoleDto> findAllByContractPosition(UUID contractPositionId);
 	
 	/**
 	 * Returns assigned roles by given automatic role.

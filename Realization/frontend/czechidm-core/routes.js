@@ -111,6 +111,11 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ' ] } ]
         },
         {
+          path: 'positions',
+          component: require('./src/content/identity/contract/IdentityContractPositions'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTPOSITION_READ' ] } ]
+        },
+        {
           path: 'contract-slices',
           component: require('./src/content/identity/ContractSlices'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ]
@@ -186,6 +191,11 @@ module.exports = {
               path: 'roles',
               component: require('./src/content/tree/node/TreeNodeRoles'),
               access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
+            },
+            {
+              path: 'identities',
+              component: require('./src/content/tree/node/TreeNodeIdentities'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
             }
           ]
         },
@@ -311,7 +321,7 @@ module.exports = {
         {
           path: 'identities',
           component: require('./src/content/role/RoleIdentities'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
         },
         {
           path: 'eav',

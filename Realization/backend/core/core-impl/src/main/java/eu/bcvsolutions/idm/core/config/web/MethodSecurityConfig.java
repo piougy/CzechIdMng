@@ -19,10 +19,8 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration  {
 
-	@Autowired
-	private RoleHierarchy roleHierarchy;
-	@Autowired
-	private ApplicationContext context;
+	@Autowired private RoleHierarchy roleHierarchy;
+	@Autowired private ApplicationContext context;
 
 	@Override
 	protected MethodSecurityExpressionHandler createExpressionHandler() {

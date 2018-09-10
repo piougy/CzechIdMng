@@ -220,6 +220,14 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
+	CONTRACTPOSITION(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
 	CONTRACTSLICEGUARANTEE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
@@ -336,6 +344,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String CONTRACTGUARANTEE_CREATE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String CONTRACTGUARANTEE_UPDATE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String CONTRACTGUARANTEE_DELETE = "CONTRACTGUARANTEE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String CONTRACTPOSITION_COUNT = "CONTRACTPOSITION" + BasePermission.SEPARATOR + "COUNT";
+	public static final String CONTRACTPOSITION_AUTOCOMPLETE = "CONTRACTPOSITION" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String CONTRACTPOSITION_READ = "CONTRACTPOSITION" + BasePermission.SEPARATOR + "READ";
+	public static final String CONTRACTPOSITION_CREATE = "CONTRACTPOSITION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String CONTRACTPOSITION_UPDATE = "CONTRACTPOSITION" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String CONTRACTPOSITION_DELETE = "CONTRACTPOSITION" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String CONTRACTSLICEGUARANTEE_AUTOCOMPLETE = "CONTRACTSLICEGUARANTEE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String CONTRACTSLICEGUARANTEE_READ = "CONTRACTSLICEGUARANTEE" + BasePermission.SEPARATOR + "READ";

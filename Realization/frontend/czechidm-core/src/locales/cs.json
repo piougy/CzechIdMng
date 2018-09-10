@@ -717,7 +717,8 @@
       "MAIN": "Hlavní vztah (boolean)",
       "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)",
-      "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
+      "GUARANTEES": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
+      "POSITIONS": "Další pozice (IdmTreeNode - List of ids or codes)",
       "STATE": "Stav (ContractState - String)"
     },
     "ContractSliceAttributeEnum": {
@@ -731,7 +732,7 @@
       "MAIN": "Hlavní vztah (boolean)",
       "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)",
-      "GUARANTESS": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
+      "GUARANTEES": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
       "STATE": "Stav (ContractState - String)",
       "CONTRACT_CODE": "Kód nadřazeného kontraktu (String - stejný pro všechny řezy)"
     },
@@ -784,6 +785,7 @@
       "PROFILE": "Profil identity (fotka)",
       "CONTRACTSLICE": "Časové řezy",
       "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
+      "CONTRACTPOSITION": "Další pozice pracovně právního vztahu",
       "CONTRACTSLICEGUARANTEE": "Garanti časových řezů PPV",
       "MODULE": "Moduly",
       "NOTIFICATION": "Notifikace",
@@ -1296,6 +1298,11 @@
           "save": {
             "success": "Automatická role [{{record}}] byla úspěšně uložena"
           }
+        },
+        "identities": {
+          "header": "Uživatelé",
+          "title": "Uživatelé",
+          "label": "Uživatelé"
         }
       },
       "types": {
@@ -2327,6 +2334,19 @@
             "success_1": "Pro pracovní pozici byl úspěšně uložen garant [{{record}}]"
           }
         }
+      },
+      "positions": {
+        "header": "Ostatní pozice",
+        "title": "Ostatní pozice",
+        "label": "Ostatní pozice",
+        "edit": {
+          "title": "Detail pozice",
+          "header": "Detail pozice"
+        },
+        "create": {
+          "title": "Nová pozice",
+          "header": "Nová pozice"
+        }
       }
     },
     "contract-slice": {
@@ -3118,6 +3138,10 @@
         "placeholder": "Pracovně právní vztah",
         "help": "Vazba na pozici, organizační či jinou stromovou strukturu"
       },
+      "contractPosition": {
+        "label": "Další pozice",
+        "title": "Další pozice pracovně právního vztahu"
+      },
       "automaticRole": {
         "label": "Automatická role",
         "title": "Automatická role",
@@ -3647,6 +3671,18 @@
       "guarantee": {
         "label": "Garant",
         "help": "Garant na přímo přiřazený k pracovně právnímu vztahu"
+      }
+    },
+    "ContractPosition": {
+      "_type": "Další pozice pracovně právního vztahu",
+      "identityContract": {
+        "label": "Pracovně právní vztah"
+      },
+      "workPosition": {
+        "label": "Pozice"
+      },
+      "position": {
+        "label": "Název pozice"
       }
     },
     "AutomaticRoleRequest": {
@@ -4592,19 +4628,23 @@
     },
     "AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE": {
       "title": "Role nebyla přiřazena",
-      "message": "Role [{{role}}] nebyla přiřazena automatickou rolí [{{autoRole}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
+      "message": "Role [{{role}}] nebyla přiřazena automatickou rolí [{{roleTreeNode}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
+    },
+    "AUTOMATIC_ROLE_ALREADY_ASSIGNED": {
+      "title": "Role byla již přiřazena",
+      "message": "Role [{{role}}] byla již přiřazena automatickou rolí [{{roleTreeNode}}] pro identitu [{{identity}}]."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING": {
       "title": "Role je využívána jiným procesem",
-      "message": "Automatická role [{{autoRole}}] je využívána souběžně úlohou [{{task}}], počkejta na dokončení."
+      "message": "Automatická role [{{roleTreeNode}}] je využívána souběžně úlohou [{{taskId}}], počkejta na dokončení."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE": {
       "title": "Role nebyla smazána",
-      "message": "Role [{{role}}] nebyla smazána automatickou rolí [{{autoRole}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
+      "message": "Role [{{role}}] nebyla smazána automatickou rolí [{{roleTreeNode}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role je využívána jiným procesem",
-      "message": "Automatická role [{{autoRole}}] je mazána souběžnou úlohou [{{task}}]."
+      "message": "Automatická role [{{roleTreeNode}}] je mazána souběžnou úlohou [{{taskId}}]."
     },
     "AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY": {
       "title": "Nejsou vyplněny potřebné atributy",

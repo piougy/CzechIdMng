@@ -54,7 +54,7 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
       case this.DESCRIPTION: {
         return 'description';
       }
-      case this.GUARANTESS: {
+      case this.GUARANTEES: {
         return 'guarantees';
       }
       case this.STATE: {
@@ -106,7 +106,7 @@ export default class ContractSliceAttributeEnum extends AbstractEnum {
         return this.DISABLED;
       }
       case 'guarantees': {
-        return this.GUARANTESS;
+        return this.GUARANTEES;
       }
       case 'state': {
         return this.STATE;
@@ -145,5 +145,5 @@ ContractSliceAttributeEnum.STATE = Symbol('STATE');
 ContractSliceAttributeEnum.POSITION = Symbol('POSITION');
 ContractSliceAttributeEnum.WORK_POSITION = Symbol('WORK_POSITION');
 ContractSliceAttributeEnum.EXTERNE = Symbol('EXTERNE');
-ContractSliceAttributeEnum.GUARANTESS = Symbol('GUARANTESS');
+ContractSliceAttributeEnum.GUARANTEES = Symbol('GUARANTEES');
 ContractSliceAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');

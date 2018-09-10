@@ -1,5 +1,7 @@
 import AbstractService from './AbstractService';
-// import SearchParameters from '../domain/SearchParameters';
+import SearchParameters from '../domain/SearchParameters';
+import IdentityContractService from './IdentityContractService';
+import IdentityService from './IdentityService';
 
 /**
  * Identity's contract guarantee - manually defined  managers (if no tree structure is defined etc.)
@@ -10,6 +12,9 @@ export default class ContractGuaranteeService extends AbstractService {
 
   constructor() {
     super();
+    //
+    this.identityContractService = new IdentityContractService();
+    this.identityService = new IdentityService();
   }
 
   getApiPath() {
@@ -20,15 +25,14 @@ export default class ContractGuaranteeService extends AbstractService {
     if (!entity || !entity._embedded) {
       return '';
     }
-    return `${entity.id}`; // TODO: identityContract.niceLabel + guarantee.niceLabel
+    if (!entity._embedded) {
+      return `${entity.id}`;
+    }
+    return `${ this.identityContractService.getNiceLabel(entity._embedded.identityContract) } - ${ this.identityService.getNiceLabel(entity._embedded.guarantee) }`;
   }
 
   supportsPatch() {
     return false;
-  }
-
-  supportsAuthorization() {
-    return true;
   }
 
   getGroupPermission() {
@@ -40,7 +44,7 @@ export default class ContractGuaranteeService extends AbstractService {
    *
    * @return {object} searchParameters
    */
-  /* getDefaultSearchParameters() {
+  getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('guarantee.username', 'asc');
-  }*/
+  }
 }

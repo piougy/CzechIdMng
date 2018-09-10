@@ -175,7 +175,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 				// parent has higher priority ... execute with the same priority as parent
 				event.setPriority(parentEvent.getPriority());
 			}
-			event.setParentType(parentEvent.getType().name());
+			// parent event type can be preset manually
+			if (StringUtils.isEmpty(event.getParentType())) {
+				event.setParentType(parentEvent.getType().name());
+			}
 		}
 		//
 		// read previous (original) dto source - usable in "check modification" processors

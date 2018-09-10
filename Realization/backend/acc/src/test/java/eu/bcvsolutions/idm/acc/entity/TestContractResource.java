@@ -47,6 +47,8 @@ public class TestContractResource {
 	private String workposition;
 	@Column(name = "MODIFIED")
 	private DateTime modified;
+	@Column(name = "POSITIONS", length = DefaultFieldLengths.NAME)
+	private String positions;
 
 	public String getId() {
 		return id;
@@ -144,5 +146,11 @@ public class TestContractResource {
 		this.workposition = workposition;
 	}
 	
+	public String getPositions() {
+		return positions;
+	}
 	
+	public void setPositions(String positions) {
+		this.positions = positions;
+	}
 }

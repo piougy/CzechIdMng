@@ -26,6 +26,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
   }
 
   componentDidMount() {
+    // Lookot: getNavigationKey cannot be used -> profile vs users main tab
     this.selectSidebarItem('identity-contract-guarantees');
   }
 
@@ -89,6 +90,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                 forceSearchParameters={ forceSearchParameters }
                 showRowSelection={ SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_DELETE']) }
                 rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]._embedded.guarantee); }}
+                className="no-margin"
                 actions={
                   SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_DELETE'])
                   ?
@@ -188,6 +190,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
               showAddButton={ false }
               showDetailButton={ false }
               showFilter={ false }
+              className="no-margin"
               columns={ ['entityInfo'] }/>
           </Basic.Col>
         </Basic.Row>

@@ -35,6 +35,8 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity, 
 	private String externalId;
     @Embedded(dtoClass = IdmIdentityContractDto.class)
     private UUID identityContract;
+    @Embedded(dtoClass = IdmContractPositionDto.class)
+    private UUID contractPosition;
     @Embedded(dtoClass = IdmRoleDto.class)
     private UUID role;
     private LocalDate validFrom;
@@ -128,5 +130,13 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity, 
 
 	public void setRoleComposition(UUID roleComposition) {
 		this.roleComposition = roleComposition;
+	}
+	
+	public UUID getContractPosition() {
+		return contractPosition;
+	}
+	
+	public void setContractPosition(UUID contractPosition) {
+		this.contractPosition = contractPosition;
 	}
 }

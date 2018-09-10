@@ -693,6 +693,20 @@ public interface TestHelper {
 	 * @param processorType
 	 */
 	void disableFilter(Class<? extends FilterBuilder<?, ?>> filterType);
+	
+	/**
+	 * Enable module
+	 * 
+	 * @param moduleId
+	 */
+	void enableModule(String moduleId);
+	
+	/**
+	 * Disable module
+	 * 
+	 * @param moduleId
+	 */
+	void disableModule(String moduleId);
 
 	/**
 	 * Wait for result - usable for asynchronous tests

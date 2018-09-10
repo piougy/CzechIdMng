@@ -7,7 +7,7 @@ import * as Basic from '../../basic';
 import { LocalizationService } from '../../../services';
 import { ConfigurationManager } from '../../../redux/data';
 import { SecurityManager } from '../../../redux';
-import { getNavigationItems, resolveNavigationParameters, collapseNavigation, i18nChange, selectNavigationItem, selectNavigationItems } from '../../../redux/config/actions';
+import { getNavigationItems, resolveNavigationParameters, collapseNavigation, i18nChange, selectNavigationItems } from '../../../redux/config/actions';
 import NavigationItem from './NavigationItem';
 import NavigationSeparator from './NavigationSeparator';
 
@@ -108,13 +108,14 @@ export class Navigation extends Basic.AbstractContent {
       event.preventDefault();
     }
     const { selectedNavigationItems } = this.props;
-    if (isActive) {
-      // hide
-      this.context.store.dispatch(selectNavigationItems(level > 0 ? selectedNavigationItems.slice(0, level - 1) : []));
-    } else {
-      // show
-      this.context.store.dispatch(selectNavigationItem(item.id));
+    const newNavigationState = level > 0 ? selectedNavigationItems.slice(0, level - 1) : [];
+    if (!isActive) {
+      // show another level
+      newNavigationState.push(item.id);
     }
+    //
+    this.context.store.dispatch(selectNavigationItems(newNavigationState));
+    // prevent default link
     return false;
   }
 

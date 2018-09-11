@@ -145,7 +145,7 @@ public interface RequestManager<R extends Requestable> extends RequestService<Id
 	 * @param dto
 	 * @param executeImmediately
 	 */
-	void deleteRequestable(R dto, boolean executeImmediately);
+	IdmRequestDto deleteRequestable(R dto, boolean executeImmediately);
 
 	/**
 	 * Get DTO from the request item. Place for additional conversion (EAV attribute

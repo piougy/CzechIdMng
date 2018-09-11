@@ -4,11 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RequestConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
@@ -37,9 +40,15 @@ public abstract class AbstractRemoveBulkAction<DTO extends AbstractDto, F extend
 					&& requestConfiguration.isRequestModeEnabled(dto.getClass())) {
 				// Request mode is enabled for that DTO
 				Requestable requestable = (Requestable) dto;
-				requestManager.deleteRequestable(requestable, false);
-
-				return new OperationResult.Builder(OperationState.EXECUTED).build();
+				IdmRequestDto request = requestManager.deleteRequestable(requestable, false);
+				 
+				if (RequestState.IN_PROGRESS == request.getState()) {
+					throw new AcceptedException(request.getId().toString());
+				}
+				if (RequestState.EXCEPTION == request.getState()) {
+					throw new CoreException(ExceptionUtils.resolveException(request.getResult().getException()));
+				}
+				return new OperationResult.Builder(request.getResult().getState()).setCause(request.getResult().getException()).build();
 			}
 			this.getService().delete(dto);
 			return new OperationResult.Builder(OperationState.EXECUTED).build();

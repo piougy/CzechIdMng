@@ -620,7 +620,10 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		requestFilter.setOwnerType(requestable.getClass().getName());
 		requestFilter.setOwnerId((UUID) requestable.getId());
 		List<IdmRequestDto> requests = requestService.find(requestFilter, null).getContent();
-		requests.forEach(request -> { //
+		requests.stream() //
+			.filter(request -> RequestState.APPROVED != request.getState()) // We need filtered request which invoked that delete.
+																			// Because we cannot cancel his workflow (throw exception).
+			.forEach(request -> { //
 			request = changeRequestState(requestable, request, //
 					new ResultCodeException( //
 							CoreResultCode.REQUEST_OWNER_WAS_DELETED, //
@@ -634,7 +637,10 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		requestItemFilter.setOwnerType(requestable.getClass().getName());
 		requestItemFilter.setOwnerId((UUID) requestable.getId());
 		List<IdmRequestItemDto> requestItems = requestItemService.find(requestItemFilter, null).getContent();
-		requestItems.forEach(item -> { //
+		requestItems.stream() //
+			.filter(item -> RequestState.APPROVED != item.getState())   // We need filtered request which invoked that delete.
+																		// Because we cannot cancel his workflow (throw exception).
+			.forEach(item -> { //
 			item = changeItemState(requestable, item, //
 					new ResultCodeException( //
 							CoreResultCode.REQUEST_OWNER_WAS_DELETED, //
@@ -646,10 +652,14 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 			subItemFilter.setRequestId(item.getRequest());
 			// Search all items for that request
 			List<IdmRequestItemDto> subItems = requestItemService.find(subItemFilter, null).getContent();
+			// TODO: This can be (maybe) removed ... because that 'cancel' is implemented during realization of item 
+			
 			// Check if items in same request does not contains same ID of deleting owner in
 			// the DATA Json.
 			// If yes, then state will be changed to cancel.
 			subItems.stream() //
+					.filter(subItem -> RequestState.APPROVED != subItem.getState())   // We need filtered request which invoked that delete.
+																				      // Because we cannot cancel his workflow (throw exception).
 					.filter(subItem -> !requestable.getId().equals(subItem.getOwnerId())) //
 					.filter(subItem -> subItem.getData() != null) //
 					.filter(subItem -> subItem.getData() //
@@ -668,8 +678,8 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	}
 	
 	@Override
-	@Transactional
-	public void deleteRequestable(R dto, boolean executeImmediately) {
+	@Transactional(noRollbackFor = { AcceptedException.class })
+	public IdmRequestDto deleteRequestable(R dto, boolean executeImmediately) {
 		Assert.notNull(dto);
 		Assert.notNull(dto.getId(), "Requestable DTO cannot be null!");
 
@@ -680,21 +690,11 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		request = requestService.save(request);
 		// Create item
 		this.delete(request.getId(), dto);
-		
-		// Start request
-		request = this.startRequestInternal(request.getId(), true);
 
-		if (RequestState.EXECUTED == request.getState()) {
-			return;
-		}
-		if (RequestState.IN_PROGRESS == request.getState()) {
-			throw new AcceptedException(request.getId().toString());
-		}
-		if (RequestState.EXCEPTION == request.getState()) {
-			throw new CoreException(ExceptionUtils.resolveException(request.getResult().getException()));
-		}
+		// Start request
+		return this.startRequestInternal(request.getId(), true);
 	}
-	
+
 	@Override
 	public List<R> filterDtosByPredicates(List<R> requestables, Class<? extends R> dtoClass,
 			List<RequestPredicate> predicates) {
@@ -1203,7 +1203,10 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 
 	private R convertStringToDto(String data, Class<? extends R> type)
 			throws JsonParseException, JsonMappingException, IOException {
-		return mapper.readValue(data == null ? "" : data, type);
+		if(Strings.isNullOrEmpty(data)) {
+			return null;
+		}
+		return mapper.readValue(data, type);
 	}
 
 	@SuppressWarnings("unchecked")

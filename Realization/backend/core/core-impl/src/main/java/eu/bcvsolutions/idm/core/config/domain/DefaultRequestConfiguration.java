@@ -37,7 +37,7 @@ public class DefaultRequestConfiguration extends AbstractConfiguration implement
 		String entityName = entityNameBuilder.toString();
 		entityName = entityName.substring(0, entityName.length() - 1);
 
-		return getConfigurationService().getValue(MessageFormat.format("{0}.{1}.wf", PROPERTY_WF_PREFIX, entityName));
+		return getConfigurationService().getValue(MessageFormat.format("{0}.{1}.wf", PROPERTY_WF_PREFIX, entityName), DEFAULT_APROVAL_PROCESS_KEY);
 	}
 
 	@Override

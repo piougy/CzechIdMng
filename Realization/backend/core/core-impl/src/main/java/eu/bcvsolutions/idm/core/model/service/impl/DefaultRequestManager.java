@@ -276,6 +276,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		return this.post(requestId, dto, isNew);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
 	public R delete(Serializable requestId, R dto, BasePermission... permission) {
@@ -294,10 +295,10 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		}	
 		// Exists item for same original owner?
 		IdmRequestItemDto item = this.findRequestItem(request.getId(), dto);
-		// If this item already exists for ADD, then we want to delete him.
-		if (item != null && RequestOperationType.ADD == item.getOperation()) {
+		// If this item already exists for ADD/UPDATE/REMOVE, then we want to delete him.
+		if (item != null) {
 			requestItemService.delete(item);
-			return null;
+			return this.get(request.getId(), (UUID)dto.getId(), (Class<R>) dto.getClass(), permission);
 		}
 
 		// Check permissions on the target service
@@ -315,7 +316,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		// Set ID of request item to result DTO
 		dto.setRequestItem(item.getId());
 
-		return dto;
+		return get(request.getId(), dto);
 	}
 
 	@Override

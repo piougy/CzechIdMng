@@ -1,4 +1,4 @@
-import EntityManager from './EntityManager';
+import AbstractRequestManager from './AbstractRequestManager';
 import { RoleCatalogueRoleService } from '../../services';
 
 /**
@@ -6,7 +6,7 @@ import { RoleCatalogueRoleService } from '../../services';
  *
  * @author Radek Tomiška
  */
-export default class RoleCatalogueRoleManager extends EntityManager {
+export default class RoleCatalogueRoleManager extends AbstractRequestManager {
 
   constructor() {
     super();
@@ -17,7 +17,10 @@ export default class RoleCatalogueRoleManager extends EntityManager {
     return this.service;
   }
 
-  getEntityType() {
+  /**
+  * Using in the request
+  */
+  getEntitySubType() {
     return 'RoleCatalogueRole';
   }
 

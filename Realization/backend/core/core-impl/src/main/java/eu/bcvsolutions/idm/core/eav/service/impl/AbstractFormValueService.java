@@ -10,6 +10,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,9 +20,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -54,6 +59,10 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	private final Class<E> formValueClass;
 	private final ConfidentialStorage confidentialStorage;
 	private final AbstractFormValueRepository<O, E> repository;
+	@Autowired @Lazy
+	private LookupService lookupService;
+	@Autowired @Lazy
+	private RequestManager<IdmFormValueDto> requestManager;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractFormValueService(AbstractFormValueRepository<O, E> repository, ConfidentialStorage confidentialStorage) {
@@ -98,7 +107,12 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@SuppressWarnings("unchecked")
 	protected E toEntity(IdmFormValueDto dto, E entity) {
 		entity = super.toEntity(dto, entity);
-		entity.setOwner((O) dto.getOwner());
+		// If DTO does not contains a owner entity, then we try to find it by owner type and ID.
+		if(dto.getOwner() == null && dto.getOwnerId() != null && dto.getOwnerType() != null) {
+			entity.setOwner((O) this.getOwnerEntity((UUID) dto.getOwnerId(), dto.getOwnerType()));
+		}else {
+			entity.setOwner((O) dto.getOwner());
+		}
 		return entity;
 	}
 
@@ -178,6 +192,9 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 			LOG.debug("FormValue [{}] will be removed from confidential storage", dto.getId());
 			confidentialStorage.delete(dto.getId(), toEntity(dto).getClass(), getConfidentialStorageKey(dto.getFormAttribute()));
 		}
+		// Cancel requests and request items using that deleting DTO
+		requestManager.onDeleteRequestable(dto);
+		//
 		super.deleteInternal(dto);
 	}
 	
@@ -319,5 +336,22 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 			default:
 				return repository.findOwnersByStringValue(attribute.getId(), value.getStringValue(), pageable);
 		}
-}
+	}
+	
+	/**
+	 * Returns owner entity by given id and type
+	 * 
+	 * @param ownerId
+	 * @param ownerType
+	 * @return
+	 */
+	private O getOwnerEntity(UUID ownerId, Class<? extends Identifiable> ownerType) {
+		Assert.notNull(ownerId, "Form values owner id is required!");
+		Assert.notNull(ownerType, "Form values owner type is required!");
+		@SuppressWarnings("unchecked")
+		O owner = (O) lookupService.lookupEntity(ownerType, ownerId);
+		Assert.notNull(owner, "Form values owner is required!");
+		//
+		return owner;
+	}
 }

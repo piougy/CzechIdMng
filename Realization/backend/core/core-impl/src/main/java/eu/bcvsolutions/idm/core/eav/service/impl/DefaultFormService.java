@@ -561,7 +561,8 @@ public class DefaultFormService implements FormService {
 	 * @param newValue
 	 * @return
 	 */
-	protected IdmFormValueDto[] resolvePreviousValues(Map<UUID, IdmFormValueDto> unprocessedPreviousValues, List<IdmFormValueDto> newValues) {
+	@Override
+	public IdmFormValueDto[] resolvePreviousValues(Map<UUID, IdmFormValueDto> unprocessedPreviousValues, List<IdmFormValueDto> newValues) {
 		IdmFormValueDto[] sortedPreviousValues = new IdmFormValueDto[newValues.size()];
 		// by id - highest priority
 		// wee need to iterate through all values
@@ -997,6 +998,18 @@ public class DefaultFormService implements FormService {
 				.sorted()
 				.collect(Collectors.toList());
 	}
+	
+	@Override
+	@SuppressWarnings({ "unchecked" })
+	public <O extends FormableEntity> FormValueService<O> getFormValueService(Class<? extends Identifiable> ownerType) {
+		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(lookupService.getEntityClass(ownerType));
+		if (formValueService == null) {
+			throw new IllegalStateException(MessageFormat.format(
+					"FormValueService for class [{0}] not found, please check configuration", ownerType));
+		}
+		return formValueService;
+	}
+	
 
 	/**
 	 * Returns FormValueService for given owner
@@ -1007,22 +1020,6 @@ public class DefaultFormService implements FormService {
 	 */
 	private <O extends FormableEntity> FormValueService<O> getFormValueService(Identifiable owner) {
 		return getFormValueService(owner.getClass());
-	}
-	
-	/**
-	 * Returns FormValueService for given owner
-	 * 
-	 * @param ownerType
-	 * @return
-	 */
-	@SuppressWarnings({ "unchecked" })
-	private <O extends FormableEntity> FormValueService<O> getFormValueService(Class<? extends Identifiable> ownerType) {
-		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(lookupService.getEntityClass(ownerType));
-		if (formValueService == null) {
-			throw new IllegalStateException(MessageFormat.format(
-					"FormValueService for class [{0}] not found, please check configuration", ownerType));
-		}
-		return formValueService;
 	}
 	
 	/**

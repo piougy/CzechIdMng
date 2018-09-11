@@ -253,7 +253,22 @@ public enum CoreResultCode implements ResultCode {
 	CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. Cannot be deleted directly!"),
 	CONTRACT_SLICE_DUPLICATE_CANDIDATES(HttpStatus.CONFLICT, "We found more then once slice which should be use as contract. This is not allowed. None from this slices will be used as contract. It means contracts [%s] are in incorrect state now!"),
 	//
-	// role composition
+	// Universal requests
+	REQUEST_EXECUTED_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Request [%s] in EXECUTED state cannot be deleted!"),
+	DTO_CANNOT_BE_CONVERT_TO_JSON(HttpStatus.INTERNAL_SERVER_ERROR, "DTO [%s] cannot be convert to the JSON!"),
+	JSON_CANNOT_BE_CONVERT_TO_DTO(HttpStatus.INTERNAL_SERVER_ERROR, "JSON [%s] cannot be convert to the DTO!"),
+	REQUEST_CUD_OPERATIONS_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "CUD operations are not allowed on that controller [%s]. Use request endpoint!"),
+	REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT(HttpStatus.FORBIDDEN, "You do not have right for immidiately execute request [%s]!"),
+	REQUEST_ITEM_IS_NOT_VALID(HttpStatus.BAD_REQUEST, "DTO [%s] in the request item [%s] is not valid!"),
+	REQUEST_NO_WF_DEF_FOUND(HttpStatus.BAD_REQUEST, "No approval workflow definition found for entity type [%s]!"),
+	REQUEST_OWNER_WAS_DELETED(HttpStatus.GONE, "Owner [%s] was deleted!"),
+	REQUEST_OWNER_FROM_OTHER_REQUEST_WAS_DELETED(HttpStatus.GONE, "Owner [%s] from other request [%s] was deleted!"),
+	REQUEST_CANNOT_BE_EXECUTED_NONE_ITEMS(HttpStatus.BAD_REQUEST, "Request [%s] cannot be executed. He doesn't have any request items!"),
+	REQUEST_ITEM_CANNOT_BE_EXECUTED(HttpStatus.BAD_REQUEST, "Request item [%s] cannot be executed. Must be in state APPROVED or CONCEPT, but is in state [%s]!"),
+	REQUEST_ITEM_CANNOT_BE_CREATED(HttpStatus.BAD_REQUEST, "Request item cannot be created/changed for object [%s]. Parent request must be in state INPROGRESS or CONCEPT or EXCEPTION, but is in state [%s]!"),
+	REQUEST_ITEM_NOT_EXECUTED_PARENT_CANCELED(HttpStatus.BAD_REQUEST, "Request item [%s] could not be executed, because is using DTO from terminated item [%s]!"),
+	//
+	// Role composition
 	ROLE_COMPOSITION_ASSIGN_ROLE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Role [%s] by role composition was not assigned."),
 	ROLE_COMPOSITION_ASSIGNED_ROLE_REMOVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Identity role [%s] was removed."),
 	ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Role composition [%s] is removed in concurent task [%s]"),

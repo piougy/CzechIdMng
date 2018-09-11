@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
 
 /**
  * Assign role to catalogue. Role can be in more catalogue items.
@@ -15,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.domain.Embedded;
  * 
  */
 @Relation(collectionRelation = "roleCatalogueRoles")
-public class IdmRoleCatalogueRoleDto extends AbstractDto {
+public class IdmRoleCatalogueRoleDto extends AbstractDto implements Requestable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,6 +26,8 @@ public class IdmRoleCatalogueRoleDto extends AbstractDto {
 	@NotNull
 	@Embedded(dtoClass = IdmRoleDto.class)
 	private UUID role;
+	@Embedded(dtoClass = IdmRequestItemDto.class)
+	private UUID requestItem; // Isn't persist in the entity
 
 	public UUID getRoleCatalogue() {
 		return roleCatalogue;
@@ -40,5 +43,15 @@ public class IdmRoleCatalogueRoleDto extends AbstractDto {
 
 	public void setRole(UUID role) {
 		this.role = role;
+	}
+	
+	@Override
+	public UUID getRequestItem() {
+		return requestItem;
+	}
+
+	@Override
+	public void setRequestItem(UUID requestItem) {
+		this.requestItem = requestItem;
 	}
 }

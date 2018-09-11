@@ -21,7 +21,7 @@ export default class AuthorizationPolicies extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-authorization-policies';
+    return this.getRequestNavigationKey('role-authorization-policies', this.props.params);
   }
 
   render() {
@@ -38,7 +38,8 @@ export default class AuthorizationPolicies extends Basic.AbstractContent {
         <Basic.Panel className="no-border last">
           <AuthorizationPolicyTable
             uiKey="role-authorization-policies-table"
-            forceSearchParameters={ forceSearchParameters }/>
+            forceSearchParameters={ forceSearchParameters }
+            params={ this.props.params }/>
         </Basic.Panel>
 
       </div>

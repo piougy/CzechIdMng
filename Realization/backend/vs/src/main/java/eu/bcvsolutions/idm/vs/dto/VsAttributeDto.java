@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * DTO for attribute in virtual sytem
+ * DTO for attribute in virtual system
  * 
  * @author Svanda
  *

@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
@@ -25,7 +24,9 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -37,15 +38,15 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "formValues")
-public class IdmFormValueDto extends AbstractDto {
+public class IdmFormValueDto extends AbstractDto implements Requestable {
 
 	private static final long serialVersionUID = 1L;
 	public static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
 	//
-	@NotNull
+	// @NotNull
 	@JsonProperty(access = Access.READ_ONLY)
 	private Serializable ownerId;
-	@NotEmpty
+	// @NotEmpty
 	@JsonProperty(access = Access.READ_ONLY)
 	private Class<? extends FormableEntity> ownerType;
 	@NotNull
@@ -65,6 +66,8 @@ public class IdmFormValueDto extends AbstractDto {
 	private UUID uuidValue;
 	@Max(99999)
 	private short seq;
+	@Embedded(dtoClass = IdmRequestItemDto.class)
+	private UUID requestItem; // Isn't persist in the entity
 	//
 	@JsonIgnore
 	private transient FormableEntity owner;
@@ -531,5 +534,15 @@ public class IdmFormValueDto extends AbstractDto {
 	
 	public String getShortTextValue() {
 		return shortTextValue;
+	}
+	
+	@Override
+	public UUID getRequestItem() {
+		return requestItem;
+	}
+
+	@Override
+	public void setRequestItem(UUID requestItem) {
+		this.requestItem = requestItem;
 	}
 }

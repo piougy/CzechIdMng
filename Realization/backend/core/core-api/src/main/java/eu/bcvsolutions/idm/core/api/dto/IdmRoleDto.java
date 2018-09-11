@@ -10,7 +10,9 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -21,7 +23,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "roles")
-public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, ExternalIdentifiable {
+public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, ExternalIdentifiable, Requestable {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,6 +43,9 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
     private boolean approveRemove;
     @Size(max = DefaultFieldLengths.DESCRIPTION)
     private String description;
+    @Embedded(dtoClass = IdmRequestItemDto.class)
+    private UUID requestItem; // Isn't persist in the entity
+
 
     public IdmRoleDto() {
 	}
@@ -123,5 +128,15 @@ public class IdmRoleDto extends AbstractDto implements Disableable, Codeable, Ex
 	@Override
 	public String getExternalId() {
 		return externalId;
+	}
+
+	@Override
+	public UUID getRequestItem() {
+		return requestItem;
+	}
+
+	@Override
+	public void setRequestItem(UUID requestItem) {
+		this.requestItem = requestItem;
 	}
 }

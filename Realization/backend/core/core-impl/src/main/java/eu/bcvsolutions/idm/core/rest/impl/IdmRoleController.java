@@ -561,7 +561,7 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 		//
 		return authorizationPolicyService.getEnabledRoleAuthorities(securityService.getAuthentication().getCurrentIdentity().getId(), dto.getId());
 	}
-	
+
 	@Override
 	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmRoleFilter filter = new IdmRoleFilter(parameters);

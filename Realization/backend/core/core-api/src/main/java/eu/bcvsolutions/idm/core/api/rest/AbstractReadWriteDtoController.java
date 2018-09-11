@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.config.domain.RequestConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -59,6 +60,8 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	private ValidatorFactory validatorFactory;
 	@Autowired
 	private BulkActionManager bulkActionManager;
+	@Autowired
+	private RequestConfiguration requestConfiguration;
 
 	public AbstractReadWriteDtoController(ReadWriteDtoService<DTO, F> entityService) {
 		super(entityService);
@@ -92,6 +95,11 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 */
 	public DTO saveDto(DTO dto, BasePermission... permission) {
 		Assert.notNull(dto, "DTO is required");
+		//
+		if (this.isRequestModeEnabled()) {
+			throw new ResultCodeException(CoreResultCode.REQUEST_CUD_OPERATIONS_NOT_ALLOWED,
+					ImmutableMap.of("controller", this.getClass().getSimpleName()));
+		}
 		//
 		return getService().save(validateDto(dto), permission);
 	}
@@ -221,6 +229,11 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	public void deleteDto(DTO dto) {
 		Assert.notNull(dto, "DTO is required");
 		//
+		if (this.isRequestModeEnabled()) {
+			throw new ResultCodeException(CoreResultCode.REQUEST_CUD_OPERATIONS_NOT_ALLOWED,
+					ImmutableMap.of("controller", this.getClass().getSimpleName()));
+		}
+		//
 		getService().delete(dto, IdmBasePermission.DELETE);
 	}
 	
@@ -290,5 +303,28 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 		}
 		bulkAction.setEntityClass(getService().getEntityClass().getName());
 		bulkAction.setFilterClass(this.getFilterClass().getName());
+	}
+	
+	@Override
+	protected DTO checkAccess(DTO dto, BasePermission... permission) {
+		// If controller supports request, then only READ operation is allowed
+		if (this.isRequestModeEnabled()) {
+			if(permission != null && permission.length == 1 && IdmBasePermission.READ.equals(permission[0])) {
+				return super.checkAccess(dto, permission);
+			}
+			throw new ResultCodeException(CoreResultCode.REQUEST_CUD_OPERATIONS_NOT_ALLOWED,
+					ImmutableMap.of("controller", this.getClass().getSimpleName()));
+		}
+		return super.checkAccess(dto, permission);
+	}
+	
+	/**
+	 * If return true, then controller supports requests and cannot be used for CUD
+	 * operations. For CUD operations should be using the request controller.
+	 * 
+	 * @return
+	 */
+	protected boolean isRequestModeEnabled() {
+		return requestConfiguration.isRequestModeEnabled(this.getDtoClass());
 	}
 }

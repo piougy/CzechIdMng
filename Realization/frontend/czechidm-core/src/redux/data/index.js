@@ -61,6 +61,10 @@ import EntityStateManager from './EntityStateManager';
 import ContractSliceManager from './ContractSliceManager';
 import RoleGuaranteeManager from './RoleGuaranteeManager';
 import RoleGuaranteeRoleManager from './RoleGuaranteeRoleManager';
+import RequestManager from './RequestManager';
+import RequestItemManager from './RequestItemManager';
+import AbstractRequestFormableManager from './AbstractRequestFormableManager';
+import AbstractRequestManager from './AbstractRequestManager';
 import ProfileManager from './ProfileManager';
 
 const ManagerRoot = {
@@ -120,6 +124,10 @@ const ManagerRoot = {
   ContractSliceGuaranteeManager,
   RoleGuaranteeManager,
   RoleGuaranteeRoleManager,
+  RequestManager,
+  RequestItemManager,
+  AbstractRequestFormableManager,
+  AbstractRequestManager,
   ProfileManager
 };
 

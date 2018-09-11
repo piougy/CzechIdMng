@@ -5,6 +5,7 @@ import AbstractContextComponent from '../AbstractContextComponent/AbstractContex
 import PageHeader from '../PageHeader/PageHeader';
 import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
+import ConfigurationManager from '../../../redux/data/ConfigurationManager';
 import { selectNavigationItems, selectNavigationItem, getNavigationItem, hideFooter } from '../../../redux/config/actions';
 
 /**
@@ -160,6 +161,61 @@ export default class AbstractContent extends AbstractContextComponent {
   hideFooter() {
     return false;
   }
+
+  /**
+   * Returns true if is content Universal request. This is based on exists of 'requestId' param.
+   * @param  params
+   * @return {Boolean}
+   */
+  isRequest(params) {
+    if (!params) {
+      return false;
+    }
+    if (params.requestId) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Returns manager. If it is evaluated, that should be using universal request managers, then
+   * is created new instance and returned. Is given params doesn't contains
+   * 'requestId' attribute, then original manager will be returned.
+   * @param  params
+   * @param  originalManager
+   * @return Original or request manager
+   */
+  getRequestManager(params, originalManager) {
+    if (this.isRequest(params)) {
+      originalManager.setRequestId(params.requestId);
+      return originalManager;
+    }
+    originalManager.setRequestsEnabled(ConfigurationManager.getPublicValueAsBoolean(this.context.store.getState(), originalManager.getEnabledPropertyKey()));
+    originalManager.setRequestId(null);
+    return originalManager;
+  }
+
+  addRequestPrefix(path, params) {
+    if (this.isRequest(params)) {
+      return `requests/${params.requestId}/${path}`;
+    }
+    return path;
+  }
+
+  /**
+   * Return navigation identifier, with can be used to show content header, title, icon ...
+   * If is content request, then navigation key for request will be
+   * returned else the standard navigation key will be returned.
+   *
+   * @return {string} navigation item identifier
+   */
+  getRequestNavigationKey(navigationKey, params) {
+    if (navigationKey && this.isRequest(params)) {
+      return `request-${navigationKey}`;
+    }
+    return navigationKey;
+  }
+
 
   /**
    * Default Page header with page title based on navigation item

@@ -244,6 +244,7 @@ public class IdmRoleCatalogueRoleController extends AbstractReadWriteDtoControll
 		return super.delete(backendId);
 	}
 	
+	
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)

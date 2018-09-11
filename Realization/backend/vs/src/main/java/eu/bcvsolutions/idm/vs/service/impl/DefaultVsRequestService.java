@@ -406,7 +406,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 					Object changedValue = changedAttribute.getValue();
 					Object currentValue = currentAttribute.getValue();
 					if ((changedValue == null && currentValue == null)
-							|| (changedValue != null && changedValue.equals(currentObject))
+							|| (changedValue != null && changedValue.equals(currentValue))
 							|| (currentValue != null && currentValue.equals(changedValue))) {
 
 						vsAttribute.setValue(new VsAttributeValueDto(changedValue, currentValue, null));

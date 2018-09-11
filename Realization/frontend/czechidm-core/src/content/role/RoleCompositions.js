@@ -21,7 +21,7 @@ export default class RoleCompositions extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-compositions';
+    return this.getRequestNavigationKey('role-compositions', this.props.params);
   }
 
   render() {
@@ -36,13 +36,15 @@ export default class RoleCompositions extends Basic.AbstractContent {
         <RoleCompositionTable
           uiKey="role-composition-superior-table"
           forceSearchParameters={ forceSuperiorSearchParameters }
-          className="no-margin"/>
+          className="no-margin"
+          params={ this.props.params }/>
 
         <Basic.ContentHeader icon="arrow-down" text={ this.i18n('sub.header') } style={{ marginBottom: 0 }}/>
         <RoleCompositionTable
           uiKey="role-composition-sub-table"
           forceSearchParameters={ forceSubSearchParameters }
-          className="no-margin"/>
+          className="no-margin"
+          params={ this.props.params }/>
       </div>
     );
   }

@@ -6,8 +6,8 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { RoleCatalogueRoleManager, RoleManager, RoleCatalogueManager } from '../../redux';
 
-const manager = new RoleCatalogueRoleManager();
-const roleManager = new RoleManager();
+let manager = new RoleCatalogueRoleManager();
+let roleManager = new RoleManager();
 const roleCatalogueManager = new RoleCatalogueManager();
 
 /**
@@ -30,6 +30,10 @@ export class RoleCatalogueRoleTable extends Advanced.AbstractTableContent {
   }
 
   getManager() {
+    // Init manager - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    manager = this.getRequestManager(this.props.params, manager);
+    roleManager = this.getRequestManager(this.props.params, roleManager);
     return manager;
   }
 
@@ -110,6 +114,7 @@ export class RoleCatalogueRoleTable extends Advanced.AbstractTableContent {
             property="roleCatalogue"
             sortProperty="roleCatalogue.name"
             face="text"
+            header={ this.i18n('entity.RoleCatalogueRole.roleCatalogue.label') }
             sort
             cell={
               ({ rowIndex, data }) => {

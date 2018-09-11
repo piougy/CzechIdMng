@@ -109,6 +109,7 @@ export default class VsRequestService extends Services.AbstractService {
         return jsonResponse;
       });
   }
+
   /**
   * Get connector object by given virtual system request.
   * Show wish for this request = current VS account attributes + changes from request.

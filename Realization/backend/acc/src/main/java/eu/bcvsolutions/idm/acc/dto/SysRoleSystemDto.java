@@ -5,7 +5,9 @@ import java.util.UUID;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 
 /**
@@ -15,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
  *
  */
 @Relation(collectionRelation = "roleSystems")
-public class SysRoleSystemDto extends AbstractDto {
+public class SysRoleSystemDto extends AbstractDto implements Requestable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,6 +28,8 @@ public class SysRoleSystemDto extends AbstractDto {
 	@Embedded(dtoClass = SysSystemMappingDto.class)
 	private UUID systemMapping;
 	private boolean forwardAccountManagemen = false;
+	@Embedded(dtoClass = IdmRequestItemDto.class)
+	private UUID requestItem; // Isn't persist in the entity
 
 	public UUID getSystemMapping() {
 		return systemMapping;
@@ -58,6 +62,14 @@ public class SysRoleSystemDto extends AbstractDto {
 	public void setForwardAccountManagemen(boolean forwardAccountManagemen) {
 		this.forwardAccountManagemen = forwardAccountManagemen;
 	}
-	
 
+	@Override
+	public UUID getRequestItem() {
+		return requestItem;
+	}
+
+	@Override
+	public void setRequestItem(UUID requestItem) {
+		this.requestItem = requestItem;
+	}
 }

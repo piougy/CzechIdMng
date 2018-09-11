@@ -49,7 +49,6 @@ import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -58,6 +57,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -188,7 +188,7 @@ public class DefaultIdmRoleRequestService
 		} catch (Exception ex) {
 			LOG.error(ex.getLocalizedMessage(), ex);
 			IdmRoleRequestDto request = get(requestId);
-			Throwable exceptionToLog = resolveException(ex);
+			Throwable exceptionToLog = ExceptionUtils.resolveException(ex);
 			this.addToLog(request, Throwables.getStackTraceAsString(exceptionToLog));
 			request.setState(RoleRequestState.EXCEPTION);
 			return save(request);
@@ -679,32 +679,6 @@ public class DefaultIdmRoleRequestService
 			concept.setEmbedded(null);
 			concept.setLog(null);
 		});
-	}
-
-	/**
-	 * If exception causal chain contains cause instance of ResultCodeException,
-	 * then is return primary.
-	 * 
-	 * TODO: DRY with DefaultIdmAutomaticRoleRequestService
-	 * 
-	 * @param ex
-	 * @return
-	 */
-	private Throwable resolveException(Exception ex) {
-		Assert.notNull(ex);
-		Throwable exceptionToLog = null;
-		List<Throwable> causes = Throwables.getCausalChain(ex);
-		// If is some cause instance of ResultCodeException, then we will use only it
-		// (for better show on frontend)
-		Throwable resultCodeException = causes.stream().filter(cause -> {
-			if (cause instanceof ResultCodeException) {
-				return true;
-			}
-			return false;
-		}).findFirst().orElse(null);
-
-		exceptionToLog = resultCodeException != null ? resultCodeException : ex;
-		return exceptionToLog;
 	}
 
 	/**

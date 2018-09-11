@@ -2,17 +2,17 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
+import { Managers, Basic, Domain, Utils, Advanced } from 'czechidm-core';
 import { RoleSystemManager, SystemManager, RoleSystemAttributeManager, SystemMappingManager } from '../../redux';
 import uuid from 'uuid';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 
 const uiKey = 'role-system';
 const uiKeyAttributes = 'role-system-attributes';
-const roleSystemAttributeManager = new RoleSystemAttributeManager();
+let roleSystemAttributeManager = null;
 const systemManager = new SystemManager();
-const roleSystemManager = new RoleSystemManager();
-const roleManager = new Managers.RoleManager();
+let roleSystemManager = null;
+let roleManager = null;
 const systemMappingManager = new SystemMappingManager();
 
 /**
@@ -51,7 +51,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     if (this._isSystemMenu()) {
       return 'system-roles';
     }
-    return 'role-systems';
+    this.getRequestNavigationKey('role-systems', this.props.params);
   }
 
   _isMenu(menu = 'role') {
@@ -71,14 +71,14 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
       entityId = this.props.params.entityId;
     }
     const roleSystem = this.props.params.roleSystemId;
-    const linkMenu = this._isSystemMenu() ? `/system/${entityId}/roles/${roleSystem}/attributes` : `/role/${entityId}/systems/${roleSystem}/attributes`;
+    const linkMenu = this._isSystemMenu() ? `system/${entityId}/roles/${roleSystem}/attributes` : `role/${entityId}/systems/${roleSystem}/attributes`;
     //
     if (add) {
       // When we add new object class, then we need id of role as parametr and use "new" url
       const uuidId = uuid.v1();
-      this.context.router.push(`${linkMenu}/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
+      this.context.router.push(`${this.addRequestPrefix(linkMenu, this.props.params)}/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
     } else {
-      this.context.router.push(`${linkMenu}/${entity.id}/detail`);
+      this.context.router.push(`${this.addRequestPrefix(linkMenu, this.props.params)}/${entity.id}/detail`);
     }
   }
 
@@ -101,6 +101,12 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
+    // Init managers - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    roleSystemManager = this.getRequestManager(props.params, new RoleSystemManager());
+    roleSystemAttributeManager = this.getRequestManager(props.params, new RoleSystemAttributeManager());
+    roleManager = this.getRequestManager(props.params, new Managers.RoleManager());
+
     if (!this._getIsNew(props)) {
       const { roleSystemId } = props.params;
       this.context.store.dispatch(roleSystemManager.fetchEntity(roleSystemId));
@@ -144,7 +150,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
         if (this._isSystemMenu()) {
           this.context.router.replace(`/system/${entity.system}/roles/${entity.id}/detail`, { entityId: entity.id });
         } else {
-          this.context.router.replace(`/role/${entity.role}/systems/${entity.id}/detail`, { entityId: entity.id });
+          this.context.router.replace(`${this.addRequestPrefix('role', this.props.params)}/${entity.role}/systems/${entity.id}/detail`, { entityId: entity.id });
         }
       } else {
         this.addMessage({ message: this.i18n('save.success', { system: entity._embedded.system.name, role: entity._embedded.role.name }) });
@@ -184,6 +190,9 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     const { entityId } = this.props.params;
     const { systemId } = this.state;
     //
+    if (!roleSystemManager || !roleManager) {
+      return null;
+    }
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem && _roleSystem.id ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const roleSystem = isNew ? this.state.roleSystem : _roleSystem;
@@ -205,7 +214,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
 
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm ref="form" data={ roleSystem } showLoading={ _showLoading } style={{ padding: 0 }}>
+            <Basic.AbstractForm ref="form" data={ roleSystem } readOnly={!roleManager.canSave()} showLoading={ _showLoading } style={{ padding: 0 }}>
               <Basic.SelectBox
                 ref="role"
                 manager={ roleManager }
@@ -243,6 +252,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
                 onClick={this.save.bind(this)}
                 level="success"
                 type="submit"
+                rendered={roleManager.canSave()}
                 showLoading={_showLoading}>
                 {this.i18n('button.save')}
               </Basic.Button>
@@ -260,9 +270,9 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
             uiKey={ `${uiKeyAttributes}-${entityId}` }
             manager={ roleSystemAttributeManager }
             forceSearchParameters={ forceSearchParameters }
-            showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE']) }
+            showRowSelection={ roleManager.canSave() }
             actions={
-              Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])
+              roleManager.canSave()
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -275,7 +285,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, roleSystem, true)}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])}>
+                  rendered={roleManager.canSave()}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -321,6 +331,9 @@ RoleSystemDetail.defaultProps = {
 };
 
 function select(state, component) {
+  if (!roleSystemManager) {
+    return null;
+  }
   const entity = Utils.Entity.getEntity(state, roleSystemManager.getEntityType(), component.params.roleSystemId);
   return {
     _roleSystem: entity || {},

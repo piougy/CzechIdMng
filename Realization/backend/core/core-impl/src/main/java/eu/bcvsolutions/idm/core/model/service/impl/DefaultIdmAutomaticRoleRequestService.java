@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleRequestType;
@@ -55,6 +54,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleRequest;
@@ -148,7 +148,7 @@ public class DefaultIdmAutomaticRoleRequestService extends
 		} catch (Exception ex) {
 			LOG.error(ex.getLocalizedMessage(), ex);
 			request = get(requestId);
-			Throwable exceptionToLog = resolveException(ex);
+			Throwable exceptionToLog = ExceptionUtils.resolveException(ex);
 
 			// TODO: I set only cause of exception, not code and properties. If are
 			// properties set, then request cannot be save!
@@ -371,13 +371,17 @@ public class DefaultIdmAutomaticRoleRequestService extends
 	@Override
 	protected IdmAutomaticRoleRequest toEntity(IdmAutomaticRoleRequestDto dto, IdmAutomaticRoleRequest entity) {
 
-		if (this.isNew(dto)) { 
+		if (this.isNew(dto)) {
 			dto.setResult(new OperationResultDto(OperationState.CREATED));
 			dto.setState(RequestState.CONCEPT);
-			if(dto.getRequestType() == null) {
+			if (dto.getRequestType() == null) {
 				dto.setRequestType(AutomaticRoleRequestType.ATTRIBUTE);
 			}
+		} else if (dto.getResult() == null) {
+			IdmAutomaticRoleRequestDto persistedDto = this.get(dto.getId());
+			dto.setResult(persistedDto.getResult());
 		}
+		
 		IdmAutomaticRoleRequest requestEntity = super.toEntity(dto, entity);
 
 		// Convert type of automatic role
@@ -605,32 +609,6 @@ public class DefaultIdmAutomaticRoleRequestService extends
 			this.roleRequestService = applicationContext.getBean(IdmAutomaticRoleRequestService.class);
 		}
 		return this.roleRequestService;
-	}
-
-	/**
-	 * If exception causal chain contains cause instance of ResultCodeException,
-	 * then is return primary.
-	 * 
-	 * TODO: nice util method
-	 * 
-	 * @param ex
-	 * @return
-	 */
-	private Throwable resolveException(Exception ex) {
-		Assert.notNull(ex);
-		Throwable exceptionToLog = null;
-		List<Throwable> causes = Throwables.getCausalChain(ex);
-		// If is some cause instance of ResultCodeException, then we will use only it
-		// (for better show on frontend)
-		Throwable resultCodeException = causes.stream().filter(cause -> {
-			if (cause instanceof ResultCodeException) {
-				return true;
-			}
-			return false;
-		}).findFirst().orElse(null);
-
-		exceptionToLog = resultCodeException != null ? resultCodeException : ex;
-		return exceptionToLog;
 	}
 
 }

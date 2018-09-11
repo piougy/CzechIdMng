@@ -723,6 +723,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		}
 		return log;
 	}
+	
 
 	/**
 	 * Find quartz task for given task type. If existed more then one task for same

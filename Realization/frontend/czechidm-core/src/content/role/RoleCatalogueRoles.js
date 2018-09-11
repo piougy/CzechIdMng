@@ -21,7 +21,7 @@ export default class RoleCatalogueRoles extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-catalogue-roles';
+    return this.getRequestNavigationKey('role-catalogue-roles', this.props.params);
   }
 
   render() {
@@ -34,7 +34,8 @@ export default class RoleCatalogueRoles extends Basic.AbstractContent {
         <RoleCatalogueRoleTable
           uiKey="role-catalogue-role-table"
           forceSearchParameters={ forceSearchParameters }
-          className="no-margin"/>
+          className="no-margin"
+          params={ this.props.params }/>
       </div>
     );
   }

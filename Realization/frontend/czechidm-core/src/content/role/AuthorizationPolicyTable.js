@@ -12,9 +12,9 @@ import * as Domain from '../../domain';
 import { RoleManager, AuthorizationPolicyManager, DataManager, FormAttributeManager } from '../../redux';
 
 const DEFAULT_EVALUATOR_TYPE = 'eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator';
-const manager = new AuthorizationPolicyManager();
-const roleManager = new RoleManager();
 const formAttributeManager = new FormAttributeManager();
+let roleManager = null;
+let manager = null;
 
 /**
 * Table of role's granted permissions
@@ -25,6 +25,11 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    // Init managers - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    manager = this.getRequestManager(props.params, new AuthorizationPolicyManager());
+    roleManager = this.getRequestManager(props.params, new RoleManager());
+
     this.state = {
       ...this.state,
       authorizableType: null,
@@ -46,10 +51,20 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
 
   componentDidMount() {
     super.componentDidMount();
+
     this.context.store.dispatch(this.getManager().fetchSupportedEvaluators());
     this.context.store.dispatch(this.getManager().fetchAuthorizableTypes());
     this.context.store.dispatch(roleManager.fetchAllAuthorities());
     this.context.store.dispatch(roleManager.fetchAvailableAuthorities());
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.params) {
+      // Init managers - evaluates if we want to use standard (original) manager or
+      // universal request manager (depends on existing of 'requestId' param)
+      manager = this.getRequestManager(nextProps.params, manager ? manager : new AuthorizationPolicyManager());
+      roleManager = this.getRequestManager(nextProps.params, roleManager ? roleManager : new RoleManager());
+    }
   }
 
   showDetail(entity) {
@@ -270,6 +285,10 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       _permissions } = this.props;
     const { detail, evaluatorType, authorizableType } = this.state;
     //
+    if (!manager || !roleManager) {
+      return null;
+    }
+    //
     let formInstance = new Domain.FormInstance({});
     if (evaluatorType && evaluatorType.formDefinition && detail.entity) {
       formInstance = new Domain.FormInstance(evaluatorType.formDefinition).setProperties(detail.entity.evaluatorProperties);
@@ -388,6 +407,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="evaluatorType"
+            header={ this.i18n('entity.AuthorizationPolicy.evaluatorType.label') }
             sort
             rendered={_.includes(columns, 'evaluatorType')}
             cell={
@@ -447,16 +467,19 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="description"
+            header={ this.i18n('entity.AuthorizationPolicy.description.label') }
             face="text"
             sort
             rendered={_.includes(columns, 'description')}/>
           <Advanced.Column
             property="disabled"
+            header={ this.i18n('entity.AuthorizationPolicy.disabled.label') }
             face="bool"
             sort
             rendered={_.includes(columns, 'disabled')}/>
           <Advanced.Column
             property="seq"
+            header={ this.i18n('entity.AuthorizationPolicy.seq.label') }
             face="text"
             sort
             rendered={_.includes(columns, 'seq')}/>

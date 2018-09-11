@@ -1,6 +1,6 @@
 import Immutable from 'immutable';
 //
-import EntityManager from './EntityManager';
+import AbstractRequestManager from './AbstractRequestManager';
 import DataManager from './DataManager';
 import { AuthorizationPolicyService } from '../../services';
 
@@ -9,7 +9,7 @@ import { AuthorizationPolicyService } from '../../services';
  *
  * @author Radek Tomiška
  */
-export default class AuthorizationPolicyManager extends EntityManager {
+export default class AuthorizationPolicyManager extends AbstractRequestManager {
 
   constructor() {
     super();
@@ -20,7 +20,7 @@ export default class AuthorizationPolicyManager extends EntityManager {
     return this.service;
   }
 
-  getEntityType() {
+  getEntitySubType() {
     return 'AuthorizationPolicy';
   }
 

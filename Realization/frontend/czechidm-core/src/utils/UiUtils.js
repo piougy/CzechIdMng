@@ -121,7 +121,33 @@ export default class UiUtils {
       return '';
     }
     if (EntityUtils.isDisabled(entity)) {
-      return 'disabled';
+      return 'success';
+    }
+    return '';
+  }
+
+  /**
+   * Returns css row class for given entity
+   * - when entity is disabled - returns `disabled`
+   * - otherwise: empty string
+   *
+   * @param  {object} entity
+   * @return {string} css row class
+   */
+  static getRequestRowClass(entity) {
+    if (!entity || !entity._embedded || !entity._embedded.requestItem) {
+      return '';
+    }
+    if (entity._embedded.requestItem.operation === 'ADD') {
+      return 'success';
+    }
+
+    if (entity._embedded.requestItem.operation === 'UPDATE') {
+      return 'warning';
+    }
+
+    if (entity._embedded.requestItem.operation === 'REMOVE') {
+      return 'danger';
     }
     return '';
   }

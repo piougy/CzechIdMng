@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.EntityComposition;
 
 /**
- * SuperiorRole inculde subRole (Admin > User)
+ * SuperiorRole include subRole (Admin > User)
  * 
  * @author Radek Tomiška 
  *

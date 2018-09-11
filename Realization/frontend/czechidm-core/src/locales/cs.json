@@ -1369,6 +1369,13 @@
     "automaticRoles": {
       "title": "Automatické role",
       "header": "Automatické role",
+      "universalRequestNotSupported": {
+        "title": "Automatické role není možné spravovat v rámci této žádosti.",
+        "text": "Automatické role májí vlastní agendu žádostí, pro jejich správu použíjte ji.",
+        "gotToRequests": {
+          "label": "Agenda automatických rolí"
+        }
+      },
       "tree": {
         "header": "Automatické role dle organizační struktury",
         "title": "Dle organizační struktury"
@@ -1582,7 +1589,12 @@
       "header": "Role",
       "title": "Správa rolí",
       "button": {
-        "allRoles": "Všechny role"
+        "allRoles": "Všechny role",
+        "createRequest": {
+          "header": "Změny role podléhají schvalování.",
+          "label": "Vytvořit žádost o změnu",
+          "text": "Pokud chcete provést změny, tak nejprve vytvořte žádost."
+        }
       },
       "edit": {
         "title": "Detail role",
@@ -1645,6 +1657,13 @@
         "identityAssigned": {
           "title": "Odebíraná role je přiřazena uživatelům",
           "message": "Role [{{role}}] je přiřazena uživatelům. Před odebráním role je nutné uživatelům roli odebrat."
+        }
+      },
+      "action": {
+        "createRequest": {
+          "header": "Chcete vytvořit žádost o novou roli?",
+          "message": "Zadejte název nové role",
+          "name": "Název role"
         }
       }
     },
@@ -1732,7 +1751,6 @@
           "placeholder": "Vyhledání podle stavů"
         }
       }
-
     },
     "automaticRoleRequestDetail": {
       "header": "Žádost pro automatickou roli",
@@ -1758,6 +1776,94 @@
       "rulesIsAnd": {
         "title": "Všechna pravidla musí být splněna.",
         "text": "Pro přidělení role dle automatická role, musí entita (identita i úvazek) splnit všechna (níže definovaná) pravidla zároveň."
+      }
+    },
+    "requests": {
+      "header": "Žádosti",
+      "title": "Žádosti",
+      "role": "Žádost",
+      "name": "Název",
+      "create": {
+        "header": "Vytvořit novou žádost"
+      },
+      "button": {
+        "createRequest": "Vytvořit žádost",
+        "start": "Provést žádost"
+      },
+      "action": {
+        "startRequest": {
+          "header": "Opravdu chcete podat tuto žádost",
+          "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
+          "started": "Žádost byla úspěšně podána",
+          "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
+          "duplicated": "Žádost nebyla podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
+        }
+      },
+      "filter": {
+        "states":{
+          "placeholder": "Vyhledání podle stavů"
+        },
+        "text":{
+          "placeholder": "Vyhledání podle kódu, typu cílového objektu a poznámky"
+        }
+      }
+    },
+    "requestInfo": {
+      "title": "Nacházíte se v náhledu žádosti",
+      "text": "Všechny změny které provedete, budou zapsány pouze do této žádosti.",
+      "button": {
+        "goToRequest": {
+          "label": "Přejít na detail žádosti"
+        },
+        "showChanges": {
+          "label": "Zobrazit změny",
+          "tooltip": "Zobrazí změny provedéné v této žádosti na tomto detailu."
+        }
+      }
+    },
+    "requestDetail": {
+      "header": "Žádost",
+      "title": "Žádost",
+      "conceptHeader": "Požadované změny",
+      "save": {
+        "success": "Žádost byla úspěšně uložena",
+        "start": "Podat žádost"
+      },
+      "button": {
+        "createRequest":{
+          "label": "Podat žádost",
+          "tooltip": "Zahájí žádost. Spustí případné schvalovací procesy."
+        },
+        "previewDetailByRequest":{
+          "label": "Zobrazit náhled",
+          "tooltip": "Zobrazí náhled spolu s požadovanými změnami."
+        },
+        "showItemChanges": {
+          "tooltip": "Zobrazí změněné položky objektu, vůči aktuálně platnému stavu."
+        }
+      },
+      "create": {
+        "header": "Přidat změnu žádosti"
+      },
+      "edit": {
+        "header": "Upravit změnu žádosti"
+      },
+      "itemDetail": {
+        "header": "Požadované změny",
+        "title": {
+          "add": "Požadavek na vytvoření nového objektu s těmito hodnotami",
+          "remove": "Požadavek na odstranění tohoto objektu",
+          "update": "Požadavek na změnu tohoto objektu"
+        },
+        "nochanges": {
+          "title": "Nebyly nalezeny žádné změny.",
+          "text": "Pro tento objekt nebyly nalezeny žádné požadované změny."
+        },
+        "changes": {
+          "property": "Název atributu",
+          "oldValue": "Aktuální hodnota",
+          "newValue": "Nová hodnota"
+        }
       }
     },
     "role": {
@@ -3598,6 +3704,37 @@
       "candicateUsers": "Schvalují",
       "currentActivity": "Stav schvalování",
       "wfProcessId": "WF"
+    },
+    "Request": {
+      "requestType": "Požadavek pro",
+      "state": "Stav",
+      "name": "Název",
+      "executeImmediately": "Provést bez schválení",
+      "description": {
+        "label" : "Popis",
+        "placeholder": "Slovní popis požadavku"
+      },
+      "created": "Vytvořeno",
+      "modified": "Upraveno",
+      "candicateUsers": "Schvalují",
+      "currentActivity": "Stav schvalování",
+      "wfProcessId": "WF",
+      "implementer": "Žadatel",
+      "entity": "Žádost pro",
+      "result": "Výsledek"
+    },
+    "RequestItem": {
+      "state": "Stav",
+      "created": "Vytvořeno",
+      "modified": "Upraveno",
+      "ownerType": "Typ objektu",
+      "operation": "Požadovaná změna",
+      "ownerId":"Cílový objekt",
+      "candicateUsers": "Schvalují",
+      "currentActivity": "Stav schvalování",
+      "wfProcessId": "WF",
+      "data": "Data",
+      "result": "Výsledek"
     },
     "AutomaticRoleAttributeRuleRequest": {
       "type": {

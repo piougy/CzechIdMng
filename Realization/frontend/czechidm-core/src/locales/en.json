@@ -1332,6 +1332,13 @@
         "header": "Automatic roles from organizational structure",
         "title": "By organizational structure"
       },
+      "universalRequestNotSupported": {
+        "title": "Automatic roles can not be managed within this request.",
+        "text": "Automatic roles have their own agenda of requests, use them for their management.",
+        "gotToRequests": {
+          "label": "Automatic roles agenda"
+        }
+      },
       "emptyRules": "No rules found. The automatic role will not be assigned to any users.",
       "attribute": {
         "header": "Automatic roles based on the attribute",
@@ -1541,7 +1548,12 @@
       "header": "Roles",
       "title": "Roles administration",
       "button": {
-        "allRoles": "All roles"
+        "allRoles": "All roles",
+        "createRequest": {
+          "header": "Role changes are subject to approval.",
+          "label": "Create request for changes",
+          "text": "If do you want to make a changes, then create the request first."
+        }
       },
       "edit": {
         "title": "Role details",
@@ -1604,6 +1616,13 @@
         "identityAssigned": {
           "title": "Removing role is assign on users",
           "message": "Role [{{role}}] is assign to users. Before removing the role you need to take it from users."
+        }
+      },
+      "action": {
+        "createRequest": {
+          "header": "Do you want to create a new role request?",
+          "message": "Enter a new role name",
+          "name": "Name of role"
         }
       }
     },
@@ -1717,6 +1736,94 @@
          "text": "To assign a role, the entity must meet all the (below defined) rules at the same time."
        }
 
+      },
+     "requests": {
+       "header": "Requests",
+       "title": "Requests",
+       "role": "Request",
+       "name": "Name",
+       "create": {
+         "header": "Create new request"
+       },
+       "button": {
+         "createRequest": "Create request",
+         "start": "Execute request"
+       },
+       "action": {
+         "startRequest": {
+           "header": "Do you really want execute this request",
+           "message": "Do you really want execute this request and start approval process?",
+           "started": "Request was started",
+           "exception": "Error occurred during submitting request. Request was not submitted!",
+           "duplicated": "Request was not submitted because it is duplicate with another request created on [{{created}}]."
+         }
+       },
+       "filter": {
+         "states":{
+           "placeholder": "Search by states"
+         },
+         "text":{
+           "placeholder": "Search by target object code, type and description"
+         }
+       }
+     },
+     "requestInfo": {
+       "title": "You are on the request preview",
+       "text": "Any changes you make will only be written to this request.",
+       "button": {
+         "goToRequest": {
+           "label": "Go to the request detail"
+         },
+         "showChanges": {
+           "label": "Show changes",
+           "tooltip": "Shows the changes made to this request in this detail."
+         }
+       }
+     },
+     "requestDetail": {
+       "header": "Request",
+       "title": "Request",
+       "conceptHeader": "Requested changes",
+       "save": {
+         "success": "Request successfully saved",
+         "start": "Execute request"
+       },
+       "button": {
+         "createRequest":{
+           "label": "Submit a request",
+           "tooltip": "Start request"
+         },
+         "previewDetailByRequest":{
+           "label": "Show preview",
+           "tooltip": "Show preview with all requested changes."
+         },
+         "showItemChanges": {
+           "tooltip": "Show changed attributes for this object."
+         }
+       },
+       "create": {
+         "header": "Create the request change"
+       },
+       "edit": {
+         "header": "Edit the request change"
+       },
+       "itemDetail": {
+         "header": "Requested changes",
+         "title": {
+           "add": "Request for create new object",
+           "remove": "Request for delete that object",
+           "update": "Request for change that object"
+         },
+         "nochanges": {
+           "title": "No changes found.",
+           "text": "No requested changes was found for this object."
+         },
+         "changes": {
+           "property": "Attribute name",
+           "oldValue": "Current value",
+           "newValue": "New value"
+        }
+       }
       },
     "role": {
       "identities": {
@@ -3554,6 +3661,37 @@
       "candicateUsers": "Approvers",
       "currentActivity": "Approval state",
       "wfProcessId": "WF identifier"
+    },
+    "Request": {
+      "requestType": "Request for",
+      "state": "State",
+      "name": "Name",
+      "executeImmediately": "Without approval",
+      "description": {
+        "label" : "Description",
+        "placeholder": "Verbal description of a request"
+      },
+      "created": "Created",
+      "modified": "Modified",
+      "candicateUsers": "Approvers",
+      "currentActivity": "Approval state",
+      "wfProcessId": "WF identifier",
+      "result": "Result",
+      "implementer": "Implementer",
+      "entity": "Request for"
+    },
+    "RequestItem": {
+      "state": "State",
+      "created": "Created",
+      "modified": "Modified",
+      "ownerType": "Object type",
+      "operation": "Requested change",
+      "ownerId":"Target object",
+      "candicateUsers": "Approvers",
+      "currentActivity": "Approval state",
+      "wfProcessId": "WF identifier",
+      "data": "Data",
+      "result": "Result"
     },
     "AutomaticRoleAttributeRuleRequest": {
       "type": {

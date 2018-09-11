@@ -3,7 +3,7 @@ import { RoleSystemAttributeService } from '../services';
 
 const service = new RoleSystemAttributeService();
 
-export default class RoleSystemAttributeManager extends Managers.EntityManager {
+export default class RoleSystemAttributeManager extends Managers.AbstractRequestManager {
 
   constructor() {
     super();
@@ -13,7 +13,7 @@ export default class RoleSystemAttributeManager extends Managers.EntityManager {
     return service;
   }
 
-  getEntityType() {
+  getEntitySubType() {
     return 'RoleSystemAttribute'; // TODO: constant or enumeration
   }
 

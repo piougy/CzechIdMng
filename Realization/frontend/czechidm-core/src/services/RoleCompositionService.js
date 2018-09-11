@@ -1,4 +1,4 @@
-import AbstractService from './AbstractService';
+import AbstractRequestService from './AbstractRequestService';
 import SearchParameters from '../domain/SearchParameters';
 import RoleService from './RoleService';
 
@@ -9,9 +9,12 @@ const roleService = new RoleService();
  *
  * @author Radek Tomiška
  */
-export default class RoleCompositionService extends AbstractService {
+export default class RoleCompositionService extends AbstractRequestService {
 
-  getApiPath() {
+  /**
+   * Using in the request
+   */
+  getSubApiPath() {
     return '/role-compositions';
   }
 
@@ -26,6 +29,9 @@ export default class RoleCompositionService extends AbstractService {
   }
 
   supportsPatch() {
+    if (this.isRequestModeEnabled()) {
+      return false;
+    }
     return true;
   }
 

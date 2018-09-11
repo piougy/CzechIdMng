@@ -6,8 +6,8 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { RoleCompositionManager, RoleManager } from '../../redux';
 
-const manager = new RoleCompositionManager();
-const roleManager = new RoleManager();
+let manager = new RoleCompositionManager();
+let roleManager = new RoleManager();
 
 /**
 * Table of role compositions - define business roles
@@ -29,6 +29,10 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
   }
 
   getManager() {
+    // Init manager - evaluates if we want to use standard (original) manager or
+    // universal request manager (depends on existing of 'requestId' param)
+    manager = this.getRequestManager(this.props.params, manager);
+    roleManager = this.getRequestManager(this.props.params, roleManager);
     return manager;
   }
 
@@ -116,6 +120,7 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
             property="superior"
             sortProperty="superior.name"
             face="text"
+            header={ this.i18n('entity.RoleComposition.superior.label') }
             sort
             cell={
               ({ rowIndex, data }) => {
@@ -134,6 +139,7 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
               property="sub"
               sortProperty="sub.name"
               face="text"
+              header={ this.i18n('entity.RoleComposition.sub.label') }
               sort
               cell={
                 ({ rowIndex, data }) => {

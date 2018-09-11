@@ -484,7 +484,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
         <Basic.PanelBody>
-          <Basic.Loading show isStatic />
+          <Basic.Loading show isStatic style={{marginTop: '300px', marginBottom: '300px'}} />
         </Basic.PanelBody>
       </div>);
     }

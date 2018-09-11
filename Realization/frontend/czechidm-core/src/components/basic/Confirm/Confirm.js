@@ -47,7 +47,7 @@ class Confirm extends AbstractContextComponent {
     });
   }
 
-  show(message, title, onSubmit) {
+  show(message, title, onSubmit, focus) {
     const promise = new Promise((resolve, reject) => {
       this.setState({
         dispatch: (result) => {
@@ -65,7 +65,11 @@ class Confirm extends AbstractContextComponent {
       title,
       onSubmit
     }, () => {
-      this.refs.yesButton.focus();
+      if (focus) {
+        focus();
+      } else {
+        this.refs.yesButton.focus();
+      }
     });
     return promise;
   }

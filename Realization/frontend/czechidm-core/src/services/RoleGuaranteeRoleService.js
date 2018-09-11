@@ -1,4 +1,4 @@
-import AbstractService from './AbstractService';
+import AbstractRequestService from './AbstractRequestService';
 import SearchParameters from '../domain/SearchParameters';
 import RoleService from './RoleService';
 
@@ -9,9 +9,12 @@ const roleService = new RoleService();
  *
  * @author Radek Tomiška
  */
-export default class RoleGuaranteeRoleService extends AbstractService {
+export default class RoleGuaranteeRoleService extends AbstractRequestService {
 
-  getApiPath() {
+  /**
+   * Using in the request
+   */
+  getSubApiPath() {
     return '/role-guarantee-roles';
   }
 
@@ -28,6 +31,9 @@ export default class RoleGuaranteeRoleService extends AbstractService {
   }
 
   supportsPatch() {
+    if (this.isRequestModeEnabled()) {
+      return false;
+    }
     return true;
   }
 

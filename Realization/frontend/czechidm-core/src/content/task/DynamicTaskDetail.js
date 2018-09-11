@@ -46,7 +46,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   }
 
   _validateAndCompleteTask(decision) {
-    if (!this.refs.form.isFormValid()) {
+    if (this.refs.form && !this.refs.form.isFormValid()) {
       return;
     }
     if (this.refs.formData && !this.refs.formData.isFormValid()) {

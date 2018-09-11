@@ -1,4 +1,4 @@
-import FormableEntityService from './FormableEntityService';
+import AbstractRequestFormableService from './AbstractRequestFormableService';
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
 import * as Utils from '../utils';
@@ -8,9 +8,12 @@ import * as Utils from '../utils';
  *
  * @author Radek Tomiška
  */
-export default class RoleService extends FormableEntityService {
+export default class RoleService extends AbstractRequestFormableService {
 
-  getApiPath() {
+  /**
+   * Using in the request
+   */
+  getSubApiPath() {
     return '/roles';
   }
 

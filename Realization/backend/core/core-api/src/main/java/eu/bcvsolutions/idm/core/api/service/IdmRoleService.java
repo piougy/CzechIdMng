@@ -3,7 +3,11 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
@@ -91,4 +95,16 @@ public interface IdmRoleService extends
 	 * @return
 	 */
 	List<IdmRoleDto> findAllByRoleCatalogue(UUID roleCatalogueId);
+
+	/**
+	 * Get list of approvers for approving a changes of given role
+	 * 
+	 * First try to find guarantees for given role. If any guarantees will be found, then returns they.
+	 * Without guarantees try to find approvers with role defined in property file {@link RoleConfiguration#getRoleForApproveChangeOfRole()}.
+	 * 
+	 * @param roleId
+	 * @param pageable
+	 * @return
+	 */
+	Page<IdmIdentityDto> findApproversByRoleId(UUID roleId, Pageable pageable);
 }

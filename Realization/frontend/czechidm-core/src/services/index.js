@@ -64,6 +64,10 @@ import ContractSliceService from './ContractSliceService';
 import ContractSliceGuaranteeService from './ContractSliceGuaranteeService';
 import RoleGuaranteeService from './RoleGuaranteeService';
 import RoleGuaranteeRoleService from './RoleGuaranteeRoleService';
+import RequestService from './RequestService';
+import RequestItemService from './RequestItemService';
+import AbstractRequestFormableService from './AbstractRequestFormableService';
+import AbstractRequestService from './AbstractRequestService';
 import ProfileService from './ProfileService';
 
 const ServiceRoot = {
@@ -126,6 +130,10 @@ const ServiceRoot = {
   ContractSliceGuaranteeService,
   RoleGuaranteeService,
   RoleGuaranteeRoleService,
+  RequestService,
+  RequestItemService,
+  AbstractRequestFormableService,
+  AbstractRequestService,
   ProfileService
 };
 

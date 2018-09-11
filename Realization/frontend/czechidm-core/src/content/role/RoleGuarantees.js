@@ -23,7 +23,7 @@ export default class RoleGuarantees extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-guarantees';
+    return this.getRequestNavigationKey('role-guarantees', this.props.params);
   }
 
   render() {
@@ -41,7 +41,7 @@ export default class RoleGuarantees extends Basic.AbstractContent {
               uiKey="role-guarantee-role-table"
               forceSearchParameters={ forceSearchParameters }
               className="no-margin"
-              />
+              params={ this.props.params }/>
           </div>
         }
         {
@@ -52,7 +52,8 @@ export default class RoleGuarantees extends Basic.AbstractContent {
             <RoleGuaranteeTable
               uiKey="role-guarantee-table"
               forceSearchParameters={ forceSearchParameters }
-              className="no-margin"/>
+              className="no-margin"
+              params={ this.props.params }/>
           </div>
         }
       </div>

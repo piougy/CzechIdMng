@@ -22,7 +22,7 @@ export default class RoleTreeNodes extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-automatic-role-tree';
+    return this.getRequestNavigationKey('role-automatic-role-tree', this.props.params);
   }
 
   render() {

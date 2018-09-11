@@ -1,13 +1,12 @@
 import { Services } from 'czechidm-core';
 import { Domain } from 'czechidm-core';
 
-export default class RoleSystemAttributeService extends Services.AbstractService {
+export default class RoleSystemAttributeService extends Services.AbstractRequestService {
 
   constructor() {
     super();
   }
 
-  // dto
   supportsPatch() {
     return false;
   }
@@ -19,7 +18,7 @@ export default class RoleSystemAttributeService extends Services.AbstractService
     return `${entity.name}`;
   }
 
-  getApiPath() {
+  getSubApiPath() {
     return '/role-system-attributes';
   }
 

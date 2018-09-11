@@ -189,6 +189,17 @@ module.exports = {
         'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
       },
       {
+        'id': 'request-role-systems',
+        'type': 'TAB',
+        'parentId': 'request-roles',
+        'labelKey': 'acc:content.role.systems.title',
+        'titleKey': 'acc:content.role.systems.title',
+        'order': 500,
+        'path': 'requests/:requestId/role/:entityId/systems',
+        'icon': 'link',
+        'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+      },
+      {
         'id': 'provisioning-operations',
         'parentId': 'audit',
         'labelKey': 'acc:content.provisioningOperations.label',

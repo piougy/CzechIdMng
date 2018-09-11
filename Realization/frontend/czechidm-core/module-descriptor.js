@@ -413,6 +413,81 @@ module.exports = {
             ]
           },
           {
+            'id': 'request-roles',
+            'type': 'TAB',
+            'labelKey': 'content.roles.header',
+            'titleKey': 'content.roles.title',
+            'icon': 'fa:universal-access',
+            'iconColor': '#eb9316',
+            'order': 20,
+            'path': 'requests/:requestId/roles',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'AUTOMATICROLEATTRIBUTE_READ', 'ROLETREENODE_READ'] } ],
+            'items': [
+              {
+                'id': 'request-role-detail',
+                'type': 'TAB',
+                'labelKey': 'content.roles.tabs.basic',
+                'order': 100,
+                'path': 'requests/:requestId/role/:entityId/detail',
+                'icon': 'fa:newspaper-o'
+              },
+              {
+                'id': 'request-role-compositions',
+                'type': 'TAB',
+                'icon': 'fa:universal-access',
+                'labelKey': 'content.role.compositions.title',
+                'order': 120,
+                'path': 'requests/:requestId/role/:entityId/compositions',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+              },
+              {
+                'id': 'request-role-guarantees',
+                'type': 'TAB',
+                'labelKey': 'content.role.guarantees.title',
+                'icon': 'fa:group',
+                'order': 130,
+                'path': 'requests/:requestId/role/:entityId/guarantees',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
+              },
+              {
+                'id': 'request-role-catalogue-roles',
+                'type': 'TAB',
+                'labelKey': 'content.role.catalogues.title',
+                'icon': 'fa:list-alt',
+                'order': 140,
+                'path': 'requests/:requestId/role/:entityId/catalogues',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUEROLE_READ'] } ]
+              },
+              {
+                'id': 'request-role-eav',
+                'type': 'TAB',
+                'labelKey': 'content.role.eav.title',
+                'order': 110,
+                'priority': 0,
+                'path': 'requests/:requestId/role/:entityId/eav',
+                'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
+              },
+              {
+                'id': 'request-role-authorization-policies',
+                'type': 'TAB',
+                'labelKey': 'content.role.authorization-policies.label',
+                'titleKey': 'content.role.authorization-policies.title',
+                'order': 200,
+                'path': 'requests/:requestId/role/:entityId/authorization-policies',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
+              },
+              {
+                'id': 'request-role-automatic-roles',
+                'type': 'TAB',
+                'labelKey': 'content.role.tree-nodes.label',
+                'titleKey': 'content.role.tree-nodes.title',
+                'order': 400,
+                'path': 'requests/:requestId/role/:entityId/automatic-roles/trees',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
+              }
+            ]
+          },
+          {
             'id': 'automatic-roles',
             'labelKey': 'content.automaticRoles.header',
             'titleKey': 'content.automaticRoles.title',
@@ -504,6 +579,16 @@ module.exports = {
             'order': 20,
             'path': '/role-requests',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ]
+          },
+          {
+            'id': 'requests',
+            'labelKey': 'content.requests.header',
+            'titleKey': 'content.requests.title',
+            'icon': 'fa:exchange',
+            'order': 25,
+            'iconColor': '#419641',
+            'path': '/requests',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['REQUEST_READ'] } ]
           },
           {
             'id': 'automatic-role-requests',

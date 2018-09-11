@@ -28,7 +28,7 @@ export default class RoleIdentities extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'role-identities';
+    return this.getRequestNavigationKey('role-identities', this.props.params);
   }
 
   render() {

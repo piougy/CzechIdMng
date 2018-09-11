@@ -78,8 +78,6 @@ public class DefaultIdmRoleCompositionService
 	public List<IdmRoleCompositionDto> findAllSuperiorRoles(UUID subId, BasePermission... permission) {
 		Assert.notNull(subId);
 		//
-		IdmRoleCompositionFilter filter = new IdmRoleCompositionFilter();
-		filter.setSubId(subId);
 		List<IdmRoleCompositionDto> results = new ArrayList<>();
 		//
 		findAllSuperiorRoles(results, subId, permission);
@@ -126,7 +124,7 @@ public class DefaultIdmRoleCompositionService
 				if (processedRoles.contains(subRole.getId())) {
 					LOG.debug("Role [{}] was already processed by business role composition - skipping", subRole.getCode());
 				} else {
-					// try to find currently assigned subrole by this configuration (rerun operation)
+					// try to find currently assigned subrole by this configuration (return operation)
 					IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 					filter.setRoleCompositionId(subRoleComposition.getId());
 					filter.setDirectRoleId(identityRole.getDirectRole() == null ? identityRole.getId() : identityRole.getDirectRole());

@@ -30,12 +30,11 @@ public abstract class AbstractRemoveBulkAction<DTO extends AbstractDto, F extend
 	@Autowired
 	private RequestManager<Requestable> requestManager;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected OperationResult processDto(DTO dto) {
 		try {
 			if (dto instanceof Requestable
-					&& requestConfiguration.isRequestModeEnabled((Class<Requestable>) dto.getClass())) {
+					&& requestConfiguration.isRequestModeEnabled(dto.getClass())) {
 				// Request mode is enabled for that DTO
 				Requestable requestable = (Requestable) dto;
 				requestManager.deleteRequestable(requestable, false);

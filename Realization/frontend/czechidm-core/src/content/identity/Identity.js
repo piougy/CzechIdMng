@@ -50,11 +50,13 @@ class IdentityContent extends Basic.AbstractContent {
 
   _selectNavigationItem() {
     const { entityId } = this.props.params;
-    const { userContext } = this.props;
-    if (entityId === userContext.username) {
-      this.selectNavigationItems(['identity-profile', null]);
-    } else {
-      this.selectNavigationItems(['identities', null]);
+    const { userContext, selectedSidebarItem } = this.props;
+    if (selectedSidebarItem === 'identity-profile' || selectedSidebarItem === 'identities') { // set menu only on identity detail
+      if (entityId === userContext.username) {
+        this.selectNavigationItems(['identity-profile', null]);
+      } else {
+        this.selectNavigationItems(['identities', null]);
+      }
     }
   }
 
@@ -103,7 +105,7 @@ IdentityContent.defaultProps = {
 function select(state, component) {
   const { entityId } = component.params;
   const selectedNavigationItems = state.config.get('selectedNavigationItems');
-  const selectedSidebarItem = (selectedNavigationItems.length > 1) ? selectedNavigationItems[1] : null;
+  const selectedSidebarItem = (selectedNavigationItems.length > 0) ? selectedNavigationItems[0] : null;
   const profileUiKey = identityManager.resolveProfileUiKey(entityId);
   const profile = DataManager.getData(state, profileUiKey);
   //

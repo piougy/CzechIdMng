@@ -71,6 +71,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -129,6 +130,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmRoleGuaranteeRoleService roleGuaranteeRoleService;
 	@Autowired private IdmProfileService profileService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
+	@Autowired private ModuleService moduleService;
 	
 	@Override
 	public LoginDto loginAdmin() {
@@ -635,6 +637,16 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public void disableFilter(Class<? extends FilterBuilder<?, ?>> filterType) {
 		enableFilter(filterType, false);
+	}
+	
+	@Override
+	public void enableModule(String moduleId) {
+		moduleService.enable(moduleId);
+	}
+	
+	@Override
+	public void disableModule(String moduleId) {
+		moduleService.disable(moduleId);
 	}
 	
 	@Override

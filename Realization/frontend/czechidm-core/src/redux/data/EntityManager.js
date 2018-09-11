@@ -1126,7 +1126,6 @@ export default class EntityManager {
       return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id));
     }
     const permissionsById = Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id.id));
-    console.log('ssss', id.id, permissionsById);
     if (permissionsById || !this.getIdentifierAlias()) {
       return permissionsById;
     }

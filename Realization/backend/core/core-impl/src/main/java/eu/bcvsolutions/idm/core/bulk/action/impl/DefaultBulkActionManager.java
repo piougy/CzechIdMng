@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
-import eu.bcvsolutions.idm.core.api.bulk.action.IdmBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -87,24 +86,10 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	
 	@Override
 	public List<IdmBulkActionDto> getAvailableActions(Class<? extends BaseEntity> entity) {
-		List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> actions = pluginExecutors.getPluginsFor(entity);
-		//
-		List<IdmBulkActionDto> result = new ArrayList<>();
-		for (IdmBulkAction<? extends BaseDto, ? extends BaseFilter> action : actions) {
-			// skip disabled modules 
-			if (!enabledEvaluator.isEnabled(action)) {
-				continue;
-			}
-			IdmBulkActionDto actionDto = new IdmBulkActionDto();
-			actionDto.setEntityClass(action.getService().getEntityClass().getName());
-			actionDto.setFilterClass(action.getService().getFilterClass().getName());
-			actionDto.setModule(action.getModule());
-			actionDto.setName(action.getName());
-			actionDto.setFormAttributes(action.getFormAttributes());
-			actionDto.setAuthorities(action.getAuthorities());
-			result.add(actionDto);
-		}
-		return result;
+		return getEnabledActions(entity)
+				.stream()
+				.map(this::toDto)
+				.collect(Collectors.toList());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -114,7 +99,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		try {
 			Class<?> forName = Class.forName(actionDto.getEntityClass());
 			if (AbstractEntity.class.isAssignableFrom(forName)) {
-				List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> actions = pluginExecutors.getPluginsFor((Class<? extends BaseEntity>) forName);
+				List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> actions = getEnabledActions((Class<? extends BaseEntity>) forName);
 				//
 				for (AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action : actions) {
 					// skip disabled modules 
@@ -130,5 +115,37 @@ public class DefaultBulkActionManager implements BulkActionManager {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionClass", actionDto.getEntityClass()), e);
 		}
 		throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionName", actionDto.getName()));
+	}
+	
+	/**
+	 * Map action to dto.
+	 * 
+	 * @param action
+	 * @return
+	 */
+	private IdmBulkActionDto toDto(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action) {
+		IdmBulkActionDto actionDto = new IdmBulkActionDto();
+		actionDto.setEntityClass(action.getService().getEntityClass().getName());
+		actionDto.setFilterClass(action.getService().getFilterClass().getName());
+		actionDto.setModule(action.getModule());
+		actionDto.setName(action.getName());
+		actionDto.setFormAttributes(action.getFormAttributes());
+		actionDto.setAuthorities(action.getAuthorities());
+		//
+		return actionDto;
+	}
+	
+	/**
+	 * Get enabled actions
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	private List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> getEnabledActions(Class<? extends BaseEntity> entity) {
+		return pluginExecutors
+				.getPluginsFor(entity)
+				.stream()
+				.filter(action -> enabledEvaluator.isEnabled(action))
+				.collect(Collectors.toList());
 	}
 }

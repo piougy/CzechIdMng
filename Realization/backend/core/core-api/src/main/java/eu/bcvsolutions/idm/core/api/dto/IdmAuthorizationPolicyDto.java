@@ -51,8 +51,6 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 	private String basePermissions;
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
-	@Embedded(dtoClass = IdmRequestDto.class)
-	private UUID request; // Isn't persist in the entity
 
 	public IdmAuthorizationPolicyDto() {
 	}
@@ -168,15 +166,5 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 	@Override
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
-	}
-
-	@Override
-	public UUID getRequest() {
-		return request;
-	}
-
-	@Override
-	public void setRequest(UUID request) {
-		this.request = request;
 	}
 }

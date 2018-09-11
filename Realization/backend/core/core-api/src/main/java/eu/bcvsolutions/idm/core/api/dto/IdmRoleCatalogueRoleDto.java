@@ -28,8 +28,6 @@ public class IdmRoleCatalogueRoleDto extends AbstractDto implements Requestable 
 	private UUID role;
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
-	@Embedded(dtoClass = IdmRequestDto.class)
-	private UUID request; // Isn't persist in the entity
 
 	public UUID getRoleCatalogue() {
 		return roleCatalogue;
@@ -55,15 +53,5 @@ public class IdmRoleCatalogueRoleDto extends AbstractDto implements Requestable 
 	@Override
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
-	}
-
-	@Override
-	public UUID getRequest() {
-		return request;
-	}
-
-	@Override
-	public void setRequest(UUID request) {
-		this.request = request;
 	}
 }

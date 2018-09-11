@@ -32,6 +32,8 @@ public interface RequestConfiguration extends Configurable {
 
 	String CAMEL_SPLIT_REGEX = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
 	
+	String DEFAULT_APROVAL_PROCESS_KEY = "request-idm-role";
+	
 	
 	
 	@Override

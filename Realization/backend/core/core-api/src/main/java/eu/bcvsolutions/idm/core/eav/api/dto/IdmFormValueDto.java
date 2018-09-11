@@ -26,7 +26,6 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -69,8 +68,6 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	private short seq;
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
-	@Embedded(dtoClass = IdmRequestDto.class)
-	private UUID request; // Isn't persist in the entity
 	//
 	@JsonIgnore
 	private transient FormableEntity owner;
@@ -547,15 +544,5 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	@Override
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
-	}
-
-	@Override
-	public UUID getRequest() {
-		return request;
-	}
-
-	@Override
-	public void setRequest(UUID request) {
-		this.request = request;
 	}
 }

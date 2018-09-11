@@ -34,8 +34,6 @@ public class IdmRoleCompositionDto extends AbstractDto implements ExternalIdenti
     private UUID sub;
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
-	@Embedded(dtoClass = IdmRequestDto.class)
-	private UUID request; // Isn't persist in the entity
     
     public IdmRoleCompositionDto() {
 	}
@@ -79,15 +77,5 @@ public class IdmRoleCompositionDto extends AbstractDto implements ExternalIdenti
 	@Override
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
-	}
-
-	@Override
-	public UUID getRequest() {
-		return request;
-	}
-
-	@Override
-	public void setRequest(UUID request) {
-		this.request = request;
 	}
 }

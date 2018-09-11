@@ -35,8 +35,6 @@ public class IdmRoleGuaranteeDto extends AbstractDto implements ExternalIdentifi
 	private UUID guarantee; // guarantee as identity
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
-	@Embedded(dtoClass = IdmRequestDto.class)
-	private UUID request; // Isn't persist in the entity
 
 	/**
 	 * Owner
@@ -92,15 +90,5 @@ public class IdmRoleGuaranteeDto extends AbstractDto implements ExternalIdentifi
 	@Override
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
-	}
-
-	@Override
-	public UUID getRequest() {
-		return request;
-	}
-
-	@Override
-	public void setRequest(UUID request) {
-		this.request = request;
 	}
 }

@@ -82,9 +82,8 @@ public class DefaultLookupService implements LookupService {
 	public BaseDto lookupDto(String identifiableType, Serializable entityId) {
 		try {
 			return lookupDto((Class<? extends Identifiable>) Class.forName(identifiableType), entityId);
-		} catch (IllegalArgumentException | ClassNotFoundException ex) {
-			LOG.debug("Class [{}] not found on classpath (e.g. module was uninstalled)", ex);
-			return null;
+		} catch (ClassNotFoundException ex) {
+			throw new IllegalArgumentException(String.format("Dto lookup for identifiable type [%s] is not supported", identifiableType), ex);
 		}
 	}
 	

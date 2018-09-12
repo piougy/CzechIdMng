@@ -212,7 +212,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data, property }) => {
                 const value = data[rowIndex][property];
                 //
-                if (!data[rowIndex]._embedded || !data[rowIndex]._embedded.entity) {
+                if (!data[rowIndex]._embedded || !data[rowIndex]._embedded[property]) {
                   return (
                     <Advanced.UuidInfo value={ value } />
                   );
@@ -221,7 +221,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
                   <Advanced.EntityInfo
                     entityType={ this._getType(data[rowIndex].type) }
                     entityIdentifier={ value }
-                    entity={ data[rowIndex]._embedded.entity }
+                    entity={ data[rowIndex]._embedded[property] }
                     face="popover"
                     showEntityType={ false }/>
                 );

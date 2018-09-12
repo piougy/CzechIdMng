@@ -163,8 +163,9 @@ function dispatchTrace({ getState }) {
 }
 //
 // redux queue middle ware, inpired by https://github.com/zackargyle/redux-async-queue
+// TODO: move to utils
 function reduxQueue({ dispatch, getState }) {
-  const THREAD_COUNT = 4;
+  const THREAD_COUNT = 3;
   const queues = {}; // queued actions
   const running = {}; // running queue ids
 
@@ -188,10 +189,13 @@ function reduxQueue({ dispatch, getState }) {
   }
   //
   return next => action => {
-    const { queue: key, callback } = action || {};
+    const { queue: key, callback, id } = action || {};
     if (key) {
       if (typeof callback !== 'function') {
         throw new Error('Queued actions must have a <callback> property');
+      }
+      if (!id) {
+        throw new Error('Queued actions must have a <id> property');
       }
       // Verify array at <key>
       queues[key] = queues[key] || [];

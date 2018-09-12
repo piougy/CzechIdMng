@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.core.audit.rest.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
@@ -33,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -65,6 +68,7 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditDto, IdmAuditFilter> {
 
 	protected static final String TAG = "Audit";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmAuditController.class);
 	//
 	private final IdmAuditService auditService;
 	private final ModelMapper mapper;
@@ -101,15 +105,12 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 	@Override
 	public Page<IdmAuditDto> find(IdmAuditFilter filter, Pageable pageable, BasePermission permission) {
 		Page<IdmAuditDto> dtos = super.find(filter, pageable, permission);
+		Map<UUID, BaseDto> loadedDtos = new HashMap<>();
 		dtos.forEach(dto -> {
-			if (!RevisionType.DEL.name().equals(dto.getModification())) {
-				dto.getEmbedded().put("entity", getLookupService().lookupDto(dto.getType(), dto.getEntityId()));
-			}
+			loadEmbeddedEntity(loadedDtos, dto);
 		});
 		//
 		return dtos;
-		
-		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -148,7 +149,12 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		}
 		//
 		try {
-			return toResources(auditService.findEntityWithRelation((Class<? extends AbstractEntity>) Class.forName(entityClass), parameters, pageable), getDtoClass());
+			Page<IdmAuditDto> dtos = auditService.findEntityWithRelation((Class<? extends AbstractEntity>) Class.forName(entityClass), parameters, pageable);
+			Map<UUID, BaseDto> loadedDtos = new HashMap<>();
+			dtos.forEach(dto -> {
+				loadEmbeddedEntity(loadedDtos, dto);
+			});
+			return toResources(dtos, getDtoClass());
 		} catch (ClassNotFoundException e) {
 			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_NOT_FOUND, ImmutableMap.of("class", entityClass), e);
 		}
@@ -289,5 +295,24 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		dto.setIdSecondRevision(Long.valueOf(secondRevId));
 		
 		return new ResponseEntity<IdmAuditDiffDto>(dto, HttpStatus.OK);
+	}
+	
+	/**
+	 * Fills referenced entity to dto - prevent to load entity for each row
+	 * 
+	 * @param dto
+	 */
+	private void loadEmbeddedEntity(Map<UUID, BaseDto> loadedDtos, IdmAuditDto dto) {
+		if (!RevisionType.DEL.name().equals(dto.getModification())) {
+			UUID entityId = dto.getEntityId();
+			try {
+				if (!loadedDtos.containsKey(entityId)) {
+					loadedDtos.put(entityId, getLookupService().lookupDto(dto.getType(), entityId));
+				}
+				dto.getEmbedded().put("entityId", loadedDtos.get(entityId));
+			} catch (IllegalArgumentException ex) {
+				LOG.debug("Class [{}] not found on classpath (e.g. module was uninstalled)", dto.getType(), ex);
+			}
+		}
 	}
 }

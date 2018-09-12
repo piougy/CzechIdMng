@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
-import Waypoint from 'react-waypoint';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
@@ -27,6 +26,14 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    */
   getManager() {
     return this.props.manager;
+  }
+
+  componentDidMount() {
+    this.loadEntityIfNeeded();
+  }
+
+  componentDidUpdate() {
+    this.loadEntityIfNeeded();
   }
 
   /**
@@ -78,7 +85,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     }
     if (!_permissions) {
       const uiKey = manager.resolveUiKey(null, entityId);
-      this.context.store.dispatch(manager.fetchPermissions(entityId, uiKey));
+      this.context.store.dispatch(manager.queueFetchPermissions(entityId, uiKey));
     }
   }
 
@@ -351,7 +358,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         }
         default: {
           return (
-            <Basic.Well showLoading className={ classNames('abstract-entity-info', className) } style={style}/>
+            <Basic.Well showLoading className={ classNames('abstract-entity-info', className) } style={ style }/>
           );
         }
       }
@@ -361,11 +368,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         return null;
       }
       return (
-        <Waypoint onEnter={ this.loadEntityIfNeeded.bind(this) } scrollableAncestor={ window }>
-          <span>
-            <UuidInfo className={className} value={ this.getEntityId() } style={style} />
-          </span>
-        </Waypoint>
+        <UuidInfo className={ className } value={ this.getEntityId() } style={ style } />
       );
     }
     //

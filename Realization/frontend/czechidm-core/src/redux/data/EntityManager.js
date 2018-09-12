@@ -324,12 +324,50 @@ export default class EntityManager {
       dispatch(this.requestEntity(id, uiKey));
       this.getService().getById(id)
       .then(json => {
-        dispatch(this.fetchPermissions(id, uiKey, () => {
+        dispatch(this.queueFetchPermissions(id, uiKey, () => {
           dispatch(this.receiveEntity(id, json, uiKey, cb));
         }));
       })
       .catch(error => {
         dispatch(this.receiveError({ id }, uiKey, error, cb));
+      });
+    };
+  }
+
+  /**
+   * Non blocking loading permission for selected entity by given id from BE.
+   *
+   * @param  {id}  entity id
+   * @param  {string|number} id - entity identifier
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   */
+  queueFetchPermissions(id, uiKey = null, cb = null) {
+    return (dispatchOuter) => {
+      dispatchOuter({
+        id,
+        queue: 'FETCH_PERMISSION',
+        callback: (next, dispatch, getState) => {
+          uiKey = this.resolveUiKey(uiKey, id);
+          const permissions = this.getPermissions(getState(), uiKey, id);
+          if (permissions === null || permissions === undefined) { // false = loaded, but empty
+            const uiError = Utils.Ui.getError(getState(), uiKey);
+            if (!uiError || uiError.statusCode === 401) {
+              dispatch(this.fetchPermissions(id, uiKey, (entity, error) => {
+                if (cb) {
+                  cb(entity, error);
+                }
+                next();
+              }));
+            } else {
+              next();
+            }
+          } else {
+            if (cb) {
+              cb(permissions, null);
+            }
+            next();
+          }
+        }
       });
     };
   }
@@ -368,7 +406,7 @@ export default class EntityManager {
           uiKey: this.resolveUiKey(null, id)
         });
         if (cb) {
-          cb();
+          cb(permissions);
         }
       });
     };
@@ -978,6 +1016,8 @@ export default class EntityManager {
               }
               next();
             }));
+          } else {
+            next();
           }
         }
       });

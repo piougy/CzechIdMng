@@ -118,7 +118,7 @@ public interface RequestManager extends RequestService<IdmRequestDto> {
 	 * @param permission
 	 * @return
 	 */
-	<R extends Requestable> IdmRequestItemChangesDto getChanges(IdmRequestItemDto item, BasePermission... permission);
+	IdmRequestItemChangesDto getChanges(IdmRequestItemDto item, BasePermission... permission);
 
 	/**
 	 * Returns confidential storage key for given request item

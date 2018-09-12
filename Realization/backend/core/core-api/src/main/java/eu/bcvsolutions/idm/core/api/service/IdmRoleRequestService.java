@@ -39,6 +39,8 @@ public interface IdmRoleRequestService
 	 *            (if is requires)
 	 */
 	IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight);
+	
+	// IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight, boolean immediate);
 
 	/**
 	 * Add record to request log

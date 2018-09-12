@@ -121,7 +121,8 @@ export class AccountTable extends Advanced.AbstractTableContent {
       forceSystemEntitySearchParameters,
       columns,
       _permissions,
-      showAddButton
+      showAddButton,
+      className
     } = this.props;
     const { detail, systemEntity, connectorObject } = this.state;
     //
@@ -139,6 +140,7 @@ export class AccountTable extends Advanced.AbstractTableContent {
           manager={this.getManager()}
           forceSearchParameters={forceSearchParameters}
           showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_DELETE'])}
+          className={ className }
           rowClass={({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; }}
           actions={
             Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_DELETE'])

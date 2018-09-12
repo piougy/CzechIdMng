@@ -51,7 +51,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     if (this._isSystemMenu()) {
       return 'system-roles';
     }
-    this.getRequestNavigationKey('role-systems', this.props.params);
+    return this.getRequestNavigationKey('role-systems', this.props.params);
   }
 
   _isMenu(menu = 'role') {
@@ -112,9 +112,13 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
       this.context.store.dispatch(roleSystemManager.fetchEntity(roleSystemId));
     } else {
       if (this._isSystemMenu()) {
-        this.refs.role.focus();
+        if (this.refs.role.focus()) {
+          this.refs.role.focus();
+        }
       } else {
-        this.refs.system.focus();
+        if (this.refs.system) {
+          this.refs.system.focus();
+        }
       }
     }
   }
@@ -271,6 +275,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
             manager={ roleSystemAttributeManager }
             forceSearchParameters={ forceSearchParameters }
             showRowSelection={ roleManager.canSave() }
+            className="no-margin"
             actions={
               roleManager.canSave()
               ?
@@ -332,7 +337,7 @@ RoleSystemDetail.defaultProps = {
 
 function select(state, component) {
   if (!roleSystemManager) {
-    return null;
+    return {};
   }
   const entity = Utils.Entity.getEntity(state, roleSystemManager.getEntityType(), component.params.roleSystemId);
   return {

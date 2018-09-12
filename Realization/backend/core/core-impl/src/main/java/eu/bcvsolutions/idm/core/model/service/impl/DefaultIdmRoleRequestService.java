@@ -73,7 +73,9 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRequestRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
@@ -98,6 +100,8 @@ public class DefaultIdmRoleRequestService
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final EntityEventManager entityEventManager;
 	private IdmRoleRequestService roleRequestService;
+	//
+	@Autowired private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService; 
 
 	@Autowired
 	public DefaultIdmRoleRequestService(IdmRoleRequestRepository repository,
@@ -457,16 +461,32 @@ public class DefaultIdmRoleRequestService
 		// Set concepts to request DTO
 		if (requestDto != null) {
 			requestDto.setConceptRoles(conceptRoleRequestService.findAllByRoleRequest(requestDto.getId()));
-		}
-
+		}		
+		// Load and add WF process DTO to embedded. Prevents of many requests
+		// from FE.
 		if (requestDto != null && requestDto.getWfProcessId() != null) {
-			WorkflowProcessInstanceDto processDto = workflowProcessInstanceService.get(requestDto.getWfProcessId(),
-					false);
-			// TODO: create trimmed variant in workflow process instance service
-			if (processDto != null) {
-				processDto.setProcessVariables(null);
+			if (RoleRequestState.IN_PROGRESS == requestDto.getState()) {
+				// Instance of process should exists only in 'IN_PROGRESS' state
+				WorkflowProcessInstanceDto processInstanceDto = workflowProcessInstanceService
+						.get(requestDto.getWfProcessId());
+				// Trim a process variables - prevent security issues and too
+				// high of response
+				// size
+				if (processInstanceDto != null) {
+					processInstanceDto.setProcessVariables(null);
+				}
+				requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, processInstanceDto);
+			} else {
+				// In others states we need load historic process
+				WorkflowHistoricProcessInstanceDto processHistDto = workflowHistoricProcessInstanceService.get(requestDto.getWfProcessId());
+				// Trim a process variables - prevent security issues and too
+				// high of response
+				// size
+				if (processHistDto != null) {
+					processHistDto.setProcessVariables(null);
+				}
+				requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, processHistDto);
 			}
-			requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, processDto);
 		}
 
 		return requestDto;

@@ -36,7 +36,7 @@ public class RequestApprovalProcessor extends CoreEventProcessor<IdmRequestDto> 
 	public static final String CHECK_RIGHT_PROPERTY = "checkRight";
 
 	@Autowired
-	private RequestManager<Requestable> manager;
+	private RequestManager manager;
 	@Autowired
 	private RequestConfiguration requestConfiguration;
 	

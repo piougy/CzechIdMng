@@ -64,7 +64,7 @@ public class DefaultIdmRequestService extends AbstractReadWriteDtoService<IdmReq
 	private IdmRequestItemService requestItemService;
 	@Autowired
 	@Lazy
-	private RequestManager<Requestable> requestManager;
+	private RequestManager requestManager;
 
 	@Autowired
 	public DefaultIdmRequestService(IdmRequestRepository repository) {

@@ -20,8 +20,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -43,7 +45,7 @@ public class RequestManagerTest extends AbstractCoreWorkflowIntegrationTest {
 	@Autowired
 	protected TestHelper helper;
 	@Autowired
-	private RequestManager<Requestable> requestManager;
+	private RequestManager requestManager;
 	@Autowired
 	private IdmRoleService roleService;
 	@Autowired
@@ -52,6 +54,8 @@ public class RequestManagerTest extends AbstractCoreWorkflowIntegrationTest {
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
 	@Autowired
 	private IdmRequestService requestService;
+	@Autowired
+	private IdmRoleGuaranteeService roleGuaranteeService;
 
 	@Before
 	public void init() {
@@ -539,7 +543,7 @@ public class RequestManagerTest extends AbstractCoreWorkflowIntegrationTest {
 		String processId = executedRequest.getWfProcessId();
 		Assert.assertNotNull(processId);
 		// Wf process is in progress
-		WorkflowProcessInstanceDto processInstace  = workflowProcessInstanceService.get(processId);
+		WorkflowProcessInstanceDto processInstace = workflowProcessInstanceService.get(processId);
 		Assert.assertNotNull(processInstace);
 
 		// Two items should be created
@@ -549,8 +553,83 @@ public class RequestManagerTest extends AbstractCoreWorkflowIntegrationTest {
 		IdmRequestDto requestDeleted = requestService.get(executedRequest.getId());
 		Assert.assertNull(requestDeleted);
 		// Process should be deleted (canceled)
-		processInstace  = workflowProcessInstanceService.get(processId);
+		processInstace = workflowProcessInstanceService.get(processId);
 		Assert.assertNull(processInstace);
+
+	}
+
+	@Test
+	public void testFind() {
+
+		// Create role
+		IdmRoleDto role = getHelper().createRole();
+		// Create guarantee One
+		IdmIdentityDto guaranteeOne = getHelper().createIdentity();
+		IdmRoleGuaranteeDto roleGuaranteeOne = getHelper().createRoleGuarantee(role, guaranteeOne);
+
+		IdmRoleGuaranteeFilter guaranteeFilter = new IdmRoleGuaranteeFilter();
+		guaranteeFilter.setRole(role.getId());
+
+		Assert.assertEquals(1, roleGuaranteeService.find(guaranteeFilter, null).getTotalElements());
+
+		// Create request
+		IdmRequestDto request = requestManager.createRequest(role);
+		Assert.assertNotNull(request);
+		List<IdmRoleGuaranteeDto> guarantees = requestManager
+				.find(IdmRoleGuaranteeDto.class, request.getId(), guaranteeFilter, null).getContent();
+		Assert.assertEquals(1, guarantees.size());
+
+		// Create guarantee
+		IdmIdentityDto guarantee = getHelper().createIdentity();
+		IdmRoleGuaranteeDto roleGuaranteeTwo = new IdmRoleGuaranteeDto();
+		roleGuaranteeTwo.setRole(role.getId());
+		roleGuaranteeTwo.setGuarantee(guarantee.getId());
+		IdmRoleGuaranteeDto requestablePost = requestManager.post(request.getId(), roleGuaranteeTwo);
+		IdmRequestItemDto changeRequestItem = DtoUtils.getEmbedded(requestablePost, Requestable.REQUEST_ITEM_FIELD,
+				IdmRequestItemDto.class);
+		Assert.assertEquals(RequestOperationType.ADD, changeRequestItem.getOperation());
+
+		// Find via standard service returns still only one result
+		Assert.assertEquals(1, roleGuaranteeService.find(guaranteeFilter, null).getTotalElements());
+		// Find via request manager returns two results
+		guarantees = requestManager.find(IdmRoleGuaranteeDto.class, request.getId(), guaranteeFilter, null)
+				.getContent();
+		Assert.assertEquals(2, guarantees.size());
+
+		// Create new request
+		IdmRequestDto requestTwo = requestManager.createRequest(role);
+		Assert.assertNotNull(requestTwo);
+		guarantees = requestManager.find(IdmRoleGuaranteeDto.class, requestTwo.getId(), guaranteeFilter, null)
+				.getContent();
+		Assert.assertEquals(1, guarantees.size());
+
+		// Change the role-guarantee (use new guarantee)
+		IdmIdentityDto guaranteeTwo = getHelper().createIdentity();
+		roleGuaranteeOne.setGuarantee(guaranteeTwo.getId());
+		IdmRoleGuaranteeDto roleGuaranteeOneRequest = requestManager.post(requestTwo.getId(), roleGuaranteeOne);
+		changeRequestItem = DtoUtils.getEmbedded(roleGuaranteeOneRequest, Requestable.REQUEST_ITEM_FIELD,
+				IdmRequestItemDto.class);
+		Assert.assertEquals(RequestOperationType.UPDATE, changeRequestItem.getOperation());
+
+		// Role guarantee One are equals (same ID), but must have different guarantee
+		IdmRoleGuaranteeDto currentRoleGuaranteeOne = roleGuaranteeService.get(roleGuaranteeOne);
+		Assert.assertEquals(currentRoleGuaranteeOne, roleGuaranteeOneRequest);
+		Assert.assertNotEquals(currentRoleGuaranteeOne.getGuarantee(), roleGuaranteeOneRequest.getGuarantee());
+
+		guarantees = roleGuaranteeService.find(guaranteeFilter, null).getContent();
+		// Find via standard service returns still only one result
+		Assert.assertEquals(1, guarantees.size());
+		// Find via request manager returns one result too (item was only updated in the
+		// request)
+		List<IdmRoleGuaranteeDto> guaranteesRequest = requestManager.find(IdmRoleGuaranteeDto.class, requestTwo.getId(), guaranteeFilter, null)
+				.getContent();
+		Assert.assertEquals(1, guaranteesRequest.size());
+		// Role guarantee One are equals (same ID), but must have different guarantee
+		Assert.assertEquals(guarantees.get(0), guaranteesRequest.get(0));
+		Assert.assertNotEquals(guarantees.get(0).getGuarantee(), guaranteesRequest.get(0).getGuarantee());
+		
+		
+		
 
 	}
 

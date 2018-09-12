@@ -35,9 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -137,8 +135,6 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
 	private RequestManager<R> requestManager;
-
-	private ConfigurationMap configurationMap;
 
 	@Override
 	@Transactional
@@ -532,7 +528,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 				IdmRequestItemAttributeDto attribute = new IdmRequestItemAttributeDto(changedAttribute,
 						value instanceof List, true);
 				if (attribute.isMultivalue()) {
-					if (value != null && value instanceof List) {
+					if (value instanceof List) {
 						((List<?>) value).forEach(v -> {
 							attribute.getValues()
 									.add(new IdmRequestAttributeValueDto(v, null, RequestOperationType.ADD));
@@ -553,9 +549,9 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 			attribute = new IdmRequestItemAttributeDto(currentAttribute, changedValue instanceof List, false);
 
 			if (attribute.isMultivalue()) {
-				if (changedValue != null && changedValue instanceof List) {
+				if (changedValue instanceof List) {
 					((List<?>) changedValue).forEach(value -> {
-						if (currentValue != null && currentValue instanceof List
+						if (currentValue instanceof List
 								&& ((List<?>) currentValue).contains(value)) {
 							attribute.getValues().add(new IdmRequestAttributeValueDto(value, value, null));
 						} else {
@@ -565,7 +561,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 						}
 					});
 				}
-				if (currentValue != null && currentValue instanceof List) {
+				if (currentValue instanceof List) {
 					((List<?>) currentValue).forEach(value -> {
 						if (changedValue == null || !((List<?>) changedValue).contains(value)) {
 							attribute.setChanged(true);
@@ -920,10 +916,9 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	}
 
 	private void resolveItem(IdmRequestItemDto item)
-			throws ClassNotFoundException, JsonParseException, JsonMappingException, IOException {
-
-		Assert.notNull(item, "Item is mandatory for resolving!");
-
+			throws ClassNotFoundException, IOException {
+		Assert.notNull(item, "Item is mandatory!");
+		
 		RequestOperationType type = item.getOperation();
 		// Get DTO service
 		@SuppressWarnings("unchecked")
@@ -980,6 +975,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 		Assert.notNull(requestId, "Request ID is required!");
 
 		IdmRequestDto request = requestService.get(requestId);
+		Assert.notNull(request, "Request is required!");
 		
 		// Only request in CONCEPT or IN_PROGRESS state could creates new item or
 		// update existing item
@@ -1012,7 +1008,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 
 		} catch (JsonProcessingException e) {
 			throw new ResultCodeException(CoreResultCode.DTO_CANNOT_BE_CONVERT_TO_JSON,
-					ImmutableMap.of("dto", dto.toString()));
+					ImmutableMap.of("dto", dto.toString()), e);
 		}
 	}
 	
@@ -1047,7 +1043,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 			return identifiable.getId();
 		}
 		if (value instanceof ConfigurationMap) {
-			configurationMap = (ConfigurationMap) value;
+			ConfigurationMap configurationMap = (ConfigurationMap) value;
 			Map<String, Serializable> map = configurationMap.toMap();
 			return map.toString();
 
@@ -1187,7 +1183,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	@SuppressWarnings("unchecked")
 	@Override
 	public R convertItemToDto(IdmRequestItemDto item, Class<? extends R> type)
-			throws JsonParseException, JsonMappingException, IOException, ClassNotFoundException {
+			throws IOException, ClassNotFoundException {
 		R dto = convertStringToDto(item.getData(), type);
 		if (dto instanceof IdmFormValueDto) {
 			IdmFormValueDto formValueDto = (IdmFormValueDto) dto;
@@ -1202,7 +1198,7 @@ public class DefaultRequestManager<R extends Requestable> implements RequestMana
 	}
 
 	private R convertStringToDto(String data, Class<? extends R> type)
-			throws JsonParseException, JsonMappingException, IOException {
+			throws IOException {
 		if(Strings.isNullOrEmpty(data)) {
 			return null;
 		}

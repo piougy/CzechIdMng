@@ -111,7 +111,7 @@ public class DefaultIdmRequestService extends AbstractReadWriteDtoService<IdmReq
 				@SuppressWarnings("unchecked")
 				Requestable requestable = requestManager.get(requestDto.getId(), requestDto.getOwnerId(),
 						(Class<Requestable>) Class.forName(requestDto.getOwnerType()));
-				if (requestable != null && requestable instanceof AbstractDto) {
+				if (requestable instanceof AbstractDto) {
 					// If is requestable realized REMOVE, then requestable DTO does not contains
 					// data (only ID). In this case we don't want send this DTO to FE.
 					AbstractDto requestableDto = (AbstractDto) requestable;

@@ -4880,7 +4880,8 @@
     },
     "any": {
       "allowOnly": "Required field!",
-      "empty" : "$t(validationError.string.base)"
+      "empty" : "$t(validationError.string.base)",
+      "required": "$t(validationError.any.allowOnly)"
     },
     "object" : {
       "base" : "$t(validationError.string.base)"

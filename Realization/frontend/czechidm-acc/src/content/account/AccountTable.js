@@ -106,6 +106,7 @@ export class AccountTable extends Advanced.AbstractTableContent {
       <Advanced.EntityInfo
         entityType={ this._getType(data[rowIndex].targetEntityType) }
         entityIdentifier={ data[rowIndex].targetEntityId}
+        entity={ data[rowIndex]._embedded ? data[rowIndex]._embedded.targetEntityId : null }
         showIcon
         face="popover"
         showEntityType/>
@@ -205,7 +206,8 @@ export class AccountTable extends Advanced.AbstractTableContent {
                 return (
                   <Advanced.EntityInfo
                     entityType="system"
-                    entityIdentifier={ data[rowIndex]._embedded.system.id }
+                    entityIdentifier={ data[rowIndex].system }
+                    entity={ data[rowIndex]._embedded.system }
                     face="popover" />
                 );
               }

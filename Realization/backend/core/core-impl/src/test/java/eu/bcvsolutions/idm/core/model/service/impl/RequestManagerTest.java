@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.fail;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.junit.After;
@@ -27,6 +28,12 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
@@ -56,6 +63,8 @@ public class RequestManagerTest extends AbstractCoreWorkflowIntegrationTest {
 	private IdmRequestService requestService;
 	@Autowired
 	private IdmRoleGuaranteeService roleGuaranteeService;
+	@Autowired
+	private FormService formService;
 
 	@Before
 	public void init() {
@@ -621,15 +630,138 @@ public class RequestManagerTest extends AbstractCoreWorkflowIntegrationTest {
 		Assert.assertEquals(1, guarantees.size());
 		// Find via request manager returns one result too (item was only updated in the
 		// request)
-		List<IdmRoleGuaranteeDto> guaranteesRequest = requestManager.find(IdmRoleGuaranteeDto.class, requestTwo.getId(), guaranteeFilter, null)
-				.getContent();
+		List<IdmRoleGuaranteeDto> guaranteesRequest = requestManager
+				.find(IdmRoleGuaranteeDto.class, requestTwo.getId(), guaranteeFilter, null).getContent();
 		Assert.assertEquals(1, guaranteesRequest.size());
 		// Role guarantee One are equals (same ID), but must have different guarantee
 		Assert.assertEquals(guarantees.get(0), guaranteesRequest.get(0));
 		Assert.assertNotEquals(guarantees.get(0).getGuarantee(), guaranteesRequest.get(0).getGuarantee());
+
+	}
+
+	@Test
+	public void testRoleWithEAV() {
+
+		// Create role
+		IdmRoleDto role = getHelper().createRole();
+		// Get definition
+		IdmFormInstanceDto formInstance = formService.getFormInstance(role);
+		// None values yet
+		Assert.assertEquals(0, formInstance.getValues().size());
+		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
+
+		// Create form attributes
+		IdmFormAttributeDto attributeShortText = new IdmFormAttributeDto();
+		attributeShortText.setCode(getHelper().createName());
+		attributeShortText.setName(attributeShortText.getCode());
+		attributeShortText.setPersistentType(PersistentType.SHORTTEXT);
+		attributeShortText.setFormDefinition(formDefinition.getId());
+		attributeShortText = formService.saveAttribute(attributeShortText);
+
+		IdmFormAttributeDto attributeBoolean = new IdmFormAttributeDto();
+		attributeBoolean.setCode(getHelper().createName());
+		attributeBoolean.setName(attributeBoolean.getCode());
+		attributeBoolean.setPersistentType(PersistentType.BOOLEAN);
+		attributeBoolean.setFormDefinition(formDefinition.getId());
+		attributeBoolean = formService.saveAttribute(attributeBoolean);
+
+		IdmFormAttributeDto attributeConfidential = new IdmFormAttributeDto();
+		attributeConfidential.setCode(getHelper().createName());
+		attributeConfidential.setName(attributeConfidential.getCode());
+		attributeConfidential.setPersistentType(PersistentType.SHORTTEXT);
+		attributeConfidential.setConfidential(true);
+		attributeConfidential.setFormDefinition(formDefinition.getId());
+		attributeConfidential = formService.saveAttribute(attributeConfidential);
+
+		IdmFormAttributeDto attributeInt = new IdmFormAttributeDto();
+		attributeInt.setCode(getHelper().createName());
+		attributeInt.setName(attributeInt.getCode());
+		attributeInt.setPersistentType(PersistentType.INT);
+		attributeInt.setFormDefinition(formDefinition.getId());
+		attributeInt = formService.saveAttribute(attributeInt);
+
+		// Create request
+		IdmRequestDto request = requestManager.createRequest(role);
+		Assert.assertNotNull(request);
+		IdmFormInstanceDto formInstanceRequest = requestManager.getFormInstance(request.getId(), role, formDefinition);
+		// None values yet
+		Assert.assertEquals(0, formInstanceRequest.getValues().size());
+
+		IdmFormValueDto valueShortText = new IdmFormValueDto(attributeShortText);
+		valueShortText.setValue(getHelper().createName());
+		formInstanceRequest.getValues().add(valueShortText);
+		IdmFormValueDto valueBoolean = new IdmFormValueDto(attributeBoolean);
+		valueBoolean.setValue(true);
+		formInstanceRequest.getValues().add(valueBoolean);
+		IdmFormValueDto valueConfidential = new IdmFormValueDto(attributeConfidential);
+		String confidentialValueString = getHelper().createName();
+		valueConfidential.setValue(confidentialValueString);
+		formInstanceRequest.getValues().add(valueConfidential);
+		IdmFormValueDto valueInt = new IdmFormValueDto(attributeInt);
+		valueInt.setValue(111);
+		formInstanceRequest.getValues().add(valueInt);
+		formDefinition = formService.getDefinition(IdmRoleDto.class);
+
+		requestManager.saveFormInstance(request.getId(), role, formDefinition, formInstanceRequest.getValues());
+		formInstanceRequest = requestManager.getFormInstance(request.getId(), role, formDefinition);
+		// Four values in request
+		Assert.assertEquals(4, formInstanceRequest.getValues().size());
+		formInstance = formService.getFormInstance(role);
+		// None values via standard service
+		Assert.assertEquals(0, formInstance.getValues().size());
+
+		long numberOfNewValue = formInstanceRequest.getValues().stream()
+				.filter(value -> RequestOperationType.ADD == DtoUtils
+						.getEmbedded(value, Requestable.REQUEST_ITEM_FIELD, IdmRequestItemDto.class).getOperation())
+				.count();
+		Assert.assertEquals(4, numberOfNewValue);
 		
-		
-		
+		// Check confidential value in request
+		IdmFormValueDto confidentialValueDto = formInstanceRequest.getValues().stream()
+				.filter(value -> valueConfidential.getFormAttribute().equals(value.getFormAttribute())).findFirst()
+				.get();
+		// Cannot be same, because this value is confidential
+		Assert.assertNotEquals(confidentialValueString, confidentialValueDto.getValue());
+
+		request = requestManager.startRequest(request.getId(), true);
+		Assert.assertEquals(RequestState.EXECUTED, request.getState());
+		formInstance = formService.getFormInstance(role);
+		// Four values via standard service
+		Assert.assertEquals(4, formInstance.getValues().size());
+
+		// Check short text
+		long countShortText = formInstance.getValues().stream()
+				.filter(value -> valueShortText.getFormAttribute().equals(value.getFormAttribute()))
+				.filter(value -> valueShortText.getValue().equals(value.getValue())).count();
+		Assert.assertEquals(1, countShortText);
+		// Check int
+		long countInt = formInstance.getValues().stream()
+				.filter(value -> valueInt.getFormAttribute().equals(value.getFormAttribute()))
+				.filter(value -> valueInt.getValue().equals(value.getValue())).count();
+		Assert.assertEquals(1, countInt);
+		// Check boolean
+		long countBoolean = formInstance.getValues().stream()
+				.filter(value -> valueBoolean.getFormAttribute().equals(value.getFormAttribute()))
+				.filter(value -> valueBoolean.getValue().equals(value.getValue())).count();
+		Assert.assertEquals(1, countBoolean);
+		// Check confidential
+		IdmFormValueDto confidentialValue = formInstance.getValues().stream()
+				.filter(value -> valueConfidential.getFormAttribute().equals(value.getFormAttribute())).findFirst()
+				.get();
+		// Cannot be same, because this value is confidential
+		Assert.assertNotEquals(confidentialValueString, confidentialValue.getValue());
+		Serializable confidValue = formService.getConfidentialPersistentValue(confidentialValue);
+		Assert.assertEquals(confidentialValueString, confidValue);
+		 
+		// Delete attributes
+		formService.deleteValues(role, attributeShortText);
+		formService.deleteAttribute(attributeShortText);
+		formService.deleteValues(role, attributeBoolean);
+		formService.deleteAttribute(attributeBoolean);
+		formService.deleteValues(role, attributeConfidential);
+		formService.deleteAttribute(attributeConfidential);
+		formService.deleteValues(role, attributeInt);
+		formService.deleteAttribute(attributeInt);
 
 	}
 

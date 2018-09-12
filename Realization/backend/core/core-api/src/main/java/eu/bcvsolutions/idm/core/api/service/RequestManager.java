@@ -102,13 +102,13 @@ public interface RequestManager extends RequestService<IdmRequestDto> {
 	/**
 	 * Read form values and applies data from request on the result.
 	 * 
-	 * @param fromString
+	 * @param requestId
 	 * @param owner
 	 * @param formDefinition
 	 * @param permission
 	 * @return
 	 */
-	<R extends Requestable> IdmFormInstanceDto getFormInstance(UUID fromString, R owner, IdmFormDefinitionDto formDefinition,
+	<R extends Requestable> IdmFormInstanceDto getFormInstance(UUID requestId, R owner, IdmFormDefinitionDto formDefinition,
 			BasePermission... permission);
 
 	/**

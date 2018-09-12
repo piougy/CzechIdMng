@@ -1467,8 +1467,13 @@ public class DefaultRequestManager implements RequestManager {
 			//
 			if (previousValue == null) {
 				if (!newValue.isNull()) { // null values are not saved
-					results.add(
-							(IdmFormValueDto) this.post(requestId, (R) newValue, this.isFormValueNew(previousValue)));
+					if (newValue.isConfidential()) {
+						// Confidential value has to be persisted in the confidential storage
+						results.add(saveConfidentialEavValue(requestId, newValue));
+					} else {
+						results.add((IdmFormValueDto) this.post(requestId, (R) newValue,
+								this.isFormValueNew(previousValue)));
+					}
 				}
 			} else {
 				//

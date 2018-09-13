@@ -718,7 +718,7 @@
       "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)",
       "GUARANTEES": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
-      "POSITIONS": "Další pozice (IdmTreeNode - List of ids or codes)",
+      "POSITIONS": "Další pozice (IdmTreeNode - List identifikátorů nebo kódů)",
       "STATE": "Stav (ContractState - String)"
     },
     "ContractSliceAttributeEnum": {

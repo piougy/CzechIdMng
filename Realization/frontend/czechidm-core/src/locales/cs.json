@@ -718,7 +718,7 @@
       "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)",
       "GUARANTEES": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
-      "POSITIONS": "Další pozice (IdmTreeNode - List of ids or codes)",
+      "POSITIONS": "Další pozice (IdmTreeNode - List identifikátorů nebo kódů)",
       "STATE": "Stav (ContractState - String)"
     },
     "ContractSliceAttributeEnum": {
@@ -4925,7 +4925,8 @@
     },
     "any": {
       "allowOnly": "Položka je povinná!",
-      "empty" : "$t(validationError.string.base)"
+      "empty" : "$t(validationError.string.base)",
+      "required": "$t(validationError.any.allowOnly)"
     },
     "object" : {
       "base" : "$t(validationError.string.base)"

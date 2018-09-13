@@ -24,7 +24,7 @@ class Role extends Basic.AbstractContent {
     // universal request manager (depends on existing of 'requestId' param)
     manager = this.getRequestManager(this.props.params, new RoleManager());
 
-    this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
+    this.context.store.dispatch(manager.fetchEntity(entityId, null, (entity, error) => {
       this.handleError(error);
     }));
   }

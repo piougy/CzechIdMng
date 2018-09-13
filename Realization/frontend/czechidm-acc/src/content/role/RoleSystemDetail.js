@@ -66,7 +66,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
   showDetail(entity, add) {
     let entityId = null;
     if (!add) {
-      entityId = this._isSystemMenu() ? entity.role : entity.system;
+      entityId = this._isSystemMenu() ? entity._embedded.roleSystem.system : entity._embedded.roleSystem.role;
     } else {
       entityId = this.props.params.entityId;
     }
@@ -203,7 +203,8 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     const forceSearchMappings = new Domain.SearchParameters()
       .setFilter('operationType', SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING))
       .setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
-    const linkMenu = this._isSystemMenu() ? `/system/${roleSystem.system}/roles/${roleSystem}/attributes` : `/role/${roleSystem.role}/systems/${roleSystem}/attributes`;
+    let linkMenu = this._isSystemMenu() ? `/system/${roleSystem.system}/roles/${roleSystem ? roleSystem.id : ''}/attributes` : `/role/${roleSystem.role}/systems/${roleSystem ? roleSystem.id : ''}/attributes`;
+    linkMenu = this.addRequestPrefix(linkMenu, this.props.params);
     //
     return (
       <div>

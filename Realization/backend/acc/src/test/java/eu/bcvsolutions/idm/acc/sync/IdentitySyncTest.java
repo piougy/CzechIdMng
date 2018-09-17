@@ -304,6 +304,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 			
 			// Delete log
 			syncLogService.delete(log);
+			syncConfigService.delete(config);
 		} finally {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 		}

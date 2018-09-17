@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  * Manager for automatic role request
  * 
  * @author svandav
- * 
+ * @since 9.1.0
  */
 public interface RequestManager extends RequestService<IdmRequestDto> {
 

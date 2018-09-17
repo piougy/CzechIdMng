@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.event.RequestEvent.RequestEventType;
  * @author svandav
  *
  */
-@Component
+@Component(RequestApprovalProcessor.PROCESSOR_NAME)
 @Description("Approve changes in the request.")
 public class RequestApprovalProcessor extends CoreEventProcessor<IdmRequestDto> {
 	

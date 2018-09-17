@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.model.event.RequestEvent.RequestEventType;
  * @author svandav
  *
  */
-@Component
+@Component(RequestRealizationProcessor.PROCESSOR_NAME)
 @Description("Processor realizes of the request")
 public class RequestRealizationProcessor extends CoreEventProcessor<IdmRequestDto> {
 

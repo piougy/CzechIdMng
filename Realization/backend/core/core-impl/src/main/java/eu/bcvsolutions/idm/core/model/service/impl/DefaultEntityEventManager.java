@@ -975,7 +975,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			savedEvent.setPriority(PriorityType.NORMAL);
 		}
 		//
-		savedEvent = saveEvent(savedEvent);
+		savedEvent = entityEventService.save(savedEvent);
 		//
 		event.setId(savedEvent.getId());
 		event.setPriority(savedEvent.getPriority());

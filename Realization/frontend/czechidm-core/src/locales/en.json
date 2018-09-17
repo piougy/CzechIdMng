@@ -3716,6 +3716,9 @@
       "created": {
         "label": "Event date"
       },
+      "superOwnerId": {
+        "label": "Super owner"
+      },
       "owner": {
         "label": "Entity"
       },

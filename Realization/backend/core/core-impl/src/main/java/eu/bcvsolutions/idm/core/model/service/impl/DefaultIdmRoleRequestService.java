@@ -39,7 +39,6 @@ import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -215,7 +214,13 @@ public class DefaultIdmRoleRequestService
 	@Override
 	@Transactional
 	public IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight) {
-		LOG.debug("Start role request [{}]", requestId);
+		return startRequestInternal(requestId, checkRight, false);
+	}
+	
+	@Override
+	@Transactional
+	public IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight, boolean immediate) {
+		LOG.debug("Start role request [{}], checkRight [{}], immediate [{}]", requestId, checkRight, immediate);
 		Assert.notNull(requestId, "Role request ID is required!");
 		// Load request ... check right for read
 		IdmRoleRequestDto request = get(requestId);
@@ -275,7 +280,12 @@ public class DefaultIdmRoleRequestService
 		// Throw event
 		Map<String, Serializable> variables = new HashMap<>();
 		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
-		return entityEventManager.process(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, savedRequest, variables))
+		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, savedRequest, variables);
+		if (immediate) {
+			event.setPriority(PriorityType.IMMEDIATE);
+		}
+		return entityEventManager
+				.process(event)
 				.getContent();
 	}
 
@@ -335,10 +345,24 @@ public class DefaultIdmRoleRequestService
 		// marked as to rollback.
 		// We can`t run this method in new transaction, because changes on request
 		// (state modified in WF for example) is in uncommited transaction!
-		return this.executeRequestInternal(requestId);
+		//
+		// prepare request event
+		Assert.notNull(requestId, "Role request ID is required!");
+		IdmRoleRequestDto request = this.get(requestId);
+		Assert.notNull(request, "Role request is required!");
+		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, request);
+		//
+		return this.executeRequestInternal(event);
+	}
+	
+	@Override
+	@Transactional
+	public IdmRoleRequestDto executeRequest(EntityEvent<IdmRoleRequestDto> requestEvent) {
+		return this.executeRequestInternal(requestEvent);
 	}
 
-	private IdmRoleRequestDto executeRequestInternal(UUID requestId) {
+	private IdmRoleRequestDto executeRequestInternal(EntityEvent<IdmRoleRequestDto> requestEvent) {
+		UUID requestId = requestEvent.getContent().getId();
 		Assert.notNull(requestId, "Role request ID is required!");
 		IdmRoleRequestDto request = this.get(requestId);
 		Assert.notNull(request, "Role request is required!");
@@ -358,14 +382,13 @@ public class DefaultIdmRoleRequestService
 					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
 		}
 		
-		// Create parent event for whole request, listeners can intercept this event
-		// event is created as processed
-		IdmEntityEventDto requestEventDto = entityEventManager.prepareEvent(request, null);
-		requestEventDto.setResult(new OperationResultDto.Builder(OperationState.RUNNING).build());
-		requestEventDto.setEventType(RoleRequestEventType.EXCECUTE.name());
-		requestEventDto.setPriority(PriorityType.HIGH); // TODO: propagate from FE?
-		requestEventDto = entityEventManager.saveEvent(requestEventDto);
-		final EntityEvent<?> requestEvent = entityEventManager.toEvent(requestEventDto);
+		// Persist event for whole request, listeners can intercept this event event is created as processed
+		if (requestEvent.getPriority() == PriorityType.NORMAL) {
+			requestEvent.setPriority(PriorityType.HIGH); // TODO: propagate from FE?
+		}
+		requestEvent.setSuperOwnerId(identity.getId());
+		// start request event
+		entityEventManager.saveEvent(requestEvent, new OperationResultDto.Builder(OperationState.RUNNING).build());
 		//
 		// Create new identity role
 		concepts.stream().filter(concept -> {

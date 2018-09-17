@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -40,7 +41,15 @@ public interface IdmRoleRequestService
 	 */
 	IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight);
 	
-	// IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight, boolean immediate);
+	/**
+	 * Internal start request. Not accessible from REST.
+	 * 
+	 * @see PriorityType#IMMEDIATE
+	 * @param requestId
+	 * @param checkRight- If is true, then will be check right for immediately execution (if is requires)
+	 * @param immediate - will be executed synchronously
+	 */
+	IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight, boolean immediate);
 
 	/**
 	 * Add record to request log
@@ -57,6 +66,14 @@ public interface IdmRoleRequestService
 	 * @return
 	 */
 	IdmRoleRequestDto executeRequest(UUID requestId);
+	
+	/**
+	 * Realization of request (applying the requested changes).
+	 * 
+	 * @param requestEvent
+	 * @return
+	 */
+	IdmRoleRequestDto executeRequest(EntityEvent<IdmRoleRequestDto> requestEvent);
 
 	/**
 	 * Start approval procces for this request.

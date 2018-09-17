@@ -3759,6 +3759,9 @@
       "created": {
         "label": "Datum"
       },
+      "superOwnerId": {
+        "label": "Hlavní vlastník"
+      },
       "owner": {
         "label": "Entita"
       },

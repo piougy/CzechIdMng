@@ -322,13 +322,17 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           data={ this.getPopoverContent(_entity) }
           children={ this.getTableChildren() }/>
 
-        <Basic.PanelFooter rendered={ this.showLink() }>
-          <Link to={ this.getLink() }>
-            <Basic.Icon value="fa:angle-double-right"/>
-            {' '}
-            {this.i18n('component.advanced.EntityInfo.link.detail.label')}
-          </Link>
-        </Basic.PanelFooter>
+        {
+          !this.showLink()
+          ||
+          <Basic.PanelFooter>
+            <Link to={ this.getLink() }>
+              <Basic.Icon value="fa:angle-double-right"/>
+              {' '}
+              {this.i18n('component.advanced.EntityInfo.link.detail.label')}
+            </Link>
+          </Basic.PanelFooter>
+        }
       </Basic.Panel>
     );
   }

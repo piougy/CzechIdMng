@@ -110,8 +110,8 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 		//
 		autowireNotificationService();
 		//
-		NotificationConfigurationDto configuration = notificationConfigurationService.getConfigurationByTopicLevelNotificationType(topic, message.getLevel(), null);
-		if (configuration != null) {
+		boolean configuration = notificationConfigurationService.getConfigurationByTopicLevelNotificationType(topic, message.getLevel(), null) == null ? false : true;
+		if (configuration) {
 			List<NotificationConfigurationDto> configurations = notificationConfigurationService.getNotDisabledConfigurations(topic, null, message.getLevel());
 			if (configurations.isEmpty()) {
 				LOG.info("Notification for [topic:{}] not found or disabled. No message will be sent.", topic);
@@ -140,6 +140,19 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 		//
 		// iterate over all prepared notifications, set recipients and send them
 		for (IdmNotificationLogDto notification : notifications) {
+			// if topic has more configurations and some of them are disabled
+			if (configuration) {
+				List<NotificationConfigurationDto> configurations = notificationConfigurationService.getNotDisabledConfigurations(notification.getTopic(), notification.getType(), notification.getMessage().getLevel());
+				if (configurations.isEmpty()) {
+					continue;
+				} 
+			} else {
+				List<NotificationConfigurationDto> configurations = notificationConfigurationService.getNotDisabledConfigurations(notification.getTopic(), notification.getType());
+				if (configurations.isEmpty()) {
+					continue;
+				}
+			}
+			//
 			final IdmMessageDto notificationMessage = notification.getMessage();
 			if (notificationMessage.getHtmlMessage() == null 
 					&& notificationMessage.getSubject() == null 

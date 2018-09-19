@@ -363,6 +363,9 @@ public class DefaultIdmNotificationTemplateService extends
 		//
 		// html, text and subject is not empty use them
 		for (IdmNotificationConfiguration configuration : configurations) {
+			if (configuration.isDisabled() == true) {
+				continue;
+			}
 			IdmMessageDto finalMessage = null;
 			if (message.getTemplate() != null) {
 				// exist template in message

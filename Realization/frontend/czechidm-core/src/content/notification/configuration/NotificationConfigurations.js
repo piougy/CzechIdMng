@@ -167,6 +167,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
                 }
                 }
               />
+            <Advanced.Column property="disabled" width="75px" header={this.i18n('entity.NotificationConfiguration.disabled')} sort face="bool" />
           </Advanced.Table>
         </Basic.Panel>
 
@@ -204,6 +205,9 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
                 <Basic.TextArea
                   ref="description"
                   label={this.i18n('entity.NotificationConfiguration.description')}/>
+                <Basic.Checkbox
+                  ref="disabled"
+                  label={this.i18n('entity.NotificationConfiguration.disabled')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

@@ -12,11 +12,14 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationSender;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
@@ -42,6 +45,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	private IdmNotificationTemplateService notificationTemplateService;
 	@Autowired(required = false)
 	private ConfigurationService configurationService; // optional internal dependency - checks for processor is enabled
+	private IdmNotificationConfigurationService notificationConfigurationService = null;
 	
 	/**
 	 * Returns true, if given delimiter equals this managers {@link IdmNotification} type.
@@ -103,6 +107,23 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	public List<N> send(String topic, IdmMessageDto message, IdmIdentityDto identitySender, List<IdmIdentityDto> recipients) {
 		Assert.notNull(message, "Message is required");
 		List<N> sendMessages = new ArrayList<>();
+		//
+		autowireNotificationService();
+		//
+		NotificationConfigurationDto configuration = notificationConfigurationService.getConfigurationByTopicLevelNotificationType(topic, message.getLevel(), null);
+		if (configuration != null) {
+			List<NotificationConfigurationDto> configurations = notificationConfigurationService.getNotDisabledConfigurations(topic, null, message.getLevel());
+			if (configurations.isEmpty()) {
+				LOG.info("Notification for [topic:{}] not found or disabled. No message will be sent.", topic);
+				return sendMessages;
+			} 
+		} else {
+			List<NotificationConfigurationDto> configurations = notificationConfigurationService.getNotDisabledConfigurations(topic, null);
+			if (configurations.isEmpty()) {
+				LOG.info("Notification for [topic:{}] not found or disabled. No message will be sent.", topic);
+				return sendMessages;
+			}
+		}
 		//
 		List<IdmNotificationRecipientDto> notificationRecipients = new ArrayList<>();
 		recipients.forEach(recipient ->{
@@ -198,5 +219,13 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 			IdmNotificationRecipientDto recipient, String realRecipient) {
 		return new IdmNotificationRecipientDto(notification.getId(), recipient.getIdentityRecipient(),
 			realRecipient);
+	}
+	
+	/**
+	 * Methods helps autowire notification service
+	 */
+	private void autowireNotificationService() {
+		if (this.notificationConfigurationService == null)
+			this.notificationConfigurationService = AutowireHelper.getBean(IdmNotificationConfigurationService.class); 
 	}
 }

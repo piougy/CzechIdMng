@@ -146,7 +146,8 @@ class DateTimePicker extends AbstractFormComponent {
     }
     if (!mode || mode === 'datetime') {
       return moment(value, this.getFormat()).toISOString(); // iso 8601
-    } else if (mode === 'date') {
+    }
+    if (mode === 'date') {
       return moment(value, this.getFormat()).format('YYYY-MM-DD'); // iso 8601
     }
     // time
@@ -270,6 +271,9 @@ class DateTimePicker extends AbstractFormComponent {
 
 DateTimePicker.propTypes = {
   ...AbstractFormComponent.propTypes,
+  /**
+   *  Defined mode of component see @DateTimePicker. Use 'datetime' for DateTime columns, timezone is ignored for LocalDate columns.
+   */
   mode: PropTypes.oneOf(['date', 'time', 'datetime']),
   locale: PropTypes.oneOf(['cs', 'en']), // TODO: supports other locales needs import
   dateFormat: PropTypes.string,
@@ -282,7 +286,8 @@ DateTimePicker.propTypes = {
 
 const { componentSpan, ...otherDefaultProps} = AbstractFormComponent.defaultProps; // componentSpan override
 DateTimePicker.defaultProps = {
-  ...otherDefaultProps
+  ...otherDefaultProps,
+  mode: 'datetime'
 };
 
 export default DateTimePicker;

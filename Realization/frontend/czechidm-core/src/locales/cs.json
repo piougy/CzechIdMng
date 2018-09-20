@@ -103,6 +103,9 @@
       "label": "Do",
       "placeholder": "Datum do"
     },
+    "date": {
+      "placeholder": "Datum"
+    },
     "text": {
       "help": {
         "header": "Filtrování",
@@ -388,6 +391,17 @@
         "option": {
           "yes": "Ano",
           "no": "Ne"
+        },
+        "FilterDate": {
+          "face": {
+            "placeholder": "$t(filter.date.placeholder)"
+          },
+          "from": {
+            "placeholder": "$t(filter.dateFrom.placeholder)"
+          },
+          "till": {
+            "placeholder": "$t(filter.dateTill.placeholder)"
+          }
         }
       },
       "Table": {
@@ -750,6 +764,11 @@
       "IMMEDIATE": "Ihned",
       "HIGH": "Vysoká",
       "NORMAL": "Normální"
+    },
+    "DateFaceEnum": {
+      "TODAY": "Dnes",
+      "THIS_MONTH": "Tento měsíc",
+      "BETWEEN": "Mezi"
     }
   },
   "dashboard": {
@@ -3306,6 +3325,7 @@
       "id": "ID",
       "taskAssignee": "Přiřazeno",
       "filter": {
+        "created": "Datum vytvoření",
         "createdBefore": "Úkoly vytvořené před",
         "createdAfter": "Úkoly vytvořené po"
       }

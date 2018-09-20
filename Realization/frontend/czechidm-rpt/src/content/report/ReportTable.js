@@ -283,17 +283,8 @@ export class ReportTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.DateTimePicker
-                      mode="date"
-                      ref="from"
-                      placeholder={this.i18n('filter.dateFrom.placeholder')}/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.DateTimePicker
-                      mode="date"
-                      ref="till"
-                      placeholder={this.i18n('filter.dateTill.placeholder')}/>
+                  <Basic.Col lg={ 8 }>
+                    <Advanced.Filter.FilterDate ref="fromTill"/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>

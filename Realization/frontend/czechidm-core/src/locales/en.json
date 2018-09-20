@@ -103,6 +103,9 @@
       "label": "To",
       "placeholder": "Date to"
     },
+    "date": {
+      "placeholder": "Date"
+    },
     "text": {
       "help": {
         "header": "Filtering",
@@ -358,6 +361,17 @@
         "option": {
           "yes": "Yes",
           "no": "No"
+        },
+        "FilterDate": {
+          "face": {
+            "placeholder": "$t(filter.date.placeholder)"
+          },
+          "from": {
+            "placeholder": "$t(filter.dateFrom.placeholder)"
+          },
+          "till": {
+            "placeholder": "$t(filter.dateTill.placeholder)"
+          }
         }
       },
       "Table": {
@@ -719,6 +733,11 @@
       "IMMEDIATE": "Immediate",
       "HIGH": "High",
       "NORMAL": "Normal"
+    },
+    "DateFaceEnum": {
+      "TODAY": "Today",
+      "THIS_MONTH": "This month",
+      "BETWEEN": "Between"
     }
   },
   "dashboard": {
@@ -3263,6 +3282,7 @@
       "id": "Task Id",
       "taskAssignee": "Assigned",
       "filter": {
+        "created": "Tasks created",
         "createdBefore": "Tasks created before",
         "createdAfter": "Tasks created after"
       }

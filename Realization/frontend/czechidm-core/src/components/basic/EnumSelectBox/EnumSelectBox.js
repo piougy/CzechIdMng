@@ -25,11 +25,16 @@ class EnumSelectBox extends SelectBox {
   }
 
   setValue(value) {
+    const options = this.getOptions();
+    let option = null;
+    if (options) {
+      option = this.getOptions().find(o => { return o.value === value; });
+    }
+    //
     if (this.props.useObject) {
-      const option = this.getOptions().find(o => { return o.value === value; });
       super.setValue(option ? option : this.normalizeValue(value));
     } else {
-      super.setValue(this.normalizeValue(value));
+      super.setValue(option ? option : this.normalizeValue(value));
     }
   }
 
@@ -317,6 +322,7 @@ EnumSelectBox.propTypes = {
   options: PropTypes.arrayOf(PropTypes.object),
   value: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.func),
+    PropTypes.string,
     PropTypes.symbol
   ]),
   searchable: PropTypes.bool,

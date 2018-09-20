@@ -261,5 +261,10 @@ public class DefaultIdmNotificationConfigurationService
 	public List<NotificationConfigurationDto> getNotDisabledConfigurations(String topic, String notificationType) {
 		return getNotDisabledConfigurations(topic, notificationType, null);
 	}
+	
+	@Override
+	public List<NotificationConfigurationDto> getConfigurationsLevelIsNull(String topic) {
+		return toDtos(repository.findByTopicAndLevelIsNull(topic), false);
+	}
 
 }

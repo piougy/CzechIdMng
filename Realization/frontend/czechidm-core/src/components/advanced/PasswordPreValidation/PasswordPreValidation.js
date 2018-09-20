@@ -12,30 +12,6 @@ export default class PasswordPreValidation extends Basic.AbstractFormComponent {
     super(props);
   }
 
-  componentDidMount() {
-    const { error, validationDefinition } = this.props;
-    this._getPopoverContent(error, validationDefinition);
-  }
-
-  componentWillReciveNewProps(nextProps) {
-    const { error, validationDefinition } = this.props;
-
-    if (error !== nextProps.error || validationDefinition !== nextProps.validationDefinition) {
-      this._getPopoverContent(nextProps.error, nextProps.validationDefinition);
-    }
-  }
-
-  _getPopoverContent(validationError, validationDefinition) {
-    return (
-      <Basic.Panel>
-          <Basic.PanelHeader>
-            {this.i18n('content.passwordPolicies.validation.passwordHintPreValidateHeader')}
-          </Basic.PanelHeader>
-        <ValidationMessage error={validationError} validationDefinition={validationDefinition} />
-      </Basic.Panel>
-  );
-  }
-
   render() {
     const { rendered, error, validationDefinition } = this.props;
     if (!rendered || !error) {
@@ -45,26 +21,33 @@ export default class PasswordPreValidation extends Basic.AbstractFormComponent {
     return (
       <Basic.Alert
         icon="info-sign"
-        text={this.i18n('content.passwordPolicies.validation.passwordHintPreValidate')}
-        style={{ margin: '15px 0'}}>
+        text={ this.i18n('content.passwordPolicies.validation.passwordHintPreValidate') }
+        style={{ marginBottom: 0 }}>
         <Basic.Popover
           ref="popover"
           trigger={['click']}
-          value={ this._getPopoverContent(error, validationDefinition) }
+          value={
+            <Basic.Panel level="info">
+              <Basic.PanelHeader>
+                {this.i18n('content.passwordPolicies.validation.passwordHintPreValidateHeader')}
+              </Basic.PanelHeader>
+              <Basic.PanelBody>
+                <ValidationMessage error={error} validationDefinition={validationDefinition} />
+              </Basic.PanelBody>
+            </Basic.Panel>
+          }
           className="abstract-entity-info-popover"
-          placement="right"
-          >
+          placement="right">
           {
-              <Basic.Button
-                level="link"
-                style={{ padding: 0, marginLeft: 3, marginBottom: 5 }}
-                title={ this.i18n('content.passwordPolicies.validation.prevalidationLink.title') }>
-                {this.i18n('content.passwordPolicies.validation.passwordHintPreValidatePwd')}
-                </Basic.Button>
+            <Basic.Button
+              level="link"
+              style={{ padding: 0, whiteSpace: 'normal', verticalAlign: 'baseline' }}
+              title={ this.i18n('content.passwordPolicies.validation.prevalidationLink.title') }>
+              { this.i18n('content.passwordPolicies.validation.passwordHintPreValidatePwd') }
+            </Basic.Button>
           }
         </Basic.Popover>
-
-        </Basic.Alert>
+      </Basic.Alert>
     );
   }
 }

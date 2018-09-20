@@ -198,9 +198,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     lines += '</ul></span>';
     result = lines + rules + charBase;
     validationMessage.push(
-      <Basic.Alert level={'info'} className="no-margin last">
-        <span dangerouslySetInnerHTML={{ __html: result }} />
-      </Basic.Alert>
+      <span dangerouslySetInnerHTML={{ __html: result }} />
     );
     return validationMessage;
   }

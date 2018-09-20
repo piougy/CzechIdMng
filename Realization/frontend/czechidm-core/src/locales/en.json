@@ -931,7 +931,7 @@
         "passwordSimilarPreValidate": "Password cannot be similar to",
         "passwordHintPreValidate": "Hint for a ",
         "passwordHintPreValidatePwd": "new password",
-        "passwordHintPreValidateHeader": "Password have to meet this requirments:",
+        "passwordHintPreValidateHeader": "Password have to meet this requirements:",
         "maxHistorySimilar": "The password must be different from the last {{0}} passwords.",
         "prevalidationLink": {
           "title": "Rules for new password"

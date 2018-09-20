@@ -88,10 +88,7 @@ class DateTimePicker extends AbstractFormComponent {
         if (iso8601Value && !iso8601Value.isValid()) {
           result = false;
           key = 'date.unvalid';
-        }
-      }
-      if (result && isValidDate && value) {
-        if (!isValidDate(value)) {
+        } else if (isValidDate && !isValidDate(value)) {
           result = false;
           key = 'date.unvalid';
         }

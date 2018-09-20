@@ -50,10 +50,13 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 ### Pick date only in future
 ```html
 isValidDate(current) {
+  if (!current) {
+    return true; // if value is not required
+  }
   const date = new Date();
   const yesterday = date.setDate(date.getDate() - 1);
   return current.isAfter(yesterday);
-};
+}
 ...
 <DateTimePicker
     ref="dateInFuture"

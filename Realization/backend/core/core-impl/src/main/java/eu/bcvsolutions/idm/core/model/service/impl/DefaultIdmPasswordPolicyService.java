@@ -79,6 +79,7 @@ public class DefaultIdmPasswordPolicyService
 	private static final String PASSWORD_SIMILAR_LASTNAME_PREVALIDATE = "passwordSimilarLastNamePreValidate";
 	private static final String POLICY_NAME_PREVALIDATION = "policiesNamesPreValidation";
 	private static final String SPECIAL_CHARACTER_BASE = "specialCharacterBase";
+	private static final String FORBIDDEN_CHARACTER_BASE = "forbiddenCharacterBase";
 	private static final String MAX_HISTORY_SIMILAR = "maxHistorySimilar";
 	
 	private PasswordGenerator passwordGenerator;
@@ -291,6 +292,7 @@ public class DefaultIdmPasswordPolicyService
 		Set<Character> prohibitedChar = new HashSet<>();
 		List<String> policyNames = new ArrayList<String>();
 		Map<String, Object> specialCharBase = new HashMap<>();
+		Map<String, Object> forbiddenCharBase = new HashMap<>();
 
 		for (IdmPasswordPolicyDto passwordPolicy : passwordPolicyList) {
 			if (passwordPolicy.isDisabled()) {
@@ -399,6 +401,10 @@ public class DefaultIdmPasswordPolicyService
 				}
 				validateNotSuccess = true;
 			}
+			
+			if (passwordPolicy.getProhibitedCharacters() != null) {
+				forbiddenCharBase.put(passwordPolicy.getName(), passwordPolicy.getProhibitedCharacters());
+			}
 
 			if (!notPassRules.isEmpty() && passwordPolicy.isEnchancedControl()) {
 				int notRequiredRules = passwordPolicy.getNotRequiredRules();
@@ -426,6 +432,10 @@ public class DefaultIdmPasswordPolicyService
 		
 		if (!specialCharBase.isEmpty() && prevalidation) {
 			errors.put(SPECIAL_CHARACTER_BASE, specialCharBase); 
+		}
+		
+		if (!forbiddenCharBase.isEmpty() && prevalidation) {
+			errors.put(FORBIDDEN_CHARACTER_BASE, forbiddenCharBase); 
 		}
 
 		if (!policyNames.isEmpty() && !prevalidation) {

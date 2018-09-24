@@ -30,6 +30,12 @@ const MIN_RULES_TO_FULFILL_COUNT = 'minRulesToFulfillCount';
 const SPECIAL_CHARACTER_BASE = 'specialCharacterBase';
 
 /**
+ * Forbidden character base for each required policies
+ * @type {String}
+ */
+const FORBIDDEN_CHARACTER_BASE = 'forbiddenCharacterBase';
+
+/**
  * Merge similar password lines
  * @type {String}
  */
@@ -56,6 +62,7 @@ const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
 
 /**
  * @author Ondřej Kopr
+ * @author Patrik Stloukal
  */
 export default class ValidationMessage extends Basic.AbstractFormComponent {
 
@@ -76,7 +83,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     }
   }
 
-  _showSpecialCharacterBase(parameter) {
+  _showCharacterBase(parameter, type) {
     let rules = '<ul style="padding-left: 20px">';
     for (const ruleKey in parameter) {
       if (parameter.hasOwnProperty(ruleKey)) {
@@ -84,7 +91,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
       }
     }
     rules += '</ul></span>';
-    return this.i18n('content.passwordPolicies.validation.specialCharacterBase') + ' ' + rules;
+    return this.i18n('content.passwordPolicies.validation.' + type) + ' ' + rules;
   }
 
   /**
@@ -163,12 +170,16 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     let rules = ''; // one of two following rules must be met....
     let result = ''; // for merging lines, rules and char base
     let charBase = ''; // for shown special character base
+    let forbiddenBase = ''; // for shown forbidden character base
     const similar = []; // for merging pwd must not be similar to name, mail, username
 
     // iterate over all parameters in error
     for (const key in error.parameters) {
       if (key === SPECIAL_CHARACTER_BASE) {
-        charBase = this._showSpecialCharacterBase(error.parameters[key], validationMessage, `info`);
+        charBase = this._showCharacterBase(error.parameters[key], SPECIAL_CHARACTER_BASE, validationMessage, `info`);
+      }
+      if (key === FORBIDDEN_CHARACTER_BASE) {
+        forbiddenBase = this._showCharacterBase(error.parameters[key], FORBIDDEN_CHARACTER_BASE, validationMessage, `info`);
       }
       // error prameters must contain key and VALIDATION_WARNINGS must also contain key
       if (error.parameters.hasOwnProperty(key) && _.indexOf(VALIDATION_WARNINGS, key) !== -1) {
@@ -193,27 +204,49 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
       }
     }
     if (similar.length > 0) {
-      lines += '<span><li>' + this.i18n('content.passwordPolicies.validation.' + PWD_SIMILAR) + ' ' + this._toMyString(similar) + '.';
+      lines += '<span><li>' + this.i18n('content.passwordPolicies.validation.' + PWD_SIMILAR) + ' ' + similar.join(', ') + '.';
     }
     lines += '</ul></span>';
-    result = lines + rules + charBase;
+    result = lines + rules + charBase + forbiddenBase;
     validationMessage.push(
       <span dangerouslySetInnerHTML={{ __html: result }} />
     );
     return validationMessage;
   }
 
-  /**
-   * Method prepare nice toString of items with comma and space
-   */
-  _toMyString(similar) {
-    let items = similar[0];
-    let i;
-    for ( i = 1; i < similar.length; i++) {
-      items += ', ' + similar[i];
-    }
-    return items;
-  }
+_preparePreValidationComponent(errorMessage) {
+  return (
+    <Basic.Alert
+      icon="info-sign"
+      text={ this.i18n('content.passwordPolicies.validation.passwordHintPreValidate') }
+      style={{ marginBottom: 0 }}>
+      <Basic.Popover
+        ref="popover"
+        trigger={['click']}
+        value={
+          <Basic.Panel level="info">
+            <Basic.PanelHeader>
+              {this.i18n('content.passwordPolicies.validation.passwordHintPreValidateHeader')}
+            </Basic.PanelHeader>
+            <Basic.PanelBody>
+              {this._preparePreValidationMessage(errorMessage)}
+            </Basic.PanelBody>
+          </Basic.Panel>
+        }
+        className="abstract-entity-info-popover"
+        placement="right">
+        {
+          <Basic.Button
+            level="link"
+            style={{ padding: 0, whiteSpace: 'normal', verticalAlign: 'baseline' }}
+            title={ this.i18n('content.passwordPolicies.validation.prevalidationLink.title') }>
+            { this.i18n('content.passwordPolicies.validation.passwordHintPreValidatePwd') }
+          </Basic.Button>
+        }
+      </Basic.Popover>
+    </Basic.Alert>
+  );
+}
 
   render() {
     const { rendered, error, validationDefinition } = this.props;
@@ -223,7 +256,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
 
     let validation;
     if (validationDefinition) {
-      validation = this._preparePreValidationMessage(error);
+      validation = this._preparePreValidationComponent(error);
     } else {
       validation = this._prepareValidationMessage(error);
     }

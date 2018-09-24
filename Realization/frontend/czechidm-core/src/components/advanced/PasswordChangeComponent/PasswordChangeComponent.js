@@ -300,11 +300,9 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           style={{ margin: '15px 0'}}/>
       );
       content.push(
-        <ValidationMessage rendered={!validationDefinition} error={validationError} validationDefinition={validationDefinition} />
+        <ValidationMessage error={validationError} validationDefinition={validationDefinition} />
       );
-      content.push(
-        <PasswordPreValidation rendered={validationDefinition && validationError !== undefined} error={validationError} />
-    );
+
       content.push(
         <Basic.AbstractForm ref="form">
           <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')}

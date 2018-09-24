@@ -924,6 +924,7 @@
         "date": "Password can not be change now, try again: {{0}}",
         "advancedControlValidateType": "Enhanced control is available only for validate politics.",
         "specialCharacterBase": "List of special characters for password policies: ",
+        "forbiddenCharacterBase": "List of forbidden characters for password policies: ",
         "passwordSimilarUsernamePreValidate": "login",
         "passwordSimilarEmailPreValidate": "email",
         "passwordSimilarFirstNamePreValidate": "first name",

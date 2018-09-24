@@ -955,6 +955,7 @@
         "date": "Heslo není možné nyní změnit, zkuste to znovu: {{0}}",
         "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku.",
         "specialCharacterBase": "Seznam speciálních znaků pro politiky hesel: {{0}}",
+        "forbiddenCharacterBase": "Seznam zakázaných znaků pro politiky hesel: {{0}}",
         "passwordSimilarUsernamePreValidate": "uživatelskému jménu",
         "passwordSimilarEmailPreValidate": "emailu",
         "passwordSimilarFirstNamePreValidate": "jménu",

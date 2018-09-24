@@ -1,11 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.2.0]
+- [#1261](https://redmine.czechidm.com/issues/1261) - Internal processing of events in ``AbstractEntityEventProcessor`` was improved. It's possible to create processor for super classes, e.g. one processor can handle all BaseDto generalizations. ``AbstractEntityEventProcessor#onApplicationEvent`` method intercepts ``ApplicationEvent`` now - this method is not in ``EntityEventProcessor`` interface, but if you overrided her in custom processor, refactor your processors to new input parameter.
+
 ## [9.1.0]
 - Authentication is not needed for using Spring Data queries in repositories (fixed mainly for test purposes).
 - Role code is used in role select boxes (code is shown, only if name is different than code).
 - [#1145](https://redmine.czechidm.com/issues/1145) - Other contract positions can be configured. Other positions are used for assign automatic roles by tree nodes.
-- ``Index.js`` in frontend ``czechidm-app`` module was updated - don't forget to **update this module**, if project specific app module is used. 
+- ``Index.js`` in frontend ``czechidm-app`` module was updated - don't forget to **update this module**, if project specific app module is used.
 
 ## [9.0.0]
 - [#1200](https://redmine.czechidm.com/issues/1200) - Business roles:

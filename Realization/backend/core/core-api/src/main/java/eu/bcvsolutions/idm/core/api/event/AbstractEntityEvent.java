@@ -122,7 +122,11 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 	@Override
 	@JsonIgnore
     public ResolvableType getResolvableType() {
-		return ResolvableType.forClassWithGenerics(getClass().getSuperclass(), ResolvableType.forClass(this.getEventClassType()));
+		ResolvableType result =  ResolvableType.forClassWithGenerics(
+				getClass().getSuperclass(),
+				ResolvableType.forClass(this.getEventClassType()));
+		//
+		return result;
     }
 	
 	@SuppressWarnings("unchecked")

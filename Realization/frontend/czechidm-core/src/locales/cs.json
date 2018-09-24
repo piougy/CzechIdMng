@@ -4607,6 +4607,10 @@
       "title": "Nebyly/a nalezena role",
       "message": "Role pro identitu [{{identity}}], nebyla nalezeny/a."
     },
+    "BULK_ACTION_IDENTITY_REMOVE_ROLE_FAILED": {
+      "title": "Role nebyly odebrány",
+      "message": "Role pro identitu [{{identity}}] nebyly odebrány. Role nebyly nalezeny nebo nemohou býti odebrány - jednalo o roli automackou, business roli nebo na odebrání role nepostačovalo Vaše oprávění."
+    },
     "BULK_ACTION_CONTRACT_NOT_FOUND": {
       "title": "Nebyl nalezen kontrakt",
       "message": "Pro identitu [{{identity}}] nebyl nalezen kontrakt."

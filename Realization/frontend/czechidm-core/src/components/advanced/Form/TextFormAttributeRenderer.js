@@ -147,7 +147,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
   }
 
   renderSingleInput() {
-    const { attribute, readOnly, values } = this.props;
+    const { attribute, values } = this.props;
     //
     return (
       <Basic.TextField
@@ -157,7 +157,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         placeholder={ this.getPlaceholder() }
         value={ this.toInputValue(values) }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ readOnly || attribute.readonly }
+        readOnly={ this.isReadOnly() }
         validation={ this.getInputValidation() }
         required={ this.isRequired() }
         confidential={ attribute.confidential }/>
@@ -165,7 +165,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
   }
 
   renderMultipleInput() {
-    const { attribute, readOnly, values } = this.props;
+    const { attribute, values } = this.props;
     //
     return (
       <Basic.TextArea
@@ -185,7 +185,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         }
         value={ this.toInputValues(values) }
         helpBlock={ this.getHelpBlock(this.i18n('multiple.title')) }
-        readOnly={ readOnly || attribute.readonly }
+        readOnly={ this.isReadOnly() }
         placeholder={ this.getPlaceholder() }/>
     );
   }

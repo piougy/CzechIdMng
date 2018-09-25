@@ -258,13 +258,19 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    * @return {Boolean} [description]
    */
   isRequired() {
-    const { attribute, readOnly } = this.props;
+    const { attribute } = this.props;
     //
-    if (readOnly || attribute.readonly) {
+    if (this.isReadOnly()) {
       // read only attribute cannot be required
       return false;
     }
     return attribute.required;
+  }
+
+  isReadOnly() {
+    const { attribute, readOnly } = this.props;
+    //
+    return readOnly || attribute.readonly;
   }
 
   /**

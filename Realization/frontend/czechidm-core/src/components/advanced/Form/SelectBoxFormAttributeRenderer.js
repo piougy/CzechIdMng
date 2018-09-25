@@ -110,7 +110,7 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
   }
 
   renderSingleInput() {
-    const { attribute, readOnly, values } = this.props;
+    const { attribute, values } = this.props;
     //
     return (
       <Basic.SelectBox
@@ -120,7 +120,7 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
         manager={ this.getManager() }
         value={ !attribute.multiple ? this.toInputValue(values) : this.toInputValues(values) }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ readOnly || attribute.readonly }
+        readOnly={ this.isReadOnly() }
         required={ this.isRequired() }
         multiSelect={ attribute.multiple }/>
     );

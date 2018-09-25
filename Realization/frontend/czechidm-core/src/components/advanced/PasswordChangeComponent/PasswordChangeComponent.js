@@ -7,7 +7,6 @@ import * as Utils from '../../../utils';
 import * as Basic from '../../basic';
 import PasswordField from '../PasswordField/PasswordField';
 import ValidationMessage from '../ValidationMessage/ValidationMessage';
-import PasswordPreValidation from '../PasswordPreValidation/PasswordPreValidation';
 import { IdentityService } from '../../../services';
 import { IdentityManager, SecurityManager, ConfigurationManager } from '../../../redux';
 

@@ -45,7 +45,6 @@ import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
 import ImageCropper from './ImageCropper/ImageCropper';
 import LongRunningTask from './LongRunningTask/LongRunningTask';
 import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
-import PasswordPreValidation from './PasswordPreValidation/PasswordPreValidation';
 
 const Components = {
   Table,
@@ -96,8 +95,7 @@ const Components = {
   TreeNodeInfo,
   ImageCropper,
   LongRunningTask,
-  CreatableSelectBox,
-  PasswordPreValidation
+  CreatableSelectBox
 };
 
 Components.version = '0.0.1';

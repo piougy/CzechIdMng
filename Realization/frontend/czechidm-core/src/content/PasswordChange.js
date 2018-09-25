@@ -284,8 +284,7 @@ class PasswordChange extends Basic.AbstractContent {
 
                   <Basic.Alert text={this.i18n('message.passwordChange.idmNotEnabled')} className="no-margin" rendered={!enabledPasswordChangeForIdm} level="info" />
 
-                  <Advanced.ValidationMessage rendered={!validationDefinition} error={ validationError } validationDefinition={ validationDefinition } />
-                  <Advanced.PasswordPreValidation rendered={validationDefinition && validationError !== undefined} error={validationError} />
+                  <Advanced.ValidationMessage error={ validationError } validationDefinition={ validationDefinition } />
 
                   <Basic.TextField
                     ref="username"

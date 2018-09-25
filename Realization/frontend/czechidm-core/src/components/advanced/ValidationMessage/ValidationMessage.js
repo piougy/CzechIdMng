@@ -84,14 +84,16 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
   }
 
   _showCharacterBase(parameter, type) {
-    let rules = '<ul style="padding-left: 20px">';
+    const rules = [];
+    const all = [];
+    all.push(this.i18n('content.passwordPolicies.validation.' + type));
     for (const ruleKey in parameter) {
       if (parameter.hasOwnProperty(ruleKey)) {
-        rules += _.size(parameter) === 1 ? '<span><li>' + parameter[ruleKey] + '</li>' : '<span><li>' + ruleKey + ':  ' + parameter[ruleKey] + '</li>';
+        rules.push(_.size(parameter) === 1 ? parameter[ruleKey] : ruleKey + ':  ' + parameter[ruleKey]);
       }
     }
-    rules += '</ul></span>';
-    return this.i18n('content.passwordPolicies.validation.' + type) + ' ' + rules;
+    all.push(this._pointList(rules));
+    return all;
   }
 
   /**
@@ -115,18 +117,20 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
         // enchanced control special message, minimal rules to fulfill
         if (key === MIN_RULES_TO_FULFILL) {
           // fill rules with not required messages
-          let rules = '<ul style="padding-left: 20px">';
+          const rules = [];
+          rules.push(this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ));
+          const rule = [];
           for (const ruleKey in error.parameters[key]) {
             if (error.parameters[key].hasOwnProperty(ruleKey)) {
-              rules += '<span><li>' + this.i18n('content.passwordPolicies.validation.' + ruleKey) + error.parameters[key][ruleKey] + '</li>';
+              rule.push(this.i18n('content.passwordPolicies.validation.' + ruleKey) + error.parameters[key][ruleKey]);
             }
           }
-          rules += '</ul></span>';
+          rules.push(this._pointList(rule));
           validationMessage.push(
             <Basic.Alert level={levelWarning} className="no-margin">
-              <span dangerouslySetInnerHTML={{
-                __html: this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ) + ' ' + rules}}
-              />
+              <span>
+                {rules}
+              </span>
             </Basic.Alert>);
         } else if (key !== PASSWORD_POLICIES_NAMES) {
           // set all attributes as parameter zero
@@ -160,56 +164,69 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     return validationMessage;
   }
 
+  _pointList(field) {
+    const listItems = field.map((number) =>
+      <li>{number}</li>
+    );
+    return (
+      <ul style={{ paddingLeft: 20 }}>{listItems}</ul>
+    );
+  }
+
   _preparePreValidationMessage(error) {
     if (!error || !error.parameters) {
       return null;
     }
 
     const validationMessage = [];
-    let lines = '<ul style="padding-left: 20px">'; // every one of these rules must be met
-    let rules = ''; // one of two following rules must be met....
-    let result = ''; // for merging lines, rules and char base
-    let charBase = ''; // for shown special character base
-    let forbiddenBase = ''; // for shown forbidden character base
+    const lines = []; // every one of these rules must be met
+    const rules = []; // one of two following rules must be met....
+    const charBase = []; // for shown special character base
+    const forbiddenBase = []; // for shown forbidden character base
     const similar = []; // for merging pwd must not be similar to name, mail, username
 
     // iterate over all parameters in error
     for (const key in error.parameters) {
       if (key === SPECIAL_CHARACTER_BASE) {
-        charBase = this._showCharacterBase(error.parameters[key], SPECIAL_CHARACTER_BASE, validationMessage, `info`);
+        charBase.push(this._showCharacterBase(error.parameters[key], SPECIAL_CHARACTER_BASE, validationMessage, `info`));
       }
       if (key === FORBIDDEN_CHARACTER_BASE) {
-        forbiddenBase = this._showCharacterBase(error.parameters[key], FORBIDDEN_CHARACTER_BASE, validationMessage, `info`);
+        forbiddenBase.push(this._showCharacterBase(error.parameters[key], FORBIDDEN_CHARACTER_BASE, validationMessage, `info`));
       }
       // error prameters must contain key and VALIDATION_WARNINGS must also contain key
       if (error.parameters.hasOwnProperty(key) && _.indexOf(VALIDATION_WARNINGS, key) !== -1) {
         // enchanced control special message, minimal rules to fulfill
         if (key === MIN_RULES_TO_FULFILL) {
           // fill rules with not required messages
-          rules = '<ul style="padding-left: 20px">';
+          rules.push(this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ));
+          const rule = [];
           for (const ruleKey in error.parameters[key]) {
             if (error.parameters[key].hasOwnProperty(ruleKey)) {
-              rules += '<span><li>' + this.i18n('content.passwordPolicies.validation.' + ruleKey) + error.parameters[key][ruleKey] + '</li>';
+              rule.push(this.i18n('content.passwordPolicies.validation.' + ruleKey) + error.parameters[key][ruleKey]);
             }
           }
-          rules += '</ul></span>';
-          rules = this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ) + ' ' + rules;
+          rules.push(this._pointList(rule));
           // to merge - pwd must not be similar to name, mail, username
         } else if (key === 'passwordSimilarUsernamePreValidate' || key === 'passwordSimilarEmailPreValidate' || key === 'passwordSimilarFirstNamePreValidate' || key === 'passwordSimilarLastNamePreValidate') {
           similar.push(this.i18n('content.passwordPolicies.validation.' + key));
         } else if ( key !== MIN_RULES_TO_FULFILL_COUNT ) {
           // other validation messages
-          lines += '<span><li>' + this.i18n('content.passwordPolicies.validation.' + key, { 0: error.parameters[key] }) + '</li>';
+          lines.push(this.i18n('content.passwordPolicies.validation.' + key, { 0: error.parameters[key] }));
         }
       }
     }
     if (similar.length > 0) {
-      lines += '<span><li>' + this.i18n('content.passwordPolicies.validation.' + PWD_SIMILAR) + ' ' + similar.join(', ') + '.';
+      lines.push(this.i18n('content.passwordPolicies.validation.' + PWD_SIMILAR) + ' ' + similar.join(', ') + '.');
     }
-    lines += '</ul></span>';
-    result = lines + rules + charBase + forbiddenBase;
+    const result = [];
+    result.push(this._pointList(lines));
+    result.push(rules);
+    result.push(charBase);
+    result.push(forbiddenBase);
     validationMessage.push(
-      <span dangerouslySetInnerHTML={{ __html: result }} />
+      <span>
+        { result }
+      </span>
     );
     return validationMessage;
   }

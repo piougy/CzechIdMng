@@ -307,8 +307,7 @@ class Create extends Basic.AbstractContent {
                 </div>
 
                 <Basic.Panel className="col-lg-5 no-border">
-                  <Advanced.ValidationMessage rendered={!validationDefinition} error={validationError} validationDefinition={validationDefinition}/>
-                  <Advanced.PasswordPreValidation rendered={validationDefinition && validationError !== undefined} error={validationError} />
+                  <Advanced.ValidationMessage error={validationError} validationDefinition={validationDefinition}/>
                 </Basic.Panel>
               </Basic.AbstractForm>
 

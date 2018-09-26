@@ -86,7 +86,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
   _showCharacterBase(parameter, type) {
     const rules = [];
     const all = [];
-    all.push(this.i18n('content.passwordPolicies.validation.' + type));
+    all.push(this.i18n('content.passwordPolicies.validation.' + type + '.list'));
     for (const ruleKey in parameter) {
       if (parameter.hasOwnProperty(ruleKey)) {
         rules.push(_.size(parameter) === 1 ? parameter[ruleKey] : ruleKey + ':  ' + parameter[ruleKey]);
@@ -164,12 +164,18 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     return validationMessage;
   }
 
-  _pointList(field) {
+  _pointList(field, secondFiled) {
     const listItems = field.map((number) =>
       <li>{number}</li>
     );
+    let secondListItems;
+    if (secondFiled !== undefined) {
+      secondListItems = secondFiled.map((number) =>
+        <li>{number}</li>
+      );
+    }
     return (
-      <ul style={{ paddingLeft: 20 }}>{listItems}</ul>
+      <ul style={{ paddingLeft: 20 }}>{listItems} {secondListItems}</ul>
     );
   }
 
@@ -184,15 +190,10 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     const charBase = []; // for shown special character base
     const forbiddenBase = []; // for shown forbidden character base
     const similar = []; // for merging pwd must not be similar to name, mail, username
+    const bases = [];
 
     // iterate over all parameters in error
     for (const key in error.parameters) {
-      if (key === SPECIAL_CHARACTER_BASE) {
-        charBase.push(this._showCharacterBase(error.parameters[key], SPECIAL_CHARACTER_BASE, validationMessage, `info`));
-      }
-      if (key === FORBIDDEN_CHARACTER_BASE) {
-        forbiddenBase.push(this._showCharacterBase(error.parameters[key], FORBIDDEN_CHARACTER_BASE, validationMessage, `info`));
-      }
       // error prameters must contain key and VALIDATION_WARNINGS must also contain key
       if (error.parameters.hasOwnProperty(key) && _.indexOf(VALIDATION_WARNINGS, key) !== -1) {
         // enchanced control special message, minimal rules to fulfill
@@ -214,12 +215,34 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
           lines.push(this.i18n('content.passwordPolicies.validation.' + key, { 0: error.parameters[key] }));
         }
       }
+      if (key === SPECIAL_CHARACTER_BASE) {
+        if (_.size(error.parameters[key]) === 1) {
+          for (const ruleKey in error.parameters[key]) {
+            if (Object.prototype.hasOwnProperty.call(error.parameters[key], ruleKey)) {
+              bases.push(this.i18n('content.passwordPolicies.validation.' + SPECIAL_CHARACTER_BASE + '.text') + error.parameters[key][ruleKey]);
+            }
+          }
+        } else {
+          charBase.push(this._showCharacterBase(error.parameters[key], SPECIAL_CHARACTER_BASE, validationMessage, `info`));
+        }
+      }
+      if (key === FORBIDDEN_CHARACTER_BASE) {
+        if (_.size(error.parameters[key]) === 1) {
+          for (const ruleKey in error.parameters[key]) {
+            if (Object.prototype.hasOwnProperty.call(error.parameters[key], ruleKey)) {
+              bases.push(this.i18n('content.passwordPolicies.validation.' + FORBIDDEN_CHARACTER_BASE + '.text') + error.parameters[key][ruleKey]);
+            }
+          }
+        } else {
+          forbiddenBase.push(this._showCharacterBase(error.parameters[key], FORBIDDEN_CHARACTER_BASE, validationMessage, `info`));
+        }
+      }
     }
     if (similar.length > 0) {
       lines.push(this.i18n('content.passwordPolicies.validation.' + PWD_SIMILAR) + ' ' + similar.join(', ') + '.');
     }
     const result = [];
-    result.push(this._pointList(lines));
+    result.push(this._pointList(lines, bases));
     result.push(rules);
     result.push(charBase);
     result.push(forbiddenBase);

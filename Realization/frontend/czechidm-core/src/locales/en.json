@@ -916,15 +916,21 @@
         "policiesNames": "Password does not meet these password policies: {{0}}",
         "policiesNamesPreValidation": "Password have to meet these password policies: {{0}}",
         "minRulesToFulfillCount": "Minimum mandatory rules to fulfill: {{0}}",
-        "minRulesToFulfill": "Fill in at least {{count}} the following rules: {{0}}",
+        "minRulesToFulfill": "Fill in at least {{count}} of the following rules: {{0}}",
         "passwordSimilarUsername": "Password cannot be similar to login: {{0}}",
         "passwordSimilarEmail": "Password cannot be similar to email: {{0}}",
         "passwordSimilarFirstName": "Password cannot be similar to first name: {{0}}",
         "passwordSimilarLastName": "Password cannot be similar to surname: {{0}}",
         "date": "Password can not be change now, try again: {{0}}",
         "advancedControlValidateType": "Enhanced control is available only for validate politics.",
-        "specialCharacterBase": "List of special characters for password policies: ",
-        "forbiddenCharacterBase": "List of forbidden characters for password policies: ",
+        "specialCharacterBase":{
+          "list": "List of special characters for password policies: {{0}}",
+          "text": "Special characters: {{0}}"
+          },
+        "forbiddenCharacterBase": {
+          "list": "List of forbidden characters for password policies: {{0}}",
+          "text": "Forbidden characters: {{0}}"
+          },
         "passwordSimilarUsernamePreValidate": "login",
         "passwordSimilarEmailPreValidate": "email",
         "passwordSimilarFirstNamePreValidate": "first name",

@@ -954,8 +954,14 @@
         "passwordSimilarLastName": "Heslo je příliš podobné příjmení: {{0}}",
         "date": "Heslo není možné nyní změnit, zkuste to znovu: {{0}}",
         "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku.",
-        "specialCharacterBase": "Seznam speciálních znaků pro politiky hesel: {{0}}",
-        "forbiddenCharacterBase": "Seznam zakázaných znaků pro politiky hesel: {{0}}",
+        "specialCharacterBase":{
+          "list": "Seznam speciálních znaků pro politiky hesel: {{0}}",
+          "text": "Speciální znaky: {{0}}"
+          },
+        "forbiddenCharacterBase": {
+          "list": "Seznam zakázaných znaků pro politiky hesel: {{0}}",
+          "text": "Zakázané znaky: {{0}}"
+          },
         "passwordSimilarUsernamePreValidate": "uživatelskému jménu",
         "passwordSimilarEmailPreValidate": "emailu",
         "passwordSimilarFirstNamePreValidate": "jménu",

@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
+import eu.bcvsolutions.idm.core.api.domain.Generatable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -43,7 +44,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 		@Index(name = "idx_idm_identity_external_id", columnList = "external_id")})
 public class IdmIdentity 
 		extends AbstractEntity
-		implements Codeable, FormableEntity, Disableable, AuditSearchable, ExternalCodeable, ExternalIdentifiable {
+		implements Codeable, FormableEntity, Disableable, AuditSearchable, ExternalCodeable, ExternalIdentifiable, Generatable {
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//

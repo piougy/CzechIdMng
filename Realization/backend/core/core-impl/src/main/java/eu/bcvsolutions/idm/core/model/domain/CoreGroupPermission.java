@@ -287,7 +287,15 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE, 
-			IdmBasePermission.EXECUTE);
+			IdmBasePermission.EXECUTE),
+	GENERATEDVALUE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT,
+			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),;
 	
 	// String constants could be used in pre / post authorize SpEl expressions
 	
@@ -521,6 +529,14 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String REQUEST_ITEM_UPDATE = "REQUESTITEM" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String REQUEST_ITEM_DELETE = "REQUESTITEM" + BasePermission.SEPARATOR + "DELETE";
 	public static final String REQUEST_ITEM_AUTOCOMPLETE = "REQUESTITEM" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	//
+	public static final String GENERATED_VALUE_ADMIN = "GENERATEDVALUE" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String GENERATED_VALUE_READ = "GENERATEDVALUE" + BasePermission.SEPARATOR + "READ";
+	public static final String GENERATED_VALUE_COUNT = "GENERATEDVALUE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String GENERATED_VALUE_CREATE = "GENERATEDVALUE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String GENERATED_VALUE_UPDATE = "GENERATEDVALUE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String GENERATED_VALUE_DELETE = "GENERATEDVALUE" + BasePermission.SEPARATOR + "DELETE";
+	public static final String GENERATED_VALUE_AUTOCOMPLETE = "GENERATEDVALUE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	
 	private final List<BasePermission> permissions;
 

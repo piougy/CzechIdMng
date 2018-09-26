@@ -1,11 +1,12 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.Serializable;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.springframework.hateoas.core.Relation;
 
@@ -21,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 import io.swagger.annotations.ApiModel;
@@ -37,8 +39,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable, ExternalCodeable, ExternalIdentifiable {
 
 	private static final long serialVersionUID = 1L;
-	@NotEmpty
-	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(required = true, notes = "Unique identity username. Could be used as identifier in rest endpoints")
 	private String username;	
 	@Size(max = DefaultFieldLengths.NAME)
@@ -73,7 +74,10 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	@JsonProperty(access = Access.READ_ONLY)
 	private IdentityState state;
 	private DateTime blockLoginDate = null;
-
+	@JsonProperty(value = "_eav", access = Access.READ_ONLY)
+	@ApiModelProperty(readOnly = true)
+	private Map<IdmFormAttributeDto, Serializable> eav;
+	
 	public IdmIdentityDto() {
 	}
 	
@@ -232,5 +236,13 @@ public class IdmIdentityDto extends AbstractDto implements Disableable, Codeable
 	@Override
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
+	}
+
+	public Map<IdmFormAttributeDto, Serializable> getEav() {
+		return eav;
+	}
+	
+	public void setEav(Map<IdmFormAttributeDto, Serializable> eav) {
+		this.eav = eav;
 	}
 }

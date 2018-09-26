@@ -121,7 +121,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				policy.setEvaluator(BasePermissionEvaluator.class);
 				authorizationPolicyService.save(policy);
 				//
-				LOG.info(MessageFormat.format("Super admin Role created [id: {0}]", superAdminRole.getId()));
+				LOG.info(MessageFormat.format("Super admin Role created [id: {0}]", existsSuperAdminRole.getId()));
 			}
 			//
 			// create super admin

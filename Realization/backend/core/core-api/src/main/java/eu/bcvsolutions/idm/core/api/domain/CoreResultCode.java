@@ -272,8 +272,13 @@ public enum CoreResultCode implements ResultCode {
 	ROLE_COMPOSITION_ASSIGN_ROLE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Role [%s] by role composition was not assigned."),
 	ROLE_COMPOSITION_ASSIGNED_ROLE_REMOVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Identity role [%s] was removed."),
 	ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Role composition [%s] is removed in concurent task [%s]"),
-	ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Role composition [%s] is added in concurent task [%s], wait for task is complete, before composition can be removed.");
-	
+	ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Role composition [%s] is added in concurent task [%s], wait for task is complete, before composition can be removed."),
+	//
+	// generator
+	GENERATOR_RETURN_NULL(HttpStatus.INTERNAL_SERVER_ERROR, "Generator [%s] return null."),
+	GENERATOR_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),
+	GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_ENTITY_TYPE(HttpStatus.NOT_FOUND, "Script code [%s] return null or bad entity type. Returned value: [%s]."),
+	GENERATOR_GENERATED_ATTRIBUTES_IS_NULL(HttpStatus.BAD_REQUEST, "Generated attribute wasn't set for generator: [%s].");
 	
 	private final HttpStatus status;
 	private final String message;

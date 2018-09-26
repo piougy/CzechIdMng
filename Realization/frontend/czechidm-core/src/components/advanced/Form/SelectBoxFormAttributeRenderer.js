@@ -89,7 +89,7 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
   }
 
   toInputValues(formValues) {
-    const { attribute } = this.props;
+    const { attribute, useDefaultValue } = this.props;
     //
     let formValue = null;
     if (formValues && _.isArray(formValues)) {
@@ -104,7 +104,10 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
       formValue = formValues;
     }
     if (formValue === null) {
-      return attribute.defaultValue;
+      if (useDefaultValue) {
+        return attribute.defaultValue;
+      }
+      return null;
     }
     return this.getInputValue(formValue);
   }

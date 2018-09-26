@@ -164,7 +164,7 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    * @return {object} value by persistent type
    */
   toInputValue(formValues) {
-    const { attribute } = this.props;
+    const { attribute, useDefaultValue } = this.props;
     //
     let formValue = null;
     if (formValues && _.isArray(formValues)) {
@@ -175,7 +175,10 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
       formValue = formValues;
     }
     if (formValue === null) {
-      return attribute.defaultValue;
+      if (useDefaultValue) {
+        return attribute.defaultValue;
+      }
+      return null;
     }
     return this.getInputValue(formValue);
   }
@@ -321,10 +324,15 @@ AbstractFormAttributeRenderer.propTypes = {
   /**
    * ReadOnly form field
    */
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  /**
+   * Use configured attribute default value as filled.
+   */
+  useDefaultValue: PropTypes.bool
 };
 AbstractFormAttributeRenderer.defaultProps = {
-  readOnly: false
+  readOnly: false,
+  useDefaultValue: false
 };
 
 AbstractFormAttributeRenderer.INPUT = 'input'; // input ref - is used internally for common operations

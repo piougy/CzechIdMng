@@ -24,7 +24,7 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
       if (this.isRequired() || (attribute.defaultValue != null && attribute.defaultValue.toLowerCase() === 'true')) {
         formValue.booleanValue = rawValue;
       } else {
-        // not required and false filled - dont need to be saved at all
+        // not required and false filled - don't need to be saved at all
         formValue.booleanValue = null;
       }
     } else {

@@ -429,7 +429,8 @@ export class ReportTable extends Advanced.AbstractTableContent {
                   <Advanced.EavForm
                     ref="reportFilter"
                     formInstance={ new Domain.FormInstance(report.formDefinition, detail.entity && detail.entity.filter ? detail.entity.filter.values : null ) }
-                    readOnly={ !Utils.Entity.isNew(detail.entity) }/>
+                    readOnly={ !Utils.Entity.isNew(detail.entity) }
+                    useDefaultValue/>
                 }
                 {
                   !longRunningTask

@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Event state holder (content + metadata)
@@ -216,5 +217,16 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 	@Override
 	public void setParentType(String parentType) {
 		getProperties().put(EVENT_PROPERTY_PARENT_EVENT_TYPE, parentType);
+	}
+	
+	@Override
+	public BasePermission[] getPermission() {
+		// TODO: PermissionUtils + conversions
+		return (BasePermission[]) getProperties().get(EVENT_PROPERTY_PERMISSION);
+	}
+	
+	@Override
+	public void setPermission(BasePermission... permission) {
+		getProperties().put(EVENT_PROPERTY_PERMISSION, permission);
 	}
 }

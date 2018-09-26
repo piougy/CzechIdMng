@@ -47,7 +47,7 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
   }
 
   renderSingleInput() {
-    const { attribute, readOnly, values } = this.props;
+    const { values } = this.props;
     //
     return (
       <Basic.Checkbox
@@ -55,7 +55,7 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
         label={ this.getLabel() }
         value={ this.toInputValue(values) }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ readOnly || attribute.readonly }
+        readOnly={ this.isReadOnly() }
         required={ this.isRequired() }/>
     );
   }

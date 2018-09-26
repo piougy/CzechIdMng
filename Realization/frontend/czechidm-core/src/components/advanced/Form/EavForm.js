@@ -69,6 +69,10 @@ export default class EavForm extends Basic.AbstractContextComponent {
     let filledFormValues = [];
     //
     formInstance.getAttributes().forEach(attribute => {
+      if (attribute.readonly) {
+        // readOnly (~ disabled from our point of view) attributes are not sent to BE
+        return true;
+      }
       const formComponent = this.refs[attribute.code];
       if (!formComponent) {
         // unsupported persistentType

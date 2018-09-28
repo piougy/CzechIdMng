@@ -4241,7 +4241,7 @@
         "attributes": {
           "connectioncharacter": {
             "label": "Spojovací znak",
-            "help": "Znak/y které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna v tomto případě bude jméno a příjmení spojeno bez žádného spojovacího znaku."
+            "help": "Znak/y které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna. V tomto případě bude jméno a příjmení spojeno bez žádného spojovacího znaku."
           },
           "firstnamecharactercount": {
             "label": "Počet znaků ze jména",
@@ -4254,6 +4254,10 @@
           "searchuniqueusername": {
             "label": "Ověřovat unikátní uživatelské jméno",
             "help": "Nově vygenerované uživatelské jméno bude vyhledáno a v případě existence bude dodáván číselný suffix. Suffix může být inkrementován."
+          },
+          "firstnamefirst": {
+            "label": "Jméno uživatele použít první",
+            "help": "Při generování bude prvně doplněno jméno uživatele následně příjmení. Při odškrknutí bude pořadí opačné."
           }
         }
       },
@@ -4264,6 +4268,26 @@
           "emailsuffix": {
             "label": "Emailový suffix",
             "help": "Suffix bude doplněn k uživatelskému jménu a společně musí tvořit emailovou adresu."
+          },
+          "connectioncharacter": {
+            "label": "Spojovací znak",
+            "help": "Znak/y které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna. V tomto případě bude jméno a příjmení spojeno bez žádného spojovacího znaku."
+          },
+          "firstnamecharactercount": {
+            "label": "Počet znaků ze jména",
+            "help": "Maximální počet znaků které budou použity z jména."
+          },
+          "lastnamecharactercount": {
+            "label": "Počet znaků z příjmení",
+            "help": "Maximální počet znaků, které budou použity z příjmení."
+          },
+          "generatefromusername": {
+            "label": "Generovat na základě uživatelského jména",
+            "help": "Základ pro email bude brán z existujícího uživatelského jména. Uživatelské jméno musí v moment generování existovat."
+          },
+          "firstnamefirst": {
+            "label": "Jméno uživatele použít první",
+            "help": "Při generování bude prvně doplněno jméno uživatele následně příjmení. Při odškrknutí bude pořadí opačné."
           }
         }
       },
@@ -4274,6 +4298,20 @@
           "scriptcode": {
             "label": "Kód skriptu",
             "help": "Kód skriptu, který bude spouštěn."
+          }
+        }
+      },
+      "eu-bcvsolutions-idm-core-generator-impl-identityformdefaultvaluegenerator": {
+        "label": "Doplnění standardních hodnot pro formuláře v dalších údajích",
+        "description": "Generátor doplní všem atributům standardní hodnoty.",
+        "attributes": {
+          "formdefinitionuuid": {
+            "label": "Formulář",
+            "help": "Formulář musí být pro daný typ entity (IdmIdentity). Pokud necháte prázdné budou hodnoty doplněny pro všechny formuláře."
+          },
+          "regexmultiplevalues": {
+            "label": "Oddělovač",
+            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
           }
         }
       }
@@ -5025,6 +5063,22 @@
     "GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_ENTITY_TYPE": {
       "title": "Skript pro generování vrací chybový stav",
       "message": "Skript [{{scriptCode}}] vrátil null, nebo špatný typ entity. Návratová hodnota: [{{returnedValue}}]."
+    },
+    "GENERATOR_FORM_ATTRIBUTE_NOT_FOUND": {
+      "title": "Formulářový atribut pro definici nebyl nalezen",
+      "message": "Formulářový atribut pro definici [{{formDefinitionCode}}] s kódem [{{formAttributeCode}}] nebyl nalezen."
+    },
+    "GENERATOR_FORM_DEFINITION_BAD_TYPE": {
+      "title": "Definice má špatný typ",
+      "message": "Fromulářová definice id [{{formDefinitionId}}], má špastný typ. Správný typ: [{entityType}]."
+    },
+    "IDMIDENTITY_USERNAME_NOTEMPTY": {
+      "title": "Uživatelské jméno nemůže být prázdné",
+      "message": "Uživatelské jméno nebylo vyplněno. Vyplňte prosím uživatelské jméno, nebo zapněte generátor uživatelských jmen."
+    },
+    "GENERATOR_SYSTEM_SEQ": {
+      "title": "Neplatné pořadí generátoru",
+      "message": "Generátory nemohou mít pořadí 0 až 10. Toto pořadí je rezervováno pro systémové generátory, které jsou vytvořeny přímo systém."
     }
   },
   "validationError": {

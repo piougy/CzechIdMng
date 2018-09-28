@@ -28,7 +28,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 		GeneratorDefinitionDto generator = getGenerator();
 
 		this.createGenerator(getEntityType(), getGeneratorType(),
-				this.createConfiguration(generator.getFormDefinition(), null), 1, null);
+				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
+						IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())), 1, null);
 
 		IdmIdentityDto identityDto = new IdmIdentityDto();
 		identityDto.setLastName(lastName);
@@ -48,7 +49,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 		GeneratorDefinitionDto generator = getGenerator();
 
 		this.createGenerator(getEntityType(), getGeneratorType(),
-				this.createConfiguration(generator.getFormDefinition(), null), 1, null);
+				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
+						IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())), 1, null);
 
 		IdmIdentityDto identityDto = new IdmIdentityDto();
 		identityDto.setFirstName(firstName);
@@ -69,7 +71,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 		GeneratorDefinitionDto generator = getGenerator();
 
 		this.createGenerator(getEntityType(), getGeneratorType(),
-				this.createConfiguration(generator.getFormDefinition(), null), 1, null);
+				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
+						IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())), 1, null);
 
 		IdmIdentityDto identityDto = new IdmIdentityDto();
 		identityDto.setFirstName(firstName);
@@ -94,7 +97,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 		GeneratorDefinitionDto generator = getGenerator();
 
 		this.createGenerator(getEntityType(), getGeneratorType(),
-				this.createConfiguration(generator.getFormDefinition(), null), 1, null);
+				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
+						IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())), 1, null);
 
 		IdmIdentityDto identityDto = new IdmIdentityDto();
 		identityDto.setFirstName(firstName);
@@ -123,7 +127,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 				this.createConfiguration(generator.getFormDefinition(),
 						ImmutableMap.of(
 								IdentityUsernameGenerator.FIRST_NAME_CHARACTERS_COUNT, "5",
-								IdentityUsernameGenerator.LAST_NAME_CHARACTERS_COUNT, "4")),
+								IdentityUsernameGenerator.LAST_NAME_CHARACTERS_COUNT, "4",
+								IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
 				1, null);
 
 		IdmIdentityDto identityDto = new IdmIdentityDto();
@@ -153,7 +158,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 						ImmutableMap.of(
 								IdentityUsernameGenerator.FIRST_NAME_CHARACTERS_COUNT, "1",
 								IdentityUsernameGenerator.LAST_NAME_CHARACTERS_COUNT, "1",
-								IdentityUsernameGenerator.CONNECTING_CHARACTER, "--")),
+								IdentityUsernameGenerator.CONNECTING_CHARACTER, "--",
+								IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
 				1, null);
 
 		IdmIdentityDto identityDto = new IdmIdentityDto();
@@ -183,7 +189,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 		GeneratorDefinitionDto generator = getGenerator();
 
 		this.createGenerator(getEntityType(), getGeneratorType(),
-				this.createConfiguration(generator.getFormDefinition(), null),
+				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
+						IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
 				1, null);
 
 		IdmIdentityDto identityDto = new IdmIdentityDto();
@@ -206,7 +213,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 		GeneratorDefinitionDto generator = getGenerator();
 
 		this.createGenerator(getEntityType(), getGeneratorType(),
-				this.createConfiguration(generator.getFormDefinition(), null),
+				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
+						IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
 				1, null);
 
 		IdmIdentityDto identityDto = new IdmIdentityDto();
@@ -250,7 +258,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 		this.createGenerator(getEntityType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(),
 						ImmutableMap.of(
-								IdentityUsernameGenerator.CONNECTING_CHARACTER, ".")),
+								IdentityUsernameGenerator.CONNECTING_CHARACTER, ".",
+								IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
 				20, null);
 		
 		IdmIdentityDto identityDto = new IdmIdentityDto();
@@ -289,7 +298,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 				this.createConfiguration(generator.getFormDefinition(),
 						ImmutableMap.of(
 								IdentityUsernameGenerator.FIRST_NAME_CHARACTERS_COUNT, "5",
-								IdentityUsernameGenerator.CONNECTING_CHARACTER, "-")),
+								IdentityUsernameGenerator.CONNECTING_CHARACTER, "-",
+								IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
 				10, null);
 
 		// the last
@@ -326,7 +336,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 						ImmutableMap.of(
 								IdentityUsernameGenerator.FIRST_NAME_CHARACTERS_COUNT, "1",
 								IdentityUsernameGenerator.LAST_NAME_CHARACTERS_COUNT, "1",
-								IdentityUsernameGenerator.CONNECTING_CHARACTER, "--")),
+								IdentityUsernameGenerator.CONNECTING_CHARACTER, "--",
+								IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
 				1, Boolean.FALSE);
 		
 		IdmIdentityDto identityDto = new IdmIdentityDto();
@@ -359,7 +370,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 						ImmutableMap.of(
 								IdentityUsernameGenerator.FIRST_NAME_CHARACTERS_COUNT, "1",
 								IdentityUsernameGenerator.LAST_NAME_CHARACTERS_COUNT, "1",
-								IdentityUsernameGenerator.CONNECTING_CHARACTER, "*")),
+								IdentityUsernameGenerator.CONNECTING_CHARACTER, "*",
+								IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
 				1, null);
 		
 		// second
@@ -367,7 +379,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 				this.createConfiguration(generator.getFormDefinition(),
 						ImmutableMap.of(
 								IdentityUsernameGenerator.FIRST_NAME_CHARACTERS_COUNT, "5",
-								IdentityUsernameGenerator.CONNECTING_CHARACTER, "-")),
+								IdentityUsernameGenerator.CONNECTING_CHARACTER, "-",
+								IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
 				10, null);
 		createGenerator.setDisabled(true);
 		this.generatedAttributeService.save(createGenerator);
@@ -376,7 +389,8 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 		createGenerator = this.createGenerator(getEntityType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(),
 						ImmutableMap.of(
-								IdentityUsernameGenerator.CONNECTING_CHARACTER, ".")),
+								IdentityUsernameGenerator.CONNECTING_CHARACTER, ".",
+								IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
 				20, null);
 		createGenerator.setDisabled(true);
 		this.generatedAttributeService.save(createGenerator);
@@ -392,6 +406,31 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 		
 		assertNotNull(generatedDto.getUsername());
 		assertEquals(newFirstName + "*" + newLastName, generatedDto.getUsername());
+	}
+
+	@Test
+	public void generateWithChangePosition() {
+		String firstName = "firstName" + System.currentTimeMillis();
+		String lastName = "lastName" + System.currentTimeMillis();
+
+		GeneratorDefinitionDto generator = getGenerator();
+
+		this.createGenerator(getEntityType(), getGeneratorType(),
+				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
+						IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.FALSE.toString())),
+				1, null);
+
+		IdmIdentityDto identityDto = new IdmIdentityDto();
+		identityDto.setFirstName(firstName.toString());
+		identityDto.setLastName(lastName.toString());
+		
+		IdmIdentityDto generatedDto = identityService.save(identityDto);
+		
+		assertEquals(identityDto.getLastName(), generatedDto.getLastName());
+		assertEquals(identityDto.getFirstName(), generatedDto.getFirstName());
+		
+		assertNotNull(generatedDto.getUsername());
+		assertEquals(lastName.toLowerCase() + firstName.toLowerCase(), generatedDto.getUsername());
 	}
 
 	@Override

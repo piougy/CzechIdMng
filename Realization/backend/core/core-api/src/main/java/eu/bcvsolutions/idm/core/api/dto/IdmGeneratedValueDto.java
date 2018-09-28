@@ -30,12 +30,12 @@ public class IdmGeneratedValueDto extends AbstractDto {
 	private String generatorType;
 	@NotNull
 	@Max(99999)
-	private short seq = 0;
+	private short seq = 11;
 	private ConfigurationMap generatorProperties;
 	@NotNull
 	private boolean disabled = false;
 	@NotNull
-	private boolean regenerateValue = true;
+	private boolean regenerateValue = false;
 
 
 	public boolean isDisabled() {

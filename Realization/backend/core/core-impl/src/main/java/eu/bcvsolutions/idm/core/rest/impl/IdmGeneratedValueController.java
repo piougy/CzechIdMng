@@ -25,9 +25,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.GeneratorDefinitionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmGeneratedValueFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -166,6 +168,7 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_UPDATE, description = "")})
 				})
 	public ResponseEntity<?> post(@Valid @RequestBody IdmGeneratedValueDto dto) {
+		checkSeq(dto);
 		return super.post(dto);
 	}
 
@@ -188,6 +191,7 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 			@ApiParam(value = "Generated value uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId, 
 			@Valid @RequestBody IdmGeneratedValueDto dto) {
+		checkSeq(dto);
 		return super.put(backendId, dto);
 	}
 
@@ -278,5 +282,25 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 			entityType = null;
 		}
 		return new Resources<>(valueGeneratorManager.getAvailableGenerators(entityType));
+	}
+
+	/**
+	 * Method check if is dto can change or create with defined seq. Otherwise throw error.
+	 *
+	 * @param dto
+	 */
+	private void checkSeq(IdmGeneratedValueDto dto) {
+		// if dto is new and seq is lower or equal to system maximum
+		boolean isNew = this.getService().isNew(dto);
+		short newSeq = dto.getSeq();
+		if (isNew && newSeq <= IdmGeneratedValueService.SYSTEM_SEQ_MAXIMUM) {
+			throw new ResultCodeException(CoreResultCode.GENERATOR_SYSTEM_SEQ);
+		} else if (!isNew) {
+			IdmGeneratedValueDto oldGeneratedValueDto = this.getService().get(dto.getId());
+			// some one change seq, check if is equal to old, if not check is not same as system seq
+			if (oldGeneratedValueDto.getSeq() != newSeq && newSeq <= IdmGeneratedValueService.SYSTEM_SEQ_MAXIMUM) {
+				throw new ResultCodeException(CoreResultCode.GENERATOR_SYSTEM_SEQ);
+			}
+		}
 	}
 }

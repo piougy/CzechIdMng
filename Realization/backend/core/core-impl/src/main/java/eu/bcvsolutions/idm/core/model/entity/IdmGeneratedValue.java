@@ -33,7 +33,7 @@ public class IdmGeneratedValue extends AbstractEntity {
 	@Audited
 	@NotNull
 	@Column(name = "seq", nullable = false)
-	private short seq = 0;
+	private short seq = 11;
 
 	@Column(name = "generator_properties", length = Integer.MAX_VALUE)
 	private ConfigurationMap generatorProperties;
@@ -47,7 +47,7 @@ public class IdmGeneratedValue extends AbstractEntity {
 	@Audited
 	@NotNull
 	@Column(name = "regenerate_value", nullable = false)
-	private boolean regenerateValue = true;
+	private boolean regenerateValue = false;
 
 	public boolean isDisabled() {
 		return disabled;

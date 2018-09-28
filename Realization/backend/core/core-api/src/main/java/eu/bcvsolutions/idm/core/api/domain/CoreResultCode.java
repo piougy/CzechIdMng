@@ -64,6 +64,7 @@ public enum CoreResultCode implements ResultCode {
 	IDENTITY_ALREADY_DISABLED_MANUALLY(HttpStatus.BAD_REQUEST, "Identity [%s] is already disabled manually, cannot be disable twice."),
 	IDENTITY_NOT_DISABLED_MANUALLY(HttpStatus.BAD_REQUEST, "Identity [%s] is not disabled manually [%s], cannot be enabled."),
 	IDENTITYIMAGE_WRONG_FORMAT(HttpStatus.BAD_REQUEST, "Uploaded file is not an image!"),
+	IDENTITY_USERNAME_EXIST(HttpStatus.CONFLICT, "Username [%s] already exists!"),
 	// password change
 	PASSWORD_CHANGE_NO_SYSTEM(HttpStatus.BAD_REQUEST, "No system selected."),
 	PASSWORD_CHANGE_CURRENT_FAILED_IDM(HttpStatus.BAD_REQUEST, "Given current password doesn't match to current idm password."),
@@ -278,8 +279,11 @@ public enum CoreResultCode implements ResultCode {
 	// generator
 	GENERATOR_RETURN_NULL(HttpStatus.INTERNAL_SERVER_ERROR, "Generator [%s] return null."),
 	GENERATOR_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),
+	GENERATOR_FORM_ATTRIBUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "Form attribute for definition [%s] with code [%s] not found."),
+	GENERATOR_FORM_DEFINITION_BAD_TYPE(HttpStatus.BAD_REQUEST, "Given form definition id [%s], has not type. Correct type: [%s]."),
 	GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_ENTITY_TYPE(HttpStatus.NOT_FOUND, "Script code [%s] return null or bad entity type. Returned value: [%s]."),
-	GENERATOR_GENERATED_ATTRIBUTES_IS_NULL(HttpStatus.BAD_REQUEST, "Generated attribute wasn't set for generator: [%s].");
+	GENERATOR_GENERATED_ATTRIBUTES_IS_NULL(HttpStatus.BAD_REQUEST, "Generated attribute wasn't set for generator: [%s]."),
+	GENERATOR_SYSTEM_SEQ(HttpStatus.BAD_REQUEST, "Order can be lower or equals 10. This order is reserved for system generator.");
 	
 	private final HttpStatus status;
 	private final String message;

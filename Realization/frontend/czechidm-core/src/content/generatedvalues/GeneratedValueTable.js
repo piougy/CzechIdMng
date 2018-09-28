@@ -237,18 +237,18 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm
-                ref="filterForm"
-                showLoading={_showLoading}>
+                ref="filterForm">
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="entityType"
                       searchable
+                      showLoading={_showLoading}
                       placeholder={this.i18n('filter.entityType')}
                       options={ _entityTypes }/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 } className="text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    <Advanced.Filter.FilterButtons showLoading={_showLoading} cancelFilter={this.cancelFilter.bind(this)}/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -266,7 +266,7 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={this.showDetail.bind(this, {regenerateValue: true})}
+                onClick={this.showDetail.bind(this, {regenerateValue: false, seq: 11})}
                 rendered={SecurityManager.hasAuthority('GENERATEDVALUE_CREATE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
@@ -328,6 +328,7 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
                       palceholder={ this.i18n('entity.GeneratedValue.entityType.placeholder') }
                       helpBlock={ this.i18n('entity.GeneratedValue.entityType.help') }
                       searchable
+                      required
                       useObject/>
                     <Basic.Alert
                       rendered={ _generatorTypes.length < 0 }
@@ -343,7 +344,7 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
                       required/>
                     <Basic.TextField
                       ref="seq"
-                      validation={Joi.number().integer().min(0).max(9999).allow(null)}
+                      validation={Joi.number().integer().min(0).max(9999)}
                       label={ this.i18n('entity.GeneratedValue.seq.label') }
                       help={ this.i18n('entity.GeneratedValue.seq.help') }/>
                     <Basic.TextArea
@@ -374,6 +375,7 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
                     <div style={ showProperties ? {} : { display: 'none' }}>
                       <Basic.ContentHeader text={ this.i18n('generatorProperties.title') }/>
                       <Advanced.EavForm
+                        useDefaultValue
                         ref="formInstance"
                         readOnly={!manager.canSave(detail.entity, _permissions)}
                         formInstance={ formInstance }/>

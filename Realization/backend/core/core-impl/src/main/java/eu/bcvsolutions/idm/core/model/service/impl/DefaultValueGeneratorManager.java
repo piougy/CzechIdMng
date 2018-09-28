@@ -175,7 +175,7 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 				generators.put(generatorType, bean);
 			} catch (BeansException | ClassNotFoundException e) {
 				// probably disabled or removed generators
-				LOG.warn("Generator for type [{}] doesn't exist.", generatorType);
+				LOG.warn("Generator for type [{}] doesn't exist. Or more generators found for type.", generatorType);
 				return null;
 			}
 		}

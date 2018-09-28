@@ -17,6 +17,11 @@ public interface IdmGeneratedValueService
 		AuthorizableService<IdmGeneratedValueDto> {
 
 	/**
+	 * Generator with seq equals or lower than this constant is marked as system and is not possible created the generator with this seq by REST.
+	 */
+	static short SYSTEM_SEQ_MAXIMUM = 10;
+	
+	/**
 	 * Return enabled generators for entity type sorted by order from lower to higher.
 	 *
 	 * @param entityType

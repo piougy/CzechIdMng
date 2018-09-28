@@ -4211,6 +4211,10 @@
           "searchuniqueusername": {
             "label": "Verify unique username",
             "help": "The newly generated username will be searched. If username will be exists, numeric suffix will be added. Suffix may be incremented."
+          },
+          "firstnamefirst": {
+            "label": "As first value use first name",
+            "help": "When generating, the first name of the user will be added first. If you unchecked, the order will be the opposite."
           }
         }
       },
@@ -4221,6 +4225,26 @@
           "emailsuffix": {
             "label": "Email suffix",
             "help": "The Suffix will be added to the username and together they must create an email address."
+          },
+          "connectioncharacter": {
+            "label": "Connection character",
+            "help": "The character(s) to be used to connects the first name and surname. The value does not need to be filled in. In this case, the first name and surname will be connected without any coupling character."
+          },
+          "firstnamecharactercount": {
+            "label": "Count of characters from the first name",
+            "help": "The maximum count of characters to use from the fisrt name."
+          },
+          "lastnamecharactercount": {
+            "label": "Count of characters from the surname",
+            "help": "The maximum count of characters to use from the surname."
+          },
+          "generatefromusername": {
+            "label": "Generate based on username",
+            "help": "Email will be based on existing username. The username must exist at the moment of generation."
+          },
+          "firstnamefirst": {
+            "label": "As first value use first name",
+            "help": "When generating, the first name of the user will be added first. If you unchecked, the order will be the opposite."
           }
         }
       },
@@ -4231,6 +4255,20 @@
           "scriptcode": {
             "label": "Script code",
             "help": "Script code to run."
+          }
+        }
+      },
+      "eu-bcvsolutions-idm-core-generator-impl-identityformdefaultvaluegenerator": {
+        "label": "Addition default values for the forms with next inforamtion",
+        "description": "Generator add default values for all attributes.",
+        "attributes": {
+          "formdefinitionuuid": {
+            "label": "Form",
+            "help": "Form must be for given entity type (IdmIdentity). If you leave form empty, the values will be added to all form definition."
+          },
+          "regexmultiplevalues": {
+            "label": "Separator",
+            "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
           }
         }
       }
@@ -4980,8 +5018,24 @@
       "message": "Business role [{{roleCompositionId}}] is removed by concurrent task [{{taskId}}]."
     },
     "GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_ENTITY_TYPE": {
-      "title": "Stript for generated values returns an error state",
+      "title": "Script for generated values returns an error state",
       "message": "Script [{{scriptCode}}] returned null, or wrong type of entity. Return value: [{{returnedValue}}]."
+    },
+    "GENERATOR_FORM_ATTRIBUTE_NOT_FOUND": {
+      "title": "Form attribute for definition not found",
+      "message": "Form attribute for definition [{{formDefinitionCode}}] with code [{{formAttributeCode}}] not found."
+    },
+    "GENERATOR_FORM_DEFINITION_BAD_TYPE": {
+      "title": "Form definition has wrong type",
+      "message": "Form definition id [{{formDefinitionId}}], has not type. Correct type: [{entityType}]."
+    },
+    "IDMIDENTITY_USERNAME_NOTEMPTY": {
+      "title": "Username cann't be empty",
+      "message": "Username has not been filled. Please fill the username or enable the username generator."
+    },
+    "GENERATOR_SYSTEM_SEQ": {
+      "title": "Invalid generator order",
+      "message": "Generators cann't have the order from 0 to 10. This order is reserved for system generators that are directly created by the system."
     }
   },
   "validationError": {

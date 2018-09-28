@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import java.io.Serializable;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
@@ -22,7 +20,6 @@ import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 import io.swagger.annotations.ApiModel;
@@ -74,10 +71,7 @@ public class IdmIdentityDto extends FormableDto implements Disableable, Codeable
 	@JsonProperty(access = Access.READ_ONLY)
 	private IdentityState state;
 	private DateTime blockLoginDate = null;
-	@JsonProperty(value = "_eav", access = Access.READ_ONLY)
-	@ApiModelProperty(readOnly = true)
-	private Map<IdmFormAttributeDto, Serializable> eav;
-	
+
 	public IdmIdentityDto() {
 	}
 	
@@ -236,13 +230,5 @@ public class IdmIdentityDto extends FormableDto implements Disableable, Codeable
 	@Override
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
-	}
-
-	public Map<IdmFormAttributeDto, Serializable> getEav() {
-		return eav;
-	}
-	
-	public void setEav(Map<IdmFormAttributeDto, Serializable> eav) {
-		this.eav = eav;
 	}
 }

@@ -733,10 +733,10 @@ module.exports = {
             'labelKey': 'content.websockets.title',
             'order': 100,
             'path': '/notification/websockets',
+            '_deprecated': '@deprecated @since 9.2.0 websocket notification will be removed',
             'access': [
               {
-                'type': 'HAS_ANY_AUTHORITY',
-                'authorities': ['NOTIFICATION_READ']
+                'type': 'DENY_ALL'
               }
             ]
           },

@@ -22,8 +22,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -174,10 +178,9 @@ public class IdmNotificationLogController
 						return (IdmIdentityDto) getLookupService().lookupDto(IdmIdentityDto.class, recipient.getIdentityRecipient());
 					}).collect(Collectors.toList())
 				);
-		// TODO: send method should result notification or ex to prevent another loading
 		// TODO: parent notification should be returned ...
 		if (results.isEmpty()) {
-			return null;
+			throw new ResultCodeException(CoreResultCode.NOTIFICATION_NOT_SENT, ImmutableMap.of("topic", notification.getTopic()));
 		}
 		return getDto(results.get(0).getId());
 	}

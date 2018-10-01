@@ -55,7 +55,10 @@ public class DefaultIdmNotificationConfigurationService
 	extends AbstractReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfiguration, IdmNotificationConfigurationFilter> 
     implements IdmNotificationConfigurationService {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmNotificationConfigurationService.class);
+	//
 	@Autowired private ApplicationContext context;
+	//
 	private final IdmNotificationConfigurationRepository repository;
 	private final PluginRegistry<NotificationSender<?>, String> notificationSenders;
 	private final ModuleService moduleService;
@@ -123,32 +126,49 @@ public class DefaultIdmNotificationConfigurationService
 		Assert.notNull(notification.getMessage());
 		//
 		// default senders for unknown topics
+		NotificationLevel level = notification.getMessage().getLevel();
 		String topic = notification.getTopic();
 		if (StringUtils.isEmpty(notification.getTopic())) {
 			return getDefaultSenders();
 		}
+		// if configuration for given topic is found, but is disabled, 
+		// then default senders are not used => noticication is disabled and not be sent.
+		boolean disabled = false;
+		//
 		List<NotificationSender<?>> senders = new ArrayList<>();
 		if (!IdmNotificationLog.NOTIFICATION_TYPE.equals(notification.getType())) {
-			// concrete sender
+			// concrete sender - configuration was resolved before, check for disabled is not needed now
 			NotificationSender<?> sender = getSender(notification.getType());
 			if (sender != null) {
 				senders.add(sender);
 			}
 		} else {
-			// notification - find all senders by topic and level
-			final NotificationLevel lvl = notification.getMessage().getLevel();
-			final List<String> types = repository.findTypes(topic, lvl);
-			types.forEach(type -> {
-				NotificationSender<?> sender = getSender(type);
-				if (sender != null) {
-					senders.add(sender);
+			// notification - find all senders by topic and level by configuration
+			// check configuration is enabled
+			List<IdmNotificationConfiguration> configs = repository.findAllByTopicAndWildcardLevel(topic, level);
+			//
+			for(IdmNotificationConfiguration config : configs) {
+				if (config.isDisabled()) {
+					disabled = true;
+					LOG.debug("Configuration for topic [{}], level [{}], type [{}] is disabled. "
+							+ "Notification will not be sent by this configuration", topic, level, config.getNotificationType());
+				} else {
+					NotificationSender<?> sender = getSender(config.getNotificationType());
+					if (sender != null) {
+						senders.add(sender);
+					}
 				}
-			});
+			}
 		}
 		//
 		if (senders.isEmpty()) {
-			// configuration not found - return default senderr
-			return getDefaultSenders();
+			if (disabled) {
+				LOG.info("All configurations for topic [{}], level [{}] are disabled. "
+						+ "Notification will not be sent.", topic, level);
+			} else {
+				// configuration not found - return default senders
+				return getDefaultSenders();
+			}
 		}
 		return senders;
 	}
@@ -234,9 +254,19 @@ public class DefaultIdmNotificationConfigurationService
 		//template uuid of notification configuration
 		if (filter.getTemplate() != null) {
 			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.template).get(AbstractEntity_.id), filter.getTemplate()));
-		}		
+		}
+		//disabled notification, default = false
+		Boolean disabled = filter.getDisabled();
+		if (disabled != null) {
+			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.disabled), disabled));
+		}
+		//topic of notification configuration without like for searching on BE
+		String topic = filter.getTopic();
+		if (StringUtils.isNotEmpty(topic)) {
+			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.topic), topic));
+		}
 		//
 		return predicates;
-		}
+	}
 
 }

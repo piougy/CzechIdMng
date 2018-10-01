@@ -19,17 +19,16 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public interface IdmNotificationTemplateService extends 
 		ReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplateFilter>,
 		Recoverable<IdmNotificationTemplateDto>,
 		CodeableService<IdmNotificationTemplateDto> {
 
-	static final String PARAMETER_DELIMITIER = ",";
+	String PARAMETER_DELIMITIER = ",";
 	/**
 	 * Folder for scanning / initializing default templates
 	 */
-	static final String TEMPLATE_FOLDER = "idm.sec.core.notification.template.folder";
+	String TEMPLATE_FOLDER = "idm.sec.core.notification.template.folder";
 
 	/**
 	 * Return {@link IdmNotificationTemplateDto} by given code.

@@ -3420,7 +3420,11 @@
       "level": "Typ notifikace",
       "notificationType": "Kanál",
       "template": "Šablona",
-      "description": "Popis"
+      "description": "Popis",
+      "disabled": {
+        "label": "$t(label.disabled)",
+        "help": "Notifikace nebudou odesílány."
+      }
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",
@@ -4811,6 +4815,10 @@
     "NOTIFICATION_TEMPLATE_MORE_CODE_FOUND": {
       "title": "Nalezeno více šablon",
       "message": "Více než jedna šablona byla nalezena pro kód: [{{code}}]."
+    },
+    "NOTIFICATION_NOT_SENT": {
+      "title": "Notifikace nebyla odeslána",
+      "message": "Konfigurace pro notificaci s tématem [{{topic}}] nebyla nalezena nebo není aktivní."
     },
     "PASSWORD_CHANGE_ACCOUNT_FAILED": {
       "title": "Chyba při změně hesla",

@@ -254,39 +254,39 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     return validationMessage;
   }
 
-_preparePreValidationComponent(errorMessage) {
-  return (
-    <Basic.Alert
-      icon="info-sign"
-      text={ this.i18n('content.passwordPolicies.validation.passwordHintPreValidate') }
-      style={{ marginBottom: 0 }}>
-      <Basic.Popover
-        ref="popover"
-        trigger={['click']}
-        value={
-          <Basic.Panel level="info">
-            <Basic.PanelHeader>
-              {this.i18n('content.passwordPolicies.validation.passwordHintPreValidateHeader')}
-            </Basic.PanelHeader>
-            <Basic.PanelBody>
-              {this._preparePreValidationMessage(errorMessage)}
-            </Basic.PanelBody>
-          </Basic.Panel>
-        }
-        className="abstract-entity-info-popover"
-        placement="right">
-        {
-          <Basic.Button
-            level="link"
-            style={{ padding: 0, whiteSpace: 'normal', verticalAlign: 'baseline' }}
-            title={ this.i18n('content.passwordPolicies.validation.prevalidationLink.title') }>
-            { this.i18n('content.passwordPolicies.validation.passwordHintPreValidatePwd') }
-          </Basic.Button>
-        }
-      </Basic.Popover>
-    </Basic.Alert>
-  );
-}
+  _preparePreValidationComponent(errorMessage) {
+    return (
+      <Basic.Alert
+        icon="info-sign"
+        text={ this.i18n('content.passwordPolicies.validation.passwordHintPreValidate') }
+        className="no-margin">
+        <Basic.Popover
+          ref="popover"
+          trigger={['click']}
+          value={
+            <Basic.Panel level="info">
+              <Basic.PanelHeader>
+                {this.i18n('content.passwordPolicies.validation.passwordHintPreValidateHeader')}
+              </Basic.PanelHeader>
+              <Basic.PanelBody>
+                {this._preparePreValidationMessage(errorMessage)}
+              </Basic.PanelBody>
+            </Basic.Panel>
+          }
+          className="abstract-entity-info-popover"
+          placement="right">
+          {
+            <Basic.Button
+              level="link"
+              style={{ padding: 0, whiteSpace: 'normal', verticalAlign: 'baseline' }}
+              title={ this.i18n('content.passwordPolicies.validation.prevalidationLink.title') }>
+              { this.i18n('content.passwordPolicies.validation.passwordHintPreValidatePwd') }
+            </Basic.Button>
+          }
+        </Basic.Popover>
+      </Basic.Alert>
+    );
+  }
 
   render() {
     const { rendered, error, validationDefinition } = this.props;

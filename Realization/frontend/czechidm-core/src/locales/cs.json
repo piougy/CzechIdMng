@@ -3421,7 +3421,10 @@
       "notificationType": "Kanál",
       "template": "Šablona",
       "description": "Popis",
-      "disabled": "Zakázán"
+      "disabled": {
+        "label": "$t(label.disabled)",
+        "help": "Notifikace nebudou odesílány."
+      }
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",

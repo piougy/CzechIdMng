@@ -3371,7 +3371,10 @@
       "notificationType": "Channel",
       "template": "Template",
       "description": "Description",
-      "disabled": "Disabled"
+      "disabled": {
+        "label": "$t(label.disabled)",
+        "help": "Notifications will not be sent."
+      }
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",

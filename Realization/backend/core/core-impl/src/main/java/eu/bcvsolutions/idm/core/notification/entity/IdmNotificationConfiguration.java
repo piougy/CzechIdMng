@@ -17,6 +17,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
@@ -35,7 +36,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDt
 		@Index(name = "idx_idm_not_conf_type", columnList = "notification_type"),
 		@Index(name = "idx_idm_not_template", columnList = "template_id")
 		})
-public class IdmNotificationConfiguration extends AbstractEntity {
+public class IdmNotificationConfiguration extends AbstractEntity implements Disableable {
 
 	private static final long serialVersionUID = 3131809487111061022L;
 
@@ -128,10 +129,12 @@ public class IdmNotificationConfiguration extends AbstractEntity {
 		this.description = description;
 	}
 	
+	@Override
 	public boolean isDisabled() {
 		return disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
 	}

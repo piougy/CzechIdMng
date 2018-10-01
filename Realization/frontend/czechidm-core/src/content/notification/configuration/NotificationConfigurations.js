@@ -179,7 +179,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
                 }
                 }
               />
-            <Advanced.Column property="disabled" width="75px" header={this.i18n('entity.NotificationConfiguration.disabled')} sort face="bool" />
+            <Advanced.Column property="disabled" width={ 75 } header={this.i18n('entity.NotificationConfiguration.disabled.label')} sort face="bool" />
           </Advanced.Table>
         </Basic.Panel>
 
@@ -219,7 +219,8 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
                   label={this.i18n('entity.NotificationConfiguration.description')}/>
                 <Basic.Checkbox
                   ref="disabled"
-                  label={this.i18n('entity.NotificationConfiguration.disabled')}/>
+                  label={ this.i18n('entity.NotificationConfiguration.disabled.label') }
+                  helpBlock={ this.i18n('entity.NotificationConfiguration.disabled.help') }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

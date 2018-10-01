@@ -355,7 +355,6 @@ public class DefaultIdmNotificationTemplateService extends
 			notifications.add(notification);
 			return notifications;
 		}
-		
 		//
 		// 1. Priority - Own message in IdmMessage has biggest priority than otherwise settings
 		// 2. Priority - Template from IdmMessage has second biggest priority
@@ -363,6 +362,12 @@ public class DefaultIdmNotificationTemplateService extends
 		//
 		// html, text and subject is not empty use them
 		for (IdmNotificationConfiguration configuration : configurations) {
+			if (configuration.isDisabled()) {
+				LOG.debug("Configuration [{}] for topic [{}], level [{}], type [{}] is disabled. "
+						+ "Notification will not be sent by this configuration.", 
+						configuration.getId(), topic, message.getLevel(), configuration.getNotificationType());
+				continue;
+			}
 			IdmMessageDto finalMessage = null;
 			if (message.getTemplate() != null) {
 				// exist template in message
@@ -583,5 +588,4 @@ public class DefaultIdmNotificationTemplateService extends
 		oldTemplate = typeToDto(newTemplate, oldTemplate);
 		return this.save(oldTemplate);
 	}
-
 }

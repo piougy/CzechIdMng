@@ -4,6 +4,6 @@
 --
 -- add disabled column to idm_notification_configuration
 
-ALTER TABLE idm_notification_configuration ADD disabled bit NOT NULL;
+ALTER TABLE idm_notification_configuration ADD disabled bit NOT NULL DEFAULT false;
 ALTER TABLE idm_notification_configuration_a ADD disabled bit;
 ALTER TABLE idm_notification_configuration_a ADD disabled_m bit;

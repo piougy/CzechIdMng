@@ -2,8 +2,8 @@ package eu.bcvsolutions.idm.core.notification;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
@@ -25,20 +25,19 @@ import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test for disabled notifications
+ * 
  * @author Patrik Stloukal
  *
  */
-
 public class IdmNotificationConfigurationDisabledTest extends AbstractIntegrationTest {
 
 	private static final String TOPIC = "idm:test";
 
-	@Autowired private TestHelper helper;
 	@Autowired private NotificationManager notificationManager;
 	@Autowired private IdmNotificationLogRepository idmNotificationRepository;
 	@Autowired private IdmNotificationLogService notificationLogService;
@@ -68,7 +67,7 @@ public class IdmNotificationConfigurationDisabledTest extends AbstractIntegratio
 		NotificationLevel level = NotificationLevel.ERROR;
 		
 		IdmNotificationTemplateDto template = createTestTemplate("Idm test notification", "disabled test");
-		IdmIdentityDto identity = helper.createIdentity("Test_disable_notifications" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity("Test_disable_notifications" + System.currentTimeMillis());
 
 		configs.add(createNotificationConfiguration(TOPIC, level, "email", template.getId(), false));
 		IdmMessageDto message = new IdmMessageDto();
@@ -90,7 +89,7 @@ public class IdmNotificationConfigurationDisabledTest extends AbstractIntegratio
 		NotificationLevel level = NotificationLevel.ERROR;
 		
 		IdmNotificationTemplateDto template = createTestTemplate("Idm test notification", "disabled test");
-		IdmIdentityDto identity = helper.createIdentity("Test_disable_notifications" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity("Test_disable_notifications" + System.currentTimeMillis());
 
 		configs.add(createNotificationConfiguration(TOPIC, level, "email", template.getId(), true));
 		IdmMessageDto message = new IdmMessageDto();
@@ -112,7 +111,7 @@ public class IdmNotificationConfigurationDisabledTest extends AbstractIntegratio
 		NotificationLevel level = NotificationLevel.ERROR;
 		
 		IdmNotificationTemplateDto template = createTestTemplate("Idm test notification", "disabled test");
-		IdmIdentityDto identity = helper.createIdentity("Test_disable_notifications" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity("Test_disable_notifications" + System.currentTimeMillis());
 
 		configs.add(createNotificationConfiguration(TOPIC, level, "websocket", template.getId(), false));
 		IdmMessageDto message = new IdmMessageDto();
@@ -134,7 +133,7 @@ public class IdmNotificationConfigurationDisabledTest extends AbstractIntegratio
 		NotificationLevel level = NotificationLevel.ERROR;
 		
 		IdmNotificationTemplateDto template = createTestTemplate("Idm test notification", "disabled test");
-		IdmIdentityDto identity = helper.createIdentity("Test_disable_notifications" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity("Test_disable_notifications" + System.currentTimeMillis());
 
 		configs.add(createNotificationConfiguration(TOPIC, level, "websocket", template.getId(), true));
 		IdmMessageDto message = new IdmMessageDto();
@@ -156,7 +155,7 @@ public class IdmNotificationConfigurationDisabledTest extends AbstractIntegratio
 		NotificationLevel level = NotificationLevel.ERROR;
 		
 		IdmNotificationTemplateDto template = createTestTemplate("Idm test notification", "disabled test");
-		IdmIdentityDto identity = helper.createIdentity("Test_disable_notifications" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity("Test_disable_notifications" + System.currentTimeMillis());
 
 		configs.add(createNotificationConfiguration(TOPIC, level, "websocket", template.getId(), true));
 		configs.add(createNotificationConfiguration(TOPIC, level, "email", template.getId(), true));
@@ -179,7 +178,7 @@ public class IdmNotificationConfigurationDisabledTest extends AbstractIntegratio
 		NotificationLevel level = NotificationLevel.ERROR;
 		
 		IdmNotificationTemplateDto template = createTestTemplate("Idm test notification", "disabled test");
-		IdmIdentityDto identity = helper.createIdentity("Test_disable_notifications" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity("Test_disable_notifications" + System.currentTimeMillis());
 
 		configs.add(createNotificationConfiguration(TOPIC, level, "websocket", template.getId(), false));
 		configs.add(createNotificationConfiguration(TOPIC, level, "email", template.getId(), true));
@@ -202,7 +201,7 @@ public class IdmNotificationConfigurationDisabledTest extends AbstractIntegratio
 		NotificationLevel level = NotificationLevel.ERROR;
 		
 		IdmNotificationTemplateDto template = createTestTemplate("Idm test notification", "disabled test");
-		IdmIdentityDto identity = helper.createIdentity("Test_disable_notifications" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity("Test_disable_notifications" + System.currentTimeMillis());
 
 		configs.add(createNotificationConfiguration(TOPIC, level, "websocket", template.getId(), false));
 		configs.add(createNotificationConfiguration(TOPIC, level, "email", template.getId(), false));
@@ -225,7 +224,7 @@ public class IdmNotificationConfigurationDisabledTest extends AbstractIntegratio
 		NotificationLevel level = NotificationLevel.ERROR;
 		
 		IdmNotificationTemplateDto template = createTestTemplate("Idm test notification", "disabled test");
-		IdmIdentityDto identity = helper.createIdentity("Test_disable_notifications" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity("Test_disable_notifications" + System.currentTimeMillis());
 
 		configs.add(createNotificationConfiguration(TOPIC, null, "websocket", template.getId(), false));
 		configs.add(createNotificationConfiguration(TOPIC, null, "email", template.getId(), false));
@@ -248,7 +247,7 @@ public class IdmNotificationConfigurationDisabledTest extends AbstractIntegratio
 		NotificationLevel level = NotificationLevel.ERROR;
 		
 		IdmNotificationTemplateDto template = createTestTemplate("Idm test notification", "disabled test");
-		IdmIdentityDto identity = helper.createIdentity("Test_disable_notifications" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 
 		configs.add(createNotificationConfiguration(TOPIC, null, "websocket", template.getId(), true));
 		configs.add(createNotificationConfiguration(TOPIC, null, "email", template.getId(), false));

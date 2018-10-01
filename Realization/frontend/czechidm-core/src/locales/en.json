@@ -3370,7 +3370,8 @@
       "level": "Level",
       "notificationType": "Channel",
       "template": "Template",
-      "description": "Description"
+      "description": "Description",
+      "disabled": "Disabled"
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",

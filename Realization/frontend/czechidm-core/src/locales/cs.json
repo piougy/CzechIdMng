@@ -3420,7 +3420,8 @@
       "level": "Typ notifikace",
       "notificationType": "Kanál",
       "template": "Šablona",
-      "description": "Popis"
+      "description": "Popis",
+      "disabled": "Zakázán"
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",

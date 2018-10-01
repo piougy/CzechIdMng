@@ -234,9 +234,37 @@ public class DefaultIdmNotificationConfigurationService
 		//template uuid of notification configuration
 		if (filter.getTemplate() != null) {
 			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.template).get(AbstractEntity_.id), filter.getTemplate()));
-		}		
+		}
+		//disabled notification, default = false
+		if (filter.getDisabled() != null) {
+			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.disabled), filter.getDisabled()));
+		}
+		//topic of notification configuration without like for searching on BE
+		if (filter.getTopic() != null) {
+			predicates.add(builder.equal(root.get(IdmNotificationConfiguration_.topic), filter.getTopic()));
+		}
 		//
 		return predicates;
 		}
+
+	@Override
+	public List<NotificationConfigurationDto> getNotDisabledConfigurations(String topic, String notificationType, NotificationLevel level) {
+		IdmNotificationConfigurationFilter filter = new IdmNotificationConfigurationFilter();
+		filter.setDisabled(false);
+		filter.setTopic(topic);
+		filter.setNotificationType(notificationType);
+		filter.setLevel(level);
+		return this.find(filter, null).getContent();
+	}
+	
+	@Override
+	public List<NotificationConfigurationDto> getNotDisabledConfigurations(String topic, String notificationType) {
+		return getNotDisabledConfigurations(topic, notificationType, null);
+	}
+	
+	@Override
+	public List<NotificationConfigurationDto> getConfigurationsLevelIsNull(String topic) {
+		return toDtos(repository.findByTopicAndLevelIsNull(topic), false);
+	}
 
 }

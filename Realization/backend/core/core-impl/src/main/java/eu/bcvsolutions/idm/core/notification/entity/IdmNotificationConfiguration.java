@@ -10,6 +10,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
@@ -65,6 +66,11 @@ public class IdmNotificationConfiguration extends AbstractEntity {
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
+	
+	@Audited
+	@NotNull
+	@Column(name = "disabled", nullable = false)
+	private boolean disabled;
 
 	public IdmNotificationConfiguration() {
 	}
@@ -120,5 +126,13 @@ public class IdmNotificationConfiguration extends AbstractEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 }

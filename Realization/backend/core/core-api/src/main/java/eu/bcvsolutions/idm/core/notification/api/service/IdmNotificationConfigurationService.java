@@ -80,4 +80,28 @@ public interface IdmNotificationConfigurationService extends ReadWriteDtoService
 	 * @return
 	 */
 	List<NotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level);
+	
+	/**
+	 * Method find all enabled configurations for topic and notificationType.
+	 * @param topic
+	 * @param notificationType
+	 * @return
+	 */
+	List<NotificationConfigurationDto> getNotDisabledConfigurations(String topic, String notificationType);
+	
+	/**
+	 * Method find all enabled configurations for topic and notificationType and level.
+	 * @param topic
+	 * @param notificationType
+	 * @param level
+	 * @return
+	 */
+	List<NotificationConfigurationDto> getNotDisabledConfigurations(String topic, String notificationType, NotificationLevel level);
+	
+	/**
+	 * Get configurations with level = null
+	 * @param topic
+	 * @return
+	 */
+	List<NotificationConfigurationDto> getConfigurationsLevelIsNull(String topic);
 }

@@ -24,6 +24,7 @@ public class NotificationConfigurationDto extends AbstractDto {
 	private String description;
 	@Embedded(dtoClass = IdmNotificationTemplateDto.class)
 	private UUID template;
+	private boolean disabled;
 
 	public NotificationConfigurationDto() {
 	}
@@ -86,5 +87,13 @@ public class NotificationConfigurationDto extends AbstractDto {
 
 	public void setTemplate(UUID notificationTemplate) {
 		this.template = notificationTemplate;
+	}
+
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 }

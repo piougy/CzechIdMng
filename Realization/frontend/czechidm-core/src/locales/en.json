@@ -4766,6 +4766,10 @@
       "title": "More then one template was found",
       "message": "More then one template was found for code: [{{code}}]."
     },
+    "NOTIFICATION_NOT_SENT": {
+      "title": "Notification not sent",
+      "message": "Notification configuration for topic [{{topic}}] not found or is disabled."
+    },
     "PASSWORD_CHANGE_ACCOUNT_FAILED": {
       "title": "Password change failed",
       "message": "Can not change password in these accounts: [{{accounts}}]."

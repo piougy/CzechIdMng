@@ -181,6 +181,7 @@ public enum CoreResultCode implements ResultCode {
 	NOTIFICATION_TEMPLATE_MORE_CODE_FOUND(HttpStatus.CONFLICT, "More templates in resource found for code: [%s]."),
 	NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "XML file for template code: [%s] not found."),
 	NOTIFICATION_SENDER_IMPLEMENTATION_NOT_FOUND(HttpStatus.CONFLICT, "Sender implementation [%s] for type [%s] not found. Repair configuration property [%s]."),
+	NOTIFICATION_NOT_SENT(HttpStatus.CONFLICT, "Notification was not sent. Notification configuration for topic [%s] not found or is disabled."),
 	//
 	// scripts
 	SCRIPT_MORE_CODE_FOUND(HttpStatus.CONFLICT, "More scripts in resource found for code: [%s]."),

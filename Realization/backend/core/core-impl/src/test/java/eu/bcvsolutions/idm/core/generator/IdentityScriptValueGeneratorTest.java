@@ -10,17 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
-import eu.bcvsolutions.idm.core.api.dto.GeneratorDefinitionDto;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.generator.impl.IdentityScriptValueGenerator;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
  * Tests for {@link IdentityScriptValueGenerator}
@@ -54,9 +54,9 @@ public class IdentityScriptValueGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityScriptValueGenerator.SCRIPT_CODE, script.getCode())), 1, null);
 
@@ -82,9 +82,9 @@ public class IdentityScriptValueGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityScriptValueGenerator.SCRIPT_CODE, script.getCode())), 1, null);
 
@@ -102,9 +102,9 @@ public class IdentityScriptValueGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityScriptValueGenerator.SCRIPT_CODE, this.getHelper().createName())), 1, null);
 
@@ -124,9 +124,9 @@ public class IdentityScriptValueGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityScriptValueGenerator.SCRIPT_CODE, script.getCode())), 1, null);
 
@@ -147,9 +147,9 @@ public class IdentityScriptValueGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityScriptValueGenerator.SCRIPT_CODE, script.getCode())), 1, null);
 
@@ -157,8 +157,8 @@ public class IdentityScriptValueGeneratorTest extends AbstractGeneratorTest {
 	}
 
 	@Override
-	protected String getEntityType() {
-		return IdmIdentity.class.getCanonicalName();
+	protected Class<? extends AbstractDto> getDtoType() {
+		return IdmIdentityDto.class;
 	}
 
 	@Override

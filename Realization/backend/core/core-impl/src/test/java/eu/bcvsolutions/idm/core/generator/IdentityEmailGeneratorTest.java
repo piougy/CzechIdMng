@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.dto.GeneratorDefinitionDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.generator.impl.IdentityEmailGenerator;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
  * Test for {@link IdentityEmailGenerator}
@@ -34,9 +34,9 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setFirstName(this.getHelper().createName());
 		identityDto.setLastName(this.getHelper().createName());
 
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 1, null);
@@ -55,9 +55,9 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 		
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 1, null);
@@ -77,9 +77,9 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 		
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 1, null);
@@ -99,9 +99,9 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 		
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 1, null);
@@ -121,9 +121,9 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 		
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 1, null);
@@ -144,22 +144,22 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 		
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
 		// first
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 10, null);
 
 		// second
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix1,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 20, null);
 
 		// the last - this generator will be generate email
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix2,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 30, null);
@@ -183,22 +183,22 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setUsername(username);
 		identityDto.setEmail(email);
 		
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
 		// first
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 10, Boolean.FALSE);
 
 		// second
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix1,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 20, Boolean.FALSE);
 
 		// the last
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix2,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 30, Boolean.FALSE);
@@ -220,16 +220,16 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 		identityDto.setLastName(this.getHelper().createName());
 		identityDto.setUsername(username);
 		
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 
 		// first - this generator will be generate email
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 10, null);
 
 		// second
-		IdmGeneratedValueDto createGenerator = this.createGenerator(getEntityType(), getGeneratorType(),
+		IdmGenerateValueDto createGenerator = this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix1,
 						IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.TRUE.toString())), 20, null);
@@ -237,7 +237,7 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 		this.generatedAttributeService.save(createGenerator);
 
 		// the last
-		createGenerator = this.createGenerator(getEntityType(), getGeneratorType(),
+		createGenerator = this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
 						IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix2)), 30, null);
 		createGenerator.setDisabled(true);
@@ -249,8 +249,8 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 	}
 
 	@Override
-	protected String getEntityType() {
-		return IdmIdentity.class.getCanonicalName();
+	protected Class<? extends AbstractDto> getDtoType() {
+		return IdmIdentityDto.class;
 	}
 
 	@Override

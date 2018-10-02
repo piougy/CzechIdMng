@@ -1,15 +1,14 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.persistence.EntityManager;
-import javax.persistence.metamodel.EntityType;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,24 +17,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.Shorts;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.Generatable;
-import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.GeneratorDefinitionDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
+import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmGenerateValueFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.generator.ValueGenerator;
-import eu.bcvsolutions.idm.core.api.service.IdmGeneratedValueService;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.service.IdmGenerateValueService;
 import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
  * Default implementation manager for generating value
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
 @Service("valueGeneratorManager")
@@ -44,27 +43,25 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultValueGeneratorManager.class);
 
 	@Autowired
-	private IdmGeneratedValueService service;
+	private IdmGenerateValueService service;
 	@Autowired
 	private ApplicationContext context;
 	@Autowired
-	private EntityManager entityManager;
-	@Autowired
-	private LookupService lookupService;
+	private EnabledEvaluator enabledEvaluator;
 
 	// generators are cached
 	private final Map<String, ValueGenerator<? extends AbstractDto>> generators = new HashMap<>();
 	// supported entities are cached
-	private final Set<String> supportedEntities = new HashSet<>();
+	private Set<Class< ? extends AbstractDto>> supportedTypes = null;
 	
 	@Override
 	public <E extends AbstractDto> E generate(E dto) {
 		Assert.notNull(dto);
 		//
-		List<IdmGeneratedValueDto> valueGenerators = service.getEnabledGenerator(getEntityClass(dto));
+		List<IdmGenerateValueDto> valueGenerators = getEnabledGenerators(dto.getClass());
 
 		// iterate over saved and enabled generators in DB for given entity type
-		for (IdmGeneratedValueDto valueGenerator : valueGenerators) {
+		for (IdmGenerateValueDto valueGenerator : valueGenerators) {
 			ValueGenerator<E> generator = getGenerator(valueGenerator);
 			if (generator != null) {
 				//
@@ -79,81 +76,68 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 
 		return dto;
 	}
-
+	
 	@Override
-	public List<GeneratorDefinitionDto> getAvailableGenerators(String entityType) {
+	@SuppressWarnings("rawtypes")
+	public List<ValueGeneratorDto> getAvailableGenerators(Class<? extends AbstractDto> dtoType) {
 		// TODO: use cache
-		List<GeneratorDefinitionDto> result = new ArrayList<>();
+		List<ValueGeneratorDto> result = new ArrayList<>();
 		Set<Entry<String, ValueGenerator>> allGenerators = context.getBeansOfType(ValueGenerator.class).entrySet();
 		
-		if (entityType != null) {
-			try {
-				Class<?> entityClass = Class.forName(entityType);
-				for (Entry<String, ValueGenerator> entry : allGenerators) {
-					ValueGenerator<?> generator = entry.getValue();
-					if (!generator.isDisabled() && generator.supports(entityClass)) {
-						result.add(valueGeneratorToDto(generator));
-					}
+		if (dtoType != null) {
+			for (Entry<String, ValueGenerator> entry : allGenerators) {
+				ValueGenerator<?> generator = entry.getValue();
+				if (!generator.isDisabled() 
+						&& enabledEvaluator.isEnabled(generator)
+						&& generator.supports(dtoType)) {
+					result.add(valueGeneratorToDto(generator));
 				}
-			} catch (ClassNotFoundException e) {
-				LOG.error("Class [{}] not found.", entityType, e);
-				throw new ResultCodeException(CoreResultCode.GENERATOR_ENTITY_CLASS_NOT_FOUND, ImmutableMap.of("class", entityType));
 			}
-
 		} else {
 			// class name is null transform all
-			allGenerators.stream().map(Entry::getValue).forEach(generator -> result.add(valueGeneratorToDto(generator)));
+			allGenerators
+				.stream()
+				.map(Entry::getValue)
+				.forEach(generator -> result.add(valueGeneratorToDto(generator)));
 		}
 
 		return result;
 	}
 	
 	@Override
-	public Set<String> getSupportedEntityTypes() {
-		if (!supportedEntities.isEmpty()) {
-			return supportedEntities;
+	public Set<Class< ? extends AbstractDto>> getSupportedTypes() {
+		if (supportedTypes == null) {
+			supportedTypes = context.getBeansOfType(ValueGenerator.class)
+					.values()
+					.stream()
+					.map(ValueGenerator::getDtoClass)
+					.collect(Collectors.toSet());
+			
+			
 		}
-		Set<EntityType<?>> entities = entityManager.getMetamodel().getEntities();
-		for (EntityType<?> entity : entities) {
-			if (entity.getJavaType() == null) {
-				continue;
-			}
-			if (Generatable.class.isAssignableFrom(entity.getJavaType())) {
-				supportedEntities.add(entity.getJavaType().getCanonicalName());
-			}
-		}
-
-		return supportedEntities;
+		//
+		return supportedTypes;
 	}
 
 	@Override
-	public boolean supportsGenerating(Identifiable type) {
-		Class<? extends BaseEntity> ownerEntityType = getEntityClass(type);
-		return getSupportedEntityTypes().contains(ownerEntityType.getCanonicalName());
-	}
-
-	/**
-	 * Return entity class for {@link Identifiable}
-	 *
-	 * @param identifiable
-	 * @return
-	 */
-	private Class<? extends BaseEntity> getEntityClass(Identifiable identifiable) {
-		return lookupService.getEntityClass(identifiable.getClass());
+	public boolean supportsGenerating(AbstractDto dto) {
+		Assert.notNull(dto);
+		//
+		return getSupportedTypes().contains(dto.getClass());
 	}
 	
 	/**
-	 * Transform {@link ValueGenerator} to {@link GeneratorDefinitionDto}.
-	 * {@link GeneratorDefinitionDto} was prepared for send to fronted agenda.
+	 * Transform {@link ValueGenerator} to {@link ValueGeneratorDto}.
+	 * {@link ValueGeneratorDto} was prepared for send to fronted agenda.
 	 *
 	 * @param valueGenerator
 	 * @return
 	 */
-	private GeneratorDefinitionDto valueGeneratorToDto(ValueGenerator<?> valueGenerator) {
-		GeneratorDefinitionDto valueGeneratorDto = new GeneratorDefinitionDto();
+	private ValueGeneratorDto valueGeneratorToDto(ValueGenerator<?> valueGenerator) {
+		ValueGeneratorDto valueGeneratorDto = new ValueGeneratorDto();
 		valueGeneratorDto.setDescription(valueGenerator.getDescription());
 		valueGeneratorDto.setModule(valueGenerator.getModule());
-		valueGeneratorDto.setEntityType(valueGenerator.getEntityClass().getCanonicalName());
+		valueGeneratorDto.setDtoType(valueGenerator.getDtoClass().getCanonicalName());
 		valueGeneratorDto.setDisabled(valueGenerator.isDisabled());
 		valueGeneratorDto.setName(valueGenerator.getName());
 		valueGeneratorDto.setGeneratorType(valueGenerator.getClass().getCanonicalName());
@@ -166,7 +150,8 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 	 * @param generatorDto
 	 * @return
 	 */
-	private <E extends AbstractDto> ValueGenerator<E> getGenerator(IdmGeneratedValueDto generatorDto) {
+	@SuppressWarnings("unchecked")
+	private <E extends AbstractDto> ValueGenerator<E> getGenerator(IdmGenerateValueDto generatorDto) {
 		String generatorType = generatorDto.getGeneratorType();
 		if (!generators.containsKey(generatorType)) {
 			// generator doesn't exist in cache, load it
@@ -181,12 +166,32 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 		}
 
 		ValueGenerator<E> generator = (ValueGenerator<E>) generators.get(generatorType);
-		if (generator.isDisabled()) {
+		if (generator.isDisabled() || !enabledEvaluator.isEnabled(generator)) {
 			// generator can be disabled in runtime - disable module
 			LOG.info("Generator type [{}] is disabled.", generatorType);
 			return null;
 		}
 
 		return generator;
+	}
+	
+	private List<IdmGenerateValueDto> getEnabledGenerators(Class<? extends AbstractDto> dtoType) {
+		Assert.notNull(dtoType);
+		//
+		IdmGenerateValueFilter filter = new IdmGenerateValueFilter();
+		filter.setDisabled(false);
+		filter.setDtoType(dtoType.getCanonicalName());
+
+		// we must create new instance of arraylist, given list is unmodifable
+		List<IdmGenerateValueDto> generators = new ArrayList<>(service.find(filter, null).getContent());
+
+		// sort by order
+		Collections.sort(generators, new Comparator<IdmGenerateValueDto>() {
+			@Override
+			public int compare(IdmGenerateValueDto o1, IdmGenerateValueDto o2) {
+				return Shorts.compare(o1.getSeq(), o2.getSeq());
+			}
+		});
+		return generators;
 	}
 }

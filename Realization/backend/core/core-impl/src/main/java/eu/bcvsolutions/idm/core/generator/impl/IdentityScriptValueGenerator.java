@@ -10,13 +10,11 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.generator.AbstractValueGenerator;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.script.evaluator.DefaultSystemScriptEvaluator;
 
@@ -42,7 +40,7 @@ public class IdentityScriptValueGenerator extends AbstractValueGenerator<IdmIden
 	private DefaultSystemScriptEvaluator systemScriptEvaluator;
 
 	@Override
-	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGeneratedValueDto valueGenerator) {
+	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
 		String scriptCode = getScriptCode(valueGenerator);
 		Object returnValue = systemScriptEvaluator.evaluate(new AbstractScriptEvaluator.Builder()
 				.setScriptCode(scriptCode)
@@ -50,7 +48,7 @@ public class IdentityScriptValueGenerator extends AbstractValueGenerator<IdmIden
 				.addParameter(VALUE_GENERATOR_KEY, valueGenerator));
 		//
 		if (returnValue == null || !(returnValue instanceof IdmIdentityDto)) {
-			throw new ResultCodeException(CoreResultCode.GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_ENTITY_TYPE,
+			throw new ResultCodeException(CoreResultCode.GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE,
 					ImmutableMap.of(
 							"scriptCode", scriptCode == null ? "null" : scriptCode,
 							"returnedValue", returnValue == null ? "null" : returnValue));
@@ -78,18 +76,13 @@ public class IdentityScriptValueGenerator extends AbstractValueGenerator<IdmIden
 		return attributes;
 	}
 
-	@Override
-	public Class<? extends AbstractEntity> getEntityClass() {
-		return IdmIdentity.class;
-	}
-
 	/**
 	 * Get script code
 	 *
 	 * @param valueGenerator
 	 * @return
 	 */
-	private String getScriptCode(IdmGeneratedValueDto valueGenerator) {
+	private String getScriptCode(IdmGenerateValueDto valueGenerator) {
 		return valueGenerator.getGeneratorProperties().getString(SCRIPT_CODE);
 	}
 }

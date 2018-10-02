@@ -24,16 +24,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.GeneratorDefinitionDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmGeneratedValueFilter;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
+import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmGenerateValueFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.service.IdmGeneratedValueService;
+import eu.bcvsolutions.idm.core.api.service.IdmGenerateValueService;
 import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
@@ -43,27 +46,28 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Generated values controller
+ * Generate values controller
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @RestController
-@RequestMapping(value = BaseDtoController.BASE_PATH + "/generated-values")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/generate-values")
 @Api(
-		value = IdmGeneratedValueController.TAG, 
-		description = "Operations with generated values", 
-		tags = { IdmGeneratedValueController.TAG }, 
+		value = IdmGenerateValueController.TAG, 
+		description = "Operations with generate values", 
+		tags = { IdmGenerateValueController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmGeneratedValueController extends AbstractReadWriteDtoController<IdmGeneratedValueDto, IdmGeneratedValueFilter> {
+public class IdmGenerateValueController extends AbstractReadWriteDtoController<IdmGenerateValueDto, IdmGenerateValueFilter> {
 
-	protected static final String TAG = "Generated values";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmGenerateValueController.class);
+	protected static final String TAG = "Generate values";
 
 	private final ValueGeneratorManager valueGeneratorManager;
 
 	@Autowired
-	public IdmGeneratedValueController(IdmGeneratedValueService entityService, ValueGeneratorManager valueGeneratorManager) {
+	public IdmGenerateValueController(IdmGenerateValueService entityService, ValueGeneratorManager valueGeneratorManager) {
 		super(entityService);
 		//
 		Assert.notNull(valueGeneratorManager);
@@ -74,16 +78,16 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_READ + "')")
 	@ApiOperation(
-			value = "Search generated values (/search/quick alias)", 
-			nickname = "searchGeneratedValues", 
-			tags = { IdmGeneratedValueController.TAG }, 
+			value = "Search generate values (/search/quick alias)", 
+			nickname = "searchGenerateValues", 
+			tags = { IdmGenerateValueController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") })
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
@@ -93,16 +97,16 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 
 	@ResponseBody
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_READ + "')")
 	@ApiOperation(
-			value = "Search generated values", 
-			nickname = "searchQuickGeneratedValues", 
-			tags = { IdmGeneratedValueController.TAG }, 
+			value = "Search generate values", 
+			nickname = "searchQuickGenerateValues", 
+			tags = { IdmGenerateValueController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") })
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
@@ -113,16 +117,16 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_COUNT + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_COUNT + "')")
 	@ApiOperation(
 			value = "The number of entities that match the filter", 
-			nickname = "countGeneratedValues", 
-			tags = { IdmGeneratedValueController.TAG }, 
+			nickname = "countGenerateValues", 
+			tags = { IdmGenerateValueController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_COUNT, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_COUNT, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_COUNT, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_COUNT, description = "") })
 				})
 	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
 		return super.count(parameters);
@@ -131,20 +135,20 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_READ + "')")
 	@ApiOperation(
-			value = "Generated value detail", 
-			nickname = "getGeneratedValues", 
-			response = IdmGeneratedValueDto.class, 
-			tags = { IdmGeneratedValueController.TAG }, 
+			value = "Generate value detail", 
+			nickname = "getGenerateValues", 
+			response = IdmGenerateValueDto.class, 
+			tags = { IdmGenerateValueController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") })
 				})
 	public ResponseEntity<?> get(
-			@ApiParam(value = "Generated value uuid identifier.", required = true)
+			@ApiParam(value = "Generate value uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
@@ -152,62 +156,60 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_CREATE + "')"
-			+ " or hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_UPDATE + "')")
 	@ApiOperation(
-			value = "Create / update generated value", 
-			nickname = "postGeneratedValue", 
-			response = IdmGeneratedValueDto.class, 
-			tags = { IdmGeneratedValueController.TAG }, 
+			value = "Create / update generate value", 
+			nickname = "postGenerateValue", 
+			response = IdmGenerateValueDto.class, 
+			tags = { IdmGenerateValueController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_CREATE, description = ""),
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_UPDATE, description = "")}),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_CREATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_UPDATE, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_CREATE, description = ""),
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_UPDATE, description = "")})
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_CREATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(@Valid @RequestBody IdmGeneratedValueDto dto) {
-		checkSeq(dto);
+	public ResponseEntity<?> post(@Valid @RequestBody IdmGenerateValueDto dto) {
 		return super.post(dto);
 	}
 
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_UPDATE + "')")
 	@ApiOperation(
-			value = "Update generated value", 
-			nickname = "putGeneratedValues", 
-			response = IdmGeneratedValueDto.class, 
-			tags = { IdmGeneratedValueController.TAG }, 
+			value = "Update generate value", 
+			nickname = "putGenerateValues", 
+			response = IdmGenerateValueDto.class, 
+			tags = { IdmGenerateValueController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_UPDATE, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_UPDATE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_UPDATE, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_UPDATE, description = "") })
 				})
 	public ResponseEntity<?> put(
-			@ApiParam(value = "Generated value uuid identifier.", required = true)
+			@ApiParam(value = "Generate value uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId, 
-			@Valid @RequestBody IdmGeneratedValueDto dto) {
-		checkSeq(dto);
+			@Valid @RequestBody IdmGenerateValueDto dto) {
 		return super.put(backendId, dto);
 	}
 
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_DELETE + "')")
 	@ApiOperation(
-			value = "Delete generated value", 
-			nickname = "deleteGeneratedValue", 
-			tags = { IdmGeneratedValueController.TAG }, 
+			value = "Delete generate value", 
+			nickname = "deleteGenerateValue", 
+			tags = { IdmGenerateValueController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_DELETE, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_DELETE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_DELETE, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_DELETE, description = "") })
 				})
 	public ResponseEntity<?> delete(
 			@ApiParam(value = "Generate value uuid identifier.", required = true)
@@ -218,19 +220,19 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_READ + "')")
 	@ApiOperation(
 			value = "What logged identity can do with given record", 
-			nickname = "getPermissionsOnGeneratedValue", 
-			tags = { IdmGeneratedValueController.TAG }, 
+			nickname = "getPermissionsOnGenerateValue", 
+			tags = { IdmGenerateValueController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") })
 				})
 	public Set<String> getPermissions(
-			@ApiParam(value = "Generated value uuid.", required = true)
+			@ApiParam(value = "Generate value uuid.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
 	}
@@ -242,19 +244,19 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET, value = "/search/supported")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_READ + "')")
 	@ApiOperation(
-			value = "Get all supported entities", 
-			nickname = "getSupportedEntities", 
-			tags = { IdmGeneratedValueController.TAG }, 
+			value = "Get all supported dto types", 
+			nickname = "getSupportedTypes", 
+			tags = { IdmGenerateValueController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") })
 				})
-	public ResponseEntity<?> getSupportedEntities() {
-		return new ResponseEntity<>(toResources(valueGeneratorManager.getSupportedEntityTypes(), null), HttpStatus.OK);
+	public ResponseEntity<?> getSupportedTypes() {
+		return new ResponseEntity<>(toResources(valueGeneratorManager.getSupportedTypes(), null), HttpStatus.OK);
 	}
 	
 	/**
@@ -262,45 +264,52 @@ public class IdmGeneratedValueController extends AbstractReadWriteDtoController<
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	@ResponseBody
-	@RequestMapping(method = RequestMethod.GET, value = "/search/generators{entityType}")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATED_VALUE_READ + "')")
+	@RequestMapping(method = RequestMethod.GET, value = "/search/generators{dtoType}")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_READ + "')")
 	@ApiOperation(
 			value = "Get all supported generator", 
 			nickname = "getGenerators", 
 			tags = { IdmAuthorizationPolicyController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.GENERATED_VALUE_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") })
 				},
 			notes = "Returns all available generators.")
-	public Resources<GeneratorDefinitionDto> getAvailableGenerators(@PathVariable String entityType) {
+	public Resources<ValueGeneratorDto> getAvailableGenerators(@PathVariable String dtoType) {
 		// in older version path variable doesnt support null
-		if (StringUtils.isEmpty(entityType)) {
-			entityType = null;
+		Class<? extends AbstractDto> type = null;
+		if (StringUtils.isNotEmpty(dtoType)) {
+			try {
+				type = (Class<? extends AbstractDto>) Class.forName(dtoType); // TODO: checked cast
+			} catch (ClassNotFoundException e) {
+				LOG.error("Class [{}] not found.", dtoType, e);
+				throw new ResultCodeException(CoreResultCode.GENERATOR_DTO_CLASS_NOT_FOUND, ImmutableMap.of("class", dtoType));
+			}
 		}
-		return new Resources<>(valueGeneratorManager.getAvailableGenerators(entityType));
+		return new Resources<>(valueGeneratorManager.getAvailableGenerators(type));
 	}
-
-	/**
-	 * Method check if is dto can change or create with defined seq. Otherwise throw error.
-	 *
-	 * @param dto
-	 */
-	private void checkSeq(IdmGeneratedValueDto dto) {
+	
+	@Override
+	protected IdmGenerateValueDto validateDto(IdmGenerateValueDto dto) {
+		dto = super.validateDto(dto);
+		//
 		// if dto is new and seq is lower or equal to system maximum
 		boolean isNew = this.getService().isNew(dto);
 		short newSeq = dto.getSeq();
-		if (isNew && newSeq <= IdmGeneratedValueService.SYSTEM_SEQ_MAXIMUM) {
+		if (isNew && newSeq <= IdmGenerateValueService.SYSTEM_SEQ_MAXIMUM) {
 			throw new ResultCodeException(CoreResultCode.GENERATOR_SYSTEM_SEQ);
 		} else if (!isNew) {
-			IdmGeneratedValueDto oldGeneratedValueDto = this.getService().get(dto.getId());
+			IdmGenerateValueDto oldGenerateValueDto = this.getService().get(dto.getId());
 			// some one change seq, check if is equal to old, if not check is not same as system seq
-			if (oldGeneratedValueDto.getSeq() != newSeq && newSeq <= IdmGeneratedValueService.SYSTEM_SEQ_MAXIMUM) {
+			if (oldGenerateValueDto.getSeq() != newSeq && newSeq <= IdmGenerateValueService.SYSTEM_SEQ_MAXIMUM) {
 				throw new ResultCodeException(CoreResultCode.GENERATOR_SYSTEM_SEQ);
 			}
 		}
+		//
+		return super.validateDto(dto);
 	}
 }

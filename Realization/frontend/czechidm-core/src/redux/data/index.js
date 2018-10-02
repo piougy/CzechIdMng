@@ -66,7 +66,7 @@ import RequestItemManager from './RequestItemManager';
 import AbstractRequestFormableManager from './AbstractRequestFormableManager';
 import AbstractRequestManager from './AbstractRequestManager';
 import ProfileManager from './ProfileManager';
-import GeneratedValueManager from './GeneratedValueManager';
+import GenerateValueManager from './GenerateValueManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -130,7 +130,7 @@ const ManagerRoot = {
   AbstractRequestFormableManager,
   AbstractRequestManager,
   ProfileManager,
-  GeneratedValueManager
+  GenerateValueManager
 };
 
 ManagerRoot.version = '0.0.1';

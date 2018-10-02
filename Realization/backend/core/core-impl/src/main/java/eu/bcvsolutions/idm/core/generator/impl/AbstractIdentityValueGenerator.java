@@ -7,13 +7,11 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.generator.AbstractValueGenerator;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
  * Abstrac class for same features that use {@link IdentityUsernameGenerator} and {@link IdentityEmailGenerator}
@@ -53,20 +51,15 @@ public abstract class AbstractIdentityValueGenerator extends AbstractValueGenera
 		});
 		return attributes;
 	}
-
-	@Override
-	public Class<? extends AbstractEntity> getEntityClass() {
-		return IdmIdentity.class;
-	}
-
+	
 	/**
-	 * Method generate username from given dto with settings given by {@link IdmGeneratedValueDto}
+	 * Method generate username from given dto with settings given by {@link IdmGenerateValueDto}
 	 *
 	 * @param dto
 	 * @param valueGenerator
 	 * @return
 	 */
-	protected String generateUsername(IdmIdentityDto dto, IdmGeneratedValueDto valueGenerator) {
+	protected String generateUsername(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
 		String transformedFirstName = StringUtils.stripAccents(StringUtils.trimToEmpty(dto.getFirstName()));
 		String transformedLastName = StringUtils.stripAccents(StringUtils.trimToEmpty(dto.getLastName()));
 		//
@@ -118,7 +111,7 @@ public abstract class AbstractIdentityValueGenerator extends AbstractValueGenera
 	 *
 	 * @return
 	 */
-	protected String getConnectingCharacter(IdmGeneratedValueDto valueGenerator) {
+	protected String getConnectingCharacter(IdmGenerateValueDto valueGenerator) {
 		return valueGenerator.getGeneratorProperties().getString(CONNECTING_CHARACTER);
 	}
 
@@ -127,7 +120,7 @@ public abstract class AbstractIdentityValueGenerator extends AbstractValueGenera
 	 *
 	 * @return
 	 */
-	protected Integer getFirstNameCharacterCount(IdmGeneratedValueDto valueGenerator) {
+	protected Integer getFirstNameCharacterCount(IdmGenerateValueDto valueGenerator) {
 		Object value = valueGenerator.getGeneratorProperties().getOrDefault(FIRST_NAME_CHARACTERS_COUNT, null);
 		if (value == null) {
 			return null;
@@ -140,7 +133,7 @@ public abstract class AbstractIdentityValueGenerator extends AbstractValueGenera
 	 *
 	 * @return
 	 */
-	protected Integer getLastNameCharacterCount(IdmGeneratedValueDto valueGenerator) {
+	protected Integer getLastNameCharacterCount(IdmGenerateValueDto valueGenerator) {
 		Object value = valueGenerator.getGeneratorProperties().getOrDefault(LAST_NAME_CHARACTERS_COUNT, null);
 		if (value == null) {
 			return null;
@@ -154,7 +147,7 @@ public abstract class AbstractIdentityValueGenerator extends AbstractValueGenera
 	 * @param valueGenerator
 	 * @return
 	 */
-	protected boolean isFirstNameFirst(IdmGeneratedValueDto valueGenerator) {
+	protected boolean isFirstNameFirst(IdmGenerateValueDto valueGenerator) {
 		return BooleanUtils.toBoolean(valueGenerator.getGeneratorProperties().getBoolean(FIRST_NAME_FIRST));
 	}
 }

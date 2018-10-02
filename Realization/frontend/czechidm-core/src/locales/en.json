@@ -805,7 +805,7 @@
       "AUTOMATICROLEREQUEST": "Requests for automatic roles",
       "AUTOMATICROLEATTRIBUTERULEREQUEST": "Requests for automatic roles (rules of the attributes)",
       "TOKEN": "Token",
-      "GENERATEDVALUE": "Value generated"
+      "GENERATEVALUE": "Value generate"
     }
   },
   "content": {
@@ -2840,7 +2840,7 @@
         }
       }
     },
-    "generatedValues": {
+    "generateValues": {
       "header": "Generate values",
       "title": "Generate values",
       "create": {
@@ -2856,7 +2856,7 @@
         "title": "Generator settings"
       },
       "filter": {
-        "entityType": "Entity type"
+        "dtoType": "Entity type"
       }
     }
   },
@@ -3862,8 +3862,8 @@
         "label": "Processed order"
       }
     },
-    "GeneratedValue": {
-      "entityType": {
+    "GenerateValue": {
+      "dtoType": {
         "label": "Entity type",
         "placeholder": "Select type of entity",
         "help": "Generation is done for a specific type of entity. Based on the selected entities will be shown generators"
@@ -5051,7 +5051,7 @@
       "title": "Role is removed by concurrent task",
       "message": "Business role [{{roleCompositionId}}] is removed by concurrent task [{{taskId}}]."
     },
-    "GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_ENTITY_TYPE": {
+    "GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE": {
       "title": "Script for generated values returns an error state",
       "message": "Script [{{scriptCode}}] returned null, or wrong type of entity. Return value: [{{returnedValue}}]."
     },
@@ -5061,7 +5061,7 @@
     },
     "GENERATOR_FORM_DEFINITION_BAD_TYPE": {
       "title": "Form definition has wrong type",
-      "message": "Form definition id [{{formDefinitionId}}], has not type. Correct type: [{entityType}]."
+      "message": "Form definition id [{{formDefinitionId}}], has not type. Correct type: [{{dtoType}}]."
     },
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
       "title": "Username cann't be empty",

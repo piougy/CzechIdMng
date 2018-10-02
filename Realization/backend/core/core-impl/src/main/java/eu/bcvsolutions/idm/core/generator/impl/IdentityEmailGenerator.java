@@ -7,12 +7,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
  * Default core implementation generating username. Generator takes lower firstname,
@@ -39,7 +37,7 @@ public class IdentityEmailGenerator extends AbstractIdentityValueGenerator {
 	}
 
 	@Override
-	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGeneratedValueDto valueGenerator) {
+	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
 		// if exists email and configuration doesn't allow regenerate return dto
 		if (!valueGenerator.isRegenerateValue() && StringUtils.isNotEmpty(dto.getEmail())) {
 			return dto;
@@ -76,11 +74,6 @@ public class IdentityEmailGenerator extends AbstractIdentityValueGenerator {
 		return dto;
 	}
 
-	@Override
-	public Class<? extends AbstractEntity> getEntityClass() {
-		return IdmIdentity.class;
-	}
-
 	private String getTransformedSuffix(String emailSuffix) {
 		StringBuilder result = new StringBuilder();
 		if (StringUtils.contains(emailSuffix, AT_CONSTANT)) {
@@ -97,7 +90,7 @@ public class IdentityEmailGenerator extends AbstractIdentityValueGenerator {
 	 *
 	 * @return
 	 */
-	private String getEmailSuffix(IdmGeneratedValueDto valueGenerator) {
+	private String getEmailSuffix(IdmGenerateValueDto valueGenerator) {
 		return valueGenerator.getGeneratorProperties().getString(EMAIL_SUFFIX);
 	}
 
@@ -107,7 +100,7 @@ public class IdentityEmailGenerator extends AbstractIdentityValueGenerator {
 	 * @param valueGenerator
 	 * @return
 	 */
-	private boolean isGenerateFromUsername(IdmGeneratedValueDto valueGenerator) {
+	private boolean isGenerateFromUsername(IdmGenerateValueDto valueGenerator) {
 		return BooleanUtils.toBoolean(valueGenerator.getGeneratorProperties().getBoolean(GENERATE_FROM_USERNAME));
 	}
 

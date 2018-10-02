@@ -16,16 +16,16 @@ import io.swagger.annotations.ApiModel;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@Relation(collectionRelation = "generatedValues")
-@ApiModel(description = "Definition for generator")
-public class IdmGeneratedValueDto extends AbstractDto {
+@Relation(collectionRelation = "generateValues")
+@ApiModel(description = "Definition for configured generator")
+public class IdmGenerateValueDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
 
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	@Size(max = DefaultFieldLengths.NAME)
-	private String entityType;
+	private String dtoType;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String generatorType;
 	@NotNull
@@ -54,12 +54,12 @@ public class IdmGeneratedValueDto extends AbstractDto {
 		this.description = description;
 	}
 
-	public String getEntityType() {
-		return entityType;
+	public String getDtoType() {
+		return dtoType;
 	}
 
-	public void setEntityType(String entityType) {
-		this.entityType = entityType;
+	public void setDtoType(String dtoType) {
+		this.dtoType = dtoType;
 	}
 
 	public String getGeneratorType() {

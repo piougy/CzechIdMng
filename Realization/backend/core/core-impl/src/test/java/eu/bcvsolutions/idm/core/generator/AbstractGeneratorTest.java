@@ -10,9 +10,10 @@ import org.springframework.data.domain.Page;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
-import eu.bcvsolutions.idm.core.api.dto.GeneratorDefinitionDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
-import eu.bcvsolutions.idm.core.api.service.IdmGeneratedValueService;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
+import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
+import eu.bcvsolutions.idm.core.api.service.IdmGenerateValueService;
 import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -27,7 +28,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public abstract class AbstractGeneratorTest extends AbstractIntegrationTest {
 
 	@Autowired
-	protected IdmGeneratedValueService generatedAttributeService;
+	protected IdmGenerateValueService generatedAttributeService;
 	@Autowired
 	protected ValueGeneratorManager valueGeneratorManager;
 
@@ -46,8 +47,8 @@ public abstract class AbstractGeneratorTest extends AbstractIntegrationTest {
 	 * Clean all created generators
 	 */
 	protected void cleanAllGenerator() {
-		Page<IdmGeneratedValueDto> generators = generatedAttributeService.find(null);
-		for (IdmGeneratedValueDto generator : generators) {
+		Page<IdmGenerateValueDto> generators = generatedAttributeService.find(null);
+		for (IdmGenerateValueDto generator : generators) {
 			generatedAttributeService.delete(generator);
 		}
 	}
@@ -62,10 +63,10 @@ public abstract class AbstractGeneratorTest extends AbstractIntegrationTest {
 	 * @param regenerateValue
 	 * @return
 	 */
-	protected IdmGeneratedValueDto createGenerator(String entityType, String generatorType,
+	protected IdmGenerateValueDto createGenerator(Class<? extends AbstractDto> dtoType, String generatorType,
 			ConfigurationMap generatorProperties, Integer seq, Boolean regenerateValue) {
-		IdmGeneratedValueDto dto = new IdmGeneratedValueDto();
-		dto.setEntityType(entityType);
+		IdmGenerateValueDto dto = new IdmGenerateValueDto();
+		dto.setDtoType(dtoType.getCanonicalName());
 		dto.setGeneratorType(generatorType);
 		dto.setGeneratorProperties(generatorProperties);
 		dto.setSeq(seq == null ? 0 : seq.shortValue());
@@ -100,7 +101,7 @@ public abstract class AbstractGeneratorTest extends AbstractIntegrationTest {
 	 * @return
 	 */
 	protected ConfigurationMap createConfiguration(ImmutableMap<String, String> values) {
-		GeneratorDefinitionDto generator = getGenerator();
+		ValueGeneratorDto generator = getGenerator();
 		IdmFormDefinitionDto formDefinition = generator.getFormDefinition();
 		return this.createConfiguration(formDefinition, values);
 	}
@@ -112,8 +113,8 @@ public abstract class AbstractGeneratorTest extends AbstractIntegrationTest {
 	 * @param generatorType
 	 * @return
 	 */
-	protected GeneratorDefinitionDto getGenerator(String entityType, String generatorType) {
-		return this.valueGeneratorManager.getAvailableGenerators(entityType).stream().filter(gen -> gen.getGeneratorType().equals(generatorType)).findFirst().orElse(null);
+	protected ValueGeneratorDto getGenerator(Class<? extends AbstractDto> dtoType, String generatorType) {
+		return this.valueGeneratorManager.getAvailableGenerators(dtoType).stream().filter(gen -> gen.getGeneratorType().equals(generatorType)).findFirst().orElse(null);
 	}
 
 	/**
@@ -121,8 +122,8 @@ public abstract class AbstractGeneratorTest extends AbstractIntegrationTest {
 	 *
 	 * @return
 	 */
-	protected GeneratorDefinitionDto getGenerator() {
-		GeneratorDefinitionDto generator = this.getGenerator(getEntityType(), getGeneratorType());
+	protected ValueGeneratorDto getGenerator() {
+		ValueGeneratorDto generator = this.getGenerator(getDtoType(), getGeneratorType());
 		assertNotNull(generator);
 		return generator;
 	}
@@ -132,7 +133,7 @@ public abstract class AbstractGeneratorTest extends AbstractIntegrationTest {
 	 *
 	 * @return
 	 */
-	protected abstract String getEntityType();
+	protected abstract Class<? extends AbstractDto> getDtoType();
 
 	/**
 	 * Get generator type

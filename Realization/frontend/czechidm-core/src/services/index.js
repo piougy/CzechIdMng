@@ -69,7 +69,7 @@ import RequestItemService from './RequestItemService';
 import AbstractRequestFormableService from './AbstractRequestFormableService';
 import AbstractRequestService from './AbstractRequestService';
 import ProfileService from './ProfileService';
-import GeneratedValueService from './GeneratedValueService';
+import GenerateValueService from './GenerateValueService';
 
 const ServiceRoot = {
   RestApiService,
@@ -136,7 +136,7 @@ const ServiceRoot = {
   AbstractRequestFormableService,
   AbstractRequestService,
   ProfileService,
-  GeneratedValueService
+  GenerateValueService
 };
 
 ServiceRoot.version = '0.0.1';

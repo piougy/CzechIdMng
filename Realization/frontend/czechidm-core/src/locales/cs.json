@@ -836,7 +836,7 @@
       "AUTOMATICROLEREQUEST": "Žádosti o automatické role",
       "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)",
       "TOKEN": "Token",
-      "GENERATEDVALUE": "Generování hodnot"
+      "GENERATEVALUE": "Generování hodnot"
     }
   },
   "content": {
@@ -2891,7 +2891,7 @@
         }
       }
     },
-    "generatedValues": {
+    "generateValues": {
       "header": "Generování hodnot",
       "title": "Generování hodnot",
       "create": {
@@ -2907,7 +2907,7 @@
         "title": "Nastavení generátoru"
       },
       "filter": {
-        "entityType": "Typ entity"
+        "dtoType": "Typ entity"
       }
     }
   },
@@ -3912,8 +3912,8 @@
         "label": "Zpracované pořadí"
       }
     },
-    "GeneratedValue": {
-      "entityType": {
+    "GenerateValue": {
+      "dtoType": {
         "label": "Typ entity",
         "placeholder": "Vyberte typ entity",
         "help": "Generování je prováděno pro určitý druh entit. Na základě vybrané entity budou nabídnuty různé druhy generátorů"
@@ -5101,7 +5101,7 @@
       "title": "Business role je mazána jiným procesem",
       "message": "Business role [{{roleCompositionId}}] je mazána souběžnou úlohou [{{taskId}}]."
     },
-    "GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_ENTITY_TYPE": {
+    "GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE": {
       "title": "Skript pro generování vrací chybový stav",
       "message": "Skript [{{scriptCode}}] vrátil null, nebo špatný typ entity. Návratová hodnota: [{{returnedValue}}]."
     },
@@ -5111,7 +5111,7 @@
     },
     "GENERATOR_FORM_DEFINITION_BAD_TYPE": {
       "title": "Definice má špatný typ",
-      "message": "Fromulářová definice id [{{formDefinitionId}}], má špastný typ. Správný typ: [{entityType}]."
+      "message": "Fromulářová definice id [{{formDefinitionId}}], má špastný typ. Správný typ: [{{dtoType}}]."
     },
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
       "title": "Uživatelské jméno nemůže být prázdné",

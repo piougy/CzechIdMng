@@ -2,10 +2,10 @@
 -- CzechIdM 9 Flyway script 
 -- BCV solutions s.r.o.
 --
--- Entity and audit entity for generated values
+-- Entity and audit entity for generate values
 
 
-CREATE TABLE idm_generated_value (
+CREATE TABLE idm_generate_value (
 	id binary(16) NOT NULL,
 	created datetime2 NOT NULL,
 	creator nvarchar(255) NOT NULL,
@@ -19,18 +19,18 @@ CREATE TABLE idm_generated_value (
 	original_modifier_id binary(16),
 	realm_id binary(16),
 	transaction_id binary(16),
-	entity_type nvarchar(255) NOT NULL,
+	dto_type nvarchar(255) NOT NULL,
 	description nvarchar(2000),
 	disabled bit NOT NULL,
 	regenerate_value bit NOT NULL,
 	generator_properties image,
 	generator_type nvarchar(255) NOT NULL,
 	seq smallint,
-	CONSTRAINT idm_generated_value_pkey PRIMARY KEY (id)
+	CONSTRAINT idm_generate_value_pkey PRIMARY KEY (id)
 );
-CREATE INDEX idx_idm_generated_val_entity_t ON idm_generated_value (entity_type);
+CREATE INDEX idx_idm_generate_val_dto_type ON idm_generate_value (dto_type);
 
-CREATE TABLE idm_generated_value_a (
+CREATE TABLE idm_generate_value_a (
 	id binary(16) NOT NULL,
 	rev numeric(19,0) NOT NULL,
 	revtype smallint,
@@ -62,12 +62,14 @@ CREATE TABLE idm_generated_value_a (
 	disabled_m bit,
 	regenerate_value bit,
 	regenerate_value_m bit,
-	entity_type nvarchar(255),
-	entity_type_m bit,
+	dto_type nvarchar(255),
+	dto_type_m bit,
+	generator_properties image,
+    generator_properties_m boolean,
 	generator_type nvarchar(255),
 	generator_type_m bit,
 	seq smallint,
 	seq_m bit,
-	CONSTRAINT idm_generated_value_a_pkey PRIMARY KEY (id,rev),
+	CONSTRAINT idm_generate_value_a_pkey PRIMARY KEY (id,rev),
 	CONSTRAINT fk_42bliu4so7fxlcusukbrtmaj4 FOREIGN KEY (rev) REFERENCES idm_audit(id)
 );

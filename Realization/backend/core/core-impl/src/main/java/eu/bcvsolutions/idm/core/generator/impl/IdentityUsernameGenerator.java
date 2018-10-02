@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -41,7 +41,7 @@ public class IdentityUsernameGenerator extends AbstractIdentityValueGenerator {
 	}
 
 	@Override
-	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGeneratedValueDto valueGenerator) {
+	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
 		// if exists username and configuration doesn't allow regenerate return dto
 		if (!valueGenerator.isRegenerateValue() && StringUtils.isNotEmpty(dto.getUsername())) {
 			return dto;
@@ -92,7 +92,7 @@ public class IdentityUsernameGenerator extends AbstractIdentityValueGenerator {
 	 *
 	 * @return
 	 */
-	protected boolean isSearchUniqueUsername(IdmGeneratedValueDto valueGenerator) {
+	protected boolean isSearchUniqueUsername(IdmGenerateValueDto valueGenerator) {
 		return BooleanUtils.toBoolean(valueGenerator.getGeneratorProperties().getBoolean(SEARCH_UNIQUE_USERNAME));
 	}
 

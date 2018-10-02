@@ -15,9 +15,8 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.generator.AbstractValueGenerator;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
@@ -29,7 +28,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
  * Generator set default values to EAV
@@ -55,23 +53,23 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 	private IdmFormAttributeService formAttributeService;
 
 	@Override
-	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGeneratedValueDto valueGenerator) {
+	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
 		IdmFormDefinitionDto formDefinition = getFormDefinition(valueGenerator);
 
 		// if is set form definition must by for IdmIdentity type
-		if (formDefinition != null && !formDefinition.getType().equals(getEntityClass().getCanonicalName())) {
+		if (formDefinition != null && !formDefinition.getType().equals(getDtoClass().getCanonicalName())) {
 			LOG.error("Given form definition isn't for entity!");
 			throw new ResultCodeException(CoreResultCode.GENERATOR_FORM_DEFINITION_BAD_TYPE,
 					ImmutableMap.of(
 							"formDefinitionId", formDefinition.getId(),
-							"entityType", getEntityClass().getCanonicalName()));
+							"dtoType", getDtoClass().getCanonicalName()));
 		}
 
 		List<IdmFormDefinitionDto> formDefinitions = new ArrayList<>();
 		if (formDefinition != null) {
 			formDefinitions.add(formDefinition);
 		} else {
-			formDefinitions.addAll(formDefinitionService.findAllByType(getEntityClass().getCanonicalName()));
+			formDefinitions.addAll(formDefinitionService.findAllByType(getDtoClass().getCanonicalName()));
 		}
 
 		List<IdmFormInstanceDto> eavs = dto.getEavs();
@@ -110,11 +108,6 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 		properties.add(FORM_DEFINITION_UUID);
 		properties.add(REGEX_MULTIPLE_VALUES);
 		return properties;
-	}
-
-	@Override
-	public Class<? extends AbstractEntity> getEntityClass() {
-		return IdmIdentity.class;
 	}
 
 	@Override
@@ -179,7 +172,7 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 	 * @param attribute
 	 * @return
 	 */
-	private List<IdmFormValueDto> getTransformedValues(IdmGeneratedValueDto valueGenerator, String value, IdmFormAttributeDto attribute) {
+	private List<IdmFormValueDto> getTransformedValues(IdmGenerateValueDto valueGenerator, String value, IdmFormAttributeDto attribute) {
 		List<IdmFormValueDto> result = new ArrayList<>();
 		if (attribute.isMultiple()) {
 			String regex = getRegex(valueGenerator);
@@ -211,7 +204,7 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 	 * @param valueGenerator
 	 * @return
 	 */
-	private IdmFormDefinitionDto getFormDefinition(IdmGeneratedValueDto valueGenerator) {
+	private IdmFormDefinitionDto getFormDefinition(IdmGenerateValueDto valueGenerator) {
 		UUID formDefinitionUuid = getFormDefinitionUuid(valueGenerator);
 		if (formDefinitionUuid != null) {
 			IdmFormDefinitionDto formDefinitionDto = formDefinitionService.get(formDefinitionUuid);
@@ -260,7 +253,7 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 	 *
 	 * @return
 	 */
-	private UUID getFormDefinitionUuid(IdmGeneratedValueDto valueGenerator) {
+	private UUID getFormDefinitionUuid(IdmGenerateValueDto valueGenerator) {
 		return valueGenerator.getGeneratorProperties().getUuid(FORM_DEFINITION_UUID);
 	}
 
@@ -270,7 +263,7 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 	 * @param valueGenerator
 	 * @return
 	 */
-	private String getRegex(IdmGeneratedValueDto valueGenerator) {
+	private String getRegex(IdmGenerateValueDto valueGenerator) {
 		String regex = valueGenerator.getGeneratorProperties().getString(REGEX_MULTIPLE_VALUES);
 		if (StringUtils.isEmpty(regex)) {
 			return REGEX_MULTIPLE_VALUES_DEFAULT_VALUE;

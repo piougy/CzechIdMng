@@ -3,10 +3,8 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.List;
 import java.util.Set;
 
-import eu.bcvsolutions.idm.core.api.domain.Generatable;
-import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.GeneratorDefinitionDto;
+import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 
 /**
@@ -24,29 +22,28 @@ public interface ValueGeneratorManager extends ScriptEnabled {
 	 * @return
 	 */
 	<E extends AbstractDto> E generate(E dto);
-
+	
 	/**
 	 * Return all available generators for given entity type.
 	 * If parameter entityType is null, return all generators.
 	 *
-	 * @param className
+	 * @param dtoType
 	 * @return
 	 */
-	List<GeneratorDefinitionDto> getAvailableGenerators(String entityType);
+	List<ValueGeneratorDto> getAvailableGenerators(Class< ? extends AbstractDto> dtoType);
 	
 	/**
-	 * Return all entities wich supports generate. Entity must implements
-	 * interface {@link Generatable}
+	 * Return all DTO types which supports generate by registered processors
 	 *
 	 * @return
 	 */
-	Set<String> getSupportedEntityTypes();
+	Set<Class< ? extends AbstractDto>> getSupportedTypes();
 
 	/**
 	 * Supports given type
 	 *
-	 * @param entityType
+	 * @param dto
 	 * @return
 	 */
-	boolean supportsGenerating(Identifiable type);
+	boolean supportsGenerating(AbstractDto dto);
 }

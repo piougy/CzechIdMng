@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
@@ -13,12 +12,11 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.domain.Generatable;
-import eu.bcvsolutions.idm.core.api.dto.GeneratorDefinitionDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.generator.AbstractGeneratorTest;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
  * Integration tests for default implementation of generator manager
@@ -41,10 +39,10 @@ public class DefaultValueGeneratorManagerTest extends AbstractGeneratorTest {
 
 	@Test
 	public void testCreateGenerator() {
-		Set<String> supportedEntityTypes = valueGeneratorManager.getSupportedEntityTypes();
+		Set<Class<? extends AbstractDto>> supportedTypes = valueGeneratorManager.getSupportedTypes();
 		//
-		supportedEntityTypes.forEach(supportedType -> {
-			List<GeneratorDefinitionDto> availableGenerators = valueGeneratorManager
+		supportedTypes.forEach(supportedType -> {
+			List<ValueGeneratorDto> availableGenerators = valueGeneratorManager
 					.getAvailableGenerators(supportedType);
 			availableGenerators.forEach(generator -> {
 				IdmFormDefinitionDto formDefinition = generator.getFormDefinition();
@@ -56,26 +54,12 @@ public class DefaultValueGeneratorManagerTest extends AbstractGeneratorTest {
 	}
 
 	@Test
-	public void checkSupportedEntityTypes() {
-		Set<String> supportedEntityTypes = valueGeneratorManager.getSupportedEntityTypes();
-		for (String type : supportedEntityTypes) {
-			try {
-				Class<?> forName = Class.forName(type);
-				assertTrue(AbstractEntity.class.isAssignableFrom(forName));
-				assertTrue(Generatable.class.isAssignableFrom(forName));
-			} catch (ClassNotFoundException e) {
-				fail(e.getMessage());
-			}
-		}
-	}
-
-	@Test
 	public void testGeneratorTypes() {
-		List<GeneratorDefinitionDto> generators = valueGeneratorManager.getAvailableGenerators(null);
+		List<ValueGeneratorDto> generators = valueGeneratorManager.getAvailableGenerators(null);
 		
-		for (GeneratorDefinitionDto generator : generators) {
+		for (ValueGeneratorDto generator : generators) {
 			try {
-				Class.forName(generator.getEntityType());
+				Class.forName(generator.getDtoType());
 				Class.forName(generator.getGeneratorType());
 				} catch (ClassNotFoundException e) {
 				fail(e.getMessage());
@@ -85,14 +69,14 @@ public class DefaultValueGeneratorManagerTest extends AbstractGeneratorTest {
 
 	@Test
 	public void testGeneratorTypesForIdentity() {
-		List<GeneratorDefinitionDto> generators = valueGeneratorManager
-				.getAvailableGenerators(IdmIdentity.class.getCanonicalName());
+		List<ValueGeneratorDto> generators = valueGeneratorManager
+				.getAvailableGenerators(IdmIdentityDto.class);
 
-		for (GeneratorDefinitionDto generator : generators) {
+		for (ValueGeneratorDto generator : generators) {
 			try {
-				Class.forName(generator.getEntityType());
+				Class.forName(generator.getDtoType());
 				Class.forName(generator.getGeneratorType());
-				assertEquals(IdmIdentity.class.getCanonicalName(), generator.getEntityType());
+				assertEquals(IdmIdentityDto.class.getCanonicalName(), generator.getDtoType());
 			} catch (ClassNotFoundException e) {
 				fail(e.getMessage());
 			}
@@ -100,7 +84,7 @@ public class DefaultValueGeneratorManagerTest extends AbstractGeneratorTest {
 	}
 
 	@Override
-	protected String getEntityType() {
+	protected Class<? extends AbstractDto> getDtoType() {
 		throw new UnsupportedOperationException();
 	}
 

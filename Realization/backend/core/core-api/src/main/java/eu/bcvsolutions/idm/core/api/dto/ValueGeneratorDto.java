@@ -9,29 +9,29 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 
 /**
- * Generator value definition
+ * Value generator definition
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @JsonInclude(Include.NON_NULL)
-@Relation(collectionRelation = "generatorDefinitions")
-public class GeneratorDefinitionDto extends AbstractComponentDto {
+@Relation(collectionRelation = "valueGenerators")
+public class ValueGeneratorDto extends AbstractComponentDto {
 
 	private static final long serialVersionUID = 1L;
 
 	@NotEmpty
-	private String entityType;
-	private IdmFormDefinitionDto formDefinition;
+	private String dtoType;
 	@NotEmpty
 	private String generatorType;
+	private IdmFormDefinitionDto formDefinition;
 
-	public String getEntityType() {
-		return entityType;
+	public String getDtoType() {
+		return dtoType;
 	}
 
-	public void setEntityType(String entityType) {
-		this.entityType = entityType;
+	public void setDtoType(String dtoType) {
+		this.dtoType = dtoType;
 	}
 
 	public IdmFormDefinitionDto getFormDefinition() {

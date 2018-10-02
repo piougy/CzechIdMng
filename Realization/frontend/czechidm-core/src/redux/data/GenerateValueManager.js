@@ -1,7 +1,7 @@
 import Immutable from 'immutable';
 //
 import EntityManager from './EntityManager';
-import { GeneratedValueService } from '../../services';
+import { GenerateValueService } from '../../services';
 import DataManager from './DataManager';
 
 /**
@@ -9,11 +9,11 @@ import DataManager from './DataManager';
  *
  * @author Ondřej Kopr
  */
-export default class GeneratedValueManager extends EntityManager {
+export default class GenerateValueManager extends EntityManager {
 
   constructor() {
     super();
-    this.service = new GeneratedValueService();
+    this.service = new GenerateValueService();
   }
 
   getService() {
@@ -21,15 +21,15 @@ export default class GeneratedValueManager extends EntityManager {
   }
 
   getEntityType() {
-    return 'GeneratedValue';
+    return 'GenerateValue';
   }
 
   getCollectionType() {
-    return 'generatedValues';
+    return 'generateValues';
   }
 
   getGroupPermission() {
-    return 'GENERATEDVALUE';
+    return 'GENERATEVALUE';
   }
 
   /**
@@ -37,8 +37,8 @@ export default class GeneratedValueManager extends EntityManager {
    *
    * @return {action}
    */
-  fetchSupportedEntities() {
-    const uiKey = GeneratedValueManager.UI_KEY_SUPPORTED_ENTITIES;
+  fetchSupportedTypes() {
+    const uiKey = GenerateValueManager.UI_KEY_SUPPORTED_TYPES;
     //
     return (dispatch, getState) => {
       const loaded = DataManager.getData(getState(), uiKey);
@@ -46,7 +46,7 @@ export default class GeneratedValueManager extends EntityManager {
         // we dont need to load them again - change depends on BE restart
       } else {
         dispatch(this.dataManager.requestData(uiKey));
-        this.getService().getSupportedEntities()
+        this.getService().getSupportedTypes()
           .then(json => {
             dispatch(this.dataManager.receiveData(uiKey, json));
           })
@@ -63,8 +63,8 @@ export default class GeneratedValueManager extends EntityManager {
    *
    * @return {action}
    */
-  fetchAvailableGenerators(entityType = null) {
-    const uiKey = GeneratedValueManager.UI_KEY_AVAILABLE_GENERATORS;
+  fetchAvailableGenerators(dtoType = null) {
+    const uiKey = GenerateValueManager.UI_KEY_AVAILABLE_GENERATORS;
     //
     return (dispatch, getState) => {
       const loaded = DataManager.getData(getState(), uiKey);
@@ -72,11 +72,11 @@ export default class GeneratedValueManager extends EntityManager {
         // we dont need to load them again - change depends on BE restart
       } else {
         dispatch(this.dataManager.requestData(uiKey));
-        this.getService().getAvailableGenerators(entityType)
+        this.getService().getAvailableGenerators(dtoType)
           .then(json => {
             let generators = new Immutable.Map();
-            if (json._embedded && json._embedded.generatorDefinitions) {
-              json._embedded.generatorDefinitions.forEach(item => {
+            if (json._embedded && json._embedded.valueGenerators) {
+              json._embedded.valueGenerators.forEach(item => {
                 generators = generators.set(item.generatorType, item);
               });
             }
@@ -98,5 +98,5 @@ export default class GeneratedValueManager extends EntityManager {
   }
 }
 
-GeneratedValueManager.UI_KEY_SUPPORTED_ENTITIES = 'generated-attr-supported-entities';
-GeneratedValueManager.UI_KEY_AVAILABLE_GENERATORS = 'generated-attr-available-generators';
+GenerateValueManager.UI_KEY_SUPPORTED_TYPES = 'generate-attr-supported-types';
+GenerateValueManager.UI_KEY_AVAILABLE_GENERATORS = 'generate-attr-available-generators';

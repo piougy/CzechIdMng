@@ -281,10 +281,10 @@ public enum CoreResultCode implements ResultCode {
 	//
 	// generator
 	GENERATOR_RETURN_NULL(HttpStatus.INTERNAL_SERVER_ERROR, "Generator [%s] return null."),
-	GENERATOR_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),
+	GENERATOR_DTO_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "DTO class [%s] not found."),
 	GENERATOR_FORM_ATTRIBUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "Form attribute for definition [%s] with code [%s] not found."),
 	GENERATOR_FORM_DEFINITION_BAD_TYPE(HttpStatus.BAD_REQUEST, "Given form definition id [%s], has not type. Correct type: [%s]."),
-	GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_ENTITY_TYPE(HttpStatus.NOT_FOUND, "Script code [%s] return null or bad entity type. Returned value: [%s]."),
+	GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE(HttpStatus.NOT_FOUND, "Script code [%s] return null or bad dto type. Returned value: [%s]."),
 	GENERATOR_GENERATED_ATTRIBUTES_IS_NULL(HttpStatus.BAD_REQUEST, "Generated attribute wasn't set for generator: [%s]."),
 	GENERATOR_SYSTEM_SEQ(HttpStatus.BAD_REQUEST, "Order can be lower or equals 10. This order is reserved for system generator.");
 	

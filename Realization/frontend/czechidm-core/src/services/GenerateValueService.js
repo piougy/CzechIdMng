@@ -4,14 +4,14 @@ import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
 /**
- * Generated values service
+ * Generate values service
  *
  * @author Ondřej Kopr
  */
-class GeneratedValueService extends AbstractService {
+class GenerateValueService extends AbstractService {
 
   getApiPath() {
-    return '/generated-values';
+    return '/generate-values';
   }
 
   getNiceLabel(entity) {
@@ -40,7 +40,7 @@ class GeneratedValueService extends AbstractService {
    *
    * @return {promise}
    */
-  getSupportedEntities() {
+  getSupportedTypes() {
     return RestApiService
     .get(this.getApiPath() + '/search/supported')
     .then(response => {
@@ -62,7 +62,7 @@ class GeneratedValueService extends AbstractService {
   getAvailableGenerators(entityType) {
     let entityTypeUrl = '/search/generators';
     if (entityType) {
-      entityTypeUrl = `${entityTypeUrl}?entityType=${encodeURIComponent(entityType)}`;
+      entityTypeUrl = `${entityTypeUrl}?dtoType=${encodeURIComponent(entityType)}`;
     }
     return RestApiService
     .get(this.getApiPath() + entityTypeUrl)
@@ -78,4 +78,4 @@ class GeneratedValueService extends AbstractService {
   }
 }
 
-export default GeneratedValueService;
+export default GenerateValueService;

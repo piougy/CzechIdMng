@@ -6,16 +6,16 @@ import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
 import * as Domain from '../../domain';
 import * as Advanced from '../../components/advanced';
-import { SecurityManager, DataManager, GeneratedValueManager } from '../../redux';
+import { SecurityManager, DataManager, GenerateValueManager } from '../../redux';
 
 const MAX_DESCRIPTION_LENGTH = 60;
 
 /**
- * Table with definitions of generated values
+ * Table with definitions of generate values
  *
  * @author Ondřej Kopr
  */
-export class GeneratedValueTable extends Advanced.AbstractTableContent {
+export class GenerateValueTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -36,7 +36,7 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     this.context.store.dispatch(this.getManager().fetchAvailableGenerators());
-    this.context.store.dispatch(this.getManager().fetchSupportedEntities());
+    this.context.store.dispatch(this.getManager().fetchSupportedTypes());
   }
 
   getManager() {
@@ -44,7 +44,7 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'content.generatedValues';
+    return 'content.generateValues';
   }
 
   useFilter(event) {
@@ -61,8 +61,8 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
-  onChangeEntityType(entityType) {
-    this._setGeneratorTypeByEntityType(entityType ? entityType.value : null);
+  onChangeDtoType(dtoType) {
+    this._setGeneratorTypeByDtoType(dtoType ? dtoType.value : null);
   }
 
   onChangeGeneratorType(selectedGeneratorType) {
@@ -72,14 +72,14 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
   /**
    * Set generator types by entity type. Generator types is used in selecbox.
    */
-  _setGeneratorTypeByEntityType(entityType) {
+  _setGeneratorTypeByDtoType(dtoType) {
     const { availableGenerators } = this.props;
 
     const generators = [];
-    if (entityType) {
+    if (dtoType) {
       if (availableGenerators) {
         availableGenerators.forEach(generator => {
-          if (generator.entityType === entityType) {
+          if (generator.dtoType === dtoType) {
             generators.push({
               value: generator.generatorType,
               niceLabel: this.i18n(this.getManager().getLocalizationPrefixForGenerator() + generator.name + '.label')
@@ -127,7 +127,7 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
     }
     //
     this._setGeneratorPropertiesByGeneratorType(entity.generatorType);
-    this._setGeneratorTypeByEntityType(entity.entityType);
+    this._setGeneratorTypeByDtoType(entity.dtoType);
     this.setState({
       detail: {
         show: true,
@@ -168,8 +168,8 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
     if (this.refs.formInstance) {
       formEntity.generatorProperties = this.refs.formInstance.getProperties();
     }
-    if (formEntity.entityType) {
-      formEntity.entityType = formEntity.entityType.value;
+    if (formEntity.dtoType) {
+      formEntity.dtoType = formEntity.dtoType.value;
     }
     //
     super.save(formEntity, event);
@@ -178,11 +178,11 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
   /**
    * Return niceLabel for supported entities
    */
-  _getSupportedEntitiesNiceLabel(entityName) {
-    if (entityName) {
-      return Utils.Ui.getSimpleJavaType(entityName);
+  _getSupportedTypeNiceLabel(dtoType) {
+    if (dtoType) {
+      return Utils.Ui.getSimpleJavaType(dtoType);
     }
-    return entityName;
+    return dtoType;
   }
 
   /**
@@ -202,13 +202,13 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, manager, supportedEntities, _showLoading, _permissions } = this.props;
+    const { uiKey, manager, supportedTypes, _showLoading, _permissions } = this.props;
     const { filterOpened, detail, _generatorTypes, generatorType } = this.state;
     //
-    let _entityTypes = [];
-    if (supportedEntities) {
-      _entityTypes = supportedEntities._embedded.strings.map(item => { return {value: item.content, niceLabel: this._getSupportedEntitiesNiceLabel(item.content) }; });
-      _entityTypes.sort((one, two) => {
+    let _supportedTypes = [];
+    if (supportedTypes) {
+      _supportedTypes = supportedTypes._embedded.classes.map(item => { return {value: item.content, niceLabel: this._getSupportedTypeNiceLabel(item.content) }; });
+      _supportedTypes.sort((one, two) => {
         return one.niceLabel.localeCompare(two.niceLabel);
       });
     }
@@ -232,7 +232,7 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
           uiKey={uiKey}
           manager={manager}
           showLoading={_showLoading}
-          showRowSelection={SecurityManager.hasAuthority('GENERATEDVALUE_DELETE')}
+          showRowSelection={SecurityManager.hasAuthority('GENERATEVALUE_DELETE')}
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -241,11 +241,11 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.EnumSelectBox
-                      ref="entityType"
+                      ref="dtoType"
                       searchable
                       showLoading={_showLoading}
-                      placeholder={this.i18n('filter.entityType')}
-                      options={ _entityTypes }/>
+                      placeholder={this.i18n('filter.dtoType')}
+                      options={ _supportedTypes }/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 } className="text-right">
                     <Advanced.Filter.FilterButtons showLoading={_showLoading} cancelFilter={this.cancelFilter.bind(this)}/>
@@ -267,7 +267,7 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={this.showDetail.bind(this, {regenerateValue: false, seq: 11})}
-                rendered={SecurityManager.hasAuthority('GENERATEDVALUE_CREATE')}>
+                rendered={SecurityManager.hasAuthority('GENERATEVALUE_CREATE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -289,8 +289,8 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
             }
             sort={false}/>
           <Advanced.Column property="seq" sort />
-          <Advanced.Column property="entityType" sort cell={ ({ rowIndex, data }) => {
-            return Utils.Ui.getSimpleJavaType(data[rowIndex].entityType);
+          <Advanced.Column property="dtoType" sort cell={ ({ rowIndex, data }) => {
+            return Utils.Ui.getSimpleJavaType(data[rowIndex].dtoType);
           }}/>
           <Advanced.Column property="generatorType" sort cell={ ({ rowIndex, data }) => {
             return this.i18n(this._getLocalizationKeyForGeneratorJavaType(data[rowIndex].generatorType));
@@ -321,12 +321,12 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Basic.EnumSelectBox
-                      ref="entityType"
-                      options={ _entityTypes }
-                      onChange={ this.onChangeEntityType.bind(this) }
-                      label={ this.i18n('entity.GeneratedValue.entityType.label') }
-                      palceholder={ this.i18n('entity.GeneratedValue.entityType.placeholder') }
-                      helpBlock={ this.i18n('entity.GeneratedValue.entityType.help') }
+                      ref="dtoType"
+                      options={ _supportedTypes }
+                      onChange={ this.onChangeDtoType.bind(this) }
+                      label={ this.i18n('entity.GenerateValue.dtoType.label') }
+                      palceholder={ this.i18n('entity.GenerateValue.dtoType.placeholder') }
+                      helpBlock={ this.i18n('entity.GenerateValue.dtoType.help') }
                       searchable
                       required
                       useObject/>
@@ -337,28 +337,28 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
                       ref="generatorType"
                       options={ _generatorTypes }
                       onChange={ this.onChangeGeneratorType.bind(this) }
-                      label={ this.i18n('entity.GeneratedValue.generatorType.label') }
-                      palceholder={ this.i18n('entity.GeneratedValue.generatorType.placeholder') }
+                      label={ this.i18n('entity.GenerateValue.generatorType.label') }
+                      palceholder={ this.i18n('entity.GenerateValue.generatorType.placeholder') }
                       readOnly={ _generatorTypes.length === 0 }
                       searchable
                       required/>
                     <Basic.TextField
                       ref="seq"
                       validation={Joi.number().integer().min(0).max(9999)}
-                      label={ this.i18n('entity.GeneratedValue.seq.label') }
-                      help={ this.i18n('entity.GeneratedValue.seq.help') }/>
+                      label={ this.i18n('entity.GenerateValue.seq.label') }
+                      help={ this.i18n('entity.GenerateValue.seq.help') }/>
                     <Basic.TextArea
                       ref="description"
-                      label={this.i18n('entity.GeneratedValue.description.label')}
+                      label={this.i18n('entity.GenerateValue.description.label')}
                       max={2000}/>
                     <Basic.Checkbox
                       ref="regenerateValue"
-                      label={ this.i18n('entity.GeneratedValue.regenerateValue.label') }
-                      helpBlock={ this.i18n('entity.GeneratedValue.regenerateValue.help') }/>
+                      label={ this.i18n('entity.GenerateValue.regenerateValue.label') }
+                      helpBlock={ this.i18n('entity.GenerateValue.regenerateValue.help') }/>
                     <Basic.Checkbox
                       ref="disabled"
-                      label={ this.i18n('entity.GeneratedValue.disabled.label') }
-                      helpBlock={ this.i18n('entity.GeneratedValue.disabled.help') }/>
+                      label={ this.i18n('entity.GenerateValue.disabled.label') }
+                      helpBlock={ this.i18n('entity.GenerateValue.disabled.help') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 }>
                     <Basic.Alert
@@ -411,13 +411,13 @@ export class GeneratedValueTable extends Advanced.AbstractTableContent {
   }
 }
 
-GeneratedValueTable.propTypes = {
+GenerateValueTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   manager: PropTypes.object.isRequired,
   _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 
-GeneratedValueTable.defaultProps = {
+GenerateValueTable.defaultProps = {
   _permissions: null
 };
 
@@ -425,13 +425,13 @@ function select(state, component) {
   const perm = Utils.Permission.getPermissions(state, `${component.uiKey}-detail`);
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${component.uiKey}-detail`)
-                || Utils.Ui.isShowLoading(state, GeneratedValueManager.UI_KEY_SUPPORTED_ENTITIES)
-                || Utils.Ui.isShowLoading(state, GeneratedValueManager.UI_KEY_AVAILABLE_GENERATORS),
+                || Utils.Ui.isShowLoading(state, GenerateValueManager.UI_KEY_SUPPORTED_TYPES)
+                || Utils.Ui.isShowLoading(state, GenerateValueManager.UI_KEY_AVAILABLE_GENERATORS),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    supportedEntities: DataManager.getData(state, GeneratedValueManager.UI_KEY_SUPPORTED_ENTITIES),
-    availableGenerators: DataManager.getData(state, GeneratedValueManager.UI_KEY_AVAILABLE_GENERATORS),
+    supportedTypes: DataManager.getData(state, GenerateValueManager.UI_KEY_SUPPORTED_TYPES),
+    availableGenerators: DataManager.getData(state, GenerateValueManager.UI_KEY_AVAILABLE_GENERATORS),
     _permissions: perm
   };
 }
 
-export default connect(select)(GeneratedValueTable);
+export default connect(select)(GenerateValueTable);

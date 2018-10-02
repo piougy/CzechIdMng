@@ -794,7 +794,7 @@ module.exports = {
           {
             'type': 'HAS_ANY_AUTHORITY',
             'authorities': [
-              'TREETYPE_READ', 'TREENODE_READ', 'CONFIGURATION_READ', 'MODULE_READ', 'GENERATEDVALUE_READ',
+              'TREETYPE_READ', 'TREENODE_READ', 'CONFIGURATION_READ', 'MODULE_READ', 'GENERATEVALUE_READ',
               'SCHEDULER_READ', 'FORMDEFINITION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ', 'CONFIDENTIALSTORAGEVALUE_READ'
             ]
           }
@@ -1163,14 +1163,14 @@ module.exports = {
             ]
           },
           {
-            'id': 'generated-values',
-            'labelKey': 'content.generatedValues.header',
-            'titleKey': 'content.generatedValues.title',
+            'id': 'generate-values',
+            'labelKey': 'content.generateValues.header',
+            'titleKey': 'content.generateValues.title',
             'icon': 'random',
             'iconColor': '#000000',
             'order': 50,
-            'path': '/generated-values',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['GENERATEDVALUE_READ'] } ],
+            'path': '/generate-values',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['GENERATEVALUE_READ'] } ],
           },
           {
             'id': 'confidential-storage',

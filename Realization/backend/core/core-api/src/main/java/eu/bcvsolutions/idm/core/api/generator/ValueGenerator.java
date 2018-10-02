@@ -1,14 +1,14 @@
 package eu.bcvsolutions.idm.core.api.generator;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmGeneratedValueDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
 
 /**
  * Interface for all generators
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  * @param <E>
  */
@@ -20,26 +20,26 @@ public interface ValueGenerator<E extends AbstractDto> extends Configurable {
 	}
 
 	/**
-	 * Returns entity class, which supports this processor
+	 * Returns dto class, which supports this generator
 	 * 
 	 * @return
 	 */
-	Class<? extends AbstractEntity> getEntityClass();
+	Class<E> getDtoClass();
 
 	/**
-	 * Generate values
+	 * Generate values by given value generator configuration.
 	 *
 	 * @param dto
-	 * @param valueGenerator 
+	 * @param generatorConfiguration 
 	 * @return
 	 */
-	E generate(E dto,  IdmGeneratedValueDto valueGenerator);
+	E generate(E dto, IdmGenerateValueDto generatorConfiguration);
 	
 	/**
 	 * Returns true, when generator supports given entity type
 	 * 
-	 * @param authorizableType
+	 * @param dtoType
 	 * @return
 	 */
-	boolean supports(Class<?> entityType);
+	boolean supports(Class<?> dtoType);
 }

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -10,9 +11,17 @@ import org.hibernate.envers.Audited;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
+/**
+ * Generate value
+ *
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 @Entity
-@Table(name = "idm_generated_value", indexes = {})
-public class IdmGeneratedValue extends AbstractEntity {
+@Table(name = "idm_generate_value", indexes = {
+		@Index(name = "idx_idm_generate_val_dto_type", columnList = "dto_type"),
+})
+public class IdmGenerateValue extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;
 
@@ -22,8 +31,8 @@ public class IdmGeneratedValue extends AbstractEntity {
 
 	@Audited
 	@NotNull
-	@Column(name = "entity_type", nullable = false)
-	private String entityType;
+	@Column(name = "dto_type", nullable = false)
+	private String dtoType;
 
 	@Audited
 	@NotNull
@@ -35,6 +44,7 @@ public class IdmGeneratedValue extends AbstractEntity {
 	@Column(name = "seq", nullable = false)
 	private short seq = 11;
 
+	@Audited
 	@Column(name = "generator_properties", length = Integer.MAX_VALUE)
 	private ConfigurationMap generatorProperties;
 	
@@ -42,7 +52,6 @@ public class IdmGeneratedValue extends AbstractEntity {
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled = false;
-
 	
 	@Audited
 	@NotNull
@@ -65,12 +74,12 @@ public class IdmGeneratedValue extends AbstractEntity {
 		this.description = description;
 	}
 
-	public String getEntityType() {
-		return entityType;
+	public String getDtoType() {
+		return dtoType;
 	}
 
-	public void setEntityType(String entityType) {
-		this.entityType = entityType;
+	public void setDtoType(String dtoType) {
+		this.dtoType = dtoType;
 	}
 
 	public String getGeneratorType() {

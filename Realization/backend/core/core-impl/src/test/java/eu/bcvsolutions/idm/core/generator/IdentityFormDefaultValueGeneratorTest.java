@@ -13,8 +13,9 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.core.api.dto.GeneratorDefinitionDto;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -65,8 +66,8 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 		assertTrue(eavs.isEmpty());
 
 		// create generator
-		GeneratorDefinitionDto generator = getGenerator();
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		ValueGeneratorDto generator = getGenerator();
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), null), 1, null);
 
 		// generate and check values after
@@ -114,8 +115,8 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 		assertTrue(eavs.isEmpty());
 
 		// create generator
-		GeneratorDefinitionDto generator = getGenerator();
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		ValueGeneratorDto generator = getGenerator();
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), null), 1, null);
 
 		// generate and check values after
@@ -163,8 +164,8 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 		assertTrue(eavs.isEmpty());
 
 		// create generator
-		GeneratorDefinitionDto generator = getGenerator();
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		ValueGeneratorDto generator = getGenerator();
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), null), 1, Boolean.FALSE);
 
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
@@ -227,8 +228,8 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 		assertTrue(eavs.isEmpty());
 
 		// create generator
-		GeneratorDefinitionDto generator = getGenerator();
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		ValueGeneratorDto generator = getGenerator();
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), null), 1, null);
 
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
@@ -288,8 +289,8 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 		assertTrue(eavs.isEmpty());
 
 		// create generator
-		GeneratorDefinitionDto generator = getGenerator();
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		ValueGeneratorDto generator = getGenerator();
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), null), 1, null);
 
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
@@ -362,8 +363,8 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 		assertTrue(eavs.isEmpty());
 
 		// create generator
-		GeneratorDefinitionDto generator = getGenerator();
-		this.createGenerator(getEntityType(), getGeneratorType(),
+		ValueGeneratorDto generator = getGenerator();
+		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), null), 1, Boolean.TRUE);
 
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
@@ -432,8 +433,8 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 	}
 
 	@Override
-	protected String getEntityType() {
-		return IdmIdentity.class.getCanonicalName();
+	protected Class<? extends AbstractDto> getDtoType() {
+		return IdmIdentityDto.class;
 	}
 
 	@Override

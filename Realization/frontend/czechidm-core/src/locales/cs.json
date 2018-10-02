@@ -4959,6 +4959,58 @@
     "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Business role je mazána jiným procesem",
       "message": "Business role [{{roleCompositionId}}] je mazána souběžnou úlohou [{{taskId}}]."
+    },
+    "DTO_CANNOT_BE_CONVERT_TO_JSON": {
+      "title": "DTO nelze převést do JSON formátu!",
+      "message": "DTO [{{dto}}] nelze převést do JSON formátu!"
+    },
+    "JSON_CANNOT_BE_CONVERT_TO_DTO": {
+      "title": "JSON nelze převést do DTO formátu!",
+      "message": "JSON [{{json}}] nelze převést do DTO formátu!"
+    },
+    "REQUEST_CUD_OPERATIONS_NOT_ALLOWED": {
+      "title": "CUD operace nejsou povoleny na REST kontroleru [{{controller}}]!",
+      "message": "CUD operace nejsou povoleny na REST kontroleru [{{controller}}]! Použíjte REST kontroler agendy žádostí."
+    },
+    "REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
+      "title": "Nemáte právo na provedení žádosti bez schvalování!",
+      "message": "Nemáte právo (REQUEST_ADMIN) na provedení žádosti [{{request}}] bez spuštění schvalovacího procesu!"
+    },
+    "REQUEST_ITEM_IS_NOT_VALID": {
+      "title": "DTO [{{dto}}] v položce žádosti není validní!",
+      "message": "DTO [{{dto}}]  v položce žádosti [{{item}}] není validní!"
+    },
+    "REQUEST_NO_WF_DEF_FOUND": {
+      "title": "Nebyl nalezen žádný schvalovací proces!",
+      "message": "Nebyl nalezen žádný schvalovací proces pro tento typ objektu [{{entityType}}]!"
+    },
+    "REQUEST_OWNER_WAS_DELETED": {
+      "title": "Vlastník žádosti (cílový objekt) byl smazán!",
+      "message": "Vlastník žádosti [{{owner}}] byl smazán!"
+    },
+    "REQUEST_OWNER_FROM_OTHER_REQUEST_WAS_DELETED": {
+      "title": "Vlastník žádosti (cílový objekt) byl smazán v rámci jiné žádosti!",
+      "message": "Vlastník žádosti [{{owner}}] byl smazán v rámci jiné žádosti [{{otherRequest}}]!"
+    },
+    "REQUEST_CANNOT_BE_EXECUTED_NONE_ITEMS": {
+      "title": "Žádost nemůže být provedena!",
+      "message": "Žádost [{{request}}] nemůže být provedena. Neobsahuje žádné položky!"
+    },
+    "REQUEST_ITEM_CANNOT_BE_EXECUTED": {
+      "title": "Položka žádosti [{{item}}] nemůže být provedena!",
+      "message": "Položka žádosti [{{item}}] nemůže být provedena! Musí být ve stavu 'Schváleno' nebo 'Koncept', ale je ve stavu [{{state}}]!"
+    },
+    "REQUEST_ITEM_CANNOT_BE_CREATED": {
+      "title": "Položka žádosti nemůže být vytvořena/upravena!",
+      "message": "Položka žádosti nemůže být vytvořena/upravena pro objekt [{{dto}}]. Rodičovská žádost můsí být ve stavu 'Zpracovává se', 'Koncept' nebo 'Výjimka', ale je ve stavu [{{state}}]!"
+    },
+    "REQUEST_ITEM_NOT_EXECUTED_PARENT_CANCELED": {
+      "title": "Položka žádosti [{{item}}] nemůže být provedena!",
+      "message": "Položka žádosti [{{item}}] nemůže být provedena, protože používá DTO (nově vytvořené) z jiné již zrušené položky [{{terminatedItem}}]!"
+    },
+    "REQUEST_EXECUTED_CANNOT_DELETE": {
+      "title": "Žádost o změnu oprávnění nemohla být smazána",
+      "message": "Žádost ve stavu 'Provedeno' nemůže být smazána!"
     }
   },
   "validationError": {

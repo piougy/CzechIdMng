@@ -4909,6 +4909,58 @@
     "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role is removed by concurrent task",
       "message": "Business role [{{roleCompositionId}}] is removed by concurrent task [{{taskId}}]."
+    },
+    "DTO_CANNOT_BE_CONVERT_TO_JSON": {
+      "title": "DTO cannot be convert to the JSON!",
+      "message": "DTO [{{dto}}] cannot be convert to the JSON!"
+    },
+    "JSON_CANNOT_BE_CONVERT_TO_DTO": {
+      "title": "JSON cannot be convert to the DTO!",
+      "message": "JSON [{{json}}] cannot be convert to the DTO!"
+    },
+    "REQUEST_CUD_OPERATIONS_NOT_ALLOWED": {
+      "title": "CUD operations are not allowed on that REST controller [{{controller}}]!",
+      "message": "CUD operations are not allowed on that REST controller [{{controller}}]! Use request REST endpoint."
+    },
+    "REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
+      "title": "You do not have right for immidiately execute request!",
+      "message": "You do not have right (REQUEST_ADMIN) for immidiately execute request [{{request}}]!"
+    },
+    "REQUEST_ITEM_IS_NOT_VALID": {
+      "title": "DTO [{{dto}}] in the request item is not valid!",
+      "message": "DTO [{{dto}}] in the request item [{{item}}] is not valid!"
+    },
+    "REQUEST_NO_WF_DEF_FOUND": {
+      "title": "No approval workflow definition found!",
+      "message": "No approval workflow definition found for entity type [{{entityType}}]!"
+    },
+    "REQUEST_OWNER_WAS_DELETED": {
+      "title": "Owner was deleted!",
+      "message": "Owner [{{owner}}] was deleted!"
+    },
+    "REQUEST_OWNER_FROM_OTHER_REQUEST_WAS_DELETED": {
+      "title": "Owner from other request was deleted!",
+      "message": "Owner [{{owner}}] from other request [{{otherRequest}}] was deleted!"
+    },
+    "REQUEST_CANNOT_BE_EXECUTED_NONE_ITEMS": {
+      "title": "Request cannot be executed. Has no request items!",
+      "message": "Request [{{request}}] cannot be executed. Has no request items!"
+    },
+    "REQUEST_ITEM_CANNOT_BE_EXECUTED": {
+      "title": "Request item [{{item}}] cannot be executed!",
+      "message": "Request item [{{item}}] cannot be executed. Must be in state APPROVED or CONCEPT, but is in state [{{state}}]!"
+    },
+    "REQUEST_ITEM_CANNOT_BE_CREATED": {
+      "title": "Request item cannot be created/changed for object [{{dto}}]!",
+      "message": "Request item cannot be created/changed for object [{{dto}}]. Parent request must be in state INPROGRESS or CONCEPT or EXCEPTION, but is in state [{{state}}]!"
+    },
+    "REQUEST_ITEM_NOT_EXECUTED_PARENT_CANCELED": {
+      "title": "Request item [{{item}}] could not be executed!",
+      "message": "Request item [{{item}}] could not be executed, because is using DTO from terminated item [{{terminatedItem}}]!"
+    },
+    "REQUEST_EXECUTED_CANNOT_DELETE": {
+      "title": "Request for change permission cannot be deleted",
+      "message": "Request for change permission in state 'Executed' cannot be delete!"
     }
   },
   "validationError": {

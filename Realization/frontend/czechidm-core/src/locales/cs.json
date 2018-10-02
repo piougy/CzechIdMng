@@ -3992,6 +3992,28 @@
         }
       }
     },
+    "request-idm-role" : {
+      "name": "Žádost o změnu/vytvoření/odstranění role s názvem '{{0}}'",
+      "task": {
+        "approveAutomaticRole": {
+          "name": "Schválení změny role garantem",
+          "description":"Žádost o změnu/vytvoření/odstranění role s názvem '{{0}}'"
+        }
+      }
+    },
+    "request-idm-role-composition" : {
+      "name": "Schválení žádosti o změnu 'Business' role",
+      "task": {
+        "approveAddBusinessRole": {
+          "name": "Schválení přidání nové 'Business' role",
+          "description":"Schválení přidání 'Business' role ('{{1}}') s názvem '{{0}}' do role '{{2}}'."
+        },
+        "approveRemoveBusinessRole": {
+          "name": "Schválení odebrání 'Business' role",
+          "description":"Schválení odebrání 'Business' role ('{{0}}') s názvem '{{1}}' z role '{{2}}'."
+        }
+      }
+    },
     "COMMENT":"If you can not find a translation for a specific WF definition, then we'll try to locate the translation in global tasks (by task key only):",
     "task": {
       "approveByManager": {

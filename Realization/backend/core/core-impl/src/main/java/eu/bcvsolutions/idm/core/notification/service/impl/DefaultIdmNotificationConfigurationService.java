@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
@@ -33,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationConfigurationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
@@ -42,7 +45,6 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration_;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Configuration for notification routing
@@ -80,7 +82,7 @@ public class DefaultIdmNotificationConfigurationService
 	
 	@Override
 	@Transactional
-	public NotificationConfigurationDto save(NotificationConfigurationDto dto, BasePermission... permission) {
+	public NotificationConfigurationDto saveInternal(NotificationConfigurationDto dto) {
 		Assert.notNull(dto);
 		//
 		// check duplicity
@@ -88,7 +90,16 @@ public class DefaultIdmNotificationConfigurationService
 		if (duplicitEntity != null && !duplicitEntity.getId().equals(dto.getId())) {
 			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TOPIC_AND_LEVEL_EXISTS, ImmutableMap.of("topic", dto.getTopic()));
 		}
-		return super.save(dto);
+		//
+		// check recipient is filled when redirect is enabled
+		if (dto.isRedirect()) {
+			if (getRecipients(dto).isEmpty()) {
+				// redirect and no recipient is configured => exception
+				throw new ResultCodeException(CoreResultCode.NOTIFICATION_CONFIGURATION_RECIPIENT_NOT_FOUND, ImmutableMap.of("topic", dto.getTopic()));
+			}
+		}
+		//
+		return super.saveInternal(dto);
 	}
 	
 	/**
@@ -230,10 +241,41 @@ public class DefaultIdmNotificationConfigurationService
 	public NotificationConfigurationDto getConfigurationByTopicLevelNotificationType(String topic, NotificationLevel level, String notificationType) {
 		return toDto(this.repository.findByTopicAndLevelAndNotificationType(topic, level, notificationType));
 	}
-
+	
+	@Override
+	public NotificationConfigurationDto getConfigurationByTopicAndNotificationTypeAndLevelIsNull(String topic, String notificationType) {
+		return toDto(this.repository.findByTopicAndNotificationTypeAndLevelIsNull(topic, notificationType));
+	}
+	
 	@Override
 	public List<NotificationConfigurationDto> getConfigurations(String topic, NotificationLevel level) {
 		return toDtos(repository.findByTopicAndLevel(topic, level), false);
+	}
+	
+	@Override
+	public List<NotificationConfigurationDto> getWildcardConfigurations(String topic) {
+		return toDtos(repository.findByTopicAndLevelIsNull(topic), false);
+	}
+	
+	@Override
+	public List<IdmNotificationRecipientDto> getRecipients(NotificationConfigurationDto configuration) {
+		Set<String> uniqueRecipients = Sets.newHashSet();
+		//
+		String rawRecipients = configuration.getRecipients();
+		if (StringUtils.isNotBlank(rawRecipients)) {
+			for(String rawRecipient : StringUtils.split(rawRecipients, ConfigurationService.PROPERTY_MULTIVALUED_SEPARATOR)) {
+				if (StringUtils.isNotBlank(rawRecipient)) {
+					uniqueRecipients.add(rawRecipient.trim());
+				}
+			}
+		}
+		return uniqueRecipients
+				.stream()
+				.sorted()
+				.map(recipient -> {
+					return new IdmNotificationRecipientDto(recipient);
+				})
+				.collect(Collectors.toList());
 	}
 	
 	@Override

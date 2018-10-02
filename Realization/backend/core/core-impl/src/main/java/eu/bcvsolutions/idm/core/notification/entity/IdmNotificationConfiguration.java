@@ -72,6 +72,15 @@ public class IdmNotificationConfiguration extends AbstractEntity implements Disa
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
+	
+	@Audited
+	@NotNull
+	@Column(name = "redirect", nullable = false)
+	private boolean redirect;
+	
+	@Audited
+	@Column(name = "recipients", length = DefaultFieldLengths.LOG)
+	private String recipients; // see IdmNotificationTemplateService#PARAMETER_DELIMITIER
 
 	public IdmNotificationConfiguration() {
 	}
@@ -137,5 +146,21 @@ public class IdmNotificationConfiguration extends AbstractEntity implements Disa
 	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+	}
+	
+	public void setRedirect(boolean redirect) {
+		this.redirect = redirect;
+	}
+	
+	public boolean isRedirect() {
+		return redirect;
+	}
+	
+	public void setRecipients(String recipients) {
+		this.recipients = recipients;
+	}
+	
+	public String getRecipients() {
+		return recipients;
 	}
 }

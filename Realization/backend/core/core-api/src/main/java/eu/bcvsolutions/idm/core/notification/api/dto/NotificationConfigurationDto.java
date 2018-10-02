@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 public class NotificationConfigurationDto extends AbstractDto implements Disableable {
 
 	private static final long serialVersionUID = 1L;
-
+	//
 	private String topic;
 	private NotificationLevel level;
 	private String notificationType;
@@ -28,6 +28,8 @@ public class NotificationConfigurationDto extends AbstractDto implements Disable
 	@Embedded(dtoClass = IdmNotificationTemplateDto.class)
 	private UUID template;
 	private boolean disabled;
+	private boolean redirect;
+	private String recipients;
 
 	public NotificationConfigurationDto() {
 	}
@@ -100,5 +102,21 @@ public class NotificationConfigurationDto extends AbstractDto implements Disable
 	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+	}
+	
+	public void setRedirect(boolean redirect) {
+		this.redirect = redirect;
+	}
+	
+	public boolean isRedirect() {
+		return redirect;
+	}
+	
+	public void setRecipients(String recipients) {
+		this.recipients = recipients;
+	}
+	
+	public String getRecipients() {
+		return recipients;
 	}
 }

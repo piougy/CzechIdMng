@@ -222,7 +222,7 @@ export default class SecurityManager {
   receiveLogout() {
     return dispatch => {
       // logout from web sockets
-      dispatch(SecurityManager.disconectStompClient());
+      // dispatch(SecurityManager.disconectStompClient());
       dispatch({
         type: LOGOUT
       });
@@ -432,6 +432,7 @@ export default class SecurityManager {
    * Connect websocket client to receiving flashmessages from BE
    *
    * @param  {UserContext} userContext
+   * @deprecated @since 9.2.0, will be removed
    */
   static connectStompClient(userContext = null) {
     return (dispatch, getState) => {
@@ -464,6 +465,7 @@ export default class SecurityManager {
    * Disconnect websocket client to receiving flashmessages from BE
    *
    * @return {[type]} [description]
+   * @deprecated @since 9.2.0, will be removed
    */
   static disconectStompClient() {
     return (dispatch, getState) => {

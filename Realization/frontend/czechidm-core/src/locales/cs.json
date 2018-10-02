@@ -992,7 +992,28 @@
         "passwordSimilarEmailPreValidate": "Heslo nesmí být podobné emailu.",
         "passwordSimilarFirstNamePreValidate": "Heslo nesmí být podobné jménu.",
         "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení.",
-        "maxHistorySimilar": "Heslo se musí lišit od posledních {{0}} hesel."
+        "maxHistorySimilar": "Heslo se musí lišit od posledních {{0}} hesel.",
+        "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku.",
+        "specialCharacterBase":{
+          "list": "Seznam speciálních znaků pro politiky hesel: {{0}}",
+          "text": "Speciální znaky: {{0}}"
+          },
+        "forbiddenCharacterBase": {
+          "list": "Seznam zakázaných znaků pro politiky hesel: {{0}}",
+          "text": "Zakázané znaky: {{0}}"
+          },
+        "passwordSimilarUsernamePreValidate": "uživatelskému jménu",
+        "passwordSimilarEmailPreValidate": "emailu",
+        "passwordSimilarFirstNamePreValidate": "jménu",
+        "passwordSimilarLastNamePreValidate": "příjmení",
+        "passwordSimilarPreValidate": "Heslo nesmí být podobné",
+        "passwordHintPreValidate": "Nápověda pro ",
+        "passwordHintPreValidatePwd": "nové heslo",
+        "passwordHintPreValidateHeader": "Heslo musí splňovat:",
+        "maxHistorySimilar": "Heslo se musí lišit od posledních {{0}} hesel.",
+        "prevalidationLink": {
+          "title": "Pravidla pro nové heslo"
+        }
       },
       "save": {
         "success": "Politika [{{name}}] byla úspěšně uložena."
@@ -3419,7 +3440,19 @@
       "level": "Typ notifikace",
       "notificationType": "Kanál",
       "template": "Šablona",
-      "description": "Popis"
+      "description": "Popis",
+      "disabled": {
+        "label": "$t(label.disabled)",
+        "help": "Notifikace nebudou odesílány."
+      },
+      "redirect": {
+        "label": "Přesměrování",
+        "help": "Notifikace bude zaslána pouze na zde nakonfigurované příjemce. Původnímu příjemci nebude notifikace odeslána."
+      },
+      "recipients": {
+        "label": "Příjemci",
+        "help": "Notifikace bude zaslána i na tyto příjemce. Vylnění příjemců je povinné, pokud je zapnuto přesměrování."
+      }
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",
@@ -4584,6 +4617,10 @@
       "title": "Konfigurace nemůže být uložena",
       "message": "Topic [{{topic}}] a null level již existuje."
     },
+    "NOTIFICATION_CONFIGURATION_RECIPIENT_NOT_FOUND": {
+      "title": "Konfigurace nemůže být uložena",
+      "message": "Vyplnění příjemců je povinné pro přesměrované notifikace s tématem [{{topic}}]."
+    },
     "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
       "title": "Definice formuláře nelze smazat",
       "message": "Definice [{{name}}] nelze smazat, protože je označená jako systémová."
@@ -4920,6 +4957,10 @@
       "title": "Nalezeno více šablon",
       "message": "Více než jedna šablona byla nalezena pro kód: [{{code}}]."
     },
+    "NOTIFICATION_NOT_SENT": {
+      "title": "Notifikace nebyla odeslána",
+      "message": "Konfigurace pro notificaci s tématem [{{topic}}] nebyla nalezena nebo není aktivní."
+    },
     "PASSWORD_CHANGE_ACCOUNT_FAILED": {
       "title": "Chyba při změně hesla",
       "message": "Změna hesla selhala na následujících účtech: [{{accounts}}]."
@@ -5079,6 +5120,58 @@
     "GENERATOR_SYSTEM_SEQ": {
       "title": "Neplatné pořadí generátoru",
       "message": "Generátory nemohou mít pořadí 0 až 10. Toto pořadí je rezervováno pro systémové generátory, které jsou vytvořeny přímo systém."
+    },
+    "DTO_CANNOT_BE_CONVERT_TO_JSON": {
+      "title": "DTO nelze převést do JSON formátu!",
+      "message": "DTO [{{dto}}] nelze převést do JSON formátu!"
+    },
+    "JSON_CANNOT_BE_CONVERT_TO_DTO": {
+      "title": "JSON nelze převést do DTO formátu!",
+      "message": "JSON [{{json}}] nelze převést do DTO formátu!"
+    },
+    "REQUEST_CUD_OPERATIONS_NOT_ALLOWED": {
+      "title": "CUD operace nejsou povoleny na REST kontroleru [{{controller}}]!",
+      "message": "CUD operace nejsou povoleny na REST kontroleru [{{controller}}]! Použíjte REST kontroler agendy žádostí."
+    },
+    "REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
+      "title": "Nemáte právo na provedení žádosti bez schvalování!",
+      "message": "Nemáte právo (REQUEST_ADMIN) na provedení žádosti [{{request}}] bez spuštění schvalovacího procesu!"
+    },
+    "REQUEST_ITEM_IS_NOT_VALID": {
+      "title": "DTO [{{dto}}] v položce žádosti není validní!",
+      "message": "DTO [{{dto}}]  v položce žádosti [{{item}}] není validní!"
+    },
+    "REQUEST_NO_WF_DEF_FOUND": {
+      "title": "Nebyl nalezen žádný schvalovací proces!",
+      "message": "Nebyl nalezen žádný schvalovací proces pro tento typ objektu [{{entityType}}]!"
+    },
+    "REQUEST_OWNER_WAS_DELETED": {
+      "title": "Vlastník žádosti (cílový objekt) byl smazán!",
+      "message": "Vlastník žádosti [{{owner}}] byl smazán!"
+    },
+    "REQUEST_OWNER_FROM_OTHER_REQUEST_WAS_DELETED": {
+      "title": "Vlastník žádosti (cílový objekt) byl smazán v rámci jiné žádosti!",
+      "message": "Vlastník žádosti [{{owner}}] byl smazán v rámci jiné žádosti [{{otherRequest}}]!"
+    },
+    "REQUEST_CANNOT_BE_EXECUTED_NONE_ITEMS": {
+      "title": "Žádost nemůže být provedena!",
+      "message": "Žádost [{{request}}] nemůže být provedena. Neobsahuje žádné položky!"
+    },
+    "REQUEST_ITEM_CANNOT_BE_EXECUTED": {
+      "title": "Položka žádosti [{{item}}] nemůže být provedena!",
+      "message": "Položka žádosti [{{item}}] nemůže být provedena! Musí být ve stavu 'Schváleno' nebo 'Koncept', ale je ve stavu [{{state}}]!"
+    },
+    "REQUEST_ITEM_CANNOT_BE_CREATED": {
+      "title": "Položka žádosti nemůže být vytvořena/upravena!",
+      "message": "Položka žádosti nemůže být vytvořena/upravena pro objekt [{{dto}}]. Rodičovská žádost můsí být ve stavu 'Zpracovává se', 'Koncept' nebo 'Výjimka', ale je ve stavu [{{state}}]!"
+    },
+    "REQUEST_ITEM_NOT_EXECUTED_PARENT_CANCELED": {
+      "title": "Položka žádosti [{{item}}] nemůže být provedena!",
+      "message": "Položka žádosti [{{item}}] nemůže být provedena, protože používá DTO (nově vytvořené) z jiné již zrušené položky [{{terminatedItem}}]!"
+    },
+    "REQUEST_EXECUTED_CANNOT_DELETE": {
+      "title": "Žádost o změnu oprávnění nemohla být smazána",
+      "message": "Žádost ve stavu 'Provedeno' nemůže být smazána!"
     }
   },
   "validationError": {

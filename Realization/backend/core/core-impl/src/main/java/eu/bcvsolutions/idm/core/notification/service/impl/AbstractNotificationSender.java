@@ -128,7 +128,10 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 				LOG.error("Notification has empty template and message. Message will not be sent! [topic:{}]", topic);
 				continue;
 			}
-			notification.setRecipients(notificationRecipients);
+			// recipient can be prepared by configuration (sending message to some alias)
+			if (notification.getRecipients().isEmpty()) {
+				notification.setRecipients(notificationRecipients);
+			}
 			notification.setIdentitySender(identitySender == null ? null : identitySender.getId());
 			//
 			sendMessages.add(send(notification));

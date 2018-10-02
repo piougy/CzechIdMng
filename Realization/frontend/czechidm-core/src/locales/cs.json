@@ -3424,6 +3424,14 @@
       "disabled": {
         "label": "$t(label.disabled)",
         "help": "Notifikace nebudou odesílány."
+      },
+      "redirect": {
+        "label": "Přesměrování",
+        "help": "Notifikace bude zaslána pouze na zde nakonfigurované příjemce. Původnímu příjemci nebude notifikace odeslána."
+      },
+      "recipients": {
+        "label": "Příjemci",
+        "help": "Notifikace bude zaslána i na tyto příjemce. Vylnění příjemců je povinné, pokud je zapnuto přesměrování."
       }
     },
     "Email": {
@@ -4479,6 +4487,10 @@
     "NOTIFICATION_TOPIC_AND_LEVEL_EXISTS": {
       "title": "Konfigurace nemůže být uložena",
       "message": "Topic [{{topic}}] a null level již existuje."
+    },
+    "NOTIFICATION_CONFIGURATION_RECIPIENT_NOT_FOUND": {
+      "title": "Konfigurace nemůže být uložena",
+      "message": "Vyplnění příjemců je povinné pro přesměrované notifikace s tématem [{{topic}}]."
     },
     "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
       "title": "Definice formuláře nelze smazat",

@@ -3374,6 +3374,14 @@
       "disabled": {
         "label": "$t(label.disabled)",
         "help": "Notifications will not be sent."
+      },
+      "redirect": {
+        "label": "Redirect",
+        "help": "Notification will be redirected to configured recipients. Notification to original recipient will be not sent."
+      },
+      "recipients": {
+        "label": "Recipients",
+        "help": "Additional notification will be sent to configured recipients. Recipients are required, if notification is redirected."
       }
     },
     "Email": {
@@ -4429,6 +4437,10 @@
     "NOTIFICATION_TOPIC_AND_LEVEL_EXISTS": {
       "title": "Configuration can not be saved",
       "message": "Topic [{{topic}}] and null level exists!."
+    },
+    "NOTIFICATION_CONFIGURATION_RECIPIENT_NOT_FOUND": {
+      "title": "Configuration can not be saved",
+      "message": "Recipients are required for redirected notifications with topic [{{topic}}]."
     },
     "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
       "title": "Form definition can not be deleted",

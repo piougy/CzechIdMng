@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.notification.api.service;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.Recoverable;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
@@ -24,7 +25,7 @@ public interface IdmNotificationTemplateService extends
 		Recoverable<IdmNotificationTemplateDto>,
 		CodeableService<IdmNotificationTemplateDto> {
 
-	String PARAMETER_DELIMITIER = ",";
+	String PARAMETER_DELIMITIER = ConfigurationService.PROPERTY_MULTIVALUED_SEPARATOR;
 	/**
 	 * Folder for scanning / initializing default templates
 	 */

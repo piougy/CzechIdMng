@@ -111,7 +111,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       let error;
       if (Utils.Response.getFirstError(json)) {
         error = Utils.Response.getFirstError(json);
-      } else {
+      } else if (json._errors) {
         error = json._errors.pop();
       }
 

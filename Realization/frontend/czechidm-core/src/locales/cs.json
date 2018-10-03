@@ -835,7 +835,8 @@
       "AUTOMATICROLEATTRIBUTERULE": "Pravidla automatických rolí (atributy)",
       "AUTOMATICROLEREQUEST": "Žádosti o automatické role",
       "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)",
-      "TOKEN": "Token"
+      "TOKEN": "Token",
+      "GENERATEVALUE": "Generování hodnot"
     }
   },
   "content": {
@@ -2889,6 +2890,25 @@
           "success": "Události byly smazány"
         }
       }
+    },
+    "generateValues": {
+      "header": "Generování hodnot",
+      "title": "Generování hodnot",
+      "create": {
+        "header": "Vytvořit nový generátor"
+      },
+      "edit": {
+        "header": "Editace generátoru"
+      },
+      "noGenerators": "Vybraný typ entity neobsahuje žádné generátory",
+      "noProperties": "Vybraný generátor neobsahuje žádné nastavení.",
+      "selectGenerator": "Pro zobrazení nastavení, je nutné vybrat nějdříve generátor.",
+      "generatorProperties": {
+        "title": "Nastavení generátoru"
+      },
+      "filter": {
+        "dtoType": "Typ entity"
+      }
     }
   },
   "entity": {
@@ -3891,6 +3911,37 @@
       "processedOrder": {
         "label": "Zpracované pořadí"
       }
+    },
+    "GenerateValue": {
+      "dtoType": {
+        "label": "Typ entity",
+        "placeholder": "Vyberte typ entity",
+        "help": "Generování je prováděno pro určitý druh entit. Na základě vybrané entity budou nabídnuty různé druhy generátorů"
+      },
+      "generatorType": {
+        "label": "Typ generátoru",
+        "placeholder": "Vyberte typ generátoru"
+      },
+      "seq": {
+        "label": "Pořadí",
+        "placeholder": "Nastavte pořadí",
+        "help": "Generátory jsou spracovávány dle pořadí od nejmenšího po největší. V případě že dva generátory generují hodnoty pro stejný atribut, výsledná hodnota bude vygenerována z posledního generátoru."
+      },
+      "description": {
+        "label": "Popis"
+      },
+      "disabled": {
+        "label": "Neaktivní",
+        "help": "Neaktivní generátory jsou ignorovány"
+      },
+      "regenerateValue": {
+        "label": "Přegenerovat hodnotu",
+        "help": "V případě zatržení bude vyplněná hodnota od uživatele generátorem přegenerována. V případě odtržení generátor nebude uživatelem vyplněnou hodnotu měnit."
+      },
+      "unmodifiable": {
+        "label": "Systémový generátor",
+        "help": "Systémový generátor nemůže být smazán a nelze upravovat některé jeho atributy."
+      }
     }
   },
   "wf": {
@@ -4219,6 +4270,88 @@
           }
         }
       }
+    },
+    "value-generator": {
+      "core-identity-username-value-generator": {
+        "label": "Standardní generátor uživatelského jména",
+        "description": "Generátor generuje uživatelské jméno na základě vyplněných hodnot 'jméno' a 'příjmení', z těchto hodnot odstraní diaktiritku, ořízne je na definovaný počet a spojí pomocí spojovníku.",
+        "attributes": {
+          "connectioncharacter": {
+            "label": "Spojovací znak",
+            "help": "Znak/y které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna. V tomto případě bude jméno a příjmení spojeno bez žádného spojovacího znaku."
+          },
+          "firstnamecharactercount": {
+            "label": "Počet znaků ze jména",
+            "help": "Maximální počet znaků které budou použity z jména."
+          },
+          "lastnamecharactercount": {
+            "label": "Počet znaků z příjmení",
+            "help": "Maximální počet znaků, které budou použity z příjmení."
+          },
+          "searchuniqueusername": {
+            "label": "Ověřovat unikátní uživatelské jméno",
+            "help": "Nově vygenerované uživatelské jméno bude vyhledáno a v případě existence bude dodáván číselný suffix. Suffix může být inkrementován."
+          },
+          "firstnamefirst": {
+            "label": "Jméno uživatele použít první",
+            "help": "Při generování bude prvně doplněno jméno uživatele následně příjmení. Při odškrknutí bude pořadí opačné."
+          }
+        }
+      },
+      "core-identity-email-value-generator": {
+        "label": "Standardní generátor emailové adresy",
+        "description": "Generátor generuje emailovou adresu na základě uživatelského jména. K uživatelskému jménu přidá definovaný suffix. Pozor výsledná hodnota musí splňovat správný tvar emailové adresy.",
+        "attributes": {
+          "emailsuffix": {
+            "label": "Emailový suffix",
+            "help": "Suffix bude doplněn k uživatelskému jménu a společně musí tvořit emailovou adresu."
+          },
+          "connectioncharacter": {
+            "label": "Spojovací znak",
+            "help": "Znak/y které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna. V tomto případě bude jméno a příjmení spojeno bez žádného spojovacího znaku."
+          },
+          "firstnamecharactercount": {
+            "label": "Počet znaků ze jména",
+            "help": "Maximální počet znaků které budou použity z jména."
+          },
+          "lastnamecharactercount": {
+            "label": "Počet znaků z příjmení",
+            "help": "Maximální počet znaků, které budou použity z příjmení."
+          },
+          "generatefromusername": {
+            "label": "Generovat na základě uživatelského jména",
+            "help": "Základ pro email bude brán z existujícího uživatelského jména. Uživatelské jméno musí v moment generování existovat."
+          },
+          "firstnamefirst": {
+            "label": "Jméno uživatele použít první",
+            "help": "Při generování bude prvně doplněno jméno uživatele následně příjmení. Při odškrknutí bude pořadí opačné."
+          }
+        }
+      },
+      "core-identity-script-value-generator": {
+        "label": "Skriptovaný generátor",
+        "description": "Generátor spouští definovaný skript. Na vstupu skriptu jsou k dispozici tyto atributy 'entity' a 'valueGenerator'. Pozor funkci 'přegenerovat hodnotu' musí skript implementovat sám. Skript musí být z kategorie systémový.",
+        "attributes": {
+          "scriptcode": {
+            "label": "Kód skriptu",
+            "help": "Kód skriptu, který bude spouštěn."
+          }
+        }
+      },
+      "core-identity-form-default-value-generator": {
+        "label": "Doplnění standardních hodnot pro formuláře v dalších údajích",
+        "description": "Generátor doplní všem atributům standardní hodnoty.",
+        "attributes": {
+          "formdefinitionuuid": {
+            "label": "Formulář",
+            "help": "Formulář musí být pro daný typ entity (IdmIdentity). Pokud necháte prázdné budou hodnoty doplněny pro všechny formuláře."
+          },
+          "regexmultiplevalues": {
+            "label": "Oddělovač",
+            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
+          }
+        }
+      }
     }
   },
   "error": {
@@ -4531,6 +4664,10 @@
     "UNMODIFIABLE_ATTRIBUTE_CHANGE": {
       "title": "Atribut {{name}} nelze změnit",
       "message": "Atribut {{name}} v entitě {{class}} nelze změnit."
+    },
+    "UNMODIFIABLE_DELETE_FAILED": {
+      "title": "Záznam nelze smazat",
+      "message": "Záznam [{{record}}] je systémový a nelze jej odebrat."
     },
     "PASSWORD_EXPIRATION_TASK_DAYS_BEFORE": {
       "title": "Úloha je chybně nakonfigurovaná",
@@ -4971,6 +5108,22 @@
     "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Business role je mazána jiným procesem",
       "message": "Business role [{{roleCompositionId}}] je mazána souběžnou úlohou [{{taskId}}]."
+    },
+    "GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE": {
+      "title": "Skript pro generování vrací chybový stav",
+      "message": "Skript [{{scriptCode}}] vrátil null, nebo špatný typ entity. Návratová hodnota: [{{returnedValue}}]."
+    },
+    "GENERATOR_FORM_ATTRIBUTE_NOT_FOUND": {
+      "title": "Formulářový atribut pro definici nebyl nalezen",
+      "message": "Formulářový atribut pro definici [{{formDefinitionCode}}] s kódem [{{formAttributeCode}}] nebyl nalezen."
+    },
+    "GENERATOR_FORM_DEFINITION_BAD_TYPE": {
+      "title": "Definice má špatný typ",
+      "message": "Fromulářová definice id [{{formDefinitionId}}], má špastný typ. Správný typ: [{{dtoType}}]."
+    },
+    "IDMIDENTITY_USERNAME_NOTEMPTY": {
+      "title": "Uživatelské jméno nemůže být prázdné",
+      "message": "Uživatelské jméno nebylo vyplněno. Vyplňte prosím uživatelské jméno, nebo zapněte generátor uživatelských jmen."
     },
     "DTO_CANNOT_BE_CONVERT_TO_JSON": {
       "title": "DTO nelze převést do JSON formátu!",

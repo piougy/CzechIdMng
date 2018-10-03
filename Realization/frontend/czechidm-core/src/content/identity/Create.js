@@ -75,7 +75,7 @@ class Create extends Basic.AbstractContent {
       let error;
       if (Utils.Response.getFirstError(json)) {
         error = Utils.Response.getFirstError(json);
-      } else {
+      } else if (json._errors) {
         error = json._errors.pop();
       }
 
@@ -256,7 +256,7 @@ class Create extends Basic.AbstractContent {
 
               <Basic.AbstractForm ref="form" data={detail.entity}>
                 <div className="col-lg-7">
-                  <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
+                  <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} max={255}/>
                   <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255}/>
                   <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} max={255}/>
                   <Basic.TextField ref="externalCode" label={this.i18n('content.identity.profile.externalCode')} max={255}/>

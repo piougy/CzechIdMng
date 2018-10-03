@@ -260,39 +260,39 @@ public class IdmFormAttributeController extends AbstractReadWriteDtoController<I
 	}
 	
 	@Override
-	protected IdmFormAttributeDto validateDto(IdmFormAttributeDto entity) {
+	protected IdmFormAttributeDto validateDto(IdmFormAttributeDto dto) {
 		// check if exist id = create entity, then check if exist old entity = create entity with id
-		if (entity.getId() == null) {
-			return super.validateDto(entity);
+		if (dto.getId() == null || getService().isNew(dto)) {
+			return super.validateDto(dto);
 		}
-		IdmFormAttributeDto previousDto = getDto(entity.getId());
+		IdmFormAttributeDto previousDto = getDto(dto.getId());
 		if (previousDto != null && previousDto.isUnmodifiable()) {
 			// check explicit attributes that can't be changed
-			if (!previousDto.getCode().equals(entity.getCode())) {
-				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "name", "class", entity.getClass().getSimpleName()));
+			if (!previousDto.getCode().equals(dto.getCode())) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "name", "class", dto.getClass().getSimpleName()));
 			}
-			if (previousDto.getPersistentType() != entity.getPersistentType()) {
-				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "persistentType", "class", entity.getClass().getSimpleName()));
+			if (previousDto.getPersistentType() != dto.getPersistentType()) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "persistentType", "class", dto.getClass().getSimpleName()));
 			}
-			if (previousDto.isConfidential() != entity.isConfidential()) {
-				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "confidential", "class", entity.getClass().getSimpleName()));
+			if (previousDto.isConfidential() != dto.isConfidential()) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "confidential", "class", dto.getClass().getSimpleName()));
 			}
-			if (previousDto.isRequired() != entity.isRequired()) {
-				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "required", "class", entity.getClass().getSimpleName()));
+			if (previousDto.isRequired() != dto.isRequired()) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "required", "class", dto.getClass().getSimpleName()));
 			}
-			if (previousDto.isReadonly() != entity.isReadonly()) {
-				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "readonly", "class", entity.getClass().getSimpleName()));
+			if (previousDto.isReadonly() != dto.isReadonly()) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "readonly", "class", dto.getClass().getSimpleName()));
 			}
-			if (previousDto.isMultiple() != entity.isMultiple()) {
-				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "multiple", "class", entity.getClass().getSimpleName()));
+			if (previousDto.isMultiple() != dto.isMultiple()) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "multiple", "class", dto.getClass().getSimpleName()));
 			}
-			if (previousDto.isRequired() != entity.isRequired()) {
-				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "required", "class", entity.getClass().getSimpleName()));
+			if (previousDto.isRequired() != dto.isRequired()) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "required", "class", dto.getClass().getSimpleName()));
 			}
-			if (previousDto.isUnmodifiable() != entity.isUnmodifiable()) {
-				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "unmodifiable", "class", entity.getClass().getSimpleName()));
+			if (previousDto.isUnmodifiable() != dto.isUnmodifiable()) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "unmodifiable", "class", dto.getClass().getSimpleName()));
 			}
 		}
-		return super.validateDto(entity);
+		return super.validateDto(dto);
 	}
 }

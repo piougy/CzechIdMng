@@ -806,6 +806,11 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
     },
     {
+      path: 'generate-values',
+      component: require('./src/content/generatevalues/GenerateValues'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['GENERATEVALUE_READ'] } ]
+    },
+    {
       path: 'notification/',
       component: 'div',
       childRoutes: [

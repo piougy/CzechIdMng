@@ -66,7 +66,7 @@ CREATE TABLE idm_generate_value_a (
 	dto_type nvarchar(255),
 	dto_type_m bit,
 	generator_properties image,
-    generator_properties_m boolean,
+    generator_properties_m bit,
 	generator_type nvarchar(255),
 	generator_type_m bit,
 	seq smallint,

@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * Generate value
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @since 9.2.0
  */
 @Entity
 @Table(name = "idm_generate_value", indexes = {

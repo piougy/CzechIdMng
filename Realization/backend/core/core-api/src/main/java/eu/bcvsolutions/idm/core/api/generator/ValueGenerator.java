@@ -9,10 +9,10 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
- *
- * @param <E>
+ * @since 9.2.0
+ * @param <DTO> generator is designed for only one dto type
  */
-public interface ValueGenerator<E extends AbstractDto> extends Configurable {
+public interface ValueGenerator<DTO extends AbstractDto> extends Configurable {
 
 	@Override
 	default String getConfigurableType() {
@@ -24,7 +24,7 @@ public interface ValueGenerator<E extends AbstractDto> extends Configurable {
 	 * 
 	 * @return
 	 */
-	Class<E> getDtoClass();
+	Class<DTO> getDtoClass();
 
 	/**
 	 * Generate values by given value generator configuration.
@@ -33,7 +33,7 @@ public interface ValueGenerator<E extends AbstractDto> extends Configurable {
 	 * @param generatorConfiguration 
 	 * @return
 	 */
-	E generate(E dto, IdmGenerateValueDto generatorConfiguration);
+	DTO generate(DTO dto, IdmGenerateValueDto generatorConfiguration);
 	
 	/**
 	 * Returns true, when generator supports given entity type

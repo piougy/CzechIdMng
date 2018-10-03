@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
- *
+ * @since 9.2.0
  */
 @Service("valueGeneratorManager")
 public class DefaultValueGeneratorManager implements ValueGeneratorManager {
@@ -90,15 +90,14 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 				if (!generator.isDisabled() 
 						&& enabledEvaluator.isEnabled(generator)
 						&& generator.supports(dtoType)) {
-					result.add(valueGeneratorToDto(generator));
+					result.add(toDto(entry.getKey(), generator));
 				}
 			}
 		} else {
 			// class name is null transform all
 			allGenerators
 				.stream()
-				.map(Entry::getValue)
-				.forEach(generator -> result.add(valueGeneratorToDto(generator)));
+				.forEach(entry -> result.add(toDto(entry.getKey(), entry.getValue())));
 		}
 
 		return result;
@@ -112,8 +111,6 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 					.stream()
 					.map(ValueGenerator::getDtoClass)
 					.collect(Collectors.toSet());
-			
-			
 		}
 		//
 		return supportedTypes;
@@ -133,8 +130,9 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 	 * @param valueGenerator
 	 * @return
 	 */
-	private ValueGeneratorDto valueGeneratorToDto(ValueGenerator<?> valueGenerator) {
+	private ValueGeneratorDto toDto(String id, ValueGenerator<?> valueGenerator) {
 		ValueGeneratorDto valueGeneratorDto = new ValueGeneratorDto();
+		valueGeneratorDto.setId(id);
 		valueGeneratorDto.setDescription(valueGenerator.getDescription());
 		valueGeneratorDto.setModule(valueGenerator.getModule());
 		valueGeneratorDto.setDtoType(valueGenerator.getDtoClass().getCanonicalName());
@@ -142,6 +140,7 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 		valueGeneratorDto.setName(valueGenerator.getName());
 		valueGeneratorDto.setGeneratorType(valueGenerator.getClass().getCanonicalName());
 		valueGeneratorDto.setFormDefinition(valueGenerator.getFormDefinition());
+		//
 		return valueGeneratorDto;
 	}
 	/**

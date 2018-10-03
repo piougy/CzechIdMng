@@ -25,9 +25,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
-import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
-import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
-import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 
 /**
  * Generator set default values to EAV
@@ -48,9 +46,7 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 	private static String REGEX_MULTIPLE_VALUES_DEFAULT_VALUE = ",";
 
 	@Autowired
-	private IdmFormDefinitionService formDefinitionService;
-	@Autowired
-	private IdmFormAttributeService formAttributeService;
+	private FormService formService;
 
 	@Override
 	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
@@ -69,13 +65,15 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 		if (formDefinition != null) {
 			formDefinitions.add(formDefinition);
 		} else {
-			formDefinitions.addAll(formDefinitionService.findAllByType(getDtoClass().getCanonicalName()));
+			formService.getDefinitions(dto).forEach(definition -> {
+				// list contains trimmed => load attributes
+				formDefinitions.add(formService.getDefinition(definition.getId()));
+			});
 		}
 
 		List<IdmFormInstanceDto> eavs = dto.getEavs();
 		for (IdmFormDefinitionDto definition : formDefinitions) {
-			List<IdmFormAttributeDto> attributes = findAllAttributes(definition);
-			for (IdmFormAttributeDto att : attributes) {
+			for (IdmFormAttributeDto att : definition.getFormAttributes()) {
 				// check if exists default values
 				if (StringUtils.isEmpty((att.getDefaultValue()))) {
 					continue;
@@ -123,18 +121,6 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 		return attributes;
 	}
 
-	/**
-	 * Find all attributes for given {@link IdmFormDefinitionDto}
-	 *
-	 * @param formDefinitionDto
-	 * @return
-	 */
-	private List<IdmFormAttributeDto> findAllAttributes(IdmFormDefinitionDto formDefinitionDto) {
-		IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
-		filter.setDefinitionId(formDefinitionDto.getId());
-		return formAttributeService.find(filter, null).getContent();
-	}
-	
 	/**
 	 * Replace all values in given form instance. Replace will be done for given definition and attribute
 	 *
@@ -207,7 +193,7 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 	private IdmFormDefinitionDto getFormDefinition(IdmGenerateValueDto valueGenerator) {
 		UUID formDefinitionUuid = getFormDefinitionUuid(valueGenerator);
 		if (formDefinitionUuid != null) {
-			IdmFormDefinitionDto formDefinitionDto = formDefinitionService.get(formDefinitionUuid);
+			IdmFormDefinitionDto formDefinitionDto = formService.getDefinition(formDefinitionUuid);
 			if (formDefinitionDto != null) {
 				return formDefinitionDto;
 			}

@@ -18,22 +18,22 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  *
- * @param <E> generator is designed for only one dto type
+ * @param <DTO> generator is designed for only one dto type
  */
-public abstract class AbstractValueGenerator<E extends AbstractDto> implements ValueGenerator<E> {
+public abstract class AbstractValueGenerator<DTO extends AbstractDto> implements ValueGenerator<DTO> {
 
-	private final Class<E> dtoClass;
+	private final Class<DTO> dtoClass;
 	
 	@Autowired
 	private ConfigurationService configurationService;
 	
 	@SuppressWarnings({ "unchecked" })
 	public AbstractValueGenerator() {
-		this.dtoClass = (Class<E>) GenericTypeResolver.resolveTypeArgument(getClass(), ValueGenerator.class);
+		this.dtoClass = (Class<DTO>) GenericTypeResolver.resolveTypeArgument(getClass(), ValueGenerator.class);
 	}
 
 	@Override
-	public Class<E> getDtoClass() {
+	public Class<DTO> getDtoClass() {
 		return dtoClass;
 	}
 
@@ -45,10 +45,10 @@ public abstract class AbstractValueGenerator<E extends AbstractDto> implements V
 	 * @param generatorConfiguration
 	 * @return
 	 */
-	protected abstract E generateItem(E dto, IdmGenerateValueDto generatorConfiguration);
+	protected abstract DTO generateItem(DTO dto, IdmGenerateValueDto generatorConfiguration);
 
 	@Override
-	public E generate(E dto, IdmGenerateValueDto generatorConfiguration) {
+	public DTO generate(DTO dto, IdmGenerateValueDto generatorConfiguration) {
 		Assert.notNull(dto);
 		//
 		if (generatorConfiguration == null) {

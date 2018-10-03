@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiModel;
  * Base DTO for generated values
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @since 9.2.0
  */
 @Relation(collectionRelation = "generateValues")
 @ApiModel(description = "Definition for configured generator")

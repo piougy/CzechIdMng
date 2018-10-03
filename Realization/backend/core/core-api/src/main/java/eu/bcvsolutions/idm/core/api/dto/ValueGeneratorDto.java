@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
  * Value generator definition
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @since 9.2.0
  */
 @JsonInclude(Include.NON_NULL)
 @Relation(collectionRelation = "valueGenerators")

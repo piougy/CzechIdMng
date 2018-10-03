@@ -11,7 +11,8 @@ import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
  * Manager for generate values
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
+ * @since 9.2.0
  */
 public interface ValueGeneratorManager extends ScriptEnabled {
 

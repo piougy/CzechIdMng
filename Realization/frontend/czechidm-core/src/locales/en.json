@@ -4001,6 +4001,28 @@
         }
       }
     },
+    "request-idm-role" : {
+      "name": "Request for change/create/remove role with name '{{0}}'",
+      "task": {
+        "approveAutomaticRole": {
+          "name": "Approve role changes by guarantee",
+          "description":"Request for change/create/remove role with name '{{0}}'"
+        }
+      }
+    },
+    "request-idm-role-composition" : {
+      "name": "Approving request change of business role",
+      "task": {
+        "approveAddBusinessRole": {
+          "name": "Approve adding the new business role",
+          "description":"Approval of adding business role with name '{{0}}' as '{{1}}' to role '{{2}}'"
+        },
+        "approveRemoveBusinessRole": {
+          "name": "Approve removing the business role",
+          "description":"Approve removal of the business role ({{0}}) with name '{{1}}' from role '{{2}}'."
+        }
+      }
+    },
     "COMMENT":"If you can not find a translation for a specific WF definition, then we'll try to locate the translation in global tasks (by task key only):",
     "task": {
       "approveByManager": {

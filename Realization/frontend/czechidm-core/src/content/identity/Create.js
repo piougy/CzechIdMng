@@ -75,7 +75,7 @@ class Create extends Basic.AbstractContent {
       let error;
       if (Utils.Response.getFirstError(json)) {
         error = Utils.Response.getFirstError(json);
-      } else {
+      } else if (json._errors) {
         error = json._errors.pop();
       }
 

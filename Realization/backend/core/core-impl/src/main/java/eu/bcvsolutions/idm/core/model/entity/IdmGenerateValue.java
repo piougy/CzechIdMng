@@ -4,12 +4,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 
 /**
  * Generate value
@@ -21,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Table(name = "idm_generate_value", indexes = {
 		@Index(name = "idx_idm_generate_val_dto_type", columnList = "dto_type"),
 })
-public class IdmGenerateValue extends AbstractEntity {
+public class IdmGenerateValue extends AbstractEntity implements UnmodifiableEntity {
 
 	private static final long serialVersionUID = 1L;
 
@@ -40,9 +43,10 @@ public class IdmGenerateValue extends AbstractEntity {
 	private String generatorType;
 
 	@Audited
-	@NotNull
+	@Min(0)
+	@Max(99999)
 	@Column(name = "seq", nullable = false)
-	private short seq = 11;
+	private short seq = 0;
 
 	@Audited
 	@Column(name = "generator_properties", length = Integer.MAX_VALUE)
@@ -57,6 +61,10 @@ public class IdmGenerateValue extends AbstractEntity {
 	@NotNull
 	@Column(name = "regenerate_value", nullable = false)
 	private boolean regenerateValue = false;
+	
+	@NotNull
+	@Column(name = "unmodifiable", nullable = false)
+	private boolean unmodifiable = false;
 
 	public boolean isDisabled() {
 		return disabled;
@@ -112,5 +120,15 @@ public class IdmGenerateValue extends AbstractEntity {
 
 	public void setRegenerateValue(boolean regenerateValue) {
 		this.regenerateValue = regenerateValue;
+	}
+	
+	@Override
+	public boolean isUnmodifiable() {
+		return this.unmodifiable;
+	}
+
+	@Override
+	public void setUnmodifiable(boolean unmodifiable) {
+		this.unmodifiable = unmodifiable;
 	}
 }

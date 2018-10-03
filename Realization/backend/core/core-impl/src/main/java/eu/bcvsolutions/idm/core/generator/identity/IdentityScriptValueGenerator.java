@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.generator.impl;
+package eu.bcvsolutions.idm.core.generator.identity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -25,22 +26,31 @@ import eu.bcvsolutions.idm.core.script.evaluator.DefaultSystemScriptEvaluator;
  * TODO: abstract this generators
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @since 9.2.0
  */
-@Component
+@Component(IdentityScriptValueGenerator.GENERATOR_NAME)
 @Description("Generate idenity value by script defined in parameters.")
 public class IdentityScriptValueGenerator extends AbstractValueGenerator<IdmIdentityDto> {
 
+	public static final String GENERATOR_NAME = "core-identity-script-value-generator";
+	//
 	public static String SCRIPT_CODE = "scriptCode";
-
 	public static String ENTITY_KEY = "entity";
 	public static String VALUE_GENERATOR_KEY = "valueGenerator";
 
 	@Autowired
 	private DefaultSystemScriptEvaluator systemScriptEvaluator;
+	
+	@Override
+	public String getName() {
+		return GENERATOR_NAME;
+	}
 
 	@Override
-	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
+	public IdmIdentityDto generate(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
+		Assert.notNull(dto);
+		Assert.notNull(valueGenerator);
+		//
 		String scriptCode = getScriptCode(valueGenerator);
 		Object returnValue = systemScriptEvaluator.evaluate(new AbstractScriptEvaluator.Builder()
 				.setScriptCode(scriptCode)

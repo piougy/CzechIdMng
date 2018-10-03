@@ -18,6 +18,13 @@ public interface ValueGenerator<DTO extends AbstractDto> extends Configurable {
 	default String getConfigurableType() {
 		return "value-generator";
 	}
+	
+	/**
+	 *  bean name / unique identifier (spring bean name)
+	 *  
+	 * @return
+	 */
+	String getId();
 
 	/**
 	 * Returns dto class, which supports this generator

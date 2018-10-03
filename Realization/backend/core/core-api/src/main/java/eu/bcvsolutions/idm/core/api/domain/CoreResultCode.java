@@ -37,6 +37,7 @@ public enum CoreResultCode implements ResultCode {
 	WF_WARNING(HttpStatus.BAD_REQUEST, "Warning occured during workflow execution: %s"),
 	BAD_FILTER(HttpStatus.BAD_REQUEST, "The filter is wrong!"),
 	UNMODIFIABLE_ATTRIBUTE_CHANGE(HttpStatus.BAD_REQUEST, "Attribute %s for class %s can't be changed!"),
+	UNMODIFIABLE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "Unmodifiable record [%s] can't be deleted!"),
 	// http
 	ENDPOINT_NOT_FOUND(HttpStatus.NOT_FOUND, "The given endpoint doesn't exist!"),
 	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method is not allowed!"),
@@ -280,13 +281,9 @@ public enum CoreResultCode implements ResultCode {
 	ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Role composition [%s] is added in concurent task [%s], wait for task is complete, before composition can be removed."),
 	//
 	// generator
-	GENERATOR_RETURN_NULL(HttpStatus.INTERNAL_SERVER_ERROR, "Generator [%s] return null."),
-	GENERATOR_DTO_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "DTO class [%s] not found."),
 	GENERATOR_FORM_ATTRIBUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "Form attribute for definition [%s] with code [%s] not found."),
 	GENERATOR_FORM_DEFINITION_BAD_TYPE(HttpStatus.BAD_REQUEST, "Given form definition id [%s], has not type. Correct type: [%s]."),
-	GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE(HttpStatus.NOT_FOUND, "Script code [%s] return null or bad dto type. Returned value: [%s]."),
-	GENERATOR_GENERATED_ATTRIBUTES_IS_NULL(HttpStatus.BAD_REQUEST, "Generated attribute wasn't set for generator: [%s]."),
-	GENERATOR_SYSTEM_SEQ(HttpStatus.BAD_REQUEST, "Order can be lower or equals 10. This order is reserved for system generator.");
+	GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE(HttpStatus.NOT_FOUND, "Script code [%s] return null or bad dto type. Returned value: [%s].");
 	
 	private final HttpStatus status;
 	private final String message;

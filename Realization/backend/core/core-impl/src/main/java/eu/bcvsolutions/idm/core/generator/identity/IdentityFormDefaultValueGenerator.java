@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.generator.impl;
+package eu.bcvsolutions.idm.core.generator.identity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -31,15 +32,15 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
  * Generator set default values to EAV
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @since 9.2.0
  */
-@Component
+@Component(IdentityFormDefaultValueGenerator.GENERATOR_NAME)
 @Description("Generator set default values to EAV.")
 public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<IdmIdentityDto> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(IdentityFormDefaultValueGenerator.class);
-
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityFormDefaultValueGenerator.class);
+	public static final String GENERATOR_NAME = "core-identity-form-default-value-generator";
+	//
 	public static String FORM_DEFINITION_UUID = "formDefinitionUuid";
 	public static String REGEX_MULTIPLE_VALUES = "regexMultipleValues";
 
@@ -47,9 +48,17 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 
 	@Autowired
 	private FormService formService;
+	
+	@Override
+	public String getName() {
+		return GENERATOR_NAME;
+	}
 
 	@Override
-	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
+	public IdmIdentityDto generate(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
+		Assert.notNull(dto);
+		Assert.notNull(valueGenerator);
+		//
 		IdmFormDefinitionDto formDefinition = getFormDefinition(valueGenerator);
 
 		// if is set form definition must by for IdmIdentity type

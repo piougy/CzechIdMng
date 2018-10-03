@@ -1,12 +1,12 @@
-package eu.bcvsolutions.idm.core.generator.impl;
+package eu.bcvsolutions.idm.core.generator.identity;
 
 import java.util.List;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -20,18 +20,24 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
  * and unite with lower lastname without diacritics.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @since 9.2.0
  */
-@Component
+@Component(IdentityUsernameGenerator.GENERATOR_NAME)
 @Description("Generate idenity username from firstName and lastName.")
 public class IdentityUsernameGenerator extends AbstractIdentityValueGenerator {
 
+	public static final String GENERATOR_NAME = "core-identity-username-value-generator";
 	public static String SEARCH_UNIQUE_USERNAME = "searchUniqueUsername";
-
+	//
 	private static int MAXIMUM_SEARCH_FOR_UNIQUE_USERNAME = 100;
 
 	@Autowired
 	private IdmIdentityService identityService;
+	
+	@Override
+	public String getName() {
+		return GENERATOR_NAME;
+	}
 
 	@Override
 	public List<String> getPropertyNames() {
@@ -41,7 +47,10 @@ public class IdentityUsernameGenerator extends AbstractIdentityValueGenerator {
 	}
 
 	@Override
-	protected IdmIdentityDto generateItem(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
+	public IdmIdentityDto generate(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
+		Assert.notNull(dto);
+		Assert.notNull(valueGenerator);
+		//
 		// if exists username and configuration doesn't allow regenerate return dto
 		if (!valueGenerator.isRegenerateValue() && StringUtils.isNotEmpty(dto.getUsername())) {
 			return dto;
@@ -93,7 +102,7 @@ public class IdentityUsernameGenerator extends AbstractIdentityValueGenerator {
 	 * @return
 	 */
 	protected boolean isSearchUniqueUsername(IdmGenerateValueDto valueGenerator) {
-		return BooleanUtils.toBoolean(valueGenerator.getGeneratorProperties().getBoolean(SEARCH_UNIQUE_USERNAME));
+		return valueGenerator.getGeneratorProperties().getBoolean(SEARCH_UNIQUE_USERNAME);
 	}
 
 	@Override

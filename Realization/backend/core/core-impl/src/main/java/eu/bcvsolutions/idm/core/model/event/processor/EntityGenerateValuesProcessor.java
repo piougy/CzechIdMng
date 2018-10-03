@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.model.event.processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
@@ -24,19 +23,17 @@ import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
 public class EntityGenerateValuesProcessor extends CoreEventProcessor<AbstractDto> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(EntityGenerateValuesProcessor.class);
-
-	public static final String PROCESSOR_NAME = "entity-generate-values-processor";
-
-	private final ValueGeneratorManager valueGeneratorManager;
+	public static final String PROCESSOR_NAME = "core-entity-generate-values-processor";
+	//
+	@Autowired private ValueGeneratorManager valueGeneratorManager;
 	
-	@Autowired
-	public EntityGenerateValuesProcessor(
-			ValueGeneratorManager valueGeneratorManager) {
+	public EntityGenerateValuesProcessor() {
 		super(CoreEventType.CREATE);
-		//
-		Assert.notNull(valueGeneratorManager);
-		//
-		this.valueGeneratorManager = valueGeneratorManager;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 	
 	@Override

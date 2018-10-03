@@ -26,6 +26,7 @@ CREATE TABLE idm_generate_value (
 	generator_properties bytea,
 	generator_type varchar(255) NOT NULL,
 	seq smallint,
+	unmodifiable boolean NOT NULL,
 	CONSTRAINT idm_generate_value_pkey PRIMARY KEY (id)
 );
 
@@ -74,6 +75,8 @@ CREATE TABLE idm_generate_value_a (
 	generator_type_m boolean,
 	seq smallint,
 	seq_m boolean,
+	unmodifiable boolean,
+	unmodifiable_m boolean,
 	CONSTRAINT idm_generate_value_a_pkey PRIMARY KEY (id,rev),
 	CONSTRAINT fk_42bliu4so7fxlcusukbrtmaj4 FOREIGN KEY (rev)
 	REFERENCES idm_audit (id) MATCH SIMPLE

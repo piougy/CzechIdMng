@@ -201,6 +201,10 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
     return generatorType;
   }
 
+  _isUnmodifiable(entity) {
+    return entity ? entity.unmodifiable : false;
+  }
+
   render() {
     const { uiKey, manager, supportedTypes, _showLoading, _permissions } = this.props;
     const { filterOpened, detail, _generatorTypes, generatorType } = this.state;
@@ -235,24 +239,12 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
           showRowSelection={SecurityManager.hasAuthority('GENERATEVALUE_DELETE')}
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
           filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm
-                ref="filterForm">
-                <Basic.Row>
-                  <Basic.Col lg={ 6 }>
-                    <Advanced.Filter.EnumSelectBox
-                      ref="dtoType"
-                      searchable
-                      showLoading={_showLoading}
-                      placeholder={this.i18n('filter.dtoType')}
-                      options={ _supportedTypes }/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 } className="text-right">
-                    <Advanced.Filter.FilterButtons showLoading={_showLoading} cancelFilter={this.cancelFilter.bind(this)}/>
-                  </Basic.Col>
-                </Basic.Row>
-              </Basic.AbstractForm>
-            </Advanced.Filter>
+            <Filter
+              ref="filterForm"
+              onSubmit={ this.useFilter.bind(this) }
+              onCancel={ this.cancelFilter.bind(this) }
+              _supportedTypes={ _supportedTypes }
+              _showLoading={ _showLoading }/>
           }
           filterOpened={ filterOpened }
           actions={
@@ -266,7 +258,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={this.showDetail.bind(this, {regenerateValue: false, seq: 11})}
+                onClick={this.showDetail.bind(this, {regenerateValue: false, seq: 0})}
                 rendered={SecurityManager.hasAuthority('GENERATEVALUE_CREATE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
@@ -297,11 +289,12 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
           }}/>
           <Advanced.Column property="description" cell={ ({ rowIndex, data }) => {
             if (data[rowIndex] && data[rowIndex].description !== null) {
-              const description = data[rowIndex].description.replace(/<(?:.|\n)*?>/gm, '');
+              const description = data[rowIndex].description.replace(/<(?:.|\n)*?>/gm, ''); // remove enters
               return Utils.Ui.substringByWord(description, MAX_DESCRIPTION_LENGTH, '...');
             }
-            return '';
+            return null;
           }}/>
+          <Advanced.Column property="unmodifiable" face="bool" sort />
         </Advanced.Table>
         <Basic.Modal
           bsSize="large"
@@ -329,7 +322,8 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
                       helpBlock={ this.i18n('entity.GenerateValue.dtoType.help') }
                       searchable
                       required
-                      useObject/>
+                      useObject
+                      readOnly={ this._isUnmodifiable(detail.entity) }/>
                     <Basic.Alert
                       rendered={ _generatorTypes.length < 0 }
                       text={ this.i18n('noGenerators') }/>
@@ -339,14 +333,15 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
                       onChange={ this.onChangeGeneratorType.bind(this) }
                       label={ this.i18n('entity.GenerateValue.generatorType.label') }
                       palceholder={ this.i18n('entity.GenerateValue.generatorType.placeholder') }
-                      readOnly={ _generatorTypes.length === 0 }
+                      readOnly={ this._isUnmodifiable(detail.entity) || _generatorTypes.length === 0 }
                       searchable
                       required/>
                     <Basic.TextField
                       ref="seq"
                       validation={Joi.number().integer().min(0).max(9999)}
                       label={ this.i18n('entity.GenerateValue.seq.label') }
-                      help={ this.i18n('entity.GenerateValue.seq.help') }/>
+                      help={ this.i18n('entity.GenerateValue.seq.help') }
+                      readOnly={ this._isUnmodifiable(detail.entity) }/>
                     <Basic.TextArea
                       ref="description"
                       label={this.i18n('entity.GenerateValue.description.label')}
@@ -355,6 +350,11 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
                       ref="regenerateValue"
                       label={ this.i18n('entity.GenerateValue.regenerateValue.label') }
                       helpBlock={ this.i18n('entity.GenerateValue.regenerateValue.help') }/>
+                    <Basic.Checkbox
+                      ref="unmodifiable"
+                      readOnly
+                      label={this.i18n('entity.GenerateValue.unmodifiable.label')}
+                      helpBlock={this.i18n('entity.GenerateValue.unmodifiable.help')}/>
                     <Basic.Checkbox
                       ref="disabled"
                       label={ this.i18n('entity.GenerateValue.disabled.label') }
@@ -435,3 +435,39 @@ function select(state, component) {
 }
 
 export default connect(select)(GenerateValueTable);
+
+/**
+ * Table filter component
+ *
+ * @author Radek Tomiška
+ */
+class Filter extends Advanced.Filter {
+
+  focus() {
+    this.refs.text.focus();
+  }
+
+  render() {
+    const { onSubmit, onCancel, _showLoading, _supportedTypes } = this.props;
+    //
+    return (
+      <Advanced.Filter onSubmit={ onSubmit }>
+        <Basic.AbstractForm ref="filterForm">
+          <Basic.Row>
+            <Basic.Col lg={ 6 }>
+              <Advanced.Filter.EnumSelectBox
+                ref="dtoType"
+                searchable
+                showLoading={ _showLoading }
+                placeholder={ this.i18n('content.generateValues.filter.dtoType') }
+                options={ _supportedTypes }/>
+            </Basic.Col>
+            <Basic.Col lg={ 6 } className="text-right">
+              <Advanced.Filter.FilterButtons showLoading={ _showLoading } cancelFilter={ onCancel }/>
+            </Basic.Col>
+          </Basic.Row>
+        </Basic.AbstractForm>
+      </Advanced.Filter>
+    );
+  }
+}

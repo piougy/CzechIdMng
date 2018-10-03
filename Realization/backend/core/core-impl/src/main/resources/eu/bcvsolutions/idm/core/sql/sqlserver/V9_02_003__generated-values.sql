@@ -26,6 +26,7 @@ CREATE TABLE idm_generate_value (
 	generator_properties image,
 	generator_type nvarchar(255) NOT NULL,
 	seq smallint,
+	unmodifiable bit NOT NULL,
 	CONSTRAINT idm_generate_value_pkey PRIMARY KEY (id)
 );
 CREATE INDEX idx_idm_generate_val_dto_type ON idm_generate_value (dto_type);
@@ -70,6 +71,8 @@ CREATE TABLE idm_generate_value_a (
 	generator_type_m bit,
 	seq smallint,
 	seq_m bit,
+	unmodifiable bit,
+	unmodifiable_m bit,
 	CONSTRAINT idm_generate_value_a_pkey PRIMARY KEY (id,rev),
 	CONSTRAINT fk_42bliu4so7fxlcusukbrtmaj4 FOREIGN KEY (rev) REFERENCES idm_audit(id)
 );

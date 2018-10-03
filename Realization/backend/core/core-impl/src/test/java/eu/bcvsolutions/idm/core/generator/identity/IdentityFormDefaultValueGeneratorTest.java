@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.generator;
+package eu.bcvsolutions.idm.core.generator.identity;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -24,7 +24,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
-import eu.bcvsolutions.idm.core.generator.impl.IdentityFormDefaultValueGenerator;
+import eu.bcvsolutions.idm.core.generator.AbstractGeneratorTest;
+import eu.bcvsolutions.idm.core.generator.identity.IdentityFormDefaultValueGenerator;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**

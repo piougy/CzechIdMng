@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.util.UUID;
+
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -8,6 +11,7 @@ import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 import io.swagger.annotations.ApiModel;
 
 /**
@@ -18,7 +22,7 @@ import io.swagger.annotations.ApiModel;
  */
 @Relation(collectionRelation = "generateValues")
 @ApiModel(description = "Definition for configured generator")
-public class IdmGenerateValueDto extends AbstractDto {
+public class IdmGenerateValueDto extends AbstractDto implements UnmodifiableEntity {
 
 	private static final long serialVersionUID = 1L;
 
@@ -28,15 +32,22 @@ public class IdmGenerateValueDto extends AbstractDto {
 	private String dtoType;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String generatorType;
-	@NotNull
+	@Min(0)
 	@Max(99999)
-	private short seq = 11;
+	private short seq;
 	private ConfigurationMap generatorProperties;
 	@NotNull
 	private boolean disabled = false;
 	@NotNull
 	private boolean regenerateValue = false;
+	private boolean unmodifiable = false;
 
+	public IdmGenerateValueDto() {
+	}
+	
+	public IdmGenerateValueDto(UUID id) {
+		super(id);
+	}
 
 	public boolean isDisabled() {
 		return disabled;
@@ -83,6 +94,9 @@ public class IdmGenerateValueDto extends AbstractDto {
 	}
 
 	public ConfigurationMap getGeneratorProperties() {
+		if (generatorProperties == null) {
+			generatorProperties = new ConfigurationMap();
+		}
 		return generatorProperties;
 	}
 
@@ -92,5 +106,15 @@ public class IdmGenerateValueDto extends AbstractDto {
 
 	public void setRegenerateValue(boolean regenerateValue) {
 		this.regenerateValue = regenerateValue;
+	}
+	
+	@Override
+	public boolean isUnmodifiable() {
+		return unmodifiable;
+	}
+
+	@Override
+	public void setUnmodifiable(boolean unmodifiable) {
+		this.unmodifiable = unmodifiable;
 	}
 }

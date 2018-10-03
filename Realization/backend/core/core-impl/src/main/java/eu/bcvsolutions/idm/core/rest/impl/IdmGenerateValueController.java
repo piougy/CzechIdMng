@@ -5,7 +5,6 @@ import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -28,7 +27,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmGenerateValueFilter;
@@ -61,7 +59,6 @@ import io.swagger.annotations.AuthorizationScope;
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmGenerateValueController extends AbstractReadWriteDtoController<IdmGenerateValueDto, IdmGenerateValueFilter> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmGenerateValueController.class);
 	protected static final String TAG = "Generate values";
 
 	private final ValueGeneratorManager valueGeneratorManager;
@@ -243,7 +240,7 @@ public class IdmGenerateValueController extends AbstractReadWriteDtoController<I
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(method = RequestMethod.GET, value = "/search/supported")
+	@RequestMapping(method = RequestMethod.GET, value = "/search/supported-types")
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_READ + "')")
 	@ApiOperation(
 			value = "Get all supported dto types", 
@@ -260,13 +257,12 @@ public class IdmGenerateValueController extends AbstractReadWriteDtoController<I
 	}
 	
 	/**
-	 * Returns all supported generators for type
+	 * Returns all registered and enabled generators
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	@ResponseBody
-	@RequestMapping(method = RequestMethod.GET, value = "/search/generators{dtoType}")
+	@RequestMapping(method = RequestMethod.GET, value = "/search/available-generators")
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.GENERATE_VALUE_READ + "')")
 	@ApiOperation(
 			value = "Get all supported generator", 
@@ -278,35 +274,40 @@ public class IdmGenerateValueController extends AbstractReadWriteDtoController<I
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.GENERATE_VALUE_READ, description = "") })
 				},
-			notes = "Returns all available generators.")
-	public Resources<ValueGeneratorDto> getAvailableGenerators(@PathVariable String dtoType) {
-		// in older version path variable doesnt support null
-		Class<? extends AbstractDto> type = null;
-		if (StringUtils.isNotEmpty(dtoType)) {
-			try {
-				type = (Class<? extends AbstractDto>) Class.forName(dtoType); // TODO: checked cast
-			} catch (ClassNotFoundException e) {
-				LOG.error("Class [{}] not found.", dtoType, e);
-				throw new ResultCodeException(CoreResultCode.GENERATOR_DTO_CLASS_NOT_FOUND, ImmutableMap.of("class", dtoType));
-			}
+			notes = "Returns all registered and enabled generators.")
+	public Resources<ValueGeneratorDto> getAvailableGenerators() {
+		return new Resources<>(valueGeneratorManager.getAvailableGenerators(null));
+	}
+	
+	@Override
+	public void deleteDto(IdmGenerateValueDto dto) {
+		// generator flagged as system can't be deleted from controller
+		if (dto.isUnmodifiable()) {
+			throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_DELETE_FAILED, ImmutableMap.of("record", dto.getGeneratorType()));
 		}
-		return new Resources<>(valueGeneratorManager.getAvailableGenerators(type));
+		super.deleteDto(dto);
 	}
 	
 	@Override
 	protected IdmGenerateValueDto validateDto(IdmGenerateValueDto dto) {
-		dto = super.validateDto(dto);
+		if (dto.getId() == null || getService().isNew(dto)) {
+			return super.validateDto(dto);
+		}
 		//
-		// if dto is new and seq is lower or equal to system maximum
-		boolean isNew = this.getService().isNew(dto);
-		short newSeq = dto.getSeq();
-		if (isNew && newSeq <= IdmGenerateValueService.SYSTEM_SEQ_MAXIMUM) {
-			throw new ResultCodeException(CoreResultCode.GENERATOR_SYSTEM_SEQ);
-		} else if (!isNew) {
-			IdmGenerateValueDto oldGenerateValueDto = this.getService().get(dto.getId());
-			// some one change seq, check if is equal to old, if not check is not same as system seq
-			if (oldGenerateValueDto.getSeq() != newSeq && newSeq <= IdmGenerateValueService.SYSTEM_SEQ_MAXIMUM) {
-				throw new ResultCodeException(CoreResultCode.GENERATOR_SYSTEM_SEQ);
+		IdmGenerateValueDto previousDto = getDto(dto.getId());
+		if (previousDto != null && previousDto.isUnmodifiable()) {
+			// check explicit attributes that can't be changed
+			if (previousDto.getSeq() != dto.getSeq()) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "seq", "class", dto.getClass().getSimpleName()));
+			}
+			if (!previousDto.getDtoType().equals(dto.getDtoType())) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "dtoType", "class", dto.getClass().getSimpleName()));
+			}
+			if (!previousDto.getGeneratorType().equals(dto.getGeneratorType())) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "getGeneratorType", "class", dto.getClass().getSimpleName()));
+			}
+			if (previousDto.isUnmodifiable() != dto.isUnmodifiable()) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "unmodifiable", "class", dto.getClass().getSimpleName()));
 			}
 		}
 		//

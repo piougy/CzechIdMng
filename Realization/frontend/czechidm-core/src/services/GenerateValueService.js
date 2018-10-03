@@ -42,7 +42,7 @@ class GenerateValueService extends AbstractService {
    */
   getSupportedTypes() {
     return RestApiService
-    .get(this.getApiPath() + '/search/supported')
+    .get(this.getApiPath() + '/search/supported-types')
     .then(response => {
       return response.json();
     })
@@ -59,13 +59,9 @@ class GenerateValueService extends AbstractService {
    *
    * @return {promise}
    */
-  getAvailableGenerators(entityType) {
-    let entityTypeUrl = '/search/generators';
-    if (entityType) {
-      entityTypeUrl = `${entityTypeUrl}?dtoType=${encodeURIComponent(entityType)}`;
-    }
+  getAvailableGenerators() {
     return RestApiService
-    .get(this.getApiPath() + entityTypeUrl)
+    .get(this.getApiPath() + '/search/available-generators')
     .then(response => {
       return response.json();
     })

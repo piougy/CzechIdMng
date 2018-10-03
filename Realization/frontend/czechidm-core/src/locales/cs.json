@@ -3937,6 +3937,10 @@
       "regenerateValue": {
         "label": "Přegenerovat hodnotu",
         "help": "V případě zatržení bude vyplněná hodnota od uživatele generátorem přegenerována. V případě odtržení generátor nebude uživatelem vyplněnou hodnotu měnit."
+      },
+      "unmodifiable": {
+        "label": "Systémový generátor",
+        "help": "Systémový generátor nemůže být smazán a nelze upravovat některé jeho atributy."
       }
     }
   },
@@ -4268,7 +4272,7 @@
       }
     },
     "value-generator": {
-      "eu-bcvsolutions-idm-core-generator-impl-identityusernamegenerator": {
+      "core-identity-username-value-generator": {
         "label": "Standardní generátor uživatelského jména",
         "description": "Generátor generuje uživatelské jméno na základě vyplněných hodnot 'jméno' a 'příjmení', z těchto hodnot odstraní diaktiritku, ořízne je na definovaný počet a spojí pomocí spojovníku.",
         "attributes": {
@@ -4294,7 +4298,7 @@
           }
         }
       },
-      "eu-bcvsolutions-idm-core-generator-impl-identityemailgenerator": {
+      "core-identity-email-value-generator": {
         "label": "Standardní generátor emailové adresy",
         "description": "Generátor generuje emailovou adresu na základě uživatelského jména. K uživatelskému jménu přidá definovaný suffix. Pozor výsledná hodnota musí splňovat správný tvar emailové adresy.",
         "attributes": {
@@ -4324,7 +4328,7 @@
           }
         }
       },
-      "eu-bcvsolutions-idm-core-generator-impl-identityscriptvaluegenerator": {
+      "core-identity-script-value-generator": {
         "label": "Skriptovaný generátor",
         "description": "Generátor spouští definovaný skript. Na vstupu skriptu jsou k dispozici tyto atributy 'entity' a 'valueGenerator'. Pozor funkci 'přegenerovat hodnotu' musí skript implementovat sám. Skript musí být z kategorie systémový.",
         "attributes": {
@@ -4334,7 +4338,7 @@
           }
         }
       },
-      "eu-bcvsolutions-idm-core-generator-impl-identityformdefaultvaluegenerator": {
+      "core-identity-form-default-value-generator": {
         "label": "Doplnění standardních hodnot pro formuláře v dalších údajích",
         "description": "Generátor doplní všem atributům standardní hodnoty.",
         "attributes": {
@@ -4660,6 +4664,10 @@
     "UNMODIFIABLE_ATTRIBUTE_CHANGE": {
       "title": "Atribut {{name}} nelze změnit",
       "message": "Atribut {{name}} v entitě {{class}} nelze změnit."
+    },
+    "UNMODIFIABLE_DELETE_FAILED": {
+      "title": "Záznam nelze smazat",
+      "message": "Záznam [{{record}}] je systémový a nelze jej odebrat."
     },
     "PASSWORD_EXPIRATION_TASK_DAYS_BEFORE": {
       "title": "Úloha je chybně nakonfigurovaná",
@@ -5116,10 +5124,6 @@
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
       "title": "Uživatelské jméno nemůže být prázdné",
       "message": "Uživatelské jméno nebylo vyplněno. Vyplňte prosím uživatelské jméno, nebo zapněte generátor uživatelských jmen."
-    },
-    "GENERATOR_SYSTEM_SEQ": {
-      "title": "Neplatné pořadí generátoru",
-      "message": "Generátory nemohou mít pořadí 0 až 10. Toto pořadí je rezervováno pro systémové generátory, které jsou vytvořeny přímo systém."
     },
     "DTO_CANNOT_BE_CONVERT_TO_JSON": {
       "title": "DTO nelze převést do JSON formátu!",

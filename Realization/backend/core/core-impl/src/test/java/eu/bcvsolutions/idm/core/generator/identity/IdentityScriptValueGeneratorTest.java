@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.generator;
+package eu.bcvsolutions.idm.core.generator.identity;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -20,7 +20,8 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
-import eu.bcvsolutions.idm.core.generator.impl.IdentityScriptValueGenerator;
+import eu.bcvsolutions.idm.core.generator.AbstractGeneratorTest;
+import eu.bcvsolutions.idm.core.generator.identity.IdentityScriptValueGenerator;
 
 /**
  * Tests for {@link IdentityScriptValueGenerator}

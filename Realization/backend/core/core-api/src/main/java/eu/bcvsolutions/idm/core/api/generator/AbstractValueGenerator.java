@@ -1,15 +1,11 @@
 package eu.bcvsolutions.idm.core.api.generator;
 
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
@@ -20,8 +16,9 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
  *
  * @param <DTO> generator is designed for only one dto type
  */
-public abstract class AbstractValueGenerator<DTO extends AbstractDto> implements ValueGenerator<DTO> {
+public abstract class AbstractValueGenerator<DTO extends AbstractDto> implements ValueGenerator<DTO>, BeanNameAware {
 
+	private String beanName; // spring bean name - used as processor id
 	private final Class<DTO> dtoClass;
 	
 	@Autowired
@@ -31,32 +28,20 @@ public abstract class AbstractValueGenerator<DTO extends AbstractDto> implements
 	public AbstractValueGenerator() {
 		this.dtoClass = (Class<DTO>) GenericTypeResolver.resolveTypeArgument(getClass(), ValueGenerator.class);
 	}
+	
+	@Override
+	public void setBeanName(String name) {
+		this.beanName = name;
+	}
+	
+	@Override
+	public String getId() {
+		return beanName;
+	}
 
 	@Override
 	public Class<DTO> getDtoClass() {
 		return dtoClass;
-	}
-
-	/**
-	 * Method generate values for given DTO. The method must implements all
-	 * child classes.
-	 *
-	 * @param dto
-	 * @param generatorConfiguration
-	 * @return
-	 */
-	protected abstract DTO generateItem(DTO dto, IdmGenerateValueDto generatorConfiguration);
-
-	@Override
-	public DTO generate(DTO dto, IdmGenerateValueDto generatorConfiguration) {
-		Assert.notNull(dto);
-		//
-		if (generatorConfiguration == null) {
-			// generated attribute must be set before generate
-			throw new ResultCodeException(CoreResultCode.GENERATOR_GENERATED_ATTRIBUTES_IS_NULL, ImmutableMap.of("generator", this.getName()));
-		}
-		//
-		return generateItem(dto, generatorConfiguration);
 	}
 
 	@Override

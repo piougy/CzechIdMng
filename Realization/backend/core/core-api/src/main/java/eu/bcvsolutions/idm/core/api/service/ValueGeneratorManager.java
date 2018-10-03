@@ -22,7 +22,7 @@ public interface ValueGeneratorManager extends ScriptEnabled {
 	 * @param dto
 	 * @return
 	 */
-	<E extends AbstractDto> E generate(E dto);
+	<DTO extends AbstractDto> DTO generate(DTO dto);
 	
 	/**
 	 * Return all available generators for given entity type.

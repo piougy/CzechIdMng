@@ -1,9 +1,8 @@
-package eu.bcvsolutions.idm.core.generator.impl;
+package eu.bcvsolutions.idm.core.generator.identity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -17,7 +16,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
  * Abstrac class for same features that use {@link IdentityUsernameGenerator} and {@link IdentityEmailGenerator}
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @since 9.2.0
  */
 public abstract class AbstractIdentityValueGenerator extends AbstractValueGenerator<IdmIdentityDto> {
 
@@ -148,6 +147,6 @@ public abstract class AbstractIdentityValueGenerator extends AbstractValueGenera
 	 * @return
 	 */
 	protected boolean isFirstNameFirst(IdmGenerateValueDto valueGenerator) {
-		return BooleanUtils.toBoolean(valueGenerator.getGeneratorProperties().getBoolean(FIRST_NAME_FIRST));
+		return valueGenerator.getGeneratorProperties().getBoolean(FIRST_NAME_FIRST);
 	}
 }

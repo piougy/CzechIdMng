@@ -4,7 +4,6 @@ import AbstractEnum from '../enums/AbstractEnum';
  * Password policy generate type enum,
  * - normal generating
  * - passphrase
- * - prefix and suffix
  */
 export default class PasswordPolicyGenerateTypeEnum extends AbstractEnum {
 
@@ -34,8 +33,6 @@ export default class PasswordPolicyGenerateTypeEnum extends AbstractEnum {
       case this.PASSPHRASE: {
         return 'info';
       }
-      case this.PREFIX_AND_SUFFIX:
-        return 'success';
       default: {
         return 'default';
       }
@@ -45,4 +42,3 @@ export default class PasswordPolicyGenerateTypeEnum extends AbstractEnum {
 
 PasswordPolicyGenerateTypeEnum.RANDOM = Symbol('RANDOM');
 PasswordPolicyGenerateTypeEnum.PASSPHRASE = Symbol('PASSPHRASE');
-PasswordPolicyGenerateTypeEnum.PREFIX_AND_SUFFIX = Symbol('PREFIX_AND_SUFFIX');

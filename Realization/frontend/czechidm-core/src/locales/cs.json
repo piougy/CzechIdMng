@@ -1021,7 +1021,7 @@
       },
       "rulesHelp": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním počtu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
       "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné.",
-      "prefixAndSuffixGeneratedHelp": "Při použití prefixu a suffixu je generování podobné jako při náhodném generování. Podle zadaných specifikací bude vygenerované standardní heslo, které bude následně doplněno o prefix a suffix."
+      "prefixAndSuffixGeneratedHelp": "Prefix ani suffix není započítáván do celkové délky hesla a do dalších validací při generování. Při použití prefixu a suffixu může například dojít k vygenerování hesla delšího než maximální délka."
     },
     "configuration": {
       "header": "Konfigurace aplikace",
@@ -4374,7 +4374,7 @@
     "value-generator": {
       "core-identity-username-value-generator": {
         "label": "Standardní generátor uživatelského jména",
-        "description": "Generátor generuje uživatelské jméno na základě vyplněných hodnot 'jméno' a 'příjmení', z těchto hodnot odstraní diaktiritku, ořízne je na definovaný počet a spojí pomocí spojovníku.",
+        "help": "Generátor generuje uživatelské jméno na základě vyplněných hodnot 'jméno' a 'příjmení', z těchto hodnot odstraní diaktiritku, ořízne je na definovaný počet a spojí pomocí spojovníku.",
         "attributes": {
           "connectioncharacter": {
             "label": "Spojovací znak",
@@ -4400,7 +4400,7 @@
       },
       "core-identity-email-value-generator": {
         "label": "Standardní generátor emailové adresy",
-        "description": "Generátor generuje emailovou adresu na základě uživatelského jména. K uživatelskému jménu přidá definovaný suffix. Pozor výsledná hodnota musí splňovat správný tvar emailové adresy.",
+        "help": "Generátor generuje emailovou adresu na základě uživatelského jména. K uživatelskému jménu přidá definovaný suffix. Pozor výsledná hodnota musí splňovat správný tvar emailové adresy.",
         "attributes": {
           "emailsuffix": {
             "label": "Emailový suffix",
@@ -4430,7 +4430,7 @@
       },
       "core-identity-script-value-generator": {
         "label": "Skriptovaný generátor",
-        "description": "Generátor spouští definovaný skript. Na vstupu skriptu jsou k dispozici tyto atributy 'entity' a 'valueGenerator'. Pozor funkci 'přegenerovat hodnotu' musí skript implementovat sám. Skript musí být z kategorie systémový.",
+        "help": "Generátor spouští definovaný skript. Na vstupu skriptu jsou k dispozici tyto atributy 'entity' a 'valueGenerator'. Pozor funkci 'přegenerovat hodnotu' musí skript implementovat sám. Skript musí být z kategorie systémový.",
         "attributes": {
           "scriptcode": {
             "label": "Kód skriptu",
@@ -4440,7 +4440,7 @@
       },
       "core-identity-form-default-value-generator": {
         "label": "Doplnění standardních hodnot pro formuláře v dalších údajích",
-        "description": "Generátor doplní všem atributům standardní hodnoty.",
+        "help": "Generátor doplní všem atributům standardní hodnoty.",
         "attributes": {
           "formdefinitionuuid": {
             "label": "Formulář",
@@ -4449,6 +4449,18 @@
           "regexmultiplevalues": {
             "label": "Oddělovač",
             "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
+          }
+        }
+      }
+    },
+    "long-running-task": {
+      "core-test-long-running-task": {
+        "label": "Testovací úloha",
+        "help": "Počítá do zadaného počtu, čeká 300ms pro každou iteraci.",
+        "attributes": {
+          "count": {
+            "label": "Počet",
+            "help": "Počítá do zadaného počtu, čeká 300ms pro každou iteraci."
           }
         }
       }

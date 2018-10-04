@@ -209,7 +209,6 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
     //
     const showDefaultAdvanced = validateType && defaultPolicy;
 
-    const isPrefixAndSuffixGenerated = generateType === PasswordPolicyGenerateTypeEnum.PREFIX_AND_SUFFIX;
     const isPassphrase = generateType === PasswordPolicyGenerateTypeEnum.PASSPHRASE;
     //
     return (
@@ -250,7 +249,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
 
                 <Basic.LabelWrapper
                   label=" "
-                  hidden={!isPrefixAndSuffixGenerated}>
+                  hidden={validateType}>
                   <Basic.Alert
                     className="no-margin"
                     icon="exclamation-sign"
@@ -261,12 +260,12 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
               <Basic.TextField
                 ref="prefix"
                 helpBlock={this.i18n('entity.PasswordPolicy.prefix.help')}
-                hidden={!isPrefixAndSuffixGenerated}
+                hidden={validateType}
                 label={this.i18n('entity.PasswordPolicy.prefix.label')} />
               <Basic.TextField
                 ref="suffix"
                 helpBlock={this.i18n('entity.PasswordPolicy.suffix.help')}
-                hidden={!isPrefixAndSuffixGenerated}
+                hidden={validateType}
                 label={this.i18n('entity.PasswordPolicy.suffix.label')} />
 
               <Basic.Checkbox ref="disabled" label={this.i18n('entity.PasswordPolicy.disabled.label')}/>

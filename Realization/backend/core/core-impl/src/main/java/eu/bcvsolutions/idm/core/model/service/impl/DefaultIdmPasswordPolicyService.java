@@ -194,25 +194,32 @@ public class DefaultIdmPasswordPolicyService
 	public String generatePassword(IdmPasswordPolicyDto passwordPolicy) {
 		Assert.notNull(passwordPolicy);
 		Assert.doesNotContain(passwordPolicy.getType().name(), IdmPasswordPolicyType.VALIDATE.name(), "Bad type.");
+		String generateRandom = null;
+		
+		// generate password with passphrase or random
 		if (passwordPolicy.getGenerateType() == IdmPasswordPolicyGenerateType.PASSPHRASE) {
-			return this.getPasswordGenerator().generatePassphrase(passwordPolicy);
-		} else if (passwordPolicy.getGenerateType() == IdmPasswordPolicyGenerateType.PREFIX_AND_SUFFIX) {
-			StringBuilder result = new StringBuilder();
-			// prepare prefix and suffix
-			String prefix = passwordPolicy.getPrefix();
-			String suffix = passwordPolicy.getSuffix();
-			String generateRandom = this.getPasswordGenerator().generateRandom(passwordPolicy);
-			if (StringUtils.isNotEmpty(prefix)) {
-				result.append(prefix);
-			}
-			result.append(generateRandom);
-			if (StringUtils.isNotEmpty(suffix)) {
-				result.append(suffix);
-			}
-			return result.toString();
+			generateRandom = this.getPasswordGenerator().generatePassphrase(passwordPolicy);
+		} else {
+			generateRandom = this.getPasswordGenerator().generateRandom(passwordPolicy);
 		}
-		// TODO: use random generate?
-		return this.getPasswordGenerator().generateRandom(passwordPolicy);
+
+		StringBuilder result = new StringBuilder();
+		// prepare prefix and suffix
+		String prefix = passwordPolicy.getPrefix();
+		String suffix = passwordPolicy.getSuffix();
+
+		if (StringUtils.isNotEmpty(prefix)) {
+			result.append(prefix);
+		}
+
+		// append default generated password
+		result.append(generateRandom);
+
+		if (StringUtils.isNotEmpty(suffix)) {
+			result.append(suffix);
+		}
+
+		return result.toString();
 	}
 	
 	@Override

@@ -3611,8 +3611,7 @@
         "label": "Minimum čísel"
       },
       "specialCharRequired": {
-        "label": "Povinné speciální znaky",
-        "help": ""
+        "label": "Povinné speciální znaky"
       },
       "minSpecialChar": {
         "label": "Minimum speciálních znaků"

@@ -2,6 +2,8 @@ import React from 'react';
 //
 import { Basic, Advanced } from 'czechidm-core';
 
+import SynchronizationSpecificActionTypeEnum from '../../domain/SynchronizationSpecificActionTypeEnum';
+
 /**
  * Identity's specific sync configuration
  *
@@ -11,6 +13,9 @@ class SyncIdentityConfig extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      defaultRoleId: this.props.synchronizationConfig.defaultRole ? this.props.synchronizationConfig.defaultRole.id : null
+    };
   }
 
   getContentKey() {
@@ -29,8 +34,16 @@ class SyncIdentityConfig extends Basic.AbstractContent {
     }
   }
 
+  _defaultRoleChange(defaultRole) {
+    const defaultRoleId = defaultRole ? defaultRole.id : null;
+    this.setState({
+      defaultRoleId
+    });
+  }
+
   render() {
     const { synchronizationConfig, showLoading, isNew } = this.props;
+    const { defaultRoleId } = this.state;
     // Set default values when create new sync configuration
     if (isNew) {
       synchronizationConfig.createDefaultContract = false;
@@ -41,8 +54,17 @@ class SyncIdentityConfig extends Basic.AbstractContent {
       <Basic.AbstractForm ref="formSpecific" data={synchronizationConfig} showLoading={showLoading} className="panel-body">
         <Advanced.RoleSelect
           ref="defaultRole"
+          onChange={this._defaultRoleChange.bind(this)}
           label={this.i18n('identityConfigDetail.defaultRole.label')}
           helpBlock={this.i18n('identityConfigDetail.defaultRole.helpBlock')}/>
+        <Basic.EnumSelectBox
+          ref="inactiveOwnerBehavior"
+          useSymbol={ false }
+          enum={SynchronizationSpecificActionTypeEnum}
+          hidden={defaultRoleId === null}
+          required={defaultRoleId !== null}
+          label={this.i18n('identityConfigDetail.inactiveOwnerBehavior.label')}
+          helpBlock={this.i18n('identityConfigDetail.inactiveOwnerBehavior.helpBlock')}/>
         <Basic.Checkbox
           ref="startAutoRoleRec"
           label={this.i18n('identityConfigDetail.startAutoRoleRec.label')}

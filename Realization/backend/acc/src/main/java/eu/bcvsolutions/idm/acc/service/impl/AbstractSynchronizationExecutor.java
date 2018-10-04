@@ -218,7 +218,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		log.setStarted(LocalDateTime.now());
 		log.setRunning(true);
 		log.setToken(lastToken != null ? lastToken.toString() : null);
-		log.addToLog(MessageFormat.format("Synchronization was started in {0}.", log.getStarted()));
+		log = syncStarted(log, context);
 
 		// List of all accounts keys (used in reconciliation)
 		Set<String> systemAccountsList = new HashSet<>();
@@ -284,6 +284,16 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			this.clearCache();
 		}
 		return config;
+	}
+
+	/**
+	 * Method called after sync started.
+	 * @param log
+	 * @param context
+	 */
+	protected SysSyncLogDto syncStarted(SysSyncLogDto log, SynchronizationContext context) {
+		log.addToLog(MessageFormat.format("Synchronization was started in {0}.", log.getStarted()));
+		return log;
 	}
 
 	/**
@@ -982,10 +992,16 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 			// Create idm account
 			AccAccountDto account = doCreateIdmAccount(attributeUid, system);
+
 			// Find and set SystemEntity (must exist)
 			account.setSystemEntity(this.findSystemEntity(uid, system, entityType).getId());
-			account = accountService.save(account);
 
+			// Apply specific settings - check, if the account and the entity can be created
+			account = this.applySpecificSettingsBeforeLink(account, null, context);
+			if (account == null) {
+				return;
+			}
+			account = accountService.save(account);
 			// Create new entity
 			doCreateEntity(entityType, mappedAttributes, logItem, uid, icAttributes, account, context);
 			initSyncActionLog(SynchronizationActionType.CREATE_ENTITY, OperationResultType.SUCCESS, logItem, log,
@@ -1005,7 +1021,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 
-		addToItemLog(logItem, "Account doesn't exist, but an entity was found by correlation (entity unlinked).");
+		addToItemLog(logItem, MessageFormat.format("Account does not exist, but an entity [{0}] was found by correlation (entity unlinked).", entityId));
 		addToItemLog(logItem, MessageFormat.format("Unlinked action is {0}", action));
 		DTO entity = findById(entityId);
 
@@ -1226,10 +1242,15 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param actionLogs
 	 */
 	protected void doUpdateEntity(SynchronizationContext context) {
-
 		String uid = context.getUid();
 		SysSyncLogDto log = context.getLog();
 		SysSyncItemLogDto logItem = context.getLogItem();
+
+		if (context.isSkipEntityUpdate()) {
+			addToItemLog(logItem, MessageFormat.format("Update of entity for account with uid {0} is skipped", uid));
+			return;
+		}
+
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		AccAccountDto account = context.getAccount();
@@ -1680,7 +1701,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// and must be String
 			String attributeUid = this.generateUID(context);
 			addToItemLog(logItem, MessageFormat.format(
-					"Account was not found. We try to find account for UID (generated from the mapped attribute marks as 'Identifier')",
+					"Account was not found. We try to find account for UID ({0}) (generated from the mapped attribute marked as Identifier)",
 					attributeUid));
 
 			accountFilter.setUid(attributeUid);
@@ -1960,6 +1981,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		SysSyncItemLogDto logItem = context.getLogItem();
 		SysSystemEntityDto systemEntity = context.getSystemEntity();
 
+		String entityIdentification = dto.getId().toString();
+		if (dto instanceof Codeable) {
+			entityIdentification = ((Codeable) dto).getCode();
+		}
+
+		logItem.setDisplayName(entityIdentification);
+
 		// Generate UID value from mapped attribute marked as UID (Unique ID).
 		// UID mapped attribute must exist and returned value must be not null
 		// and must be String
@@ -1972,6 +2000,16 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			account.setSystemEntity(systemEntity.getId());
 		}
 
+		account = this.applySpecificSettingsBeforeLink(account, dto, context);
+
+		if (account == null) {
+			// Identity account won't be created
+			addToItemLog(logItem,
+					MessageFormat.format("Link between uid {0} and entity {1} will not be created due to specific settings of synchronization. "
+							+ "Processing of this item is finished.", uid, entityIdentification));
+			return;
+		}
+
 		account = accountService.save(account);
 		addToItemLog(logItem,
 				MessageFormat.format("Account with uid {0} and id {1} was created", uid, account.getId()));
@@ -1981,17 +2019,11 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		entityAccount = (EntityAccountDto) getEntityAccountService().save(entityAccount);
 		context.addAccount(account);
 
-		String entityIdentification = dto.getId().toString();
-		if (dto instanceof Codeable) {
-			entityIdentification = ((Codeable) dto).getCode();
-		}
-
 		// Identity account Created
 		addToItemLog(logItem,
 				MessageFormat.format(
 						"Entity account relation  with id ({0}), between account ({1}) and entity ({2}) was created",
 						entityAccount.getId(), uid, entityIdentification));
-		logItem.setDisplayName(entityIdentification);
 		logItem.setType(entityAccount.getClass().getSimpleName());
 		logItem.setIdentification(entityAccount.getId().toString());
 
@@ -2001,6 +2033,17 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				callProvisioningForEntity(dto, entityType, logItem);
 			}
 		}
+	}
+
+	/**
+	 * Apply settings that are specific to this type of entity.
+	 * Default implementation does nothing to the account.
+	 * @param account
+	 * @param entity
+	 * @param context
+	 */
+	protected AccAccountDto applySpecificSettingsBeforeLink(AccAccountDto account, DTO entity, SynchronizationContext context) {
+		return account;
 	}
 
 	protected String getDisplayNameForEntity(AbstractDto entity) {

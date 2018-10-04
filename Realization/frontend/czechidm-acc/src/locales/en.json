@@ -193,6 +193,10 @@
             "label": "Default role",
             "helpBlock": "If the synchronization creates a link between an identity and an account, this role will be assigned to the identity. This assignment will be linked to the main contractual relationship of the identity."
           },
+          "inactiveOwnerBehavior": {
+            "label": "Behavior of the default role for inactive identities",
+            "helpBlock": "How to behave if the identity doesn't have any valid contract for assigning the default role."
+          },
           "startAutoRoleRec": {
             "label": "After end, start the automatic role recalculation",
             "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute."
@@ -574,7 +578,7 @@
             "title": "Cancel operations from provisioning queue of filtered records"
           },
           "header": "Cancel operations from provisioning queue",
-          "message": "Do you want to cance operations from provisioning queue of filtered records? All operations for filtered entities will be canceled.",
+          "message": "Do you want to cancel operations from provisioning queue of filtered records? All operations for filtered entities will be canceled.",
           "accepted": "Long running task, which will cancel operations from provisioning queue, was started."
         },
         "deleteAll": {
@@ -928,8 +932,8 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
-          "LINK_AND_UPDATE_ENTITY": "Created accounts and updated entities",
-          "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
+          "LINK_AND_UPDATE_ENTITY": "Created links and updated entities",
+          "LINK_AND_UPDATE_ACCOUNT": "Created links and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with role",
           "LINK": "Created links",
           "UNLINK": "Deleted links",
@@ -946,8 +950,8 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
-          "LINK_AND_UPDATE_ENTITY": "Created accounts and updated entities",
-          "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
+          "LINK_AND_UPDATE_ENTITY": "Created links and updated entities",
+          "LINK_AND_UPDATE_ACCOUNT": "Created links and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
           "LINK": "Created links",
           "UNLINK": "Deleted links",
@@ -964,8 +968,8 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
-          "LINK_AND_UPDATE_ENTITY": "Created accounts and updated entities",
-          "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
+          "LINK_AND_UPDATE_ENTITY": "Created links and updated entities",
+          "LINK_AND_UPDATE_ACCOUNT": "Created links and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
           "LINK": "Created links",
           "UNLINK": "Deleted links",
@@ -982,8 +986,8 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
-          "LINK_AND_UPDATE_ENTITY": "Created accounts and updated entities",
-          "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
+          "LINK_AND_UPDATE_ENTITY": "Created links and updated entities",
+          "LINK_AND_UPDATE_ACCOUNT": "Created links and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
           "LINK": "Created links",
           "UNLINK": "Deleted links",
@@ -1000,8 +1004,8 @@
           "CREATE_ENTITY": "Unsuccessfully created entities",
           "UPDATE_ENTITY": "Unsuccessfully updated entities",
           "DELETE_ENTITY": "Unsuccessfully Deleted entities",
-          "LINK_AND_UPDATE_ENTITY": "Unsuccessfully created accounts and updated entities",
-          "LINK_AND_UPDATE_ACCOUNT": "Unsuccessfully created and updated accounts",
+          "LINK_AND_UPDATE_ENTITY": "Unsuccessfully created links and updated entities",
+          "LINK_AND_UPDATE_ACCOUNT": "Unsuccessfully created links and updated accounts",
           "LINK": "Unsuccessfully created links",
           "UNLINK": "Unsuccessfully removed links",
           "UNLINK_AND_REMOVE_ROLE": "Unsuccessfully deleted links with role",
@@ -1133,6 +1137,11 @@
       "LINK_AND_UPDATE_ENTITY": "Create link and update entity",
       "LINK_AND_UPDATE_ACCOUNT": "Create link and update account",
       "IGNORE": "Ignore"
+    },
+    "SynchronizationSpecificActionTypeEnum": {
+      "DO_NOT_LINK": "DO_NOT_LINK - Don't link the account and end its processing, if there is no valid contract for the default role",
+      "LINK_PROTECTED": "LINK_PROTECTED - Link the account as \"In protection\", if there is no valid contract for the default role",
+      "LINK": "LINK - Link the account even if the default role can't be assigned to any contract"
     },
     "IcFilterOperationTypeEnum": {
       "EQUAL_TO": "Equals",
@@ -1494,8 +1503,8 @@
       "message": "Confidential attribute [{{property}}] is not type of GuardedString, but it's [{{class}}]!"
     },
     "SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS": {
-      "title": "Synchronization - too many entities was found for correlation attribute",
-      "message": "Too many entities was found for correlation attribute [{{correlationAttribute}}] for value [{{value}}]!"
+      "title": "Synchronization - too many entities were found for correlation attribute",
+      "message": "Too many entities were found for correlation attribute [{{correlationAttribute}}] for value [{{value}}]!"
     },
     "SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND": {
       "title": "Synchronization - for synchronization by custom attribute is compulsory attribute Token!",
@@ -1527,7 +1536,7 @@
     },
     "SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT": {
       "title": "Synchronization - more than one records of 'AccAccount' found",
-      "message": "Found more that one records of 'AccAccount' for the same UID [{{uid}}]!"
+      "message": "Found more than one record of 'AccAccount' for the same UID [{{uid}}]!"
     },
     "SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "System mapping [{{mapping}}] cannot be removed",
@@ -1662,8 +1671,20 @@
       "message": "IDM attribute [{{attr}}] can not be null."
     },
     "SYNCHRONIZATION_MAPPED_ATTR_MUST_EXIST": {
-      "title": "Mapped attribute not exists",
-      "message": "Mapped attribute for IdM field [{{property}}] must exists in system mapping."
+      "title": "Mapped attribute doesn't exist",
+      "message": "Mapped attribute for IdM field [{{property}}] must exist in system mapping."
+    },
+    "SYNCHRONIZATION_INACTIVE_OWNER_BEHAVIOR_MUST_BE_SET": {
+      "title": "Behavior of the default role for inactive identities must be set",
+      "message": "To use default role in synchronization, the property 'Behavior of the default role for inactive identities' must be set in the specific settings of synchronization."
+    },
+    "SYNCHRONIZATION_PROVISIONING_MUST_EXIST": {
+      "title": "Provisioning attribute mapping doesn't exist",
+      "message": "To use the specific setting [{{property}}], please create a new attribute mapping of the type 'Provisioning' and enable its Account protection."
+    },
+    "SYNCHRONIZATION_PROTECTION_MUST_BE_ENABLED": {
+      "title": "Account protection is not enabled",
+      "message": "To use the specific setting [{{property}}], please enable Account protection in the provisioning mapping [{{mapping}}]."
     },
     "SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE": {
       "title": "Wrong filter value",

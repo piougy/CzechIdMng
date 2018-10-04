@@ -225,7 +225,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
     const noProperties = generatorType && generatorType.formDefinition && generatorType.formDefinition.formAttributes.length === 0;
     let generatorDescription = null;
     if (showProperties) {
-      generatorDescription = this.i18n(this.getManager().getLocalizationPrefixForGenerator() + generatorType.name + '.description');
+      generatorDescription = this.i18n(this.getManager().getLocalizationPrefixForGenerator() + generatorType.name + '.help');
     }
     //
     return (

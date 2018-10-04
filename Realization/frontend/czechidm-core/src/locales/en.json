@@ -4324,7 +4324,7 @@
     "value-generator": {
       "core-identity-username-value-generator": {
         "label": "Standard username generator",
-        "description": "The generator generates the user name based on the 'first name' and 'surname'. Generator deletes the diacritic, cuts first name and surname to a defined number of characters, and connects them with connection character.",
+        "help": "The generator generates the user name based on the 'first name' and 'surname'. Generator deletes the diacritic, cuts first name and surname to a defined number of characters, and connects them with connection character.",
         "attributes": {
           "connectioncharacter": {
             "label": "Connection character",
@@ -4350,7 +4350,7 @@
       },
       "core-identity-email-value-generator": {
         "label": "Standard email generator",
-        "description": "The generator generates the email adress based on the username. Adds a defined suffix to the username. Beware, the result value must match the correct email address format.",
+        "help": "The generator generates the email adress based on the username. Adds a defined suffix to the username. Beware, the result value must match the correct email address format.",
         "attributes": {
           "emailsuffix": {
             "label": "Email suffix",
@@ -4380,7 +4380,7 @@
       },
       "core-identity-script-value-generator": {
         "label": "Scripted Generator",
-        "description": "The generator executes the defined script. At the script input are these attributes 'entity' and 'valueGenerator'. Beware functionality 'value regenerate' must implement the script itself. The script must be from the system category.",
+        "help": "The generator executes the defined script. At the script input are these attributes 'entity' and 'valueGenerator'. Beware functionality 'value regenerate' must implement the script itself. The script must be from the system category.",
         "attributes": {
           "scriptcode": {
             "label": "Script code",
@@ -4390,7 +4390,7 @@
       },
       "core-identity-form-default-value-generator": {
         "label": "Addition default values for the forms with next inforamtion",
-        "description": "Generator add default values for all attributes.",
+        "help": "Generator add default values for all attributes.",
         "attributes": {
           "formdefinitionuuid": {
             "label": "Form",
@@ -4399,6 +4399,18 @@
           "regexmultiplevalues": {
             "label": "Separator",
             "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
+          }
+        }
+      }
+    },
+    "long-running-task": {
+      "core-test-long-running-task": {
+        "label": "Test task",
+        "help": "Counts to given count, waits 300ms for every iteration.",
+        "attributes": {
+          "count": {
+            "label": "Count",
+            "help": "Counts to given count, waits 300ms for every iteration."
           }
         }
       }

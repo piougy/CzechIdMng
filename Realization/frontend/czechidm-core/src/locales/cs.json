@@ -636,7 +636,8 @@
     },
     "PasswordPolicyGenerateTypeEnum": {
       "RANDOM": "Náhodné",
-      "PASSPHRASE": "Passphrase"
+      "PASSPHRASE": "Passphrase",
+      "PREFIX_AND_SUFFIX": "Prefix a suffix"
     },
     "PasswordPolicyIdentityAttributeEnum": {
       "USERNAME": "Uživatelské jméno",
@@ -1017,7 +1018,10 @@
       },
       "save": {
         "success": "Politika [{{name}}] byla úspěšně uložena."
-      }
+      },
+      "rulesHelp": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním počtu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
+      "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné.",
+      "prefixAndSuffixGeneratedHelp": "Při použití prefixu a suffixu je generování podobné jako při náhodném generování. Podle zadaných specifikací bude vygenerované standardní heslo, které bude následně doplněno o prefix a suffix."
     },
     "configuration": {
       "header": "Konfigurace aplikace",
@@ -3553,56 +3557,131 @@
       "traceLine": "Záznam"
     },
     "PasswordPolicy": {
-      "type": "Typ",
-      "name": "Název",
-      "basic": "Základní údaje",
-      "bases": "Znaky",
-      "generateType": "Typ generování",
-      "disabled": "Neaktivní",
-      "description": "Popis",
-      "defaultPolicy": "Standardní politika",
-      "passwordLengthRequired": "Povinná délka hesla",
-      "minPasswordLength": "Minimální délka",
-      "maxPasswordLength": "Maximální délka",
-      "upperCharRequired": "Povinné velké znaky",
-      "minUpperChar": "Minimum velkých znaků",
-      "lowerCharRequired": "Povinné malé znaky",
-      "minLowerChar": "Minimum malých znaků",
-      "numberRequired": "Povinná čísla",
-      "minNumber": "Minimum čísel",
-      "specialCharRequired": "Povinné speciální znaky",
-      "minSpecialChar": "Minimum speciálních znaků",
-      "prohibitedCharacters": "Zakázané znaky",
-      "weakPassRequired": "Povinné slabé hesla",
-      "weakPass": "Slabé hesla",
-      "passphraseWords": "Počet slov pro passphrase",
-      "maxPasswordAge": "Maximální stáří hesla",
-      "minPasswordAge": "Minimální doba pro změnu hesla",
-      "enchancedControl": "Rozšířená kontrola",
-      "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
-      "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na shodu",
-      "blockLoginTime": "Doba blokace přihlášení (vteřiny)",
-      "maxUnsuccessfulAttempts": "Maximální počet neúspěšných pokusů o přihlášení",
-      "lowerCharBase": "Povolené malé znaky",
-      "upperCharBase": "Povolené velké znaky",
-      "numberBase": "Povolené číslice",
-      "specialCharBase": "Povolené speciální znaky",
-      "identityAttributeCheck": "Atributy identity pro kontrolu",
-      "help": {
-        "defaultPolicy": "Standardní politika je použita pro CzechIdM a všechny systémy, kde není určena jiná politika.",
-        "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
-        "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
-        "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla.",
-        "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním počtu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
-        "minRulesToFulfill": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní.",
-        "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na podobnost.",
-        "blockLoginTime": "Po zadaní X neúspěšných pokusů bude uživateli blokováno přihlášení.",
-        "maxUnsuccessfulAttempts": "Počet neúspěšných pokusů o přihlášení. Po překročení bude uživateli blokováno přihlášení do aplikace.",
-        "prohibitedCharacters": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!",
-        "bases": "Znakové sady pro generování hesel, ze sad jsou odstraněny zakázané znaky.",
-        "identityAttributeCheck": "Atributy uživatele, které budou kontrolovány na podobnost s heslem.",
-        "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné.",
-        "passphraseWords": "Počet slov které bude obsahovat nově vygenerované passphrase."
+      "type": {
+        "label": "Typ"
+      },
+      "name": {
+        "label": "Název"
+      },
+      "basic": {
+        "label": "Základní údaje"
+      },
+      "bases": {
+        "label": "Znaky",
+        "help": "Znakové sady pro generování hesel, ze sad jsou odstraněny zakázané znaky."
+      },
+      "generateType": {
+        "label": "Typ generování"
+      },
+      "disabled": {
+        "label": "Neaktivní"
+      },
+      "description": {
+        "label": "Popis"
+      },
+      "defaultPolicy": {
+        "label": "Standardní politika",
+        "help": "Standardní politika je použita pro CzechIdM a všechny systémy, kde není určena jiná politika."
+      },
+      "passwordLengthRequired": {
+        "label": "Povinná délka hesla"
+      },
+      "minPasswordLength": {
+        "label": "Minimální délka"
+      },
+      "maxPasswordLength": {
+        "label": "Maximální délka"
+      },
+      "upperCharRequired": {
+        "label": "Povinné velké znaky"
+      },
+      "minUpperChar": {
+        "label": "Minimum velkých znaků"
+      },
+      "lowerCharRequired": {
+        "label": "Povinné malé znaky"
+      },
+      "minLowerChar": {
+        "label": "Minimum malých znaků"
+      },
+      "numberRequired": {
+        "label": "Povinná čísla"
+      },
+      "minNumber": {
+        "label": "Minimum čísel"
+      },
+      "specialCharRequired": {
+        "label": "Povinné speciální znaky",
+        "help": ""
+      },
+      "minSpecialChar": {
+        "label": "Minimum speciálních znaků"
+      },
+      "prohibitedCharacters": {
+        "label": "Zakázané znaky",
+        "help": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!"
+      },
+      "weakPassRequired": {
+        "label":  "Povinné slabé hesla"
+      },
+      "weakPass": {
+        "label": "Slabé hesla"
+      },
+      "passphraseWords": {
+        "label": "Počet slov pro passphrase",
+        "help": "Počet slov které bude obsahovat nově vygenerované passphrase."
+      },
+      "maxPasswordAge": {
+        "label": "Maximální stáří hesla",
+        "help": "Maximální počet dnů platnosti hesla."
+      },
+      "minPasswordAge": {
+        "label": "Minimální doba pro změnu hesla",
+        "help": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit."
+      },
+      "enchancedControl": {
+        "label": "Rozšířená kontrola",
+        "help": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla."
+      },
+      "minRulesToFulfill": {
+        "label": "Minimum pravidel pro splnění politiky",
+        "help": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní."
+      },
+      "maxHistorySimilar": {
+        "label": "Počet zpětně kontrolovaných hesel na shodu",
+        "help": "Počet zpětně kontrolovaných hesel na podobnost."
+      },
+      "blockLoginTime": {
+        "label": "Doba blokace přihlášení (vteřiny)",
+        "help": "Po zadaní X neúspěšných pokusů bude uživateli blokováno přihlášení."
+      },
+      "maxUnsuccessfulAttempts": {
+        "label": "Maximální počet neúspěšných pokusů o přihlášení",
+        "help": "Počet neúspěšných pokusů o přihlášení. Po překročení bude uživateli blokováno přihlášení do aplikace."
+      },
+      "lowerCharBase": {
+        "label": "Povolené malé znaky"
+      },
+      "upperCharBase": {
+        "label": "Povolené velké znaky"
+      },
+      "numberBase": {
+        "label": "Povolené číslice"
+      },
+      "specialCharBase": {
+        "label": "Povolené speciální znaky"
+      },
+      "identityAttributeCheck": {
+        "label": "Atributy identity pro kontrolu",
+        "help": "Atributy uživatele, které budou kontrolovány na podobnost s heslem."
+      },
+      "prefix": {
+        "label": "Prefix",
+        "help": "Prefix bude automaticky doplněn na začátek vygenerované části. Pro vynechání prefixu, nechte pole prázdné."
+      },
+      "suffix": {
+        "label": "Suffix",
+        "help": "Suffix bude automaticky doplněn na konec vygenerované části. Pro vynechání suffixu, nechte pole prázdné."
       }
     },
     "Module": {

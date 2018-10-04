@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,6 +196,20 @@ public class DefaultIdmPasswordPolicyService
 		Assert.doesNotContain(passwordPolicy.getType().name(), IdmPasswordPolicyType.VALIDATE.name(), "Bad type.");
 		if (passwordPolicy.getGenerateType() == IdmPasswordPolicyGenerateType.PASSPHRASE) {
 			return this.getPasswordGenerator().generatePassphrase(passwordPolicy);
+		} else if (passwordPolicy.getGenerateType() == IdmPasswordPolicyGenerateType.PREFIX_AND_SUFFIX) {
+			StringBuilder result = new StringBuilder();
+			// prepare prefix and suffix
+			String prefix = passwordPolicy.getPrefix();
+			String suffix = passwordPolicy.getSuffix();
+			String generateRandom = this.getPasswordGenerator().generateRandom(passwordPolicy);
+			if (StringUtils.isNotEmpty(prefix)) {
+				result.append(prefix);
+			}
+			result.append(generateRandom);
+			if (StringUtils.isNotEmpty(suffix)) {
+				result.append(suffix);
+			}
+			return result.toString();
 		}
 		// TODO: use random generate?
 		return this.getPasswordGenerator().generateRandom(passwordPolicy);

@@ -35,6 +35,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -174,6 +175,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
+	@Autowired
+	protected ProvisioningConfiguration provisioningConfiguration;
 	@Autowired(required = false)
 	private CacheManager cacheManager;
 	// Instance of LRT
@@ -349,16 +352,27 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 				if (account == null) {
 					// Account doesn't exist in IDM
+					systemEntity = removeSystemEntityWishIfPossible(systemEntity, false, context);
+					context.addSystemEntity(systemEntity);
+
 					resolveAccountNotExistSituation(context, systemEntity, icAttributes);
 
 				} else {
 					// Account exist in IdM (LINKED)
-					context.addActionType(config.getLinkedAction().getAction());
+					SynchronizationLinkedActionType linkedAction = config.getLinkedAction();
+					SynchronizationActionType action = linkedAction.getAction();
+					context.addActionType(action);
 					SynchronizationSituationType situation = SynchronizationSituationType.LINKED;
-					if (StringUtils.hasLength(config.getLinkedActionWfKey())) {
-						SynchronizationLinkedActionType linkedAction = config.getLinkedAction();
-						SynchronizationActionType action = linkedAction.getAction();
 
+					// Since removing 'Wish' can affect existing identities and provisioning of their accounts, 
+					// we will not do it if Ignore is set or if anything else than "update" is configured
+					if (linkedAction == SynchronizationLinkedActionType.UPDATE_ENTITY 
+							|| linkedAction == SynchronizationLinkedActionType.UPDATE_ACCOUNT) {
+						systemEntity = removeSystemEntityWishIfPossible(systemEntity, true, context);
+						context.addSystemEntity(systemEntity);
+					}
+
+					if (StringUtils.hasLength(config.getLinkedActionWfKey())) {
 						// We will start specific workflow
 						startWorkflow(config.getLinkedActionWfKey(), situation, action, null, context);
 
@@ -1764,6 +1778,48 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TO_MANY_SYSTEM_ENTITY, uid);
 		}
 		return systemEntity;
+	}
+
+	/**
+	 * Removes the flag "wish" from system entity, if the flag is true and removing the flag is possible and safe
+	 * = it won't lead to any unwanted linking:
+	 * A) The system entity wasn't linked to any IdM entity before this synchronization.
+	 *    It's just some relic of previous operations in IdM. The entity on the system exists, so we
+	 *    will correct the information that it is only Wish (because it really exists).
+	 * B) The system entity is linked to IdM entity and automapping existing accounts is allowed.
+	 *    This can happen when identity had been assigned a role, but provisioning hadn't been executed yet
+	 *    for some reason (read-only system, error,...). Since automapping is enabled, we can remove the flag,
+	 *    so following provisioning will be Update and not Create.
+	 *
+	 * @param systemEntity The system entity which will be processed
+	 * @param existingLink If the link (AccAccount) already exists for this system entity
+	 * @param context
+	 * @return Updated system entity
+	 */
+	private SysSystemEntityDto removeSystemEntityWishIfPossible(SysSystemEntityDto systemEntity, boolean existingLink,
+			SynchronizationContext context) {
+
+		if (systemEntity == null || !systemEntity.isWish()) {
+			return systemEntity;
+		}
+
+		SysSyncItemLogDto logItem = context.getLogItem();
+
+		if (existingLink && !provisioningConfiguration.isAllowedAutoMappingOnExistingAccount()) {
+			addToItemLog(logItem, MessageFormat.format(
+					"WARNING: Existing system entity ({0}) has the flag Wish, which means it was neither created by IdM nor linked by synchronization. "
+					+ "But account for this entity already exists and it is linked to IdM entity [{1}]."
+					+ "Auto mapping of existing accounts is not allowed by property [{2}]. "
+					+ "We will not remove the flag Wish, because that would effectively complete the auto mapping.",
+					systemEntity.getUid(), context.getEntityId(), ProvisioningConfiguration.PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT));
+			initSyncActionLog(context.getActionType(), OperationResultType.WARNING, logItem, context.getLog(), context.getActionLogs());
+			return systemEntity;
+		}
+		addToItemLog(logItem, MessageFormat.format(
+				"Existing system entity ({0}) has the flag Wish, we can safely remove it (the system entity really exists).",
+				systemEntity.getUid()));
+		systemEntity.setWish(false);
+		return systemEntityService.save(systemEntity);
 	}
 
 	/**

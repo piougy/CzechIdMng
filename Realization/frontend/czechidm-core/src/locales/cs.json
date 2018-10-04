@@ -1021,7 +1021,7 @@
       },
       "rulesHelp": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním počtu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
       "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné.",
-      "prefixAndSuffixGeneratedHelp": "Při použití prefixu a suffixu je generování podobné jako při náhodném generování. Podle zadaných specifikací bude vygenerované standardní heslo, které bude následně doplněno o prefix a suffix."
+      "prefixAndSuffixGeneratedHelp": "Prefix ani suffix nejsou započítávány do celkové délky hesla a do dalších validací při generování. Při použití prefixu a suffixu může například dojít k vygenerování hesla delšího než maximální délka."
     },
     "configuration": {
       "header": "Konfigurace aplikace",

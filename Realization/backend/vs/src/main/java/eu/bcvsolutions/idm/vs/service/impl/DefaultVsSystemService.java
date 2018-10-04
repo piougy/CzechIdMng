@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
  * Service for virtual system
  *
  * @author Svanda
+ * @author Marek Klement
  */
 @Service
 public class DefaultVsSystemService implements VsSystemService {
@@ -352,6 +353,8 @@ public class DefaultVsSystemService implements VsSystemService {
 
 	/**
 	 * Create new Reconciliation configuration for future run
+	 * 
+	 * @author Marek Klement
 	 *
 	 * @param correlationAttribute
 	 *            connecting attribute
@@ -391,6 +394,8 @@ public class DefaultVsSystemService implements VsSystemService {
 	/**
 	 * Creates attribute mapping for synchronization mapping
 	 *
+	 * @author Marek Klement
+	 * 
 	 * @param foundMapping
 	 *            created mapping for sync
 	 * @param schemaId
@@ -431,6 +436,8 @@ public class DefaultVsSystemService implements VsSystemService {
 
 	/**
 	 * Creates new synchronization mapping by default
+	 * 
+	 * @author Marek Klement
 	 *
 	 * @param system
 	 *            in what system

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.rest.impl;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
@@ -142,7 +143,7 @@ public class IdmNotificationLogController
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
-
+	
 	/**
 	 * Send notification
 	 * 
@@ -166,7 +167,15 @@ public class IdmNotificationLogController
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_CREATE, description = ""),
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_UPDATE, description = "")})
 				})
-	public IdmNotificationLogDto postDto(@RequestBody @NotNull IdmNotificationLogDto notification) {		
+	public ResponseEntity<?> post(@RequestBody @NotNull IdmNotificationLogDto dto) {
+		return super.post(dto);
+	}
+
+	/**
+	 * Send notification
+	 */
+	@Override
+	public IdmNotificationLogDto postDto(IdmNotificationLogDto notification) {		
 		LOG.debug("Notification log [{}] was created and notification will be send.", notification);
 		List<IdmNotificationLogDto> results = notificationManager.send(
 				notification.getTopic(), 
@@ -183,6 +192,26 @@ public class IdmNotificationLogController
 			throw new ResultCodeException(CoreResultCode.NOTIFICATION_NOT_SENT, ImmutableMap.of("topic", notification.getTopic()));
 		}
 		return getDto(results.get(0).getId());
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnNotification", 
+			tags = { IdmNotificationLogController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "")})
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 
 	@ResponseBody

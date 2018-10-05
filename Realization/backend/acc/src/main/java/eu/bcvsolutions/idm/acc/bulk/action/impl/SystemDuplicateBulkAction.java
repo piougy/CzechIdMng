@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Component("systemDuplicateBulkAction")
-@Description("Bulk operation to evaluate the account management for all identities of given role.")
+@Description("Bulk operation to duplicate the system.")
 public class SystemDuplicateBulkAction extends AbstractBulkAction<SysSystemDto, SysSystemFilter> {
 
 	public static final String NAME = "system-duplicate-bulk-action";

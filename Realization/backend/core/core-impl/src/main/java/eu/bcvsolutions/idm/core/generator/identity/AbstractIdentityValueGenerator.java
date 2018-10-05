@@ -124,7 +124,7 @@ public abstract class AbstractIdentityValueGenerator extends AbstractValueGenera
 		if (value == null) {
 			return null;
 		}
-		return new Integer(value.toString());
+		return Integer.valueOf(value.toString());
 	}
 
 	/**
@@ -137,7 +137,7 @@ public abstract class AbstractIdentityValueGenerator extends AbstractValueGenera
 		if (value == null) {
 			return null;
 		}
-		return new Integer(value.toString());
+		return Integer.valueOf(value.toString());
 	}
 
 	/**

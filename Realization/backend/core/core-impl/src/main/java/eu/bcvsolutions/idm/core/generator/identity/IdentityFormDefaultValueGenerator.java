@@ -149,8 +149,9 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 			eavs.remove(instanceDto);
 			
 			// remove all attributes that is equal to given attribute
-			instanceDto.getValues().removeIf(value -> value.getFormAttribute().equals(attribute.getId()));
-			instanceDto.getValues().addAll(replaceValues);
+			List<IdmFormValueDto> values = instanceDto.getValues();
+			values.removeIf(value -> value.getFormAttribute().equals(attribute.getId()));
+			values.addAll(replaceValues);
 			eavs.add(instanceDto);
 		} else {
 			// create new instance

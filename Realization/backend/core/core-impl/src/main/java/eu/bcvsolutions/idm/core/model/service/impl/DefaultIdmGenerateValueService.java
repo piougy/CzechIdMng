@@ -43,12 +43,14 @@ public class DefaultIdmGenerateValueService extends
 			CriteriaBuilder builder, IdmGenerateValueFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 
-		if (StringUtils.isNotEmpty(filter.getDtoType())) {
-			predicates.add(builder.equal(root.get(IdmGenerateValue_.dtoType), filter.getDtoType()));
+		String dtoType = filter.getDtoType();
+		if (StringUtils.isNotEmpty(dtoType)) {
+			predicates.add(builder.equal(root.get(IdmGenerateValue_.dtoType), dtoType));
 		}
-
-		if (filter.getDisabled() != null) {
-			predicates.add(builder.equal(root.get(IdmGenerateValue_.disabled), filter.getDisabled()));
+		
+		Boolean disabled = filter.getDisabled();
+		if (disabled != null) {
+			predicates.add(builder.equal(root.get(IdmGenerateValue_.disabled), disabled));
 		}
 
 		return predicates;

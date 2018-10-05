@@ -158,10 +158,10 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 		Assert.notNull(dtoType);
 		//
 		IdmGenerateValueFilter filter = new IdmGenerateValueFilter();
-		filter.setDisabled(false);
+		filter.setDisabled(Boolean.FALSE);
 		filter.setDtoType(dtoType.getCanonicalName());
 
-		// we must create new instance of arraylist, given list is unmodifable
+		// we must create new instance of array list, given list is unmodifiable
 		List<IdmGenerateValueDto> generateValues = new ArrayList<>(service.find(filter, null).getContent());
 
 		// sort by order

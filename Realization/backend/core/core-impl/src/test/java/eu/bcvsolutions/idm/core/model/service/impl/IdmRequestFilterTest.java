@@ -7,9 +7,7 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 
 import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,23 +18,16 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestFilter;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
+/**
+ * @author Patrik Stloukal
+ */
+@Transactional
 public class IdmRequestFilterTest extends AbstractIntegrationTest{
 	
 	@Autowired
 	private DefaultIdmRequestService requestService;
 
-	@Before
-	public void login() {
-		loginAsAdmin();
-	}
-
-	@After
-	public void logout() {
-		super.logout();
-	}
-
 	@Test
-	@Transactional
 	public void dateTest() {
 		UUID ownerId = UUID.randomUUID();
 		String ownerType = IdmIdentityDto.class.toString();
@@ -60,7 +51,6 @@ public class IdmRequestFilterTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Transactional
 	public void ownerTypeTest() {
 		UUID ownerId = UUID.randomUUID();
 		String ownerType = IdmRoleDto.class.toString();
@@ -77,7 +67,6 @@ public class IdmRequestFilterTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Transactional
 	public void ownerTest() {
 		String ownerType = IdmIdentityDto.class.toString();
 		IdmRequestDto request1 = createRequest(ownerType, UUID.randomUUID());
@@ -103,7 +92,6 @@ public class IdmRequestFilterTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Transactional
 	public void stateTest() {
 		UUID ownerId = UUID.randomUUID();
 		String ownerType = IdmIdentityDto.class.toString();

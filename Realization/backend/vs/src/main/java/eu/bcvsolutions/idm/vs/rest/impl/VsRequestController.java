@@ -268,8 +268,8 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		filter.setState(getParameterConverter().toEnum(parameters, "state", VsRequestState.class));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setUid(getParameterConverter().toString(parameters, "uid"));
-		filter.setCreatedAfter(getParameterConverter().toDateTime(parameters, "from"));
-		filter.setCreatedBefore(getParameterConverter().toDateTime(parameters, "till"));
+		filter.setCreatedAfter(getParameterConverter().toDateTime(parameters, "createdAfter"));
+		filter.setCreatedBefore(getParameterConverter().toDateTime(parameters, "createdBefore"));
 		filter.setOnlyArchived(getParameterConverter().toBoolean(parameters, "onlyArchived"));
 
 		return filter;

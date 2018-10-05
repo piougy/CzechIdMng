@@ -193,26 +193,29 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
                   <Basic.Col lg={ 8 }>
-                    <Advanced.Filter.FilterDate ref="fromTill"/>
+                    <Advanced.Filter.FilterDate
+                      ref="fromTill"
+                      fromProperty="createdAfter"
+                      tillProperty="createdBefore"/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 } className="text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row className="last">
-                  <div className="col-lg-4">
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.text.placeholder')}/>
-                  </div>
-                  <div className="col-lg-4">
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.SelectBox
                       ref="systemId"
                       placeholder={this.i18n('acc:entity.System._type')}
                       multiSelect={false}
                       forceSearchParameters={new Domain.SearchParameters().setFilter('virtual', true)}
                       manager={systemManager}/>
-                  </div>
-                  <div className="col-lg-4 text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>

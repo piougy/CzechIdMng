@@ -13,19 +13,21 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.vs.TestHelper;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 
+/**
+ * 
+ * 
+ * @author Patrik Stloukal
+ *
+ */
 public class VsRequestFilterTest extends AbstractIntegrationTest{
 	
 	@Autowired
 	private VsRequestService requestService;
 	
-	@Autowired
-	private TestHelper helper;
-
 	@Before
 	public void login() {
 		loginAsAdmin();
@@ -38,13 +40,13 @@ public class VsRequestFilterTest extends AbstractIntegrationTest{
 	
 	@Test
 	public void dateTest() {
-		SysSystemDto virtualSystem = helper.createVirtualSystem("Vs" + System.currentTimeMillis());
-		IdmRoleDto roleOne = helper.createRole("VsRole" + System.currentTimeMillis());
-		IdmIdentityDto identity = helper.createIdentity("TestUser" + System.currentTimeMillis());
+		SysSystemDto virtualSystem = getHelper().createVirtualSystem("Vs" + System.currentTimeMillis());
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		
 		// Assign system to role
-		helper.createRoleSystem(roleOne, virtualSystem);
-		helper.assignRoles(helper.getPrimeContract(identity.getId()), false, roleOne);
+		getHelper().createRoleSystem(roleOne, virtualSystem);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity.getId()), false, roleOne);
 		
 		// Find created requests
 		VsRequestFilter requestFilter = new VsRequestFilter();
@@ -71,17 +73,17 @@ public class VsRequestFilterTest extends AbstractIntegrationTest{
 
 	@Test
 	public void systemTest() {
-		SysSystemDto virtualSystem = helper.createVirtualSystem("Vs" + System.currentTimeMillis());
-		IdmRoleDto roleOne = helper.createRole("VsRole" + System.currentTimeMillis());
-		IdmIdentityDto identity = helper.createIdentity("TestUser" + System.currentTimeMillis());
-		IdmIdentityDto identity2 = helper.createIdentity("TestUser2" + System.currentTimeMillis());
-		IdmIdentityDto identity3 = helper.createIdentity("TestUser3" + System.currentTimeMillis());
-		IdmIdentityDto identity4 = helper.createIdentity("TestUser4" + System.currentTimeMillis());
+		SysSystemDto virtualSystem = getHelper().createVirtualSystem("Vs" + System.currentTimeMillis());
+		IdmRoleDto roleOne = getHelper().createRole("VsRole" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity("TestUser" + System.currentTimeMillis());
+		IdmIdentityDto identity2 = getHelper().createIdentity("TestUser2" + System.currentTimeMillis());
+		IdmIdentityDto identity3 = getHelper().createIdentity("TestUser3" + System.currentTimeMillis());
+		IdmIdentityDto identity4 = getHelper().createIdentity("TestUser4" + System.currentTimeMillis());
 		
 		// Assign system to role
-		helper.createRoleSystem(roleOne, virtualSystem);
-		helper.assignRoles(helper.getPrimeContract(identity.getId()), false, roleOne);
-		helper.assignRoles(helper.getPrimeContract(identity2.getId()), false, roleOne);
+		getHelper().createRoleSystem(roleOne, virtualSystem);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity.getId()), false, roleOne);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity2.getId()), false, roleOne);
 		
 		// Find created requests
 		VsRequestFilter requestFilter = new VsRequestFilter();
@@ -89,8 +91,8 @@ public class VsRequestFilterTest extends AbstractIntegrationTest{
 		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(2, requests.size());
 		
-		helper.assignRoles(helper.getPrimeContract(identity3.getId()), false, roleOne);
-		helper.assignRoles(helper.getPrimeContract(identity4.getId()), false, roleOne);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity3.getId()), false, roleOne);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity4.getId()), false, roleOne);
 		
 		requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(4, requests.size());
@@ -103,19 +105,19 @@ public class VsRequestFilterTest extends AbstractIntegrationTest{
 	
 	@Test
 	public void filterTest() {
-		SysSystemDto virtualSystem = helper.createVirtualSystem("Vs" + System.currentTimeMillis());
-		IdmRoleDto roleOne = helper.createRole("VsRole" + System.currentTimeMillis());
-		IdmIdentityDto identity = helper.createIdentity("TestUser" + System.currentTimeMillis());
-		IdmIdentityDto identity2 = helper.createIdentity("TestUser2" + System.currentTimeMillis());
-		IdmIdentityDto identity3 = helper.createIdentity("TestUser3" + System.currentTimeMillis());
-		IdmIdentityDto identity4 = helper.createIdentity("TestUser4" + System.currentTimeMillis());
+		SysSystemDto virtualSystem = getHelper().createVirtualSystem("Vs" + System.currentTimeMillis());
+		IdmRoleDto roleOne = getHelper().createRole("VsRole" + System.currentTimeMillis());
+		IdmIdentityDto identity = getHelper().createIdentity("TestUser" + System.currentTimeMillis());
+		IdmIdentityDto identity2 = getHelper().createIdentity("TestUser2" + System.currentTimeMillis());
+		IdmIdentityDto identity3 = getHelper().createIdentity("TestUser3" + System.currentTimeMillis());
+		IdmIdentityDto identity4 = getHelper().createIdentity("TestUser4" + System.currentTimeMillis());
 		
 		// Assign system to role
-		helper.createRoleSystem(roleOne, virtualSystem);
-		helper.assignRoles(helper.getPrimeContract(identity.getId()), false, roleOne);
-		helper.assignRoles(helper.getPrimeContract(identity2.getId()), false, roleOne);
-		helper.assignRoles(helper.getPrimeContract(identity3.getId()), false, roleOne);
-		helper.assignRoles(helper.getPrimeContract(identity4.getId()), false, roleOne);
+		getHelper().createRoleSystem(roleOne, virtualSystem);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity.getId()), false, roleOne);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity2.getId()), false, roleOne);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity3.getId()), false, roleOne);
+		getHelper().assignRoles(getHelper().getPrimeContract(identity4.getId()), false, roleOne);
 		
 		VsRequestFilter requestFilter = new VsRequestFilter();
 		requestFilter.setSystemId(virtualSystem.getId());
@@ -138,6 +140,11 @@ public class VsRequestFilterTest extends AbstractIntegrationTest{
 		requestFilter.setConnectorKey(request.getConnectorKey());
 		requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(3, requests.size());
+	}
+	
+	@Override
+	protected eu.bcvsolutions.idm.vs.TestHelper getHelper() {
+		return (eu.bcvsolutions.idm.vs.TestHelper) super.getHelper();
 	}
 	
 }

@@ -199,7 +199,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
 	FORMATTRIBUTE(
-			IdmBasePermission.ADMIN, 
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -480,6 +481,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String FORM_DEFINITION_UPDATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String FORM_DEFINITION_DELETE = "FORMDEFINITION" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String FORM_ATTRIBUTE_COUNT = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String FORM_ATTRIBUTE_AUTOCOMPLETE = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String FORM_ATTRIBUTE_READ = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "READ";
 	public static final String FORM_ATTRIBUTE_CREATE = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "CREATE";

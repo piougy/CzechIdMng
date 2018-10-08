@@ -375,6 +375,12 @@
 			<artifactId>csv-connector</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<!-- Our forked AD connector from tirasa -->
+		<dependency>
+			<groupId>net.tirasa.connid.bundles</groupId>
+			<artifactId>net.tirasa.connid.bundles.ad</artifactId>
+			<version>1.3.4.25</version>
+		</dependency>
 		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>

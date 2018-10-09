@@ -174,8 +174,10 @@ public class DefaultIdmRequestItemService
 								@SuppressWarnings("unchecked")
 								Class<? extends Requestable> ownerType = (Class<? extends Requestable>) Class
 										.forName(item.getOwnerType());
-								Requestable requestable;
-								requestable = requestManager.convertItemToDto(item, ownerType);
+								Requestable requestable = requestManager.convertItemToDto(item, ownerType);
+								if (requestable == null) {
+									return false;
+								}
 								List<Requestable> filteredDtos = requestManager
 										.filterDtosByPredicates(ImmutableList.of(requestable), ownerType, predicates);
 								return filteredDtos.contains(requestable);

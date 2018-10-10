@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
  * @author Radek Tomiška
  *
  */
-public class IdmFormAttributeRestTest extends AbstractReadWriteDtoControllerRestTest<IdmFormAttributeDto> {
+public class IdmFormAttributeControllerRestTest extends AbstractReadWriteDtoControllerRestTest<IdmFormAttributeDto> {
 
 	@Autowired private IdmFormAttributeController controller;
 	@Autowired private FormService formService;

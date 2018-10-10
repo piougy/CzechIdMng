@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
  * @author Patrik Stloukal
  *
  */
-public class VsRequestFilterTest extends AbstractIntegrationTest{
+public class VsRequestFilterTest extends AbstractIntegrationTest {
 	
 	@Autowired 
 	private TestHelper helper;

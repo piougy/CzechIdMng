@@ -29,7 +29,8 @@
       "common": "Operace úspěšně proběhla",
       "create": "Vytvoření proběhlo úspěšně",
       "update": "Uložení proběhlo úspěšně",
-      "delete": "Smazání proběhlo úspěšně"
+      "delete": "Smazání proběhlo úspěšně",
+      "upload": "Soubor byl úspěšně nahrán"
     },
     "task": {
       "detailNotFound":"Tento typ úkolu není podporován!",
@@ -54,7 +55,8 @@
     "property": "Atribut",
     "value": "Hodnota",
     "yes": "Ano",
-    "no": "Ne"
+    "no": "Ne",
+    "readOnly": "Pouze pro čtení"
   },
   "button": {
     "activate": "Aktivovat",
@@ -477,7 +479,8 @@
           "IDENTITY-SELECT": "Výběr identit (SelectBox)",
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
           "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",
-          "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)"
+          "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
+          "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
@@ -585,7 +588,8 @@
       "DATE": "Datum",
       "DATETIME": "Datum + čas",
       "BYTEARRAY": "Bitové pole",
-      "UUID": "Uuid identifikátor"
+      "UUID": "Uuid identifikátor",
+      "ATTACHMENT": "Příloha"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -1044,7 +1048,7 @@
         }
       },
       "configurable": "Konfigurovatelné položky <small>měnitelné, mohou přetěžovat statické položky</small>",
-      "environment": "Statické konfigurační položky prostředí <small>pouze pro čtení</small>",
+      "environment": "Statické konfigurační položky prostředí <small>$t(label.readOnly)</small>",
       "fromFile": "Konfigurace aplikace z konfiguračních souborů <small>application.properties</small>",
       "fromEnvironment": "Konfigurace prostředí <small>backendového serveru</small>",
       "guarded": "Hodnoty položky konfigurace obsahující klíč [<strong>{{guarded}}</strong>] budou automaticky nastaveny tajnými a neveřejnými. Hodnoty začínající prefixem [<strong>idm.sec.</strong>] nemohou býti veřejnými.",
@@ -3081,7 +3085,7 @@
       },
       "description": "Popis",
       "required": "Povinný",
-      "readonly": "Pouze pro čtení",
+      "readonly": "$t(label.readOnly)",
       "confidential": "Tajné",
       "multiple": "Více hodnotový",
       "placeholder": {

@@ -33,7 +33,6 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -169,7 +168,7 @@ public class IdmFormAttributeController extends AbstractReadWriteDtoController<I
 	@ApiOperation(
 			value = "Create / update form attribute", 
 			nickname = "postFormAttribute", 
-			response = IdmFormAttribute.class, 
+			response = IdmFormAttributeDto.class, 
 			tags = { IdmFormAttributeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 

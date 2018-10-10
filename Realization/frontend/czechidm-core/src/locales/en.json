@@ -29,7 +29,8 @@
       "common": "The operation completed successfully",
       "create": "Creation successfully completed",
       "update": "Update successfully completed",
-      "delete": "Deletion successfully completed"
+      "delete": "Deletion successfully completed",
+      "upload": "File successfully uploaded"
     },
     "task": {
       "detailNotFound":"This task is not supported!",
@@ -54,7 +55,8 @@
     "property": "Attribute",
     "value": "Value",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "readOnly": "Read only"
   },
   "button": {
     "activate": "Activate",
@@ -446,7 +448,8 @@
           "IDENTITY-SELECT": "Select identity (SelectBox)",
           "ROLE-SELECT": "Select role (SelectBox)",
           "FORM-DEFINITION-SELECT": "Select form definition (SelectBox)",
-          "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)"
+          "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
+          "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)"
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes."
@@ -554,7 +557,8 @@
       "DATE": "Date",
       "DATETIME": "Date + time",
       "BYTEARRAY": "Byte array",
-      "UUID": "Uuid identifier"
+      "UUID": "Uuid identifier",
+      "ATTACHMENT": "Attachment"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -1006,7 +1010,7 @@
         }
       },
       "configurable": "Configurable items <small>editable, can override static items</small>",
-      "environment": "Static environment configuration items <small>read only</small>",
+      "environment": "Static environment configuration items <small>$t(label.readOnly)</small>",
       "fromFile": "Application configuration from configuration files <small>application.properties</small>",
       "fromEnvironment": "Environment configuration <small>backend</small>",
       "guarded": "If item key contains values: [<strong>{{guarded}}</strong>] the item is automatically confidential and non-public. Items with key beginning with [<strong>idm.sec.</strong>] can not be public.",
@@ -3030,7 +3034,7 @@
       },
       "description": "Description",
       "required": "Required",
-      "readonly": "Read-only",
+      "readonly": "$t(label.readOnly)",
       "confidential": "Confidential",
       "multiple": "Multivalued",
       "placeholder": {

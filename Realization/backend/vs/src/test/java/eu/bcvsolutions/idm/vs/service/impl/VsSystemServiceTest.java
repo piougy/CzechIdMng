@@ -44,8 +44,6 @@ import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 public class VsSystemServiceTest extends AbstractIntegrationTest {
 
 	private static String VS_SYSTEM = "VS_SYSTEM_ONE";
-	private static final String FILE_PATH = System.getProperty("user.dir")
-			+ "/src/test/resources/service/impl/vsTestImport.csv";
 
 	@Autowired
 	private TestHelper helper;

@@ -395,52 +395,59 @@ public class DefaultAttachmentManager
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// text - owner type, owner code
-		if (StringUtils.isNotEmpty(filter.getText())) {
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
 			predicates.add(builder.or(
-					builder.like(builder.lower(root.get(IdmAttachment_.name)),
-							"%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmAttachment_.description)),
-							"%" + filter.getText().toLowerCase() + "%")));
+					builder.like(builder.lower(root.get(IdmAttachment_.name)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(IdmAttachment_.description)), "%" + text + "%")));
 		}
 		// owner id
-		if (filter.getOwnerId() != null) {
-			predicates.add(builder.equal(root.get(IdmAttachment_.ownerId), filter.getOwnerId()));
+		UUID ownerId = filter.getOwnerId();
+		if (ownerId != null) {
+			predicates.add(builder.equal(root.get(IdmAttachment_.ownerId), ownerId));
 		}
 		// owner type
-		if (StringUtils.isNotEmpty(filter.getOwnerType())) {
-			predicates.add(builder.equal(root.get(IdmAttachment_.ownerType), filter.getOwnerType()));
+		String ownerType = filter.getOwnerType();
+		if (StringUtils.isNotEmpty(ownerType)) {
+			predicates.add(builder.equal(root.get(IdmAttachment_.ownerType), ownerType));
 		}
 		// name
-		if (StringUtils.isNotEmpty(filter.getName())) {
-			predicates.add(builder.equal(root.get(IdmAttachment_.name), filter.getName()));
+		String name = filter.getName();
+		if (StringUtils.isNotEmpty(name)) {
+			predicates.add(builder.equal(root.get(IdmAttachment_.name), name));
 		}
 		// last version only
-		if (filter.getLastVersionOnly() != null && filter.getLastVersionOnly()) {
+		Boolean lastVersionOnly = filter.getLastVersionOnly();
+		if (lastVersionOnly != null && lastVersionOnly) {
 			predicates.add(builder.isNull(root.get(IdmAttachment_.nextVersion)));
 		}
 		// versions
-		if (filter.getVersionsFor() != null) {
+		UUID versionsFor = filter.getVersionsFor();
+		if (versionsFor != null) {
 			CriteriaQuery<IdmAttachment> subCriteriaQuery = builder.createQuery(getEntityClass());
 			Subquery<IdmAttachment> subquery = subCriteriaQuery.subquery(getEntityClass());
 			Root<IdmAttachment> subRoot = subquery.from(getEntityClass());
 			subquery.select(subRoot.get(IdmAttachment_.parent));
 			
-			subquery.where(builder.equal(subRoot.get(IdmAttachment_.id), filter.getVersionsFor()));
+			subquery.where(builder.equal(subRoot.get(IdmAttachment_.id), versionsFor));
 			
 			predicates.add(builder.or(
-					builder.equal(root.get(IdmAttachment_.parent).get(IdmAttachment_.id), filter.getVersionsFor()),
-					builder.equal(root.get(IdmAttachment_.id), filter.getVersionsFor()),
+					builder.equal(root.get(IdmAttachment_.parent).get(IdmAttachment_.id), versionsFor),
+					builder.equal(root.get(IdmAttachment_.id), versionsFor),
 					builder.equal(root.get(IdmAttachment_.parent).get(IdmAttachment_.id), subquery),
 					builder.equal(root, subquery)
 			));
 		}
 		// created before
-		if (filter.getCreatedBefore() != null) {
-			predicates.add(builder.lessThan(root.get(IdmAttachment_.created), filter.getCreatedBefore()));
+		DateTime createdBefore = filter.getCreatedBefore();
+		if (createdBefore != null) {
+			predicates.add(builder.lessThan(root.get(IdmAttachment_.created), createdBefore));
 		}
 		// created after
-		if (filter.getCreatedAfter() != null) {
-			predicates.add(builder.greaterThan(root.get(IdmAttachment_.created), filter.getCreatedAfter()));
+		DateTime createdAfter = filter.getCreatedAfter();
+		if (createdAfter != null) {
+			predicates.add(builder.greaterThan(root.get(IdmAttachment_.created), createdAfter));
 		}
 		//
 		return predicates;

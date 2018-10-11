@@ -798,7 +798,7 @@ key: eav:attributeName<y:LabelModel>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="31.9375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="121.357421875" x="8.843450789602485" y="4.0">&lt;&lt;Enumeration&gt;&gt;
 PersistentType</y:NodeLabel>
-          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="143.6875" modelName="custom" textColor="#000000" visible="true" width="74.8984375" x="2.0" y="43.9375">CHAR
+          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="157.65625" modelName="custom" textColor="#000000" visible="true" width="86.72265625" x="2.0" y="43.9375">CHAR
 TEXT 
 INT
 LONG 
@@ -807,7 +807,8 @@ BOOLEAN
 DATE
 DATETIME
 BYTEARRAY
-UUID<y:LabelModel>
+UUID
+ATTACHMENT<y:LabelModel>
               <y:ErdAttributesNodeLabelModel/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -4865,7 +4866,6 @@ pravidla<y:LabelModel>
       </data>
     </edge>
     <edge id="e144" source="n109" target="n110">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>

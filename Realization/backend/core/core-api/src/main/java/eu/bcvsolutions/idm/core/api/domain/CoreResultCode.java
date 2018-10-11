@@ -87,6 +87,7 @@ public enum CoreResultCode implements ResultCode {
 	TREE_NODE_BAD_NICE_NAME(HttpStatus.CONFLICT, "Nice name [%s] is found at same level."),
 	TREE_NODE_DELETE_FAILED_HAS_CHILDREN(HttpStatus.CONFLICT, "Tree node [%s] has children, cannot be deleted. Remove them at first."),
 	TREE_NODE_DELETE_FAILED_HAS_CONTRACTS(HttpStatus.CONFLICT, "Tree node [%s] has contract assigned, cannot be deleted. Remove them at first."),
+	TREE_NODE_DELETE_FAILED_HAS_CONTRACT_POSITIONS(HttpStatus.CONFLICT, "Tree node [%s] has contract posistion assigned, cannot be deleted. Remove them at first."),
 	TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES(HttpStatus.CONFLICT, "Tree node [%s] has contract slice assigned, cannot be deleted. Remove them at first."),
 	TREE_NODE_DELETE_FAILED_HAS_ROLE(HttpStatus.CONFLICT, "Tree node [%s] has assigned automatic roles. Remove automatic roles at first."),
 	TREE_TYPE_DELETE_FAILED_HAS_CHILDREN(HttpStatus.CONFLICT, "Tree type [%s] has children, cannot be deleted. Remove them at first."),

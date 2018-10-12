@@ -13,8 +13,8 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
+import eu.bcvsolutions.idm.core.api.generator.AbstractGeneratorTest;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.generator.AbstractGeneratorTest;
 import eu.bcvsolutions.idm.core.generator.identity.IdentityUsernameGenerator;
 
 public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {

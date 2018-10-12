@@ -15,8 +15,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
+import eu.bcvsolutions.idm.core.api.generator.AbstractGeneratorTest;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
-import eu.bcvsolutions.idm.core.generator.AbstractGeneratorTest;
 
 /**
  * Integration tests for default implementation of generator manager

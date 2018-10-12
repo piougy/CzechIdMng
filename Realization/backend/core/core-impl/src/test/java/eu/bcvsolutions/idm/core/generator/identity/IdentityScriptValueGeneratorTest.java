@@ -17,10 +17,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.generator.AbstractGeneratorTest;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
-import eu.bcvsolutions.idm.core.generator.AbstractGeneratorTest;
 import eu.bcvsolutions.idm.core.generator.identity.IdentityScriptValueGenerator;
 
 /**

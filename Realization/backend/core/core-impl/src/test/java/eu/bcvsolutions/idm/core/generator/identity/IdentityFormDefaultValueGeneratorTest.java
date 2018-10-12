@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
+import eu.bcvsolutions.idm.core.api.generator.AbstractGeneratorTest;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -24,7 +25,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
-import eu.bcvsolutions.idm.core.generator.AbstractGeneratorTest;
 import eu.bcvsolutions.idm.core.generator.identity.IdentityFormDefaultValueGenerator;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 

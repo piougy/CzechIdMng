@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.generator;
+package eu.bcvsolutions.idm.core.api.generator;
 
 import static org.junit.Assert.assertNotNull;
 

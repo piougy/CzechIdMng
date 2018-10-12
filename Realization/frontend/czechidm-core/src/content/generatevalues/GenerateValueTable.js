@@ -6,7 +6,7 @@ import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
 import * as Domain from '../../domain';
 import * as Advanced from '../../components/advanced';
-import { SecurityManager, DataManager, GenerateValueManager } from '../../redux';
+import { SecurityManager, DataManager, GenerateValueManager, FormAttributeManager } from '../../redux';
 
 const MAX_DESCRIPTION_LENGTH = 60;
 
@@ -19,6 +19,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.formAttributeManager = new FormAttributeManager();
     // default filter status
     // true - open
     // false - close
@@ -82,7 +83,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
           if (generator.dtoType === dtoType) {
             generators.push({
               value: generator.generatorType,
-              niceLabel: this.i18n(this.getManager().getLocalizationPrefixForGenerator() + generator.name + '.label')
+              niceLabel: this.formAttributeManager.getLocalization(generator.formDefinition, null, 'label', generator.name)
             });
           }
         });
@@ -225,7 +226,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
     const noProperties = generatorType && generatorType.formDefinition && generatorType.formDefinition.formAttributes.length === 0;
     let generatorDescription = null;
     if (showProperties) {
-      generatorDescription = this.i18n(this.getManager().getLocalizationPrefixForGenerator() + generatorType.name + '.help');
+      generatorDescription = this.formAttributeManager.getLocalization(generatorType.formDefinition, null, 'label', generatorType.name);
     }
     //
     return (

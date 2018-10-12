@@ -89,13 +89,6 @@ export default class GenerateValueManager extends EntityManager {
       }
     };
   }
-
-  /**
-   * Return localization prefix for generator. Last character in string is dot.
-   */
-  getLocalizationPrefixForGenerator() {
-    return 'eav.value-generator.';
-  }
 }
 
 GenerateValueManager.UI_KEY_SUPPORTED_TYPES = 'generate-attr-supported-types';

@@ -60,6 +60,11 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 				LOG.warn("Generator for type [{}] doesn't exist. Or more generators found for type.", generateValue.getGeneratorType());
 				continue;
 			}
+			if (!generator.supports(dto.getClass())) {
+				LOG.warn("Generator for type [{}] doesn't support given dto type [{}]. Fix your configuration [{}].", 
+						generateValue.getGeneratorType(), dto.getClass(), generateValue.getId());
+				continue;
+			}
 			//
 			DTO generatedDto = generator.generate(dto, generateValue);
 			if (generatedDto == null) {

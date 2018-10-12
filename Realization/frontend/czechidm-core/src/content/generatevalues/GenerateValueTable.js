@@ -64,6 +64,11 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
 
   onChangeDtoType(dtoType) {
     this._setGeneratorTypeByDtoType(dtoType ? dtoType.value : null);
+    this.setState({
+      generatorType: null
+    }, () => {
+      this.refs.generatorType.setValue(null);
+    });
   }
 
   onChangeGeneratorType(selectedGeneratorType) {

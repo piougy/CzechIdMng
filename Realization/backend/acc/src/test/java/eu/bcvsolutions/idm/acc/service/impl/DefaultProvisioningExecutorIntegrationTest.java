@@ -40,7 +40,6 @@ import eu.bcvsolutions.idm.acc.scheduler.task.impl.ProvisioningQueueTaskExecutor
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.RetryProvisioningTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;

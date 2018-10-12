@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.core.api.generator.AbstractValueGenerator;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 
 /**
  * Example generator for generates position name form username and prefix suffix.
@@ -21,15 +23,16 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
+@Enabled(ExampleModuleDescriptor.MODULE_ID)
 @Component(ContractPositionNameGenerator.GENERATOR_NAME)
 @Description("Generate position name from identity name and some prefix and suffix.")
 public class ContractPositionNameGenerator extends AbstractValueGenerator<IdmIdentityContractDto> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ContractPositionNameGenerator.class);
 
-	public static final String GENERATOR_NAME = "example-position-name-value-generator";
-	public static String POSTION_NAME_SUFFIX = "postionNameSuffix";
-	public static String POSTION_NAME_PREFIX = "postionNamePrefix";
+	public static final String GENERATOR_NAME = "example-contract-position-name-value-generator";
+	public static String POSITION_NAME_SUFFIX = "positionNameSuffix";
+	public static String POSITION_NAME_PREFIX = "positionNamePrefix";
 
 	@Autowired
 	private IdmIdentityService identityService;
@@ -42,8 +45,8 @@ public class ContractPositionNameGenerator extends AbstractValueGenerator<IdmIde
 	@Override
 	public List<String> getPropertyNames() {
 		List<String> properties = super.getPropertyNames();
-		properties.add(POSTION_NAME_PREFIX);
-		properties.add(POSTION_NAME_SUFFIX);
+		properties.add(POSITION_NAME_PREFIX);
+		properties.add(POSITION_NAME_SUFFIX);
 		return properties;
 	}
 
@@ -91,7 +94,7 @@ public class ContractPositionNameGenerator extends AbstractValueGenerator<IdmIde
 	 * @return
 	 */
 	private String getSuffix(IdmGenerateValueDto generatorConfiguration) {
-		return generatorConfiguration.getGeneratorProperties().getString(POSTION_NAME_SUFFIX);
+		return generatorConfiguration.getGeneratorProperties().getString(POSITION_NAME_SUFFIX);
 	}
 
 	/**
@@ -100,6 +103,6 @@ public class ContractPositionNameGenerator extends AbstractValueGenerator<IdmIde
 	 * @return
 	 */
 	private String getPrefix(IdmGenerateValueDto generatorConfiguration) {
-		return generatorConfiguration.getGeneratorProperties().getString(POSTION_NAME_PREFIX);
+		return generatorConfiguration.getGeneratorProperties().getString(POSITION_NAME_PREFIX);
 	}
 }

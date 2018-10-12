@@ -135,15 +135,15 @@
   },
   "eav": {
     "value-generator": {
-      "example-position-name-value-generator": {
+      "example-contract-position-name-value-generator": {
         "label": "Example generator position name",
         "help": "Generates name of position. To position name will be added prefix and suffix together with username.",
         "attributes": {
-          "postionnamesuffix": {
+          "positionnamesuffix": {
             "label": "Position name suffix",
             "help": "Suffix will be added at the end to username. Suffix is not required."
           },
-          "postionnameprefix": {
+          "positionnameprefix": {
             "label": "Position name prefix",
             "help": "Prefix will be added at the begin to username. Prefix is not required."
           }

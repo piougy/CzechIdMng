@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -238,19 +239,21 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 		} catch(Exception ex) {
 			// persist state if needed
 			UUID eventId = entityEventManager.getEventId(event) ;
+			// log error
+			ResultModel resultModel;
+			if (ex instanceof ResultCodeException) {
+				resultModel = ((ResultCodeException) ex).getError().getError();
+			} else {
+				resultModel = new DefaultResultModel(
+						CoreResultCode.EVENT_EXECUTE_PROCESSOR_FAILED, 
+						ImmutableMap.of(
+								"eventId", String.valueOf(eventId),
+								"processor", getName()));
+			}
+			//
+			LOG.error(resultModel.toString(), ex);
+			//
 			if (eventId != null) {
-				ResultModel resultModel;
-				if (ex instanceof ResultCodeException) {
-					resultModel = ((ResultCodeException) ex).getError().getError();
-				} else {
-					resultModel = new DefaultResultModel(
-							CoreResultCode.EVENT_EXECUTE_PROCESSOR_FAILED, 
-							ImmutableMap.of(
-									"eventId", eventId,
-									"processor", getName()));
-				}
-				//
-				LOG.error(resultModel.toString(), ex);
 				//
 				result = new DefaultEventResult.Builder<>(event, this)
 						.setResult(new OperationResult
@@ -261,7 +264,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 						.build();
 				entityEventManager.saveStates(event, runningStates, result);
 			}
-			throw ex;
+			throw new CoreException("Event processing failed", ex);
 		}
 		// default result
 		if (result == null) {

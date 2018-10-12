@@ -39,8 +39,8 @@ public class ContractPositionNameGeneratorTest extends AbstractGeneratorTest {
 
 		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
-						ContractPositionNameGenerator.POSTION_NAME_PREFIX, prefix,
-						ContractPositionNameGenerator.POSTION_NAME_SUFFIX, suffix)), 1, null);
+						ContractPositionNameGenerator.POSITION_NAME_PREFIX, prefix,
+						ContractPositionNameGenerator.POSITION_NAME_SUFFIX, suffix)), 1, null);
 
 		IdmIdentityContractDto generated = valueGeneratorManager.generate(contractDto);
 		assertNotNull(generated);
@@ -62,8 +62,8 @@ public class ContractPositionNameGeneratorTest extends AbstractGeneratorTest {
 
 		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
-						ContractPositionNameGenerator.POSTION_NAME_PREFIX, prefix,
-						ContractPositionNameGenerator.POSTION_NAME_SUFFIX, suffix)), 1, Boolean.FALSE);
+						ContractPositionNameGenerator.POSITION_NAME_PREFIX, prefix,
+						ContractPositionNameGenerator.POSITION_NAME_SUFFIX, suffix)), 1, Boolean.FALSE);
 
 		IdmIdentityContractDto generated = valueGeneratorManager.generate(contractDto);
 		assertNotNull(generated);
@@ -83,8 +83,8 @@ public class ContractPositionNameGeneratorTest extends AbstractGeneratorTest {
 
 		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
-						ContractPositionNameGenerator.POSTION_NAME_PREFIX, prefix,
-						ContractPositionNameGenerator.POSTION_NAME_SUFFIX, suffix)), 1, null);
+						ContractPositionNameGenerator.POSITION_NAME_PREFIX, prefix,
+						ContractPositionNameGenerator.POSITION_NAME_SUFFIX, suffix)), 1, null);
 
 		IdmIdentityContractDto generated = identityContractService.save(contractDto);
 		assertNotNull(generated);
@@ -103,7 +103,7 @@ public class ContractPositionNameGeneratorTest extends AbstractGeneratorTest {
 
 		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
-						ContractPositionNameGenerator.POSTION_NAME_PREFIX, prefix)), 1, null);
+						ContractPositionNameGenerator.POSITION_NAME_PREFIX, prefix)), 1, null);
 
 		IdmIdentityContractDto generated = valueGeneratorManager.generate(contractDto);
 		assertNotNull(generated);
@@ -122,7 +122,7 @@ public class ContractPositionNameGeneratorTest extends AbstractGeneratorTest {
 
 		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
-						ContractPositionNameGenerator.POSTION_NAME_SUFFIX, suffix)), 1, null);
+						ContractPositionNameGenerator.POSITION_NAME_SUFFIX, suffix)), 1, null);
 
 		IdmIdentityContractDto generated = valueGeneratorManager.generate(contractDto);
 		assertNotNull(generated);

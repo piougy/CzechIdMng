@@ -264,7 +264,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 						.build();
 				entityEventManager.saveStates(event, runningStates, result);
 			}
-			throw new CoreException("Event processing failed", ex);
+			throw ex;
 		}
 		// default result
 		if (result == null) {

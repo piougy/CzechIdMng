@@ -438,7 +438,7 @@ module.exports = {
                 'labelKey': 'content.role.compositions.title',
                 'order': 120,
                 'path': 'requests/:requestId/role/:entityId/compositions',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECOMPOSITION_READ'] } ]
               },
               {
                 'id': 'request-role-guarantees',

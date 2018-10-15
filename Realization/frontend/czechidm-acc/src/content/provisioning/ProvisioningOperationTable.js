@@ -215,7 +215,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 key="delete-all-button"
                 className="btn-xs"
                 onClick={ this._deleteAll.bind(this) }
-                rendered={ Managers.SecurityManager.hasAnyAuthority('APP_ADMIN') && !isArchive }
+                rendered={ Managers.SecurityManager.hasAnyAuthority(['APP_ADMIN']) && !isArchive }
                 title={ this.i18n('action.deleteAll.button.title') }
                 titlePlacement="bottom"
                 icon="fa:trash">
@@ -226,7 +226,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 key="cancel-all-button"
                 className="btn-xs"
                 onClick={ this._cancelAll.bind(this) }
-                rendered={ Managers.SecurityManager.hasAnyAuthority('SYSTEM_ADMIN') && !isArchive }
+                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_ADMIN']) && !isArchive }
                 title={ this.i18n('action.cancelAll.button.title') }
                 titlePlacement="bottom"
                 icon="fa:ban"

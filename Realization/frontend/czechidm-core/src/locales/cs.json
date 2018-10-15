@@ -866,6 +866,9 @@
         "title": "503",
         "description": "Služba není momentálně dostupná.",
         "note": "Zkuste to prosím později."
+      },
+      "syntax-error": {
+        "message": "Chyba komunikace se serverem, zkuste operaci opakovat. Pokud potíže přetrvají, kontaktujte prosím správce aplikace."
       }
     },
     "about": {

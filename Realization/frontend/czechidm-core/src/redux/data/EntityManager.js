@@ -853,6 +853,20 @@ export default class EntityManager {
    * @return {object} - action
    */
   receiveError(entity, uiKey = null, error = null, cb = null) {
+    if (error && error.name === 'SyntaxError' && error.message && error.message.indexOf('JSON.parse') === 0) {
+      if (cb) {
+        cb(null, {
+          key: 'syntax-error',
+          level: 'warning',
+          message: LocalizationService.i18n('content.error.syntax-error.message')
+        });
+      }
+      // response is not json ...
+      return {
+        type: EMPTY
+      };
+    }
+    //
     uiKey = this.resolveUiKey(uiKey, entity ? entity.id : null);
     return (dispatch) => {
       if (cb) {

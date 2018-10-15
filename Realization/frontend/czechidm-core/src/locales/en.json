@@ -835,6 +835,9 @@
         "title": "503",
         "description": "The service is currently not available.",
         "note": "Please, try it later."
+      },
+      "syntax-error": {
+        "message": "Server communication failed, try to execute operation again. If the issue persists, please contact your application administrator."
       }
     },
     "about": {

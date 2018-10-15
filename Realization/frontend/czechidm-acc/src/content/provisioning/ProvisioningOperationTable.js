@@ -104,10 +104,10 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
         this.context.store.dispatch(manager.deleteAll(systemField.getValue(), uiKey, (entity, error) => {
           if (!error) {
             this.addMessage({ level: 'success', message: this.i18n('action.deleteAll.success')});
-            this.reload();
           } else {
             this.addError(error);
           }
+          this.reload();
         }));
       }
     }, () => {

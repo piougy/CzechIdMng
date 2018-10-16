@@ -634,4 +634,23 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		Assert.assertNull(attachmentManager.get(image));
 		Assert.assertNull(profileService.get(createdProfile));
 	}
+	
+	@Test
+	public void testPatchProfile() throws UnsupportedEncodingException, IOException, Exception {
+		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null);
+		//
+		// create + patch profile
+		String response = getMockMvc().perform(MockMvcRequestBuilders.patch(getDetailUrl(owner.getId()) + "/profile")
+        		.with(authentication(getAdminAuthentication()))
+				.content("{ \"preferredLanguage\": \"en\" }") // PATCH => lookout, mappar cannot be used (maps even null attrs).
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		IdmProfileDto createdProfile = (IdmProfileDto) getMapper().readValue(response, IdmProfileDto.class);
+		Assert.assertEquals(owner.getId(), createdProfile.getIdentity());
+		Assert.assertEquals("en", createdProfile.getPreferredLanguage());
+	}
 }

@@ -83,6 +83,8 @@ function adapter(storage) {
           // prevent to persist react elements
           // FIXME: restore react fragment from text
           message.children = null;
+          // messages are hidden automatically after F5
+          message.hidden = true;
         });
         callback(null, storage.setItem(key, JSON.stringify(value)));
       } catch (e) {

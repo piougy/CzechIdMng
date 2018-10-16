@@ -563,6 +563,7 @@ module.exports = {
         'labelKey': 'content.audit.title',
         'titleKey': 'content.audit.title',
         'icon': 'stats',
+        'path': '/audit/entities',
         'order': 1900,
         'items': [
           {

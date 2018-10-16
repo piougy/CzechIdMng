@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -71,17 +72,18 @@ import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 
 /**
  * Virtual system request test
+ * + request filters
  * 
  * @author Svanda
- *
+ * @author Patrik Stloukal
  */
 @Component
-public class VsReqeustServiceTest extends AbstractIntegrationTest {
+public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationTest {
 
-	public static final String USER_ONE_NAME = "vsUserOne";
-	public static final String USER_IMPLEMENTER_NAME = "vsUserImplementer";
-	public static final String ROLE_ONE_NAME = "vsRoleOne";
-	public static final String USER_ONE_CHANGED_NAME = "vsUserOneChanged";
+	private static final String USER_ONE_NAME = "vsUserOne";
+	private static final String USER_IMPLEMENTER_NAME = "vsUserImplementer";
+	private static final String ROLE_ONE_NAME = "vsRoleOne";
+	private static final String USER_ONE_CHANGED_NAME = "vsUserOneChanged";
 
 	@Autowired
 	private TestHelper helper;
@@ -664,6 +666,110 @@ public class VsReqeustServiceTest extends AbstractIntegrationTest {
 		systemEntityFilter.setUid(USER_ONE_CHANGED_NAME);
 		boolean changedUserNameExist = !systemEntityService.find(systemEntityFilter, null).getContent().isEmpty();
 		Assert.assertTrue(changedUserNameExist);
+	}
+	
+	@Test
+	public void dateTest() {
+		SysSystemDto virtualSystem = helper.createVirtualSystem(helper.createName());
+		IdmRoleDto roleOne = helper.createRole();
+		IdmIdentityDto identity = helper.createIdentity((GuardedString) null);
+		
+		// Assign system to role
+		helper.createRoleSystem(roleOne, virtualSystem);
+		helper.assignRoles(helper.getPrimeContract(identity.getId()), false, roleOne);
+		
+		// Find created requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(virtualSystem.getId());
+		requestFilter.setUid(identity.getUsername());
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		
+		requestFilter.setCreatedAfter(new DateTime().minusSeconds(10));
+		requestFilter.setCreatedBefore(new DateTime());
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		
+		requestFilter.setCreatedAfter(new DateTime().plusMinutes(10));
+		requestFilter.setCreatedBefore(new DateTime().plusMinutes(11));
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(0, requests.size());
+		
+		requestFilter.setCreatedAfter(new DateTime().minusMinutes(10));
+		requestFilter.setCreatedBefore(new DateTime().minusMinutes(9));
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(0, requests.size());
+	}
+
+	@Test
+	public void systemTest() {
+		SysSystemDto virtualSystem = helper.createVirtualSystem(helper.createName());
+		IdmRoleDto roleOne = helper.createRole(helper.createName());
+		IdmIdentityDto identity = helper.createIdentity((GuardedString) null);
+		IdmIdentityDto identity2 = helper.createIdentity((GuardedString) null);
+		IdmIdentityDto identity3 = helper.createIdentity((GuardedString) null);
+		IdmIdentityDto identity4 = helper.createIdentity((GuardedString) null);
+		
+		// Assign system to role
+		helper.createRoleSystem(roleOne, virtualSystem);
+		helper.assignRoles(helper.getPrimeContract(identity.getId()), false, roleOne);
+		helper.assignRoles(helper.getPrimeContract(identity2.getId()), false, roleOne);
+		
+		// Find created requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(virtualSystem.getId());
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(2, requests.size());
+		
+		helper.assignRoles(helper.getPrimeContract(identity3.getId()), false, roleOne);
+		helper.assignRoles(helper.getPrimeContract(identity4.getId()), false, roleOne);
+		
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(4, requests.size());
+		
+		requestFilter.setUid(identity.getUsername());
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());// identity uid filter test
+
+	}
+	
+	@Test
+	public void filterTest() {
+		SysSystemDto virtualSystem = helper.createVirtualSystem(helper.createName());
+		IdmRoleDto roleOne = helper.createRole();
+		IdmIdentityDto identity = helper.createIdentity((GuardedString) null);
+		IdmIdentityDto identity2 = helper.createIdentity((GuardedString) null);
+		IdmIdentityDto identity3 = helper.createIdentity((GuardedString) null);
+		IdmIdentityDto identity4 = helper.createIdentity((GuardedString) null);
+		
+		// Assign system to role
+		helper.createRoleSystem(roleOne, virtualSystem);
+		helper.assignRoles(helper.getPrimeContract(identity.getId()), false, roleOne);
+		helper.assignRoles(helper.getPrimeContract(identity2.getId()), false, roleOne);
+		helper.assignRoles(helper.getPrimeContract(identity3.getId()), false, roleOne);
+		helper.assignRoles(helper.getPrimeContract(identity4.getId()), false, roleOne);
+		
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(virtualSystem.getId());
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(4, requests.size());
+
+		VsRequestDto request = requests.get(0);
+		requestService.realize(request);
+		Assert.assertEquals(VsRequestState.REALIZED, request.getState());
+		
+		requestFilter.setOnlyArchived(true);
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		
+		requestFilter.setOnlyArchived(null);
+		requestFilter.setState(VsRequestState.IN_PROGRESS);
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(3, requests.size());
+		
+		requestFilter.setConnectorKey(request.getConnectorKey());
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(3, requests.size());
 	}
 
 	/**

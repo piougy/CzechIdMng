@@ -691,7 +691,10 @@ public class DefaultVsSystemService implements VsSystemService {
 		if ((implementerRolesUUID == null || implementerRolesUUID.length == 0)) {
 			if (CollectionUtils.isEmpty(implementersFromConfig)) {
 				// Load default role from configuration
-				implementerRoles.add(vsConfiguration.getDefaultRole());
+				IdmRoleDto defaultRole = vsConfiguration.getDefaultRole();
+				if (defaultRole != null) {
+					implementerRoles.add(defaultRole);
+				}
 			}
 			return implementerRoles;
 		}

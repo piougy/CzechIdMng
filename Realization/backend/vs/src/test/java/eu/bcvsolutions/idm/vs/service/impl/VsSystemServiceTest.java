@@ -70,6 +70,8 @@ public class VsSystemServiceTest extends AbstractIntegrationTest {
 	@After
 	public void logout() {
 		super.logout();
+		// @Transactional -> db is rolled back, but cache has to be cleared too
+		this.configurationService.deleteValue(VsConfiguration.PROPERTY_DEFAULT_ROLE);
 	}
 
 	@Test

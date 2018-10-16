@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -784,7 +785,7 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		IdmRoleDto roleOne = helper.createRole(roleOneName);
 
 		// Create policy for vs evaluator and user role
-		helper.createAuthorizationPolicy(roleService.getByCode("userRole").getId(),
+		helper.createAuthorizationPolicy(roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME).getId(),
 				VirtualSystemGroupPermission.VSREQUEST, VsRequest.class, VsRequestByImplementerEvaluator.class,
 				IdmBasePermission.ADMIN);
 

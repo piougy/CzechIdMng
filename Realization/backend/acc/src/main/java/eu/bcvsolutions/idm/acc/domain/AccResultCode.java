@@ -71,7 +71,7 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_SUCCEED(HttpStatus.OK, "Provisioning operation for object with uid [%s] on system [%s], operation type [%s], object class [%s] is sucessfully completed."),
 	PROVISIONING_IS_IN_QUEUE(HttpStatus.ACCEPTED, "Provisioning operation for object with uid [%s] on system [%s], operation type [%s], object class [%s] was already in queue. Addind new operation request into queue."),
 	PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE(HttpStatus.BAD_REQUEST, "Object [%s]. For MERGE strategy must be attribute [%s] multivalued (on system [%s])!"),
-	PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT(HttpStatus.CONFLICT, "Strategies [%s] and [%s] are in conflict, for attribute [%s]!"),
+	PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT(HttpStatus.CONFLICT, "Strategies [%s] and [%s] are in conflict, for attribute [%s] (roles in conflict [%s] and [%s])!"),
 	PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "Account for parent node [%s] was not found!"),
 	PROVISIONING_TREE_TOO_MANY_PARENT_ACCOUNTS(HttpStatus.NOT_FOUND, "Too many accounts for parent node [%s] was found! Excepted only one for same system!"),
 	PROVISIONING_BREAK_OPERATION_EXISTS(HttpStatus.CONFLICT, "Operation [%s] for system [%s] already exists!"),

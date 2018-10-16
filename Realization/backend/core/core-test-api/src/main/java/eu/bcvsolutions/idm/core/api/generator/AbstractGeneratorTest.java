@@ -114,7 +114,12 @@ public abstract class AbstractGeneratorTest extends AbstractIntegrationTest {
 	 * @return
 	 */
 	protected ValueGeneratorDto getGenerator(Class<? extends AbstractDto> dtoType, String generatorType) {
-		return this.valueGeneratorManager.getAvailableGenerators(dtoType).stream().filter(gen -> gen.getGeneratorType().equals(generatorType)).findFirst().orElse(null);
+		return this.valueGeneratorManager
+				.getAvailableGenerators(dtoType)
+				.stream()
+				.filter(gen -> gen.getGeneratorType().equals(generatorType))
+				.findFirst()
+				.orElse(null);
 	}
 
 	/**

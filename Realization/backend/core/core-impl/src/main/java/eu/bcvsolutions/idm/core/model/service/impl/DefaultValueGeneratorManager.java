@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -138,7 +139,7 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 		valueGeneratorDto.setDtoType(valueGenerator.getDtoClass().getCanonicalName());
 		valueGeneratorDto.setDisabled(valueGenerator.isDisabled());
 		valueGeneratorDto.setName(valueGenerator.getName());
-		valueGeneratorDto.setGeneratorType(valueGenerator.getClass().getCanonicalName());
+		valueGeneratorDto.setGeneratorType(AopProxyUtils.ultimateTargetClass(valueGenerator).getCanonicalName());
 		valueGeneratorDto.setFormDefinition(valueGenerator.getFormDefinition());
 		//
 		return valueGeneratorDto;
@@ -151,7 +152,7 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 			context.getBeansOfType(ValueGenerator.class)
 					.values()
 					.forEach(generator -> {
-						results.put(generator.getClass().getCanonicalName(), generator);
+						results.put(AopProxyUtils.ultimateTargetClass(generator).getCanonicalName(), generator);
 					});
 			//
 			generators = results;

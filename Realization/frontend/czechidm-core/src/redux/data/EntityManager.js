@@ -853,28 +853,28 @@ export default class EntityManager {
    * @return {object} - action
    */
   receiveError(entity, uiKey = null, error = null, cb = null) {
-    if (error && error.name === 'SyntaxError' && error.message && error.message.indexOf('JSON.parse') === 0) {
-      if (cb) {
-        cb(null, {
+    uiKey = this.resolveUiKey(uiKey, entity ? entity.id : null);
+    return (dispatch) => {
+      if (error && error.name === 'SyntaxError' && error.message && error.message.indexOf('JSON.parse') === 0) {
+        const syntaxError = {
           key: 'syntax-error',
           level: 'warning',
           message: LocalizationService.i18n('content.error.syntax-error.message')
-        });
-      }
-      // response is not json ...
-      return {
-        type: EMPTY
-      };
-    }
-    //
-    uiKey = this.resolveUiKey(uiKey, entity ? entity.id : null);
-    return (dispatch) => {
-      if (cb) {
-        cb(null, error);
+        };
+
+        if (cb) {
+          cb(null, syntaxError);
+        } else {
+          dispatch(this.flashMessagesManager.addMessage(syntaxError));
+        }
       } else {
-        dispatch(this.flashMessagesManager.addErrorMessage({
-          key: 'error-' + this.getEntityType()
-        }, error));
+        if (cb) {
+          cb(null, error);
+        } else {
+          dispatch(this.flashMessagesManager.addErrorMessage({
+            key: 'error-' + this.getEntityType()
+          }, error));
+        }
       }
       dispatch({
         type: RECEIVE_ERROR,

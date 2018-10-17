@@ -287,7 +287,7 @@ public class DefaultVsSystemService implements VsSystemService {
 		Assert.notNull(schemaAccount, "We cannot found schema for ACCOUNT!");
 
 		// Create mapping by default attributes
-		this.createDefaultMapping(system, schemaAccount, vsSystem);
+		SysSystemMappingDto defaultMapping = this.createDefaultMapping(system, schemaAccount, vsSystem);
 		
 		// Create mapping for Connection
 		SysSystemMappingDto foundMapping = createMapping(system, schemaAccount.getId());
@@ -298,7 +298,7 @@ public class DefaultVsSystemService implements VsSystemService {
 		Assert.notNull(attributeMapping, "Attribute Mapping not found!");
 		
 		// Create default role
-		IdmRoleDto role = createRoleAndConnectToSystem(vsSystem, system, foundMapping.getId());
+		IdmRoleDto role = createRoleAndConnectToSystem(vsSystem, system, defaultMapping.getId());
 		
 		SysSyncIdentityConfigDto synchronization = createReconciliationConfig(attributeMapping.getId(),
 				foundMapping.getId(), system.getId(), role == null ? null : role.getId());
@@ -480,8 +480,9 @@ public class DefaultVsSystemService implements VsSystemService {
 	 * @param system
 	 * @param schema
 	 * @param vsSystem
+	 * @return 
 	 */
-	private void createDefaultMapping(SysSystemDto system, SysSchemaObjectClassDto schema, VsSystemDto vsSystem) {
+	private SysSystemMappingDto createDefaultMapping(SysSystemDto system, SysSchemaObjectClassDto schema, VsSystemDto vsSystem) {
 		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("Default provisioning");
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
@@ -536,6 +537,7 @@ public class DefaultVsSystemService implements VsSystemService {
 				systemAttributeMappingService.save(attributeMapping);
 			}
 		}
+		return systemMapping;
 	}
 
 	/**

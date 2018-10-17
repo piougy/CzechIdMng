@@ -1460,7 +1460,7 @@
     },
     "PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT": {
       "title": "Provisioning - Strategie atributu jsou konfliktní",
-      "message": "Strategie [{{strategyParent}}] a [{{strategyConflict}}] jsou pro atribut [{{attribute}}] konfliktní!"
+      "message": "Strategie [{{strategyParent}} (role {{roleParent}})] a [{{strategyConflict}} (role {{roleConflict}})] jsou pro atribut [{{attribute}}] konfliktní!"
     },
     "SYNCHRONIZATION_IS_NOT_ENABLED": {
       "title": "Synchronizace není povolená",

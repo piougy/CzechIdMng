@@ -1452,7 +1452,7 @@
     },
     "PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT": {
       "title": "Provisioning - Attribute strategy conflict",
-      "message": "Strategies [{{strategyParent}}] and [{{strategyConflict}}] are in conflict for attribute [{{attribute}}]!"
+      "message": "Strategies [{{strategyParent}} (role {{roleParent}})] and [{{strategyConflict}} (role {{roleConflict}})] are in conflict for attribute [{{attribute}}]!"
     },
     "SYNCHRONIZATION_IS_NOT_ENABLED": {
       "title": "Synchronization is not allowed",

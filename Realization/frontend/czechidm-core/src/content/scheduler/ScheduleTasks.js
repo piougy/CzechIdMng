@@ -39,6 +39,10 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     return 'content.scheduler.schedule-tasks';
   }
 
+  getNavigationKey() {
+    return 'scheduler-schedule-tasks';
+  }
+
   getManager() {
     return manager;
   }
@@ -48,7 +52,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['system', 'scheduler', 'scheduler-schedule-tasks']);
+    super.componentDidMount();
+    //
     this.context.store.dispatch(manager.fetchSupportedTasks());
   }
 
@@ -289,6 +294,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Confirm ref="confirm-task-run" level="success"/>
         <Basic.Confirm ref="confirm-task-dry-run" level="info"/>
+
+        { showLoading ? 'ano1' : 'ne1' }
+        { showLoadingDetail ? 'ano2' : 'ne2' }
 
         <Advanced.Table
           ref="table"

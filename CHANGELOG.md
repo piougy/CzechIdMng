@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.3.0]
+
+## [9.2.2]
+- [#1322](https://redmine.czechidm.com/issues/1322) - Preferred language and collapsed navigation is persisted to identity profile now and is loaded after login. Selecting locale doesn't refresh whole page now - add listening redux property ``i18nReady: state.config.get('i18nReady')`` if you content is not refreshed automatically.
+
 ## [9.2.0]
 - [#1261](https://redmine.czechidm.com/issues/1261) - Internal processing of events in ``AbstractEntityEventProcessor`` was improved. It's possible to create processor for super classes, e.g. one processor can handle all BaseDto generalizations. ``AbstractEntityEventProcessor#onApplicationEvent`` method intercepts ``ApplicationEvent`` now - this method is not in ``EntityEventProcessor`` interface, but if you overrided her in custom processor, refactor your processors to new input parameter.
 - [#1267](https://redmine.czechidm.com/issues/1267) - Eav attribute values can be saved together with owner - e.g. save identity with filled eavs. ``FormableDto`` super class was added and has to be defined for all dtos with eav support - change generalization tor your custom dtos with eav attribute support from ``AbstractDto`` to new ``FormableDto``.

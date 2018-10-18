@@ -233,8 +233,9 @@
     "removedRecord": "The following entity will not be counted in the bulk job processing: <b>[{{entities}}]</b>.",
     "removedRecord_plural": "The following entities will not be included in the bulk job processing: <b>[{{entities}}]</b>.",
     "created": "Bulk action [{{name}}] was successfully run in a long running task id: [{{longRunningTaskId}}]",
-    "message": "Performing the bulk action on select record: <b>[{{entities}}]</b>.",
-    "message_plural": "Performing the bulk action on {{count}} records: <b>[{{entities}}]</b>",
+    "message_empty": "Performing the bulk action [{{name}}]",
+    "message": "Performing the bulk action [{{name}}] on select record: <b>[{{entities}}]</b>.",
+    "message_plural": "Performing the bulk action [{{name}}] on {{count}} records: <b>[{{entities}}]</b>",
     "button": {
       "execute": "Execute"
     },
@@ -378,8 +379,8 @@
       },
       "Table": {
         "bulk-action": {
-          "selection_empty": "Select records ...",
-          "selection_0": "Select records ...",
+          "selection_empty": "Select operation or records ...",
+          "selection_0": "Select operation or records ...",
           "selection": "Operation with selected record:",
           "selection_plural": "Operation with ({{count}}) selected records:",
           "notImplemented": "Sorry, this operation is not available yet."
@@ -4208,10 +4209,12 @@
   "eav": {
     "bulk-action": {
       "identity-disable-bulk-action": {
-        "label": "Deactivate - (manually)"
+        "label": "Deactivate - (manually)",
+        "icon": "fa:square-o"
       },
       "identity-enable-bulk-action": {
-        "label": "Activate - (manually)"
+        "label": "Activate - (manually)",
+        "icon": "fa:check-square-o"
       },
       "identity-delete-bulk-action": {
         "label": "Remove",
@@ -4220,6 +4223,7 @@
       },
       "identity-add-role-bulk-action": {
         "label": "Roles assignment",
+        "icon": "fa:plus-square",
         "attributes": {
           "role": {
             "label": "Roles",
@@ -4245,6 +4249,7 @@
       },
       "identity-remove-role-bulk-action": {
         "label": "Role removing",
+        "icon": "fa:minus-square",
         "attributes": {
           "role": {
             "label": "Roles",
@@ -4262,6 +4267,7 @@
       },
       "identity-save-bulk-action": {
         "label": "Re-save identity",
+        "icon": "fa:save",
         "attributes": {
           "onlynotify": {
             "label": "Throw only NOTIFY event",

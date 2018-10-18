@@ -361,7 +361,12 @@ export default class EntityManager {
    * @param  {string} uiKey - ui key for loading indicator etc.
    */
   queueFetchPermissions(id, uiKey = null, cb = null) {
-    return (dispatchOuter) => {
+    return (dispatchOuter, getStateOuter) => {
+      if (getStateOuter().security.userContext.isExpired) {
+        return dispatchOuter({
+          type: EMPTY
+        });
+      }
       dispatchOuter({
         id,
         queue: 'FETCH_PERMISSION',
@@ -1033,7 +1038,12 @@ export default class EntityManager {
    * @param  {string} uiKey - ui key for loading indicator etc.
    */
   queueAutocompleteEntityIfNeeded(id, uiKey = null, cb = null) {
-    return (dispatchOuter) => {
+    return (dispatchOuter, getStateOuter) => {
+      if (getStateOuter().security.userContext.isExpired) {
+        return dispatchOuter({
+          type: EMPTY
+        });
+      }
       dispatchOuter(this.requestEntity(id, uiKey));
       dispatchOuter({
         id,

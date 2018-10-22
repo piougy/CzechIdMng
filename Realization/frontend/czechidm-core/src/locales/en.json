@@ -5255,6 +5255,10 @@
     "REQUEST_EXECUTED_CANNOT_DELETE": {
       "title": "Request for change permission cannot be deleted",
       "message": "Request for change permission in state 'Executed' cannot be delete!"
+    },
+    "SYNTAX_ERROR": {
+      "title": "Server communication failed",
+      "message": "Server communication failed, try to execute operation again. If the issue persists, please contact your application administrator."
     }
   },
   "validationError": {

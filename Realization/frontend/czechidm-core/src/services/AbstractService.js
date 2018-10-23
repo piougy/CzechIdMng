@@ -78,7 +78,7 @@ export default class AbstractService {
   * Resolve JSON parse exception. Replaces it for syntax error localized exception.
   */
   _resolveException(ex) {
-    if (ex && ex.message === 'Unexpected token s in JSON at position 0' && ex.stack && ex.stack.indexOf('SyntaxError') === 0) {
+    if (ex && ex.stack && ex.stack.indexOf('SyntaxError') === 0) {
       return {message: 'JSON parse error', module: 'core', statusEnum: 'SYNTAX_ERROR', statusCode: 300};
     }
     return ex;

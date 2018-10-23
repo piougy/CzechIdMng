@@ -145,6 +145,33 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 	}
 
 	@Test
+	public void generateShorterPropertiesWithEmptyString() {
+		String firstName = "firstName";
+		String lastName = "lastName";
+
+		ValueGeneratorDto generator = getGenerator();
+
+		this.createGenerator(getDtoType(), getGeneratorType(),
+				this.createConfiguration(generator.getFormDefinition(),
+						ImmutableMap.of(
+								IdentityUsernameGenerator.FIRST_NAME_CHARACTERS_COUNT, "",
+								IdentityUsernameGenerator.LAST_NAME_CHARACTERS_COUNT, "",
+								IdentityUsernameGenerator.FIRST_NAME_FIRST, Boolean.TRUE.toString())),
+				1, null);
+
+		IdmIdentityDto identityDto = new IdmIdentityDto();
+		identityDto.setFirstName(firstName);
+		identityDto.setLastName(lastName);
+		IdmIdentityDto generatedDto = valueGeneratorManager.generate(identityDto);
+		
+		assertEquals(identityDto.getLastName(), generatedDto.getLastName());
+		assertEquals(identityDto.getFirstName(), generatedDto.getFirstName());
+		
+		assertNotNull(generatedDto.getUsername());
+		assertEquals(firstName.trim() + lastName.trim(), generatedDto.getUsername());
+	}
+
+	@Test
 	public void generateShorterProperties2() {
 		String firstName = "firstName" + System.currentTimeMillis();
 		String lastName = "lastName" + System.currentTimeMillis();

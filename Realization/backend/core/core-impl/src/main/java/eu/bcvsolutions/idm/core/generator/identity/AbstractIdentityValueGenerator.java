@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hsqldb.lib.StringUtil;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
@@ -121,7 +122,7 @@ public abstract class AbstractIdentityValueGenerator extends AbstractValueGenera
 	 */
 	protected Integer getFirstNameCharacterCount(IdmGenerateValueDto valueGenerator) {
 		Object value = valueGenerator.getGeneratorProperties().getOrDefault(FIRST_NAME_CHARACTERS_COUNT, null);
-		if (value == null) {
+		if (value == null || StringUtil.isEmpty(value.toString())) {
 			return null;
 		}
 		return Integer.valueOf(value.toString());
@@ -134,7 +135,7 @@ public abstract class AbstractIdentityValueGenerator extends AbstractValueGenera
 	 */
 	protected Integer getLastNameCharacterCount(IdmGenerateValueDto valueGenerator) {
 		Object value = valueGenerator.getGeneratorProperties().getOrDefault(LAST_NAME_CHARACTERS_COUNT, null);
-		if (value == null) {
+		if (value == null || StringUtil.isEmpty(value.toString())) {
 			return null;
 		}
 		return Integer.valueOf(value.toString());

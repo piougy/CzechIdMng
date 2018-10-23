@@ -2121,7 +2121,7 @@
         "detail": {
           "directRole": {
             "subRoles": {
-              "header": "Roles assigned by direct role"
+              "header": "Roles assigned by this role"
             }
           }
         },
@@ -2135,7 +2135,7 @@
           "header": "Directly assigned roles"
         },
         "subRoles": {
-          "header": "Roles assigned by direct roles"
+          "header": "Roles assigned by business roles"
         }
       },
       "authorities": {

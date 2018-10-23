@@ -478,7 +478,7 @@ class SelectBox extends AbstractFormComponent {
       return placeholder;
     }
     // default placeholder
-    return this.i18n('label.searchSelect', { defaultValue: 'Select or type to search ...' });
+    return this.i18n('label.searchSelect');
   }
 
   /**

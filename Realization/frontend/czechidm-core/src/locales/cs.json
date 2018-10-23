@@ -2186,7 +2186,7 @@
           "header": "Napřímo přiřazené role"
         },
         "subRoles": {
-          "header": "Role přiřazené dle rolí napřímo"
+          "header": "Role přiřazené dle business rolí"
         }
       },
       "authorities": {

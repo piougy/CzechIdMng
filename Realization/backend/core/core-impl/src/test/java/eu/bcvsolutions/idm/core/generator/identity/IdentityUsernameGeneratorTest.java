@@ -168,7 +168,7 @@ public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 		assertEquals(identityDto.getFirstName(), generatedDto.getFirstName());
 		
 		assertNotNull(generatedDto.getUsername());
-		assertEquals(firstName.trim() + lastName.trim(), generatedDto.getUsername());
+		assertEquals(firstName.toLowerCase() + lastName.toLowerCase(), generatedDto.getUsername());
 	}
 
 	@Test

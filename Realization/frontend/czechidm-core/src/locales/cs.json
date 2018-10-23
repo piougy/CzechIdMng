@@ -5305,6 +5305,10 @@
     "REQUEST_EXECUTED_CANNOT_DELETE": {
       "title": "Žádost o změnu oprávnění nemohla být smazána",
       "message": "Žádost ve stavu 'Provedeno' nemůže být smazána!"
+    },
+    "SYNTAX_ERROR": {
+      "title": "Chyba komunikace se serverem",
+      "message": "Chyba komunikace se serverem, zkuste operaci opakovat. Pokud potíže přetrvají, kontaktujte prosím správce aplikace."
     }
   },
   "validationError": {

@@ -17,6 +17,12 @@ import eu.bcvsolutions.idm.core.api.generator.AbstractGeneratorTest;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.generator.identity.IdentityUsernameGenerator;
 
+/**
+ * Tests for {@link IdentityUsernameGenerator}
+ *
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 public class IdentityUsernameGeneratorTest extends AbstractGeneratorTest {
 
 	@Autowired

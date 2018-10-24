@@ -95,6 +95,7 @@
   "eav": {
     "bulk-action": {
       "identity-log-example-bulk-action": {
+        "icon": "fa:info-circle",
         "label": "Log identities",
         "attributes": {
           "exampletext": {

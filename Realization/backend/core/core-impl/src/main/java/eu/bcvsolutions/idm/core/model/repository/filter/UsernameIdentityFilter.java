@@ -5,6 +5,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -37,9 +38,10 @@ public class UsernameIdentityFilter extends AbstractFilterBuilder<IdmIdentity, I
 	
 	@Override
 	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
-		if (filter.getUsername() == null) {
+		String username = filter.getUsername();
+		if (StringUtils.isEmpty(username)) {
 			return null;
 		}
-		return builder.equal(root.get(IdmIdentity_.username), filter.getUsername());
+		return builder.equal(root.get(IdmIdentity_.username), username);
 	}
 }

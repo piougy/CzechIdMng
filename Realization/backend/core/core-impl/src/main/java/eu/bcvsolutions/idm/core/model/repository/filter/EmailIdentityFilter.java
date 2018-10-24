@@ -4,6 +4,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -38,10 +39,10 @@ public class EmailIdentityFilter extends AbstractFilterBuilder<IdmIdentity, IdmI
 	@Override
 	public javax.persistence.criteria.Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query,
 			CriteriaBuilder builder, IdmIdentityFilter filter) {
-		Object first = filter.getData().getFirst(IdmIdentityFilter.PARAMETER_EMAIL);
-		if (first != null && !(first instanceof String)) {
+		String email = filter.getEmail();
+		if (StringUtils.isEmpty(email)) {
 			return null;
 		}
-		return builder.equal(root.get(IdmIdentity_.email), first.toString());
+		return builder.equal(root.get(IdmIdentity_.email), email);
 	}
 }

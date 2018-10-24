@@ -21,6 +21,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.Lists;
 
@@ -552,6 +554,43 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		
 		List<IdmIdentityDto> result = identityService.find(filter, null).getContent();
 		assertEquals(4, result.size());
+	}
+
+	@Test
+	public void testFilteringByEmail() {
+		String email = System.currentTimeMillis() + "-test-email@example.tld";
+
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(getHelper().createName());
+		identity.setEmail(email);
+		identity = identityService.save(identity);
+		
+		MultiValueMap<String, Object> data = new LinkedMultiValueMap<>();
+		data.add(IdmIdentityFilter.PARAMETER_EMAIL, email);
+		IdmIdentityFilter filter = new IdmIdentityFilter(data);
+		List<IdmIdentityDto> identities = identityService.find(filter, null).getContent();
+
+		assertEquals(1, identities.size());
+		IdmIdentityDto identityDto = identities.get(0);
+		assertEquals(identity.getId(), identityDto.getId());
+		assertEquals(identity.getEmail(), identityDto.getEmail());
+	}
+
+	@Test
+	public void testFilteringByEmailSimilar() {
+		String email = System.currentTimeMillis() + "-test-email@example.tld";
+
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(getHelper().createName());
+		identity.setEmail(email);
+		identity = identityService.save(identity);
+		
+		MultiValueMap<String, Object> data = new LinkedMultiValueMap<>();
+		data.add(IdmIdentityFilter.PARAMETER_EMAIL, "test-email@example.tld");
+		IdmIdentityFilter filter = new IdmIdentityFilter(data);
+		List<IdmIdentityDto> identities = identityService.find(filter, null).getContent();
+
+		assertEquals(0, identities.size());
 	}
 
 	/**

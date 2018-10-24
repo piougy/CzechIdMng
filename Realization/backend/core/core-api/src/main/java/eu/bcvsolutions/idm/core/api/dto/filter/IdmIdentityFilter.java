@@ -69,6 +69,10 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	 */
 	public static final String PARAMETER_GUARANTEES_FOR_ROLE = "guaranteesForRole";
 	/**
+	 * Identities by email
+	 */
+	public static final String PARAMETER_EMAIL = "email";
+	/**
 	 * roles - OR
 	 */
 	private List<UUID> roles;	

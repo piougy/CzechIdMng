@@ -322,7 +322,7 @@ export default class FlashMessagesManager {
   isSyntaxError(error) {
     if (error
         && error.message
-        && (error.title === 'SyntaxError' && error.message.indexOf('JSON.parse') === 0 )) {
+        && (error.name === 'SyntaxError' && error.message.indexOf('JSON.parse') === 0 )) {
       return true;
     } else if (error && error.stack && error.stack.indexOf('SyntaxError') === 0) {
       return true;

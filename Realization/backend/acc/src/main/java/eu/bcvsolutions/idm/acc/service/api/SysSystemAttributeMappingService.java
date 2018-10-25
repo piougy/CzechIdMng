@@ -158,4 +158,6 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 * @return
 	 */
 	void validate(SysSystemAttributeMappingDto dto, SysSystemMappingDto systemMappingDto);
+
+	List<Object> getControlledAttributeValues(UUID system, SystemEntityType entityType, String schemaAttributeName);
 }

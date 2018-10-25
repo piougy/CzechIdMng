@@ -73,7 +73,8 @@ import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
- * Prepare provisioning - resolve connector object properties from account and resolve create or update operations
+ * Prepare provisioning - resolve connector object properties from account and
+ * resolve create or update operations
  * 
  * @author Radek Tomiška
  *
@@ -85,7 +86,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 
 	public static final String PROCESSOR_NAME = "prepare-connector-object-processor";
 	private static final String MODIFIED_FIELD_NAME = "modified";
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PrepareConnectorObjectProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
+			.getLogger(PrepareConnectorObjectProcessor.class);
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemAttributeMappingService attributeMappingService;
 	private final IcConnectorFacade connectorFacade;
@@ -96,20 +98,14 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final ProvisioningConfiguration provisioningConfiguration;
-	
+
 	@Autowired
-	public PrepareConnectorObjectProcessor(
-			IcConnectorFacade connectorFacade,
-			SysSystemService systemService,
-			SysSystemEntityService systemEntityService,
-			NotificationManager notificationManager,
-			SysProvisioningOperationService provisioningOperationService,
-			SysSystemMappingService systemMappingService,
-			SysSystemAttributeMappingService attributeMappingService,
-			SysSchemaAttributeService schemaAttributeService,
+	public PrepareConnectorObjectProcessor(IcConnectorFacade connectorFacade, SysSystemService systemService,
+			SysSystemEntityService systemEntityService, NotificationManager notificationManager,
+			SysProvisioningOperationService provisioningOperationService, SysSystemMappingService systemMappingService,
+			SysSystemAttributeMappingService attributeMappingService, SysSchemaAttributeService schemaAttributeService,
 			SysProvisioningArchiveService provisioningArchiveService,
-			SysSchemaObjectClassService schemaObjectClassService,
-			ProvisioningConfiguration provisioningConfiguration) {
+			SysSchemaObjectClassService schemaObjectClassService, ProvisioningConfiguration provisioningConfiguration) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
 		Assert.notNull(systemEntityService);
@@ -135,12 +131,12 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		this.schemaObjectClassService = schemaObjectClassService;
 		this.provisioningConfiguration = provisioningConfiguration;
 	}
-	
+
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
-	
+
 	/**
 	 * Prepare provisioning operation execution
 	 */
@@ -148,14 +144,15 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
-		SysSystemEntityDto systemEntity = provisioningOperationService.getByProvisioningOperation(provisioningOperation);
+		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject()
+				.getObjectClass();
+		SysSystemEntityDto systemEntity = provisioningOperationService
+				.getByProvisioningOperation(provisioningOperation);
 		String uid = systemEntity.getUid();
 		boolean isWish = systemEntity.isWish();
-		LOG.debug("Start preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
-				provisioningOperation.getOperationType(),
-				uid,
-				objectClass.getType());
+		LOG.debug(
+				"Start preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}]",
+				provisioningOperation.getOperationType(), uid, objectClass.getType());
 		//
 		// Find connector identification persisted in system
 		if (system.getConnectorKey() == null) {
@@ -184,10 +181,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				processUpdate(provisioningOperation, connectorConfig, existsConnectorObject);
 			}
 			//
-			LOG.debug("Preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed", 
-					provisioningOperation.getOperationType(), 
-					uid,
-					objectClass.getType());
+			LOG.debug(
+					"Preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed",
+					provisioningOperation.getOperationType(), uid, objectClass.getType());
 			// set back to event content
 			provisioningOperation = provisioningOperationService.save(provisioningOperation);
 			event.setContent(provisioningOperation);
@@ -197,28 +193,24 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			if (ex instanceof ResultCodeException) {
 				resultModel = ((ResultCodeException) ex).getError().getError();
 			} else {
-				resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED, 
-					ImmutableMap.of(
-							"name", uid, 
-							"system", system.getName(),
-							"operationType", provisioningOperation.getOperationType(),
-							"objectClass", objectClass.getType()));
+				resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED,
+						ImmutableMap.of("name", uid, "system", system.getName(), "operationType",
+								provisioningOperation.getOperationType(), "objectClass", objectClass.getType()));
 			}
 			LOG.error(resultModel.toString(), ex);
-			provisioningOperation.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
+			provisioningOperation.setResult(
+					new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 			//
 			provisioningOperation = provisioningOperationService.save(provisioningOperation);
 			//
-			notificationManager.send(
-					AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
-					.setModel(resultModel)
-					.build());
+			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING,
+					new IdmMessageDto.Builder().setModel(resultModel).build());
 			// set back to event content
 			event.setContent(provisioningOperation);
 			return new DefaultEventResult<>(event, this, true);
 		}
 	}
-	
+
 	/**
 	 * Create object on target system
 	 * 
@@ -231,79 +223,94 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		//
 		// prepare provisioning attributes from account attributes
-		Map<ProvisioningAttributeDto, Object> fullAccountObject = provisioningOperationService.getFullAccountObject(provisioningOperation);
+		Map<ProvisioningAttributeDto, Object> fullAccountObject = provisioningOperationService
+				.getFullAccountObject(provisioningOperation);
 		if (fullAccountObject != null) {
 			connectorObject.getAttributes().clear();
-			
+
 			SysSystemMappingDto mapping = getMapping(system, provisioningOperation.getEntityType());
 			SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
-			
+
 			List<SysSchemaAttributeDto> schemaAttributes = findSchemaAttributes(system, schemaObjectClassDto);
-			
+
 			for (Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
-				
+
 				ProvisioningAttributeDto provisioningAttribute = entry.getKey();
-				Optional<SysSchemaAttributeDto> schemaAttributeOptional = schemaAttributes.stream().filter(schemaAttribute -> {
-					return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
-				}).findFirst();
-				
-				if(!schemaAttributeOptional.isPresent()){
-					throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND, ImmutableMap.of("attribute", provisioningAttribute.getSchemaAttributeName()));
+				Optional<SysSchemaAttributeDto> schemaAttributeOptional = schemaAttributes.stream()
+						.filter(schemaAttribute -> {
+							return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
+						}).findFirst();
+
+				if (!schemaAttributeOptional.isPresent()) {
+					throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND,
+							ImmutableMap.of("attribute", provisioningAttribute.getSchemaAttributeName()));
 				}
-				
+
 				Object idmValue = fullAccountObject.get(provisioningAttribute);
 				SysSchemaAttributeDto schemaAttribute = schemaAttributeOptional.get();
-				
-				if(provisioningAttribute.isSendOnlyIfNotNull()){
-					if(this.isValueEmpty(idmValue)){
-						// Skip this attribute (marked with flag sendOnlyIfNotNull), because IdM value is null							
+
+				if (provisioningAttribute.isSendOnlyIfNotNull()) {
+					if (this.isValueEmpty(idmValue)) {
+						// Skip this attribute (marked with flag sendOnlyIfNotNull), because IdM value
+						// is null
 						continue;
 					}
 				}
-				
-				if(AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType() 
-						|| AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
-					
+
+				if (AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()
+						|| AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
+
 					boolean existSetAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
-						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName())
 								&& AttributeMappingStrategyType.SET == provisioningAttributeKey.getStrategyType();
 					}).findFirst().isPresent();
-					
-					boolean existIfResourceNulltAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
-						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
-								&& AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttributeKey.getStrategyType();
-					}).findFirst().isPresent();
-					
-					boolean existMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
-						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
-								&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey.getStrategyType();
-					}).findFirst().isPresent();
-					
-					boolean existAuthMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
-						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
-								&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey.getStrategyType();
-					}).findFirst().isPresent();
-					
-					if(AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()){
-				
-						if(existIfResourceNulltAttribute || existSetAttribute || existAuthMergeAttribute || existMergeAttribute){
-							// Skip this attribute (with Create strategy), because exists same attribute with SET/WRITE_IF_NULL/MERGE/AUTH_MERGE strategy 
-							// (this strategies has higher priority)							
+
+					boolean existIfResourceNulltAttribute = fullAccountObject.keySet().stream()
+							.filter(provisioningAttributeKey -> {
+								return provisioningAttributeKey.getSchemaAttributeName()
+										.equals(schemaAttribute.getName())
+										&& AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttributeKey
+												.getStrategyType();
+							}).findFirst().isPresent();
+
+					boolean existMergeAttribute = fullAccountObject.keySet().stream()
+							.filter(provisioningAttributeKey -> {
+								return provisioningAttributeKey.getSchemaAttributeName()
+										.equals(schemaAttribute.getName())
+										&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey
+												.getStrategyType();
+							}).findFirst().isPresent();
+
+					boolean existAuthMergeAttribute = fullAccountObject.keySet().stream()
+							.filter(provisioningAttributeKey -> {
+								return provisioningAttributeKey.getSchemaAttributeName()
+										.equals(schemaAttribute.getName())
+										&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey
+												.getStrategyType();
+							}).findFirst().isPresent();
+
+					if (AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()) {
+
+						if (existIfResourceNulltAttribute || existSetAttribute || existAuthMergeAttribute
+								|| existMergeAttribute) {
+							// Skip this attribute (with Create strategy), because exists same attribute
+							// with SET/WRITE_IF_NULL/MERGE/AUTH_MERGE strategy
+							// (this strategies has higher priority)
 							continue;
 						}
 					}
-					if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
-						
-						if(existSetAttribute || existAuthMergeAttribute || existMergeAttribute){
-							// Skip this attribute (with WRITE_IF_NULL strategy), because exists same attribute with SET/MERGE/AUTH_MERGE strategy
-							// (this strategies has higher priority)							
+					if (AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
+
+						if (existSetAttribute || existAuthMergeAttribute || existMergeAttribute) {
+							// Skip this attribute (with WRITE_IF_NULL strategy), because exists same
+							// attribute with SET/MERGE/AUTH_MERGE strategy
+							// (this strategies has higher priority)
 							continue;
 						}
 					}
 				}
-				
-				IcAttribute createdAttribute = createAttribute( 
-						schemaAttribute,
+
+				IcAttribute createdAttribute = createAttribute(schemaAttribute,
 						fullAccountObject.get(provisioningAttribute));
 				if (createdAttribute != null) {
 					connectorObject.getAttributes().add(createdAttribute);
@@ -313,11 +320,12 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		}
 		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
 	}
-	
-	@SuppressWarnings("unchecked")
-	private void processUpdate(SysProvisioningOperationDto provisioningOperation, IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
+
+	private void processUpdate(SysProvisioningOperationDto provisioningOperation,
+			IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		String systemEntityUid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
+		String systemEntityUid = provisioningOperationService.getByProvisioningOperation(provisioningOperation)
+				.getUid();
 		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		IcObjectClass objectClass = connectorObject.getObjectClass();
@@ -326,29 +334,25 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		if (provisioningContext.getAccountObject() == null) {
 			updateConnectorObject = connectorObject;
 		} else {
-			Map<ProvisioningAttributeDto, Object> fullAccountObject = provisioningOperationService.getFullAccountObject(provisioningOperation);
+			Map<ProvisioningAttributeDto, Object> fullAccountObject = provisioningOperationService
+					.getFullAccountObject(provisioningOperation);
 			updateConnectorObject = new IcConnectorObjectImpl(systemEntityUid, objectClass, null);
-			
+
 			SysSystemMappingDto mapping = getMapping(system, provisioningOperation.getEntityType());
 			SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 			List<SysSchemaAttributeDto> schemaAttributes = findSchemaAttributes(system, schemaObjectClassDto);
-			
-			SysProvisioningOperationFilter filter = new  SysProvisioningOperationFilter();
-			filter.setEntityIdentifier(provisioningOperation.getEntityIdentifier());
-			filter.setEntityType(provisioningOperation.getEntityType());
-			filter.setResultState(OperationState.EXECUTED);
-			
-			SysProvisioningArchiveDto lastSuccessEntity = null;
-			
-			for ( Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
-				
-				ProvisioningAttributeDto provisioningAttribute = entry.getKey();  
-				Optional<SysSchemaAttributeDto> schemaAttributeOptional = schemaAttributes.stream().filter(schemaAttribute -> {
-					return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
-				}).findFirst();
-				
-				if(!schemaAttributeOptional.isPresent()){
-					throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND, ImmutableMap.of("attribute", provisioningAttribute.getSchemaAttributeName()));
+
+			for (Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
+
+				ProvisioningAttributeDto provisioningAttribute = entry.getKey();
+				Optional<SysSchemaAttributeDto> schemaAttributeOptional = schemaAttributes.stream()
+						.filter(schemaAttribute -> {
+							return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
+						}).findFirst();
+
+				if (!schemaAttributeOptional.isPresent()) {
+					throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND,
+							ImmutableMap.of("attribute", provisioningAttribute.getSchemaAttributeName()));
 				}
 
 				SysSchemaAttributeDto schemaAttribute = schemaAttributeOptional.get();
@@ -356,136 +360,88 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					if (schemaAttribute.isReturnedByDefault()) {
 						Object idmValue = fullAccountObject.get(provisioningAttribute);
 						IcAttribute attribute = existsConnectorObject.getAttributeByName(schemaAttribute.getName());
-						Object connectorValue = attribute != null ? (attribute.isMultiValue() ? attribute.getValues() : attribute.getValue()) : null;
+						Object connectorValue = attribute != null
+								? (attribute.isMultiValue() ? attribute.getValues() : attribute.getValue())
+								: null;
 						if (connectorValue != null && !(connectorValue instanceof List)) {
 							connectorValue = Lists.newArrayList(connectorValue);
 						}
-						
-						Object resultValue = idmValue;
-						
-						
-						if(AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()){
+
+						if (AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()) {
 							// We do update, attributes with create strategy will be skipped
 							continue;
 						}
-						
-						if(provisioningAttribute.isSendOnlyIfNotNull()){
-							if(this.isValueEmpty(idmValue)){
-								// Skip this attribute (marked with flag sendOnlyIfNotNull), because idm value is null							
+
+						if (provisioningAttribute.isSendOnlyIfNotNull()) {
+							if (this.isValueEmpty(idmValue)) {
+								// Skip this attribute (marked with flag sendOnlyIfNotNull), because idm value
+								// is null
 								continue;
 							}
 						}
-						
-						if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
-							
-							boolean existSetAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
-								return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
-										&& AttributeMappingStrategyType.SET == provisioningAttributeKey.getStrategyType();
-							}).findFirst().isPresent();
-							
-							boolean existMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
-								return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
-										&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey.getStrategyType();
-							}).findFirst().isPresent();
-							
-							boolean existAuthMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
-								return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
-										&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey.getStrategyType();
-							}).findFirst().isPresent();
-							
-							if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
+
+						if (AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
+
+							boolean existSetAttribute = fullAccountObject.keySet().stream()
+									.filter(provisioningAttributeKey -> {
+										return provisioningAttributeKey.getSchemaAttributeName()
+												.equals(schemaAttribute.getName())
+												&& AttributeMappingStrategyType.SET == provisioningAttributeKey
+														.getStrategyType();
+									}).findFirst().isPresent();
+
+							boolean existMergeAttribute = fullAccountObject.keySet().stream()
+									.filter(provisioningAttributeKey -> {
+										return provisioningAttributeKey.getSchemaAttributeName()
+												.equals(schemaAttribute.getName())
+												&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey
+														.getStrategyType();
+									}).findFirst().isPresent();
+
+							boolean existAuthMergeAttribute = fullAccountObject.keySet().stream()
+									.filter(provisioningAttributeKey -> {
+										return provisioningAttributeKey.getSchemaAttributeName()
+												.equals(schemaAttribute.getName())
+												&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey
+														.getStrategyType();
+									}).findFirst().isPresent();
+
+							if (AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
 								List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
 								//
-								Optional<IcAttribute> icAttributeOptional = icAttributes.stream()
-										.filter(ica -> {
-											return schemaAttribute.getName().equals(ica.getName());
-										})
-										.findFirst();
+								Optional<IcAttribute> icAttributeOptional = icAttributes.stream().filter(ica -> {
+									return schemaAttribute.getName().equals(ica.getName());
+								}).findFirst();
 								IcAttribute icAttribute = null;
 								if (icAttributeOptional.isPresent()) {
 									icAttribute = icAttributeOptional.get();
 								}
 								// We need do transform from resource first
-								Object transformedConnectorValue = this.transformValueFromResource(provisioningAttribute.getTransformValueFromResourceScript()
-										, schemaAttribute, icAttribute, icAttributes, system);
-								
-								if(transformedConnectorValue != null || existSetAttribute || existAuthMergeAttribute || existMergeAttribute){
-									// Skip this attribute (with Write if null strategy), because connector value is not null
-									// or exists same attribute with  SET/MERGE/AUTH_MERGE strategy (this strategies has higher priority)								
+								Object transformedConnectorValue = this.transformValueFromResource(
+										provisioningAttribute.getTransformValueFromResourceScript(), schemaAttribute,
+										icAttribute, icAttributes, system);
+
+								if (transformedConnectorValue != null || existSetAttribute || existAuthMergeAttribute
+										|| existMergeAttribute) {
+									// Skip this attribute (with Write if null strategy), because connector value is
+									// not null
+									// or exists same attribute with SET/MERGE/AUTH_MERGE strategy (this strategies
+									// has higher priority)
 									continue;
 								}
 							}
-							
-						}
-						
-						if(AttributeMappingStrategyType.MERGE == provisioningAttribute.getStrategyType()){
-							
-							// Load last provisioning history
-							if(lastSuccessEntity == null){
-								List<SysProvisioningArchiveDto> lastSuccessEntities = provisioningArchiveService.find(filter,
-										new PageRequest(0, 1, new Sort(Direction.DESC, MODIFIED_FIELD_NAME))).getContent();
-								if(!lastSuccessEntities.isEmpty()){
-									lastSuccessEntity = lastSuccessEntities.get(0);
-								}
-							}
-							
-						 	// Merge IdM values with connector values
-							if(connectorValue instanceof List){
-								List<Object> connectorValues = new ArrayList<>((List<Object>)connectorValue);
-								List<Object> idmValues = null;
-								if(idmValue instanceof List){
-									idmValues = (List<Object>) idmValue;
-								}
-								if(idmValues != null){
-									idmValues.stream().forEach(value -> {
-										if(!connectorValues.contains(value)){
-											connectorValues.add(value);
-										}
-									});
-								} 
-	
-								resultValue = connectorValues;
-							}
 
-							// Delete missing values by last provisioning history
-							if( lastSuccessEntity != null && lastSuccessEntity.getProvisioningContext() != null 
-									&& lastSuccessEntity.getProvisioningContext().getAccountObject() != null 
-									&& lastSuccessEntity.getProvisioningContext().getAccountObject().containsKey(provisioningAttribute)){
-								Object oldValue = lastSuccessEntity.getProvisioningContext().getAccountObject().get(provisioningAttribute);
-								if(oldValue instanceof List){
-									if(!oldValue.equals(idmValue)){
-										// Search all deleted values (managed by IdM) by founded last provisioning values
-										List<?> deletedValues = ((List<?>)oldValue).stream().filter(value -> {
-											List<?> idmValues = null;
-											if(idmValue instanceof List){
-												idmValues = (List<?>) idmValue;
-											}
-											if(idmValues != null && idmValues.contains(value)){
-												return false;
-											} 
-											return true;
-										}).collect(Collectors.toList());
-										if(resultValue instanceof List){
-											List<?> resultValues = new ArrayList<>((List<Object>)resultValue);
-											
-											// Remove all deleted values (managed by IdM) 
-											resultValues.removeAll(deletedValues);
-											resultValue = resultValues;
-										}
-									}
-								}
-							}
 						}
-						
-					 	// Update attribute on resource by given mapping
+						Object resultValue = null;
+						if (AttributeMappingStrategyType.MERGE == provisioningAttribute.getStrategyType()) {
+							resultValue = resolveMergeValues(provisioningAttribute, idmValue,
+									connectorValue, provisioningOperation);
+						}
+
+						// Update attribute on resource by given mapping
 						// attribute and mapped value in entity
-						IcAttribute updatedAttribute = updateAttribute(
-								systemEntityUid, 
-								resultValue, 
-								schemaAttribute, 
-								existsConnectorObject,
-								system,
-								provisioningAttribute);
+						IcAttribute updatedAttribute = updateAttribute(systemEntityUid, resultValue, schemaAttribute,
+								existsConnectorObject, system, provisioningAttribute);
 						if (updatedAttribute != null) {
 							updateConnectorObject.getAttributes().add(updatedAttribute);
 						}
@@ -493,8 +449,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 						// create attribute without target system read - password etc.
 						// filled values only
 						if (fullAccountObject.get(provisioningAttribute) != null) {
-							IcAttribute createdAttribute = createAttribute( 
-									schemaAttribute,
+							IcAttribute createdAttribute = createAttribute(schemaAttribute,
 									fullAccountObject.get(provisioningAttribute));
 							if (createdAttribute != null) {
 								updateConnectorObject.getAttributes().add(createdAttribute);
@@ -508,35 +463,74 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		provisioningOperation.getProvisioningContext().setConnectorObject(updateConnectorObject);
 		provisioningOperation.setOperationType(ProvisioningEventType.UPDATE);
 	}
-	
-	private boolean isValueEmpty(Object idmValue){
-		if(idmValue == null){
+
+	private Object resolveMergeValues(ProvisioningAttributeDto provisioningAttribute, Object idmValue,
+			Object connectorValue, SysProvisioningOperationDto provisioningOperation) {
+
+		List<Object> resultValues = Lists.newArrayList(connectorValue);
+		List<Object> connectorValues = Lists.newArrayList(connectorValue);
+		List<Object> idmValues = Lists.newArrayList(idmValue);
+
+		List<Object> controlledValues = attributeMappingService.getControlledAttributeValues(
+				provisioningOperation.getSystem(), provisioningOperation.getEntityType(),
+				provisioningAttribute.getSchemaAttributeName());
+
+		// Merge IdM values with connector values
+		idmValues.stream().forEach(value -> {
+			if (!connectorValues.contains(value)) {
+				resultValues.add(value);
+			}
+		}); 
+
+		// Delete missing values
+		if (controlledValues != null) {
+			// Search all deleted values (managed by IdM)
+			List<?> deletedValues = controlledValues.stream().filter(controlledValue -> {
+				if (idmValues.contains(controlledValue)) {
+					return false;
+				}
+				return true;
+			}).collect(Collectors.toList());
+			// Remove all deleted values (managed by IdM)
+			resultValues.removeAll(deletedValues);
+		}
+
+		return resultValues;
+	}
+
+	private boolean isValueEmpty(Object idmValue) {
+		if (idmValue == null) {
 			return true;
 		}
-		
-		if(idmValue instanceof String && Strings.isNullOrEmpty((String) idmValue)){
+
+		if (idmValue instanceof String && Strings.isNullOrEmpty((String) idmValue)) {
 			return true;
 		}
-		
-		if(idmValue instanceof List && (CollectionUtils.isEmpty((List<?>)idmValue) 
-				|| (((List<?>)idmValue).size() == 1 && ((List<?>)idmValue).get(0) == null))){
+
+		if (idmValue instanceof List && (CollectionUtils.isEmpty((List<?>) idmValue)
+				|| (((List<?>) idmValue).size() == 1 && ((List<?>) idmValue).get(0) == null))) {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	private SysSystemMappingDto getMapping(SysSystemDto system, SystemEntityType entityType) {
-		List<SysSystemMappingDto> systemMappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, entityType);
+		List<SysSystemMappingDto> systemMappings = systemMappingService.findBySystem(system,
+				SystemOperationType.PROVISIONING, entityType);
 		if (systemMappings == null || systemMappings.isEmpty()) {
-			throw new IllegalStateException(MessageFormat.format("System [{0}] does not have mapping, provisioning will not be executed. Add some mapping for entity type [{1}]", system.getName(), entityType));
+			throw new IllegalStateException(MessageFormat.format(
+					"System [{0}] does not have mapping, provisioning will not be executed. Add some mapping for entity type [{1}]",
+					system.getName(), entityType));
 		}
 		if (systemMappings.size() != 1) {
-			throw new IllegalStateException(MessageFormat.format("System [{0}] is wrong configured! Remove duplicit mapping for entity type [{1}]", system.getName(), entityType));
+			throw new IllegalStateException(MessageFormat.format(
+					"System [{0}] is wrong configured! Remove duplicit mapping for entity type [{1}]", system.getName(),
+					entityType));
 		}
 		return systemMappings.get(0);
 	}
-	
+
 	/**
 	 * Find list of {@link SysSchemaAttribute} by system and objectClass
 	 * 
@@ -545,17 +539,17 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @return
 	 */
 	private List<SysSchemaAttributeDto> findSchemaAttributes(SysSystemDto system, SysSchemaObjectClassDto objectClass) {
-		
+
 		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		schemaAttributeFilter.setObjectClassId(objectClass.getId());
 		return schemaAttributeService.find(schemaAttributeFilter, null).getContent();
 	}
-	
+
 	/**
-	 * Create IC attribute by schema attribute. IC attribute will be set with
-	 * value obtained form given entity. This value will be transformed to
-	 * system value first.
+	 * Create IC attribute by schema attribute. IC attribute will be set with value
+	 * obtained form given entity. This value will be transformed to system value
+	 * first.
 	 * 
 	 * @param uid
 	 * @param entity
@@ -564,7 +558,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param schemaAttribute
 	 * @param objectClassName
 	 */
-	private IcAttribute createAttribute(SysSchemaAttributeDto schemaAttribute, Object idmValue){
+	private IcAttribute createAttribute(SysSchemaAttributeDto schemaAttribute, Object idmValue) {
 		if (!schemaAttribute.isCreateable()) {
 			return null;
 		}
@@ -572,8 +566,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	}
 
 	/**
-	 * Update attribute on resource by given handling attribute and mapped value
-	 * in entity
+	 * Update attribute on resource by given handling attribute and mapped value in
+	 * entity
 	 * 
 	 * @param uid
 	 * @param entity
@@ -581,32 +575,35 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param schemaAttribute
 	 * @param connectorObject
 	 */
-	private IcAttribute updateAttribute(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute, IcConnectorObject existsConnectorObject, SysSystemDto system, ProvisioningAttributeDto provisioningAttributeDto) {
+	private IcAttribute updateAttribute(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute,
+			IcConnectorObject existsConnectorObject, SysSystemDto system,
+			ProvisioningAttributeDto provisioningAttributeDto) {
 		List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
 		//
-		Optional<IcAttribute> icAttributeOptional = icAttributes.stream()
-				.filter(ica -> {
-					return schemaAttribute.getName().equals(ica.getName());
-					})
-				.findFirst();
+		Optional<IcAttribute> icAttributeOptional = icAttributes.stream().filter(ica -> {
+			return schemaAttribute.getName().equals(ica.getName());
+		}).findFirst();
 		IcAttribute icAttribute = null;
 		if (icAttributeOptional.isPresent()) {
 			icAttribute = icAttributeOptional.get();
 		}
-	
-		return updateAttributeValue(uid, idmValue, schemaAttribute, icAttribute, icAttributes, system, provisioningAttributeDto.getTransformValueFromResourceScript(), provisioningAttributeDto.isSendAlways());
+
+		return updateAttributeValue(uid, idmValue, schemaAttribute, icAttribute, icAttributes, system,
+				provisioningAttributeDto.getTransformValueFromResourceScript(),
+				provisioningAttributeDto.isSendAlways());
 	}
 
 	/**
 	 * Check difference of attribute value on resource and in entity for given
-	 * attribute. When is value changed, then add update of this attribute to
-	 * map
+	 * attribute. When is value changed, then add update of this attribute to map
 	 * 
 	 */
-	private IcAttribute updateAttributeValue(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes, SysSystemDto system, String transformValueFromResourceScript, boolean sendAlways){
+	private IcAttribute updateAttributeValue(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute,
+			IcAttribute icAttribute, List<IcAttribute> icAttributes, SysSystemDto system,
+			String transformValueFromResourceScript, boolean sendAlways) {
 
-		Object icValueTransformed = transformValueFromResource(transformValueFromResourceScript, schemaAttribute, icAttribute,
-				icAttributes, system);
+		Object icValueTransformed = transformValueFromResource(transformValueFromResourceScript, schemaAttribute,
+				icAttribute, icAttributes, system);
 		if (sendAlways || (!isAttributeValueEquals(idmValue, icValueTransformed, schemaAttribute))) {
 			// values is not equals
 			// Or this attribute must be send every time (event if was not changed)
@@ -614,54 +611,60 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Check if is value from IDM and value from System equals. 
-	 * If is attribute multivalued, then is IDM value transformed to List.
+	 * Check if is value from IDM and value from System equals. If is attribute
+	 * multivalued, then is IDM value transformed to List.
+	 * 
 	 * @param idmValue
 	 * @param icValueTransformed
 	 * @param schemaAttribute
 	 * @return
 	 */
-	private boolean isAttributeValueEquals(Object idmValue, Object icValueTransformed, SysSchemaAttributeDto schemaAttribute){
-		if(schemaAttribute.isMultivalued() && idmValue != null && !(idmValue instanceof List)){
+	private boolean isAttributeValueEquals(Object idmValue, Object icValueTransformed,
+			SysSchemaAttributeDto schemaAttribute) {
+		if (schemaAttribute.isMultivalued() && idmValue != null && !(idmValue instanceof List)) {
 			List<Object> values = new ArrayList<>();
 			values.add(idmValue);
 			return Objects.equals(values, icValueTransformed);
-		} 
-		
-		// Multivalued values are equals, when value from system is null and value in IdM is empty list
-		if(schemaAttribute.isMultivalued() && idmValue instanceof Collection && ((Collection<?>)idmValue).isEmpty() && icValueTransformed == null) {
+		}
+
+		// Multivalued values are equals, when value from system is null and value in
+		// IdM is empty list
+		if (schemaAttribute.isMultivalued() && idmValue instanceof Collection && ((Collection<?>) idmValue).isEmpty()
+				&& icValueTransformed == null) {
 			return true;
 		}
-		
-		// Multivalued values are equals, when value in IdM is null and value from system is empty list
-		if(schemaAttribute.isMultivalued() && icValueTransformed instanceof Collection && ((Collection<?>)icValueTransformed).isEmpty() && idmValue == null) {
+
+		// Multivalued values are equals, when value in IdM is null and value from
+		// system is empty list
+		if (schemaAttribute.isMultivalued() && icValueTransformed instanceof Collection
+				&& ((Collection<?>) icValueTransformed).isEmpty() && idmValue == null) {
 			return true;
 		}
-				
+
 		return Objects.equals(idmValue, icValueTransformed);
 	}
 
 	private Object transformValueFromResource(String transformValueFromResourceScript,
 			SysSchemaAttributeDto schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes,
 			SysSystemDto system) {
-		
+
 		Object icValueTransformed = null;
 		if (schemaAttribute.isMultivalued()) {
 			// Multi value
 			List<Object> icValues = icAttribute != null ? icAttribute.getValues() : null;
-			icValueTransformed = attributeMappingService.transformValueFromResource(icValues, transformValueFromResourceScript,
-					icAttributes, system);
+			icValueTransformed = attributeMappingService.transformValueFromResource(icValues,
+					transformValueFromResourceScript, icAttributes, system);
 		} else {
 			// Single value
 			Object icValue = icAttribute != null ? icAttribute.getValue() : null;
-			icValueTransformed = attributeMappingService.transformValueFromResource(icValue, transformValueFromResourceScript,
-					icAttributes, system);
+			icValueTransformed = attributeMappingService.transformValueFromResource(icValue,
+					transformValueFromResourceScript, icAttributes, system);
 		}
 		return icValueTransformed;
 	}
-	
+
 	@Override
 	public int getOrder() {
 		// before realization

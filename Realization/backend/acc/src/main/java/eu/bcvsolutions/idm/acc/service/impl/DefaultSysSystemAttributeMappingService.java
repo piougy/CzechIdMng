@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
@@ -22,9 +23,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
@@ -33,6 +36,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -41,6 +46,7 @@ import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -66,7 +72,7 @@ import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
- * Default schema attributes handling
+ * Default schema attributes mapping
  * 
  * @author svandav
  *
@@ -90,6 +96,8 @@ public class DefaultSysSystemAttributeMappingService extends
 	private final SysSchemaAttributeService schemaAttributeService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSystemMappingService systemMappingService;
+	@Autowired
+	private SysRoleSystemAttributeService roleSystemAttributeService;
 
 	@Autowired
 	public DefaultSysSystemAttributeMappingService(SysSystemAttributeMappingRepository repository,
@@ -216,7 +224,7 @@ public class DefaultSysSystemAttributeMappingService extends
 		Assert.notNull(dto, "Attribute is mandatory!");
 		Assert.notNull(dto.getSystemMapping(), "System mapping is mandatory!");
 		SysSystemMappingDto systemMappingDto = systemMappingService.get(dto.getSystemMapping());
-		
+
 		validate(dto, systemMappingDto);
 
 		// Check if exist some else attribute which is defined like unique identifier
@@ -427,8 +435,7 @@ public class DefaultSysSystemAttributeMappingService extends
 	 * Find value for this mapped attribute by property name. Returned value can be
 	 * list of objects. Returns transformed value.
 	 * 
-	 * @param uid
-	 *            - Account identifier
+	 * @param uid               - Account identifier
 	 * @param entity
 	 * @param attributeHandling
 	 * @param idmValue
@@ -485,10 +492,11 @@ public class DefaultSysSystemAttributeMappingService extends
 					idmValue = EntityUtils.getEntityValue(entity, attributeHandling.getIdmPropertyName());
 				} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
 						| InvocationTargetException | ProvisioningException o_O) {
-					throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND, ImmutableMap.of(
-							"property", attributeHandling.getIdmPropertyName(), 
-							"entityType", entity.getClass(),
-							"schemaAtribute", attributeHandling.getSchemaAttribute().toString()), o_O);
+					throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
+							ImmutableMap.of("property", attributeHandling.getIdmPropertyName(), "entityType",
+									entity.getClass(), "schemaAtribute",
+									attributeHandling.getSchemaAttribute().toString()),
+							o_O);
 				}
 			}
 		} else {
@@ -568,6 +576,47 @@ public class DefaultSysSystemAttributeMappingService extends
 					ImmutableMap.of("uid", uid.getClass(), "system", systemEntity.getName()));
 		}
 		return (String) uid;
+	}
+
+	public void getControlledValues(SysSchemaAttributeDto schemaAttribute) {
+		Assert.notNull(schemaAttribute, "Schema attribute is mandatory for get controlled values!");
+
+	}
+
+	@Override
+	public List<Object> getControlledAttributeValues(UUID systemId, SystemEntityType entityType,
+			String schemaAttributeName) {
+		Assert.notNull(systemId, "System ID is mandatory for get controlled values!");
+		Assert.notNull(entityType, "Entity type is mandatory for get controlled values!");
+		Assert.notNull(schemaAttributeName, "Schema attribute name is mandatory for get controlled values!");
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(systemId, entityType);
+		Assert.notNull(mapping, "System provisioning mapping is mandatory for search controlled attribute values!");
+
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setName(schemaAttributeName);
+		schemaAttributeFilter.setSystemId(systemId);
+		schemaAttributeFilter.setObjectClassId(mapping.getObjectClass());
+
+		SysRoleSystemAttributeFilter roleSystemAttributeFilter = new SysRoleSystemAttributeFilter();
+		roleSystemAttributeFilter.setSystemMappingId(mapping.getId());
+		roleSystemAttributeFilter.setSchemaAttributeName(schemaAttributeName);
+		List<SysRoleSystemAttributeDto> roleSystemAttributes = roleSystemAttributeService
+				.find(roleSystemAttributeFilter, null).getContent();
+
+		List<Object> results = Lists.newArrayList();
+		roleSystemAttributes.stream() // We want values from merge and enabled attributes only
+				.filter(roleSystemAttr -> AttributeMappingStrategyType.MERGE == roleSystemAttr.getStrategyType() //
+						&& !roleSystemAttr.isDisabledAttribute()) //
+				.forEach(roleSystemAttr -> { //
+					// We predicate only static script (none input variables, only system)!
+					Object value = this.transformValueToResource(null, null, roleSystemAttr, null);
+					if (value != null) {
+						results.add(value);
+					}
+				});
+
+		return results;
 	}
 
 	/**

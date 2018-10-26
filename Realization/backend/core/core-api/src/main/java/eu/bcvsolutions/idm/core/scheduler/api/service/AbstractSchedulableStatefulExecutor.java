@@ -10,6 +10,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +62,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	//
 	@Autowired private IdmProcessedTaskItemService itemService;
 	@Autowired private PlatformTransactionManager platformTransactionManager;
+	@Autowired private EntityManager entityManager;
 
 	@Override
 	public Boolean process() {
@@ -168,6 +172,12 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 				retrievedRefs.add(candidate.getId());
 				processCandidate(candidate, dryRun);
  				canContinue &= this.updateState();
+ 				//
+ 				// flush and clear session - if LRT is wrapped in parent transaction, we need to clear it
+ 				if (getHibernateSession().isOpen()) {
+ 					getHibernateSession().flush();
+ 					getHibernateSession().clear();
+ 				}
 			}
 			canContinue &= candidates.hasNext();			
 			++page;
@@ -178,10 +188,15 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		queueEntityRefs.removeAll(retrievedRefs);
 		queueEntityRefs.forEach(entityRef -> this.removeFromProcessedQueue(entityRef));
 	}
+	
+	private Session getHibernateSession() {
+		return (Session) this.entityManager.getDelegate();
+	}
 
 	private void processCandidate(DTO candidate, boolean dryRun) {
 		if (isInProcessedQueue(candidate)) {
 			// item was processed earlier - just drop the count by one
+			// FIXME: this is confusing => task ends with 0 count, if all 
 			--count;
 			return;
 		}

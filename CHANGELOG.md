@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [9.3.0]
+- [#1290](https://redmine.czechidm.com/issues/1290) - ``SchedulableStatefulExecutor`` supports separating processing of items, read more in [documentation](https://wiki.czechidm.com/devel/documentation/application_configuration/dev/scheduled_tasks/task-scheduler#stateful_task_executors). Use new properties ``continueOnException``, ``requireNewTransaction`` in your custom LRT, when the same behavior is needed.
 
 ## [9.2.2]
 - [#1322](https://redmine.czechidm.com/issues/1322) - Preferred language and collapsed navigation is persisted to identity profile now and is loaded after login. Selecting locale doesn't refresh whole page now - add listening redux property ``i18nReady: state.config.get('i18nReady')`` if you content is not refreshed automatically.

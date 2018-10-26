@@ -4253,6 +4253,10 @@
         "name" : "$t(entity.validTill) (nová)",
         "tooltip": "",
         "placeholder": ""
+      },
+      "history": {
+        "name": "Předchozí úkoly",
+        "taskName": "Název"
       }
     }
   },

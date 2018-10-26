@@ -4203,6 +4203,10 @@
         "name" : "$t(entity.validTill) (new)",
         "tooltip": "",
         "placeholder": ""
+      },
+      "history": {
+        "name": "Previous tasks",
+        "taskName": "Name"
       }
     }
   },

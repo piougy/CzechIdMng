@@ -125,6 +125,11 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     }
   }
 
+  _getDate(rowIndex, data) {
+    const date = new Date(data[rowIndex].endTime);
+    return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
+  }
+
   _getFormDataComponents(task) {
     const { canExecute } = this.props;
     if (!task) {
@@ -189,15 +194,56 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           break;
         }
         case 'selectBox': {
+          let data = [];
+          const map = new Map(Object.entries(JSON.parse(formData.value)));
+          map.forEach((label, value) => {
+            data.push({value: value, niceLabel: this.i18n(label)});
+          });
           formDataComponents.push(
-            <Basic.SelectBox
+            <Basic.EnumSelectBox
               key={formData.id}
               ref={formData.id}
               readOnly={!formData.writable || !canExecute}
               required={formData.required}
               tooltip={this._getLocalization('tooltip', formData)}
               placeholder={this._getLocalization('placeholder', formData)}
-              label={this._getLocalization('name', formData)}/>
+              label={this._getLocalization('name', formData)}
+              multiSelect={false}
+              options={data}/>
+          );
+          break;
+        }
+        case 'taskHistory': {
+          let history = JSON.parse(formData.value);
+          formDataComponents.push(
+              <Basic.Panel>
+                <Basic.PanelHeader text={this._getLocalization('name', formData)}/>
+                <Basic.Table
+                    uiKey={formData.id}
+                    data={history}
+                    rendered
+                    noData={this.i18n('component.basic.Table.noData')}
+                    rowClass={({rowIndex, data}) => {
+                      return (data[rowIndex].changed) ? 'warning' : '';
+                    }}
+                    className="table-bordered">
+                  <Basic.Column property="name" header={this.i18n('wf.formData.history.taskName')}/>
+                  <Basic.Column property="endTime" header={this.i18n('wf.formData.validTill.name')}
+                    cell={
+                      ({rowIndex, data}) => {
+                        return this._getDate(rowIndex, data);
+                      }
+                    }/>
+                  <Basic.Column property="assignee"
+                  cell={({rowIndex, data}) => {
+                    return (<IdentityInfo
+                      entityIdentifier={ data[rowIndex].assignee }
+                      face="popover" />);
+                  }
+                  }/>
+                  <Basic.Column property="completeTaskDecision"/>
+                </Basic.Table>
+              </Basic.Panel>
           );
           break;
         }

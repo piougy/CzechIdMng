@@ -1,21 +1,18 @@
 package eu.bcvsolutions.idm.core.workflow.domain.formtype;
 
 import java.util.Map;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Form type for select box component
- *
  * @author Roman Kučera
  */
-public class SelectBoxFormType extends AbstractComponentFormType {
+public class TaskHistoryFormType extends AbstractComponentFormType {
 
 	private static final long serialVersionUID = 1L;
-	public static final String TYPE_NAME = "selectBox";
+	public static final String TYPE_NAME = "taskHistory";
 
-	public SelectBoxFormType(Map<String, String> values) {
+	public TaskHistoryFormType(Map<String, String> values) {
 		super(values);
 	}
 

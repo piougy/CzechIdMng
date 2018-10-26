@@ -593,11 +593,6 @@ public class DefaultSysSystemAttributeMappingService extends
 		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(systemId, entityType);
 		Assert.notNull(mapping, "System provisioning mapping is mandatory for search controlled attribute values!");
 
-		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
-		schemaAttributeFilter.setName(schemaAttributeName);
-		schemaAttributeFilter.setSystemId(systemId);
-		schemaAttributeFilter.setObjectClassId(mapping.getObjectClass());
-
 		SysRoleSystemAttributeFilter roleSystemAttributeFilter = new SysRoleSystemAttributeFilter();
 		roleSystemAttributeFilter.setSystemMappingId(mapping.getId());
 		roleSystemAttributeFilter.setSchemaAttributeName(schemaAttributeName);

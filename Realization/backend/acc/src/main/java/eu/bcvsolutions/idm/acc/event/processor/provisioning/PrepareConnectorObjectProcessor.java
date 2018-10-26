@@ -467,10 +467,24 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private Object resolveMergeValues(ProvisioningAttributeDto provisioningAttribute, Object idmValue,
 			Object connectorValue, SysProvisioningOperationDto provisioningOperation) {
 
-		List<Object> resultValues = Lists.newArrayList(connectorValue);
-		List<Object> connectorValues = Lists.newArrayList(connectorValue);
-		List<Object> idmValues = Lists.newArrayList(idmValue);
+		List<Object> resultValues = Lists.newArrayList();
+		List<Object> connectorValues = Lists.newArrayList();
+		List<Object> idmValues = Lists.newArrayList();
 
+		if(connectorValue instanceof List) {
+			resultValues.addAll((List<?>) connectorValue);
+			connectorValues.addAll((List<?>) connectorValue);
+		}else {
+			resultValues.add(connectorValue);
+			connectorValues.add(connectorValue);
+		}
+		if(idmValues instanceof List) {
+			idmValues.addAll((List<?>) idmValue);
+		}else {
+			idmValues.add(idmValue);
+		}
+		
+		// Load definition of all controlled values in IdM for that attribute
 		List<Object> controlledValues = attributeMappingService.getControlledAttributeValues(
 				provisioningOperation.getSystem(), provisioningOperation.getEntityType(),
 				provisioningAttribute.getSchemaAttributeName());

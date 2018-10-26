@@ -16,8 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -25,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.exception.DryRunNotSupportedException;
@@ -51,6 +58,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	private static final int PAGE_SIZE = 100;
 	//
 	@Autowired private IdmProcessedTaskItemService itemService;
+	@Autowired private PlatformTransactionManager platformTransactionManager;
 
 	@Override
 	public Boolean process() {
@@ -69,7 +77,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			LOG.warn("Running stateful tasks outside scheduler is not recommended.");
 			return null;
 		}
-		return itemService.createQueueItem(dto, opResult, scheduledTaskService.get(this.getScheduledTaskId()));
+		return itemService.createQueueItem(dto, opResult, this.getScheduledTaskId());
 	}
 	
 	@Override
@@ -78,7 +86,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			LOG.warn("Running stateful tasks outside scheduler is not recommended.");
 			return new ArrayList<>();
 		}
-		return itemService.findAllRefEntityIdsInQueueByScheduledTask(scheduledTaskService.get(this.getScheduledTaskId()));
+		return itemService.findAllRefEntityIdsInQueueByScheduledTaskId(this.getScheduledTaskId());
 	}
 	
 	@Override
@@ -115,12 +123,35 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	public boolean supportsDryRun() {
 		return true;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Returns {@code false} by default (backward compatibility - each task can solve this his own way).
+	 * @since 9.3.0
+	 */
+	@Override
+	public boolean continueOnException() {
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Returns {@code false} by default (backward compatibility - each task can solve this his own way).
+	 * @since 9.3.0
+	 */
+	@Override
+	public boolean requireNewTransaction() {
+		return false;
+	}
 
 	private void executeProcess() {
 		Set<UUID> retrievedRefs = new HashSet<>();
 		//
 		int page = 0;
 		boolean canContinue = true;
+		boolean dryRun = longRunningTaskService.get(this.getLongRunningTaskId()).isDryRun();
 		//
 		do {
 			Page<DTO> candidates = this.getItemsToProcess(new PageRequest(page, PAGE_SIZE));
@@ -135,7 +166,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 				Assert.notNull(candidate.getId());
 				//
 				retrievedRefs.add(candidate.getId());
-				processCandidate(candidate, longRunningTaskService.get(this.getLongRunningTaskId()).isDryRun());
+				processCandidate(candidate, dryRun);
  				canContinue &= this.updateState();
 			}
 			canContinue &= candidates.hasNext();			
@@ -154,35 +185,78 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			--count;
 			return;
 		}
-		Optional<OperationResult> result;
-		if (dryRun) {
-			if (!supportsDryRun()) {
-				throw new DryRunNotSupportedException(getName());
-			}
-			// dry run mode - operation is not executed with dry run code (no content)
-			result = Optional.of(new OperationResult
-					.Builder(OperationState.NOT_EXECUTED)
-					.setModel(new DefaultResultModel(CoreResultCode.DRY_RUN))
-					.build());
+		//
+		if (requireNewTransaction()) {
+			this.processItemInternalNewTransaction(candidate, dryRun);
 		} else {
-			result = this.processItem(candidate);
+			this.processItemInternal(candidate, dryRun);
+		}
+	}
+	
+	private Optional<OperationResult> processItemInternalNewTransaction(DTO candidate, boolean dryRun) {
+		TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
+		template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		//
+		return template.execute(new TransactionCallback<Optional<OperationResult>>() {
+			public Optional<OperationResult> doInTransaction(TransactionStatus transactionStatus) {
+				return processItemInternal(candidate, dryRun);
+			}
+		});
+	}
+	
+	private Optional<OperationResult> processItemInternal(DTO candidate, boolean dryRun) {
+		Optional<OperationResult> result;
+		try {
+			if (dryRun) {
+				if (!supportsDryRun()) {
+					throw new DryRunNotSupportedException(getName());
+				}
+				// dry run mode - operation is not executed with dry run code (no content)
+				result = Optional.of(new OperationResult
+						.Builder(OperationState.NOT_EXECUTED)
+						.setModel(new DefaultResultModel(CoreResultCode.DRY_RUN))
+						.build());
+			} else {
+				result = this.processItem(candidate);
+			}			
+		} catch (Exception ex) {
+			// convert exception to result code exception with model
+			ResultCodeException resultCodeException;
+			if (ex instanceof ResultCodeException) {
+				resultCodeException = (ResultCodeException) ex;
+			} else {
+				resultCodeException = new ResultCodeException(
+						CoreResultCode.LONG_RUNNING_TASK_ITEM_FAILED, 
+						ImmutableMap.of(
+								"referencedEntityId", candidate.getId()),
+						ex);	
+			}
+			LOG.error("[" + resultCodeException.getId() + "] ", resultCodeException);
+			//
+			result = Optional.of(new OperationResult
+						.Builder(OperationState.EXCEPTION)
+						.setException(resultCodeException)
+						.build());
 		}
 		//
+		++counter;
 		if (result.isPresent()) {
 			OperationResult opResult = result.get();
 			this.logItemProcessed(candidate, opResult);
 			if (OperationState.isSuccessful(opResult.getState())) {
-				++counter;
 				this.addToProcessedQueue(candidate, opResult);
 			}
 			LOG.debug("Statefull process [{}] intermediate result: [{}], count: [{}/{}]",
 					getClass().getSimpleName(), opResult, count, counter);
+			if (!continueOnException() && opResult.getException() != null) {
+				throw (ResultCodeException) opResult.getException();
+			}
 		} else {
-			++counter;
 			LOG.debug("Statefull process [{}] processed item [{}] without result.",
 					getClass().getSimpleName(), candidate);
 		}
-			
+		//
+		return result;
 	}
 	
 	private Page<IdmProcessedTaskItemDto> getItemFromQueue(UUID entityRef) {

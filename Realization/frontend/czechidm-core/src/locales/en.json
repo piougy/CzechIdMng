@@ -4656,6 +4656,10 @@
       "title": "Task run failed",
       "message": "Task run [{{taskType}}] on instance [{{instanceId}}] failed."
     },
+    "LONG_RUNNING_TASK_ITEM_FAILED": {
+      "title": "Processing task item failed",
+      "message": "Processing task item for candidate [{{referencedEntityId}}] ended with exception."
+    },
     "SCHEDULER_INVALID_CRON_EXPRESSION": {
       "title": "Invalid cron expression",
       "message": "Setted cron expression [{{cron}}] is invalid."

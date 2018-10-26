@@ -188,6 +188,19 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           );
           break;
         }
+        case 'selectBox': {
+          formDataComponents.push(
+            <Basic.SelectBox
+              key={formData.id}
+              ref={formData.id}
+              readOnly={!formData.writable || !canExecute}
+              required={formData.required}
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
+          );
+          break;
+        }
         default: {
           formDataComponents.push(
             <Basic.TextField

@@ -17,7 +17,7 @@ const manager = new LongRunningTaskItemManager();
  * @author Marek Klement
  * @author Radek Tomiška
  */
-export class LongRunningTaskItems extends Advanced.AbstractTableContent {
+class LongRunningTaskItems extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -67,6 +67,7 @@ export class LongRunningTaskItems extends Advanced.AbstractTableContent {
           manager={ manager }
           forceSearchParameters={ forceSearchParameters }
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+          className="no-margin"
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">

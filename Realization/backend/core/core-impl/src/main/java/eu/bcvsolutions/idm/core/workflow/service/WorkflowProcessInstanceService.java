@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
  *
  */
 @SuppressWarnings("deprecation")
-public interface WorkflowProcessInstanceService extends ReadWriteDtoService<WorkflowProcessInstanceDto, WorkflowFilterDto>, ScriptEnabled {
+public interface WorkflowProcessInstanceService extends ReadWriteDtoService<WorkflowProcessInstanceDto, WorkflowFilterDto> {
 	
 	final static String OBJECT_TYPE = "objectType";
 	final static String OBJECT_IDENTIFIER = "objectIdentifier";

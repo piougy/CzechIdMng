@@ -16,7 +16,7 @@ const notificationTemplateManager = new NotificationTemplateManager();
  *
  * @author Radek Tomiška
  */
-export default class NotificationConfigurations extends Advanced.AbstractTableContent {
+export class NotificationConfigurations extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

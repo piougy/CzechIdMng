@@ -17,7 +17,7 @@ const manager = new LongRunningTaskItemManager();
  * @author Marek Klement
  * @author Radek Tomiška
  */
-export default class LongRunningTaskItems extends Advanced.AbstractTableContent {
+export class LongRunningTaskItems extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

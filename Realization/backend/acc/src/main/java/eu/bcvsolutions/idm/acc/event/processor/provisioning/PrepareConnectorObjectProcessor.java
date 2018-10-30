@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,9 +13,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -32,14 +30,12 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -85,7 +81,6 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 
 	public static final String PROCESSOR_NAME = "prepare-connector-object-processor";
-	private static final String MODIFIED_FIELD_NAME = "modified";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(PrepareConnectorObjectProcessor.class);
 	private final SysSystemMappingService systemMappingService;
@@ -95,7 +90,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
 	private final SysSchemaAttributeService schemaAttributeService;
-	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final ProvisioningConfiguration provisioningConfiguration;
 
@@ -127,7 +121,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		this.notificationManager = notificationManager;
 		this.provisioningOperationService = provisioningOperationService;
 		this.schemaAttributeService = schemaAttributeService;
-		this.provisioningArchiveService = provisioningArchiveService;
 		this.schemaObjectClassService = schemaObjectClassService;
 		this.provisioningConfiguration = provisioningConfiguration;
 	}
@@ -485,7 +478,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		}
 		
 		// Load definition of all controlled values in IdM for that attribute
-		List<Object> controlledValues = attributeMappingService.getControlledAttributeValues(
+		List<Serializable> controlledValues = attributeMappingService.getCachedControlledAttributeValues(
 				provisioningOperation.getSystem(), provisioningOperation.getEntityType(),
 				provisioningAttribute.getSchemaAttributeName());
 

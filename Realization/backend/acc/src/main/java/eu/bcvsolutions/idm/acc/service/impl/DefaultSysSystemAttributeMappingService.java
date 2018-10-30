@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.beans.IntrospectionException;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -12,7 +13,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
@@ -30,14 +30,15 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysAttributeControlledValueFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -46,6 +47,7 @@ import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
+import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
@@ -96,6 +98,9 @@ public class DefaultSysSystemAttributeMappingService extends
 	private final SysSchemaAttributeService schemaAttributeService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSystemMappingService systemMappingService;
+	@Autowired
+	private SysAttributeControlledValueService attributeControlledValueService;
+
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
 
@@ -578,13 +583,8 @@ public class DefaultSysSystemAttributeMappingService extends
 		return (String) uid;
 	}
 
-	public void getControlledValues(SysSchemaAttributeDto schemaAttribute) {
-		Assert.notNull(schemaAttribute, "Schema attribute is mandatory for get controlled values!");
-
-	}
-
 	@Override
-	public List<Object> getControlledAttributeValues(UUID systemId, SystemEntityType entityType,
+	public List<Serializable> getControlledAttributeValues(UUID systemId, SystemEntityType entityType,
 			String schemaAttributeName) {
 		Assert.notNull(systemId, "System ID is mandatory for get controlled values!");
 		Assert.notNull(entityType, "Entity type is mandatory for get controlled values!");
@@ -599,19 +599,81 @@ public class DefaultSysSystemAttributeMappingService extends
 		List<SysRoleSystemAttributeDto> roleSystemAttributes = roleSystemAttributeService
 				.find(roleSystemAttributeFilter, null).getContent();
 
-		List<Object> results = Lists.newArrayList();
-		roleSystemAttributes.stream() // We want values from merge and enabled attributes only
+		List<Serializable> results = Lists.newArrayList();
+		roleSystemAttributes.stream() // We need values for merge and enabled attributes only
 				.filter(roleSystemAttr -> AttributeMappingStrategyType.MERGE == roleSystemAttr.getStrategyType() //
 						&& !roleSystemAttr.isDisabledAttribute()) //
 				.forEach(roleSystemAttr -> { //
 					// We predicate only static script (none input variables, only system)!
 					Object value = this.transformValueToResource(null, null, roleSystemAttr, null);
 					if (value != null) {
-						results.add(value);
+						if (!(value instanceof Serializable)) {
+							throw new ResultCodeException(
+									AccResultCode.PROVISIONING_CONTROLLED_VALUE_IS_NOT_SERIALIZABLE,
+									ImmutableMap.of("value", value, "name", schemaAttributeName, "system", systemId));
+						}
+						results.add((Serializable) value);
 					}
 				});
 
 		return results;
+	}
+
+	@Override
+	public List<Serializable> getCachedControlledAttributeValues(UUID systemId, SystemEntityType entityType,
+			String schemaAttributeName) {
+		Assert.notNull(systemId, "System ID is mandatory for get controlled values!");
+		Assert.notNull(entityType, "Entity type is mandatory for get controlled values!");
+		Assert.notNull(schemaAttributeName, "Schema attribute name is mandatory for get controlled values!");
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(systemId, entityType);
+		Assert.notNull(mapping, "System provisioning mapping is mandatory for search controlled attribute values!");
+
+		SysSystemAttributeMappingFilter systemAttributeMappingFilter = new SysSystemAttributeMappingFilter();
+		systemAttributeMappingFilter.setSchemaAttributeName(schemaAttributeName);
+		systemAttributeMappingFilter.setSystemId(systemId);
+		systemAttributeMappingFilter.setSystemMappingId(mapping.getId());
+
+		List<SysSystemAttributeMappingDto> attributes = this.find(systemAttributeMappingFilter, null).getContent();
+		Assert.notEmpty(attributes, "Mapping attribute must exists!");
+		Assert.isTrue(attributes.size() == 1,
+				"Only one mapping attribute is allowed for same schema attribute in the provisioning!");
+		SysSystemAttributeMappingDto attributeMapping = attributes.get(0);
+
+		SysAttributeControlledValueFilter attributeControlledValueFilter = new SysAttributeControlledValueFilter();
+		attributeControlledValueFilter.setAttributeMappingId(attributeMapping.getId());
+		attributeControlledValueFilter.setHistoricValue(Boolean.FALSE);
+		
+		// Search controlled values for that attribute
+		List<Serializable> cachedControlledValues = attributeControlledValueService //
+				.find(attributeControlledValueFilter, null) //
+				.getContent() //
+				.stream() //
+				.map(SysAttributeControlledValueDto::getValue) //
+				.collect(Collectors.toList());
+
+		// Set filter for search historic values
+		attributeControlledValueFilter.setHistoricValue(Boolean.TRUE);
+		
+		// Search historic controlled values for that attribute
+		List<Serializable> historicControlledValues = attributeControlledValueService //
+				.find(attributeControlledValueFilter, null) //
+				.getContent() //
+				.stream() //
+				.map(SysAttributeControlledValueDto::getValue) //
+				.collect(Collectors.toList());
+
+		if (attributeMapping.isEvictControlledValuesCache()) {
+			List<Serializable> controlledAttributeValues = this.getControlledAttributeValues(systemId, entityType, schemaAttributeName);
+			attributeControlledValueService.setControlledValues(attributeMapping, controlledAttributeValues);
+			cachedControlledValues = controlledAttributeValues;
+		}
+
+		List<Serializable> controlledValues = Lists.newArrayList();
+		controlledValues.addAll(cachedControlledValues);
+		controlledValues.addAll(historicControlledValues);
+
+		return controlledValues;
 	}
 
 	/**

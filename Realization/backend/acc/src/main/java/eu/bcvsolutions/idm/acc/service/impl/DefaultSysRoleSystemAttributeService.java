@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,6 +131,25 @@ public class DefaultSysRoleSystemAttributeService extends
 		// We will do script validation (on compilation errors), before save
 		if (dto.getTransformScript() != null) {
 			groovyScriptService.validateScript(dto.getTransformScript());
+		}
+		
+		// TODO: Validation on change the mapping attribute ... we cannot allow that!!!
+		
+		// Save history of controlled value (if definition changed)
+		if(!this.isNew(dto)){
+			SysRoleSystemAttributeDto oldRoleAttribute = this.get(dto.getId());
+			// We predicate only static script (none input variables, only system)!
+			Object oldControlledValue = systemAttributeMappingService.transformValueToResource(null, null, oldRoleAttribute, null);
+			Object newControlledValue = systemAttributeMappingService.transformValueToResource(null, null, dto, null);
+			
+			// Check if old and new controlled values are same. If not then we save old value to the history on parent attribute
+			if(!Objects.equals(oldControlledValue, newControlledValue)) {
+				List<Serializable> historicControlledValues = systemAttributeMapping.getHistoricControlledAttributeValues();
+				if(!historicControlledValues.contains(oldControlledValue)) {
+					historicControlledValues.add((Serializable) oldControlledValue);
+					systemAttributeMapping = systemAttributeMappingService.save(systemAttributeMapping);
+				}
+			}
 		}
 
 		SysRoleSystemAttributeDto roleSystemAttribute = super.save(dto, permission);

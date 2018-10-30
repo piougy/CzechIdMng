@@ -30,6 +30,8 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	        + " (?#{[0].systemMappingId} is null or e.systemMapping.id = ?#{[0].systemMappingId})"
 	        + " and"
 	        + " (?#{[0].schemaAttributeId} is null or e.schemaAttribute.id = ?#{[0].schemaAttributeId})"
+	        +  "and"
+	        + " (?#{[0].schemaAttributeName} is null or e.schemaAttribute.name = ?#{[0].schemaAttributeName})"
 	        + " and"
 	        + " (?#{[0].systemId} is null or e.systemMapping.objectClass.system.id = ?#{[0].systemId})"
 	        + " and"

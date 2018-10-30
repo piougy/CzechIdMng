@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.beans.IntrospectionException;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.UUID;
@@ -159,5 +160,8 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 */
 	void validate(SysSystemAttributeMappingDto dto, SysSystemMappingDto systemMappingDto);
 
-	List<Object> getControlledAttributeValues(UUID system, SystemEntityType entityType, String schemaAttributeName);
+	List<Serializable> getControlledAttributeValues(UUID system, SystemEntityType entityType, String schemaAttributeName);
+
+	List<Serializable> getCachedControlledAttributeValues(UUID systemId, SystemEntityType entityType,
+			String schemaAttributeName);
 }

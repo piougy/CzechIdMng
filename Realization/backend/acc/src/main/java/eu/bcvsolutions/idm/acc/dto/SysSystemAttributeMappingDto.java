@@ -33,7 +33,7 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	private boolean authenticationAttribute = false;
 	private boolean sendOnPasswordChange = false;
 	private boolean cached = true;
-	private boolean isEvictControlledValuesCache = false;
+	private boolean evictControlledValuesCache = true;
 
 	@Override
 	public String getName() {
@@ -200,11 +200,11 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	}
 
 	public boolean isEvictControlledValuesCache() {
-		return isEvictControlledValuesCache;
+		return evictControlledValuesCache;
 	}
 
-	public void setEvictControlledValuesCache(boolean isEvictControlledValuesCache) {
-		this.isEvictControlledValuesCache = isEvictControlledValuesCache;
+	public void setEvictControlledValuesCache(boolean evictControlledValuesCache) {
+		this.evictControlledValuesCache = evictControlledValuesCache;
 	}
 
 }

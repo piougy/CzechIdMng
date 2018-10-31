@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -24,6 +26,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysAttributeControlledValueFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
@@ -34,6 +37,7 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -82,6 +86,8 @@ public class DefaultSysRoleSystemAttributeService extends
 	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
 	private RequestManager requestManager;
+	@Autowired
+	private SysAttributeControlledValueService attributeControlledValueService;
 
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
@@ -144,11 +150,8 @@ public class DefaultSysRoleSystemAttributeService extends
 			
 			// Check if old and new controlled values are same. If not then we save old value to the history on parent attribute
 			if(!Objects.equals(oldControlledValue, newControlledValue)) {
-				List<Serializable> historicControlledValues = systemAttributeMapping.getHistoricControlledAttributeValues();
-				if(!historicControlledValues.contains(oldControlledValue)) {
-					historicControlledValues.add((Serializable) oldControlledValue);
-					systemAttributeMapping = systemAttributeMappingService.save(systemAttributeMapping);
-				}
+				// Set filter for search historic values
+				attributeControlledValueService.addHistoricValue(systemAttributeMapping, (Serializable) oldControlledValue);
 			}
 		}
 

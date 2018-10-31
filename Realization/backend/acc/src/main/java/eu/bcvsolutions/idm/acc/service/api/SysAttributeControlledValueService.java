@@ -19,5 +19,8 @@ public interface SysAttributeControlledValueService extends EventableDtoService<
 
 	void setControlledValues(SysSystemAttributeMappingDto attributeMapping,
 			List<Serializable> controlledAttributeValues);
+	
+	void addHistoricValue(SysSystemAttributeMappingDto attributeMapping,
+			Serializable value);
 
 }

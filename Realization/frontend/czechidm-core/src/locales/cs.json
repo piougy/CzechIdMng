@@ -4264,7 +4264,8 @@
       },
       "taskCompleteMessage": {
         "name": "Poznámka",
-        "placeholder": ""
+        "placeholder": "",
+        "tooltip": ""
       }
     }
   },

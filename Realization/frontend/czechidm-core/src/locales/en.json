@@ -4214,7 +4214,8 @@
       },
       "taskCompleteMessage": {
         "name": "Note",
-        "placeholder": ""
+        "placeholder": "",
+        "tooltip": ""
       }
     }
   },

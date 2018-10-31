@@ -209,7 +209,8 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               placeholder={this._getLocalization('placeholder', formData)}
               label={this._getLocalization('name', formData)}
               multiSelect={false}
-              options={data}/>
+              options={data}
+              value={null}/>
           );
           break;
         }
@@ -228,20 +229,20 @@ class DynamicTaskDetail extends Basic.AbstractContent {
                     }}
                     className="table-bordered">
                   <Basic.Column property="name" header={this.i18n('wf.formData.history.taskName')}/>
-                  <Basic.Column property="endTime" header={this.i18n('wf.formData.validTill.name')}
+                  <Basic.Column property="endTime" header={this.i18n('wf.formData.history.completeDate')}
                     cell={
                       ({rowIndex, data}) => {
                         return this._getDate(rowIndex, data);
                       }
                     }/>
-                  <Basic.Column property="assignee"
+                  <Basic.Column property="assignee" header={this.i18n('wf.formData.history.assignee')}
                   cell={({rowIndex, data}) => {
                     return (<IdentityInfo
                       entityIdentifier={ data[rowIndex].assignee }
                       face="popover" />);
                   }
                   }/>
-                  <Basic.Column property="completeTaskDecision"/>
+                  <Basic.Column property="completeTaskMessage" header={this.i18n('wf.formData.history.message')}/>
                 </Basic.Table>
               </Basic.Panel>
           );

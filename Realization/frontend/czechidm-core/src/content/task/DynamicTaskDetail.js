@@ -30,7 +30,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   _toFormDataValues(formDatas) {
     const result = {};
     for (const formData of formDatas) {
-      result[formData.id] = formData.value;
+      if (formData.type !== 'selectBox') {
+        result[formData.id] = formData.value;
+      }
     }
     return result;
   }
@@ -209,8 +211,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               placeholder={this._getLocalization('placeholder', formData)}
               label={this._getLocalization('name', formData)}
               multiSelect={false}
-              options={data}
-              value={null}/>
+              options={data}/>
           );
           break;
         }
@@ -271,7 +272,6 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     const showLoadingInternal = task ? showLoading : true;
     const formDataValues = this._toFormDataValues(task.formData);
     const taskName = taskManager.localize(task, 'name');
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />

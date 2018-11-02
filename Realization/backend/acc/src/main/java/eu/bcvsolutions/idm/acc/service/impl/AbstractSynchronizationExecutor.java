@@ -408,7 +408,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		AbstractSysSyncConfigDto config = context.getConfig();
 		SysSyncItemLogDto logItem = context.getLogItem();
 
-		addToItemLog(logItem, "Account doesn't exist in IDM");
+		addToItemLog(logItem, "Account doesn't exist in IdM");
 
 		DTO entity = findByCorrelationAttribute(systemAttributeMappingService.get(config.getCorrelationAttribute()),
 				icAttributes, context);
@@ -683,7 +683,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				initSyncActionLog(SynchronizationActionType.CREATE_ACCOUNT, OperationResultType.IGNORE, itemLog, log,
 						actionsLog);
 				itemLog.addToLog(MessageFormat.format(
-						"For entity [{0}] was found AccAccount [{1}]. Export for this entity ends (only entity without AccAccount can be export)!",
+						"For entity [{0}] AccAccount [{1}] was found. Export for this entity ends (only entity without AccAccount can be exported)!",
 						this.getDisplayNameForEntity(entity), accountId));
 				return;
 			}
@@ -963,7 +963,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 
-		addToItemLog(logItem, "Account and entity doesn't exist (missing entity).");
+		addToItemLog(logItem, "Account and entity don't exist (missing entity).");
 
 		switch (actionType) {
 		case IGNORE:
@@ -1167,7 +1167,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account,
 			SynchronizationContext context) {
 		// We will create new entity
-		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new entity.");
+		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will create new entity.");
 		DTO entity = this.createEntityDto();
 		// Fill entity by mapped attribute
 		entity = fillEntity(mappedAttributes, uid, icAttributes, entity, true, context);
@@ -1351,7 +1351,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			try {
 				Serializable serializableValue = Serializable.class.cast(value);
 				SystemEntityType entityType = context.getEntityType();
-				Assert.notNull(entityType, "Entity type is requierd!");
+				Assert.notNull(entityType, "Entity type is required!");
 
 				List<? extends BaseDto> entities = formService.findOwners(entityType.getExtendedAttributeOwnerType(),
 						attribute.getIdmPropertyName(), serializableValue, null).getContent();
@@ -1493,7 +1493,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			//
 			// Save to extended attribute
 			if (!formService.isFormable(dto.getClass())) {
-				String message = MessageFormat.format("Entity [{0}] is not instance of fromable entity!", dto.getId());
+				String message = MessageFormat.format("Entity [{0}] is not instance of formable entity!", dto.getId());
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
 						ImmutableMap.of("uid", uid, "message", message));
 			}
@@ -1504,7 +1504,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					.getMappedAttributeByCode(attributeProperty);
 			if (defAttribute == null) {
 				// eav definition could be changed
-				String message = MessageFormat.format("Form attribute defininion [{0}] was not found!",
+				String message = MessageFormat.format("Form attribute definition [{0}] was not found!",
 						attributeProperty);
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
 						ImmutableMap.of("uid", uid, "message", message));
@@ -1513,7 +1513,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				((List<?>) transformedValue).stream().forEach(value -> {
 					if (value != null && !(value instanceof Serializable)) {
 						String message = MessageFormat.format(
-								"Value is not serializable [{0}] for attribute [{1}] and UID [{2}]!", value, attribute,
+								"Value [{0}] is not serializable for the attribute [{1}] and UID [{2}]!", value, attribute,
 								uid);
 						throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
 								ImmutableMap.of("uid", uid, "message", message));
@@ -2210,7 +2210,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// and must be String
 		String attributeUid = this.generateUID(context);
 		if (!account.getUid().equals(attributeUid)) {
-			addToItemLog(logItem, MessageFormat.format("IdM Account UID ({0}) is different ({1}). We will update him.",
+			addToItemLog(logItem, MessageFormat.format("IdM Account UID ({0}) is different ({1}). We will update it.",
 					account.getUid(), attributeUid));
 			account.setUid(attributeUid);
 			account = accountService.save(account);

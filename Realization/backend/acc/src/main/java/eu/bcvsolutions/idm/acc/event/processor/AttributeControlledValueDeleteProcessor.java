@@ -15,20 +15,20 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 
 /**
- * Save attribute controlled value processor
+ * Delete attribute controlled value processor
  * 
  * @author Svanda
  */
-@Component("sysAttributeControlledValueSaveProcessor")
+@Component("sysAttributeControlledValueDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
-public class AttributeControlledValueSaveProcessor extends CoreEventProcessor<SysAttributeControlledValueDto> {
+public class AttributeControlledValueDeleteProcessor extends CoreEventProcessor<SysAttributeControlledValueDto> {
 
-	private static final String PROCESSOR_NAME = "attribute-controlled-value-save-processor";
+	private static final String PROCESSOR_NAME = "attribute-controlled-value-delete-processor";
 	private final SysAttributeControlledValueService service;
 
 	@Autowired
-	public AttributeControlledValueSaveProcessor(SysAttributeControlledValueService service) {
-		super(AttributeControlledValueEventType.CREATE, AttributeControlledValueEventType.UPDATE);
+	public AttributeControlledValueDeleteProcessor(SysAttributeControlledValueService service) {
+		super(AttributeControlledValueEventType.DELETE);
 		//
 		Assert.notNull(service);
 		//
@@ -44,8 +44,7 @@ public class AttributeControlledValueSaveProcessor extends CoreEventProcessor<Sy
 	public EventResult<SysAttributeControlledValueDto> process(EntityEvent<SysAttributeControlledValueDto> event) {
 		SysAttributeControlledValueDto entity = event.getContent();
 
-		entity = service.saveInternal(entity);
-		event.setContent(entity);
+		service.deleteInternal(entity);
 
 		return new DefaultEventResult<>(event, this);
 	}

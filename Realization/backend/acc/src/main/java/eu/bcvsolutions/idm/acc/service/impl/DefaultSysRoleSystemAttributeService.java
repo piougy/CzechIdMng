@@ -150,8 +150,11 @@ public class DefaultSysRoleSystemAttributeService extends
 			
 			// Check if old and new controlled values are same. If not then we save old value to the history on parent attribute
 			if(!Objects.equals(oldControlledValue, newControlledValue)) {
-				// Set filter for search historic values
+				// Set old value as historic
 				attributeControlledValueService.addHistoricValue(systemAttributeMapping, (Serializable) oldControlledValue);
+				// Controlled value changed, so we need evict the cache
+				systemAttributeMapping.setEvictControlledValuesCache(true);
+				systemAttributeMappingService.save(systemAttributeMapping);
 			}
 		}
 

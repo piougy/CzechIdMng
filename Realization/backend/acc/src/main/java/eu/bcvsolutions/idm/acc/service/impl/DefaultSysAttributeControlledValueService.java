@@ -51,7 +51,6 @@ public class DefaultSysAttributeControlledValueService extends
 			List<Serializable> controlledAttributeValues) {
 		Assert.notNull(attributeMapping);
 		Assert.notNull(controlledAttributeValues);
-		Assert.isTrue(attributeMapping.isEvictControlledValuesCache(), "Attribute must be setts as evict cache!");
 
 		SysAttributeControlledValueFilter attributeControlledValueFilter = new SysAttributeControlledValueFilter();
 		attributeControlledValueFilter.setAttributeMappingId(attributeMapping.getId());
@@ -91,6 +90,23 @@ public class DefaultSysAttributeControlledValueService extends
 			controlledValue.setHistoricValue(false);
 			controlledValue.setValue(valueToAdd);
 			controlledValue = this.save(controlledValue);
+		});
+
+		// Search historic controlled values for that attribute
+		attributeControlledValueFilter.setHistoricValue(Boolean.TRUE);
+		List<SysAttributeControlledValueDto> historicControlledValues = this //
+				.find(attributeControlledValueFilter, null) //
+				.getContent() //
+				.stream() //
+				.collect(Collectors.toList());
+
+		List<SysAttributeControlledValueDto> historicValuesToDelete = historicControlledValues.stream() //
+				.filter(historicValue -> controlledAttributeValues.contains(historicValue.getValue())) //
+				.collect(Collectors.toList());
+		
+		// If historic value exists in current definition, then will be deleted
+		historicValuesToDelete.forEach(historicValue -> {
+			this.delete(historicValue);
 		});
 
 		// Controlled values are synchronized now, so we can set evict to false
@@ -138,7 +154,8 @@ public class DefaultSysAttributeControlledValueService extends
 					builder.equal(root.get(SysAttributeControlledValue_.historicValue), filter.getHistoricValue()));
 		}
 		if (filter.getAttributeMappingId() != null) {
-			predicates.add(builder.equal(root.get(SysAttributeControlledValue_.attributeMapping).get(SysAttributeControlledValue_.id),
+			predicates.add(builder.equal(
+					root.get(SysAttributeControlledValue_.attributeMapping).get(SysAttributeControlledValue_.id),
 					filter.getAttributeMappingId()));
 		}
 

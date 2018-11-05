@@ -82,6 +82,7 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE(HttpStatus.BAD_REQUEST, "Provisioning does not supports entity type [%s]"),
 	PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING(HttpStatus.CONFLICT, "For 'Provisionig' can exist only one mapped attribute to same schema attribute [%s]!"),
 	PROVISIONING_CONTROLLED_VALUE_IS_NOT_SERIALIZABLE(HttpStatus.BAD_REQUEST, "Controlled value [%s] for attribute [%s] on system [%s] is not serializable!"),
+	PROVISIONING_EX_ATTR_CONTROLED_VALUE_RECALC(HttpStatus.BAD_REQUEST, "Error occured durring recalculation controlled value of attribute [%s] on system [%s]!"),
 	//
 	// Synchronization
 	SYNCHRONIZATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Synchronization [%s] not found!"),

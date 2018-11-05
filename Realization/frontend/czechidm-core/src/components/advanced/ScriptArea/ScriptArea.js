@@ -176,7 +176,7 @@ class ScriptArea extends Basic.ScriptArea {
 }
 
 ScriptArea.propTypes = {
-  scriptCategory: PropTypes.object,
+  scriptCategory: PropTypes.array,
   scriptManager: PropTypes.object,
   headerText: PropTypes.string.isRequired,
   mode: PropTypes.string,

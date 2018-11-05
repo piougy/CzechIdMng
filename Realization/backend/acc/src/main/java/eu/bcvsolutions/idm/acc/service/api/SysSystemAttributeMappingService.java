@@ -164,4 +164,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 
 	List<Serializable> getCachedControlledAttributeValues(UUID systemId, SystemEntityType entityType,
 			String schemaAttributeName);
+
+	List<Serializable> recalculateAttributeControlledValues(UUID systemId, SystemEntityType entityType,
+			String schemaAttributeName, SysSystemAttributeMappingDto attributeMapping);
 }

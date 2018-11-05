@@ -368,7 +368,7 @@
               "evicted": "The list of <strong> values is not valid </strong> (the attribute may have been modified) and will be recalculated when first using the provisioning!"
             },
             "historic": {
-              "header": "Historically controlled values",
+              "header": "Values controlled in the past",
               "helpBlock": "A list of past values for this attribute is managed in IdM. These values are still used in the merger evaluation. If you are certain that a specific value is no longer to be evaluated as managed, then you can delete it here."
             },
             "label": "Controlled values (merge)"

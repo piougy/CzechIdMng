@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,7 +17,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -26,7 +24,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SysAttributeControlledValueFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
@@ -138,38 +135,97 @@ public class DefaultSysRoleSystemAttributeService extends
 		if (dto.getTransformScript() != null) {
 			groovyScriptService.validateScript(dto.getTransformScript());
 		}
-		
-		// TODO: Validation on change the mapping attribute ... we cannot allow that!!!
-		
+
 		// Save history of controlled value (if definition changed)
-		if(!this.isNew(dto)){
+		if (!this.isNew(dto)) {
+
+			boolean evictCache = false;
 			SysRoleSystemAttributeDto oldRoleAttribute = this.get(dto.getId());
 			// We predicate only static script (none input variables, only system)!
-			Object oldControlledValue = systemAttributeMappingService.transformValueToResource(null, null, oldRoleAttribute, null);
+			Object oldControlledValue = systemAttributeMappingService.transformValueToResource(null, null,
+					oldRoleAttribute, null);
 			Object newControlledValue = systemAttributeMappingService.transformValueToResource(null, null, dto, null);
-			
-			// Check if old and new controlled values are same. If not then we save old value to the history on parent attribute
-			if(!Objects.equals(oldControlledValue, newControlledValue)) {
+
+			// Check if parent attribute changed, if yes then old value is added to history
+			// and new parent attribute is evicted
+			if (!oldRoleAttribute.getSystemAttributeMapping().equals(dto.getSystemAttributeMapping())) {
+				SysSystemAttributeMappingDto oldSystemAttributeMapping = systemAttributeMappingService
+						.get(oldRoleAttribute.getSystemAttributeMapping());
+				if (AttributeMappingStrategyType.MERGE == oldSystemAttributeMapping.getStrategyType()) {
+					// Old attribute changed, so we need evict the cache
+					oldSystemAttributeMapping.setEvictControlledValuesCache(true);
+					systemAttributeMappingService.save(oldSystemAttributeMapping);
+				}
 				// Set old value as historic
-				attributeControlledValueService.addHistoricValue(systemAttributeMapping, (Serializable) oldControlledValue);
-				// Controlled value changed, so we need evict the cache
+				attributeControlledValueService.addHistoricValue(oldSystemAttributeMapping,
+						(Serializable) oldControlledValue);
+				evictCache = true;
+			}
+			// Check if old and new controlled values are same. If not then we save old
+			// value to the history on parent attribute
+			else if (!Objects.equals(oldControlledValue, newControlledValue)
+					&& AttributeMappingStrategyType.MERGE == oldRoleAttribute.getStrategyType()) {
+				// Set old value as historic
+				attributeControlledValueService.addHistoricValue(systemAttributeMapping,
+						(Serializable) oldControlledValue);
+				evictCache = true;
+			}
+			// Check if disable of that attribute is changed and new value is disabled, then
+			// we need add old value to history
+			else if (oldRoleAttribute.isDisabledAttribute() != dto.isDisabledAttribute() && dto.isDisabledAttribute()
+					&& AttributeMappingStrategyType.MERGE == oldRoleAttribute.getStrategyType()) {
+				// Set old value as historic
+				attributeControlledValueService.addHistoricValue(systemAttributeMapping,
+						(Serializable) oldControlledValue);
+				evictCache = true;
+			}
+			// Check if strategy type changed, if yes and previous strategy was MERGE, then
+			// old value will be added to history
+			else if (oldRoleAttribute.getStrategyType() != dto.getStrategyType()
+					&& AttributeMappingStrategyType.MERGE == oldRoleAttribute.getStrategyType()) {
+				// Set old value as historic
+				attributeControlledValueService.addHistoricValue(systemAttributeMapping,
+						(Serializable) oldControlledValue);
+				evictCache = true;
+			}
+
+			if (evictCache) {
+				// Attribute changed, so we need evict the cache
 				systemAttributeMapping.setEvictControlledValuesCache(true);
 				systemAttributeMappingService.save(systemAttributeMapping);
 			}
+		} else {
+			// Attribute created, so we need evict the cache
+			systemAttributeMapping.setEvictControlledValuesCache(true);
+			systemAttributeMappingService.save(systemAttributeMapping);
 		}
 
 		SysRoleSystemAttributeDto roleSystemAttribute = super.save(dto, permission);
 
 		return roleSystemAttribute;
 	}
-	
+
 	@Override
 	@Transactional
 	public void delete(SysRoleSystemAttributeDto roleSystemAttribute, BasePermission... permission) {
 		Assert.notNull(roleSystemAttribute);
 		// Cancel requests and request items using that deleting DTO
 		requestManager.onDeleteRequestable(roleSystemAttribute);
-		
+
+		// If has deletes attribute MERGE strategy, then we need save value to history
+		// and evict cache on parent attribute
+		if (AttributeMappingStrategyType.MERGE == roleSystemAttribute.getStrategyType()) {
+			SysSystemAttributeMappingDto systemAttributeMapping = systemAttributeMappingService
+					.get(roleSystemAttribute.getSystemAttributeMapping());
+			Object value = systemAttributeMappingService.transformValueToResource(null, null, roleSystemAttribute,
+					null);
+			// Set old value as historic
+			attributeControlledValueService.addHistoricValue(systemAttributeMapping, (Serializable) value);
+			// Attribute changed, so we need evict the cache
+			systemAttributeMapping.setEvictControlledValuesCache(true);
+			systemAttributeMappingService.save(systemAttributeMapping);
+		}
+
 		super.delete(roleSystemAttribute, permission);
 	}
 

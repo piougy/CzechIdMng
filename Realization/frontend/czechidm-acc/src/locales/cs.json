@@ -368,7 +368,7 @@
               "evicted": "Seznam hodnot <strong>není platný</strong>, atribut byl pravděpodobně upraven a bude přepočítám při prvním použití provisioningu!"
             },
             "historic": {
-              "header": "Historicky kontrolované hodnoty",
+              "header": "V minulosti spravované hodnoty",
               "helpBlock": "<strong>Seznam hodnot, které byly v minulosti pro tento atribut spravované v IdM</strong>. Tyto hodnoty jsou stále využívány při vyhodnocování sloučování. Pokud jste si jistí, že konkrétní hodnota již nemá být vyhodnocována jako spravovaná, pak jí zde můžete odstraňit."
             },
             "label": "Kontrolované hodnoty (slučování)"

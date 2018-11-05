@@ -22,7 +22,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     super(props, context);
     this.state = {
       activeKey: 1,
-      strategyType: AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.MERGE)
+      strategyType: null
     };
   }
 
@@ -187,8 +187,9 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     const entityTypeEnum = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY');
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
     const isSynchronization = _systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION' ? true : false;
-    const isMerge = strategyType === AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.MERGE);
-    //
+    const strategyTypeTemp = strategyType ? strategyType : attribute.strategyType;
+    const isMerge = strategyTypeTemp === AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.MERGE);
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -330,7 +331,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
                 <Advanced.ScriptArea
                   ref="transformToResourceScript"
-                  showScriptSelection={!isMerge}
+                  rendered={!isMerge}
                   scriptCategory={[Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.DEFAULT), Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO)]}
                   headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
                   helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help')}
@@ -355,7 +356,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
             </Basic.Panel>
           </form>
         </Basic.Tab>
-        <Basic.Tab eventKey={2} title={this.i18n('tabs.controlledValues.label')} className="bordered">
+        <Basic.Tab eventKey={2} rendered={isMerge} title={this.i18n('tabs.controlledValues.label')} className="bordered">
           <Basic.ContentHeader text={ this.i18n('tabs.controlledValues.cache.header') } style={{ marginLeft: 5 }}/>
           <Basic.Alert
             level="info"

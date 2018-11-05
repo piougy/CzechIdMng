@@ -145,7 +145,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		boolean createDefaultContract = config.isCreateDefaultContract();
 		
 		if (isNew && createDefaultContract) {
-			addToItemLog(context.getLogItem(), "For identity will be created default contract.");
+			addToItemLog(context.getLogItem(), "The default contract will be created for the identity.");
 		}
 		//
 		EntityEvent<IdmIdentityDto> event = new IdentityEvent(
@@ -251,7 +251,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			// account
 			identityAccoutnService.delete(identityAccount, false);
 			addToItemLog(logItem, MessageFormat.format(
-					"Identity-account relation deleted (without call delete provisioning) (username: {0}, id: {1})",
+					"Identity-account relation deleted (without calling the delete provisioning operation) (username: {0}, id: {1})",
 					identityAccount.getIdentity(), identityAccount.getId()));
 			UUID identityRole = identityAccount.getIdentityRole();
 
@@ -280,17 +280,17 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		if (defaultRoleId == null) {
 			return identityAccount;
 		}
-		// Default role is defines
+		// Default role is defined
 		IdmRoleDto defaultRole = DtoUtils.getEmbedded(config, SysSyncIdentityConfig_.defaultRole);
 		context.getLogItem()
 				.addToLog(MessageFormat.format(
-						"Default role [{1}] is defines and will be assigned to the identity [{0}].", entity.getCode(),
+						"Default role [{1}] is defined and will be assigned to the identity [{0}].", entity.getCode(),
 						defaultRole.getCode()));
 		Assert.notNull(defaultRole, "Default role must be found for this sync configuration!");
 		IdmIdentityContractDto primeContract = identityContractService.getPrimeValidContract(entity.getId());
 		if (primeContract == null) {
 			context.getLogItem().addToLog(
-					"Warning! - Default role is set, but could not be assigned to identity, because was not found any valid identity contract!");
+					"Warning! - Default role is set, but could not be assigned to identity, because the identity has not any valid contract!");
 			this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 					context.getLog(), context.getActionLogs());
 			return identityAccount;
@@ -385,7 +385,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		if (getConfig(context).isStartAutoRoleRec()) {
 			log = executeAutomaticRoleRecalculation(log);
 		} else {
-			log.addToLog(MessageFormat.format("Start automatic role recalculation (after sync) isn't allowed [{0}]",
+			log.addToLog(MessageFormat.format("Start of the automatic role recalculation (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
 		}
 
@@ -402,15 +402,15 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		ProcessAllAutomaticRoleByAttributeTaskExecutor executor = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
 
 		log.addToLog(MessageFormat.format(
-				"After success sync have to be run Automatic role by attribute recalculation. We start him (synchronously) now [{0}].",
+				"An automatic role by attribute recalculation has to be start after the synchronization end. We start it (synchronously) now [{0}].",
 				LocalDateTime.now()));
 		Boolean executed = longRunningTaskManager.executeSync(executor);
 
 		if (BooleanUtils.isTrue(executed)) {
-			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].",
+			log.addToLog(MessageFormat.format("Recalculation of automatic roles by attribute ended in [{0}].",
 					LocalDateTime.now()));
 		} else {
-			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
+			addToItemLog(log, "Warning - recalculation of automatic roles by attribute was not executed correctly.");
 		}
 
 		return synchronizationLogService.save(log);

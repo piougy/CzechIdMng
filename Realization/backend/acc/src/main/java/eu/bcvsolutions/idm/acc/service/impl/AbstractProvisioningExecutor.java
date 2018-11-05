@@ -1098,13 +1098,13 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				SystemOperationType.PROVISIONING, entityType);
 		if (systemMappings == null || systemMappings.isEmpty()) {
 			LOG.info(MessageFormat.format(
-					"System [{0}] does not have mapping, provisioning will not be executed. Add some mapping for entity type [{1}]",
+					"System [{0}] does not have provisioning mapping set, provisioning will not be executed. Add provisioning mapping for entity type [{1}]",
 					system.getName(), entityType));
 			return null;
 		}
 		if (systemMappings.size() != 1) {
 			throw new IllegalStateException(MessageFormat.format(
-					"System [{0}] is wrong configured! Remove duplicit mapping for entity type [{1}]", system.getName(),
+					"System [{0}] is not configured properly! Remove duplicit provisioning mapping for entity type [{1}]", system.getName(),
 					entityType));
 		}
 		return systemMappings.get(0);

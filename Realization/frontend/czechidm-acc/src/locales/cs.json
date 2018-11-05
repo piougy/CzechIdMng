@@ -349,7 +349,7 @@
         "title" : "Atribut v IdM",
         "header" : "Detail mapování atributu ",
         "alertNoRepository": "Atribut není mapován na žádné IdM úložiště (entitu ani rozšířený atribut). Výstupem bude konstanta, z 'Transformace do systému'",
-        "infoPasswordMapping": "V případě že atribut __PASSWORD__ je roven hodnotě NULL bude automaticky vygenerován z politiky hesel pro tento systém.",
+        "infoPasswordMapping": "Pozor, je vybrán atribut s heslem. Při vytvoření objektu na koncovém systému bude vygenerována jedna hodnota (podle politik hesel), která bude poslána do všech atributů označených jako 'Atribut s heslem'. tato hodnota bude poslána jako objekt typu GuardedString. Výstupem skriptu musí být opět GuardedString, nebo null. Odpovídající atribut ve schématu systému musí být také typu GuardedString, nebo String. Při změně hesla je do všech těchto atributů zasáláno nové heslo.",
         "save": {
           "success": "Atribut [{{name}}] IdM byl úspěšně uložen"
         },
@@ -829,6 +829,10 @@
       "sendOnPasswordChange": {
         "label": "Zahrnout při změně hesla",
         "help": "Odesílat attribut při změně hesla do provisioningu."
+      },
+      "passwordAttribute": {
+        "label": "Atribut s heslem",
+        "help": "Atribut bude obsahovat hodnotu hesla. Tento atribut není možné přetížit v mapování u rolí. Do transformace bude poslána hodnota hesla v objektu GuardedString. Skript musí vracet null, nebo tento objekt."
       }
     },
     "RoleSystemAttribute": {
@@ -1725,6 +1729,14 @@
     "SYSTEM_DELETE_BULK_ACTION_NUMBER_OF_PROVISIONINGS": {
       "message": "Systém <strong>{{system}}</strong> obsahuje  <strong class=\"highlight\">{{count}}</strong> nevyřešených provisioning operací.",
       "title": ""
+    },
+    "SYSTEM_MAPPING_PASSWORD_OVERRIDE": {
+      "message": "Atributy s heslem nemohou být přetíženy v mapování u rolí.",
+      "title": "Mapování nemůže být uloženo"
+    },
+    "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
+      "message": "Transformace hesla pro uid {{uid}} nevrací GuardedString nebo null. Název mapovaného atributu {{mappedAttribute}}.",
+      "title": "Transformace hesla selhala"
     }
   },
   "processor": {

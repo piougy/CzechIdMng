@@ -158,4 +158,13 @@ public interface SysSystemAttributeMappingService extends ReadWriteDtoService<Sy
 	 * @return
 	 */
 	void validate(SysSystemAttributeMappingDto dto, SysSystemMappingDto systemMappingDto);
+
+	/**
+	 * Return all mapped attributes as password for given system id and mapping.
+	 *
+	 * @param systemId
+	 * @param systemMappingId
+	 * @return
+	 */
+	List<SysSystemAttributeMappingDto> getAllPasswordAttributes(UUID systemId, UUID systemMappingId);
 }

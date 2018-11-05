@@ -12,7 +12,8 @@ const manager = new SystemAttributeMappingManager();
 const systemMappingManager = new SystemMappingManager();
 const schemaAttributeManager = new SchemaAttributeManager();
 const scriptManager = new Managers.ScriptManager();
-const PASSWORD_ATTRIBUTE = '__PASSWORD__';
+// password attributes is from 9.3.0 marked as passwordAttribute (boolean)
+// const PASSWORD_ATTRIBUTE = '__PASSWORD__';
 
 class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
@@ -44,7 +45,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
           disabledAttribute: _attribute.disabledAttribute,
           entityAttribute: _attribute.entityAttribute,
           extendedAttribute: _attribute.extendedAttribute,
-          showPasswordInfo: _attribute.schemaAttribute.name === PASSWORD_ATTRIBUTE
+          passwordAttribute: _attribute.passwordAttribute
         }, () => {
           // Workaround - We need set value after enumeration type was changed
           this.refs.idmPropertyEnum.setValue(_attribute.idmPropertyEnum);
@@ -122,20 +123,19 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
         this.refs.idmPropertyName.setValue(null);
         this.refs.idmPropertyEnum.setValue(null);
       }
+      if (key === 'passwordAttribute') {
+        this.refs.entityAttribute.setValue(false);
+        this.refs.extendedAttribute.setValue(false);
+        this.refs.idmPropertyName.setValue(null);
+        this.refs.idmPropertyEnum.setValue(null);
+      }
     });
   }
 
   _schemaAttributeChange(value) {
-    let showPasswordInfo = false;
     if (!this.refs.name.getValue()) {
       this.refs.name.setValue(value.name);
     }
-    if (value.name === PASSWORD_ATTRIBUTE) {
-      showPasswordInfo = true;
-    }
-    this.setState({
-      showPasswordInfo
-    });
   }
 
   _onChangeEntityEnum(item) {
@@ -150,7 +150,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   render() {
     const { _showLoading, _attribute, _systemMapping } = this.props;
-    const { disabledAttribute, entityAttribute, extendedAttribute, showPasswordInfo } = this.state;
+    const { disabledAttribute, entityAttribute, extendedAttribute, passwordAttribute } = this.state;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId',
@@ -232,12 +232,12 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 ref="entityAttribute"
                 onChange={this._checkboxChanged.bind(this, 'entityAttribute', 'extendedAttribute')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')}
-                readOnly = {_isDisabled}/>
+                readOnly = {_isDisabled || passwordAttribute}/>
               <Basic.Checkbox
                 ref="extendedAttribute"
                 onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')}
-                readOnly = {_isDisabled}
+                readOnly = {_isDisabled || passwordAttribute}
                 helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.help', { escape: false }) }/>
               <Basic.Checkbox
                 ref="confidentialAttribute"
@@ -252,6 +252,12 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.label')}
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.help')}/>
               <Basic.Checkbox
+                ref="passwordAttribute"
+                hidden={isSynchronization}
+                onChange={this._checkboxChanged.bind(this, 'passwordAttribute', null)}
+                label={this.i18n('acc:entity.SystemAttributeMapping.passwordAttribute.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.passwordAttribute.help')}/>
+              <Basic.Checkbox
                 ref="cached"
                 label={this.i18n('acc:entity.SystemAttributeMapping.cached.label')}
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.cached.help', { escape: false })}/>
@@ -259,7 +265,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 <div className="col-lg-6">
                   <Basic.EnumSelectBox
                     ref="idmPropertyEnum"
-                    readOnly = {_isDisabled || !_isEntityAttribute}
+                    readOnly = {_isDisabled || !_isEntityAttribute || passwordAttribute}
                     enum={entityTypeEnum}
                     onChange={this._onChangeEntityEnum.bind(this)}
                     label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyEnum')}
@@ -268,7 +274,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 <div className="col-lg-6">
                   <Basic.TextField
                     ref="idmPropertyName"
-                    readOnly = {_isDisabled || !_isRequiredIdmField || _isEntityAttribute}
+                    readOnly = {_isDisabled || !_isRequiredIdmField || _isEntityAttribute || passwordAttribute}
                     label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
                     helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
                     required = {_isRequiredIdmField}
@@ -277,13 +283,13 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
               </Basic.Row>
               <Basic.LabelWrapper label=" ">
                 <Basic.Alert
-                   rendered={_showNoRepositoryAlert && !showPasswordInfo}
+                   rendered={_showNoRepositoryAlert && !passwordAttribute}
                    key="no-repository-alert"
                    icon="exclamation-sign"
                    className="no-margin"
                    text={this.i18n('alertNoRepository')}/>
                  <Basic.Alert
-                    rendered={showPasswordInfo === true}
+                    rendered={passwordAttribute === true}
                     key="password-info-alert"
                     icon="exclamation-sign"
                     className="no-margin"
@@ -291,6 +297,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
               </Basic.LabelWrapper>
 
               <Advanced.ScriptArea
+                hidden={passwordAttribute}
                 ref="transformFromResourceScript"
                 scriptCategory={[Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_FROM), Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.DEFAULT)]}
                 headerText={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScriptSelectBox.label')}

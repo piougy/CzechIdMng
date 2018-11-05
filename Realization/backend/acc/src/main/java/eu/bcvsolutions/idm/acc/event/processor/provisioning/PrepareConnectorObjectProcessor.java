@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +37,14 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
@@ -51,13 +54,22 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -90,6 +102,10 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private final SysProvisioningArchiveService provisioningArchiveService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final ProvisioningConfiguration provisioningConfiguration;
+	@Autowired
+	private LookupService lookupService;
+	@Autowired
+	private IdmPasswordPolicyService passwordPolicyService;
 	
 	@Autowired
 	public PrepareConnectorObjectProcessor(
@@ -213,6 +229,53 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 			
 			List<SysSchemaAttributeDto> schemaAttributes = findSchemaAttributes(system, schemaObjectClassDto);
+
+			List<SysSystemAttributeMappingDto> passwordAttributes = attributeMappingService
+					.getAllPasswordAttributes(system.getId(), mapping.getId());
+			final GuardedString generatedPassword;
+			// if exists at least one password attribute generate password
+			if (!passwordAttributes.isEmpty()) {
+				generatedPassword = generatePassword(system);
+			} else {
+				generatedPassword = null;
+			}
+
+			// Found all given password from original provisioning context, these passwords will be skipped
+			List<ProvisioningAttributeDto> givenPasswords = provisioningContext.getAccountObject().keySet().stream()
+					.filter(provisioningAtt -> provisioningAtt.isPasswordAttribute()).collect(Collectors.toList());
+			
+			// Iterate over all password attributes founded for system and mapping
+			for (SysSystemAttributeMappingDto passwordAttribute : passwordAttributes) {
+
+				// Password may be add by another process or execute existing provisioning operation, these password skip
+				SysSchemaAttributeDto schemaByPasswordAttribute = DtoUtils.getEmbedded(passwordAttribute,
+						SysSystemAttributeMapping_.schemaAttribute, SysSchemaAttributeDto.class);
+				Optional<ProvisioningAttributeDto> findAnyPassword = givenPasswords.stream() //
+						.filter(givenPassword -> givenPassword.getSchemaAttributeName()
+								.equals(schemaByPasswordAttribute.getName())) //
+						.findAny(); //
+				if (findAnyPassword.isPresent()) {
+					continue;
+				}
+				
+				// All non existing passwords in provisioning context will be added and
+				// transformed. Then will be set as new attribute into fullAccountObject
+				GuardedString transformPassword = transformPassword(provisioningOperation, system.getId(),
+						passwordAttribute, generatedPassword);
+				SysSchemaAttributeDto schemaAttribute = schemaAttributes.stream()
+						.filter(schemaAtt -> schemaAtt.getId().equals(passwordAttribute.getSchemaAttribute()))
+						.findFirst()//
+						.orElse(null);
+				ProvisioningAttributeDto passwordProvisiongAttributeDto = ProvisioningAttributeDto
+						.createProvisioningAttributeKey(passwordAttribute, schemaAttribute.getName(),
+								schemaAttribute.getClassType());
+				fullAccountObject.put(passwordProvisiongAttributeDto, transformPassword);
+
+				// Update previous account object (gui left side)
+				Map<ProvisioningAttributeDto, Object> accountObject = provisioningOperation.getProvisioningContext()
+						.getAccountObject();
+				accountObject.put(passwordProvisiongAttributeDto, null);
+			}
 			
 			for (Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
 				
@@ -224,7 +287,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				if(!schemaAttributeOptional.isPresent()){
 					throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND, ImmutableMap.of("attribute", provisioningAttribute.getSchemaAttributeName()));
 				}
-				
+
 				Object idmValue = fullAccountObject.get(provisioningAttribute);
 				SysSchemaAttributeDto schemaAttribute = schemaAttributeOptional.get();
 				
@@ -640,5 +703,69 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	public int getOrder() {
 		// before realization
 		return -1000;
+	}
+
+	/**
+	 * Generates password. Provisioning attributes must contains at least one attribute marked as password.
+	 * And for system or CzechIdM must exists password policy for generated password.
+	 *
+	 * @param system
+	 * @return
+	 */
+	private GuardedString generatePassword(SysSystemDto system) {
+		final GuardedString generatedPassword;
+		IdmPasswordPolicyDto passwordPolicyDto = null;
+		if (system.getPasswordPolicyGenerate() != null) {
+			passwordPolicyDto = passwordPolicyService.get(system.getPasswordPolicyGenerate());
+		} else {
+			passwordPolicyDto = passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.GENERATE);
+		}
+		if (passwordPolicyDto != null) {
+			generatedPassword = new GuardedString(passwordPolicyService.generatePassword(passwordPolicyDto));
+		} else {
+			generatedPassword = null;
+		}
+		return generatedPassword;
+	}
+
+	/**
+	 * Transform given password with script in attribute mapping.
+	 *
+	 * @param provisioningOperation
+	 * @param systemId
+	 * @param systemMappingId
+	 * @param schemaAttributeId
+	 * @param generatedPassword
+	 * @return
+	 */
+	private GuardedString transformPassword(SysProvisioningOperationDto provisioningOperation, UUID systemId, SysSystemAttributeMappingDto passwordAttribute, GuardedString generatedPassword) {
+		if (generatedPassword == null) {
+			return null;
+		}
+		
+		String uid = provisioningOperation.getSystemEntityUid();
+		UUID entityIdentifier = provisioningOperation.getEntityIdentifier();
+
+		AbstractDto abstractDto = null;
+		if (entityIdentifier != null) {
+			BaseDto dto = lookupService.lookupDto(provisioningOperation.getEntityType().getEntityType(), entityIdentifier);
+			if (dto instanceof AbstractDto) {
+				abstractDto = (AbstractDto) dto;
+			} else {
+				LOG.warn("Dto with id [{}] hasn't type [{}]. Current type: [{}]. Into script will be send null as entity.", entityIdentifier, AbstractDto.class.getName(), dto.getClass());
+			}
+		} else {
+			LOG.warn("Entity identifier for uid [{}] is null. Provisioning is probably called directly. Into password transfomartion will not be sent entity.", uid);
+		}
+
+		// transformed password
+		Object transformValue = attributeMappingService.transformValueToResource(uid, generatedPassword, passwordAttribute, abstractDto);
+		if (transformValue == null) {
+			return null;
+		} else if (transformValue instanceof GuardedString) {
+			return (GuardedString) transformValue;
+		}
+		throw new ResultCodeException(AccResultCode.PROVISIONING_PASSWORD_TRANSFORMATION_FAILED,
+				ImmutableMap.of("uid", uid, "mappedAttribute", passwordAttribute.getName()));	
 	}
 }

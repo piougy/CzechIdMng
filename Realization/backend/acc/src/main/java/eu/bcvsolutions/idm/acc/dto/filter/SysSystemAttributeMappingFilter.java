@@ -18,6 +18,7 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 	private String idmPropertyName;	
 	private Boolean isUid;
 	private Boolean sendOnPasswordChange;
+	private Boolean passwordAttribute;
 
 	public Boolean getIsUid() {
 		return isUid;
@@ -65,5 +66,13 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 	
 	public Boolean getSendOnPasswordChange() {
 		return sendOnPasswordChange;
+	}
+
+	public Boolean getPasswordAttribute() {
+		return passwordAttribute;
+	}
+
+	public void setPasswordAttribute(Boolean passwordAttribute) {
+		this.passwordAttribute = passwordAttribute;
 	}
 }

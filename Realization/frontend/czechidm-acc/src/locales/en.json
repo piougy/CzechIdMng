@@ -364,7 +364,8 @@
           "controlledValues": {
             "cache": {
               "header": "Currently controlled values",
-              "helpBlock": "A list of values that are currently managed in the IdM for this attribute (defined on roles)."
+              "helpBlock": "A list of values that are currently managed in the IdM for this attribute (defined on roles).",
+              "evicted": "The list of <strong> values is not valid </strong> (the attribute may have been modified) and will be recalculated when first using the provisioning!"
             },
             "historic": {
               "header": "Historically controlled values",

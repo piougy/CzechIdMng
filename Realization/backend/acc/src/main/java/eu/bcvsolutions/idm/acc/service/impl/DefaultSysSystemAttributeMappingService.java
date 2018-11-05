@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -100,7 +101,6 @@ public class DefaultSysSystemAttributeMappingService extends
 	private final SysSystemMappingService systemMappingService;
 	@Autowired
 	private SysAttributeControlledValueService attributeControlledValueService;
-
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
 
@@ -250,6 +250,24 @@ public class DefaultSysSystemAttributeMappingService extends
 		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
 			createExtendedAttributeDefinition(dto, entityType);
 		}
+		
+		// TODO: We don't want supported default merge value on main attribute
+		// Save history of controlled value (if definition changed)
+//		if (!this.isNew(dto)) {
+//			SysSystemAttributeMappingDto oldRoleAttribute = this.get(dto.getId());
+//			// We predicate only static script (none input variables, only system)!
+//			Object oldControlledValue = this.transformValueToResource(null, null, oldRoleAttribute, null);
+//			Object newControlledValue = this.transformValueToResource(null, null, dto, null);
+//
+//			// Check if old and new controlled values are same. If not then we save old
+//			// value to the history on parent attribute
+//			if (!Objects.equals(oldControlledValue, newControlledValue)) {
+//				// Set old value as historic
+//				attributeControlledValueService.addHistoricValue(dto, (Serializable) oldControlledValue);
+//				// Controlled value changed, so we need evict the cache
+//				dto.setEvictControlledValuesCache(true);
+//			}
+//		}
 		return super.save(dto, permission);
 	}
 
@@ -592,31 +610,61 @@ public class DefaultSysSystemAttributeMappingService extends
 
 		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(systemId, entityType);
 		Assert.notNull(mapping, "System provisioning mapping is mandatory for search controlled attribute values!");
+		List<Serializable> results = Lists.newArrayList();
+		
+		// TODO: We don't want supports default merge value from main attribute now
+		// Obtains controlled value from main attribute
+//		List<SysSystemAttributeMappingDto> attributes = this.getAttributeMapping(schemaAttributeName, mapping, systemId);
+//		Assert.notEmpty(attributes, "Mapping attribute must exists!");
+//		Assert.isTrue(attributes.size() == 1,
+//				"Only one mapping attribute is allowed for same schema attribute in the provisioning!");
+//		SysSystemAttributeMappingDto attributeMapping = attributes.get(0);
+//		if(AttributeMappingStrategyType.MERGE == attributeMapping.getStrategyType() && !attributeMapping.isDisabledAttribute()) {
+//			Serializable value = getControlledValue(attributeMapping, systemId, schemaAttributeName);
+//			if(value != null) {
+//				results.add(value);
+//			}
+//		}
 
+		// Obtains controlled values from role-attributes
 		SysRoleSystemAttributeFilter roleSystemAttributeFilter = new SysRoleSystemAttributeFilter();
 		roleSystemAttributeFilter.setSystemMappingId(mapping.getId());
 		roleSystemAttributeFilter.setSchemaAttributeName(schemaAttributeName);
 		List<SysRoleSystemAttributeDto> roleSystemAttributes = roleSystemAttributeService
 				.find(roleSystemAttributeFilter, null).getContent();
 
-		List<Serializable> results = Lists.newArrayList();
 		roleSystemAttributes.stream() // We need values for merge and enabled attributes only
 				.filter(roleSystemAttr -> AttributeMappingStrategyType.MERGE == roleSystemAttr.getStrategyType() //
 						&& !roleSystemAttr.isDisabledAttribute()) //
 				.forEach(roleSystemAttr -> { //
-					// We predicate only static script (none input variables, only system)!
-					Object value = this.transformValueToResource(null, null, roleSystemAttr, null);
-					if (value != null) {
-						if (!(value instanceof Serializable)) {
-							throw new ResultCodeException(
-									AccResultCode.PROVISIONING_CONTROLLED_VALUE_IS_NOT_SERIALIZABLE,
-									ImmutableMap.of("value", value, "name", schemaAttributeName, "system", systemId));
-						}
-						results.add((Serializable) value);
+					Serializable value = getControlledValue(roleSystemAttr, systemId, schemaAttributeName);
+					if(value != null) {
+						results.add(value);
 					}
 				});
 
 		return results;
+	}
+
+	/**
+	 * Get controlled merge value. Evaluates transformation to resource.
+	 * @param roleSystemAttr
+	 * @param systemId
+	 * @param schemaAttributeName
+	 * @return 
+	 */
+	private Serializable getControlledValue(AttributeMapping roleSystemAttr, UUID systemId, String schemaAttributeName) {
+		// We predicate only static script (none input variables, only system)!
+		Object value = this.transformValueToResource(null, null, roleSystemAttr, null);
+		if (value != null) {
+			if (!(value instanceof Serializable)) {
+				throw new ResultCodeException(
+						AccResultCode.PROVISIONING_CONTROLLED_VALUE_IS_NOT_SERIALIZABLE,
+						ImmutableMap.of("value", value, "name", schemaAttributeName, "system", systemId));
+			}
+			return (Serializable) value;
+		}
+		return null;
 	}
 
 	@Override
@@ -629,12 +677,7 @@ public class DefaultSysSystemAttributeMappingService extends
 		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(systemId, entityType);
 		Assert.notNull(mapping, "System provisioning mapping is mandatory for search controlled attribute values!");
 
-		SysSystemAttributeMappingFilter systemAttributeMappingFilter = new SysSystemAttributeMappingFilter();
-		systemAttributeMappingFilter.setSchemaAttributeName(schemaAttributeName);
-		systemAttributeMappingFilter.setSystemId(systemId);
-		systemAttributeMappingFilter.setSystemMappingId(mapping.getId());
-
-		List<SysSystemAttributeMappingDto> attributes = this.find(systemAttributeMappingFilter, null).getContent();
+		List<SysSystemAttributeMappingDto> attributes = this.getAttributeMapping(schemaAttributeName, mapping, systemId);
 		Assert.notEmpty(attributes, "Mapping attribute must exists!");
 		Assert.isTrue(attributes.size() == 1,
 				"Only one mapping attribute is allowed for same schema attribute in the provisioning!");
@@ -711,5 +754,27 @@ public class DefaultSysSystemAttributeMappingService extends
 
 	private SysSystemDto getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObject) {
 		return DtoUtils.getEmbedded(schemaObject, SysSchemaObjectClass_.system);
+	}
+	
+	/**
+	 * Find all mapped attribute for given schema attribute name and mapping.
+	 * 
+	 * @param schemaAttributeName
+	 * @param mapping
+	 * @param system
+	 * @return
+	 */
+	private List<SysSystemAttributeMappingDto> getAttributeMapping(String schemaAttributeName,
+			SysSystemMappingDto mapping, UUID systemId) {
+		Assert.notNull(schemaAttributeName);
+		Assert.notNull(mapping);
+		Assert.notNull(systemId);
+		
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setSchemaAttributeName(schemaAttributeName);
+		filter.setSystemMappingId(mapping.getId());
+		filter.setSystemId(systemId);
+		
+		return this.find(filter, null).getContent();
 	}
 }

@@ -6,6 +6,7 @@ import { Basic, Advanced, Utils, Domain, Managers, Enums } from 'czechidm-core';
 import { SystemMappingManager, SystemAttributeMappingManager, SchemaAttributeManager, AttributeControlledValueManager} from '../../redux';
 import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
+import AttributeControlledValueTable from './AttributeControlledValueTable';
 
 const uiKey = 'system-attribute-mapping';
 const manager = new SystemAttributeMappingManager();
@@ -20,7 +21,8 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      activeKey: 1
+      activeKey: 1,
+      strategyType: AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.MERGE)
     };
   }
 
@@ -142,6 +144,15 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     });
   }
 
+  _strategyTypeChange(value) {
+    if (!value) {
+      return;
+    }
+    this.setState({
+      strategyType: value.value
+    });
+  }
+
   _onChangeEntityEnum(item) {
     const {_systemMapping} = this.props;
     if (item) {
@@ -158,7 +169,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   render() {
     const { _showLoading, _attribute, _systemMapping } = this.props;
-    const { disabledAttribute, entityAttribute, extendedAttribute, showPasswordInfo, activeKey } = this.state;
+    const { disabledAttribute, entityAttribute, extendedAttribute, showPasswordInfo, activeKey, strategyType } = this.state;
 
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
@@ -176,6 +187,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     const entityTypeEnum = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY');
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
     const isSynchronization = _systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION' ? true : false;
+    const isMerge = strategyType === AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.MERGE);
     //
     return (
       <div>
@@ -225,6 +237,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 <Basic.EnumSelectBox
                   ref="strategyType"
                   enum={AttributeMappingStrategyTypeEnum}
+                  onChange={this._strategyTypeChange.bind(this)}
                   label={this.i18n('acc:entity.SystemAttributeMapping.strategyType')}
                   required/>
                 <Basic.Checkbox
@@ -317,6 +330,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
                 <Advanced.ScriptArea
                   ref="transformToResourceScript"
+                  showScriptSelection={!isMerge}
                   scriptCategory={[Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.DEFAULT), Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO)]}
                   headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
                   helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help')}
@@ -349,16 +363,20 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
             text={ this.i18n('tabs.controlledValues.cache.helpBlock') }
             style={{ marginBottom: 0, marginRight: 5, marginLeft: 5 }}
             />
-          <Advanced.Table
+          <Basic.Alert
+            level="warning"
+            rendered={attribute && attribute.evictControlledValuesCache}
+            showHtmlText
+            text={ this.i18n('tabs.controlledValues.cache.evicted') }
+            style={{ marginBottom: 0, marginRight: 5, marginLeft: 5 }}
+            />
+          <AttributeControlledValueTable
             ref="controlledValuesTable"
             uiKey="attribute-mapping-controlled-values"
+            showRowSelection={false}
             manager={controlledValueManager}
             forceSearchParameters={controlledValuesForceSearchParameters}
-            >
-            <Advanced.Column property="value" sort face="text" header={this.i18n('acc:entity.AttributeControlledValue.value')}/>
-            <Advanced.Column property="created" sort face="datetime" header={this.i18n('acc:entity.AttributeControlledValue.created')}/>
-            <Advanced.Column property="creator" sort face="text" header={this.i18n('acc:entity.AttributeControlledValue.creator')}/>
-          </Advanced.Table>
+            />
           <Basic.ContentHeader text={ this.i18n('tabs.controlledValues.historic.header') } style={{ marginLeft: 5 }}/>
           <Basic.Alert
             level="info"
@@ -366,16 +384,12 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
             text={ this.i18n('tabs.controlledValues.historic.helpBlock') }
             style={{ marginBottom: 0, marginRight: 5, marginLeft: 5 }}
             />
-            <Advanced.Table
+            <AttributeControlledValueTable
               ref="historicValuesTable"
               uiKey="attribute-mapping-historic-values"
               manager={controlledValueManager}
               forceSearchParameters={historicValuesForceSearchParameters}
-              >
-              <Advanced.Column property="value" sort face="text" header={this.i18n('acc:entity.AttributeControlledValue.value')}/>
-              <Advanced.Column property="created" sort face="datetime" header={this.i18n('acc:entity.AttributeControlledValue.created')}/>
-              <Advanced.Column property="creator" sort face="text" header={this.i18n('acc:entity.AttributeControlledValue.creator')}/>
-            </Advanced.Table>
+              />
         </Basic.Tab>
       </Basic.Tabs>
       </div>

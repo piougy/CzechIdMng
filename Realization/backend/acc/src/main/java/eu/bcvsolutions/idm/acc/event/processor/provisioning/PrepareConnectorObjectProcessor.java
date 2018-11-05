@@ -457,10 +457,11 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		provisioningOperation.setOperationType(ProvisioningEventType.UPDATE);
 	}
 
+	@SuppressWarnings("unchecked")
 	private Object resolveMergeValues(ProvisioningAttributeDto provisioningAttribute, Object idmValue,
 			Object connectorValue, SysProvisioningOperationDto provisioningOperation) {
 
-		List<Object> resultValues = Lists.newArrayList();
+ 		List<Object> resultValues = Lists.newArrayList();
 		List<Object> connectorValues = Lists.newArrayList();
 		List<Object> idmValues = Lists.newArrayList();
 
@@ -481,6 +482,16 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		List<Serializable> controlledValues = attributeMappingService.getCachedControlledAttributeValues(
 				provisioningOperation.getSystem(), provisioningOperation.getEntityType(),
 				provisioningAttribute.getSchemaAttributeName());
+		List<Serializable> controlledValuesFlat = Lists.newArrayList();
+		
+		// Controlled value can be Collection, we need to create flat list for all values
+		controlledValues.forEach(controlledValue -> {
+			if(controlledValue instanceof Collection) {
+				controlledValuesFlat.addAll((Collection<? extends Serializable>) controlledValue);
+			}else {
+				controlledValuesFlat.add(controlledValue);
+			}
+		});
 
 		// Merge IdM values with connector values
 		idmValues.stream().forEach(value -> {
@@ -490,9 +501,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		}); 
 
 		// Delete missing values
-		if (controlledValues != null) {
+		if (controlledValuesFlat != null) {
 			// Search all deleted values (managed by IdM)
-			List<?> deletedValues = controlledValues.stream().filter(controlledValue -> {
+			List<?> deletedValues = controlledValuesFlat.stream().filter(controlledValue -> {
 				if (idmValues.contains(controlledValue)) {
 					return false;
 				}

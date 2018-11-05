@@ -364,7 +364,8 @@
           "controlledValues": {
             "cache": {
               "header": "Aktuálně kontrolované hodnoty",
-              "helpBlock": "<strong>Seznam hodnot</strong>, které jsou pro tento atribut aktuálně spravované v IdM (jsou definované na rolích)."
+              "helpBlock": "<strong>Seznam hodnot</strong>, které jsou pro tento atribut aktuálně spravované v IdM (jsou definované na rolích).",
+              "evicted": "Seznam hodnot <strong>není platný</strong>, atribut byl pravděpodobně upraven a bude přepočítám při prvním použití provisioningu!"
             },
             "historic": {
               "header": "Historicky kontrolované hodnoty",

@@ -322,6 +322,11 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		List<AccAccountDto> accounts = new ArrayList<>();
 		accountIds.forEach(accountId -> {
 			AccAccountDto account = accountService.get(accountId);
+			// Skip account in protection
+			if (account.isInProtection()) {
+				return; // Skip this iteration
+			}
+			//
 			accounts.add(account);
 			// find uid from system entity or from account
 			String uid = account.getUid();

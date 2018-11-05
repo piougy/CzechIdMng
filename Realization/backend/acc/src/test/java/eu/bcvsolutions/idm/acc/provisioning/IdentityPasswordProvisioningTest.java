@@ -15,10 +15,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
@@ -31,6 +34,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
@@ -38,6 +42,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.service.impl.IdentityProvisioningExecutor;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -81,7 +86,11 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 	private IdmPasswordPolicyService passwordPolicyService;
 	@Autowired
 	private SysProvisioningOperationService provisioningOperationService;
-	
+	@Autowired
+	private IdentityProvisioningExecutor identityProvisioningExecutor;
+	@Autowired
+	private AccAccountService accountService;
+
 	@Before
 	public void init() {
 		loginAsAdmin();
@@ -303,6 +312,96 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 
 		attribute = ProvisioningAttributeDto.createProvisioningAttributeKey(dto, ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME, String.class.getName());
 		assertTrue(attribute.isPasswordAttribute());
+	}
+
+	@Test
+	public void testPasswordChangeGreenLine() {
+		String newPassword = "newPassword" + System.currentTimeMillis();
+		String newPassword2 = "newPassword2" + System.currentTimeMillis();
+
+		SysSystemDto system = initSystem();
+		IdmRoleDto role = initRole(system);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		checkIdentityAccount(identity, identityRole, 1);
+
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+		Assert.assertNotNull(account);
+		Assert.assertFalse(account.isInProtection());
+
+		TestResource entityOnSystem = helper.findResource(account.getUid());
+		assertNotNull(entityOnSystem);
+		assertEquals(DEFAULT_PASSWORD, entityOnSystem.getPassword());
+
+		PasswordChangeDto passwordChange = new PasswordChangeDto();
+		passwordChange.setAll(true);
+		passwordChange.setOldPassword(new GuardedString(DEFAULT_PASSWORD));
+		passwordChange.setNewPassword(new GuardedString(newPassword));
+		List<OperationResult> results = identityProvisioningExecutor.changePassword(identity, passwordChange);
+		assertEquals(1, results.size());
+
+		entityOnSystem = helper.findResource(account.getUid());
+		assertNotNull(entityOnSystem);
+		assertEquals(newPassword, entityOnSystem.getPassword());
+
+		passwordChange = new PasswordChangeDto();
+		passwordChange.setAccounts(Lists.newArrayList(account.getId().toString()));
+		passwordChange.setOldPassword(new GuardedString(DEFAULT_PASSWORD));
+		passwordChange.setNewPassword(new GuardedString(newPassword2));
+		results = identityProvisioningExecutor.changePassword(identity, passwordChange);
+		assertEquals(1, results.size());
+
+		entityOnSystem = helper.findResource(account.getUid());
+		assertNotNull(entityOnSystem);
+		assertEquals(newPassword2, entityOnSystem.getPassword());
+	}
+
+	@Test
+	public void testPasswordChangeProtected() {
+		String newPassword = "newPassword" + System.currentTimeMillis();
+		String newPassword2 = "newPassword2" + System.currentTimeMillis();
+
+		SysSystemDto system = initSystem();
+		IdmRoleDto role = initRole(system);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		checkIdentityAccount(identity, identityRole, 1);
+
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+		Assert.assertNotNull(account);
+		Assert.assertFalse(account.isInProtection());
+		account.setInProtection(true);
+		accountService.save(account);
+
+		TestResource entityOnSystem = helper.findResource(account.getUid());
+		assertNotNull(entityOnSystem);
+		assertEquals(DEFAULT_PASSWORD, entityOnSystem.getPassword());
+
+		PasswordChangeDto passwordChange = new PasswordChangeDto();
+		passwordChange.setAll(true);
+		passwordChange.setOldPassword(new GuardedString(DEFAULT_PASSWORD));
+		passwordChange.setNewPassword(new GuardedString(newPassword));
+		List<OperationResult> results = identityProvisioningExecutor.changePassword(identity, passwordChange);
+		assertEquals(0, results.size());
+
+		entityOnSystem = helper.findResource(account.getUid());
+		assertNotNull(entityOnSystem);
+		assertEquals(DEFAULT_PASSWORD, entityOnSystem.getPassword());
+
+		passwordChange = new PasswordChangeDto();
+		passwordChange.setAccounts(Lists.newArrayList(account.getId().toString()));
+		passwordChange.setOldPassword(new GuardedString(DEFAULT_PASSWORD));
+		passwordChange.setNewPassword(new GuardedString(newPassword2));
+		results = identityProvisioningExecutor.changePassword(identity, passwordChange);
+		assertEquals(0, results.size());
+
+		entityOnSystem = helper.findResource(account.getUid());
+		assertNotNull(entityOnSystem);
+		assertEquals(DEFAULT_PASSWORD, entityOnSystem.getPassword());
 	}
 
 	/**

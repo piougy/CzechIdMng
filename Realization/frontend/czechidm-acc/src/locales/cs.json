@@ -1181,6 +1181,7 @@
     },
     "RoleAttributeEnum": {
       "NAME": "Název (String)",
+      "CODE": "Kód (String)",
       "ROLE_TYPE": "Typ role (RoleType - String)",
       "APPROVE_REMOVE": "Schvalovat odebrání (Boolean)",
       "PRIORITY": "Priorita (Integer)",

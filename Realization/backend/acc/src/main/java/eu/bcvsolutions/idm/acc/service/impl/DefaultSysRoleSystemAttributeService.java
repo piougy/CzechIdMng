@@ -32,9 +32,11 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -125,6 +127,13 @@ public class DefaultSysRoleSystemAttributeService extends
 		// We will check exists definition for extended attribute
 		SysSystemAttributeMappingDto systemAttributeMapping = systemAttributeMappingService
 				.get(dto.getSystemAttributeMapping());
+
+		// Password can't be overridden
+		SysSchemaAttributeDto schemaAttributeDto = DtoUtils.getEmbedded(systemAttributeMapping, SysSystemAttributeMapping_.schemaAttribute, SysSchemaAttributeDto.class);
+		if (systemAttributeMapping.isPasswordAttribute() || schemaAttributeDto.getName().equals(ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)) {
+			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_PASSWORD_OVERRIDE);
+		}
+
 		SysSystemMappingDto systemMapping = systemMappingService.get(systemAttributeMapping.getSystemMapping());
 		Class<? extends Identifiable> entityType = systemMapping.getEntityType().getEntityType();
 		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {

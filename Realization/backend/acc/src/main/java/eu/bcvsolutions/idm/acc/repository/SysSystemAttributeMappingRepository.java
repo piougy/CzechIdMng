@@ -40,6 +40,8 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 			+ " (?#{[0].idmPropertyName} is null or lower(e.idmPropertyName) like ?#{[0].idmPropertyName == null ? '%' : '%'.concat([0].idmPropertyName.toLowerCase()).concat('%')})"
 			+ " and"
 	        + " (?#{[0].sendOnPasswordChange} is null or e.sendOnPasswordChange = ?#{[0].sendOnPasswordChange})"
+	        + " and"
+	        + " (?#{[0].passwordAttribute} is null or e.passwordAttribute = ?#{[0].passwordAttribute})"
 			)
 	Page<SysSystemAttributeMapping> find(SysSystemAttributeMappingFilter filter, Pageable pageable);
 	

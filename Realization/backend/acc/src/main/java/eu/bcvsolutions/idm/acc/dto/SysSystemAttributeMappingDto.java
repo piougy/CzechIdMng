@@ -24,6 +24,7 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	private boolean extendedAttribute = false;
 	private boolean entityAttribute = true;
 	private boolean confidentialAttribute = false;
+	private boolean passwordAttribute = false;
 	private boolean uid = false;
 	private String transformFromResourceScript;
 	private String transformToResourceScript;
@@ -207,4 +208,13 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 		this.evictControlledValuesCache = evictControlledValuesCache;
 	}
 
+	@Override
+	public boolean isPasswordAttribute() {
+		return passwordAttribute;
+	}
+
+	@Override
+	public void setPasswordAttribute(boolean passwordAttribute) {
+		this.passwordAttribute = passwordAttribute;
+	}
 }

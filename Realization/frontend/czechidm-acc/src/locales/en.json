@@ -349,7 +349,7 @@
         "title" : "Attribute in IdM",
         "header" : "Attribute mapping details",
         "alertNoRepository": "Attribute is not mapped to any entity in CzechIdM or extended attribute. Output will be a constant from 'Transformation to system'",
-        "infoPasswordMapping": "If attribute __PASSWORD__ is equal to value NULL, it will be automatically generated from password policy for system.",
+        "infoPasswordMapping": "Beware, is chosen attribute with a password. While first creating an object at the end of the system will be generated one value (according to password policies), which will be sent to all attributes labeled as 'Password attribute'. This value will be sent into script as a GuardedString object. The output of the script must be GuardedString, or null. The corresponding attribute in the system schema must also be a GuardedString or String type. When changing a password, a new password is sent to all of these attributes.",
         "save": {
           "success": "Attribute [{{name}}] of IdM successfully saved"
         },
@@ -839,6 +839,10 @@
       "sendOnPasswordChange": {
         "label": "Include on password change",
         "help": "Send this attribute into provisioning, when password is changed."
+      },
+      "passwordAttribute": {
+        "label": "Attribute with password",
+        "help": "Attribute will contain value of password. The attribute can't be override by role mapping. Into transformation will be add password in object GuardedString. Script must return null, or GuardedString."
       }
     },
     "RoleSystemAttribute": {
@@ -1192,6 +1196,7 @@
     },
     "RoleAttributeEnum": {
       "NAME": "Name (String)",
+      "CODE": "Code (String)",
       "ROLE_TYPE": "Type of role (String - RoleType)",
       "APPROVE_REMOVE": "Approve remove (Boolean)",
       "PRIORITY": "Priority (Integer)",
@@ -1739,6 +1744,14 @@
     "SYSTEM_DELETE_BULK_ACTION_NUMBER_OF_PROVISIONINGS": {
       "message": "System <strong>{{system}}</strong> contains  <strong class=\"highlight\">{{count}}</strong> unresolved provisioning operations",
       "title": ""
+    },
+    "SYSTEM_MAPPING_PASSWORD_OVERRIDE": {
+      "message": "Password attribute can't be overridden in role mapping.",
+      "title": "Attribute mapping can be saved"
+    },
+    "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
+      "message": "Password transformation for uid {{uid}} doesn't return GuardedString or null. Mapped attribute name {{mappedAttribute}}.",
+      "title": "Password transformation failed"
     }
   },
   "processor": {

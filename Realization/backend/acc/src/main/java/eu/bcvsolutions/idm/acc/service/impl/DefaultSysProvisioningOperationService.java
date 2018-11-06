@@ -45,6 +45,7 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -315,6 +316,13 @@ public class DefaultSysProvisioningOperationService
 								((ConfidentialString) attribute.getValue()).getKey()));
 			} else if (attribute instanceof IcPasswordAttribute && attribute.getValue() == null) {
 				attributeCopy = new IcPasswordAttributeImpl(attribute.getName(), (GuardedString) null);
+			} else if (attribute.getValue() instanceof ConfidentialString) {
+				attributeCopy = new IcAttributeImpl(
+						attribute.getName(),
+						confidentialStorage.getGuardedString(
+						provisioningOperation.getId(),
+						SysProvisioningOperation.class,
+						((ConfidentialString) attribute.getValue()).getKey()));
 			} else {
 				attributeCopy = new IcAttributeImpl(attribute.getName(), attribute.getValue());
 			}
@@ -330,19 +338,24 @@ public class DefaultSysProvisioningOperationService
 	public SysProvisioningOperationDto handleFailed(SysProvisioningOperationDto operation, Exception ex) {
 		SysSystemDto system = systemService.get(operation.getSystem());
 		String uid = this.getByProvisioningOperation(operation).getUid();
-		ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_FAILED, 
-				ImmutableMap.of(
-						"name", uid, 
-						"system", system.getName(),
-						"operationType", operation.getOperationType(),
-						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));			
+		
+		ResultModel resultModel;
+		if (ex instanceof ResultCodeException) {
+			resultModel = ((ResultCodeException) ex).getError().getError();
+		} else {
+			resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_FAILED, 
+					ImmutableMap.of(
+							"name", uid, 
+							"system", system.getName(),
+							"operationType", operation.getOperationType(),
+							"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));	
+		}
 		LOG.error(resultModel.toString(), ex);
 		//
 		operation.increaseAttempt();
 		operation.setMaxAttempts(provisioningConfiguration.getRetryMaxAttempts());
 		operation.setResult(new OperationResult
 				.Builder(OperationState.EXCEPTION)
-				.setCode(resultModel.getStatusEnum())
 				.setModel(resultModel)
 				.setCause(ex)
 				.build());

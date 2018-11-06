@@ -34,9 +34,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.SynchronizationSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -74,7 +72,6 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private FormService formService;
 	@Autowired private DataSource dataSource;
-	@Autowired private SysSystemRepository systemRepository;
 	@Autowired private SysSystemEntityService systemEntityService;
 	@Autowired private AccAccountService accountService;
 	@Autowired private AccIdentityAccountService identityAccountService;
@@ -204,11 +201,8 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 				savedFormDefinition.getMappedAttributeByCode("changeLogColumn"));
 		changeLogColumnValue.setValue(null);
 		values.add(changeLogColumnValue);
-
-		// TODO: eav to dto
-		SysSystem systemEntity = systemRepository.findOne(system.getId());
 		
-		formService.saveValues(systemEntity, savedFormDefinition, values);
+		formService.saveValues(system, savedFormDefinition, values);
 
 		return system;
 	}
@@ -273,6 +267,7 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 				attributeMapping.setIdmPropertyName("password");
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setPasswordAttribute(true);
 				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);
 			} else if (ATTRIBUTE_MAPPING_FIRSTNAME.equalsIgnoreCase(schemaAttr.getName())) {

@@ -307,6 +307,15 @@ public class DefaultSysSystemAttributeMappingService extends
 		}
 	}
 
+	@Override
+	public List<SysSystemAttributeMappingDto> getAllPasswordAttributes(UUID systemId, UUID systemMappingId) {
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setPasswordAttribute(true);
+		filter.setSystemId(systemId);
+		filter.setSystemMappingId(systemMappingId);
+		return this.find(filter, null).getContent();
+	}
+
 	/**
 	 * Check on exists EAV definition for given attribute. If the definition not
 	 * exist, then we try create it.
@@ -388,9 +397,14 @@ public class DefaultSysSystemAttributeMappingService extends
 
 				// Check single value on correct type
 			} else if (idmValue != null && !(classType.isAssignableFrom(idmValue.getClass()))) {
-				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
-						ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
-								schemaAttribute.getClassType(), "valueType", idmValue.getClass().getName()));
+				if (idmValue instanceof GuardedString && classType.isAssignableFrom(String.class)) {
+					// Value can be different type from schema but the type must be instance of guarded string
+					// and schema type must be assignable from string. Value to string will be transform at the end.
+				} else {
+					throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
+							ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
+									schemaAttribute.getClassType(), "valueType", idmValue.getClass().getName()));
+				}
 			}
 		} catch (ClassNotFoundException e) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND, ImmutableMap.of(
@@ -486,6 +500,12 @@ public class DefaultSysSystemAttributeMappingService extends
 	@Override
 	public Object getAttributeValue(String uid, AbstractDto entity, AttributeMapping attributeHandling) {
 		Object idmValue = null;
+		//
+		if (attributeHandling.isPasswordAttribute()) {
+			// if attribute is mapped to PASSWORD transformation will be process
+			// there but in PrepareConnectorObjectProcessor
+			return null;
+		}
 		//
 		SysSchemaAttributeDto schemaAttributeDto = getSchemaAttribute(attributeHandling);
 		//
@@ -671,7 +691,7 @@ public class DefaultSysSystemAttributeMappingService extends
 	}
 
 	@Override
-	public List<Serializable> getCachedControlledAttributeValues(UUID systemId, SystemEntityType entityType,
+	public List<Serializable> getCachedControlledAndHistoricAttributeValues(UUID systemId, SystemEntityType entityType,
 			String schemaAttributeName) {
 		Assert.notNull(systemId, "System ID is mandatory for get controlled values!");
 		Assert.notNull(entityType, "Entity type is mandatory for get controlled values!");

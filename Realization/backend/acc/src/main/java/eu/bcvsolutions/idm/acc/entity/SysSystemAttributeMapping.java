@@ -75,6 +75,10 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 	@Audited
 	@Column(name = "confidential_attribute", nullable = false)
 	private boolean confidentialAttribute = false;
+	
+	@Audited
+	@Column(name = "password_attribute", nullable = false)
+	private boolean passwordAttribute = false;
 
 	@Audited
 	@Column(name = "uid", nullable = false)
@@ -264,4 +268,11 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 		this.evictControlledValuesCache = evictControlledValuesCache;
 	}
 
+	public boolean isPasswordAttribute() {
+		return passwordAttribute;
+	}
+
+	public void setPasswordAttribute(boolean passwordAttribute) {
+		this.passwordAttribute = passwordAttribute;
+	}
 }

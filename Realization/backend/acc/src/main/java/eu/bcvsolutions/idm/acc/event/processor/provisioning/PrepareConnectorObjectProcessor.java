@@ -471,7 +471,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 							}
 
 						}
-						Object resultValue = null;
+						Object resultValue = idmValue;
 						if (AttributeMappingStrategyType.MERGE == provisioningAttribute.getStrategyType()) {
 							resultValue = resolveMergeValues(provisioningAttribute, idmValue,
 									connectorValue, provisioningOperation);

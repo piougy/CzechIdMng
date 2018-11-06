@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -84,6 +85,7 @@ public class AttributeControlledValuesRecalculationTaskExecutor extends Abstract
 		attributeFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMappingDto> attributes = systemAttributeMappingService.find(attributeFilter, null) //
 				.getContent().stream() //
+				.filter(attribute -> AttributeMappingStrategyType.MERGE == attribute.getStrategyType()) //
 				.filter(attribute -> !onlyEvicted ? true : attribute.isEvictControlledValuesCache()) //
 				.collect(Collectors.toList());
 

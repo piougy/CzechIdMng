@@ -5,7 +5,7 @@
 -- Add entity for controlled and historic values (for provisioning merge)
 
 CREATE TABLE sys_attribute_contr_value (
-	id  binary(16) NOT NULL,
+	id binary(16) NOT NULL,
 	created datetime2 NOT NULL,
 	creator nvarchar(255) NOT NULL,
 	creator_id  binary(16) NULL,
@@ -25,8 +25,8 @@ CREATE TABLE sys_attribute_contr_value (
 );
 
 CREATE TABLE sys_attribute_contr_value_a (
-	id  binary(16) NOT NULL,
-	rev bigint NOT NULL,
+	id binary(16) NOT NULL,
+	rev numeric(19,0) NOT NULL,
 	revtype smallint NULL,
 	created datetime2 NULL,
 	created_m bit NULL,
@@ -52,7 +52,7 @@ CREATE TABLE sys_attribute_contr_value_a (
 	transaction_id_m bit NULL,
 	historic_value bit NULL,
 	historic_value_m bit NULL,
-	value  binary(16) NULL,
+	value image NULL,
 	value_m bit NULL,
 	attribute_id  binary(16) NULL,
 	attribute_mapping_m bit NULL,
@@ -61,10 +61,9 @@ CREATE TABLE sys_attribute_contr_value_a (
 );
 
 -- Add evict_contr_values_cache column
-ALTER TABLE sys_system_attribute_mapping ADD COLUMN evict_contr_values_cache boolean;
-GO
-ALTER TABLE sys_system_attribute_mapping_a ADD COLUMN evict_contr_values_cache boolean;
-ALTER TABLE sys_system_attribute_mapping_a ADD COLUMN evict_controlled_values_cache_m boolean;
 -- Set evict_contr_values_cache to true for all attributes (I cannot update only MERGE attributes, because some attributes could have set different strategy )
-update	sys_system_attribute_mapping set evict_contr_values_cache = true;
-ALTER TABLE sys_system_attribute_mapping ALTER COLUMN evict_contr_values_cache SET NOT NULL;
+ALTER TABLE sys_system_attribute_mapping ADD evict_contr_values_cache bit NOT NULL DEFAULT 1;
+
+ALTER TABLE sys_system_attribute_mapping_a ADD evict_contr_values_cache bit;
+ALTER TABLE sys_system_attribute_mapping_a ADD evict_controlled_values_cache_m bit;
+

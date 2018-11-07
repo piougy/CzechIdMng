@@ -4408,6 +4408,10 @@
           "firstnamefirst": {
             "label": "Jméno uživatele použít první",
             "help": "Při generování bude prvně doplněno jméno uživatele následně příjmení. Při odškrknutí bude pořadí opačné."
+          },
+          "replacewhitespacescharacter": {
+            "label": "Znak/y pro vyplnění mezer",
+            "help": "Znak/y budou použity pro nahrazení mezer a to i vně uživatelského jména. Pokud ponecháte prázdné, všechny mezery budou odstraněny."
           }
         }
       },
@@ -4438,6 +4442,10 @@
           "firstnamefirst": {
             "label": "Jméno uživatele použít první",
             "help": "Při generování bude prvně doplněno jméno uživatele následně příjmení. Při odškrknutí bude pořadí opačné."
+          },
+          "replacewhitespacescharacter": {
+            "label": "Znak/y pro vyplnění mezer",
+            "help": "Znak/y budou použity pro nahrazení mezer a to i vně uživatelského jména a emailového suffixu. Pokud ponecháte prázdné, všechny mezery budou odstraněny."
           }
         }
       },

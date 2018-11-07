@@ -4358,6 +4358,10 @@
           "firstnamefirst": {
             "label": "As first value use first name",
             "help": "When generating, the first name of the user will be added first. If you unchecked, the order will be the opposite."
+          },
+          "replacewhitespacescharacter": {
+            "label": "Character/s for filling white spaces",
+            "help": "Character/s will be used to replace white spaces, even outside the username. If you leave blank, all spaces will be removed."
           }
         }
       },
@@ -4388,6 +4392,10 @@
           "firstnamefirst": {
             "label": "As first value use first name",
             "help": "When generating, the first name of the user will be added first. If you unchecked, the order will be the opposite."
+          },
+          "replacewhitespacescharacter": {
+            "label": "Character/s for filling white spaces",
+            "help": "Character/s will be used to replace white spaces, outside the username and email suffix. If you leave blank, all spaces will be removed."
           }
         }
       },

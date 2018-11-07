@@ -106,8 +106,6 @@ public class DefaultSysSystemAttributeMappingService extends
 	private SysAttributeControlledValueService attributeControlledValueService;
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
-	@Autowired
-	private LongRunningTaskManager longRunningTaskManager;
 
 	@Autowired
 	public DefaultSysSystemAttributeMappingService(SysSystemAttributeMappingRepository repository,
@@ -228,9 +226,10 @@ public class DefaultSysSystemAttributeMappingService extends
 		return value;
 	}
 
+
 	@Override
 	@Transactional
-	public SysSystemAttributeMappingDto save(SysSystemAttributeMappingDto dto, BasePermission... permission) {
+	public SysSystemAttributeMappingDto saveInternal(SysSystemAttributeMappingDto dto) {
 		Assert.notNull(dto, "Attribute is mandatory!");
 		Assert.notNull(dto.getSystemMapping(), "System mapping is mandatory!");
 		SysSystemMappingDto systemMappingDto = systemMappingService.get(dto.getSystemMapping());
@@ -255,26 +254,7 @@ public class DefaultSysSystemAttributeMappingService extends
 		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
 			createExtendedAttributeDefinition(dto, entityType);
 		}
-
-		if (!this.isNew(dto)) {
-			if (dto.isEvictControlledValuesCache() == true) {
-				SysSchemaObjectClassDto objectClassDto = DtoUtils.getEmbedded(systemMappingDto, SysSystemMapping_.objectClass ,SysSchemaObjectClassDto.class);
-				
-				// Init LRT
-				AttributeControlledValuesRecalculationTaskExecutor attributeControlledValueRecalculationTask = AutowireHelper
-						.createBean(AttributeControlledValuesRecalculationTaskExecutor.class);
-				attributeControlledValueRecalculationTask.init(
-						ImmutableMap.of(
-								AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_SYSTEM_UUID, objectClassDto.getSystem(), //
-								AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ENTITY_TYPE, systemMappingDto.getEntityType(), //
-								AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ONLY_EVICTED, true //
-								)); //
-				// Execute recalculation LRT
-				longRunningTaskManager.execute(attributeControlledValueRecalculationTask);
-			}
-		}
-
-		return super.save(dto, permission);
+		return super.saveInternal(dto);
 	}
 
 	/**
@@ -398,8 +378,10 @@ public class DefaultSysSystemAttributeMappingService extends
 				// Check single value on correct type
 			} else if (idmValue != null && !(classType.isAssignableFrom(idmValue.getClass()))) {
 				if (idmValue instanceof GuardedString && classType.isAssignableFrom(String.class)) {
-					// Value can be different type from schema but the type must be instance of guarded string
-					// and schema type must be assignable from string. Value to string will be transform at the end.
+					// Value can be different type from schema but the type must be instance of
+					// guarded string
+					// and schema type must be assignable from string. Value to string will be
+					// transform at the end.
 				} else {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
 							ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
@@ -660,7 +642,7 @@ public class DefaultSysSystemAttributeMappingService extends
 						&& !roleSystemAttr.isDisabledAttribute()) //
 				.forEach(roleSystemAttr -> { //
 					Serializable value = getControlledValue(roleSystemAttr, systemId, schemaAttributeName);
-					if (value != null) {
+					if (value != null && !results.contains(value)) {
 						results.add(value);
 					}
 				});
@@ -719,6 +701,12 @@ public class DefaultSysSystemAttributeMappingService extends
 				.map(SysAttributeControlledValueDto::getValue) //
 				.collect(Collectors.toList());
 
+		if (attributeMapping.isEvictControlledValuesCache()) {
+			List<Serializable> controlledAttributeValues = recalculateAttributeControlledValues(systemId, entityType,
+					schemaAttributeName, attributeMapping);
+			cachedControlledValues = controlledAttributeValues;
+		}
+
 		// Set filter for search historic values
 		attributeControlledValueFilter.setHistoricValue(Boolean.TRUE);
 
@@ -729,12 +717,6 @@ public class DefaultSysSystemAttributeMappingService extends
 				.stream() //
 				.map(SysAttributeControlledValueDto::getValue) //
 				.collect(Collectors.toList());
-
-		if (attributeMapping.isEvictControlledValuesCache()) {
-			List<Serializable> controlledAttributeValues = recalculateAttributeControlledValues(systemId, entityType,
-					schemaAttributeName, attributeMapping);
-			cachedControlledValues = controlledAttributeValues;
-		}
 
 		List<Serializable> controlledValues = Lists.newArrayList();
 		controlledValues.addAll(cachedControlledValues);

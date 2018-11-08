@@ -22,10 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysAttributeControlledValueFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -180,8 +183,8 @@ public class SysAttributeControlledValueController extends AbstractReadWriteDtoC
 			@ApiParam(value = "Attribute controlled value's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		SysAttributeControlledValueDto dto = getService().get(backendId);
-		if(dto != null) {
-			Assert.isTrue(dto.isHistoricValue(), "Only historic value colud be deleted via REST!");
+		if(dto != null && !dto.isHistoricValue()) {
+			throw new ResultCodeException(CoreResultCode.BAD_REQUEST, "Only historic value colud be deleted via REST!");
 		}
 		return super.delete(backendId);
 	}

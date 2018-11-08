@@ -504,6 +504,15 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	}
 
 	@SuppressWarnings("unchecked")
+	/**
+	 * Returns merged values for given attribute
+	 * 
+	 * @param provisioningAttribute
+	 * @param idmValue
+	 * @param connectorValue
+	 * @param provisioningOperation
+	 * @return
+	 */
 	private Object resolveMergeValues(ProvisioningAttributeDto provisioningAttribute, Object idmValue,
 			Object connectorValue, SysProvisioningOperationDto provisioningOperation) {
 
@@ -515,13 +524,17 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			resultValues.addAll((List<?>) connectorValue);
 			connectorValues.addAll((List<?>) connectorValue);
 		}else {
-			resultValues.add(connectorValue);
-			connectorValues.add(connectorValue);
+			if(connectorValue != null) {
+				resultValues.add(connectorValue);
+				connectorValues.add(connectorValue);
+			}
 		}
 		if(idmValues instanceof List) {
 			idmValues.addAll((List<?>) idmValue);
 		}else {
-			idmValues.add(idmValue);
+			if(idmValue != null) {
+				idmValues.add(idmValue);
+			}
 		}
 		
 		// Load definition of all controlled values in IdM for that attribute

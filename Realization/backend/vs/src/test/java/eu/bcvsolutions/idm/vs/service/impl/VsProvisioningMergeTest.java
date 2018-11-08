@@ -9,32 +9,27 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysAttributeControlledValueFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
-import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -65,13 +60,14 @@ public class VsProvisioningMergeTest extends AbstractIntegrationTest {
 	@Autowired
 	private AccAccountService accountService;
 	@Autowired
-	private ModuleService moduleService;
+	private IdmIdentityService identityService;
+	@Autowired
+	private SysAttributeControlledValueService controlledValueService;
 	
 
 	@Before
 	public void login() {
 		loginAsAdmin();
-		moduleService.enable(AccModuleDescriptor.MODULE_ID);
 	}
 
 	@After
@@ -79,13 +75,8 @@ public class VsProvisioningMergeTest extends AbstractIntegrationTest {
 		super.logout();
 	}
 
-	
-	
 	@Test
 	public void testAttribteControlledValues() {
-		moduleService.enable(AccModuleDescriptor.MODULE_ID);
-		List<ModuleDescriptor> enabledModules = moduleService.getEnabledModules();
-		List<ModuleDescriptor> installedModules = moduleService.getInstalledModules();
 		
 		VsSystemDto config = new VsSystemDto();
 		config.setName(helper.createName());
@@ -109,6 +100,9 @@ public class VsProvisioningMergeTest extends AbstractIntegrationTest {
 		SysRoleSystemAttributeDto roleAttributeOne = new SysRoleSystemAttributeDto();
 		roleAttributeOne.setName(RIGHTS_ATTRIBUTE);
 		roleAttributeOne.setRoleSystem(roleSystemOne.getId());
+		roleAttributeOne.setEntityAttribute(false);
+		roleAttributeOne.setExtendedAttribute(false);
+		roleAttributeOne.setUid(false);
 		roleAttributeOne.setStrategyType(AttributeMappingStrategyType.MERGE);
 		roleAttributeOne.setSystemAttributeMapping(rightsAttribute.getId());
 		roleAttributeOne.setTransformToResourceScript("return '" + ONE_VALUE + "';");
@@ -117,6 +111,9 @@ public class VsProvisioningMergeTest extends AbstractIntegrationTest {
 		SysRoleSystemAttributeDto roleAttributeTwo = new SysRoleSystemAttributeDto();
 		roleAttributeTwo.setName(RIGHTS_ATTRIBUTE);
 		roleAttributeTwo.setRoleSystem(roleSystemTwo.getId());
+		roleAttributeTwo.setEntityAttribute(false);
+		roleAttributeTwo.setExtendedAttribute(false);
+		roleAttributeTwo.setUid(false);
 		roleAttributeTwo.setStrategyType(AttributeMappingStrategyType.MERGE);
 		roleAttributeTwo.setSystemAttributeMapping(rightsAttribute.getId());
 		roleAttributeTwo.setTransformToResourceScript("return '" + TWO_VALUE + "';");
@@ -124,8 +121,7 @@ public class VsProvisioningMergeTest extends AbstractIntegrationTest {
 		
 		IdmIdentityDto identity = helper.createIdentity();
 		helper.createIdentityRole(identity, roleOne);
-		helper.createIdentityRole(identity, roleTwo);
-		
+     	helper.createIdentityRole(identity, roleTwo);
 		
 		AccAccountFilter accountFilter = new AccAccountFilter();
 		accountFilter.setSystemId(system.getId());
@@ -135,12 +131,175 @@ public class VsProvisioningMergeTest extends AbstractIntegrationTest {
 		
 		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
 		IcAttribute rightsAttributeFromSystem = connectorObject.getAttributeByName(RIGHTS_ATTRIBUTE);
-		List<Object> values = rightsAttributeFromSystem.getValues();
+		List<Object> rightsValues = rightsAttributeFromSystem.getValues();
 		
-		assertEquals(2, values.size());
-		assertTrue(values.contains(ONE_VALUE));
-		assertTrue(values.contains(TWO_VALUE));
-		
+		assertEquals(2, rightsValues.size());
+		assertTrue(rightsValues.contains(ONE_VALUE));
+		assertTrue(rightsValues.contains(TWO_VALUE));
 	}
+	
+	@Test
+	public void testChangeControlledValue() {
+		
+		VsSystemDto config = new VsSystemDto();
+		config.setName(helper.createName());
+		config.setCreateDefaultRole(false);
+		
+		SysSystemDto system = helper.createVirtualSystem(config);
+		IdmRoleDto roleOne = helper.createRole();
+		IdmRoleDto roleTwo = helper.createRole();
 
+		SysRoleSystemDto roleSystemOne = helper.createRoleSystem(roleOne, system);
+		SysRoleSystemDto roleSystemTwo = helper.createRoleSystem(roleTwo, system);
+		SysSystemMappingDto mapping = mappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
+		
+		SysSystemAttributeMappingFilter attributeFilter = new SysSystemAttributeMappingFilter();
+		attributeFilter.setSystemMappingId(mapping.getId());
+		attributeFilter.setSchemaAttributeName(RIGHTS_ATTRIBUTE);
+		List<SysSystemAttributeMappingDto> attributes = attributeMappingService.find(attributeFilter, null).getContent();
+		assertEquals(1, attributes.size());
+		SysSystemAttributeMappingDto rightsAttribute = attributes.get(0);
+
+		SysRoleSystemAttributeDto roleAttributeOne = new SysRoleSystemAttributeDto();
+		roleAttributeOne.setName(RIGHTS_ATTRIBUTE);
+		roleAttributeOne.setRoleSystem(roleSystemOne.getId());
+		roleAttributeOne.setEntityAttribute(false);
+		roleAttributeOne.setExtendedAttribute(false);
+		roleAttributeOne.setUid(false);
+		roleAttributeOne.setStrategyType(AttributeMappingStrategyType.MERGE);
+		roleAttributeOne.setSystemAttributeMapping(rightsAttribute.getId());
+		roleAttributeOne.setTransformToResourceScript("return '" + ONE_VALUE + "';");
+		roleAttributeOne = roleSystemAttributeService.saveInternal(roleAttributeOne);
+
+		SysRoleSystemAttributeDto roleAttributeTwo = new SysRoleSystemAttributeDto();
+		roleAttributeTwo.setName(RIGHTS_ATTRIBUTE);
+		roleAttributeTwo.setRoleSystem(roleSystemTwo.getId());
+		roleAttributeTwo.setEntityAttribute(false);
+		roleAttributeTwo.setExtendedAttribute(false);
+		roleAttributeTwo.setUid(false);
+		roleAttributeTwo.setStrategyType(AttributeMappingStrategyType.MERGE);
+		roleAttributeTwo.setSystemAttributeMapping(rightsAttribute.getId());
+		roleAttributeTwo.setTransformToResourceScript("return '" + TWO_VALUE + "';");
+		roleAttributeTwo = roleSystemAttributeService.saveInternal(roleAttributeTwo);
+		
+		IdmIdentityDto identity = helper.createIdentity();
+		helper.createIdentityRole(identity, roleOne);
+     	helper.createIdentityRole(identity, roleTwo);
+		
+		// Change controlled value
+		roleAttributeOne.setTransformToResourceScript("return '" + ONE_VALUE + "_changed';");
+		roleAttributeOne = roleSystemAttributeService.saveInternal(roleAttributeOne);
+		
+		// Do provisioning
+		identityService.save(identity);
+		
+		// Check values on target system
+		AccAccountFilter accountFilter = new AccAccountFilter();
+		accountFilter.setSystemId(system.getId());
+		List<AccAccountDto> accounts = accountService.find(accountFilter, null).getContent();
+		assertEquals(1, accounts.size());
+		AccAccountDto account = accounts.get(0);
+		
+		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
+		IcAttribute rightsAttributeFromSystem = connectorObject.getAttributeByName(RIGHTS_ATTRIBUTE);
+		List<Object> rightsValues = rightsAttributeFromSystem.getValues();
+		
+		assertEquals(2, rightsValues.size());
+		assertTrue(rightsValues.contains(TWO_VALUE));
+		assertTrue(rightsValues.contains(ONE_VALUE+"_changed"));
+	}
+	
+	@Test
+	public void testSwitchControlledValue() {
+		
+		VsSystemDto config = new VsSystemDto();
+		config.setName(helper.createName());
+		config.setCreateDefaultRole(false);
+		
+		SysSystemDto system = helper.createVirtualSystem(config);
+		IdmRoleDto roleOne = helper.createRole();
+		IdmRoleDto roleTwo = helper.createRole();
+
+		SysRoleSystemDto roleSystemOne = helper.createRoleSystem(roleOne, system);
+		SysRoleSystemDto roleSystemTwo = helper.createRoleSystem(roleTwo, system);
+		SysSystemMappingDto mapping = mappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
+		
+		SysSystemAttributeMappingFilter attributeFilter = new SysSystemAttributeMappingFilter();
+		attributeFilter.setSystemMappingId(mapping.getId());
+		attributeFilter.setSchemaAttributeName(RIGHTS_ATTRIBUTE);
+		List<SysSystemAttributeMappingDto> attributes = attributeMappingService.find(attributeFilter, null).getContent();
+		assertEquals(1, attributes.size());
+		SysSystemAttributeMappingDto rightsAttribute = attributes.get(0);
+
+		SysRoleSystemAttributeDto roleAttributeOne = new SysRoleSystemAttributeDto();
+		roleAttributeOne.setName(RIGHTS_ATTRIBUTE);
+		roleAttributeOne.setRoleSystem(roleSystemOne.getId());
+		roleAttributeOne.setEntityAttribute(false);
+		roleAttributeOne.setExtendedAttribute(false);
+		roleAttributeOne.setUid(false);
+		roleAttributeOne.setStrategyType(AttributeMappingStrategyType.MERGE);
+		roleAttributeOne.setSystemAttributeMapping(rightsAttribute.getId());
+		roleAttributeOne.setTransformToResourceScript("return '" + ONE_VALUE + "';");
+		roleAttributeOne = roleSystemAttributeService.saveInternal(roleAttributeOne);
+
+		SysRoleSystemAttributeDto roleAttributeTwo = new SysRoleSystemAttributeDto();
+		roleAttributeTwo.setName(RIGHTS_ATTRIBUTE);
+		roleAttributeTwo.setRoleSystem(roleSystemTwo.getId());
+		roleAttributeTwo.setEntityAttribute(false);
+		roleAttributeTwo.setExtendedAttribute(false);
+		roleAttributeTwo.setUid(false);
+		roleAttributeTwo.setStrategyType(AttributeMappingStrategyType.MERGE);
+		roleAttributeTwo.setSystemAttributeMapping(rightsAttribute.getId());
+		roleAttributeTwo.setTransformToResourceScript("return '" + TWO_VALUE + "';");
+		roleAttributeTwo = roleSystemAttributeService.saveInternal(roleAttributeTwo);
+		
+		IdmIdentityDto identity = helper.createIdentity();
+		helper.createIdentityRole(identity, roleOne);
+     	helper.createIdentityRole(identity, roleTwo);
+		
+		AccAccountFilter accountFilter = new AccAccountFilter();
+		accountFilter.setSystemId(system.getId());
+		List<AccAccountDto> accounts = accountService.find(accountFilter, null).getContent();
+		assertEquals(1, accounts.size());
+		AccAccountDto account = accounts.get(0);
+		
+		IcConnectorObject connectorObject = accountService.getConnectorObject(account);
+		IcAttribute rightsAttributeFromSystem = connectorObject.getAttributeByName(RIGHTS_ATTRIBUTE);
+		List<Object> rightsValues = rightsAttributeFromSystem.getValues();
+		
+		assertEquals(2, rightsValues.size());
+		assertTrue(rightsValues.contains(ONE_VALUE));
+		assertTrue(rightsValues.contains(TWO_VALUE));
+		
+		// Change controlled value
+		roleAttributeOne.setTransformToResourceScript("return '" + ONE_VALUE + "_changed';");
+		roleAttributeOne = roleSystemAttributeService.saveInternal(roleAttributeOne);
+		
+		SysAttributeControlledValueFilter controlledValueFilter = new SysAttributeControlledValueFilter();
+		controlledValueFilter.setHistoricValue(Boolean.TRUE);
+		controlledValueFilter.setAttributeMappingId(rightsAttribute.getId());
+		List<SysAttributeControlledValueDto> attributeControlledValues = controlledValueService.find(controlledValueFilter, null).getContent();
+		// One historic value should be exists
+		assertEquals(1, attributeControlledValues.size());
+		assertEquals(ONE_VALUE, attributeControlledValues.get(0).getValue());
+		// Deleting of old value ... we don't want controlled it from now
+		controlledValueService.delete(attributeControlledValues.get(0));
+		
+		// Do provisioning
+		identityService.save(identity);
+		
+		// Check values on target system
+		accounts = accountService.find(accountFilter, null).getContent();
+		assertEquals(1, accounts.size());
+		account = accounts.get(0);
+		
+		connectorObject = accountService.getConnectorObject(account);
+		rightsAttributeFromSystem = connectorObject.getAttributeByName(RIGHTS_ATTRIBUTE);
+		rightsValues = rightsAttributeFromSystem.getValues();
+		
+		assertEquals(3, rightsValues.size());
+		assertTrue(rightsValues.contains(ONE_VALUE));
+		assertTrue(rightsValues.contains(TWO_VALUE));
+		assertTrue(rightsValues.contains(ONE_VALUE+"_changed"));
+	}
 }

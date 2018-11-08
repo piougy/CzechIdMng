@@ -31,7 +31,12 @@ export class AttributeControlledValueTable extends Advanced.AbstractTableContent
 
 
   render() {
-    const { uiKey, manager, columns, forceSearchParameters, showRowSelection } = this.props;
+    const { uiKey, manager, columns, forceSearchParameters, showRowSelection, rendered } = this.props;
+
+    if (rendered === false) {
+      return <div/>;
+    }
+
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>

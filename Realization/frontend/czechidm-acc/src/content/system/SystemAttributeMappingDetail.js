@@ -362,7 +362,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
             </Basic.Panel>
           </form>
         </Basic.Tab>
-        <Basic.Tab eventKey={2} rendered={isMerge} title={this.i18n('tabs.controlledValues.label')} className="bordered">
+        <Basic.Tab eventKey={2} rendered={isMerge && !isNew} title={this.i18n('tabs.controlledValues.label')} className="bordered">
           <Basic.ContentHeader text={ this.i18n('tabs.controlledValues.cache.header') }
             style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
           <Basic.Alert
@@ -380,7 +380,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
             />
           <AttributeControlledValueTable
             ref="controlledValuesTable"
-            uiKey="attribute-mapping-controlled-values"
+            uiKey={'attribute-mapping-controlled-values' + attribute.id}
             showRowSelection={false}
             manager={controlledValueManager}
             forceSearchParameters={controlledValuesForceSearchParameters}
@@ -393,12 +393,12 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
             text={ this.i18n('tabs.controlledValues.historic.helpBlock') }
             style={{ marginBottom: 0, marginRight: 15, marginLeft: 15 }}
             />
-            <AttributeControlledValueTable
-              ref="historicValuesTable"
-              uiKey="attribute-mapping-historic-values"
-              manager={controlledValueManager}
-              forceSearchParameters={historicValuesForceSearchParameters}
-              />
+          <AttributeControlledValueTable
+            ref="historicValuesTable"
+            uiKey={'attribute-mapping-historic-values' + attribute.id}
+            manager={controlledValueManager}
+            forceSearchParameters={historicValuesForceSearchParameters}
+            />
         </Basic.Tab>
       </Basic.Tabs>
       </div>

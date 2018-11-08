@@ -363,19 +363,20 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
           </form>
         </Basic.Tab>
         <Basic.Tab eventKey={2} rendered={isMerge} title={this.i18n('tabs.controlledValues.label')} className="bordered">
-          <Basic.ContentHeader text={ this.i18n('tabs.controlledValues.cache.header') } style={{ marginLeft: 5 }}/>
+          <Basic.ContentHeader text={ this.i18n('tabs.controlledValues.cache.header') }
+            style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
           <Basic.Alert
             level="info"
             showHtmlText
             text={ this.i18n('tabs.controlledValues.cache.helpBlock') }
-            style={{ marginBottom: 0, marginRight: 5, marginLeft: 5 }}
+              style={{ marginBottom: 0, marginRight: 15, marginLeft: 15 }}
             />
           <Basic.Alert
             level="warning"
             rendered={attribute && attribute.evictControlledValuesCache}
             showHtmlText
             text={ this.i18n('tabs.controlledValues.cache.evicted') }
-            style={{ marginBottom: 0, marginRight: 5, marginLeft: 5 }}
+              style={{ marginBottom: 0, marginRight: 15, marginLeft: 15 }}
             />
           <AttributeControlledValueTable
             ref="controlledValuesTable"
@@ -384,12 +385,13 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
             manager={controlledValueManager}
             forceSearchParameters={controlledValuesForceSearchParameters}
             />
-          <Basic.ContentHeader text={ this.i18n('tabs.controlledValues.historic.header') } style={{ marginLeft: 5 }}/>
+          <Basic.ContentHeader text={ this.i18n('tabs.controlledValues.historic.header') }
+            style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
           <Basic.Alert
             level="info"
             showHtmlText
             text={ this.i18n('tabs.controlledValues.historic.helpBlock') }
-            style={{ marginBottom: 0, marginRight: 5, marginLeft: 5 }}
+            style={{ marginBottom: 0, marginRight: 15, marginLeft: 15 }}
             />
             <AttributeControlledValueTable
               ref="historicValuesTable"

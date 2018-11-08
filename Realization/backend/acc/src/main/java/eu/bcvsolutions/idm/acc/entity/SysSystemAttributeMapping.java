@@ -120,6 +120,10 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 	@Column(name = "attribute_cached", nullable = false)
 	private boolean cached = true;
 	
+	@Audited
+	@Column(name = "evict_contr_values_cache")
+	private boolean evictControlledValuesCache = true;
+	
 	public String getIdmPropertyName() {
 		return idmPropertyName;
 	}
@@ -254,6 +258,14 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 
 	public void setCached(boolean cached) {
 		this.cached = cached;
+	}
+
+	public boolean isEvictControlledValuesCache() {
+		return evictControlledValuesCache;
+	}
+
+	public void setEvictControlledValuesCache(boolean evictControlledValuesCache) {
+		this.evictControlledValuesCache = evictControlledValuesCache;
 	}
 
 	public boolean isPasswordAttribute() {

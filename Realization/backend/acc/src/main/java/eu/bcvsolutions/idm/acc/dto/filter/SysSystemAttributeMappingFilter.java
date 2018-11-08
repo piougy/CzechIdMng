@@ -16,6 +16,7 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 	private UUID systemMappingId;	
 	private UUID schemaAttributeId;	
 	private String idmPropertyName;	
+	private String schemaAttributeName;
 	private Boolean isUid;
 	private Boolean sendOnPasswordChange;
 	private Boolean passwordAttribute;
@@ -68,6 +69,14 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 		return sendOnPasswordChange;
 	}
 
+	public String getSchemaAttributeName() {
+		return schemaAttributeName;
+	}
+
+	public void setSchemaAttributeName(String schemaAttributeName) {
+		this.schemaAttributeName = schemaAttributeName;
+	}
+	
 	public Boolean getPasswordAttribute() {
 		return passwordAttribute;
 	}

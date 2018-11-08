@@ -356,6 +356,23 @@
         "create": {
           "success": "IdM attribute [{{name}}] successfully created",
           "header": "New IdM attribute"
+        },
+        "tabs": {
+          "basic": {
+            "label": "Basic settings"
+          },
+          "controlledValues": {
+            "cache": {
+              "header": "Currently controlled values",
+              "helpBlock": "A list of values that are currently managed in the IdM for this attribute (defined on roles).",
+              "evicted": "The list of <strong> values is not valid </strong> (the attribute may have been modified) and will be recalculated when first using the provisioning!"
+            },
+            "historic": {
+              "header": "Values controlled in the past",
+              "helpBlock": "A list of past values for this attribute is managed in IdM. These values are still used in the merger evaluation. If you are certain that a specific value is no longer to be evaluated as managed, then you can delete it here."
+            },
+            "label": "Controlled values (merge)"
+          }
         }
       },
       "roles": {
@@ -1068,6 +1085,11 @@
         "identity": "Identity"
       },
       "name": "Recipient"
+    },
+    "AttributeControlledValue": {
+      "value": "Value",
+      "created": "Created",
+      "creator": "Creator"
     }
   },
   "enums" : {

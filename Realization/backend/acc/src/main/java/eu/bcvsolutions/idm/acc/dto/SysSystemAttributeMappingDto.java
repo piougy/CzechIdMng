@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 public class SysSystemAttributeMappingDto extends AbstractDto implements AttributeMapping {
 
 	private static final long serialVersionUID = 8415424250836600530L;
-	
+
 	private String name;
 	private String idmPropertyName;
 	@Embedded(dtoClass = SysSystemMappingDto.class)
@@ -34,6 +34,7 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	private boolean authenticationAttribute = false;
 	private boolean sendOnPasswordChange = false;
 	private boolean cached = true;
+	private boolean evictControlledValuesCache = true;
 
 	@Override
 	public String getName() {
@@ -177,7 +178,7 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	public boolean isCached() {
 		return cached;
 	}
-	
+
 	@Override
 	public void setCached(boolean cached) {
 		this.cached = cached;
@@ -190,13 +191,21 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	public void setAuthenticationAttribute(boolean authenticationAttribute) {
 		this.authenticationAttribute = authenticationAttribute;
 	}
-	
+
 	public boolean isSendOnPasswordChange() {
 		return sendOnPasswordChange;
 	}
-	
+
 	public void setSendOnPasswordChange(boolean sendOnPasswordChange) {
 		this.sendOnPasswordChange = sendOnPasswordChange;
+	}
+
+	public boolean isEvictControlledValuesCache() {
+		return evictControlledValuesCache;
+	}
+
+	public void setEvictControlledValuesCache(boolean evictControlledValuesCache) {
+		this.evictControlledValuesCache = evictControlledValuesCache;
 	}
 
 	@Override

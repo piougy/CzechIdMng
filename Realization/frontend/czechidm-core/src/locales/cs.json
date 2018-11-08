@@ -47,6 +47,7 @@
     "validFrom": "$t(entity.validFrom)",
     "validTill": "$t(entity.validTill)",
     "select": "Vyberte ...",
+    "selected": "Vybraný záznam",
     "default": "Výchozí",
     "download": "Stáhnout",
     "searchSelect": "Vyberte nebo začněte psát pro vyhledání ...",
@@ -429,7 +430,33 @@
         }
       },
       "Tree": {
-        "loading": "Načítání ..."
+        "header": "Struktura",
+        "loading": "Načítání ...",
+        "reload": "Znovu načíst strom",
+        "showTree": {
+          "link": {
+            "title": "Výber ze struktury"
+          }
+        },
+        "parent": {
+          "link": {
+            "label": "..",
+            "title": "Zobrazit nadřazenou složku"
+          }
+        },
+        "root": {
+          "link": {
+            "label": "/..",
+            "title": "Vybrat kořenovou složku"
+          }
+        },
+        "detail": {
+          "link": {
+            "title": "Přejít na detail vybraného záznamu"
+          }
+        },
+        "moreRecords": "<span title='Načíst další záznamy'>Zobrazeno <strong>{{counter}}</strong> z <strong>{{total}}</strong> záznamů ...</span>",
+        "noData": "Nenalezeny žádné záznamy"
       },
       "EavForm": {
         "multiple": {
@@ -480,6 +507,8 @@
           "IDENTITY-SELECT": "Výběr identit (SelectBox)",
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
           "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",
+          "TREE-NODE-SELECT": "Výběr prvku stromu (SelectBox)",
+          "ROLE-CATALOGUE-SELECT": "Výběr složky z katalogu rolí (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
           "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)"
         },
@@ -1300,7 +1329,10 @@
         }
       },
       "typeNotFound": "Nebyl nalezen žádný typ.",
-      "newType": "Pokračujte prosím vytvořením nového typu.",
+      "newType": {
+        "label": "Vytvořit nový typ",
+        "title": "Pokračujte prosím vytvořením nového typu."
+      },
       "typePick": "Vyberte typ",
       "typePickPlaceHolder": "Vyberte typ",
       "nodes": {
@@ -3339,6 +3371,7 @@
           "false": "Nemá předka"
       },
       "treeType": {
+        "label": "$t(entity.TreeNode.treeType.name)",
         "name": "Typ struktury"
       },
       "defaultTreeNode": {

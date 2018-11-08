@@ -1,8 +1,6 @@
 import React from 'react';
 //
-import { Basic, Managers } from 'czechidm-core';
-
-const roleManager = new Managers.RoleManager();
+import { Basic, Advanced } from 'czechidm-core';
 
 /**
  * Identity's specific sync configuration
@@ -41,9 +39,8 @@ class SyncIdentityConfig extends Basic.AbstractContent {
     //
     return (
       <Basic.AbstractForm ref="formSpecific" data={synchronizationConfig} showLoading={showLoading} className="panel-body">
-        <Basic.SelectBox
+        <Advanced.RoleSelect
           ref="defaultRole"
-          manager={roleManager}
           label={this.i18n('identityConfigDetail.defaultRole.label')}
           helpBlock={this.i18n('identityConfigDetail.defaultRole.helpBlock')}/>
         <Basic.Checkbox

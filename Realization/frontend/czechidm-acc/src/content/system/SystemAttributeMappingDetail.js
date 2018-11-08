@@ -173,7 +173,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
-    if (!attribute || !attribute.id) {
+    if (!attribute) {
       return <div/>;
     }
     const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId',

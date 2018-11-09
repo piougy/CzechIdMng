@@ -96,7 +96,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		SynchronizationSpecificActionType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
 		UUID defaultRole = config.getDefaultRole();
 		if (defaultRole != null && inactiveOwnerBehavior == null) {
-			// TODO SynchronizationException
 			throw new ResultCodeException(AccResultCode.SYNCHRONIZATION_INACTIVE_OWNER_BEHAVIOR_MUST_BE_SET);
 		}
 		if (inactiveOwnerBehavior != null && inactiveOwnerBehavior.equals(SynchronizationSpecificActionType.LINK_PROTECTED)) {

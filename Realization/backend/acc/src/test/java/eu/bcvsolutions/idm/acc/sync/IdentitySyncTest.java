@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationSpecificActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -179,6 +180,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
@@ -216,6 +218,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
 		config.setCreateDefaultContract(true);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 		//
@@ -267,6 +270,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 			SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
 			// Set default role to sync configuration
 			config.setDefaultRole(defaultRole.getId());
+			config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
 			config.setCreateDefaultContract(true);
 			config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 			
@@ -352,6 +356,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		IdmIdentityDto identityOne = helper.createIdentity(IDENTITY_ONE);
@@ -384,6 +389,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		IdmIdentityDto identityOne = helper.createIdentity(IDENTITY_ONE);
@@ -418,6 +424,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		IdmIdentityDto identityOne = helper.createIdentity(IDENTITY_ONE);
@@ -481,6 +488,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		this.getBean().deleteAllResourceData();
@@ -574,6 +582,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
 		config.setStartAutoRoleRec(true); // we want start recalculation after synchronization
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
@@ -657,6 +666,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
 		config.setStartAutoRoleRec(false); // we want start recalculation after synchronization
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
@@ -1183,6 +1193,9 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default
 		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, Boolean.TRUE);
 	}
+	
+	//-------------------------------------- Inactive owner behavior tests --------------------------------------------------------
+	//-------------------------------------- Inactive owner behavior tests end--------------------------------------------------------
 
 	private Task createSyncTask(UUID syncConfId) {
 		Task task = new Task();

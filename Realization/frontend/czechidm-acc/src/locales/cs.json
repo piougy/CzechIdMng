@@ -1145,7 +1145,7 @@
       "LINK_AND_UPDATE_ACCOUNT": "Vytvořit vazbu a aktualizovat účet",
       "IGNORE": "Ignorovat"
     },
-    "SynchronizationSpecificActionTypeEnum": {
+    "SynchronizationInactiveOwnerBehaviorTypeEnum": {
       "DO_NOT_LINK": "DO_NOT_LINK - Nepřilinkovat účet a ukončit jeho zpracování, pokud neexistuje validní úvazek pro přidělení výchozí role",
       "LINK_PROTECTED": "LINK_PROTECTED - Přilinkovat účet do chráněného režimu, pokud neexistuje validní úvazek pro přidělení výchozí role",
       "LINK": "LINK - Přilinkovat účet, i když výchozí roli nelze přidělit na žádný úvazek"

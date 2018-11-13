@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
 
-import eu.bcvsolutions.idm.acc.domain.SynchronizationSpecificActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationInactiveOwnerBehaviorType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
@@ -42,7 +42,7 @@ public class SysSyncIdentityConfig extends SysSyncConfig{
 	@Audited
 	@Enumerated(EnumType.STRING)
 	@Column(name = "inactive_owner_behavior")
-	private SynchronizationSpecificActionType inactiveOwnerBehavior;
+	private SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior;
 
 	/*
 	 * Start recalculation after end synchronization for automatic roles by attribute
@@ -84,11 +84,11 @@ public class SysSyncIdentityConfig extends SysSyncConfig{
 		this.createDefaultContract = createDefaultContract;
 	}
 
-	public SynchronizationSpecificActionType getInactiveOwnerBehavior() {
+	public SynchronizationInactiveOwnerBehaviorType getInactiveOwnerBehavior() {
 		return inactiveOwnerBehavior;
 	}
 
-	public void setInactiveOwnerBehavior(SynchronizationSpecificActionType inactiveOwnerBehavior) {
+	public void setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior) {
 		this.inactiveOwnerBehavior = inactiveOwnerBehavior;
 	}
 }

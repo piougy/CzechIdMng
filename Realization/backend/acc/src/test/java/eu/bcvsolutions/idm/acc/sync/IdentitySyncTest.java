@@ -24,12 +24,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationSpecificActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationInactiveOwnerBehaviorType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -44,6 +45,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
@@ -66,6 +68,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationServiceTest;
@@ -128,6 +131,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	@Autowired
 	private SysSystemAttributeMappingService schemaAttributeMappingService;
 	@Autowired
+	private SysSystemEntityService systemEntityService;
+	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
 	private SysSyncConfigService syncConfigService;
@@ -189,7 +194,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
@@ -227,7 +232,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
 		config.setCreateDefaultContract(true);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 		//
@@ -279,7 +284,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 			SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
 			// Set default role to sync configuration
 			config.setDefaultRole(defaultRole.getId());
-			config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
+			config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
 			config.setCreateDefaultContract(true);
 			config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 			
@@ -365,7 +370,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		IdmIdentityDto identityOne = helper.createIdentity(IDENTITY_ONE);
@@ -398,7 +403,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		IdmIdentityDto identityOne = helper.createIdentity(IDENTITY_ONE);
@@ -433,7 +438,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		IdmIdentityDto identityOne = helper.createIdentity(IDENTITY_ONE);
@@ -497,7 +502,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		this.getBean().deleteAllResourceData();
@@ -591,7 +596,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
 		config.setStartAutoRoleRec(true); // we want start recalculation after synchronization
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
@@ -675,7 +680,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
 		config.setStartAutoRoleRec(false); // we want start recalculation after synchronization
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
@@ -1212,17 +1217,16 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	// new identity, no default contract, link protected => created identity, account in protection
 	// new identity, default contract, don't link => created identity, account is assigned by role
 	// new identity, default contract, link protected => created identity, account is assigned by role
-	// unlinked, valid contract, don't link => role is assigned, account is assigned by role
+	// unlinked, valid contract, behavior don't link => role is assigned, account is assigned by role
 	// unlinked, valid contract, link protected => role is assigned, account is assigned by role
-	// unlinked, invalid contract, don't link => role is not assigned, account is not linked
+	// unlinked, invalid contract, don't link => role is not assigned, account is not linked, identity is not updated
 	// unlinked, invalid contract, link protected => role is not assigned, account is in protection
 	// unlinked, invalid contract, link protected, account protection is 30 days => role is not assigned, account is in protection to "contract end + 31 days"
+	// unlinked, future contract, link protected, account protection is 30 days => role is not assigned, account is in protection to "now + 31 days"
 	// unlinked, multiple invalid contracts, link protected, account protection is 30 days => account is in protection to "last contract end + 31 days"
 	// unlinked, no contract, don't link => role is not assigned, account is not linked
 	// unlinked, no contract, link protected => role is not assigned, account is in protection
 	// unlinked, no contract, link protected, account protection is 30 days => role is not assigned, account is in protection to "now + 31 days"
-	
-	// TODO test wish
 	
 	// check settings - default role is set, inactive owner behavior not set => synchronization didn't start
 	@Test(expected = ResultCodeException.class)
@@ -1254,7 +1258,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK_PROTECTED);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 		// create default mapping for provisioning
 		helper.createMapping(system);
@@ -1274,7 +1278,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Don't link without owner
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.DO_NOT_LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.DO_NOT_LINK);
 		// Don't create default contract
 		config.setCreateDefaultContract(false);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
@@ -1299,11 +1303,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		identities = identityService.find(identityFilter, null).getContent();
 		Assert.assertEquals(0, identities.size());
 		
-		// check that account is not linked = AccAccount doesn't exist
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setUid(IDENTITY_ONE);
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(0, accAccounts.size());
+		// check that AccAccount doesn't exist
+		checkAccAccount(0, false, null);
 		
 		// Delete log
 		syncLogService.delete(log);
@@ -1321,7 +1322,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Link accounts to protection
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK_PROTECTED);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
 		// Don't create default contract
 		config.setCreateDefaultContract(false);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
@@ -1350,24 +1351,16 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, roles.size());
 
 		// account is in protection
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setIdentityId(identity.getId());
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(1, accAccounts.size());
-		Assert.assertTrue(accAccounts.get(0).isInProtection());
+		checkAccAccount(1, true, null);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(1, identityAccounts.size());
-		// account is in protection and not assigned by any role
-		Assert.assertEquals(null, identityAccounts.get(0).getIdentityRole());
+		// identity account is in protection and not assigned by any role
+		checkIdentityAccount(identity, 1, null);
 
 		// Delete log
 		syncLogService.delete(log);
 		syncConfigService.delete(config);
 	}
-	
+
 	// new identity, default contract, don't link => created identity, account is assigned by role
 	@Test
 	public void testCreateIdentityWithDefaultContractDontLinkSync() {
@@ -1379,7 +1372,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Don't link without owner
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.DO_NOT_LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.DO_NOT_LINK);
 		// Create default contract
 		config.setCreateDefaultContract(true);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
@@ -1410,18 +1403,10 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(defaultRole.getId(), assignedRole.getRole());
 
 		// account is linked without protection
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setIdentityId(identity.getId());
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(1, accAccounts.size());
-		Assert.assertFalse(accAccounts.get(0).isInProtection());
+		checkAccAccount(1, false, null);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(1, identityAccounts.size());
 		// account is assigned by the role
-		Assert.assertEquals(assignedRole.getId(), identityAccounts.get(0).getIdentityRole());
+		checkIdentityAccount(identity, 1, assignedRole.getId());
 
 		// Delete log
 		syncLogService.delete(log);
@@ -1439,7 +1424,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Link protected
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK_PROTECTED);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
 		// Create default contract
 		config.setCreateDefaultContract(true);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
@@ -1470,25 +1455,17 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(defaultRole.getId(), assignedRole.getRole());
 
 		// account is linked without protection
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setIdentityId(identity.getId());
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(1, accAccounts.size());
-		Assert.assertFalse(accAccounts.get(0).isInProtection());
+		checkAccAccount(1, false, null);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(1, identityAccounts.size());
 		// account is assigned by the role
-		Assert.assertEquals(assignedRole.getId(), identityAccounts.get(0).getIdentityRole());
+		checkIdentityAccount(identity, 1, assignedRole.getId());
 
 		// Delete log
 		syncLogService.delete(log);
 		syncConfigService.delete(config);
 	}
 
-	// unlinked, valid contract, don't link => role is assigned, account is assigned by role
+	// unlinked, valid contract, behavior don't link => role is assigned, account is assigned by role
 	@Test
 	public void testLinkIdentityValidContractDontLinkSync() {
 		SysSystemDto system = initData();
@@ -1496,10 +1473,11 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		IdmRoleDto defaultRole = helper.createRole();
 
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY);
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Don't link without owner
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.DO_NOT_LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.DO_NOT_LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		// create default mapping for provisioning
@@ -1507,12 +1485,14 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		helper.createRoleSystem(defaultRole, system);
 
 		IdmIdentityDto identity = helper.createIdentity(IDENTITY_ONE);
+		String lastNameBefore = identity.getLastName();
+		Assert.assertNotEquals(IDENTITY_ONE, lastNameBefore);
 		IdmIdentityContractDto primeValidContract = contractService.getPrimeValidContract(identity.getId());
 		Assert.assertNotNull(primeValidContract);
 
 		helper.startSynchronization(config);
 
-		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK, 1, OperationResultType.SUCCESS);
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK_AND_UPDATE_ENTITY, 1, OperationResultType.SUCCESS);
 
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
@@ -1524,18 +1504,17 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(primeValidContract.getId(), assignedRole.getIdentityContract());
 		
 		// account is linked without protection
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setIdentityId(identity.getId());
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(1, accAccounts.size());
-		Assert.assertFalse(accAccounts.get(0).isInProtection());
+		checkAccAccount(1, false, null);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(1, identityAccounts.size());
 		// account is assigned by the role
-		Assert.assertEquals(assignedRole.getId(), identityAccounts.get(0).getIdentityRole());
+		checkIdentityAccount(identity, 1, assignedRole.getId());
+
+		// check that identity was updated
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals(IDENTITY_ONE, identities.get(0).getLastName());
 
 		// Delete log
 		syncLogService.delete(log);
@@ -1553,7 +1532,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Link protected
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK_PROTECTED);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		// create mapping for provisioning with protection enabled
@@ -1578,25 +1557,17 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(primeValidContract.getId(), assignedRole.getIdentityContract());
 
 		// account is linked without protection
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setIdentityId(identity.getId());
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(1, accAccounts.size());
-		Assert.assertFalse(accAccounts.get(0).isInProtection());
+		checkAccAccount(1, false, null);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(1, identityAccounts.size());
 		// account is assigned by the role
-		Assert.assertEquals(assignedRole.getId(), identityAccounts.get(0).getIdentityRole());
+		checkIdentityAccount(identity, 1, assignedRole.getId());
 
 		// Delete log
 		syncLogService.delete(log);
 		syncConfigService.delete(config);
 	}
 
-	// unlinked, invalid contract, don't link => role is not assigned, account is not linked
+	// unlinked, invalid contract, don't link => role is not assigned, account is not linked, identity is not updated
 	@Test
 	public void testLinkIdentityInvalidContractDontLinkSync() {
 		SysSystemDto system = initData();
@@ -1604,14 +1575,17 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		IdmRoleDto defaultRole = helper.createRole();
 
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY);
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Don't link without owner
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.DO_NOT_LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.DO_NOT_LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		// set invalid contract
 		IdmIdentityDto identity = helper.createIdentity(IDENTITY_ONE);
+		String lastNameBefore = identity.getLastName();
+		Assert.assertNotEquals(IDENTITY_ONE, lastNameBefore);
 		IdmIdentityContractDto primeContract = contractService.getPrimeContract(identity.getId());
 		Assert.assertNotNull(primeContract);
 		primeContract.setValidTill(LocalDate.now().minusDays(10));
@@ -1629,16 +1603,18 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(0, roles.size());
 
-		// check that account is not linked = AccAccount doesn't exist
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setUid(IDENTITY_ONE);
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(0, accAccounts.size());
+		// check that AccAccount doesn't exist
+		checkAccAccount(0, false, null);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(0, identityAccounts.size());
+		// account is not linked
+		checkIdentityAccount(identity, 0, null);
+
+		// check that identity wasn't updated
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals(lastNameBefore, identities.get(0).getLastName());
 
 		// Delete log
 		syncLogService.delete(log);
@@ -1656,7 +1632,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Link protected
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK_PROTECTED);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		// create mapping for provisioning with protection enabled infinitely
@@ -1683,19 +1659,10 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, roles.size());
 
 		// account is linked in protection infinitely
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setIdentityId(identity.getId());
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(1, accAccounts.size());
-		Assert.assertTrue(accAccounts.get(0).isInProtection());
-		Assert.assertNull(accAccounts.get(0).getEndOfProtection());
+		checkAccAccount(1, true, null);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(1, identityAccounts.size());
 		// account is in protection and not assigned by any role
-		Assert.assertEquals(null, identityAccounts.get(0).getIdentityRole());
+		checkIdentityAccount(identity, 1, null);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -1713,7 +1680,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Link protected
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK_PROTECTED);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		// create mapping for provisioning with protection enabled
@@ -1741,22 +1708,62 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, roles.size());
 
 		// account is linked in protection
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setIdentityId(identity.getId());
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(1, accAccounts.size());
-		Assert.assertTrue(accAccounts.get(0).isInProtection());
-		// end of protection = validTill + protection interval + 1 day
 		DateTime protectionEnd = validTill.plusDays(31).toDateTimeAtStartOfDay();
-		Assert.assertNotNull(accAccounts.get(0).getEndOfProtection());
-		Assert.assertEquals(protectionEnd, accAccounts.get(0).getEndOfProtection());
+		checkAccAccount(1, true, protectionEnd);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(1, identityAccounts.size());
 		// account is in protection and not assigned by any role
-		Assert.assertEquals(null, identityAccounts.get(0).getIdentityRole());
+		checkIdentityAccount(identity, 1, null);
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+
+	// unlinked, future contract, link protected, account protection is 30 days => role is not assigned, account is in protection to "now + 31 days"
+	@Test
+	public void testLinkIdentityFutureContractLinkProtectedFiniteProtectionSync() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		IdmRoleDto defaultRole = helper.createRole();
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		// Set default role to sync configuration
+		config.setDefaultRole(defaultRole.getId());
+		// Link protected
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// create mapping for provisioning with protection enabled
+		createMappingWithProtection(system, 30);
+		helper.createRoleSystem(defaultRole, system);
+
+		// set future contract
+		IdmIdentityDto identity = helper.createIdentity(IDENTITY_ONE);
+		IdmIdentityContractDto primeContract = contractService.getPrimeContract(identity.getId());
+		Assert.assertNotNull(primeContract);
+		primeContract.setValidTill(LocalDate.now().plusDays(100));
+		primeContract.setValidFrom(LocalDate.now().plusDays(10));
+		primeContract = contractService.save(primeContract);
+
+		helper.startSynchronization(config);
+
+		// has to be success, account was linked and we expected that contract can be invalid
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK, 1, OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// role is not assigned
+		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(0, roles.size());
+
+		// account is linked in protection
+		// end of protection = now + protection interval + 1 day
+		DateTime protectionEnd = LocalDate.now().plusDays(31).toDateTimeAtStartOfDay();
+		checkAccAccount(1, true, protectionEnd);
+
+		// account is in protection and not assigned by any role
+		checkIdentityAccount(identity, 1, null);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -1774,7 +1781,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Link protected
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK_PROTECTED);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		// create mapping for provisioning with protection enabled
@@ -1808,22 +1815,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, roles.size());
 
 		// account is linked in protection
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setIdentityId(identity.getId());
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(1, accAccounts.size());
-		Assert.assertTrue(accAccounts.get(0).isInProtection());
 		// end of protection = validTillNewer + protection interval + 1 day
 		DateTime protectionEnd = validTillNewer.plusDays(31).toDateTimeAtStartOfDay();
-		Assert.assertNotNull(accAccounts.get(0).getEndOfProtection());
-		Assert.assertEquals(protectionEnd, accAccounts.get(0).getEndOfProtection());
+		checkAccAccount(1, true, protectionEnd);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(1, identityAccounts.size());
 		// account is in protection and not assigned by any role
-		Assert.assertEquals(null, identityAccounts.get(0).getIdentityRole());
+		checkIdentityAccount(identity, 1, null);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -1841,7 +1838,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Don't link without owner
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.DO_NOT_LINK);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.DO_NOT_LINK);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		// create identity without contract
@@ -1864,16 +1861,10 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(0, roles.size());
 
-		// check that account is not linked = AccAccount doesn't exist
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setUid(IDENTITY_ONE);
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(0, accAccounts.size());
+		// check that AccAccount doesn't exist
+		checkAccAccount(0, false, null);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(0, identityAccounts.size());
+		checkIdentityAccount(identity, 0, null);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -1891,7 +1882,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Link protected
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK_PROTECTED);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		// create mapping for provisioning with protection enabled infinitely
@@ -1919,19 +1910,10 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, roles.size());
 
 		// account is linked in protection infinitely
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setIdentityId(identity.getId());
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(1, accAccounts.size());
-		Assert.assertTrue(accAccounts.get(0).isInProtection());
-		Assert.assertNull(accAccounts.get(0).getEndOfProtection());
+		checkAccAccount(1, true, null);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(1, identityAccounts.size());
 		// account is in protection and not assigned by any role
-		Assert.assertEquals(null, identityAccounts.get(0).getIdentityRole());
+		checkIdentityAccount(identity, 1, null);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -1949,7 +1931,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Set default role to sync configuration
 		config.setDefaultRole(defaultRole.getId());
 		// Link protected
-		config.setInactiveOwnerBehavior(SynchronizationSpecificActionType.LINK_PROTECTED);
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
 
 		// create mapping for provisioning with protection enabled
@@ -1977,22 +1959,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, roles.size());
 
 		// account is linked in protection
-		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setIdentityId(identity.getId());
-		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
-		Assert.assertEquals(1, accAccounts.size());
-		Assert.assertTrue(accAccounts.get(0).isInProtection());
 		// end of protection = now + protection interval + 1 day
 		DateTime protectionEnd = LocalDate.now().plusDays(31).toDateTimeAtStartOfDay();
-		Assert.assertNotNull(accAccounts.get(0).getEndOfProtection());
-		Assert.assertEquals(protectionEnd, accAccounts.get(0).getEndOfProtection());
+		checkAccAccount(1, true, protectionEnd);
 
-		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
-		identityAccountFilter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
-		Assert.assertEquals(1, identityAccounts.size());
 		// account is in protection and not assigned by any role
-		Assert.assertEquals(null, identityAccounts.get(0).getIdentityRole());
+		checkIdentityAccount(identity, 1, null);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -2000,6 +1972,197 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	}
 
 	//-------------------------------------- Inactive owner behavior tests end--------------------------------------------------------
+
+	//-------------------------------------- System entity wish tests --------------------------------------------------------
+	// new identity, system entity has "wish" => removed "wish"
+	// unlinked, system entity has "wish" => removed "wish"
+	// linked, system entity has "wish", action Ignore => no change
+	// linked, system entity has "wish", action Update entity, automapping is allowed => removed "wish" 
+	// linked, system entity has "wish", action Update entity, automapping is not allowed => no change + warning
+
+	// new identity, system entity has "wish" => removed "wish"
+	@Test
+	public void testCreateIdentityRemoveWishSync() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+
+		// Create system entity with "wish"
+		createSystemEntityWish(system);
+
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+
+		helper.startSynchronization(config);
+
+		// Has to be success
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1, OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// Identity was created
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+
+		// System entity is no longer "wish"
+		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, IDENTITY_ONE);
+		Assert.assertFalse(systemEntity.isWish());
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+
+	// unlinked, system entity has "wish" => removed "wish"
+	@Test
+	public void testLinkIdentityRemoveWishSync() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+
+		// Create system entity with "wish"
+		createSystemEntityWish(system);
+
+		helper.createIdentity(IDENTITY_ONE);
+
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK, 1, OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// System entity is no longer "wish"
+		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, IDENTITY_ONE);
+		Assert.assertFalse(systemEntity.isWish());
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+
+	// linked, system entity has "wish", action Ignore => no change
+	@Test
+	public void testLinkedIdentityIgnoredDontRemoveWishSync() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// Create system entity with "wish"
+		createSystemEntityWish(system);
+
+		// Create identity with account
+		IdmIdentityDto identity = helper.createIdentity(IDENTITY_ONE);
+		helper.createIdentityAccount(system, identity);
+
+		helper.startSynchronization(config);
+
+		// has to be ignored
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINKED, 1, OperationResultType.IGNORE);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// System entity has "wish"
+		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, IDENTITY_ONE);
+		Assert.assertTrue(systemEntity.isWish());
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+
+	// linked, system entity has "wish", action Update entity, automapping is allowed => removed "wish" 
+	@Test
+	public void testUpdateIdentityRemoveWishSync() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+
+		// Allow automapping
+		configurationService.setBooleanValue(ProvisioningConfiguration.PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT, Boolean.TRUE);
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// Create system entity with "wish"
+		createSystemEntityWish(system);
+
+		// Create identity with account
+		IdmIdentityDto identity = helper.createIdentity(IDENTITY_ONE);
+		helper.createIdentityAccount(system, identity);
+
+		helper.startSynchronization(config);
+
+		// has to be success
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1, OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// System entity has no longer "wish"
+		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, IDENTITY_ONE);
+		Assert.assertFalse(systemEntity.isWish());
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+
+		// Return default
+		configurationService.setBooleanValue(ProvisioningConfiguration.PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT,
+				ProvisioningConfiguration.DEFAULT_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT);
+	}
+
+	// linked, system entity has "wish", action Update entity, automapping is not allowed => no change + warning
+	@Test
+	public void testUpdateIdentityNoAutomappingDontRemoveWishSync() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+
+		// Disallow automapping
+		configurationService.setBooleanValue(ProvisioningConfiguration.PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT, Boolean.FALSE);
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// Create system entity with "wish"
+		createSystemEntityWish(system);
+
+		// Create identity with account
+		IdmIdentityDto identity = helper.createIdentity(IDENTITY_ONE);
+		helper.createIdentityAccount(system, identity);
+
+		helper.startSynchronization(config);
+
+		// has to be warning - automapping is not allowed
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1, OperationResultType.WARNING);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// System entity has "wish"
+		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, IDENTITY_ONE);
+		Assert.assertTrue(systemEntity.isWish());
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+
+		// Return default
+		configurationService.setBooleanValue(ProvisioningConfiguration.PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT,
+				ProvisioningConfiguration.DEFAULT_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT);
+	}
+
+	//-------------------------------------- System entity wish tests end--------------------------------------------------------
 
 	private Task createSyncTask(UUID syncConfId) {
 		Task task = new Task();
@@ -2187,6 +2350,38 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		systemMapping.setProtectionInterval(protectionInterval);
 		systemMappingService.save(systemMapping);
 		return systemMapping;
+	}
+
+	private void createSystemEntityWish(SysSystemDto system) {
+		SysSystemEntityDto systemEntity = new SysSystemEntityDto();
+		systemEntity.setUid(IDENTITY_ONE);
+		systemEntity.setEntityType(SystemEntityType.IDENTITY);
+		systemEntity.setWish(true);
+		systemEntity.setSystem(system.getId());
+		systemEntity = systemEntityService.save(systemEntity);
+	}
+
+	private void checkIdentityAccount(IdmIdentityDto identity, int numberOfAccounts, UUID identityRole) {
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setIdentityId(identity.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null).getContent();
+		Assert.assertEquals(numberOfAccounts, identityAccounts.size());
+		if (numberOfAccounts == 0) {
+			return;
+		}
+		Assert.assertEquals(identityRole, identityAccounts.get(0).getIdentityRole());
+	}
+
+	private void checkAccAccount(int numberOfAccounts, boolean inProtection, DateTime endOfProtection) {
+		AccAccountFilter accountFilter = new AccAccountFilter();
+		accountFilter.setUid(IDENTITY_ONE);
+		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
+		Assert.assertEquals(numberOfAccounts, accAccounts.size());
+		if (numberOfAccounts == 0) {
+			return;
+		}
+		Assert.assertEquals(inProtection, accAccounts.get(0).isInProtection());
+		Assert.assertEquals(endOfProtection, accAccounts.get(0).getEndOfProtection());
 	}
 
 	@Transactional

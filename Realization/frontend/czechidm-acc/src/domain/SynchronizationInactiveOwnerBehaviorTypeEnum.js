@@ -1,12 +1,12 @@
 import { Enums } from 'czechidm-core';
 
 /**
- * SynchronizationSpecificActionTypeEnum for synchronization.
+ * SynchronizationInactiveOwnerBehaviorTypeEnum for synchronization.
  */
-export default class SynchronizationSpecificActionTypeEnum extends Enums.AbstractEnum {
+export default class SynchronizationInactiveOwnerBehaviorTypeEnum extends Enums.AbstractEnum {
 
   static getNiceLabel(key) {
-    return super.getNiceLabel(`acc:enums.SynchronizationSpecificActionTypeEnum.${key}`);
+    return super.getNiceLabel(`acc:enums.SynchronizationInactiveOwnerBehaviorTypeEnum.${key}`);
   }
 
   static findKeyBySymbol(sym) {
@@ -41,6 +41,6 @@ export default class SynchronizationSpecificActionTypeEnum extends Enums.Abstrac
   }
 }
 
-SynchronizationSpecificActionTypeEnum.DO_NOT_LINK = Symbol('DO_NOT_LINK');
-SynchronizationSpecificActionTypeEnum.LINK_PROTECTED = Symbol('LINK_PROTECTED');
-SynchronizationSpecificActionTypeEnum.LINK = Symbol('LINK');
+SynchronizationInactiveOwnerBehaviorTypeEnum.DO_NOT_LINK = Symbol('DO_NOT_LINK');
+SynchronizationInactiveOwnerBehaviorTypeEnum.LINK_PROTECTED = Symbol('LINK_PROTECTED');
+SynchronizationInactiveOwnerBehaviorTypeEnum.LINK = Symbol('LINK');

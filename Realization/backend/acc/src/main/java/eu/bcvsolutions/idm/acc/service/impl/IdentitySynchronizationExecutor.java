@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationSpecificActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationInactiveOwnerBehaviorType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
@@ -93,24 +93,24 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		SynchronizationContext context = super.validate(synchronizationConfigId);
 
 		SysSyncIdentityConfigDto config = this.getConfig(context);
-		SynchronizationSpecificActionType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
+		SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
 		UUID defaultRole = config.getDefaultRole();
 		if (defaultRole != null && inactiveOwnerBehavior == null) {
 			throw new ResultCodeException(AccResultCode.SYNCHRONIZATION_INACTIVE_OWNER_BEHAVIOR_MUST_BE_SET);
 		}
-		if (inactiveOwnerBehavior != null && inactiveOwnerBehavior.equals(SynchronizationSpecificActionType.LINK_PROTECTED)) {
+		if (inactiveOwnerBehavior != null && inactiveOwnerBehavior.equals(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED)) {
 			SysSystemMappingDto provisioningMapping = systemMappingService.findProvisioningMapping(
 					context.getSystem().getId(),
 					context.getEntityType());
 			
 			if (provisioningMapping == null) {
 				throw new ResultCodeException(AccResultCode.SYNCHRONIZATION_PROVISIONING_MUST_EXIST,
-						ImmutableMap.of("property", SynchronizationSpecificActionType.LINK_PROTECTED));
+						ImmutableMap.of("property", SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED));
 			}
 			if (!provisioningMapping.isProtectionEnabled()) {
 				throw new ResultCodeException(AccResultCode.SYNCHRONIZATION_PROTECTION_MUST_BE_ENABLED,
 						ImmutableMap.of( //
-								"property", SynchronizationSpecificActionType.LINK_PROTECTED, //
+								"property", SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED, //
 								"mapping", provisioningMapping.getName()));
 			}
 			context.addProtectionInterval(provisioningMapping.getProtectionInterval());
@@ -335,8 +335,8 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		
 		IdmIdentityContractDto primeContract = identityContractService.getPrimeValidContract(entity.getId());
 		if (primeContract == null) {
-			SynchronizationSpecificActionType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
-			if (inactiveOwnerBehavior.equals(SynchronizationSpecificActionType.LINK_PROTECTED)) {
+			SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
+			if (inactiveOwnerBehavior.equals(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED)) {
 				context.getLogItem().addToLog(MessageFormat.format(
 						"Default role is set, but it will not be assigned - no valid identity contract was found for identity [{0}],"
 						+ " so the account will be in protection.", entity.getCode()));
@@ -437,7 +437,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 
 		SysSyncIdentityConfigDto config = this.getConfig(context);
 		UUID defaultRoleId = config.getDefaultRole();
-		SynchronizationSpecificActionType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
+		SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
 		boolean startAutoRoleRec = config.isStartAutoRoleRec();
 		boolean createDefaultContract = config.isCreateDefaultContract();
 		boolean createDefaultContractSystem = identityConfiguration.isCreateDefaultContractEnabled();
@@ -545,13 +545,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	protected AccAccountDto applySpecificSettingsBeforeLink(AccAccountDto account, IdmIdentityDto entity, SynchronizationContext context) {
 		SysSyncIdentityConfigDto config = this.getConfig(context);
 		SysSyncItemLogDto logItem = context.getLogItem();
-		SynchronizationSpecificActionType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
+		SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
 		UUID defaultRoleId = config.getDefaultRole();
 		if (defaultRoleId == null) {
 			// Default role is not specified - no problem
 			return account;
 		}
-		if (inactiveOwnerBehavior.equals(SynchronizationSpecificActionType.LINK)) {
+		if (inactiveOwnerBehavior.equals(SynchronizationInactiveOwnerBehaviorType.LINK)) {
 			return account;
 		}
 

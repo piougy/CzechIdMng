@@ -2,7 +2,7 @@ import React from 'react';
 //
 import { Basic, Advanced } from 'czechidm-core';
 
-import SynchronizationSpecificActionTypeEnum from '../../domain/SynchronizationSpecificActionTypeEnum';
+import SynchronizationInactiveOwnerBehaviorTypeEnum from '../../domain/SynchronizationInactiveOwnerBehaviorTypeEnum';
 
 /**
  * Identity's specific sync configuration
@@ -14,7 +14,7 @@ class SyncIdentityConfig extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      defaultRoleId: this.props.synchronizationConfig.defaultRole ? this.props.synchronizationConfig.defaultRole.id : null
+      defaultRoleId: this.props.synchronizationConfig.defaultRole
     };
   }
 
@@ -35,7 +35,7 @@ class SyncIdentityConfig extends Basic.AbstractContent {
   }
 
   _defaultRoleChange(defaultRole) {
-    const defaultRoleId = defaultRole ? defaultRole.id : null;
+    const defaultRoleId = defaultRole;
     this.setState({
       defaultRoleId
     });
@@ -60,7 +60,7 @@ class SyncIdentityConfig extends Basic.AbstractContent {
         <Basic.EnumSelectBox
           ref="inactiveOwnerBehavior"
           useSymbol={ false }
-          enum={SynchronizationSpecificActionTypeEnum}
+          enum={SynchronizationInactiveOwnerBehaviorTypeEnum}
           hidden={defaultRoleId === null}
           required={defaultRoleId !== null}
           label={this.i18n('identityConfigDetail.inactiveOwnerBehavior.label')}

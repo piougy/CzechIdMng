@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.acc.domain.SynchronizationSpecificActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationInactiveOwnerBehaviorType;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 
@@ -24,10 +24,10 @@ public class SysSyncIdentityConfigDto extends AbstractSysSyncConfigDto {
 	private UUID defaultRole;
 	
 	/*
-	 * If the identity doesn't have any valid contract for assigning the default role (TODO test future contracts),
+	 * If the identity doesn't have any valid contract for assigning the default role,
 	 * this choice specifies if the account should be linked.
 	 */
-	private SynchronizationSpecificActionType inactiveOwnerBehavior;
+	private SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior;
 	
 	/*
 	 * Start recalculation after end synchronization for automatic roles by attribute
@@ -63,11 +63,11 @@ public class SysSyncIdentityConfigDto extends AbstractSysSyncConfigDto {
 		this.createDefaultContract = createDefaultContract;
 	}
 
-	public SynchronizationSpecificActionType getInactiveOwnerBehavior() {
+	public SynchronizationInactiveOwnerBehaviorType getInactiveOwnerBehavior() {
 		return inactiveOwnerBehavior;
 	}
 
-	public void setInactiveOwnerBehavior(SynchronizationSpecificActionType inactiveOwnerBehavior) {
+	public void setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior) {
 		this.inactiveOwnerBehavior = inactiveOwnerBehavior;
 	}
 }

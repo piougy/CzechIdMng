@@ -1138,7 +1138,7 @@
       "LINK_AND_UPDATE_ACCOUNT": "Create link and update account",
       "IGNORE": "Ignore"
     },
-    "SynchronizationSpecificActionTypeEnum": {
+    "SynchronizationInactiveOwnerBehaviorTypeEnum": {
       "DO_NOT_LINK": "DO_NOT_LINK - Don't link the account and end its processing, if there is no valid contract for the default role",
       "LINK_PROTECTED": "LINK_PROTECTED - Link the account as \"In protection\", if there is no valid contract for the default role",
       "LINK": "LINK - Link the account even if the default role can't be assigned to any contract"

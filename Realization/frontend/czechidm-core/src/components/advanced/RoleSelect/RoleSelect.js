@@ -320,7 +320,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
         <Basic.LabelWrapper label={ this.getLabel() ? (<span style={{ visibility: 'hidden' }}>T</span>) : null }>
           <Basic.Button
             level="default"
-            icon="tree-deciduous"
+            icon="fa:folder-open"
             style={{ marginLeft: 5 }}
             onClick={ this.showRoleCatalogue.bind(this) }
             title={this.i18n('content.roles.select.showRoleCatalogue')}

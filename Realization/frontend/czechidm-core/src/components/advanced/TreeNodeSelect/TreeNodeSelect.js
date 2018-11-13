@@ -302,7 +302,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
         <Basic.LabelWrapper label={ showTreeType || this.getLabel() ? (<span style={{ visibility: 'hidden' }}>T</span>) : null }>
           <Basic.Button
             level="default"
-            icon="tree-deciduous"
+            icon="fa:folder-open"
             style={{ marginLeft: 5 }}
             onClick={ this.showTree.bind(this) }
             title={ this.i18n('showTree.link.title') }

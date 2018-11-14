@@ -227,7 +227,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
                   <Basic.Column property="endTime" header={this.i18n('wf.formData.history.completeDate')}
                     cell={
                       ({rowIndex, data}) => {
-                        return (<Basic.DateCell format={this.i18n('format.date')} rowIndex={rowIndex} data={data} property="endTime"/>);
+                        return (<Basic.DateCell format={this.i18n('format.datetime')} rowIndex={rowIndex} data={data} property="endTime"/>);
                       }
                     }
                   />

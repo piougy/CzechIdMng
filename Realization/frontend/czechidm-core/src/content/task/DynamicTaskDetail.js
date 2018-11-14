@@ -46,11 +46,13 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   }
 
   _validateAndCompleteTask(decision) {
-    if (this.refs.form && !this.refs.form.isFormValid()) {
-      return;
-    }
-    if (this.refs.formData && !this.refs.formData.isFormValid()) {
-      return;
+    if (!decision.skipValidation) {
+      if (this.refs.form && !this.refs.form.isFormValid()) {
+        return;
+      }
+      if (this.refs.formData && !this.refs.formData.isFormValid()) {
+        return;
+      }
     }
     if (decision.showWarning) {
       this.refs.confirm.show(this.i18n(decision.warningMessage ? decision.warningMessage : 'completeTaskConfirmDetail'), this.i18n('completeTaskConfirmTitle'))

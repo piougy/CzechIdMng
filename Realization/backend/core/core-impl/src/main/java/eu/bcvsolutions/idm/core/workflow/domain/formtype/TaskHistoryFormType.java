@@ -4,7 +4,11 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
+
 /**
+ * Form type which display history of task in WF
+ *
  * @author Roman Kučera
  */
 public class TaskHistoryFormType extends AbstractComponentFormType {
@@ -30,8 +34,7 @@ public class TaskHistoryFormType extends AbstractComponentFormType {
 			try {
 				return new ObjectMapper().writeValueAsString(modelValue);
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-				return modelValue.toString();
+				throw new CoreException(e);
 			}
 		}
 		return (String) modelValue;

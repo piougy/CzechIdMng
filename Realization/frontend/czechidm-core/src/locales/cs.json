@@ -3438,6 +3438,7 @@
       "priority": "Priorita",
       "createTime": "Datum vytvoření",
       "completeTaskDecision": "Rozhodnutí",
+      "completeTaskMessage": "Poznámka řešitele",
       "candicateUsers": "Mohou řešit"
     },
     "Notification": {
@@ -4286,6 +4287,18 @@
         "name" : "$t(entity.validTill) (nová)",
         "tooltip": "",
         "placeholder": ""
+      },
+      "history": {
+        "name": "Předchozí úkoly",
+        "taskName": "Název",
+        "completeDate": "Datum schválení",
+        "assignee": "Schvalovatel",
+        "message": "Poznámka řešitele"
+      },
+      "taskCompleteMessage": {
+        "name": "Poznámka",
+        "placeholder": "",
+        "tooltip": ""
       }
     }
   },

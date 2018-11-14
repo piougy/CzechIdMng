@@ -5,6 +5,8 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
+
 /**
  * Form type for select box component
  *
@@ -33,8 +35,7 @@ public class SelectBoxFormType extends AbstractComponentFormType {
 			try {
 				return new ObjectMapper().writeValueAsString(modelValue);
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-				return modelValue.toString();
+				throw new CoreException(e);
 			}
 		}
 		return (String) modelValue;

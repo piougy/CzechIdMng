@@ -127,11 +127,6 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     }
   }
 
-  _getDate(rowIndex, data) {
-    const date = new Date(data[rowIndex].endTime);
-    return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
-  }
-
   _getFormDataComponents(task) {
     const { canExecute } = this.props;
     if (!task) {
@@ -196,7 +191,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           break;
         }
         case 'selectBox': {
-          let data = [];
+          const data = [];
           const map = new Map(Object.entries(JSON.parse(formData.value)));
           map.forEach((label, value) => {
             data.push({value: value, niceLabel: this.i18n(label)});
@@ -216,7 +211,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           break;
         }
         case 'taskHistory': {
-          let history = JSON.parse(formData.value);
+          const history = JSON.parse(formData.value);
           formDataComponents.push(
               <Basic.Panel>
                 <Basic.PanelHeader text={this._getLocalization('name', formData)}/>
@@ -227,15 +222,15 @@ class DynamicTaskDetail extends Basic.AbstractContent {
                     noData={this.i18n('component.basic.Table.noData')}
                     rowClass={({rowIndex, data}) => {
                       return (data[rowIndex].changed) ? 'warning' : '';
-                    }}
-                    className="table-bordered">
+                    }}>
                   <Basic.Column property="name" header={this.i18n('wf.formData.history.taskName')}/>
                   <Basic.Column property="endTime" header={this.i18n('wf.formData.history.completeDate')}
                     cell={
                       ({rowIndex, data}) => {
-                        return this._getDate(rowIndex, data);
+                        return (<Basic.DateCell format={this.i18n('format.date')} rowIndex={rowIndex} data={data} property="endTime"/>);
                       }
-                    }/>
+                    }
+                  />
                   <Basic.Column property="assignee" header={this.i18n('wf.formData.history.assignee')}
                   cell={({rowIndex, data}) => {
                     return (<IdentityInfo

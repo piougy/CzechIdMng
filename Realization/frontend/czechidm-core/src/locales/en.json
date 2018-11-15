@@ -3397,6 +3397,7 @@
       "priority": "Priority",
       "createTime": "Created on",
       "completeTaskDecision": "Result",
+      "completeTaskMessage": "Note from resolver",
       "candicateUsers": "Can solve"
     },
     "Notification": {
@@ -4245,6 +4246,18 @@
         "name" : "$t(entity.validTill) (new)",
         "tooltip": "",
         "placeholder": ""
+      },
+      "history": {
+        "name": "Previous tasks",
+        "taskName": "Name",
+        "completeDate": "Complete date",
+        "assignee": "Task resolver",
+        "message": "Note from resolver"
+      },
+      "taskCompleteMessage": {
+        "name": "Note",
+        "placeholder": "",
+        "tooltip": ""
       }
     }
   },

@@ -26,10 +26,16 @@ import io.swagger.annotations.ApiModelProperty;
 public class IdmRoleDto extends FormableDto implements Disableable, Codeable, ExternalIdentifiable, Requestable {
 
     private static final long serialVersionUID = 1L;
-
-    @NotEmpty
-    @Size(min = 1, max = DefaultFieldLengths.NAME)
+    //
+    @ApiModelProperty(notes = "Code with environment (baseCode - environment).")
+    @Size(max = DefaultFieldLengths.NAME)
     private String code;
+    @Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(notes = "Base code without environment.")
+    private String baseCode;
+    @ApiModelProperty(notes = "Environment.")
+    @Size(max = DefaultFieldLengths.NAME)
+    private String environment;
     @NotEmpty
     @Size(min = 1, max = DefaultFieldLengths.NAME)
     private String name;
@@ -138,5 +144,37 @@ public class IdmRoleDto extends FormableDto implements Disableable, Codeable, Ex
 	@Override
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
+	}
+	
+	/**
+	 * @since 9.3.0
+	 * @param environment
+	 */
+	public void setEnvironment(String environment) {
+		this.environment = environment;
+	}
+	
+	/**
+	 * @since 9.3.0
+	 * @return
+	 */
+	public String getEnvironment() {
+		return environment;
+	}
+	
+	/**
+	 * @since 9.3.0
+	 * @return
+	 */
+	public String getBaseCode() {
+		return baseCode;
+	}
+	
+	/**
+	 * @since 9.3.0
+	 * @param baseCode
+	 */
+	public void setBaseCode(String baseCode) {
+		this.baseCode = baseCode;
 	}
 }

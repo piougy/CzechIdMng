@@ -51,12 +51,17 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
   }
 
   getValue() {
+    const { rendered } = this.props;
+    if (!rendered) {
+      return null;
+    }
+    //
     return this.refs.role.getValue();
   }
 
   setValue(value) {
     const { rendered } = this.props;
-    if ( !rendered) {
+    if (!rendered) {
       return;
     }
     //
@@ -91,7 +96,9 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
    * Focus input field
    */
   focus() {
-    this.refs.role.focus();
+    if (this.refs.role) {
+      this.refs.role.focus();
+    }
   }
 
   /**
@@ -290,17 +297,28 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     }
     //
     const selectedRows = [];
-    for (const index in value) {
-      if (value.hasOwnProperty(index)) {
-        if (value[index] && value[index].id) {
-          selectedRows.push(value[index].id);
+    if (_.isArray(value)) {
+      for (const index in value) {
+        if (value.hasOwnProperty(index)) {
+          if (value[index] && value[index].id) {
+            selectedRows.push(value[index].id);
+          }
         }
+      }
+    } else {
+      if (value.id) {
+        selectedRows.push(value.id);
       }
     }
     //
     let result = true;
-    if (this.props.onChange) {
-      result = this.props.onChange(selectedRows);
+    const { onChange, multiSelect } = this.props;
+    if (onChange) {
+      if (multiSelect) {
+        result = onChange(selectedRows);
+      } else {
+        result = onChange(selectedRows.length > 0 ? selectedRows[0] : null);
+      }
     }
     // if onChange listener returns false, then we can end
     if (result === false) {
@@ -453,8 +471,9 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                         );
                       }
                     }/>
-                  <Column property="code" sort={false} face="text" rendered={_.includes(columns, 'code')}/>
                   <Column property="name" sort={false} face="text" rendered={_.includes(columns, 'name')}/>
+                  <Column property="baseCode" sort={false} face="text" rendered={_.includes(columns, 'baseCode')}/>
+                  <Column property="environment" sort={false} face="text" rendered={_.includes(columns, 'environment')}/>
                 </Table>
               </Basic.Col>
             </Basic.Row>
@@ -499,7 +518,7 @@ RoleSelect.defaultProps = {
   uiKey: 'role-table-select',
   manager,
   roleCatalogueManager,
-  columns: ['name'],
+  columns: ['name', 'baseCode', 'environment'],
   multiSelect: false,
   showActionButtons: true,
   selectRowClass: 'success'

@@ -1641,7 +1641,7 @@
       },
       "filter": {
         "text": {
-          "placeholder": "Name or description"
+          "placeholder": "Name, code, environment or description"
         }
       },
       "roleCataloguePick": "Select folder",
@@ -3099,6 +3099,15 @@
       "code": {
         "label": "Code",
         "help": "Technical name"
+      },
+      "baseCode": {
+        "label": "Kód",
+        "help": "Technický název role."
+      },
+      "environment": {
+        "label": "Environment",
+        "help": "Environment for which the role is intended.",
+        "helpCode": "$t(entity.Role.environment.help) Full role's code will have value <strong>{{ code }}</strong>. This unique code will be used as role identifier."
       },
       "name": "Name",
       "roleType": "Type",
@@ -5317,6 +5326,14 @@
     "SYNTAX_ERROR": {
       "title": "Server communication failed",
       "message": "Server communication failed, try to execute operation again. If the issue persists, please contact your application administrator."
+    },
+    "ROLE_CODE_ENVIRONMENT_CONFLICT": {
+      "title": "Role code colide with environment",
+      "message": "Role code {{code}} cannot be combined with environment {{environment}}. Use base code with environment instead."
+    },
+    "ROLE_CODE_REQUIRED":  {
+      "title": "Role code is required",
+      "message": "Fill role code or base code."
     }
   },
   "validationError": {

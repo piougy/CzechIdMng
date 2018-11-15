@@ -25,6 +25,8 @@ public class IdmRoleFilter
 
 	public static final String PARAMETER_ROLE_CATALOGUE = "roleCatalogue";
 	public static final String PARAMETER_GUARANTEE = "guarantee";
+	public static final String PARAMETER_ENVIRONMENT = "environment";
+	public static final String PARAMETER_BASE_CODE = "baseCode";
 	
 	private RoleType roleType;
 	
@@ -88,5 +90,21 @@ public class IdmRoleFilter
 	@Override
 	public void setExternalId(String externalId) {
 		data.set(PROPERTY_EXTERNAL_ID, externalId);
+	}
+	
+	public String getEnvironment() {
+		return (String) data.getFirst(PARAMETER_ENVIRONMENT);
+	}
+
+	public void setEnvironment(String environment) {
+		data.set(PARAMETER_ENVIRONMENT, environment);
+	}
+	
+	public String getBaseCode() {
+		return (String) data.getFirst(PARAMETER_BASE_CODE);
+	}
+	
+	public void setBaseCode(String baseCode) {
+		data.set(PARAMETER_BASE_CODE, baseCode);
 	}
 }

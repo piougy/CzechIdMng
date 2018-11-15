@@ -196,7 +196,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           const data = [];
           const map = new Map(Object.entries(JSON.parse(formData.value)));
           map.forEach((label, value) => {
-            data.push({value: value, niceLabel: this.i18n(label)});
+            data.push({value, niceLabel: this.i18n(label)});
           });
           formDataComponents.push(
             <Basic.EnumSelectBox

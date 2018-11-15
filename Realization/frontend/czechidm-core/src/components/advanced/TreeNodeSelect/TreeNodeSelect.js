@@ -418,7 +418,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               manager={ this.getManager() }
               forceSearchParameters={ modalForceSearchParameters }
               ŕendered={ showTree }
-              traverse
+              traverse={ false }
               header={
                 _forceTreeType
                 ?

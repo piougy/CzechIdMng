@@ -25,7 +25,8 @@ class Tree extends Basic.AbstractContextComponent {
     this.state = {
       selected: null,
       nodes: new Immutable.Map(), // loaded node ids
-      ui: new Immutable.Map() // ui state (loading decorator, last search parameters, total)
+      ui: new Immutable.Map(), // ui state (loading decorator, last search parameters, total)
+      filterOpened: false
     };
   }
 
@@ -159,7 +160,53 @@ class Tree extends Basic.AbstractContextComponent {
     onDetail(nodeId);
   }
 
-  _loadNodes(nodeId = null, props = null) {
+  showFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    this.setState({
+      filterOpened: true
+    });
+  }
+
+  hideFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    this.setState({
+      filterOpened: false
+    });
+  }
+
+  toogleFilter(filterOpened, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    this.setState({
+      filterOpened: !filterOpened
+    });
+  }
+
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    this._loadNodes(null, null, this.refs.filter.getValue());
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    this.refs.filter.setValue(null);
+  }
+
+  _loadNodes(nodeId = null, props = null, filter = null) {
     const _props = props ? props : this.props;
     const { forceSearchParameters } = _props;
     if (!_props.rendered) {
@@ -181,6 +228,9 @@ class Tree extends Basic.AbstractContextComponent {
       searchParameters = this.getManager().getService().getRootSearchParameters();
     } else {
       searchParameters = this.getManager().getService().getTreeSearchParameters().setFilter('parent', nodeId);
+    }
+    if (filter) {
+      searchParameters = searchParameters.setFilter('text', filter);
     }
     //
     this.setState({
@@ -459,7 +509,8 @@ class Tree extends Basic.AbstractContextComponent {
     const {
       nodes,
       ui,
-      selected
+      selected,
+      filterOpened
     } = this.state;
     //
     const selectedNode = this._getNode(selected);
@@ -506,7 +557,10 @@ class Tree extends Basic.AbstractContextComponent {
               className="btn-xs hidden"
               showLoading={ _showLoading }
               icon="filter"
-              style={{ marginLeft: 3 }}/>
+              style={{ marginLeft: 3 }}
+              onClick={ this.toogleFilter.bind(this, filterOpened) }>
+              <Basic.Icon icon={!filterOpened ? 'triangle-bottom' : 'triangle-top'} style={{ fontSize: '0.85em'}}/>
+            </Basic.Button>
 
             <Basic.Button
               title={ this.i18n('reload') }
@@ -518,28 +572,38 @@ class Tree extends Basic.AbstractContextComponent {
               style={{ marginLeft: 3 }}/>
           </div>
         </div>
-        {/* RT: RT: search prepare */}
-        <div className="basic-toolbar hidden" style={{ display: 'flex', marginBottom: 0 }}>
-          <div style={{ flex: 1 }}>
-            <Basic.TextField
-              label={ null }
-              placeholder={ 'Search ...' }
-              className="small"
-              style={{ marginBottom: 0 }}/>
+        {/* RT: search prepare */}
+        <Basic.Collapse in={ filterOpened }>
+          <div>
+            <form
+              className="basic-toolbar"
+              style={{ display: 'flex', marginBottom: 0 }}
+              onSubmit={ this.useFilter.bind(this) }>
+              <div style={{ flex: 1 }}>
+                <Basic.TextField
+                  ref="filter"
+                  label={ null }
+                  placeholder={ 'Search ...' }
+                  className="small"
+                  style={{ marginBottom: 0 }}/>
+              </div>
+              <div className="text-right">
+                <Basic.Button
+                  type="submit"
+                  className="btn-xs"
+                  showLoading={ _showLoading }
+                  icon="fa:check"
+                  style={{ marginLeft: 3 }}/>
+                <Basic.Button
+                  className="btn-xs"
+                  showLoading={ _showLoading }
+                  icon="remove"
+                  style={{ marginLeft: 3 }}
+                  onClick={ this.cancelFilter.bind(this) }/>
+              </div>
+            </form>
           </div>
-          <div className="text-right">
-            <Basic.Button
-              className="btn-xs"
-              showLoading={ _showLoading }
-              icon="filter"
-              style={{ marginLeft: 3 }}/>
-            <Basic.Button
-              className="btn-xs"
-              showLoading={ _showLoading }
-              icon="remove"
-              style={{ marginLeft: 3 }}/>
-          </div>
-        </div>
+        </Basic.Collapse>
         <div className="tree-body" style={ bodyStyle }>
           {
             _showLoading

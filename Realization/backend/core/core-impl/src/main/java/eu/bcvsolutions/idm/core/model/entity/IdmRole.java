@@ -28,8 +28,6 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 /**
  * Role
  * 
- * TODO: add role's code
- * 
  * @author Radek Tomiška
  *
  */
@@ -37,7 +35,9 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Table(name = "idm_role", indexes = { 
 		@Index(name = "ux_idm_role_code", columnList = "code", unique = true),
 		@Index(name = "idx_idm_role_name", columnList = "name"),
-		@Index(name = "idx_idm_role_external_id", columnList = "external_id")})
+		@Index(name = "idx_idm_role_external_id", columnList = "external_id"),
+		@Index(name = "idx_idm_role_environment", columnList = "environment"),
+		@Index(name = "idx_idm_role_base_code", columnList = "base_code")})
 public class IdmRole extends AbstractEntity implements Codeable, FormableEntity, Disableable, ExternalIdentifiable {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
@@ -47,6 +47,17 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "code", length = DefaultFieldLengths.NAME, nullable = false)
 	private String code;
+	
+	@Audited
+	@NotEmpty
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "base_code", length = DefaultFieldLengths.NAME, nullable = false)
+	private String baseCode;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "environment", length = DefaultFieldLengths.NAME)
+	private String environment;
 	
 	@Audited
 	@NotEmpty
@@ -175,5 +186,37 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	@Override
 	public String getExternalId() {
 		return externalId;
+	}
+	
+	/**
+	 * @since 9.3.0
+	 * @return
+	 */
+	public String getEnvironment() {
+		return environment;
+	}
+	
+	/**
+	 * @since 9.3.0
+	 * @param environment
+	 */
+	public void setEnvironment(String environment) {
+		this.environment = environment;
+	}
+	
+	/**
+	 * @since 9.3.0
+	 * @param baseCode
+	 */
+	public void setBaseCode(String baseCode) {
+		this.baseCode = baseCode;
+	}
+	
+	/**
+	 * @since 9.3.0
+	 * @return
+	 */
+	public String getBaseCode() {
+		return baseCode;
 	}
 }

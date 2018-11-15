@@ -1205,7 +1205,8 @@
     },
     "RoleAttributeEnum": {
       "NAME": "Name (String)",
-      "CODE": "Code (String)",
+      "BASE_CODE": "Code (String)",
+      "ENVIRONMENT": "Environment (String)",
       "ROLE_TYPE": "Type of role (String - RoleType)",
       "APPROVE_REMOVE": "Approve remove (Boolean)",
       "PRIORITY": "Priority (Integer)",

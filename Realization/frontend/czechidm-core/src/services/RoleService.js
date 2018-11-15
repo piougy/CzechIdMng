@@ -21,10 +21,21 @@ export default class RoleService extends AbstractRequestFormableService {
     if (!role) {
       return '';
     }
-    if (role.name === role.code) {
+    let code = null;
+    if (role.name !== role.baseCode) {
+      code = role.baseCode;
+    }
+    if (role.environment) {
+      if (code) {
+        code = role.code;
+      } else {
+        code = role.environment;
+      }
+    }
+    if (!code) {
       return role.name;
     }
-    return `${ role.name } (${ role.code })`;
+    return `${role.name} (${code})`;
   }
 
   supportsAuthorization() {

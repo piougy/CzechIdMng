@@ -1689,7 +1689,7 @@
       },
       "filter": {
         "text": {
-          "placeholder": "Název či popis"
+          "placeholder": "Název, kód, prostředí či popis"
         }
       },
       "roleCataloguePick": "Vyberte složku",
@@ -3149,7 +3149,16 @@
       "_type": "Role",
       "code": {
         "label": "Kód",
-        "help": "Technický název role"
+        "help": "Technický název role."
+      },
+      "baseCode": {
+        "label": "Kód",
+        "help": "Technický název role."
+      },
+      "environment": {
+        "label": "Prostředí",
+        "help": "Prostředí, pro které je role určena.",
+        "helpCode": "$t(entity.Role.environment.help) Plný kód role včetně prostředí bude obsahovat hodnotu <strong>{{ code }}</strong>. Tento unikátní kód bude použít pro identifikaci role."
       },
       "name": "Název role",
       "roleType": "Typ role",
@@ -5367,6 +5376,14 @@
     "SYNTAX_ERROR": {
       "title": "Chyba komunikace se serverem",
       "message": "Chyba komunikace se serverem, zkuste operaci opakovat. Pokud potíže přetrvají, kontaktujte prosím správce aplikace."
+    },
+    "ROLE_CODE_ENVIRONMENT_CONFLICT": {
+      "title": "Kód role koliduje s prostředím",
+      "message": "Kód role {{code}} nelze kombinovat s prostředím {{environment}}. Pokud je zadáno prostředí, použijte atribut 'baseCode'."
+    },
+    "ROLE_CODE_REQUIRED":  {
+      "title": "Kód role je povinný",
+      "message": "Zadejte kód nebo základní kód ('baseCode') role."
     }
   },
   "validationError": {

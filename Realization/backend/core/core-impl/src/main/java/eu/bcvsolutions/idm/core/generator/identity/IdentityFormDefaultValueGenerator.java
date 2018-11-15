@@ -225,7 +225,7 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 			return result;
 		}
 		
-		Optional<IdmFormInstanceDto> first = eavs.stream().filter(eav -> eav.getFormDefinition().getCode() == definition.getCode()).findFirst();
+		Optional<IdmFormInstanceDto> first = eavs.stream().filter(eav -> eav.getFormDefinition().getCode().equals(definition.getCode())).findFirst();
 
 		if (first.isPresent()) {
 			IdmFormInstanceDto formInstanceDto = first.get();

@@ -1774,6 +1774,10 @@
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Password transformation for uid {{uid}} doesn't return GuardedString or null. Mapped attribute name {{mappedAttribute}}.",
       "title": "Password transformation failed"
+    },
+    "CONNECTOR_SCHEMA_GENERATION_EXCEPTION": {
+      "message": "Durring generation of schema for system [{{system}}] occurred exception [{{exception}}]!",
+      "title": "Generation of schema failed"
     }
   },
   "processor": {

@@ -89,4 +89,9 @@ public class DefaultRoleConfiguration extends AbstractConfiguration implements R
 		}
 		return role;
 	}
+	
+	@Override
+	public String getCodeEnvironmentSeperator() {
+		return getConfigurationService().getValue(PROPERTY_CODE_ENVIRONMENT_SEPARATOR, DEFAULT_CODE_ENVIRONMENT_SEPARATOR);
+	}
 }

@@ -39,49 +39,81 @@ public class IdmRoleControllerRestTest extends AbstractReadWriteDtoControllerRes
 	@Test
 	public void testFindByRoleCatalogueRecursivelly() {
 		// prepare role catalogue
-		try {
-			getHelper().loginAdmin();
-			//
-			IdmRoleCatalogueDto roleCatalogue = getHelper().createRoleCatalogue();
-			IdmRoleCatalogueDto roleCatalogueOne = getHelper().createRoleCatalogue(null, roleCatalogue.getId());
-			IdmRoleCatalogueDto roleCatalogueTwo = getHelper().createRoleCatalogue(null, roleCatalogue.getId());
-			IdmRoleCatalogueDto roleCatalogueOneSub = getHelper().createRoleCatalogue(null, roleCatalogueOne.getId());
-			IdmRoleCatalogueDto roleCatalogueOneSubSub = getHelper().createRoleCatalogue(null, roleCatalogueOneSub.getId());
-			IdmRoleCatalogueDto roleCatalogueOther = getHelper().createRoleCatalogue();
-			// create roles
-			IdmRoleDto roleOne = getHelper().createRole();
-			IdmRoleDto roleTwo = getHelper().createRole();
-			IdmRoleDto roleThree = getHelper().createRole();
-			// assign role into catalogue
-			getHelper().createRoleCatalogueRole(roleOne, roleCatalogueOne);
-			getHelper().createRoleCatalogueRole(roleTwo, roleCatalogueTwo);
-			getHelper().createRoleCatalogueRole(roleThree, roleCatalogueOneSubSub);
-			//
-			// test
-			IdmRoleFilter filter = new IdmRoleFilter();
-			filter.setRoleCatalogueId(roleCatalogueOne.getId());
-			List<IdmRoleDto> roles = find(filter);
-			Assert.assertEquals(2, roles.size());
-			Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOne.getId())));
-			Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleThree.getId())));
-			//
-			filter.setRoleCatalogueId(roleCatalogueOther.getId());
-			roles = find(filter);
-			Assert.assertTrue(roles.isEmpty());
-			//
-			filter.setRoleCatalogueId(roleCatalogueTwo.getId());
-			roles = find(filter);
-			Assert.assertEquals(1, roles.size());
-			Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleTwo.getId())));
-			//
-			filter.setRoleCatalogueId(roleCatalogue.getId());
-			roles = find(filter);
-			Assert.assertEquals(3, roles.size());
-			Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOne.getId())));
-			Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleTwo.getId())));
-			Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleThree.getId())));
-		} finally {
-			logout();
-		}
+		IdmRoleCatalogueDto roleCatalogue = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto roleCatalogueOne = getHelper().createRoleCatalogue(null, roleCatalogue.getId());
+		IdmRoleCatalogueDto roleCatalogueTwo = getHelper().createRoleCatalogue(null, roleCatalogue.getId());
+		IdmRoleCatalogueDto roleCatalogueOneSub = getHelper().createRoleCatalogue(null, roleCatalogueOne.getId());
+		IdmRoleCatalogueDto roleCatalogueOneSubSub = getHelper().createRoleCatalogue(null, roleCatalogueOneSub.getId());
+		IdmRoleCatalogueDto roleCatalogueOther = getHelper().createRoleCatalogue();
+		// create roles
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmRoleDto roleThree = getHelper().createRole();
+		// assign role into catalogue
+		getHelper().createRoleCatalogueRole(roleOne, roleCatalogueOne);
+		getHelper().createRoleCatalogueRole(roleTwo, roleCatalogueTwo);
+		getHelper().createRoleCatalogueRole(roleThree, roleCatalogueOneSubSub);
+		//
+		// test
+		IdmRoleFilter filter = new IdmRoleFilter();
+		filter.setRoleCatalogueId(roleCatalogueOne.getId());
+		List<IdmRoleDto> roles = find(filter);
+		Assert.assertEquals(2, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOne.getId())));
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleThree.getId())));
+		//
+		filter.setRoleCatalogueId(roleCatalogueOther.getId());
+		roles = find(filter);
+		Assert.assertTrue(roles.isEmpty());
+		//
+		filter.setRoleCatalogueId(roleCatalogueTwo.getId());
+		roles = find(filter);
+		Assert.assertEquals(1, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleTwo.getId())));
+		//
+		filter.setRoleCatalogueId(roleCatalogue.getId());
+		roles = find(filter);
+		Assert.assertEquals(3, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOne.getId())));
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleTwo.getId())));
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleThree.getId())));
+	}
+	
+	@Test
+	public void testFindByEnvironment() {
+		IdmRoleDto roleOne = prepareDto();
+		roleOne.setCode(null);
+		roleOne.setBaseCode(getHelper().createName());
+		roleOne.setEnvironment(getHelper().createName());
+		IdmRoleDto roleOneCreated = createDto(roleOne);
+		IdmRoleDto roleTwo = prepareDto();
+		roleTwo.setCode(null);
+		roleTwo.setBaseCode(getHelper().createName());
+		roleTwo.setEnvironment(getHelper().createName());
+		roleTwo = createDto(roleTwo);
+		//
+		IdmRoleFilter filter = new IdmRoleFilter();
+		filter.setEnvironment(roleOne.getEnvironment());
+		List<IdmRoleDto> roles = find(filter);
+		Assert.assertEquals(1, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOneCreated.getId())));
+	}
+	
+	@Test
+	public void testFindByBaseCode() {
+		IdmRoleDto roleOne = prepareDto();
+		roleOne.setCode(null);
+		roleOne.setBaseCode(getHelper().createName());
+		IdmRoleDto roleOneCreated = createDto(roleOne);
+		IdmRoleDto roleTwo = prepareDto();
+		roleTwo.setCode(null);
+		roleTwo.setBaseCode(getHelper().createName());
+		roleTwo = createDto(roleTwo);
+		//
+		IdmRoleFilter filter = new IdmRoleFilter();
+		filter.setBaseCode(roleOne.getBaseCode());
+		List<IdmRoleDto> roles = find(filter);
+		Assert.assertEquals(1, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOneCreated.getId())));
 	}
 }

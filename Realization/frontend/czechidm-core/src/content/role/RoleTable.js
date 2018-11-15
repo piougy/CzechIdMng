@@ -174,7 +174,7 @@ class RoleTable extends Advanced.AbstractTableContent {
         {/* FIXME: resposive design - wrong wrapping on mobile */}
         <Basic.Col
           lg={ 3 }
-          style={{ paddingRight: 0, marginLeft: 0, marginRight: -15 }}
+          style={{ paddingRight: 0 }}
           rendered={ _showTree }>
           <Advanced.Tree
             ref="roleCatalogueTree"
@@ -185,7 +185,7 @@ class RoleTable extends Advanced.AbstractTableContent {
             rendered={ _showTree }/>
         </Basic.Col>
 
-        <Basic.Col lg={ !_showTree ? 12 : 9 }>
+        <Basic.Col lg={ !_showTree ? 12 : 9 } style={{ paddingLeft: 0 }}>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
 
           <Advanced.Table
@@ -215,16 +215,21 @@ class RoleTable extends Advanced.AbstractTableContent {
                         enum={RoleTypeEnum}/>
                     </Basic.Col>
                     <Basic.Col lg={ 4 } className="text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                      <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                     </Basic.Col>
                   </Basic.Row>
-                  <Basic.Row className={ classnames('last', { 'hidden': !_showTree })}>
-                    <Basic.Col lg={ 4 }>
+                  <Basic.Row className="last">
+                    <Basic.Col lg={ 4 } rendered={ _showTree }>
                       <Advanced.Filter.RoleCatalogueSelect
                         ref="roleCatalogue"
                         label={ null }
                         placeholder={ this.i18n('entity.Role.roleCatalogue.name') }
                         header={ this.i18n('entity.Role.roleCatalogue.name') }/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 }>
+                      <Advanced.Filter.TextField
+                        ref="environment"
+                        placeholder={ this.i18n('entity.Role.environment.label') }/>
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
@@ -271,6 +276,8 @@ class RoleTable extends Advanced.AbstractTableContent {
               }
               sort={false}/>
             <Advanced.ColumnLink to="role/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
+            <Advanced.Column property="baseCode" width={ 125 } face="text" sort rendered={_.includes(columns, 'baseCode')}/>
+            <Advanced.Column property="environment" width={ 100 } face="text" sort rendered={_.includes(columns, 'environment')}/>
             <Advanced.Column property="roleType" width="75px" sort face="enum" enumClass={RoleTypeEnum} rendered={false && _.includes(columns, 'roleType')}/>
             <Advanced.Column property="roleCatalogue.name" width="75px" face="text" rendered={_.includes(columns, 'roleCatalogue')}/>
             <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
@@ -302,7 +309,7 @@ RoleTable.propTypes = {
 };
 
 RoleTable.defaultProps = {
-  columns: ['name', 'roleType', 'disabled', 'approvable', 'description'],
+  columns: ['name', 'baseCode', 'environment', 'roleType', 'disabled', 'approvable', 'description'],
   filterOpened: true,
   showCatalogue: true,
   forceSearchParameters: null

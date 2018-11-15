@@ -76,10 +76,10 @@ class RoleDetail extends Basic.AbstractContent {
   _setSelectedEntity(entity) {
     this.setState({
       _showLoading: false,
-      oldCode: entity.code
+      oldCode: entity.baseCode
     }, () => {
       this.refs.form.setData(entity);
-      this.refs.code.focus();
+      this.refs.baseCode.focus();
     });
   }
 
@@ -157,13 +157,13 @@ class RoleDetail extends Basic.AbstractContent {
   _onChangeCode(event) {
     // check guarded depents on new entity name
     const name = this.refs.name.getValue();
-    const code = event.currentTarget.value;
+    const baseCode = event.currentTarget.value;
     //
     if (!name || this.state.oldCode === name) {
       this.setState({
-        oldCode: code,
+        oldCode: baseCode,
       }, () => {
-        this.refs.name.setValue(code);
+        this.refs.name.setValue(baseCode);
       });
     }
   }
@@ -208,9 +208,9 @@ class RoleDetail extends Basic.AbstractContent {
                     <Basic.Row>
                       <Basic.Col lg={ 4 }>
                         <Basic.TextField
-                          ref="code"
-                          label={ this.i18n('entity.Role.code.label') }
-                          required
+                          ref="baseCode"
+                          label={ this.i18n('entity.Role.baseCode.label') }
+                          helpBlock={ this.i18n('entity.Role.baseCode.help') }
                           max={ 255 }
                           onChange={ this._onChangeCode.bind(this) }/>
                       </Basic.Col>
@@ -221,6 +221,18 @@ class RoleDetail extends Basic.AbstractContent {
                           required
                           min={ 0 }
                           max={ 255 }/>
+                      </Basic.Col>
+                    </Basic.Row>
+
+                    <Basic.Row>
+                      <Basic.Col lg={ 4 }>
+                        <Basic.TextField
+                          ref="environment"
+                          label={ this.i18n('entity.Role.environment.label') }
+                          helpBlock={ this.i18n(`entity.Role.environment.${ entity.environment ? 'helpCode' : 'help' }`, { escape: false, code: entity.code }) }
+                          max={ 255 }/>
+                      </Basic.Col>
+                      <Basic.Col lg={ 8 }>
                       </Basic.Col>
                     </Basic.Row>
 

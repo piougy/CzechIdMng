@@ -51,12 +51,17 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
   }
 
   getValue() {
+    const { rendered } = this.props;
+    if (!rendered) {
+      return null;
+    }
+    //
     return this.refs.role.getValue();
   }
 
   setValue(value) {
     const { rendered } = this.props;
-    if ( !rendered) {
+    if (!rendered) {
       return;
     }
     //
@@ -91,7 +96,9 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
    * Focus input field
    */
   focus() {
-    this.refs.role.focus();
+    if (this.refs.role) {
+      this.refs.role.focus();
+    }
   }
 
   /**
@@ -453,8 +460,9 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                         );
                       }
                     }/>
-                  <Column property="code" sort={false} face="text" rendered={_.includes(columns, 'code')}/>
                   <Column property="name" sort={false} face="text" rendered={_.includes(columns, 'name')}/>
+                  <Column property="baseCode" sort={false} face="text" rendered={_.includes(columns, 'baseCode')}/>
+                  <Column property="environment" sort={false} face="text" rendered={_.includes(columns, 'environment')}/>
                 </Table>
               </Basic.Col>
             </Basic.Row>
@@ -499,7 +507,7 @@ RoleSelect.defaultProps = {
   uiKey: 'role-table-select',
   manager,
   roleCatalogueManager,
-  columns: ['name'],
+  columns: ['name', 'baseCode', 'environment'],
   multiSelect: false,
   showActionButtons: true,
   selectRowClass: 'success'

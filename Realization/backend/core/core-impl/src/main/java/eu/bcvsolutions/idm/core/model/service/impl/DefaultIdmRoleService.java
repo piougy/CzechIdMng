@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -110,7 +111,7 @@ public class DefaultIdmRoleService
 			dto.setName(dto.getCode());
 		} else if (StringUtils.isEmpty(dto.getCode())) {
 			dto.setCode(dto.getName());
-		} 
+		}
 		//
 		return super.saveInternal(dto);
 	}
@@ -136,8 +137,9 @@ public class DefaultIdmRoleService
 							));
 		}
 		// role type
-		if (filter.getRoleType() != null) {
-			predicates.add(builder.equal(root.get(IdmRole_.roleType), filter.getRoleType()));
+		RoleType roleType = filter.getRoleType();
+		if (roleType != null) {
+			predicates.add(builder.equal(root.get(IdmRole_.roleType), roleType));
 		}
 		// guarantee	
 		UUID guaranteeId = filter.getGuaranteeId();
@@ -206,6 +208,16 @@ public class DefaultIdmRoleService
                     		)
                     );
 			predicates.add(builder.exists(subquery));
+		}
+		// environment
+		String environment = filter.getEnvironment();
+		if (StringUtils.isNotEmpty(environment)) {
+			predicates.add(builder.equal(root.get(IdmRole_.environment), environment));
+		}
+		// baseCode
+		String baseCode = filter.getBaseCode();
+		if (StringUtils.isNotEmpty(baseCode)) {
+			predicates.add(builder.equal(root.get(IdmRole_.baseCode), baseCode));
 		}
 		//
 		return predicates;
@@ -317,5 +329,31 @@ public class DefaultIdmRoleService
 		}
 
 		return new PageImpl<IdmIdentityDto>(Lists.newArrayList());
+	}
+	
+	@Override
+	public String getCodeWithoutEnvironment(IdmRoleDto role) {
+		Assert.notNull(role);
+		//
+		if (role.getCode() == null) {
+			return role.getBaseCode();
+		}
+		if (StringUtils.isEmpty(role.getEnvironment())) {
+			return role.getCode();
+		}
+		//
+		return role.getCode().replaceAll(String.format("%s%s$", roleConfiguration.getCodeEnvironmentSeperator(), role.getEnvironment()), "");
+	}
+	
+	@Override
+	public String getCodeWithEnvironment(IdmRoleDto role) {
+		Assert.notNull(role);
+		//
+		String code = role.getBaseCode() == null ? role.getCode() : role.getBaseCode();
+		if (StringUtils.isEmpty(role.getEnvironment())) {
+			return code;
+		}
+		//
+		return String.format("%s%s%s", code, roleConfiguration.getCodeEnvironmentSeperator(), role.getEnvironment());
 	}
 }

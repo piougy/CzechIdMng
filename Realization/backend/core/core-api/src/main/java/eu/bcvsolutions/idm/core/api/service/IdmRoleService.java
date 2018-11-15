@@ -107,4 +107,24 @@ public interface IdmRoleService extends
 	 * @return
 	 */
 	Page<IdmIdentityDto> findApproversByRoleId(UUID roleId, Pageable pageable);
+	
+	/**
+	 * Returns code without environment suffix.
+	 * e.g. code is 'code - env', 'code' is returned.
+	 * 
+	 * @param role
+	 * @return
+	 * @since 9.3.0
+	 */
+	String getCodeWithoutEnvironment(IdmRoleDto role);
+	
+	/**
+	 * Returns code with environment suffix.
+	 * e.g. code is 'code', environment is 'env', then 'code - env' is returned.
+	 * 
+	 * @param role
+	 * @return
+	 * @since 9.3.0
+	 */
+	String getCodeWithEnvironment(IdmRoleDto role);
 }

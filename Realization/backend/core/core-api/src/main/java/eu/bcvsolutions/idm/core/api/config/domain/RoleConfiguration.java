@@ -16,16 +16,30 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
  */
 public interface RoleConfiguration  extends Configurable {
 	
-	String PROPERTY_DEFAULT_ROLE = 
-			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.default";
+	/**
+	 * Default user role - permissions configured for the default role are automatically assigned to every logged identity.
+	 * Business roles are NOT evaluated
+	 */
+	String PROPERTY_DEFAULT_ROLE = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.default";
 	String DEFAULT_DEFAULT_ROLE = "userRole";
 	
-	String PROPERTY_ADMIN_ROLE = 
-			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.admin";
+	/**
+	 * Admin role - e.g. used as fallback, when no approver in wf is defined.
+	 */
+	String PROPERTY_ADMIN_ROLE = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.admin";
 	String DEFAULT_ADMIN_ROLE = "superAdminRole";
+
+	/**
+	 * 
+	 */
+	String PROPERTY_APPROVE_ROLE_CHANGE_ROLE =  ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.wf.approval.role-change.role";
 	
-	String PROPERTY_APPROVE_ROLE_CHANGE_ROLE = 
-			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.wf.approval.role-change.role";
+	/**
+	 * Separator for the suffix with environment used in role code.
+	 * Look out: when separator is changed, then all roles should be updated (manually from ui, by scripted LRT or by change script).
+	 */
+	String PROPERTY_CODE_ENVIRONMENT_SEPARATOR = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.codeEnvironmentSeperator";
+	String DEFAULT_CODE_ENVIRONMENT_SEPARATOR = "|";
 	
 	@Override
 	default String getConfigurableType() {
@@ -86,4 +100,11 @@ public interface RoleConfiguration  extends Configurable {
 	 * @return
 	 */
 	IdmRoleDto getRoleForApproveChangeOfRole();
+	
+	/**
+	 * Separator for the suffix with environment used in role code.
+	 * 
+	 * @return
+	 */
+	String getCodeEnvironmentSeperator();
 }

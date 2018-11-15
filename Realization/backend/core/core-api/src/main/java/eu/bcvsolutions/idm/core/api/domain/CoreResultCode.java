@@ -105,6 +105,8 @@ public enum CoreResultCode implements ResultCode {
 	ROLE_DELETE_FAILED_HAS_TREE_NODE(HttpStatus.CONFLICT, "Role [%s] has assigned automatic roles. Remove automatic roles at first."),
 	ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED(HttpStatus.CONFLICT, "Role [%s] cannot be deleted - some automatic roles by attribe has assigned this role."),
 	ROLE_DELETE_FAILED_HAS_COMPOSITION(HttpStatus.CONFLICT, "Role [%s] cannot be deleted - composition is defined. Remove role composition at first."),
+	ROLE_CODE_ENVIRONMENT_CONFLICT(HttpStatus.CONFLICT, "Role code [%s] cannot be combined with environment [%s]. Use base code with environment instead."),
+	ROLE_CODE_REQUIRED(HttpStatus.BAD_REQUEST, "Role code (code or base code) is required."),
 	// groovy script
 	GROOVY_SCRIPT_VALIDATION(HttpStatus.BAD_REQUEST, "Script contains compillation errors."),
 	GROOVY_SCRIPT_SYNTAX_VALIDATION(HttpStatus.BAD_REQUEST, "Script contains syntaxt error: [%s] at line [%s]."),

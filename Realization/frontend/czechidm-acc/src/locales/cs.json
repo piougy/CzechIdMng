@@ -1779,6 +1779,10 @@
       "message": "Atributy s heslem nemohou být přetíženy v mapování u rolí.",
       "title": "Mapování nemůže být uloženo"
     },
+    "SYSTEM_MAPPING_PASSWORD_EXITS_OVERRIDDEN": {
+      "message": "Atribut je přetížen v atributu id: [{{roleSystemAttributeId}}]",
+      "title": "Atribut nemůže být nastaven jako heslo."
+    },
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Transformace hesla pro uid {{uid}} nevrací GuardedString nebo null. Název mapovaného atributu {{mappedAttribute}}.",
       "title": "Transformace hesla selhala"

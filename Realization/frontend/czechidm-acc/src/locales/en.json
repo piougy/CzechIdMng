@@ -1771,6 +1771,10 @@
       "message": "Password attribute can't be overridden in role mapping.",
       "title": "Attribute mapping can be saved"
     },
+    "SYSTEM_MAPPING_PASSWORD_EXITS_OVERRIDDEN": {
+      "message": "Attribute is overridden in role attribute mapping id: [{{roleSystemAttributeId}}]",
+      "title": "Attribute can't be set as password attribute."
+    },
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Password transformation for uid {{uid}} doesn't return GuardedString or null. Mapped attribute name {{mappedAttribute}}.",
       "title": "Password transformation failed"

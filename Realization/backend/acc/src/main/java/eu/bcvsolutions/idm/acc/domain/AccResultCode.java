@@ -43,6 +43,7 @@ public enum AccResultCode implements ResultCode {
 	// System mapping validation - mapped attributes does not meet requirements
 	SYSTEM_MAPPING_VALIDATION(HttpStatus.BAD_REQUEST, "System mapping's validation failed."),
 	SYSTEM_MAPPING_PASSWORD_OVERRIDE(HttpStatus.BAD_REQUEST, "Password can't be overridden."),
+	SYSTEM_MAPPING_PASSWORD_EXITS_OVERRIDDEN(HttpStatus.CONFLICT, "The attribute can't be mapped as password. Exists overridden attribute in role: [%s]."),
 	//
 	// system entity
 	SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS(HttpStatus.BAD_REQUEST, "System entity [%s] on system [%s] cannot be deleted. It is used in active provisioning operations!"),

@@ -42,12 +42,10 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
-import eu.bcvsolutions.idm.acc.scheduler.task.impl.AttributeControlledValuesRecalculationTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
@@ -62,13 +60,11 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
-import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -266,6 +262,21 @@ public class DefaultSysSystemAttributeMappingService extends
 	@Override
 	public void validate(SysSystemAttributeMappingDto dto, SysSystemMappingDto systemMappingDto) {
 
+		// Check if doesn't exists overridden attribute in role mapping,
+		// For new attribute is this not required.
+		if (!isNew(dto) && dto.isPasswordAttribute()) {
+			SysRoleSystemAttributeFilter filter = new SysRoleSystemAttributeFilter();
+			filter.setSystemAttributeMappingId(dto.getId());
+			List<SysRoleSystemAttributeDto> overridden = roleSystemAttributeService.find(filter, null).getContent();
+			// If exists overridden attribute throw error
+			if (!overridden.isEmpty()) {
+				// Get first role system attribute and show it in error message
+				SysRoleSystemAttributeDto sysRoleSystemAttributeDto = overridden.get(0);
+				throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_PASSWORD_EXITS_OVERRIDDEN,
+						ImmutableMap.of("roleSystemAttributeId", sysRoleSystemAttributeDto.getId()));
+			}
+		}
+				
 		/**
 		 * When provisioning is set, then can be schema attribute mapped only once.
 		 */

@@ -14,8 +14,9 @@ const controlledValueManager = new AttributeControlledValueManager();
 const systemMappingManager = new SystemMappingManager();
 const schemaAttributeManager = new SchemaAttributeManager();
 const scriptManager = new Managers.ScriptManager();
-// password attributes is from 9.3.0 marked as passwordAttribute (boolean)
-// const PASSWORD_ATTRIBUTE = '__PASSWORD__';
+// password attributes is from 9.3.0 marked as passwordAttribute (boolean),
+// constant is used for automatic check passwordAttribute
+const PASSWORD_ATTRIBUTE = '__PASSWORD__';
 
 class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
@@ -139,6 +140,14 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
   }
 
   _schemaAttributeChange(value) {
+    if (value && value.name === PASSWORD_ATTRIBUTE) {
+      this.refs.passwordAttribute.setValue(true);
+      // Set info alert for password attribute
+      this.setState({
+        passwordAttribute: true
+      });
+    }
+
     if (!this.refs.name.getValue()) {
       this.refs.name.setValue(value.name);
     }
@@ -185,7 +194,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     const _isExtendedAttribute = extendedAttribute;
     const _showNoRepositoryAlert = (!_isExtendedAttribute && !_isEntityAttribute);
     const entityTypeEnum = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY');
-    const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
+    const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled && !passwordAttribute;
     const isSynchronization = _systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION' ? true : false;
     const strategyTypeTemp = strategyType ? strategyType : attribute.strategyType;
     const isMerge = strategyTypeTemp === AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.MERGE);

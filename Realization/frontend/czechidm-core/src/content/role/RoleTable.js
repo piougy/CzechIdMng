@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import classnames from 'classnames';
 import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';

@@ -1782,6 +1782,10 @@
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Transformace hesla pro uid {{uid}} nevrací GuardedString nebo null. Název mapovaného atributu {{mappedAttribute}}.",
       "title": "Transformace hesla selhala"
+    },
+    "CONNECTOR_SCHEMA_GENERATION_EXCEPTION": {
+      "message": "Během generování schématu pro systém [{{system}}] nastala výjimka [{{exception}}]!",
+      "title": "Generování schématu selhalo"
     }
   },
   "processor": {

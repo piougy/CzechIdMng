@@ -323,7 +323,14 @@ public class DefaultSysSystemService
 
 		// Call IC module and find schema for given connector key and
 		// configuration
-		IcSchema icSchema = icConfigurationFacade.getSchema(system.getConnectorInstance(), connectorConfig);
+		IcSchema icSchema = null;
+		
+		try {
+			icSchema = icConfigurationFacade.getSchema(system.getConnectorInstance(), connectorConfig);
+		} catch (Exception ex) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_SCHEMA_GENERATION_EXCEPTION,
+					ImmutableMap.of("system", system.getName(), "exception", ex.getLocalizedMessage()), ex);
+		}
 		if (icSchema == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));

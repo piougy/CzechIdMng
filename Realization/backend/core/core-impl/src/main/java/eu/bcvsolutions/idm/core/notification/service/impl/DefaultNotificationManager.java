@@ -87,6 +87,8 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 			notification.setSent(new DateTime());
 			IdmNotificationLogDto notificationLog = notificationLogService.save((IdmNotificationLogDto) notification);
 			notificationLog.setType(notification.getType()); // set previous type - is needed for choose correct notification sender
+			// TODO: remove after attachment will be persisted
+			notificationLog.setAttachments(notification.getAttachments());
 			return notificationLog;
 		}
 		// we need to clone notification
@@ -103,6 +105,7 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 		notificationLog.setIdentitySender(notification.getIdentitySender());
 		notificationLog = notificationLogService.save(notificationLog);
 		notificationLog.setType(notification.getType()); // set previous type - is needed for choose correct notification sender
+		notificationLog.setAttachments(notification.getAttachments());
 		return notificationLog;
 	}
 

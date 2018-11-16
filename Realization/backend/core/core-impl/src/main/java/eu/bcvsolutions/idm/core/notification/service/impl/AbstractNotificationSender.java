@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
@@ -99,15 +100,20 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	}
 	
 	@Override
-	@Transactional
 	public List<N> send(String topic, IdmMessageDto message, IdmIdentityDto identitySender, List<IdmIdentityDto> recipients) {
+		return send(topic, message, identitySender, recipients, null);
+	}
+	
+	@Override
+	@Transactional
+	public List<N> send(String topic, IdmMessageDto message, IdmIdentityDto identitySender, List<IdmIdentityDto> recipients, List<IdmAttachmentDto> attachments) {
 		Assert.notNull(message, "Message is required");
 		List<N> sendMessages = new ArrayList<>();
 		//
 		List<IdmNotificationRecipientDto> notificationRecipients = new ArrayList<>();
 		recipients.forEach(recipient ->{
 			notificationRecipients.add(new IdmNotificationRecipientDto(recipient.getId()));
-	    	});
+    	});
 		//
 		List<IdmNotificationLogDto> notifications = notificationTemplateService.prepareNotifications(topic, message);
 		//
@@ -133,6 +139,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 				notification.setRecipients(notificationRecipients);
 			}
 			notification.setIdentitySender(identitySender == null ? null : identitySender.getId());
+			notification.setAttachments(attachments);
 			//
 			sendMessages.add(send(notification));
 		}

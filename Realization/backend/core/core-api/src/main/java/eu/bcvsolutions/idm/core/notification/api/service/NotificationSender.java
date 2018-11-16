@@ -8,6 +8,7 @@ import org.springframework.plugin.core.Plugin;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
@@ -59,6 +60,7 @@ public interface NotificationSender<N extends BaseNotification> extends Configur
 
 	/**
 	 * Sends given message to given identity.
+	 * Default topic ({@value #DEFAULT_TOPIC}) is used.
 	 * 
 	 * @param message
 	 * @param recipient
@@ -68,12 +70,22 @@ public interface NotificationSender<N extends BaseNotification> extends Configur
 	
 	/**
 	 * Sends given message to given identities.
+	 * Default topic ({@value #DEFAULT_TOPIC}) is used.
 	 * 
 	 * @param message
 	 * @param recipients
 	 * @return sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
 	List<N> send(IdmMessageDto message, List<IdmIdentityDto> recipients);
+	
+	/**
+	 * Sends given message with given topic to currently logged identity.
+	 * 
+	 * @param topic
+	 * @param message
+	 * @return sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
+	 */
+	List<N> send(String topic, IdmMessageDto message);
 	
 	/**
 	 * Sends given message with given topic to given identity.
@@ -107,19 +119,23 @@ public interface NotificationSender<N extends BaseNotification> extends Configur
 	List<N> send(String topic, IdmMessageDto message, IdmIdentityDto identitySender, List<IdmIdentityDto> recipients);
 	
 	/**
+	 * Sends message with topic to given identities.
+	 * 
+	 * @param topic
+	 * @param message
+	 * @param sender [optional] notification from identity (e.g. admin sends notification to helpdesk identity)
+	 * @param recipients
+	 * @param attachments Attachments - can be instanced (inputData will be used, if it's not {@code null}), or persisted - data will be loaded by attachment manager.
+	 * @return list of sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
+	 * @since 9.3.0
+	 */
+	List<N> send(String topic, IdmMessageDto message, IdmIdentityDto identitySender, List<IdmIdentityDto> recipients, List<IdmAttachmentDto> attachments);
+	
+	/**
 	 * Sends given notification
 	 * 
 	 * @param notification
 	 * @return sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
 	N send(IdmNotificationDto notification);
-	
-	/**
-	 * Sends given message with given topic to currently logged identity.
-	 * 
-	 * @param topic
-	 * @param message
-	 * @return sent IdmNotificationDto if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
-	 */
-	List<N> send(String topic, IdmMessageDto message);
 }

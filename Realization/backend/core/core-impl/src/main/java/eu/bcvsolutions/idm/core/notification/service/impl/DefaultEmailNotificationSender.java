@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
+import java.util.List;
+
 import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -7,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
@@ -69,7 +72,21 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	
 	@Override
 	@Transactional
+	public IdmEmailLogDto send(IdmMessageDto message, String email) {
+		Assert.notNull(email);
+		//
+		return this.send(message, new String[]{ email });
+	}
+	
+	@Override
+	@Transactional
 	public IdmEmailLogDto send(IdmMessageDto message, String[] emails) {
+		return send(message, emails, null);
+	}
+	
+	@Override
+	@Transactional
+	public IdmEmailLogDto send(IdmMessageDto message, String[] emails, List<IdmAttachmentDto> attachments) {
 		Assert.notNull(message);
 		Assert.notNull(emails);
 		//
@@ -82,22 +99,14 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 			// fill email to recipientDto
 			emailLog.getRecipients().add(new IdmNotificationRecipientDto(email));
 		}
+		emailLog.setAttachments(attachments);
 		emailLog = this.emailLogService.save(emailLog);
+		// TODO: remove after attachments will be persisted
+		emailLog.setAttachments(attachments);
 		//
 		producerTemplate.sendBody("direct:emails", emailLog);
 		//
 		return emailLog;
-	}
-
-	@Override
-	@Transactional
-	public IdmEmailLogDto send(IdmMessageDto message, String email) {
-		Assert.notNull(email);
-		//
-		String[] emails = new String[1];
-		emails[0] = email;
-		//
-		return this.send(message, emails);
 	}
 	
 	/**
@@ -118,12 +127,16 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 		// clone message
 		emailLog.setMessage(cloneMessage(notification));
 		// clone recipients - resolve real email
-		notification.getRecipients().forEach(recipient -> {
+		for(IdmNotificationRecipientDto recipient : notification.getRecipients()) {
 			emailLog.getRecipients().add(cloneRecipient(emailLog, recipient));
-		});
+		}
 		emailLog.setIdentitySender(notification.getIdentitySender());
 		emailLog.setType(IdmEmailLog.NOTIFICATION_TYPE);
-		return emailLogService.save(emailLog);
+		emailLog.setAttachments(notification.getAttachments());
+		emailLog = emailLogService.save(emailLog);
+		// TODO: remove after attachments will be persisted
+		emailLog.setAttachments(notification.getAttachments());
+		return emailLog;
 	}
 	
 	/**

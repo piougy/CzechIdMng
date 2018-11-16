@@ -8,9 +8,11 @@ import org.joda.time.DateTime;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 
 /**
  * Generic log message dto
@@ -36,9 +38,13 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
     private IdmMessageDto message;
     @Embedded(dtoClass = IdmIdentityDto.class)
     private UUID identitySender;
-
+    // notification type
     private String type;
+    private List<IdmAttachmentDto> attachments;
 
+    public IdmNotificationDto() {
+    }
+    
     public IdmNotificationDto(IdmNotificationDto notification) {
         super(notification);
         topic = notification.getTopic();
@@ -49,10 +55,7 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
         sentLog = notification.getSentLog();
         parent = notification.getParent();
         type = notification.getType();
-    }
-
-    public IdmNotificationDto() {
-        super();
+        attachments = notification.getAttachments();
     }
 
     @Override
@@ -129,4 +132,23 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
     public void setType(String type) {
         this.type = type;
     }
+    
+    /**
+     * @since 9.3.0
+     * @return
+     */
+    public List<IdmAttachmentDto> getAttachments() {
+    	if (attachments == null) {
+    		attachments = new ArrayList<>();
+    	}
+		return attachments;
+	}
+    
+    /**
+     * @since 9.3.0
+     * @param attachments
+     */
+    public void setAttachments(List<IdmAttachmentDto> attachments) {
+		this.attachments = attachments;
+	}
 }

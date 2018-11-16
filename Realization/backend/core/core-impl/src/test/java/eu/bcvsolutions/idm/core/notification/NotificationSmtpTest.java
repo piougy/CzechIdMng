@@ -1,10 +1,13 @@
 package eu.bcvsolutions.idm.core.notification;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.UUID;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -12,6 +15,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
 import com.nilhcem.fakesmtp.core.exception.BindPortException;
 import com.nilhcem.fakesmtp.core.exception.OutOfRangePortException;
 import com.nilhcem.fakesmtp.model.EmailModel;
@@ -21,6 +25,9 @@ import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
@@ -65,6 +72,8 @@ public class NotificationSmtpTest extends AbstractNotificationTest {
 	private WorkflowProcessInstanceService processInstanceService;
 	@Autowired
 	private IdmNotificationLogService notificationLogService;
+	@Autowired
+	private AttachmentManager attachmentManager;
 
 	@Before
 	public void init() {
@@ -171,6 +180,99 @@ public class NotificationSmtpTest extends AbstractNotificationTest {
 
 		// in last test stop smtp server
 		this.stopSmtpServer();
+	}
+	
+	/**
+	 * Smtp email model don't contain attachments - it's tested, if attachment are not lost diring processing only.
+	 */
+	@Test
+	public void C_sendEmailWithAttachments() {
+		// create config
+		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		config.setTopic(TOPIC);
+		config.setLevel(NotificationLevel.SUCCESS);
+		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE);
+		config = notificationConfigurationService.save(config);
+
+		String textHtml = "textHtml-" + System.currentTimeMillis();
+		String textText = "textText-" + System.currentTimeMillis();
+		String subject = "subject-" + System.currentTimeMillis();
+
+		IdmIdentityDto identity = helper.createIdentity();
+		identity.setEmail("example@example.tld");
+		identity = identityService.save(identity);
+		
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
+		attachment.setName("rest2.txt");
+		attachment.setInputData(IOUtils.toInputStream("test txt content 1234567899 ě+ščřžýáííéáýžřčšě+;ěščřžýáíééů", AttachableEntity.DEFAULT_CHARSET));
+		attachment.setEncoding(AttachableEntity.DEFAULT_ENCODING);
+		attachment.setMimetype("text/plain");
+
+		List<IdmNotificationLogDto> send = notificationManager.send(
+				TOPIC,
+				new IdmMessageDto
+					.Builder()
+					.setTextMessage(textText)
+					.setHtmlMessage(textHtml)
+					.setSubject(subject)
+					.setLevel(NotificationLevel.SUCCESS)
+					.build(),
+				null,
+				Lists.newArrayList(identity),
+				Lists.newArrayList(attachment));
+		
+		assertEquals(attachment.getName(), send.get(0).getAttachments().get(0).getName());
+		
+		notificationConfigurationService.delete(config);
+	}
+	
+	/**
+	 * Smtp email model don't contain attachments - it's tested, if attachment are not lost diring processing only.
+	 */
+	@Test
+	public void D_sendEmailWithPersistedAttachments() {
+		// create config
+		NotificationConfigurationDto config = new NotificationConfigurationDto();
+		config.setTopic(TOPIC);
+		config.setLevel(NotificationLevel.SUCCESS);
+		config.setNotificationType(IdmEmailLog.NOTIFICATION_TYPE);
+		config = notificationConfigurationService.save(config);
+
+		String textHtml = "textHtml-" + System.currentTimeMillis();
+		String textText = "textText-" + System.currentTimeMillis();
+		String subject = "subject-" + System.currentTimeMillis();
+
+		IdmIdentityDto identity = helper.createIdentity();
+		identity.setEmail("example@example.tld");
+		identity = identityService.save(identity);
+		
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
+		attachment.setName("rest2.txt");
+		attachment.setInputData(IOUtils.toInputStream("test txt content 1234567899 ě+ščřžýáííéáýžřčšě+;ěščřžýáíééů", AttachableEntity.DEFAULT_CHARSET));
+		attachment.setEncoding(AttachableEntity.DEFAULT_ENCODING);
+		attachment.setMimetype("text/plain");
+		attachment.setOwnerType("mock");
+		attachment.setOwnerId(UUID.randomUUID());
+		attachment = attachmentManager.saveAttachment(null, attachment);
+		
+		assertNull(attachment.getInputData());
+
+		List<IdmNotificationLogDto> send = notificationManager.send(
+				TOPIC,
+				new IdmMessageDto
+					.Builder()
+					.setTextMessage(textText)
+					.setHtmlMessage(textHtml)
+					.setSubject(subject)
+					.setLevel(NotificationLevel.SUCCESS)
+					.build(),
+				null,
+				Lists.newArrayList(identity),
+				Lists.newArrayList(attachment));
+		
+		assertEquals(attachment.getName(), send.get(0).getAttachments().get(0).getName());
+		
+		notificationConfigurationService.delete(config);
 	}
 
 	private void initConfiguration() {

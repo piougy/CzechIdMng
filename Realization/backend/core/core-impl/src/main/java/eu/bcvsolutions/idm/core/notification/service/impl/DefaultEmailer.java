@@ -1,10 +1,14 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
@@ -22,10 +26,16 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.notification.api.domain.SendOperation;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -51,6 +61,7 @@ public class DefaultEmailer implements Emailer {
 	@Autowired private IdmNotificationTemplateService notificationTemplateService;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private AttachmentManager attachmentManager;
 
 	@Transactional
 	public boolean send(IdmEmailLogDto emailLog) {
@@ -78,13 +89,34 @@ public class DefaultEmailer implements Emailer {
 			}
 			in.setBody(message);
 			
-			/* TODO: attachment preparations
-			DataSource ds = new javax.mail.util.ByteArrayDataSource("test txt content", "text/plain; charset=UTF-8");
-			in.addAttachment("rest.txt", new DataHandler(ds));
-			*/
-			
+			for(IdmAttachmentDto attachment : emailLog.getAttachments()) {
+				//
+				// charset is required for the 'text/*' mime types - TODO: append encoding only there.
+				String mimeTypeWithCharset = String.format("%s; charset=%s", attachment.getMimetype(), attachment.getEncoding());
+				//
+				// input stream can be initialized in attachment, or persisted attachment can be given
+				DataSource dataSource = null;
+				if (attachment.getInputData() != null) {
+					dataSource = new javax.mail.util.ByteArrayDataSource(attachment.getInputData(), mimeTypeWithCharset);
+				} else {
+					InputStream attachmentData = attachmentManager.getAttachmentData(attachment.getId());
+					if (attachmentData != null) {
+						dataSource = new javax.mail.util.ByteArrayDataSource(attachmentManager.getAttachmentData(attachment.getId()), mimeTypeWithCharset);
+					}
+				}
+				if (dataSource == null) {
+					throw new ResultCodeException(CoreResultCode.ATTACHMENT_DATA_NOT_FOUND, ImmutableMap.of(
+							"attachmentId", attachment.getId(),
+							"attachmentName", attachment.getName(),
+							"contentPath", attachment.getContentPath()));
+				} else {
+					// TODO: check attachment with same names?
+					in.addAttachment(attachment.getName(), new DataHandler(dataSource));
+				}
+			}
+			//
 			entityEventManager.publishEvent(new DefaultSendOperation(emailLog, endpoint, exchange));
-			
+			//
 			return true;
 		} catch(Exception ex) {
 			LOG.error("Sending email [{}] failed: [{}]", emailLog, ex);

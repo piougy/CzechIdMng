@@ -100,6 +100,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	}
 	
 	@Override
+	@Transactional
 	public List<N> send(String topic, IdmMessageDto message, IdmIdentityDto identitySender, List<IdmIdentityDto> recipients) {
 		return send(topic, message, identitySender, recipients, null);
 	}

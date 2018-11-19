@@ -1,4 +1,4 @@
-import AbstractService from './AbstractService';
+import FormableEntityService from './FormableEntityService';
 import SearchParameters from '../domain/SearchParameters';
 import RoleService from './RoleService';
 import IdentityService from './IdentityService';
@@ -9,7 +9,7 @@ import IdentityService from './IdentityService';
  * @author Radek Tomiška
  *
  */
-export default class IdentityRoleService extends AbstractService {
+export default class IdentityRoleService extends FormableEntityService {
 
 
   constructor() {

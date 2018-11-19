@@ -8,6 +8,7 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager, IdentityContractManager } from '../../redux';
+import IdentityRoleEav from './IdentityRoleEav';
 
 const manager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
@@ -268,6 +269,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
+              <IdentityRoleEav entityId={detail.entity.id}/>
 
               {
                 detail.entity.directRole !== null

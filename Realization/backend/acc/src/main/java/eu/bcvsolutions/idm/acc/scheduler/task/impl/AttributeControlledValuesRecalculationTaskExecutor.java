@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.eav.domain.AccFaceType;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -132,6 +133,7 @@ public class AttributeControlledValuesRecalculationTaskExecutor extends Abstract
 		IdmFormAttributeDto systemAttribute = new IdmFormAttributeDto(PARAMETER_SYSTEM_UUID, PARAMETER_SYSTEM_UUID,
 				PersistentType.UUID);
 		systemAttribute.setRequired(true);
+		systemAttribute.setFaceType(AccFaceType.SYSTEM_SELECT);
 		IdmFormAttributeDto evictedAttribute = new IdmFormAttributeDto(PARAMETER_ONLY_EVICTED, PARAMETER_ONLY_EVICTED,
 				PersistentType.BOOLEAN);
 		evictedAttribute.setDefaultValue(String.valueOf(Boolean.TRUE));

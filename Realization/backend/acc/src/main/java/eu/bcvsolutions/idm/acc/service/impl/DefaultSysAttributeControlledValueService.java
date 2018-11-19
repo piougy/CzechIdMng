@@ -62,12 +62,13 @@ public class DefaultSysAttributeControlledValueService extends
 
 		// Search values for which does not exists same controlled value (for given
 		// attribute)
-		List<Serializable> valuesToAdd = controlledAttributeValues.stream().filter(newValue -> { //
-			return !controlledValues.stream() //
-					.filter(controlledValue -> controlledValue.getValue().equals(newValue)) //
-					.findFirst() //
-					.isPresent(); //
-		}) //
+		List<Serializable> valuesToAdd = controlledAttributeValues.stream()
+				.filter(newValue -> { //
+					return !controlledValues.stream() //
+							.filter(controlledValue -> controlledValue.getValue().equals(newValue)) //
+							.findFirst() //
+							.isPresent(); //
+				}) //
 				.collect(Collectors.toList());
 
 		// Search old controlled values which does not exists in new definition

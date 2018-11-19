@@ -222,7 +222,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                 forceSearchParameters={ forceSearchParameters }
                 onSelect={ this._useFilterByTree.bind(this) }
                 ŕendered={ showTree }
-                traverse
+                traverse={ false }
                 header={
                   !type || !showTreeTypeSelect
                   ?

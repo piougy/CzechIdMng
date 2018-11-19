@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.acc.event;
 import java.io.Serializable;
 import java.util.Map;
 
-import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventType;
 
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.event.EventType;
  * @author Svanda
  *
  */
-public class AttributeControlledValueEvent extends CoreEvent<AccAccountDto> {
+public class AttributeControlledValueEvent extends CoreEvent<SysAttributeControlledValueDto> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -21,11 +21,11 @@ public class AttributeControlledValueEvent extends CoreEvent<AccAccountDto> {
 		CREATE, UPDATE, DELETE;
 	}
 
-	public AttributeControlledValueEvent(AttributeControlledValueEventType operation, AccAccountDto content) {
+	public AttributeControlledValueEvent(AttributeControlledValueEventType operation, SysAttributeControlledValueDto content) {
 		super(operation, content);
 	}
 
-	public AttributeControlledValueEvent(AttributeControlledValueEventType operation, AccAccountDto content,
+	public AttributeControlledValueEvent(AttributeControlledValueEventType operation, SysAttributeControlledValueDto content,
 			Map<String, Serializable> properties) {
 		super(operation, content, properties);
 	}

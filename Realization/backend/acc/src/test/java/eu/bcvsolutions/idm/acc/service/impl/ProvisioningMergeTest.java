@@ -8,8 +8,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -56,16 +54,6 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 	private SysAttributeControlledValueService attributeControlledValueService;
 	@Autowired
 	private TestHelper helper;
-
-	@Before
-	public void login() {
-		loginAsAdmin();
-	}
-
-	@After
-	public void logout() {
-		super.logout();
-	}
 
 	@Test
 	public void testAttribteControlledValues() {

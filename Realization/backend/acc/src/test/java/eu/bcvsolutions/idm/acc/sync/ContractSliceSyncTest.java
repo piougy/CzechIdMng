@@ -1,7 +1,13 @@
 package eu.bcvsolutions.idm.acc.sync;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -58,6 +64,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.ContractSynchronizationExecutor;
+import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -130,6 +137,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	private ContractSliceManager contractSliceManager;
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private IdentityConfiguration identityConfiguration;
 
 	@Before
 	public void init() {
@@ -718,6 +727,83 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 	}
 
+	@Test
+	public void checkSelectCurrentContractTask() {
+		// Turn off default contract
+		identityConfiguration.getConfigurationService().setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, false);
+
+		SysSystemDto system = initData();
+		this.getBean().initContractDataOverride();
+
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+		
+		IdmIdentityDto identity = helper.createIdentity(CONTRACT_OWNER_ONE);
+		helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+
+		IdmTreeTypeDto treeType = helper.createTreeType();
+		IdmTreeNodeDto defaultNode = helper.createTreeNode(treeType, null);
+
+		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identity.getId());
+		assertEquals(0, contracts.size());
+
+		// Create one older contract slice
+		IdmContractSliceDto existingContractSlice = helper.createContractSlice(identity, "ONE", defaultNode, LocalDate.now().minusDays(5), LocalDate.now().minusDays(5), LocalDate.now());
+		
+		((SysSyncContractConfigDto) config).setDefaultTreeType(treeType.getId());
+		((SysSyncContractConfigDto) config).setDefaultTreeNode(defaultNode.getId());
+
+		// Before start HR process will be started select current contract task
+		((SysSyncContractConfigDto) config).setStartOfHrProcesses(true);
+
+		config = syncConfigService.save(config);
+
+		// Check existing contract
+		contracts = contractService.findAllByIdentity(identity.getId());
+		assertEquals(1, contracts.size());
+		IdmIdentityContractDto identityContractDto = contracts.get(0);
+		assertTrue(identityContractDto.getControlledBySlices());
+
+		existingContractSlice = contractSliceService.get(existingContractSlice.getId());
+		assertTrue(existingContractSlice.isUsingAsContract());
+		assertEquals(identityContractDto.getId(), existingContractSlice.getParentContract());
+
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contracts = contractService.findAllByIdentity(identity.getId());
+		assertEquals(1, contracts.size());
+		identityContractDto = contracts.get(0);
+		assertTrue(identityContractDto.getControlledBySlices());
+		existingContractSlice = contractSliceService.get(existingContractSlice.getId());
+		// Old existing contract slice is not used as contract anymore
+		assertFalse(existingContractSlice.isUsingAsContract());
+
+		IdmContractSliceFilter contractSliceFilter = new IdmContractSliceFilter();
+		contractSliceFilter.setParentContract(identityContractDto.getId());
+		List<IdmContractSliceDto> slices = contractSliceService.find(contractSliceFilter, null).getContent();
+		assertEquals(2, slices.size());
+
+		final UUID existingContractId = existingContractSlice.getId();
+		IdmContractSliceDto newSlice = slices.stream().filter(slice -> !slice.getId().equals(existingContractId)).findFirst().orElse(null);
+		assertNotNull(newSlice);
+		
+		assertTrue(newSlice.isUsingAsContract());
+		assertEquals(identityContractDto.getId(), newSlice.getParentContract());
+
+		// Delete log
+		syncLogService.delete(log);
+
+		// Return default value for creating contract
+		identityConfiguration.getConfigurationService().setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, IdentityConfiguration.DEFAULT_IDENTITY_CREATE_DEFAULT_CONTRACT);
+	}
+
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType,
 			int count) {
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
@@ -849,6 +935,14 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 				LocalDate.now().plusDays(10), "ONE"));
 		entityManager.persist(this.createContract("4", CONTRACT_OWNER_ONE, null, "true", null, null, null, null, null,
 				LocalDate.now(), "TWO"));
+
+	}
+
+	@Transactional
+	public void initContractDataOverride() {
+		deleteAllResourceData();
+		entityManager.persist(this.createContract("ONE", CONTRACT_OWNER_ONE, null, "true", null, null, null, LocalDate.now(), LocalDate.now().minusDays(5),
+				LocalDate.now(), "ONE"));
 
 	}
 

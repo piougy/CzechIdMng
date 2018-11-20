@@ -53,6 +53,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
@@ -81,11 +82,18 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAttributeTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.SelectCurrentContractSliceTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
+/**
+ * Synchronization of contract slices
+ *
+ * @author svandav
+ *
+ */
 @Component
 public class ContractSliceSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmContractSliceDto>
 		implements SynchronizationEntityExecutor {
@@ -152,8 +160,12 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
 		log = super.syncCorrectlyEnded(log, context);
 		log = synchronizationLogService.save(log);
+		SysSyncContractConfigDto config = getConfig(context);
 
-		if (getConfig(context).isStartOfHrProcesses()) {
+		if (config.isStartOfHrProcesses()) {
+			// Before start HR processes, execute select current contract slice
+			log = executeSelectCurrentContractSlice(log);
+
 			// start all HR process with skip automatic role recalculation
 			// Enable contracts task
 			log = executeHrProcess(log, new HrEnableContractProcess(true));
@@ -168,9 +180,10 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 					LocalDateTime.now()));
 		}
 
-		if (getConfig(context).isStartAutoRoleRec()) {
+		if (config.isStartAutoRoleRec()) {
 			log = executeAutomaticRoleRecalculation(log);
 		} else {
+			log.addToLog("Start select current contract slice task (after sync) isn't allowed.");
 			log.addToLog(MessageFormat.format("Start automatic role recalculation (after sync) isn't allowed [{0}]",
 					LocalDateTime.now()));
 		}
@@ -640,6 +653,36 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
 		entityEventManager.process(event);
+	}
+
+	/**
+	 * Execute {@link SelectCurrentContractSliceTaskExecutor}
+	 *
+	 * @param log
+	 * @return
+	 */
+	private SysSyncLogDto executeSelectCurrentContractSlice(SysSyncLogDto log) {
+		SelectCurrentContractSliceTaskExecutor executor = new SelectCurrentContractSliceTaskExecutor();
+
+		log.addToLog(MessageFormat.format(
+				"After success sync have to be run select corrent contract slice. We start him (synchronously) now [{0}].",
+				LocalDateTime.now()));
+
+		OperationResult executeSync = longRunningTaskManager.executeSync(executor);
+		if (executeSync != null) {
+			if (executeSync.getState() == OperationState.EXECUTED) {
+				log.addToLog(MessageFormat.format("Select corrent contract slice ended in [{0}].",
+						LocalDateTime.now()));
+			} else if (executeSync.getState() == OperationState.EXCEPTION) {
+				log.addToLog(MessageFormat.format("Warning - select corrent contract slice is not executed correctly. Ended in [{0}].",
+						LocalDateTime.now()));
+			}
+		} else {
+			log.addToLog(MessageFormat.format("Warning - select corrent contract slice is not executed correctly, Returned operation result is null. Ended in [{0}].",
+					LocalDateTime.now()));
+		}
+
+		return log;
 	}
 
 	/**

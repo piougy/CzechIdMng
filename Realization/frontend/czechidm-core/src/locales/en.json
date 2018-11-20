@@ -2155,6 +2155,10 @@
             "subRoles": {
               "header": "Roles assigned by this role"
             }
+          },
+          "tabs": {
+            "basic": "Basic informations",
+            "attributes": "Role's attributes"
           }
         },
         "contracts": {
@@ -3119,6 +3123,10 @@
       "subRoles": "Subordinate roles",
       "authorities": "Authorizations",
       "approveRemove": "Role removal approval",
+      "identityRoleAttributeDefinition": {
+        "label": "Definition of assigned attributes",
+        "help": "The attributes in this definition will be filled in during role assignment."
+      },
       "canBeRequested": "Can be requested",
       "description": "Description",
       "guarantees": "Role authorizers",

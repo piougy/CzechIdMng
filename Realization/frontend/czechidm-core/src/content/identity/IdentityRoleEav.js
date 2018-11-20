@@ -19,11 +19,7 @@ export default class IdentityRoleEav extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.identityRole.eav';
-  }
-
-  getNavigationKey() {
-    return 'profile-eav';
+    return 'content.identity.roles';
   }
 
   render() {
@@ -34,8 +30,7 @@ export default class IdentityRoleEav extends Basic.AbstractContent {
         uiKey={ uiKey }
         formableManager={ manager }
         entityId={ entityId }
-        contentKey={ this.getContentKey() }
-        showSaveButton />
+        contentKey={ this.getContentKey() } />
     );
   }
 }

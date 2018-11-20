@@ -2206,6 +2206,10 @@
             "subRoles": {
               "header": "Role přiřazené dle této role"
             }
+          },
+          "tabs": {
+            "basic": "Základní informace",
+            "attributes": "Atributy role"
           }
         },
         "contracts": {
@@ -3170,6 +3174,10 @@
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",
       "approveRemove": "Schvalovat odebírání rolí",
+      "identityRoleAttributeDefinition": {
+        "label": "Definice přidělovaných atributů",
+        "help": "Atributy v této definici, budou vyplňovány během přidělování role."
+      },
       "canBeRequested": "O roli lze žádat",
       "description": "Popis",
       "guarantees": "Garanti role",

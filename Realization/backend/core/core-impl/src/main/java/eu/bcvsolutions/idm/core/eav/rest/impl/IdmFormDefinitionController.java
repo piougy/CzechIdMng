@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.eav.rest.impl;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -348,6 +349,19 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 		filter.setType(formService.getDefaultDefinitionType(ownerType));
 		//
 		return new ResponseEntity<>(toResources(find(filter, null, permission), getDtoClass()), HttpStatus.OK);
+	}
+	
+	/**
+	 * Returns definition by given ID
+	 * 
+	 * @param definitionId
+	 * @return
+	 */
+	public ResponseEntity<?> getDefinitions(UUID definitionId) {
+		IdmFormDefinitionFilter filter = new IdmFormDefinitionFilter();
+		filter.setId(definitionId);
+		//
+		return new ResponseEntity<>(toResources(find(filter, null, null), getDtoClass()), HttpStatus.OK);
 	}
 	
 	

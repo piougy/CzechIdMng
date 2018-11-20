@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +27,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -67,6 +79,8 @@ public class IdmConceptRoleRequestController
 	protected static final String TAG = "Role Request - concepts";
 	private final SecurityService securityService;
 	private final IdmRoleRequestService roleRequestService;
+	@Autowired
+	private IdmFormDefinitionController formDefinitionController;
 	
 	@Autowired
 	public IdmConceptRoleRequestController(
@@ -246,6 +260,102 @@ public class IdmConceptRoleRequestController
 			@ApiParam(value = "Concept's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
+	}
+	
+	/**
+	 * Returns form definition to given entity.
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_READ + "')")
+	@ApiOperation(
+			value = "Concept extended attributes form definitions", 
+			nickname = "getIdentityRoleFormDefinitions", 
+			tags = { IdmIdentityRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") })
+				})
+	public ResponseEntity<?> getFormDefinitions(
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return formDefinitionController.getDefinitions(IdmIdentityRole.class);
+	}
+	
+	/**
+	 * Returns entity's filled form values
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_READ + "')")
+	@ApiOperation(
+			value = "Concept form definition - read values", 
+			nickname = "getRoleFormValues", 
+			tags = { IdmIdentityRoleController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") })
+				})
+	public Resource<?> getFormValues(
+			@ApiParam(value = "Concept's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId, 
+			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
+			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
+		IdmConceptRoleRequestDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		//
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityRole.class, definitionCode);
+		//
+		return formDefinitionController.getFormValues(dto, formDefinition);
+	}
+	
+	/**
+	 * Saves entity's form values
+	 * 
+	 * @param backendId
+	 * @param formValues
+	 * @return
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_UPDATE + "')")
+	@RequestMapping(value = "/{backendId}/form-values", method = { RequestMethod.POST, RequestMethod.PATCH } )
+	@ApiOperation(
+			value = "Concept form definition - save values", 
+			nickname = "postIdentityRoleFormValues", 
+			tags = { IdmIdentityRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "") })
+				})
+	public Resource<?> saveFormValues(
+			@ApiParam(value = "Concept's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId,
+			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
+			@RequestParam(name = "definitionCode", required = false) String definitionCode,
+			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
+		IdmConceptRoleRequestDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		checkAccess(dto, IdmBasePermission.UPDATE);
+		//
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityRole.class, definitionCode);
+		//
+		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
 	}
 
 	@Override

@@ -115,6 +115,16 @@
             "help": "Každá X-tá identita nebude provedena úspěšně"
           }
         }
+      },
+      "identity-username-export-bulk-action": {
+        "icon": "fa:cloud-download",
+        "label": "Export uživatelských jmen do CSV",
+        "attributes": {
+          "splitcharacter": {
+            "label": "Oddělovač",
+            "help": "Znak který bude použitý pro oddělení sloupců"
+          }
+        }
       }
     },
     "value-generator": {

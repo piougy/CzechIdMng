@@ -265,8 +265,12 @@
     "menu": {
       "home": "Dashboard",
       "profile": {
-        "label": "Profile",
-        "title": "My profile"
+        "label": "$t(navigation.menu.home)",
+        "title": "$t(navigation.menu.profile.label)"
+      },
+      "dashboard": {
+        "label": "$t(navigation.menu.home)",
+        "title": "$t(navigation.menu.home)"
       },
       "subordinates": {
         "label": "My subordinates",
@@ -351,6 +355,19 @@
         "link": {
           "detail": {
             "label": "Show full detail"
+          },
+          "popover": {
+            "title": "Show info card"
+          }
+        }
+      },
+      "IdentityInfo": {
+        "link": {
+          "detail": {
+            "label": "Show full detail"
+          },
+          "profile": {
+            "label": "Show profile"
           },
           "popover": {
             "title": "Show info card"
@@ -781,7 +798,7 @@
       "goToProfil": "Go to profile"
     },
     "longRunningTaskDashboard": {
-      "header": "Your long running task"
+      "header": "Created long running tasks"
     }
   },
   "permission": {
@@ -2040,6 +2057,10 @@
         "subordinates": "Subordinates",
         "positions": "Contracted positions"
       },
+      "dashboard": {
+        "header": "$t(navigation.menu.dashboard.label)",
+        "title": "$t(content.identity.dashboard.header)"
+      },
       "profile": {
         "header": "Personal data",
         "title": "My profile",
@@ -2925,6 +2946,7 @@
       "externalCode": "Personal number",
       "firstName": "First name",
       "lastName": "Surname",
+      "fullName": "Name",
       "email": "E-mail",
       "phone": "Phone",
       "description": "Note",

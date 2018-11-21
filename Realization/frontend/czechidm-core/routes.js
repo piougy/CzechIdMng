@@ -23,6 +23,11 @@ module.exports = {
       priority: 0
     },
     {
+      path: 'identity/:entityId/dashboard',
+      component: require('./src/content/identity/IdentityDashboard'),
+      access: [ { 'type': 'IS_AUTHENTICATED'}]
+    },
+    {
       path: 'identity/:entityId/',
       component: require('./src/content/identity/Identity'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ],

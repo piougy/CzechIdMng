@@ -56,7 +56,7 @@ export class PanelHeader extends AbstractComponent {
   }
 
   render() {
-    const { className, rendered, showLoading, text, help, children, style } = this.props;
+    const { className, rendered, showLoading, text, help, children, style, buttons } = this.props;
     if (!rendered) {
       return null;
     }
@@ -67,7 +67,7 @@ export class PanelHeader extends AbstractComponent {
 
     return (
       <div className={classNames} style={style}>
-        <div className={help ? 'pull-left' : null}>
+        <div className={ help || buttons ? 'pull-left' : null}>
           <Icon type="fa" icon="refresh" showLoading rendered={ showLoading }/>
           {
             showLoading
@@ -80,6 +80,13 @@ export class PanelHeader extends AbstractComponent {
           }
           {children}
         </div>
+        {
+          !buttons
+          ||
+          <div className="pull-right">
+            { buttons }
+          </div>
+        }
         {
           help
           ?

@@ -17,7 +17,7 @@ class ContentHeader extends AbstractComponent {
   }
 
   render() {
-    const { rendered, showLoading, children, className, help, text, icon, ...others } = this.props;
+    const { rendered, showLoading, children, className, help, text, icon, buttons, ...others } = this.props;
     if (!rendered) {
       return null;
     }
@@ -53,6 +53,13 @@ class ContentHeader extends AbstractComponent {
             </span>
           </h2>
         </div>
+        {
+          !buttons
+          ||
+          <div className="pull-right">
+            { buttons }
+          </div>
+        }
         {
           help
           ?

@@ -115,6 +115,16 @@
             "help": "Every X-th identity will not be successful"
           }
         }
+      },
+      "identity-username-export-bulk-action": {
+        "icon": "fa:cloud-download",
+        "label": "Export usernames into CSV",
+        "attributes": {
+          "splitcharacter": {
+            "label": "Split character",
+            "help": "The character that will be used to separate the columns"
+          }
+        }
       }
     },
     "value-generator": {

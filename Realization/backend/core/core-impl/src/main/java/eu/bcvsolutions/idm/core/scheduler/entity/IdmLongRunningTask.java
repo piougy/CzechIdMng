@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 
 /**
  * Persisted instance of one task execution.
@@ -36,7 +37,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 		@Index(name = "idx_idm_long_r_t_type", columnList = "task_type"),
 		@Index(name = "idx_idm_long_r_t_s_task", columnList = "scheduled_task_id")
 		})
-public class IdmLongRunningTask extends AbstractEntity {
+public class IdmLongRunningTask extends AbstractEntity implements AttachableEntity {
 
 	private static final long serialVersionUID = -4665452018920201474L;
 

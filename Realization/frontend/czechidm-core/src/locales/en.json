@@ -5356,6 +5356,10 @@
     "ROLE_CODE_REQUIRED":  {
       "title": "Role code is required",
       "message": "Fill role code or base code."
+    },
+    "LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD": {
+      "title": "Task completed successfully. The result can be downloaded.",
+      "message": "The long task has been successfully completed. Result is ready to download."
     }
   },
   "validationError": {

@@ -21,10 +21,14 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
@@ -33,6 +37,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -49,6 +54,8 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	private final ConfigurationService configurationService;
 	private final SecurityService securityService;
 	private final EntityEventManager entityEventManager;
+	@Autowired
+	private AttachmentManager attachmentManager;
 	
 	@Autowired
 	public DefaultLongRunningTaskManager(
@@ -326,7 +333,30 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, 
 				SchedulerConfiguration.DEFAULT_TASK_ASYNCHRONOUS_ENABLED);
 	}
-	
+
+	@Override
+	public IdmAttachmentDto getAttachmentForLongRunningTask(UUID longRunningTaskId, UUID attachmentId) {
+		Assert.notNull(longRunningTaskId);
+		Assert.notNull(attachmentId);
+
+		IdmLongRunningTaskDto longRunningTaskDto = service.get(longRunningTaskId);
+
+		if (longRunningTaskDto == null) {
+			throw new EntityNotFoundException(service.getEntityClass(), longRunningTaskId);
+		}
+
+		IdmAttachmentDto attachmentDto = attachmentManager.get(attachmentId);
+
+		if (attachmentDto == null) {
+			throw new EntityNotFoundException(service.getEntityClass(), attachmentId);
+		}
+
+		if (!attachmentDto.getOwnerId().equals(longRunningTaskDto.getId())) {
+			throw new ForbiddenEntityException(attachmentId, IdmBasePermission.READ);
+		}
+		return attachmentDto;
+	}
+
 	/**
 	 * Prepares executor's LRT
 	 * 

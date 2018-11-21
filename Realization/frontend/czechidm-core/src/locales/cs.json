@@ -5406,6 +5406,10 @@
     "ROLE_CODE_REQUIRED":  {
       "title": "Kód role je povinný",
       "message": "Zadejte kód nebo základní kód ('baseCode') role."
+    },
+    "LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD": {
+      "title": "Úloha úspěšně dokončena. Výsledek je možné stáhnout.",
+      "message": "Dlouhotrvající úloha byla úspěšně dokončena, její výsledek je připraven ke stažení."
     }
   },
   "validationError": {

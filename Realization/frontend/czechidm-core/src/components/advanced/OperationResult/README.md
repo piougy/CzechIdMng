@@ -13,9 +13,15 @@ All parameters from AbstractComponent are supported. Added parameters:
 | stateLabel | sting | external label for operation state | label by result's OperationState enumeration  |
 | detailLink | oneOf([string, func]) | link (string) or function to show result's detail |  |
 | header | string| header text | 'result.header' component locale | |
+| downloadLinkPrefix   | string  | Prefix link for download url. Use this only if result model can be status 206.   | null  |   |
+| downloadLinkSuffix   | string  | Suffix link for download url. It is possible to use this only with combination with downloadLinkPrefix.  |  null |   |
 
 ## Usage
 
 ```html
 <Advanced.OperationResult value={ entity.result } />
+```
+
+```html
+<Advanced.OperationResult value={ entity.result } downloadLinkPrefix={`long-running-tasks/${entity.id}/download`}  />
 ```

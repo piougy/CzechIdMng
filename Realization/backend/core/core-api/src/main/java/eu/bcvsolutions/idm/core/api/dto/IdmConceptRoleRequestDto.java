@@ -6,9 +6,12 @@ import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -40,6 +43,7 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
     private String wfProcessId;
     @JsonProperty(access = Access.READ_ONLY)
     private String log;
+    private List<IdmFormValueDto> values;
 
 	public UUID getRoleRequest() {
         return roleRequest;
@@ -129,7 +133,15 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
         this.log = log;
     }
 
-    public String addToLog(String text) {
+    public List<IdmFormValueDto> getValues() {
+		return values;
+	}
+
+	public void setValues(List<IdmFormValueDto> values) {
+		this.values = values;
+	}
+
+	public String addToLog(String text) {
         if (text != null) {
             StringBuilder builder = new StringBuilder();
             if (this.log != null) {

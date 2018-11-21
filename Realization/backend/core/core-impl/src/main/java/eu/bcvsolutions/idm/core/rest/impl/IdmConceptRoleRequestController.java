@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +34,8 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -42,12 +45,15 @@ import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
+import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -284,7 +290,17 @@ public class IdmConceptRoleRequestController
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Role's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return formDefinitionController.getDefinitions(IdmIdentityRole.class);
+		IdmConceptRoleRequestDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		// Search definition by definition in role
+		IdmRoleDto roleDto = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.role, IdmRoleDto.class);
+		if (roleDto != null && roleDto.getIdentityRoleAttributeDefinition() != null) {
+			return  formDefinitionController.getDefinitions(roleDto.getIdentityRoleAttributeDefinition());
+		}
+		
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	/**
@@ -316,7 +332,7 @@ public class IdmConceptRoleRequestController
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityRole.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmConceptRoleRequest.class, definitionCode);
 		//
 		return formDefinitionController.getFormValues(dto, formDefinition);
 	}
@@ -353,7 +369,7 @@ public class IdmConceptRoleRequestController
 		}
 		checkAccess(dto, IdmBasePermission.UPDATE);
 		//
-		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityRole.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmConceptRoleRequest.class, definitionCode);
 		//
 		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
 	}

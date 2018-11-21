@@ -2,12 +2,14 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import uuid from 'uuid';
+import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleManager, IdentityManager, IdentityContractManager, RoleTreeNodeManager } from '../../redux';
+import { RoleManager, IdentityManager, IdentityContractManager, RoleTreeNodeManager, FormDefinitionManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
+import FormInstance from '../../domain/FormInstance';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -18,6 +20,8 @@ const roleManager = new RoleManager();
 const identityManager = new IdentityManager();
 const identityContractManager = new IdentityContractManager();
 const roleTreeNodeManager = new RoleTreeNodeManager();
+const formDefinitionManager = new FormDefinitionManager();
+let selectedRole = null;
 
 /**
  * @author VS
@@ -79,7 +83,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
     const entityFormData = _.merge({}, entity, {
       role: entity._embedded && entity._embedded.role ? entity._embedded.role : null
     });
-
+    if (entityFormData.role && entityFormData.role.identityRoleAttributeDefinition) {
+      selectedRole = entityFormData.role;
+      this.context.store.dispatch(formDefinitionManager.fetchEntityIfNeeded(entityFormData.role.identityRoleAttributeDefinition, null, (json, error) => {
+        this.handleError(error);
+      }));
+    } else {
+      selectedRole = null;
+    }
     this.setState({
       detail: {
         show: true,
@@ -120,6 +131,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     const { identityUsername, createConceptFunc, updateConceptFunc } = this.props;
 
     const entity = this.refs.form.getData();
+    const eavValues = this.refs.eavForm.getValues();
     if (entity._added) {
       if (!entity._virtualId && !entity.id && entity.role instanceof Array) {
         for (const roleId of entity.role) {
@@ -129,7 +141,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
           identityRole._embedded = {};
           identityRole._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
           identityRole._embedded.role = roleManager.getEntity(this.context.store.getState(), roleId);
-          createConceptFunc(identityRole, 'ADD');
+          createConceptFunc(identityRole, 'ADD', eavValues);
         }
       } else {
         const addedIdentityRole = this._findAddedIdentityRoleById(entity.id);
@@ -140,9 +152,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
         }
         entity._embedded.role = roleManager.getEntity(this.context.store.getState(), entity.role);
         if (addedIdentityRole) {
-          updateConceptFunc(entity, 'ADD');
+          updateConceptFunc(entity, 'ADD', eavValues);
         } else {
-          createConceptFunc(entity, 'ADD');
+          createConceptFunc(entity, 'ADD', eavValues);
         }
       }
     } else {
@@ -161,9 +173,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
       }
 
       if (changed && changedIdentityRole && changedIdentityRole.id) {
-        updateConceptFunc(changedIdentityRole, 'UPDATE');
+        updateConceptFunc(changedIdentityRole, 'UPDATE', eavValues);
       } else {
-        createConceptFunc(entity, 'UPDATE');
+        createConceptFunc(entity, 'UPDATE', eavValues);
       }
     }
     this.setState({conceptData: this._compileConceptData(this.props)});
@@ -423,9 +435,27 @@ export class RoleConceptTable extends Basic.AbstractContent {
     return false;
   }
 
+  _onChangeSelectOfRole(value, originalValue) {
+    const{detail} = this.state;
+    const entityFormData = _.merge({}, detail.entity);
+    if (!entityFormData._embedded) {
+      entityFormData._embedded = {};
+    }
+    entityFormData._embedded.role = originalValue;
+    this._showDetail(entityFormData, detail.edit, detail.add);
+
+    return false;
+  }
+
   render() {
-    const { showLoading, identityUsername, readOnly, className } = this.props;
+    const { showLoading, identityUsername, readOnly, className, _identityRoleAttributeDefinition} = this.props;
     const { conceptData, detail } = this.state;
+    let _formInstance = null;
+    if (_identityRoleAttributeDefinition) {
+      _formInstance = new FormInstance(_identityRoleAttributeDefinition, detail && detail.entity ? detail.entity.values : null);
+    }
+    console.log("rrrrrrrrrreeeennn", detail, _formInstance);
+
     //
     return (
       <div>
@@ -571,9 +601,10 @@ export class RoleConceptTable extends Basic.AbstractContent {
                 <Advanced.RoleSelect
                   required
                   readOnly={ !detail.entity._added || readOnly }
-                  multiSelect={ detail.entity._added && detail.add }
+                  multiSelect={ false /* Multi selection was turned off, because identity-role attributes! detail.entity._added && detail.add */ }
                   showActionButtons
                   header={ this.i18n('selectRoleCatalogue.header') }
+                  onChange={this._onChangeSelectOfRole.bind(this)}
                   label={ this.i18n('entity.IdentityRole.role') }
                   ref="role"/>
 
@@ -616,6 +647,16 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   </Basic.Col>
                 </Basic.Row>
 
+                <Basic.Panel rendered={_formInstance} style={{border: '0px'}}>
+                  <Basic.ContentHeader>
+                    {this.i18n('identityRoleAttributes.header') }
+                  </Basic.ContentHeader>
+                  <Advanced.EavForm
+                    ref="eavForm"
+                    formInstance={ _formInstance }
+                    readOnly={ false}/>
+                </Basic.Panel>
+
               </Basic.AbstractForm>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
@@ -654,5 +695,16 @@ RoleConceptTable.defaultProps = {
   showLoadingButtonRemove: false
 };
 
+function select(state) {
+  if (!selectedRole || !selectedRole.identityRoleAttributeDefinition) {
+    return {};
+  }
 
-export default RoleConceptTable;
+  const identityRoleAttributeDefinition = selectedRole.identityRoleAttributeDefinition;
+  return {
+    _identityRoleAttributeDefinition: formDefinitionManager.getEntity(state, identityRoleAttributeDefinition),
+    _identityRoleAttributeDefinitionShowLoading: formDefinitionManager.isShowLoading(state, null, identityRoleAttributeDefinition)
+  };
+}
+
+export default connect(select, null, null, { withRef: true })(RoleConceptTable);

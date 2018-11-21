@@ -315,9 +315,9 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     const { onChange, multiSelect } = this.props;
     if (onChange) {
       if (multiSelect) {
-        result = onChange(selectedRows);
+        result = onChange(selectedRows, value);
       } else {
-        result = onChange(selectedRows.length > 0 ? selectedRows[0] : null);
+        result = onChange(selectedRows.length > 0 ? selectedRows[0] : null, value);
       }
     }
     // if onChange listener returns false, then we can end

@@ -207,10 +207,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     // }));
   }
 
-  _updateConcept(data, type) {
+  _updateConcept(data, type, values) {
     const {_request} = this.props;
-    // this.setState({showLoading: true});
-
     let concept;
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)) {
       concept = {
@@ -222,6 +220,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         'identityRole': data.identityRole,
         'validFrom': data.validFrom,
         'validTill': data.validTill,
+        values
       };
     }
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)) {
@@ -234,6 +233,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         'identityRole': data.identityRole,
         'validFrom': data.validFrom,
         'validTill': data.validTill,
+        values
       };
     }
     this.context.store.dispatch(conceptRoleRequestManager.updateEntity(concept, `${uiKeyAttributes}-detail`, (updatedEntity, error) => {
@@ -244,17 +244,14 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           }
         }
         this.refs.table.getWrappedInstance().reload();
-        // this.setState({showLoading: false});
       } else {
-        // this.setState({showLoading: false});
         this.addError(error);
       }
     }));
   }
 
-  _createConcept(data, type) {
+  _createConcept(data, type, values) {
     const {_request} = this.props;
-    // this.setState({showLoading: true});
     const concept = {
       'operation': type,
       'roleRequest': _request.id,
@@ -263,16 +260,15 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       'identityRole': data.id,
       'validFrom': data.validFrom,
       'validTill': data.validTill,
+      values
     };
 
     conceptRoleRequestManager.getService().create(concept)
     .then(json => {
-      // this.setState({showLoading: false});
       _request.conceptRoles.push(json);
       this.refs.table.getWrappedInstance().reload();
     })
     .catch(error => {
-      // this.setState({showLoading: false});
       this.addError(error);
     });
 
@@ -334,6 +330,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     if (!rendered) {
       return null;
     }
+
     return (
       <div>
         <Basic.ContentHeader rendered={ request !== null }>
@@ -451,6 +448,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             removeConceptFunc={this._removeConcept.bind(this)}
             createConceptFunc={this._createConcept.bind(this)}
             updateConceptFunc={this._updateConcept.bind(this)}
+            conceptRoleRequestManager={conceptRoleRequestManager}
             />
         </Basic.Panel>
       </div>

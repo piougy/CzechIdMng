@@ -243,8 +243,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             <Basic.Modal.Body>
               <Basic.Tabs
                 activeKey={ activeKey }
-                onSelect={ this._onChangeSelectTabs.bind(this)}
-                style={{ paddingTop: 15 }}>
+                onSelect={ this._onChangeSelectTabs.bind(this)}>
                 <Basic.Tab
                   eventKey={ 1 }
                   title={ this.i18n('detail.tabs.basic') }

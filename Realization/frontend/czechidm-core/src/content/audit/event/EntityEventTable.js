@@ -148,7 +148,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
-                <Basic.Row className={ _.includes(columns, 'ownerType') ? '' : 'last' }>
+                <Basic.Row>
                   <Basic.Col lg={ 8 }>
                     <Advanced.Filter.FilterDate
                       ref="fromTill"

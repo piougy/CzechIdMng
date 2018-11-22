@@ -113,7 +113,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                 </Basic.Col>
               </Basic.Row>
 
-              <Advanced.OperationResult value={ entity.result } face="full" />
+              <Advanced.OperationResult value={ entity.result } face="full" downloadLinkPrefix={`long-running-tasks/${entity.id}/download`} />
 
             </Basic.AbstractForm>
           </Basic.PanelBody>

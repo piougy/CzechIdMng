@@ -61,10 +61,6 @@ class PasswordChangeForm extends Basic.AbstractContent {
     return 'content.identity.passwordChange';
   }
 
-  componentDidMount() {
-    this.selectSidebarItem('profile-password');
-  }
-
   render() {
     let components = this.getContent();
     //

@@ -16,10 +16,6 @@ class PasswordChangeContent extends Basic.AbstractContent {
     this.componentService = new ComponentService();
   }
 
-  componentDidMount() {
-    this.selectSidebarItem('profile-password');
-  }
-
   render() {
     const { userContext, requireOldPassword } = this.props;
     const { entityId } = this.props.params;

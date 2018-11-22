@@ -150,7 +150,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		taskService.setAssignee(taskId, loggedUser);
 		taskService.setVariables(taskId, variables);
 		taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION, decision);
-		if (formData.containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE)) {
+		if (formData != null && formData.containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE)) {
 			taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE,
 					formData.get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE));
 		}

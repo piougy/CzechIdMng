@@ -296,7 +296,11 @@
       "home": "Nástěnka",
       "profile": {
         "label": "Profil",
-        "title": "Můj profil"
+        "title": "$t(navigation.menu.profile.label)"
+      },
+      "dashboard": {
+        "label": "$t(navigation.menu.home)",
+        "title": "$t(navigation.menu.home)"
       },
       "subordinates": {
         "label": "Podřízení",
@@ -381,6 +385,19 @@
         "link": {
           "detail": {
             "label": "Přejít na detail"
+          },
+          "popover": {
+            "title": "Zobrazit vizitku"
+          }
+        }
+      },
+      "IdentityInfo": {
+        "link": {
+          "detail": {
+            "label": "Přejít na plný detail"
+          },
+          "profile": {
+            "label": "Přejít na profil"
           },
           "popover": {
             "title": "Zobrazit vizitku"
@@ -812,7 +829,7 @@
       "goToProfil": "Přejít na detail profilu"
     },
     "longRunningTaskDashboard": {
-      "header": "Vaše dlouhotrvající úlohy"
+      "header": "Vytvořené dlouhotrvající úlohy"
     }
   },
   "permission": {
@@ -2091,6 +2108,10 @@
         "positions": "Pracovně právní vztahy",
         "approve": "Schvalovatelem pro role"
       },
+      "dashboard": {
+        "header": "$t(navigation.menu.dashboard.label)",
+        "title": "$t(content.identity.dashboard.header)"
+      },
       "profile": {
         "header": "Osobní údaje",
         "title": "Můj profil",
@@ -2976,6 +2997,7 @@
       "externalCode": "Osobní číslo",
       "firstName": "Jméno",
       "lastName": "Příjmení",
+      "fullName": "Jméno",
       "email": "Email",
       "phone": "Telefon",
       "description": "Popis",
@@ -5384,6 +5406,10 @@
     "ROLE_CODE_REQUIRED":  {
       "title": "Kód role je povinný",
       "message": "Zadejte kód nebo základní kód ('baseCode') role."
+    },
+    "LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD": {
+      "title": "Úloha úspěšně dokončena. Výsledek je možné stáhnout.",
+      "message": "Dlouhotrvající úloha byla úspěšně dokončena, její výsledek je připraven ke stažení."
     }
   },
   "validationError": {

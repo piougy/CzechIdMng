@@ -114,7 +114,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			SysSystemAttributeMappingService attributeMappingService,
 			SysSchemaAttributeService schemaAttributeService,
 			SysProvisioningArchiveService provisioningArchiveService,
-			SysSchemaObjectClassService schemaObjectClassService, ProvisioningConfiguration provisioningConfiguration) {
+			SysSchemaObjectClassService schemaObjectClassService,
+			ProvisioningConfiguration provisioningConfiguration) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
 		Assert.notNull(systemEntityService);
@@ -245,7 +246,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				// Password may be add by another process or execute existing provisioning operation, these password skip
 				SysSchemaAttributeDto schemaByPasswordAttribute = DtoUtils.getEmbedded(passwordAttribute,
 						SysSystemAttributeMapping_.schemaAttribute, SysSchemaAttributeDto.class);
-				Optional<ProvisioningAttributeDto> findAnyPassword = givenPasswords.stream() //
+				Optional<ProvisioningAttributeDto> findAnyPassword = givenPasswords //
+						.stream() //
 						.filter(givenPassword -> givenPassword.getSchemaAttributeName()
 								.equals(schemaByPasswordAttribute.getName())) //
 						.findAny(); //
@@ -257,8 +259,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				// transformed. Then will be set as new attribute into fullAccountObject
 				GuardedString transformPassword = transformPassword(provisioningOperation, system.getId(),
 						passwordAttribute, generatedPassword);
-				SysSchemaAttributeDto schemaAttribute = schemaAttributes.stream()
-						.filter(schemaAtt -> schemaAtt.getId().equals(passwordAttribute.getSchemaAttribute()))
+				SysSchemaAttributeDto schemaAttribute = schemaAttributes //
+						.stream() //
+						.filter(schemaAtt -> schemaAtt.getId().equals(passwordAttribute.getSchemaAttribute())) //
 						.findFirst()//
 						.orElse(null);
 				ProvisioningAttributeDto passwordProvisiongAttributeDto = ProvisioningAttributeDto
@@ -299,34 +302,51 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				if (AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()
 						|| AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
 
-					boolean existSetAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
-						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName())
-								&& AttributeMappingStrategyType.SET == provisioningAttributeKey.getStrategyType();
-					}).findFirst().isPresent();
+					boolean existSetAttribute = fullAccountObject //
+							.keySet() //
+							.stream() //
+							.filter(provisioningAttributeKey -> { //
+								return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName())
+										&& AttributeMappingStrategyType.SET == provisioningAttributeKey.getStrategyType();
+							})
+							.findFirst() //
+							.isPresent();
 
-					boolean existIfResourceNulltAttribute = fullAccountObject.keySet().stream()
-							.filter(provisioningAttributeKey -> {
+					boolean existIfResourceNulltAttribute = fullAccountObject  //
+							.keySet() //
+							.stream() //
+							.filter(provisioningAttributeKey -> { //
 								return provisioningAttributeKey.getSchemaAttributeName()
 										.equals(schemaAttribute.getName())
 										&& AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttributeKey
 												.getStrategyType();
-							}).findFirst().isPresent();
+							}) //
+							.findFirst() //
+							.isPresent();
 
-					boolean existMergeAttribute = fullAccountObject.keySet().stream()
-							.filter(provisioningAttributeKey -> {
+					boolean existMergeAttribute = fullAccountObject //
+							.keySet() //
+							.stream() //
+							.filter(provisioningAttributeKey -> { //
 								return provisioningAttributeKey.getSchemaAttributeName()
 										.equals(schemaAttribute.getName())
 										&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey
 												.getStrategyType();
-							}).findFirst().isPresent();
+							}) //
+							.findFirst() //
+							.isPresent();
 
-					boolean existAuthMergeAttribute = fullAccountObject.keySet().stream()
+					boolean existAuthMergeAttribute = fullAccountObject //
+							.keySet() //
+							.stream() //
 							.filter(provisioningAttributeKey -> {
 								return provisioningAttributeKey.getSchemaAttributeName()
 										.equals(schemaAttribute.getName())
 										&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey
 												.getStrategyType();
-							}).findFirst().isPresent();
+							}) //
+							.findFirst() //
+							.isPresent();
 
 					if (AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()) {
 
@@ -384,10 +404,12 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			for (Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
 
 				ProvisioningAttributeDto provisioningAttribute = entry.getKey();
-				Optional<SysSchemaAttributeDto> schemaAttributeOptional = schemaAttributes.stream()
-						.filter(schemaAttribute -> {
+				Optional<SysSchemaAttributeDto> schemaAttributeOptional = schemaAttributes //
+						.stream() //
+						.filter(schemaAttribute -> { //
 							return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
-						}).findFirst();
+						}) //
+						.findFirst();
 
 				if (!schemaAttributeOptional.isPresent()) {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND,
@@ -421,29 +443,41 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 
 						if (AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
 
-							boolean existSetAttribute = fullAccountObject.keySet().stream()
-									.filter(provisioningAttributeKey -> {
+							boolean existSetAttribute = fullAccountObject //
+									.keySet() //
+									.stream() //
+									.filter(provisioningAttributeKey -> { //
 										return provisioningAttributeKey.getSchemaAttributeName()
 												.equals(schemaAttribute.getName())
 												&& AttributeMappingStrategyType.SET == provisioningAttributeKey
 														.getStrategyType();
-									}).findFirst().isPresent();
+									}) //
+									.findFirst() //
+									.isPresent();
 
-							boolean existMergeAttribute = fullAccountObject.keySet().stream()
-									.filter(provisioningAttributeKey -> {
+							boolean existMergeAttribute = fullAccountObject //
+									.keySet() //
+									.stream() //
+									.filter(provisioningAttributeKey -> { //
 										return provisioningAttributeKey.getSchemaAttributeName()
 												.equals(schemaAttribute.getName())
 												&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey
 														.getStrategyType();
-									}).findFirst().isPresent();
+									}) //
+									.findFirst() //
+									.isPresent();
 
-							boolean existAuthMergeAttribute = fullAccountObject.keySet().stream()
-									.filter(provisioningAttributeKey -> {
+							boolean existAuthMergeAttribute = fullAccountObject //
+									.keySet() //
+									.stream() //
+									.filter(provisioningAttributeKey -> { //
 										return provisioningAttributeKey.getSchemaAttributeName()
 												.equals(schemaAttribute.getName())
 												&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey
 														.getStrategyType();
-									}).findFirst().isPresent();
+									}) //
+									.findFirst() //
+									.isPresent();
 
 							if (AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
 								List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
@@ -503,7 +537,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		provisioningOperation.setOperationType(ProvisioningEventType.UPDATE);
 	}
 
-	@SuppressWarnings("unchecked")
 	/**
 	 * Returns merged values for given attribute
 	 * 
@@ -513,6 +546,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param provisioningOperation
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private Object resolveMergeValues(ProvisioningAttributeDto provisioningAttribute, Object idmValue,
 			Object connectorValue, SysProvisioningOperationDto provisioningOperation) {
 
@@ -562,12 +596,14 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		// Delete missing values
 		if (controlledValuesFlat != null) {
 			// Search all deleted values (managed by IdM)
-			List<?> deletedValues = controlledValuesFlat.stream().filter(controlledValue -> {
-				if (idmValues.contains(controlledValue)) {
-					return false;
-				}
-				return true;
-			}).collect(Collectors.toList());
+			List<?> deletedValues = controlledValuesFlat //
+					.stream() //
+					.filter(controlledValue -> { //
+						if (idmValues.contains(controlledValue)) {
+							return false;
+						}
+						return true;
+					}).collect(Collectors.toList());
 			// Remove all deleted values (managed by IdM)
 			resultValues.removeAll(deletedValues);
 		}

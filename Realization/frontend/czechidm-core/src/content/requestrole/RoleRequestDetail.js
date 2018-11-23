@@ -117,6 +117,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
     this.setState({showLoading: true});
     const formEntity = this.refs.form.getData();
+    delete formEntity.conceptRoles;
 
     if (formEntity.id === undefined) {
       this.context.store.dispatch(roleRequestManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
@@ -207,7 +208,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     // }));
   }
 
-  _updateConcept(data, type, values) {
+  _updateConcept(data, type, formInstance) {
     const {_request} = this.props;
     let concept;
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)) {
@@ -220,7 +221,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         'identityRole': data.identityRole,
         'validFrom': data.validFrom,
         'validTill': data.validTill,
-        values
+        '_eav': [formInstance]
       };
     }
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)) {
@@ -233,7 +234,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         'identityRole': data.identityRole,
         'validFrom': data.validFrom,
         'validTill': data.validTill,
-        values
+        '_eav': [formInstance]
       };
     }
     this.context.store.dispatch(conceptRoleRequestManager.updateEntity(concept, `${uiKeyAttributes}-detail`, (updatedEntity, error) => {
@@ -250,7 +251,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     }));
   }
 
-  _createConcept(data, type, values) {
+  _createConcept(data, type, formInstance) {
     const {_request} = this.props;
     const concept = {
       'operation': type,
@@ -260,7 +261,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       'identityRole': data.id,
       'validFrom': data.validFrom,
       'validTill': data.validTill,
-      values
+      '_eav': [formInstance]
     };
 
     conceptRoleRequestManager.getService().create(concept)

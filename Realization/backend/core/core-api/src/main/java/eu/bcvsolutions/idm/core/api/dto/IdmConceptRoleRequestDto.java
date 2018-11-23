@@ -20,7 +20,7 @@ import java.util.UUID;
  * @author svandav
  */
 @Relation(collectionRelation = "conceptRoleRequests")
-public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
+public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
 
     private static final long serialVersionUID = 1L;
     public static final String WF_PROCESS_FIELD = "wfProcessId";
@@ -43,7 +43,6 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
     private String wfProcessId;
     @JsonProperty(access = Access.READ_ONLY)
     private String log;
-    private List<IdmFormValueDto> values;
 
 	public UUID getRoleRequest() {
         return roleRequest;
@@ -132,14 +131,6 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
     public void setLog(String log) {
         this.log = log;
     }
-
-    public List<IdmFormValueDto> getValues() {
-		return values;
-	}
-
-	public void setValues(List<IdmFormValueDto> values) {
-		this.values = values;
-	}
 
 	public String addToLog(String text) {
         if (text != null) {

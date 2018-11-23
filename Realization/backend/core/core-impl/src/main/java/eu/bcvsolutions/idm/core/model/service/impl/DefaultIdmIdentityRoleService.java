@@ -25,11 +25,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
-import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
+import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
@@ -47,14 +48,14 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Operations with identity roles - usable in wf
+ * Operations with identity roles
  * 
  * @author svanda
  * @author Radek Tomiška
  *
  */
 public class DefaultIdmIdentityRoleService 
-		extends AbstractEventableDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdmIdentityRoleFilter>
+		extends AbstractFormableService<IdmIdentityRoleDto, IdmIdentityRole, IdmIdentityRoleFilter>
 		implements IdmIdentityRoleService {
 
 	private final IdmIdentityRoleRepository repository;
@@ -65,8 +66,9 @@ public class DefaultIdmIdentityRoleService
 	@Autowired
 	public DefaultIdmIdentityRoleService(
 			IdmIdentityRoleRepository repository,
+			FormService formService,
 			EntityEventManager entityEventManager) {
-		super(repository, entityEventManager);
+		super(repository, entityEventManager, formService);
 		//
 		this.repository = repository;
 	}

@@ -108,7 +108,6 @@ export default class FormInstance {
    * @param {arrayOf(FormValue)} formValues
    */
   _setValues(formValues) {
-    console.log("setvalues", formValues);
     this.values = new Immutable.OrderedMap();
     if (formValues) {
       formValues.forEach(formValue => {

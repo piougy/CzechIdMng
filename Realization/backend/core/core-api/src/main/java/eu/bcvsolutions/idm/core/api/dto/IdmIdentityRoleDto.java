@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "identityRoles")
-public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity, ExternalIdentifiable {
+public class IdmIdentityRoleDto extends FormableDto implements ValidableEntity, ExternalIdentifiable {
 	
 	private static final long serialVersionUID = 1L;
 	//

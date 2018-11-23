@@ -55,12 +55,18 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
@@ -95,9 +101,10 @@ public class DefaultIdmRoleRequestService
 	private final ApplicationContext applicationContext;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final EntityEventManager entityEventManager;
-	private IdmRoleRequestService roleRequestService;
-	//
+	@Autowired
+	private FormService formService;
 	@Autowired private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService; 
+	private IdmRoleRequestService roleRequestService;
 
 	@Autowired
 	public DefaultIdmRoleRequestService(IdmRoleRequestRepository repository,
@@ -187,6 +194,7 @@ public class DefaultIdmRoleRequestService
 			LOG.error(ex.getLocalizedMessage(), ex);
 			IdmRoleRequestDto request = get(requestId);
 			Throwable exceptionToLog = ExceptionUtils.resolveException(ex);
+			// Whole stack trace is too big, so we will save only message to the request log.
 			String message = exceptionToLog.getLocalizedMessage();
 			this.addToLog(request, message != null ? message : ex.getLocalizedMessage());
 			request.setState(RoleRequestState.EXCEPTION);
@@ -657,6 +665,15 @@ public class DefaultIdmRoleRequestService
 		if (conceptRole == null || identityRole == null) {
 			return null;
 		}
+		
+		IdmRoleDto roleDto = DtoUtils.getEmbedded(conceptRole, IdmConceptRoleRequest_.role, IdmRoleDto.class);
+		if (roleDto != null && roleDto.getIdentityRoleAttributeDefinition() != null) {
+			IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(roleDto, IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
+			IdmFormInstanceDto formInstance = formService.getFormInstance(conceptRole, formDefinitionDto);
+			identityRole.getEavs().clear();
+			identityRole.getEavs().add(formInstance);
+		}
+		
 		identityRole.setRole(conceptRole.getRole());
 		identityRole.setIdentityContract(conceptRole.getIdentityContract());
 		identityRole.setValidFrom(conceptRole.getValidFrom());

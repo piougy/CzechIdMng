@@ -677,7 +677,7 @@ public class IdmServiceConfiguration {
 	@Bean(name = {"identityRoleService", "idmIdentityRoleService"})
 	@ConditionalOnMissingBean(IdmIdentityRoleService.class)
 	public IdmIdentityRoleService identityRoleService() {
-		return new DefaultIdmIdentityRoleService(identityRoleRepository, entityEventManager());
+		return new DefaultIdmIdentityRoleService(identityRoleRepository,  formService(), entityEventManager());
 	}
 
 	/**

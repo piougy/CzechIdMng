@@ -25,10 +25,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -93,7 +91,6 @@ public class DefaultIdmRoleRequestService
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmIdentityService identityService;
-	private final ObjectMapper objectMapper;
 	private final SecurityService securityService;
 	private final ApplicationContext applicationContext;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
@@ -113,7 +110,6 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(conceptRoleRequestService, "Concept role request service is required!");
 		Assert.notNull(identityRoleService, "Identity role service is required!");
 		Assert.notNull(identityService, "Identity service is required!");
-		Assert.notNull(objectMapper, "Object mapper is required!");
 		Assert.notNull(securityService, "Security service is required!");
 		Assert.notNull(applicationContext, "Application context is required!");
 		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
@@ -123,7 +119,6 @@ public class DefaultIdmRoleRequestService
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.identityRoleService = identityRoleService;
 		this.identityService = identityService;
-		this.objectMapper = objectMapper;
 		this.securityService = securityService;
 		this.applicationContext = applicationContext;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
@@ -192,7 +187,8 @@ public class DefaultIdmRoleRequestService
 			LOG.error(ex.getLocalizedMessage(), ex);
 			IdmRoleRequestDto request = get(requestId);
 			Throwable exceptionToLog = ExceptionUtils.resolveException(ex);
-			this.addToLog(request, Throwables.getStackTraceAsString(exceptionToLog));
+			String message = exceptionToLog.getLocalizedMessage();
+			this.addToLog(request, message != null ? message : ex.getLocalizedMessage());
 			request.setState(RoleRequestState.EXCEPTION);
 			return save(request);
 		}
@@ -265,13 +261,7 @@ public class DefaultIdmRoleRequestService
 		}
 
 		// Convert whole request to JSON and persist (without logs and embedded data)
-		try {
-			IdmRoleRequestDto requestOriginal = get(requestId);
-			trimRequest(requestOriginal);
-			request.setOriginalRequest(objectMapper.writeValueAsString(requestOriginal));
-		} catch (JsonProcessingException e) {
-			throw new RoleRequestException(CoreResultCode.BAD_REQUEST, e);
-		}
+		// Original request was canceled (since 9.4.0)
 
 		// Request will be set on in progress state
 		request.setState(RoleRequestState.IN_PROGRESS);

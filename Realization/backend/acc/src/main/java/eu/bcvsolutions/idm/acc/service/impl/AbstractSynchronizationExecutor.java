@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -1982,7 +1983,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		entityAccountFilter.setOwnership(Boolean.TRUE);
 		@SuppressWarnings("unchecked")
 		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
-				.find((BaseFilter) entityAccountFilter, null).getContent();
+				.find((BaseFilter) entityAccountFilter, new PageRequest(0, 1)).getContent();
 		if (entityAccounts.isEmpty()) {
 			return null;
 		} else {

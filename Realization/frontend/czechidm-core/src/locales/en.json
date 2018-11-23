@@ -1199,6 +1199,9 @@
             "header": "Delete roles",
             "message": "Do you really want to delete roles"
           }
+        },
+        "identityRoleAttributes": {
+          "header": "Role attributes"
         }
       }
     },

@@ -126,7 +126,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			return false;
 		}
 		
-		// account with delete accepted states wil be removed on the end
+		// account with delete accepted states will be removed on the end
 		IdmEntityStateFilter identityAccountStatesFilter = new IdmEntityStateFilter();
 		identityAccountStatesFilter.setSuperOwnerId(identity.getId());
 		identityAccountStatesFilter.setOwnerType(entityStateManager.getOwnerType(AccIdentityAccountDto.class));
@@ -301,6 +301,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// Find attributes for this roleSystem
 		SysRoleSystemAttributeFilter roleSystemAttrFilter = new SysRoleSystemAttributeFilter();
 		roleSystemAttrFilter.setRoleSystemId(roleSystem.getId());
+		// TODO: To one select
 		List<SysRoleSystemAttributeDto> attributes = roleSystemAttributeService.find(roleSystemAttrFilter, null)
 				.getContent();
 		List<SysRoleSystemAttributeDto> attributesUid = attributes.stream().filter(attribute -> {
@@ -320,6 +321,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// script.
 		if (uidRoleAttribute != null) {
 			// Default values (values from schema attribute handling)
+			// TODO: Use DtoUtils
 			SysSystemAttributeMappingDto systemAttributeMapping = systemAttributeMappingService
 					.get(uidRoleAttribute.getSystemAttributeMapping());
 			uidRoleAttribute.setSchemaAttribute(systemAttributeMapping.getSchemaAttribute());

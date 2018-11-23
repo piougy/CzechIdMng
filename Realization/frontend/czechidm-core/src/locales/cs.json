@@ -1243,6 +1243,9 @@
               "header": "Odstranění oprávnění",
               "message": "Opravdu chcete toto oprávnění odstranit?"
             }
+          },
+          "identityRoleAttributes": {
+            "header": "Atributy role"
           }
         }
     },

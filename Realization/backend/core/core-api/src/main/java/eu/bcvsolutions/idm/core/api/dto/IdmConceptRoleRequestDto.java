@@ -1,18 +1,17 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
-import eu.bcvsolutions.idm.core.api.domain.Embedded;
-import eu.bcvsolutions.idm.core.api.domain.Loggable;
-import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import java.util.UUID;
 
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
-import java.util.List;
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Loggable;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 
 /**
  * Dto for concept role request

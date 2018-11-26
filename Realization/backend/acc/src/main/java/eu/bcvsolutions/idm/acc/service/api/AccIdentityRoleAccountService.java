@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.AccIdentityRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityRoleAccountFilter;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
@@ -13,7 +12,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface AccIdentityRoleAccountService extends 
-	ReadWriteDtoService<AccIdentityRoleAccountDto, AccIdentityRoleAccountFilter>,
+	EntityAccountService<AccIdentityRoleAccountDto, AccIdentityRoleAccountFilter>,
 	AuthorizableService<AccIdentityRoleAccountDto> {
 
 	/**

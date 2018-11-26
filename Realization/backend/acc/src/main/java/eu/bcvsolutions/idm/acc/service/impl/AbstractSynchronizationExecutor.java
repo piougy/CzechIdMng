@@ -74,6 +74,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -90,7 +91,6 @@ import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -1193,7 +1193,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param account
 	 * @param context
 	 */
-	@SuppressWarnings("unchecked")
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMappingDto> mappedAttributes,
 			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account,
 			SynchronizationContext context) {
@@ -1338,8 +1337,33 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected abstract void doUnlink(AccAccountDto account, boolean removeIdentityRole, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs);
+	protected void doUnlink(AccAccountDto account, boolean removeRoleRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
+			List<SysSyncActionLogDto> actionLogs) {
+
+		EntityAccountFilter entityAccountFilter = this.createEntityAccountFilter();
+		entityAccountFilter.setAccountId(account.getId());
+		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
+				.find(entityAccountFilter, null).getContent();
+		if (entityAccounts.isEmpty()) {
+			addToItemLog(logItem, "Warning! - Entity account relation was not found!");
+			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+					actionLogs);
+			return;
+		}
+		addToItemLog(logItem, MessageFormat.format("Entity-account relations to delete {0}", entityAccounts));
+
+		entityAccounts.stream().forEach(entityAccount -> {
+			// We will remove role account, but without delete connected
+			// account
+			this.getEntityAccountService().delete(entityAccount, false);
+			addToItemLog(logItem,
+					MessageFormat.format(
+							"Entity-account relation deleted (without call delete provisioning) (entity: {0}, id: {1})",
+							entityAccount.getEntity(), entityAccount.getId()));
+
+		});
+		return;
+	}
 
 	/**
 	 * Log exception to SyncLog and SyncItemLog, do init syncActionLog
@@ -1450,8 +1474,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	protected abstract DTO createEntityDto();
 
-	@SuppressWarnings("rawtypes")
-	protected abstract ReadWriteDtoService getEntityAccountService();
+	protected abstract EntityAccountService<EntityAccountDto, EntityAccountFilter> getEntityAccountService();
 
 	protected abstract ReadWriteDtoService<DTO, ?> getService();
 
@@ -1981,9 +2004,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
 		entityAccountFilter.setAccountId(accountId);
 		entityAccountFilter.setOwnership(Boolean.TRUE);
-		@SuppressWarnings("unchecked")
 		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
-				.find((BaseFilter) entityAccountFilter, new PageRequest(0, 1)).getContent();
+				.find(entityAccountFilter, new PageRequest(0, 1)).getContent();
 		if (entityAccounts.isEmpty()) {
 			return null;
 		} else {
@@ -2006,9 +2028,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		entityAccountFilter.setEntityId(entityId);
 		entityAccountFilter.setSystemId(systemId);
 		entityAccountFilter.setOwnership(Boolean.TRUE);
-		@SuppressWarnings("unchecked")
 		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
-				.find((BaseFilter) entityAccountFilter, null).getContent();
+				.find(entityAccountFilter, null).getContent();
 		if (entityAccounts.isEmpty()) {
 			return null;
 		} else {
@@ -2030,7 +2051,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param system
 	 * @param logItem
 	 */
-	@SuppressWarnings("unchecked")
 	protected void doCreateLink(DTO dto, boolean callProvisioning, SynchronizationContext context) {
 		String uid = context.getUid();
 		SystemEntityType entityType = context.getEntityType();

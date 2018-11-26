@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.AccContractAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
@@ -13,7 +12,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface AccContractAccountService extends 
-	ReadWriteDtoService<AccContractAccountDto, AccContractAccountFilter>,
+	EntityAccountService<AccContractAccountDto, AccContractAccountFilter>,
 	AuthorizableService<AccContractAccountDto> {
 
 	/**

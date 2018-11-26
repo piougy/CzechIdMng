@@ -14,9 +14,6 @@ const treeNodeManager = new TreeNodeManager(); // default manager in manager in 
 /**
 * Select tree node
 *
-* TODO: multi select (see role select)
-* TODO: onChange support
-*
 * @author Radek Tomiška
 */
 export default class TreeNodeSelect extends Basic.AbstractFormComponent {
@@ -28,7 +25,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
       defaultTreeType: props.defaultTreeType,
       treeTypeId: null,
       selectedTreeType: null, // modal
-      selectedTreeNodeId: null, // modal
+      selected: null, // modal
       showTree: false
     };
   }
@@ -156,32 +153,45 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
     if (event) {
       event.preventDefault();
     }
+    // set values to tree
+    const value = this.getValue();
+    let selected = [];
+    if (value) {
+      selected = _.concat(selected, value); // works for single and multi value
+    }
     //
+    let treeNodeId = null;
+    if (selected.length > 0) {
+      treeNodeId = selected[0];
+    }
     // load selected tree type, when no type is given.
     // TODO: this not works for form selectbox (find a better place to load tree type)
-    const treeNodeId = this.refs.treeNode.getValue();
     if (treeNodeId && !this.state.selectedTreeType) {
       const treeNode = this.getManager().getEntity(this.context.store.getState(), treeNodeId);
       if (treeNode) {
         const treeType = this.getTreeTypeManager().getEntity(this.context.store.getState(), treeNode.treeType);
         if (!treeType) {
           this.setState({
+            selected,
             showTree: true,
             selectedTreeType: treeNode.treeType
           });
         } else {
           this.setState({
+            selected,
             showTree: true,
             selectedTreeType: this.getTreeTypeManager().getEntity(this.context.store.getState(), treeNode.treeType)
           });
         }
       } else {
         this.setState({
+          selected,
           showTree: true
         });
       }
     } else {
       this.setState({
+        selected,
         showTree: true
       });
     }
@@ -211,8 +221,17 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
       event.preventDefault();
     }
     // selected type and node from tree to form
-    const { selectedTreeType, selectedTreeNodeId } = this.state;
-    const _nodeId = nodeId || selectedTreeNodeId;
+    const { multiSelect } = this.props;
+    const { selectedTreeType, selected } = this.state;
+    let _selected = null;
+    if (!multiSelect) {
+      _selected = nodeId || selected;
+    } else {
+      _selected = selected || [];
+      if (nodeId && !_.includes(_selected, nodeId)) {
+        _selected = _.concat(_selected, nodeId);
+      }
+    }
     //
     this.setState({
       treeTypeId: selectedTreeType ? selectedTreeType.id : null,
@@ -221,7 +240,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
         // tree type could be hidden
         this.refs.treeType.setValue(selectedTreeType);
       }
-      this.refs.treeNode.setValue(this.getManager().getEntity(this.context.store.getState(), _nodeId));
+      this.refs.treeNode.setValue(_selected);
     });
     //
     this.hideTree();
@@ -271,12 +290,12 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
    *
    * @param  {event} event
    */
-  onModalSelect(treeNodeId, event) {
+  onModalSelect(selected, event) {
     if (event) {
       event.preventDefault();
     }
     this.setState({
-      selectedTreeNodeId: treeNodeId
+      selected
     });
   }
 
@@ -322,9 +341,10 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
       required,
       readOnly,
       value,
-      hidden
+      hidden,
+      multiSelect
     } = this.props;
-    const { treeTypeId, showTree, selectedTreeNodeId, defaultTreeType } = this.state;
+    const { treeTypeId, showTree, selected, defaultTreeType } = this.state;
     //
     // resolve selected tree type from given tree node
     const selectedTreeType = this.state.selectedTreeType || defaultTreeType;
@@ -396,7 +416,8 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               forceSearchParameters={ formForceSearchParameters }
               readOnly={ readOnly || (treeTypeId === null && showTreeType) }
               required={ required }
-              value={ value }/>
+              value={ value }
+              multiSelect={ multiSelect }/>
           </div>
           {
             showTreeType
@@ -419,6 +440,9 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               forceSearchParameters={ modalForceSearchParameters }
               ŕendered={ showTree }
               traverse={ false }
+              clearable={ (required && !multiSelect) ? false : true }
+              multiSelect={ multiSelect }
+              selected={ selected }
               header={
                 _forceTreeType
                 ?
@@ -435,7 +459,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
                   className="small"
                   style={{ marginBottom: 0 }}/>
               }
-              onSelect={ this.onModalSelect.bind(this) }
+              onChange={ this.onModalSelect.bind(this) }
               onDoubleClick={ (nodeId) => this.onSelect(nodeId) }
               bodyStyle={{ overflowY: 'auto', maxHeight: 450 }}
               />
@@ -451,7 +475,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               level="success"
               showLoadingIcon
               onClick={ this.onSelect.bind(this, null) }
-              disabled={ selectedTreeNodeId === null ? true : false }>
+              disabled={ !selected ? true : false }>
               {this.i18n('button.select')}
             </Basic.Button>
           </Basic.Modal.Footer>
@@ -486,6 +510,10 @@ TreeNodeSelect.propTypes = {
    * Use the first searched value, if value is empty
    */
   useFirstType: PropTypes.bool,
+  /**
+   * The component is in multi select mode
+   */
+  multiSelect: PropTypes.bool,
   /**
    * Tree node selectbox label
    */
@@ -523,5 +551,6 @@ TreeNodeSelect.defaultProps = {
   uiKey: 'tree-node-tree',
   defaultTreeType: null,
   useFirstType: true,
-  showTreeType: false
+  showTreeType: false,
+  multiSelect: false
 };

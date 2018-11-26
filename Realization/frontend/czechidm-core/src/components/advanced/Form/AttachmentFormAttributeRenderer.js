@@ -124,7 +124,7 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
             isLoading: false
           }, () => {
             this.addMessage({
-              message: this.i18n('message.success.upload', { record: file.name })
+              level: 'info', message: this.i18n('message.success.upload', { record: file.name })
             });
             this.refs[AbstractFormAttributeRenderer.INPUT].setValue(uploadedAttachment.id);
           });

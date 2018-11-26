@@ -52,6 +52,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuaranteeRole;
@@ -218,6 +219,20 @@ public class DefaultIdmRoleService
 		String baseCode = filter.getBaseCode();
 		if (StringUtils.isNotEmpty(baseCode)) {
 			predicates.add(builder.equal(root.get(IdmRole_.baseCode), baseCode));
+		}
+		UUID parent = filter.getParent();
+		if (parent != null) {
+			Subquery<IdmRoleComposition> subquery = query.subquery(IdmRoleComposition.class);
+			Root<IdmRoleComposition> subRoot = subquery.from(IdmRoleComposition.class);
+			subquery.select(subRoot);
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get(IdmRoleComposition_.sub), root), // correlation attr
+                    		builder.equal(subRoot.get(IdmRoleComposition_.superior).get(IdmRole_.id), parent)
+                    		)
+            );
+			//
+			predicates.add(builder.exists(subquery));
 		}
 		//
 		return predicates;

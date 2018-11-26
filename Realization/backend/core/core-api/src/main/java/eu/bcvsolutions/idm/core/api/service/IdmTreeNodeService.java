@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
@@ -64,6 +65,7 @@ public interface IdmTreeNodeService extends
 	 * Returns default tree node or {@code null}, if no default tree node is defined
 	 * 
 	 * @return
+	 * @see TreeConfiguration
 	 */
 	IdmTreeNodeDto getDefaultTreeNode();
 }

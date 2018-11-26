@@ -40,7 +40,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.entity.TestResource_;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
@@ -469,7 +468,7 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 		boolean passwordAttributeExists = false;
 		for (Entry<ProvisioningAttributeDto, Object> entry : accountObject.entrySet()) {
 			ProvisioningAttributeDto key = entry.getKey();
-			if (key.getSchemaAttributeName().equalsIgnoreCase(TestResource_.descrip.getName())) {
+			if (key.getSchemaAttributeName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION)) {
 				descripAttributeExists = true;
 				Object value = entry.getValue();
 				assertTrue(value instanceof ConfidentialString);
@@ -498,7 +497,7 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 		passwordAttributeExists = false;
 		IcConnectorObject connectorObject = operationDto.getProvisioningContext().getConnectorObject();
 		for (IcAttribute attribute : connectorObject.getAttributes()) {
-			if (attribute.getName().equalsIgnoreCase(TestResource_.descrip.getName())) {
+			if (attribute.getName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION)) {
 				descripAttributeExists = true;
 				Object value = attribute.getValue();
 				assertTrue(value instanceof ConfidentialString);
@@ -555,7 +554,7 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 		passwordAttributeExists = false;
 		for (Entry<ProvisioningAttributeDto, Object> entry : provisioningArchiveDto.getProvisioningContext().getAccountObject().entrySet()) {
 			ProvisioningAttributeDto key = entry.getKey();
-			if (key.getSchemaAttributeName().equalsIgnoreCase(TestResource_.descrip.getName())) {
+			if (key.getSchemaAttributeName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION)) {
 				descripAttributeExists = true;
 				Object value = entry.getValue();
 				assertTrue(value instanceof ConfidentialString);
@@ -589,7 +588,7 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 		passwordAttributeExists = false;
 		connectorObject = provisioningArchiveDto.getProvisioningContext().getConnectorObject();
 		for (IcAttribute attribute : connectorObject.getAttributes()) {
-			if (attribute.getName().equalsIgnoreCase(TestResource_.descrip.getName())) {
+			if (attribute.getName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION)) {
 				descripAttributeExists = true;
 				Object value = attribute.getValue();
 				assertTrue(value instanceof ConfidentialString);

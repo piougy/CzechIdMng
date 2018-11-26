@@ -59,10 +59,12 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -102,6 +104,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private LookupService lookupService;
 	@Autowired
 	private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired
+	private ConfidentialStorage confidentialStorage;
 	
 	@Autowired
 	public PrepareConnectorObjectProcessor(
@@ -272,9 +276,15 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				// Update previous account object (gui left side)
 				Map<ProvisioningAttributeDto, Object> accountObject = provisioningOperation.getProvisioningContext()
 						.getAccountObject();
-				accountObject.put(passwordProvisiongAttributeDto, null);
+
+				// Is needed put password also into account object. Complete provisioning operation can be stored in
+				// queue and while retry the provisioning operation is value get from confidential storage.
+				// Confidential key is composed by account object.
+				String confidentialStrorageKey = provisioningOperationService.createAccountObjectPropertyKey(passwordProvisiongAttributeDto.getKey(), 0);
+				confidentialStorage.saveGuardedString(provisioningOperation, confidentialStrorageKey, transformPassword);
+				accountObject.put(passwordProvisiongAttributeDto, new ConfidentialString(confidentialStrorageKey));
 			}
-			
+
 			for (Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
 
 				ProvisioningAttributeDto provisioningAttribute = entry.getKey();

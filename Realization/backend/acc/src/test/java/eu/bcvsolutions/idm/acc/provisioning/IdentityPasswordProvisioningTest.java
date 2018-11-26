@@ -7,8 +7,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,10 +24,12 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -34,9 +40,12 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.entity.TestResource_;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -52,10 +61,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -90,6 +103,12 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 	private IdentityProvisioningExecutor identityProvisioningExecutor;
 	@Autowired
 	private AccAccountService accountService;
+	@Autowired
+	private ConfidentialStorage confidentialStorage;
+	@Autowired
+	private ProvisioningExecutor provisioningExecutor;
+	@Autowired
+	private SysProvisioningArchiveService provisioningArchiveService;
 
 	@Before
 	public void init() {
@@ -402,6 +421,209 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 		entityOnSystem = helper.findResource(account.getUid());
 		assertNotNull(entityOnSystem);
 		assertEquals(DEFAULT_PASSWORD, entityOnSystem.getPassword());
+	}
+
+	@Test
+	public void testReadOnlySystem() {
+		String suffixForPassword = "-" + System.currentTimeMillis();
+		SysSystemDto system = initSystem();
+		system.setReadonly(true);
+		system = systemService.save(system);
+
+		SysSystemAttributeMappingDto descriptionAttribute = initDescriptionAttribute(system);
+		descriptionAttribute = changeAttributeToPasswordMapping(descriptionAttribute,
+				"" + "import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;" + System.lineSeparator() + ""
+						+ System.lineSeparator() + "String newPassword = attributeValue.asString();"
+						+ System.lineSeparator() + "return new GuardedString(newPassword + '" + suffixForPassword + "');"
+						+ System.lineSeparator());
+
+		IdmRoleDto role = initRole(system);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		checkIdentityAccount(identity, identityRole, 1);
+
+		long deleteOperations = provisioningOperationService.deleteOperations(system.getId());
+		assertEquals(1l, deleteOperations);
+
+		// Execute provisioning
+		identityService.save(identity);
+
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setEntityIdentifier(identity.getId());
+		List<SysProvisioningOperationDto> operations = provisioningOperationService.find(filter, null).getContent();
+
+		assertEquals(1, operations.size());
+		SysProvisioningOperationDto operationDto = operations.get(0);
+
+		assertEquals(ProvisioningEventType.CREATE, operationDto.getOperationType());
+		Map<ProvisioningAttributeDto, Object> accountObject = operationDto.getProvisioningContext().getAccountObject();
+
+		String confidentialAccountKeyPassword = null;
+		String confidentialAccountKeyDescrip = null;
+		String confidentialConnectorKeyPassword = null;
+		String confidentialConnectorKeyDescrip = null;
+
+		boolean descripAttributeExists = false;
+		boolean passwordAttributeExists = false;
+		for (Entry<ProvisioningAttributeDto, Object> entry : accountObject.entrySet()) {
+			ProvisioningAttributeDto key = entry.getKey();
+			if (key.getSchemaAttributeName().equalsIgnoreCase(TestResource_.descrip.getName())) {
+				descripAttributeExists = true;
+				Object value = entry.getValue();
+				assertTrue(value instanceof ConfidentialString);
+				ConfidentialString confidentialStorageValue = (ConfidentialString) value;
+				confidentialAccountKeyDescrip = confidentialStorageValue.getKey();
+				GuardedString guardedString = confidentialStorage.getGuardedString(operationDto, confidentialAccountKeyDescrip);
+				assertNotNull(guardedString);
+				String asString = guardedString.asString();
+				assertEquals(DEFAULT_PASSWORD + suffixForPassword, asString);		}
+			if (key.getSchemaAttributeName().equalsIgnoreCase(ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)) {
+				passwordAttributeExists = true;
+				Object value = entry.getValue();
+				assertTrue(value instanceof ConfidentialString);
+				ConfidentialString confidentialStorageValue = (ConfidentialString) value;
+				confidentialAccountKeyPassword = confidentialStorageValue.getKey();
+				GuardedString guardedString = confidentialStorage.getGuardedString(operationDto, confidentialAccountKeyPassword);
+				assertNotNull(guardedString);
+				String asString = guardedString.asString();
+				assertEquals(DEFAULT_PASSWORD, asString);
+			}
+		}
+		assertTrue(passwordAttributeExists);
+		assertTrue(descripAttributeExists);
+
+		descripAttributeExists = false;
+		passwordAttributeExists = false;
+		IcConnectorObject connectorObject = operationDto.getProvisioningContext().getConnectorObject();
+		for (IcAttribute attribute : connectorObject.getAttributes()) {
+			if (attribute.getName().equalsIgnoreCase(TestResource_.descrip.getName())) {
+				descripAttributeExists = true;
+				Object value = attribute.getValue();
+				assertTrue(value instanceof ConfidentialString);
+				ConfidentialString confidentialStorageValue = (ConfidentialString) value;
+				confidentialConnectorKeyDescrip = confidentialStorageValue.getKey();
+				GuardedString guardedString = confidentialStorage.getGuardedString(operationDto, confidentialConnectorKeyDescrip);
+				assertNotNull(guardedString);
+				String asString = guardedString.asString();
+				assertEquals(DEFAULT_PASSWORD + suffixForPassword, asString);
+			}
+			if (attribute.getName().equalsIgnoreCase(ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)) {
+				passwordAttributeExists = true;
+				Object value = attribute.getValue();
+				assertTrue(value instanceof ConfidentialString);
+				ConfidentialString confidentialStorageValue = (ConfidentialString) value;
+				confidentialConnectorKeyPassword = confidentialStorageValue.getKey();
+				GuardedString guardedString = confidentialStorage.getGuardedString(operationDto, confidentialConnectorKeyPassword);
+				assertNotNull(guardedString);
+				String asString = guardedString.asString();
+				assertEquals(DEFAULT_PASSWORD, asString);
+			}
+		}
+		assertTrue(passwordAttributeExists);
+		assertTrue(descripAttributeExists);
+
+		assertNotNull(confidentialAccountKeyPassword);
+		assertNotNull(confidentialAccountKeyDescrip);
+		assertNotNull(confidentialConnectorKeyPassword);
+		assertNotNull(confidentialConnectorKeyDescrip);
+
+		system.setReadonly(false);
+		system = systemService.save(system);
+
+		operationDto = provisioningExecutor.executeSync(operationDto);
+		assertEquals(OperationState.EXECUTED, operationDto.getResultState());
+
+		Serializable serializable = confidentialStorage.get(operationDto, confidentialAccountKeyPassword);
+		assertNull(serializable);
+		serializable = confidentialStorage.get(operationDto, confidentialAccountKeyDescrip);
+		assertNull(serializable);
+		serializable = confidentialStorage.get(operationDto, confidentialConnectorKeyPassword);
+		assertNull(serializable);
+		serializable = confidentialStorage.get(operationDto, confidentialConnectorKeyDescrip);
+		assertNull(serializable);
+
+		SysProvisioningOperationFilter archiveFilter = new SysProvisioningOperationFilter();
+		archiveFilter.setSystemId(system.getId());
+		archiveFilter.setEntityIdentifier(identity.getId());
+		List<SysProvisioningArchiveDto> archive = provisioningArchiveService.find(archiveFilter, null).getContent();
+		assertEquals(1, archive.size());
+		SysProvisioningArchiveDto provisioningArchiveDto = archive.get(0);
+		
+		descripAttributeExists = false;
+		passwordAttributeExists = false;
+		for (Entry<ProvisioningAttributeDto, Object> entry : provisioningArchiveDto.getProvisioningContext().getAccountObject().entrySet()) {
+			ProvisioningAttributeDto key = entry.getKey();
+			if (key.getSchemaAttributeName().equalsIgnoreCase(TestResource_.descrip.getName())) {
+				descripAttributeExists = true;
+				Object value = entry.getValue();
+				assertTrue(value instanceof ConfidentialString);
+				ConfidentialString confidentialStorageValue = (ConfidentialString) value;
+				confidentialAccountKeyDescrip = confidentialStorageValue.getKey();
+				GuardedString guardedString = confidentialStorage.getGuardedString(operationDto, confidentialAccountKeyDescrip);
+				assertNotNull(guardedString);
+				assertTrue(StringUtils.isEmpty(guardedString.asString()));
+				guardedString = confidentialStorage.getGuardedString(provisioningArchiveDto, confidentialAccountKeyDescrip);
+				assertNotNull(guardedString);
+				assertTrue(StringUtils.isEmpty(guardedString.asString()));
+			}
+			if (key.getSchemaAttributeName().equalsIgnoreCase(ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)) {
+				passwordAttributeExists = true;
+				Object value = entry.getValue();
+				assertTrue(value instanceof ConfidentialString);
+				ConfidentialString confidentialStorageValue = (ConfidentialString) value;
+				confidentialAccountKeyPassword = confidentialStorageValue.getKey();
+				GuardedString guardedString = confidentialStorage.getGuardedString(operationDto, confidentialAccountKeyPassword);
+				assertNotNull(guardedString);
+				assertTrue(StringUtils.isEmpty(guardedString.asString()));
+				guardedString = confidentialStorage.getGuardedString(provisioningArchiveDto, confidentialAccountKeyPassword);
+				assertNotNull(guardedString);
+				assertTrue(StringUtils.isEmpty(guardedString.asString()));
+			}
+		}
+		assertTrue(passwordAttributeExists);
+		assertTrue(descripAttributeExists);
+
+		descripAttributeExists = false;
+		passwordAttributeExists = false;
+		connectorObject = provisioningArchiveDto.getProvisioningContext().getConnectorObject();
+		for (IcAttribute attribute : connectorObject.getAttributes()) {
+			if (attribute.getName().equalsIgnoreCase(TestResource_.descrip.getName())) {
+				descripAttributeExists = true;
+				Object value = attribute.getValue();
+				assertTrue(value instanceof ConfidentialString);
+				ConfidentialString confidentialStorageValue = (ConfidentialString) value;
+				confidentialConnectorKeyDescrip = confidentialStorageValue.getKey();
+				GuardedString guardedString = confidentialStorage.getGuardedString(operationDto, confidentialConnectorKeyDescrip);
+				assertNotNull(guardedString);
+				assertTrue(StringUtils.isEmpty(guardedString.asString()));
+				guardedString = confidentialStorage.getGuardedString(provisioningArchiveDto, confidentialConnectorKeyDescrip);
+				assertNotNull(guardedString);
+				assertTrue(StringUtils.isEmpty(guardedString.asString()));
+			}
+			if (attribute.getName().equalsIgnoreCase(ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)) {
+				passwordAttributeExists = true;
+				Object value = attribute.getValue();
+				assertTrue(value instanceof ConfidentialString);
+				ConfidentialString confidentialStorageValue = (ConfidentialString) value;
+				confidentialConnectorKeyPassword = confidentialStorageValue.getKey();
+				GuardedString guardedString = confidentialStorage.getGuardedString(operationDto, confidentialConnectorKeyPassword);
+				assertNotNull(guardedString);
+				assertTrue(StringUtils.isEmpty(guardedString.asString()));
+				guardedString = confidentialStorage.getGuardedString(provisioningArchiveDto, confidentialConnectorKeyPassword);
+				assertNotNull(guardedString);
+				assertTrue(StringUtils.isEmpty(guardedString.asString()));
+			}
+		}
+
+		List<AccAccountDto> accounts = accountService.getAccounts(system.getId(), identity.getId());
+		assertEquals(1, accounts.size());
+		AccAccountDto accountDto = accounts.get(0);
+		TestResource resource = this.helper.findResource(accountDto.getUid());
+		assertNotNull(resource);
+		assertEquals(DEFAULT_PASSWORD, resource.getPassword());
+		assertEquals(DEFAULT_PASSWORD + suffixForPassword, resource.getDescrip());
 	}
 
 	/**

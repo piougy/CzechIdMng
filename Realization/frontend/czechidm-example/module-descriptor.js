@@ -49,7 +49,18 @@ module.exports = {
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EXAMPLEPRODUCT_READ'] } ]
               },
             ]
-          }
+          },
+          {
+            'id': 'example-components',
+            'type': 'DYNAMIC',
+            'section': 'main',
+            'labelKey': 'example:content.components.label',
+            'titleKey': 'example:content.components.title',
+            'order': 30,
+            'icon': 'fa:puzzle-piece',
+            'path': '/example/components',
+            'priority': 0
+          },
         ]
       },
       {

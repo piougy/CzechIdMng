@@ -61,7 +61,7 @@ public class IdmTreeNodeControllerRestTest extends AbstractReadWriteDtoControlle
 		}
 		//
 		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
-		filter.setTreeNode(rootOne.getId());
+		filter.setParent(rootOne.getId());
 		//
 		List<IdmTreeNodeDto> results = find(filter);
 		//
@@ -165,40 +165,40 @@ public class IdmTreeNodeControllerRestTest extends AbstractReadWriteDtoControlle
 		// Subtrees
 		//
 		final IdmTreeNodeFilter subTreeFilter1 = new IdmTreeNodeFilter();
-		subTreeFilter1.setTreeNode(n1Uuid);
+		subTreeFilter1.setParent(n1Uuid);
 		subTreeFilter1.setTreeTypeId(t1Id);
 		subTreeFilter1.setRecursively(true);
 		result = find(subTreeFilter1);
 		Assert.assertEquals(3, result.size());
 		//
 		final IdmTreeNodeFilter subTreeFilter2 = new IdmTreeNodeFilter();
-		subTreeFilter2.setTreeNode(n1Uuid);
+		subTreeFilter2.setParent(n1Uuid);
 		subTreeFilter2.setRecursively(false);
 		result = find(subTreeFilter2);
 		Assert.assertEquals(2, result.size());
 		//
 		final IdmTreeNodeFilter subTreeFilter3 = new IdmTreeNodeFilter();
-		subTreeFilter3.setTreeNode(r2Uuid);
+		subTreeFilter3.setParent(r2Uuid);
 		subTreeFilter3.setRecursively(false);
 		result = find(subTreeFilter3);
 		Assert.assertEquals(1, result.size());
 		//
 		final IdmTreeNodeFilter subTreeFilter4 = new IdmTreeNodeFilter();
-		subTreeFilter4.setTreeNode(r2Uuid);
+		subTreeFilter4.setParent(r2Uuid);
 		subTreeFilter4.setTreeTypeId(t2Id);
 		subTreeFilter4.setRecursively(true);
 		result = find(subTreeFilter4);
 		Assert.assertEquals(2, result.size());
 		//
 		final IdmTreeNodeFilter subTreeFilter5 = new IdmTreeNodeFilter();
-		subTreeFilter5.setTreeNode(n12Uuid);
+		subTreeFilter5.setParent(n12Uuid);
 		subTreeFilter5.setTreeTypeId(t2Id);
 		subTreeFilter5.setRecursively(true);
 		result = find(subTreeFilter5);
 		Assert.assertEquals(0, result.size());
 		//
 		final IdmTreeNodeFilter subTreeFilter6 = new IdmTreeNodeFilter();
-		subTreeFilter6.setTreeNode(n12Uuid);
+		subTreeFilter6.setParent(n12Uuid);
 		subTreeFilter6.setTreeTypeId(t2Id);
 		subTreeFilter6.setRecursively(false);
 		result = find(subTreeFilter6);
@@ -239,5 +239,36 @@ public class IdmTreeNodeControllerRestTest extends AbstractReadWriteDtoControlle
 		result = find(dynPropFilter2);
 		Assert.assertEquals(1, result.size());
 		Assert.assertEquals(r2Uuid, result.get(0).getId());
+	}
+	
+	@Test
+	public void testFindByRootsAndChildren() {
+		IdmTreeTypeDto treeType = getHelper().createTreeType();
+		IdmTreeNodeDto nodeOne = getHelper().createTreeNode(treeType, null);
+		IdmTreeNodeDto nodeTwo = getHelper().createTreeNode(treeType, nodeOne);
+		//
+		// root
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
+		filter.setTreeTypeId(treeType.getId());
+		filter.setRoots(Boolean.TRUE);
+		List<IdmTreeNodeDto> results = find(filter);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(nodeOne.getId())));
+		// is root - false
+		filter.setRoots(Boolean.FALSE);
+		results = find(filter);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(nodeTwo.getId())));
+		//
+		// children
+		filter.setRoots(null);
+		filter.setParent(nodeOne.getId());
+		results = find(filter);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(nodeTwo.getId())));
+		// no children
+		filter.setParent(nodeTwo.getId());
+		results = find(filter);
+		Assert.assertTrue(results.isEmpty());
 	}
 }

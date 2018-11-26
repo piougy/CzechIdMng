@@ -232,6 +232,12 @@ export default class AbstractContent extends AbstractContextComponent {
         <Icon value={props.icon || navigationItem.icon}/>
         {' '}
         <span dangerouslySetInnerHTML={{__html: props.header || this.i18n('header')}}/>
+        {' '}
+        {
+          !props.showTitle
+          ||
+          <small>{ this.i18n('title', { escape: false }) }</small>
+        }
       </PageHeader>
     );
   }

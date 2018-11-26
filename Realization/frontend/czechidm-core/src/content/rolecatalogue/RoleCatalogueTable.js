@@ -115,7 +115,7 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
             ref="roleCatalogueTree"
             uiKey="role-catalogue-tree"
             manager={ this.getManager() }
-            onSelect={ this._useFilterByTree.bind(this) }
+            onChange={ this._useFilterByTree.bind(this) }
             header={ this.i18n('header') }/>
         </Basic.Col>
 

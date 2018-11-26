@@ -24,7 +24,13 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
 	 */
 	public static final String PARAMETER_TREE_TYPE_ID = "treeTypeId";
 	/**
-	 * Parent tree node identifier 
+	 * Parent tree node identifier
+	 * @since 9.4.0
+	 */
+	public static final String PARAMETER_PARENT = "parent";
+	/**
+	 * Parent tree node identifier (PARAMETER_PARENT alias)
+	 * @deprecated @since 9.4.0 use "parent"
 	 */
 	public static final String PARAMETER_PARENT_TREE_NODE_ID = "treeNodeId";
 	/**
@@ -38,25 +44,10 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
 	public static final boolean DEFAULT_RECURSIVELY = true;
 	
 	/**
-	 * Attribute name to search for, like 'code' or 'name'
-	 * 
-	 * @deprecated @since 8.2.0 use PARAMETER_CORRELATION_PROPERTY
+	 *  Search roots - true / false.
+	 *  @since 9.4.0
 	 */
-	@Deprecated
-	public static final String PARAMETER_PROPERTY = PARAMETER_CORRELATION_PROPERTY;
-	
-	/**
-	 * Value of the attribute defined in property to search for
-	 * 
-	 * @deprecated @since 8.2.0 use PARAMETER_CORRELATION_VALUE
-	 */
-	@Deprecated
-	public static final String PARAMETER_VALUE = PARAMETER_CORRELATION_VALUE;
-	
-	/**
-	 * TODO: Search roots - true / false.
-	 */
-	// public static final String PARAMETER_ROOTS = "roots";
+	public static final String PARAMETER_ROOTS = "roots";
 
     public IdmTreeNodeFilter() {
         this(new LinkedMultiValueMap<>());
@@ -73,11 +64,29 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
     public void setTreeTypeId(UUID treeTypeId) {
     	data.set(PARAMETER_TREE_TYPE_ID, treeTypeId);
     }
+    
+    public UUID getParent() {
+    	return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT));
+	}
 
+	public void setParent(UUID parent) {
+		data.set(PARAMETER_PARENT_TREE_NODE_ID, parent);
+		data.set(PARAMETER_PARENT, parent);
+	}
+
+	/**
+	 * @deprecated @since 9.4.0 use {@link #setParent(UUID)}
+	 * @param treeNode
+	 */
+	@Deprecated
     public void setTreeNode(UUID treeNode) {
-    	data.set(PARAMETER_PARENT_TREE_NODE_ID, treeNode);
+		setParent(treeNode);
     }
 
+	/**
+	 * @deprecated @since 9.4.0 use {@link #getParent()}
+	 * @return
+	 */
     public UUID getTreeNode() {
     	return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT_TREE_NODE_ID));
     }
@@ -144,5 +153,23 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
 		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 	
+	/**
+	 * @since 9.4.0
+	 * @return
+	 */
+	public Boolean getRoots() {
+		Object first = data.getFirst(PARAMETER_ROOTS);
+    	if (first == null) {
+    		return null;
+    	}
+    	return BooleanUtils.toBoolean(first.toString());
+	}
 	
+	/**
+	 * @since 9.4.0
+	 * @param roots
+	 */
+	public void setRoots(Boolean roots) {
+		data.set(PARAMETER_ROOTS, roots);
+	}
 }

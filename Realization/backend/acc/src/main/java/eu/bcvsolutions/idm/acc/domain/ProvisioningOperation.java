@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
@@ -13,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  * @author Radek Tomiška
  *
  */
-public interface ProvisioningOperation extends BaseEntity, Auditable {
+public interface ProvisioningOperation extends Auditable {
 
 	/**
 	 * Provisioning operation type

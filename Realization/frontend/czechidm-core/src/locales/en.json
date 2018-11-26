@@ -4344,13 +4344,7 @@
       },
       "identity-save-bulk-action": {
         "label": "Re-save identity",
-        "icon": "fa:save",
-        "attributes": {
-          "onlynotify": {
-            "label": "Throw only NOTIFY event",
-            "help": "After selecting, the user's classic save will not be invoked, but only NOTIFY event will be thrown. This event is also processed asynchronously."
-          }
-        }
+        "icon": "fa:save"
       },
       "role-delete-bulk-action": {
         "label": "Remove",

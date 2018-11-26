@@ -5,9 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,7 +27,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.bulk.action.impl.IdentitySaveBulkAction;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
@@ -86,10 +83,6 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentitySaveBulkAction.NAME);
 		Set<UUID> ids = this.getIdFromList(identities);
 		bulkAction.setIdentifiers(this.getIdFromList(identities));
-
-		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentitySaveBulkAction.ONLY_NOTIFY_CODE, Boolean.TRUE);
-		bulkAction.setProperties(properties);
 
 		// turn off remove events
 		configurationService.setBooleanValue(DELETE_PROCESSOR_KEY, Boolean.FALSE);
@@ -173,10 +166,6 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 		filter.setLastName(testLastName);
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentitySaveBulkAction.NAME);
 
-		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentitySaveBulkAction.ONLY_NOTIFY_CODE, Boolean.TRUE);
-		bulkAction.setProperties(properties);
-
 		bulkAction.setTransformedFilter(filter);
 		bulkAction.setFilter(toMap(filter));
 		bulkAction.setRemoveIdentifiers(Sets.newHashSet(removedIdentity.getId(), removedIdentity2.getId()));
@@ -223,10 +212,6 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentitySaveBulkAction.NAME);
 		Set<UUID> ids = this.getIdFromList(identities);
-
-		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentitySaveBulkAction.ONLY_NOTIFY_CODE, Boolean.TRUE);
-		bulkAction.setProperties(properties);
 
 		bulkAction.setIdentifiers(this.getIdFromList(identities));
 

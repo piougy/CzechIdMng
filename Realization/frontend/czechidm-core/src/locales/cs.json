@@ -4394,13 +4394,7 @@
       },
       "identity-save-bulk-action": {
         "label": "Přeuložit uživatele",
-        "icon": "fa:save",
-        "attributes": {
-          "onlynotify": {
-            "label": "Vyvolat pouze událost NOTIFY",
-            "help": "Po zaškrtnutí nebude vyvoláno klasické uložení uživatele, ale pouze vyvolání události NOTIFY. Tato událost je také zpracovávána asynchronně."
-          }
-        }
+        "icon": "fa:save"
       },
       "role-delete-bulk-action": {
         "label": "Odebrat",

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.bulk.action.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -24,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -102,8 +102,7 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 			List<IdmEntityEventDto> events = entityEventService.find(filter, null).getContent();
 			assertEquals(1, events.size());
 			IdmEntityEventDto eventDto = events.get(0);
-			assertNull(eventDto.getParentEventType());
-			assertNull(eventDto.getParent());
+			assertEquals(CoreEventType.UPDATE.name(), eventDto.getParentEventType());
 		}
 	}
 
@@ -191,8 +190,7 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 			} else {
 				assertEquals(1, events.size());
 				IdmEntityEventDto eventDto = events.get(0);
-				assertNull(eventDto.getParentEventType());
-				assertNull(eventDto.getParent());
+				assertEquals(CoreEventType.UPDATE.name(), eventDto.getParentEventType());
 			}
 		}
 	}

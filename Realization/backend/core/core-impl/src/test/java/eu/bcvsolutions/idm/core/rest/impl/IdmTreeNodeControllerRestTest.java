@@ -1,5 +1,10 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -13,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Controller tests
@@ -270,5 +276,50 @@ public class IdmTreeNodeControllerRestTest extends AbstractReadWriteDtoControlle
 		filter.setParent(nodeTwo.getId());
 		results = find(filter);
 		Assert.assertTrue(results.isEmpty());
+	}
+	
+	@Test
+	public void testFindByRootsAndChildrenByRest() {
+		try {
+			IdmTreeTypeDto treeType = getHelper().createTreeType();
+			IdmTreeNodeDto nodeOne = getHelper().createTreeNode(treeType, null);
+			IdmTreeNodeDto nodeTwo = getHelper().createTreeNode(treeType, nodeOne);
+			//
+			// roots	
+			IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
+			filter.setTreeTypeId(treeType.getId());
+			String response = getMockMvc().perform(get(String.format("%s/search/roots", getBaseUrl()))
+	        		.with(authentication(getAdminAuthentication()))
+	        		.params(toQueryParams(filter))
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			List<IdmTreeNodeDto> results = toDtos(response);
+			Assert.assertEquals(1, results.size());
+			Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(nodeOne.getId())));
+			//
+			// children
+			filter = new IdmTreeNodeFilter();
+			filter.setParent(nodeOne.getId());
+			response = getMockMvc().perform(get(String.format("%s/search/children", getBaseUrl()))
+	        		.with(authentication(getAdminAuthentication()))
+	        		.params(toQueryParams(filter))
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			results = toDtos(response);
+			Assert.assertEquals(1, results.size());
+			Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(nodeTwo.getId())));
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to find entities", ex);
+		}
 	}
 }

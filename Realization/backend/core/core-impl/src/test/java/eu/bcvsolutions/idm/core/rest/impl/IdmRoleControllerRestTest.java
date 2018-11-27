@@ -116,4 +116,32 @@ public class IdmRoleControllerRestTest extends AbstractReadWriteDtoControllerRes
 		Assert.assertEquals(1, roles.size());
 		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOneCreated.getId())));
 	}
+	
+	@Test
+	public void testFindByRoleComposition() {
+		IdmRoleDto roleRoot = createDto();
+		IdmRoleDto roleOne = createDto();
+		IdmRoleDto roleOneSub = createDto();
+		IdmRoleDto roleTwo = createDto();
+		getHelper().createRoleComposition(roleRoot, roleOne);
+		getHelper().createRoleComposition(roleRoot, roleTwo);
+		getHelper().createRoleComposition(roleOne, roleOneSub);
+		
+		//
+		IdmRoleFilter filter = new IdmRoleFilter();
+		filter.setParent(roleRoot.getId());
+		List<IdmRoleDto> roles = find(filter);
+		Assert.assertEquals(2, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOne.getId())));
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleTwo.getId())));
+		//
+		filter.setParent(roleOne.getId());
+		roles = find(filter);
+		Assert.assertEquals(1, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOneSub.getId())));
+		//
+		filter.setParent(roleTwo.getId());
+		roles = find(filter);
+		Assert.assertTrue(roles.isEmpty());
+	}
 }

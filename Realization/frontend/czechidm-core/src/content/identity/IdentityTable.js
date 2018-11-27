@@ -63,7 +63,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.router.push(`/identity/new?id=${uuidId}`);
     } else {
-      this.context.router.push(`/identity/${encodeURIComponent(entity.username)}/profile`);
+      this.context.router.push(`/identity/${encodeURIComponent(entity.username)}/dashboard`);
     }
   }
 
@@ -153,7 +153,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
-                <Basic.Row>
+                <Basic.Row rendered={ SecurityManager.hasAllAuthorities(['TREE_TYPE_AUTOCOMPLETE', 'TREE_NODE_AUTOCOMPLETE'])}>
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TreeNodeSelect
                       ref="treeNodeId"
@@ -248,7 +248,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             }
             rendered={ _.includes(columns, 'entityInfo') }/>
           <Advanced.Column property="_links.self.href" face="text" rendered={ false }/>
-          <Advanced.ColumnLink to="identity/:username/profile" property="username" width="20%" sort face="text" rendered={ _.includes(columns, 'username') }/>
+          <Advanced.ColumnLink to="identity/:username/dashboard" property="username" width="20%" sort face="text" rendered={ _.includes(columns, 'username') }/>
           <Advanced.Column property="lastName" sort face="text" rendered={ _.includes(columns, 'lastName') }/>
           <Advanced.Column property="firstName" sort width="10%" face="text" rendered={ _.includes(columns, 'firstName') }/>
           <Advanced.Column property="externalCode" sort width="10%" face="text" rendered={ _.includes(columns, 'externalCode') }/>

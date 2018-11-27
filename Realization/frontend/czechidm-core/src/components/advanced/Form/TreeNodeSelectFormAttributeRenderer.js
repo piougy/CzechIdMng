@@ -21,15 +21,6 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
   }
 
   /**
-   * Returns true, when multi value mode is supported
-   *
-   * @return {boolean}
-   */
-  supportsMultiple() {
-    return false;
-  }
-
-  /**
    * Returns true, when confidential mode is supported
    *
    * @return {boolean}

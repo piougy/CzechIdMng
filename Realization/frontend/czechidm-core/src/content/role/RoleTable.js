@@ -173,7 +173,7 @@ class RoleTable extends Advanced.AbstractTableContent {
         {/* FIXME: resposive design - wrong wrapping on mobile */}
         <Basic.Col
           lg={ 3 }
-          style={{ paddingRight: 0 }}
+          style={_showTree ? { paddingRight: 0 } : {} }
           rendered={ _showTree }>
           <Advanced.Tree
             ref="roleCatalogueTree"
@@ -184,7 +184,7 @@ class RoleTable extends Advanced.AbstractTableContent {
             rendered={ _showTree }/>
         </Basic.Col>
 
-        <Basic.Col lg={ !_showTree ? 12 : 9 } style={{ paddingLeft: 0 }}>
+        <Basic.Col lg={ !_showTree ? 12 : 9 } style={ _showTree ? { paddingLeft: 0 } : {} }>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
 
           <Advanced.Table

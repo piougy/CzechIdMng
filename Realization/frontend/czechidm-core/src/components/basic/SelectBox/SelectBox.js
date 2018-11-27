@@ -557,6 +557,9 @@ SelectBox.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
     PropTypes.string
   ]),
+  /**
+   * The component is in multi select mode
+   */
   multiSelect: PropTypes.bool,
   /**
    * "Hard filters"

@@ -2,11 +2,12 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import { Basic, ComponentService } from 'czechidm-core';
+import IdentityDashboard from 'czechidm-core/src/content/identity/IdentityDashboard';
 
 const DEFAULT_SPAN = 6;
 
 /**
- * "Naive" dashdoard - loads all registered component with dashboard type and renders them in columns
+ * Identity dashdoard - logged user dashboard
  *
  * @author Radek Tomiška
  */
@@ -26,6 +27,7 @@ class Dashboard extends Basic.AbstractContent {
   render() {
     const { userContext } = this.props;
     //
+    /* TODO: remove after identity dashboards registration will be implemented
     const dashboards = [];
     const rowKeys = [];
     let rowDashboards = [];
@@ -58,12 +60,10 @@ class Dashboard extends Basic.AbstractContent {
           {rowDashboards}
         </Basic.Row>
       );
-    }
+    }*/
     //
     return (
-      <div>
-        {dashboards}
-      </div>
+      <IdentityDashboard params={{ ...this.props.params, entityId: userContext.username }}/>
     );
   }
 }

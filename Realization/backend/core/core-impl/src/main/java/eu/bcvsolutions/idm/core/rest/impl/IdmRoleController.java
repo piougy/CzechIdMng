@@ -568,6 +568,7 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", RoleType.class));
 		filter.setRoleCatalogueId(getParameterConverter().toEntityUuid(parameters, IdmRoleFilter.PARAMETER_ROLE_CATALOGUE, IdmRoleCatalogueDto.class));
 		filter.setGuaranteeId(getParameterConverter().toEntityUuid(parameters, IdmRoleFilter.PARAMETER_GUARANTEE, IdmIdentityDto.class));
+		filter.setParent(getParameterConverter().toEntityUuid(parameters, IdmRoleFilter.PARAMETER_PARENT, IdmRoleDto.class));
 		return filter;
 	}
 }

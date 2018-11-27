@@ -192,7 +192,7 @@ public class IdentityLogExampleBulkAction extends AbstractBulkAction<IdmIdentity
 
 	@Override
 	public int getOrder() {
-		return super.getOrder() + 10000;
+		return super.getOrder() + 40000;
 	}
 
 	@Override

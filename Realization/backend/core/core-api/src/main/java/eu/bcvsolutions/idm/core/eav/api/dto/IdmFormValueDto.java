@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.eav.api.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -20,12 +21,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -68,6 +71,8 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	private short seq;
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
+	@JsonProperty(access = Access.READ_ONLY, value="_changes")
+	List<IdmRequestItemAttributeDto> changes;
 	//
 	@JsonIgnore
 	private transient FormableEntity owner;
@@ -221,6 +226,17 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	@JsonProperty(access = Access.READ_ONLY)
 	public Serializable getValue() {
 		return getValue(persistentType);
+	}
+	
+	public List<IdmRequestItemAttributeDto> getChanges() {
+		if(changes == null) {
+			changes = Lists.newArrayList();
+		}
+		return changes;
+	}
+
+	public void setChanges(List<IdmRequestItemAttributeDto> changes) {
+		this.changes = changes;
 	}
 
 	/**

@@ -127,11 +127,13 @@ const reducer = compose(
   mergePersistedState((initialState, persistedState) => {
     // constuct immutable maps
     const result = merge({}, initialState, persistedState);
-    let composedMessages = new Immutable.OrderedMap({});
-    persistedState.messages.messages.map(message => {
-      composedMessages = composedMessages.set(message.id, message);
-    });
-    result.messages.messages = composedMessages;
+    if (persistedState.messages) {
+      let composedMessages = new Immutable.OrderedMap({});
+      persistedState.messages.messages.map(message => {
+        composedMessages = composedMessages.set(message.id, message);
+      });
+      result.messages.messages = composedMessages;
+    }
     //
     return result;
   })

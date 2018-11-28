@@ -1103,7 +1103,8 @@
       "TREE": "Tree",
       "ROLE_CATALOGUE": "Role catalogue",
       "CONTRACT": "Identity contract",
-      "CONTRACT_SLICE": "Contract time slices"
+      "CONTRACT_SLICE": "Contract time slices",
+      "IDENTITY_ROLE": "Assigned roles"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",

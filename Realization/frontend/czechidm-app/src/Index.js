@@ -78,12 +78,14 @@ function adapter(storage) {
     put: function put(key, value, callback) {
       try {
         //
-        value.messages.messages = value.messages.messages.toArray();
-        value.messages.messages.forEach(message => {
-          // prevent to persist react elements
-          // FIXME: restore react fragment from text
-          message.children = null;
-        });
+        if (value.messages) { // RT: flash messages are not persisted now => F5 => starts from scratch => prevent to see some obsolete error messages
+          value.messages.messages = value.messages.messages.toArray();
+          value.messages.messages.forEach(message => {
+            // prevent to persist react elements
+            // FIXME: restore react fragment from text
+            message.children = null;
+          });
+        }
         callback(null, storage.setItem(key, JSON.stringify(value)));
       } catch (e) {
         callback(e);
@@ -137,7 +139,7 @@ const reducer = compose(
 //
 const storage = compose(
   filter([
-    'messages.messages',       // flash messages
+    // 'messages.messages',    // RT: flash messages are not persisted now => F5 => starts from scratch => prevent to see some obsolete error messages
     'security.userContext'     // logged user context {username, token, etc}
   ])
 )(adapter(window.localStorage));

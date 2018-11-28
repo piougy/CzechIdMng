@@ -1,14 +1,12 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.Set;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -33,7 +31,8 @@ import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -59,13 +58,10 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmRoleCatalogueController extends AbstractReadWriteDtoController<IdmRoleCatalogueDto, IdmRoleCatalogueFilter> {
 	
 	protected static final String TAG = "Role catalogues";
-	private final IdmRoleCatalogueService service;
 	
 	@Autowired
 	public IdmRoleCatalogueController(IdmRoleCatalogueService service) {
 		super(service);
-		//
-		this.service = service;
 	}
 	
 	@Override
@@ -294,9 +290,13 @@ public class IdmRoleCatalogueController extends AbstractReadWriteDtoController<I
                         "Default sort order is ascending. " +
                         "Multiple sort criteria are supported.")
 	})
-	public Resources<?> findRoots(@PageableDefault Pageable pageable) {
-		Page<IdmRoleCatalogueDto> roots = service.findRoots(pageable);
-		return toResources(roots, IdmRoleCatalogue.class);
+	public Resources<?> findRoots(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		IdmRoleCatalogueFilter filter = toFilter(parameters);
+		filter.setRoots(Boolean.TRUE);
+		//
+		return toResources(find(filter, pageable, IdmBasePermission.AUTOCOMPLETE), IdmTreeNode.class);
 	}
 	
 	@ResponseBody
@@ -305,7 +305,8 @@ public class IdmRoleCatalogueController extends AbstractReadWriteDtoController<I
 	@ApiOperation(
 			value = "Search sub catalogues", 
 			nickname = "searchChildrenRoleCatalogues", 
-			tags = { IdmRoleCatalogueController.TAG })
+			tags = { IdmRoleCatalogueController.TAG },
+			notes = "Finds direct chilren by given parent node uuid identifier. Set 'parent' parameter.")
 	@ApiImplicitParams({
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
@@ -317,20 +318,15 @@ public class IdmRoleCatalogueController extends AbstractReadWriteDtoController<I
                         "Multiple sort criteria are supported.")
 	})
 	public Resources<?> findChildren(
-			@ApiParam(value = "Superior role catalogue's uuid identifier.", required = true)
-			@RequestParam(name = "parent", required = true) @NotNull String parentId,
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
-		Page<IdmRoleCatalogueDto> children = service.findChildrenByParent(UUID.fromString(parentId), pageable);
-		return toResources(children, IdmRoleCatalogue.class);
+		return autocomplete(parameters, pageable);
 	}	
 	
 	@Override
 	protected IdmRoleCatalogueFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter(parameters);
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setName(getParameterConverter().toString(parameters, "name"));
-		filter.setCode(getParameterConverter().toString(parameters, "code"));
-		filter.setParent(getParameterConverter().toEntityUuid(parameters, "parent", IdmRoleCatalogue.class));
+		//
 		return filter;
 	}
 }

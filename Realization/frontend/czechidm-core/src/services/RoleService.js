@@ -56,7 +56,23 @@ export default class RoleService extends AbstractRequestFormableService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('name');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('code');
+  }
+
+  /**
+   * Returns search parameters for search roots
+   */
+  getRootSearchParameters() {
+    // root search - all roles can be roots
+    return this.getDefaultSearchParameters().setSize(50);
+  }
+
+  /**
+   * Search sub roles by parent id
+   */
+  getTreeSearchParameters() {
+    // quick search suppors filtering by parent already
+    return this.getDefaultSearchParameters().setSize(50);
   }
 
   /**

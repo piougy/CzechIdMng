@@ -23,6 +23,11 @@ public class IdmRoleFilter
 		extends DataFilter 
 		implements CorrelationFilter, ExternalIdentifiable {
 
+	/**
+	 * Parent role identifier - find sub roles by role composition
+	 */
+	public static final String PARAMETER_PARENT = IdmTreeNodeFilter.PARAMETER_PARENT;
+	//
 	public static final String PARAMETER_ROLE_CATALOGUE = "roleCatalogue";
 	public static final String PARAMETER_GUARANTEE = "guarantee";
 	public static final String PARAMETER_ENVIRONMENT = "environment";
@@ -106,5 +111,21 @@ public class IdmRoleFilter
 	
 	public void setBaseCode(String baseCode) {
 		data.set(PARAMETER_BASE_CODE, baseCode);
+	}
+	
+	/**
+	 * @since 9.4.0
+	 * @return
+	 */
+	public UUID getParent() {
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT));
+	}
+
+	/**
+	 * @since 9.4.0
+	 * @param parent
+	 */
+	public void setParent(UUID parent) {
+		data.set(PARAMETER_PARENT, parent);
 	}
 }

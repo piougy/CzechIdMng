@@ -223,6 +223,15 @@ public class DefaultIdmRoleCatalogueService
 					builder.diff(forestIndexPath.get(IdmForestIndexEntity_.rgt), 1L))));
 			predicates.add(builder.exists(subquery));
 		}
+		// roots
+		Boolean roots = filter.getRoots();
+		if (roots != null) {
+			if (roots) {
+				predicates.add(builder.isNull(root.get(IdmRoleCatalogue_.parent)));
+			} else {
+				predicates.add(builder.isNotNull(root.get(IdmRoleCatalogue_.parent)));
+			}
+		}
 		return predicates;
 	}
 	

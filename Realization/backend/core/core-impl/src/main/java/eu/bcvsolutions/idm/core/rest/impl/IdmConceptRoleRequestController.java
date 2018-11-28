@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
@@ -83,6 +85,7 @@ public class IdmConceptRoleRequestController
 	protected static final String TAG = "Role Request - concepts";
 	private final SecurityService securityService;
 	private final IdmRoleRequestService roleRequestService;
+	private final IdmConceptRoleRequestService service;
 	@Autowired
 	private IdmFormDefinitionController formDefinitionController;
 	
@@ -98,6 +101,7 @@ public class IdmConceptRoleRequestController
 		//
 		this.securityService = securityService;
 		this.roleRequestService = roleRequestService;
+		this.service = service;
 	}
 	
 	@Override
@@ -180,6 +184,19 @@ public class IdmConceptRoleRequestController
 			@ApiParam(value = "Concept's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
+	}
+	
+	@Override
+	public IdmConceptRoleRequestDto getDto(Serializable backendId) {
+		IdmConceptRoleRequestDto dto = super.getDto(backendId);
+		if (dto != null) {
+			IdmFormInstanceDto formInstanceDto = service.getRoleAttributeValues(dto);
+			if (formInstanceDto != null) {
+				dto.getEavs().clear();
+				dto.getEavs().add(formInstanceDto);
+			}
+		}
+		return dto;
 	}
 
 	@Override

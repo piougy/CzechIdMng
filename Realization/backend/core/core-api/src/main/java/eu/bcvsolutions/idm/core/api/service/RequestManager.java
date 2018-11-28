@@ -12,8 +12,11 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemChangesDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -119,6 +122,17 @@ public interface RequestManager extends RequestService<IdmRequestDto> {
 	 * @return
 	 */
 	IdmRequestItemChangesDto getChanges(IdmRequestItemDto item, BasePermission... permission);
+	
+	/**
+	 * Returns current changes between DTOs
+	 * 
+	 * @param currentDto
+	 * @param changedDto
+	 * @param itemOperation
+	 * @return
+	 */
+	List<IdmRequestItemAttributeDto> getChanges(AbstractDto currentDto, AbstractDto changedDto,
+			RequestOperationType itemOperation);
 
 	/**
 	 * Returns confidential storage key for given request item
@@ -216,5 +230,6 @@ public interface RequestManager extends RequestService<IdmRequestDto> {
 			this.field = field;
 		}
 	}
+
 
 }

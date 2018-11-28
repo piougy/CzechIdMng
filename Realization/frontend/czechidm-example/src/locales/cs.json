@@ -63,6 +63,38 @@
         }
       }
     },
+    "components": {
+      "header": "Komponenty",
+      "label": "$t(example:content.components.header)",
+      "title": "Ukázky použití komponent na frontendu.",
+      "tree": {
+        "header": "Tree component",
+        "fileIcon": {
+          "label": "Ikona pro soubor"
+        },
+        "folderIcon": {
+          "label": "Ikona pro složku"
+        },
+        "folderOpenIcon": {
+          "label": "Ikona pro otevřenou složku"
+        },
+        "managerType": {
+          "label": "Agenda (manager)",
+          "help": "Manager kontroluje načítání prvků do stromové komponenty",
+          "option": {
+            "treeNode": "Prvky stromové struktury",
+            "roles": "Role",
+            "roleCatalogue": "Katalog rolí"
+          }
+        },
+        "traverse": {
+          "label": "Zobrazit obsah složky po výběru (traverse mode)"
+        },
+        "multiSelect": {
+          "label": "Multi výběr"
+        }
+      }
+    },
     "example-products": {
       "header": "Produkty",
       "label": "Produkty",
@@ -113,6 +145,16 @@
           "faileveryn": {
             "label": "Selhání na každé X-té identitě",
             "help": "Každá X-tá identita nebude provedena úspěšně"
+          }
+        }
+      },
+      "identity-username-export-bulk-action": {
+        "icon": "fa:cloud-download",
+        "label": "Export uživatelských jmen do CSV",
+        "attributes": {
+          "splitcharacter": {
+            "label": "Oddělovač",
+            "help": "Znak který bude použitý pro oddělení sloupců"
           }
         }
       }

@@ -11,194 +11,17 @@ module.exports = {
   'navigation': {
     'items': [
       {
-        'id': 'identity-profile',
+        'id': 'dashboard',
         'type': 'DYNAMIC',
         'section': 'main',
-        'labelKey': 'navigation.menu.profile.label',
-        'titleKey': 'navigation.menu.profile.title',
+        'labelKey': 'navigation.menu.dashboard.label',
+        'titleKey': 'navigation.menu.dashboard.title',
         'icon': 'user',
         'iconColor': '#428BCA',
         'order': 10,
         'priority': 0,
-        'path': '/identity/:loggedUsername/profile',
+        'path': '/identity/:loggedUsername/dashboard',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ],
-        'items': [
-          {
-            'id': 'profile-personal',
-            'type': 'TAB',
-            'labelKey': 'content.identity.sidebar.profile',
-            'order': 10,
-            'priority': 0,
-            'path': '/identity/:entityId/profile',
-            'icon': 'user',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
-          },
-          {
-            'id': 'profile-eav',
-            'type': 'TAB',
-            'labelKey': 'content.identity.eav.title',
-            'order': 11,
-            'priority': 0,
-            'path': '/identity/:entityId/eav',
-            'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['IDENTITY_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
-          },
-          {
-            'id': 'profile-password',
-            'type': 'TAB',
-            'labelKey': 'content.identity.sidebar.password',
-            'order': 20,
-            'path': '/identity/:entityId/password',
-            'icon': 'lock',
-            'conditions': [
-              'todo: eval( canPasswordChange ...)'
-            ],
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE', 'IDENTITY_PASSWORDRESET'] } ] // TODO: PASSWORDRESET is from pwdreset module, implement some conditional iten hidding
-          },
-          {
-            'id': 'profile-roles',
-            'type': 'TAB',
-            'labelKey': 'content.identity.sidebar.roles',
-            'order': 30,
-            'path': '/identity/:entityId/roles',
-            'icon': 'fa:universal-access',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYROLE_READ'] } ]
-          },
-          {
-            'id': 'profile-authorities',
-            'type': 'TAB',
-            'labelKey': 'content.identity.authorities.label',
-            'titleKey': 'content.identity.authorities.title',
-            'order': 40,
-            'path': '/identity/:entityId/authorities',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
-          },
-          {
-            'id': 'profile-contracts',
-            'type': 'TAB',
-            'labelKey': 'entity.IdentityContract._type',
-            'order': 50,
-            'path': '/identity/:entityId/contracts',
-            'icon': 'fa:building',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
-            'items': [
-              {
-                'id': 'identity-contract-detail',
-                'type': 'TAB',
-                'labelKey': 'content.identity-contract.detail.label',
-                'order': 10,
-                'path': '/identity/:identityId/identity-contract/:entityId/detail',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ]
-              },
-              {
-                'id': 'identity-contract-eav',
-                'type': 'TAB',
-                'labelKey': 'content.identity-contract.eav.label',
-                'order': 20,
-                'path': '/identity/:identityId/identity-contract/:entityId/eav',
-                'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['IDENTITYCONTRACT_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ],
-              },
-              {
-                'id': 'identity-contract-guarantees',
-                'type': 'TAB',
-                'labelKey': 'content.identity-contract.guarantees.label',
-                'order': 30,
-                'path': '/identity/:identityId/identity-contract/:entityId/guarantees',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
-              },
-              {
-                'id': 'identity-contract-positions',
-                'type': 'TAB',
-                'labelKey': 'content.identity-contract.positions.label',
-                'order': 40,
-                'icon': 'fa:building',
-                'path': '/identity/:identityId/identity-contract/:entityId/positions',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTPOSITION_READ'] } ],
-              },
-              {
-                'id': 'identity-contract-slices',
-                'type': 'TAB',
-                'labelKey': 'entity.ContractSlice._type',
-                'order': 55,
-                'path': '/identity/:identityId/identity-contract/:entityId/contract-slices',
-                'icon': 'fa:hourglass-half',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ],
-                'items': [
-                  {
-                    'id': 'contract-slice-detail',
-                    'type': 'TAB',
-                    'labelKey': 'content.contract-slice.detail.label',
-                    'order': 10,
-                    'path': '/identity/:identityId/contract-slice/:entityId/detail',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ]
-                  },
-                  {
-                    'id': 'contract-slice-eav',
-                    'type': 'TAB',
-                    'labelKey': 'content.contract-slice.eav.label',
-                    'order': 20,
-                    'path': '/identity/:identityId/contract-slice/:entityId/eav',
-                    'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['CONTRACTSLICE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
-                  },
-                  {
-                    'id': 'contract-slice-guarantees',
-                    'type': 'TAB',
-                    'labelKey': 'content.contract-slice.guarantees.label',
-                    'order': 30,
-                    'path': '/identity/:identityId/contract-slice/:entityId/guarantees',
-                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICEGUARANTEE_READ'] } ],
-                  }
-                ]
-              },
-            ]
-          },
-          {
-            'id': 'profile-audit',
-            'type': 'TAB',
-            'labelKey': 'entity.Audit.label',
-            'order': 500,
-            'path': '/identity/:entityId/revision',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
-            'icon': 'fa:history',
-            'items': [
-              {
-                'id': 'profile-audit-profile-personal',
-                'type': 'TAB',
-                'label': 'Osobní údaje',
-                'labelKey': 'content.identity.sidebar.profile',
-                'order': 10,
-                'path': '/identity/:entityId/revision/:revID',
-                'icon': 'user',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
-              }
-            ]
-          },
-          {
-            'id': 'profile-events',
-            'type': 'TAB',
-            'labelKey': 'content.entityEvents.label',
-            'order': 550,
-            'path': '/identity/:entityId/events',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
-          },
-          {
-            'id': 'profile-subordinates',
-            'type': 'TAB',
-            'labelKey': 'content.identity.subordinates.title',
-            'order': 60,
-            'path': '/identity/:entityId/subordinates',
-            'icon': 'fa:group',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
-          },
-          {
-            'id': 'profile-garanted-roles',
-            'type': 'TAB',
-            'labelKey': 'content.identity.garanted-roles.title',
-            'order': 70,
-            'path': '/identity/:entityId/garanted-roles',
-            'icon': 'fa:universal-access',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
-          }
-        ]
       },
       {
         'id': 'tasks',
@@ -239,7 +62,199 @@ module.exports = {
         'icon': 'fa:group',
         'order': 1010,
         'path': '/identities',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ],
+        'items': [
+          {
+            'id': 'identity-profile',
+            'type': 'TAB',
+            'section': 'main',
+            'labelKey': 'navigation.menu.profile.label',
+            'titleKey': 'navigation.menu.profile.title',
+            'icon': 'user',
+            'iconColor': '#428BCA',
+            'order': 10,
+            'priority': 0,
+            'path': '/identity/:loggedUsername/profile',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ],
+            'items': [
+              {
+                'id': 'profile-personal',
+                'type': 'TAB',
+                'labelKey': 'content.identity.sidebar.profile',
+                'order': 10,
+                'priority': 0,
+                'path': '/identity/:entityId/profile',
+                'icon': 'user',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+              },
+              {
+                'id': 'profile-eav',
+                'type': 'TAB',
+                'labelKey': 'content.identity.eav.title',
+                'order': 11,
+                'priority': 0,
+                'path': '/identity/:entityId/eav',
+                'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['IDENTITY_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
+              },
+              {
+                'id': 'profile-password',
+                'type': 'TAB',
+                'labelKey': 'content.identity.sidebar.password',
+                'order': 20,
+                'path': '/identity/:entityId/password',
+                'icon': 'lock',
+                'conditions': [
+                  'todo: eval( canPasswordChange ...)'
+                ],
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE', 'IDENTITY_PASSWORDRESET'] } ] // TODO: PASSWORDRESET is from pwdreset module, implement some conditional iten hidding
+              },
+              {
+                'id': 'profile-roles',
+                'type': 'TAB',
+                'labelKey': 'content.identity.sidebar.roles',
+                'order': 30,
+                'path': '/identity/:entityId/roles',
+                'icon': 'fa:universal-access',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYROLE_READ'] } ]
+              },
+              {
+                'id': 'profile-authorities',
+                'type': 'TAB',
+                'labelKey': 'content.identity.authorities.label',
+                'titleKey': 'content.identity.authorities.title',
+                'order': 40,
+                'path': '/identity/:entityId/authorities',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
+              },
+              {
+                'id': 'profile-contracts',
+                'type': 'TAB',
+                'labelKey': 'entity.IdentityContract._type',
+                'order': 50,
+                'path': '/identity/:entityId/contracts',
+                'icon': 'fa:building',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
+                'items': [
+                  {
+                    'id': 'identity-contract-detail',
+                    'type': 'TAB',
+                    'labelKey': 'content.identity-contract.detail.label',
+                    'order': 10,
+                    'path': '/identity/:identityId/identity-contract/:entityId/detail',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ]
+                  },
+                  {
+                    'id': 'identity-contract-eav',
+                    'type': 'TAB',
+                    'labelKey': 'content.identity-contract.eav.label',
+                    'order': 20,
+                    'path': '/identity/:identityId/identity-contract/:entityId/eav',
+                    'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['IDENTITYCONTRACT_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ],
+                  },
+                  {
+                    'id': 'identity-contract-guarantees',
+                    'type': 'TAB',
+                    'labelKey': 'content.identity-contract.guarantees.label',
+                    'order': 30,
+                    'path': '/identity/:identityId/identity-contract/:entityId/guarantees',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
+                  },
+                  {
+                    'id': 'identity-contract-positions',
+                    'type': 'TAB',
+                    'labelKey': 'content.identity-contract.positions.label',
+                    'order': 40,
+                    'icon': 'fa:building',
+                    'path': '/identity/:identityId/identity-contract/:entityId/positions',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTPOSITION_READ'] } ],
+                  },
+                  {
+                    'id': 'identity-contract-slices',
+                    'type': 'TAB',
+                    'labelKey': 'entity.ContractSlice._type',
+                    'order': 55,
+                    'path': '/identity/:identityId/identity-contract/:entityId/contract-slices',
+                    'icon': 'fa:hourglass-half',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ],
+                    'items': [
+                      {
+                        'id': 'contract-slice-detail',
+                        'type': 'TAB',
+                        'labelKey': 'content.contract-slice.detail.label',
+                        'order': 10,
+                        'path': '/identity/:identityId/contract-slice/:entityId/detail',
+                        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ'] } ]
+                      },
+                      {
+                        'id': 'contract-slice-eav',
+                        'type': 'TAB',
+                        'labelKey': 'content.contract-slice.eav.label',
+                        'order': 20,
+                        'path': '/identity/:identityId/contract-slice/:entityId/eav',
+                        'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['CONTRACTSLICE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
+                      },
+                      {
+                        'id': 'contract-slice-guarantees',
+                        'type': 'TAB',
+                        'labelKey': 'content.contract-slice.guarantees.label',
+                        'order': 30,
+                        'path': '/identity/:identityId/contract-slice/:entityId/guarantees',
+                        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICEGUARANTEE_READ'] } ],
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                'id': 'profile-audit',
+                'type': 'TAB',
+                'labelKey': 'entity.Audit.label',
+                'order': 500,
+                'path': '/identity/:entityId/revision',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
+                'icon': 'fa:history',
+                'items': [
+                  {
+                    'id': 'profile-audit-profile-personal',
+                    'type': 'TAB',
+                    'label': 'Osobní údaje',
+                    'labelKey': 'content.identity.sidebar.profile',
+                    'order': 10,
+                    'path': '/identity/:entityId/revision/:revID',
+                    'icon': 'user',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+                  }
+                ]
+              },
+              {
+                'id': 'profile-events',
+                'type': 'TAB',
+                'labelKey': 'content.entityEvents.label',
+                'order': 550,
+                'path': '/identity/:entityId/events',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+              },
+              {
+                'id': 'profile-subordinates',
+                'type': 'TAB',
+                'labelKey': 'content.identity.subordinates.title',
+                'order': 60,
+                'path': '/identity/:entityId/subordinates',
+                'icon': 'fa:group',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+              },
+              {
+                'id': 'profile-garanted-roles',
+                'type': 'TAB',
+                'labelKey': 'content.identity.garanted-roles.title',
+                'order': 70,
+                'path': '/identity/:entityId/garanted-roles',
+                'icon': 'fa:universal-access',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
+              }
+            ]
+          }
+        ]
       },
       {
         'id': 'organizations',
@@ -1188,11 +1203,11 @@ module.exports = {
       {
         'id': 'identities-profile-system',
         'section': 'system',
-        'label': 'Můj profil',
+        'label': '$t(navigation.menu.profile.label)',
         'labelKey': 'navigation.menu.userLabel',
         'icon': 'user',
         'order': 10,
-        'path': '/identity/:entityId/profile'
+        'path': '/identity/:entityId/dashboard'
       },
       {
         'id': 'messages',

@@ -26,7 +26,6 @@ class IdentityContent extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    this._selectNavigationItem();
     const { entityId } = this.props.params;
     // FIXME: look out - entity is loaded thx to OrganizationPosition => it's commented for now. Find a way to prevent multiple loading
     // this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId));
@@ -37,7 +36,6 @@ class IdentityContent extends Basic.AbstractContent {
   }
 
   componentDidUpdate() {
-    this._selectNavigationItem();
     // TODO: move to componentWillReceiveNextProps
     // const { entityId } = this.props.params;
     //
@@ -46,18 +44,6 @@ class IdentityContent extends Basic.AbstractContent {
     this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
       this.handleError(error);
     }));*/
-  }
-
-  _selectNavigationItem() {
-    const { entityId } = this.props.params;
-    const { userContext, selectedSidebarItem } = this.props;
-    if (selectedSidebarItem === 'identity-profile' || selectedSidebarItem === 'identities') { // set menu only on identity detail
-      if (entityId === userContext.username) {
-        this.selectNavigationItems(['identity-profile', null]);
-      } else {
-        this.selectNavigationItems(['identities', null]);
-      }
-    }
   }
 
   render() {

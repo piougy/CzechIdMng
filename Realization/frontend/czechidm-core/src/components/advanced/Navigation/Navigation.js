@@ -345,7 +345,7 @@ export class Navigation extends Basic.AbstractContent {
                 <span className="icon-bar"></span>
                 <span className="icon-bar"></span>
               </button>
-              <Link to="/" title="Úvodní stránka" className="home">
+              <Link to={ !userContext || userContext.expired || !userContext.username ? `/` : `/identity/${encodeURIComponent(userContext.username)}/dashboard` } title="Úvodní stránka" className="home">
                 {' '}
               </Link>
             </div>

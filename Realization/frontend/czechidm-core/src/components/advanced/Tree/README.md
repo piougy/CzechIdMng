@@ -19,8 +19,10 @@ Entity property names and manager's methods are not configurable - enrich entity
 | --- | :--- | :--- | :--- |
 | uiKey | string.isRequired | Key prefix in redux (loading / store data). | |
 | manager | EntityManager.isRequired | EntityManager for fetching entities in tree | |
+| roots | arrayOf(oneOfType([string, object])) | "Hard roots" - roots can be loaded from outside and given as parameter, then root will not be loaded by method getRootSearchParameters(). Roots can be given as array of ids only - entities has to be loaded in redux store! Search is disabled, if roots are given. | |
+| multiSelect | bool   | If is true then component is in multi select mode| false |
 | forceSearchParameters | Domain.SearchParameters | "Hard filters" | |
-| onSelect | func | On select node callback. Selected node is given as parameter | |
+| onChange | func | onChange callback. Selected node (or array of nodes, if multiSelect is true) is given as parameter. | |
 | onDoubleClick | func | On double click node callback. Selected node is given as parameter. | |
 | onDetail | func | Show detail function. Detail icon is rendered in tree header. | |
 | traverse | bool | raverse to selected folder | false |
@@ -30,6 +32,10 @@ Entity property names and manager's methods are not configurable - enrich entity
 | style | object | Tree styles |  |
 | bodyClassName | string | Tree body css |  |
 | bodyStyle | object | Tree body styles |  | |
+| clearable | bool   | Selected options can be cleared | true |
+| nodeIcon | oneOfType([string, func]) | Node icon - single icon for all nodes (string) or callback - named parameters "node" and "opened" will be given. { null } can be given - disable default icons. | default icons for folder 'fa:folder', 'fa:folder-open' and file 'fa:file-o' |
+| nodeIconClassName | oneOfType([string, func]) | Node icon class name - string or callback - named parameters "node" and "opened" will be given. { null } can be given - disable default icon class names. | default 'folder' and 'file' |
+
 
 ## Usage
 
@@ -43,6 +49,6 @@ const manager = new RoleCatalogueManager();
   ref="roleCatalogueTree"
   uiKey="role-catalogue-tree"
   manager={ manager }
-  onSelect={ (nodeId) => alert('Selected: ' + nodeId) }/>
+  onChange={ (nodeId) => alert('Selected: ' + nodeId) }/>
 
 ```

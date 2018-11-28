@@ -23,12 +23,16 @@ import org.springframework.util.ObjectUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
+import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
@@ -38,6 +42,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -90,6 +95,8 @@ public class DefaultIdmConceptRoleRequestService extends
 	private FormService formService;
 	@Autowired
 	private IdmFormAttributeService formAttributeService;
+	@Autowired
+	private RequestManager requestManager;
 
 	@Autowired
 	public DefaultIdmConceptRoleRequestService(IdmConceptRoleRequestRepository repository,
@@ -154,19 +161,6 @@ public class DefaultIdmConceptRoleRequestService extends
 			embedded.put("roleTreeNode", baseDto); // roleTreeNode must be placed there as string, in meta model isn't
 													// any attribute like this
 			dto.setEmbedded(embedded);
-		}
-
-		// Load values for role attributes
-		UUID roleId = dto.getRole();
-		if (roleId != null) {
-			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.role, IdmRoleDto.class);
-			UUID formDefintion = role.getIdentityRoleAttributeDefinition();
-			if (formDefintion != null) {
-				IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(role,
-						IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
-				dto.getEavs().clear();
-				dto.getEavs().add(formService.getFormInstance(dto, formDefinitionDto));
-			}
 		}
 
 		return dto;
@@ -279,6 +273,43 @@ public class DefaultIdmConceptRoleRequestService extends
 	public void deleteInternal(IdmConceptRoleRequestDto dto) {
 		this.cancelWF(dto);
 		super.deleteInternal(dto);
+	}
+	
+	@Override
+	public IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto) {
+		UUID roleId = dto.getRole();
+		if (roleId != null) {
+			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.role, IdmRoleDto.class);
+			// Has role filled attribute definition? 
+			UUID formDefintion = role.getIdentityRoleAttributeDefinition();
+			if (formDefintion != null) {
+				IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(role,
+						IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
+				IdmFormInstanceDto conceptFormInstance = formService.getFormInstance(dto, formDefinitionDto);
+				// If exists identity role, then we try to evaluate changes against EAVs in the current identity role.
+				if (dto.getIdentityRole() != null) {
+					ConceptRoleRequestOperation operation = dto.getOperation();
+					IdmIdentityRoleDto identityRoleDto = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.identityRole, IdmIdentityRoleDto.class);
+					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinitionDto);
+					if(formInstance != null && conceptFormInstance != null) {
+						List<IdmFormValueDto> conceptValues = conceptFormInstance.getValues();
+						List<IdmFormValueDto> values = formInstance.getValues();
+						
+						conceptValues.forEach(conceptValue -> {
+							IdmFormValueDto formValue = values.stream() //
+									.filter(value -> value.getFormAttribute().equals(conceptValue.getFormAttribute())) //
+									.findFirst() //
+									.orElse(new IdmFormValueDto()); //
+							// Compile changes
+							List<IdmRequestItemAttributeDto> changes = requestManager.getChanges(formValue, conceptValue, RequestOperationType.valueOf(operation.name()));
+							conceptValue.getChanges().addAll(changes);
+						});
+					}
+				}
+				return conceptFormInstance;
+			}
+		}
+		return null;
 	}
 
 	@Override

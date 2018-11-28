@@ -417,7 +417,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                   ref="roleCatalogueTree"
                   uiKey={ `${this.getUiKey()}-tree` }
                   manager={ this.getRoleCatalogueManager() }
-                  onSelect={ this._filterByRoleCatalogue.bind(this) }
+                  onChange={ this._filterByRoleCatalogue.bind(this) }
                   header={ this.i18n('content.roles.select.chooseFolder') }
                   rendered={ showTree }/>
               </Basic.Col>
@@ -511,7 +511,11 @@ RoleSelect.propTypes = {
   roleCatalogueManager: PropTypes.object,
   columns: PropTypes.arrayOf(PropTypes.string),
   showActionButtons: PropTypes.bool,
-  selectRowClass: PropTypes.string
+  selectRowClass: PropTypes.string,
+  /**
+   * The component is in multi select mode
+   */
+  multiSelect: PropTypes.bool
 };
 RoleSelect.defaultProps = {
   ...Basic.AbstractFormComponent.defaultProps,

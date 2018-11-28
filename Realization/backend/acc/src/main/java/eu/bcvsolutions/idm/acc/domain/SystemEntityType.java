@@ -24,7 +24,7 @@ public enum SystemEntityType {
 	ROLE_CATALOGUE(IdmRoleCatalogueDto.class, true, false),
 	CONTRACT(IdmIdentityContractDto.class, false, true),
 	CONTRACT_SLICE(IdmContractSliceDto.class, false, true),
-	IDENTITY_ROLE(IdmIdentityRoleDto.class, true, true);
+	IDENTITY_ROLE(IdmIdentityRoleDto.class, false, true);
 
 	private Class<? extends AbstractDto> entityType;
 	private boolean supportsProvisioning;
@@ -51,6 +51,9 @@ public enum SystemEntityType {
 	public Class<? extends AbstractDto> getExtendedAttributeOwnerType() {
 		if (this.name().equals(CONTRACT_SLICE.name())) {
 			return CONTRACT.entityType;
+		}
+		if (this.name().equals(IDENTITY_ROLE.name())) {
+			return null;
 		}
 		return entityType;
 	}

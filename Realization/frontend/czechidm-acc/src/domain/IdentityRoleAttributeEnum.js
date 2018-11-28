@@ -37,9 +37,6 @@ export default class IdentityRoleAttributeEnum extends Enums.AbstractEnum {
       case this.VALID_TILL: {
         return 'validTill';
       }
-      case this.ROLE_TREE_NODE: {
-        return 'roleTreeNode';
-      }
       case this.DIRECT_ROLE: {
         return 'directRole';
       }
@@ -75,9 +72,6 @@ export default class IdentityRoleAttributeEnum extends Enums.AbstractEnum {
       }
       case 'validTill': {
         return this.VALID_TILL;
-      }
-      case 'roleTreeNode': {
-        return this.ROLE_TREE_NODE;
       }
       case 'directRole': {
         return this.DIRECT_ROLE;
@@ -116,8 +110,6 @@ IdentityRoleAttributeEnum.IDENTITY_CONTRACT = Symbol('IDENTITY_CONTRACT');
 IdentityRoleAttributeEnum.ROLE = Symbol('ROLE');
 IdentityRoleAttributeEnum.VALID_FROM = Symbol('VALID_FROM');
 IdentityRoleAttributeEnum.VALID_TILL = Symbol('VALID_TILL');
-IdentityRoleAttributeEnum.ROLE_TREE_NODE = Symbol('ROLE_TREE_NODE');
-IdentityRoleAttributeEnum.DIRECT_ROLE = Symbol('DIRECT_ROLE');
 IdentityRoleAttributeEnum.ROLE_COMPOSITION = Symbol('ROLE_COMPOSITION');
 IdentityRoleAttributeEnum.CONTRACT_POSITION = Symbol('CONTRACT_POSITION');
 IdentityRoleAttributeEnum.EXTERNAL_ID = Symbol('EXTERNAL_ID');

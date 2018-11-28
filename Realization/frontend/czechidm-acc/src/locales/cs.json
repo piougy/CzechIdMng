@@ -1110,7 +1110,8 @@
       "TREE": "Strom",
       "ROLE_CATALOGUE": "Katalog rolí",
       "CONTRACT": "Pracovní pozice",
-      "CONTRACT_SLICE": "Časové řezy pozic"
+      "CONTRACT_SLICE": "Časové řezy pozic",
+      "IDENTITY_ROLE": "Přiřazené role"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -1201,6 +1202,15 @@
       "PARENT": "Rodič (String)",
       "EXTERNAL_ID": "Externí ID (String)",
       "DISABLED": "Zakázaný (boolean)"
+    },
+    "IdentityRoleAttributeEnum": {
+      "IDENTITY_CONTRACT": "Identifikátor kontraktu (IdmIdentityContract - UUID)",
+      "ROLE": "Identifikátor role (IdmRole - UUID)",
+      "VALID_FROM": "Platnost od (LocalDate)",
+      "VALID_TILL": "Platnost do (LocalDate)",
+      "ROLE_COMPOSITION": "Přiřazeno business rolí (IdmRoleComposition - UUID)",
+      "CONTRACT_POSITION": "Další pozice na kontraktu (IdmContractPosition - UUID)",
+      "EXTERNAL_ID": "Externí identifikátor (String)"
     },
     "RoleCatalogueAttributeEnum": {
       "CODE": "Kód (String)",

@@ -247,7 +247,7 @@ public class DefaultSysSystemAttributeMappingService extends
 		}
 
 		Class<? extends Identifiable> entityType = systemMappingDto.getEntityType().getExtendedAttributeOwnerType();
-		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
+		if (entityType != null && dto.isExtendedAttribute() && formService.isFormable(entityType)) {
 			createExtendedAttributeDefinition(dto, entityType);
 		}
 		return super.saveInternal(dto);

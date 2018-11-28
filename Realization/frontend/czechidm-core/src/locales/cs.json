@@ -4405,6 +4405,7 @@
       },
       "identity-save-bulk-action": {
         "label": "Přeuložit uživatele",
+        "help": "Akce provede to samé, jako tlačítko pro uložení na detailu uživatele.",
         "icon": "fa:save"
       },
       "role-delete-bulk-action": {

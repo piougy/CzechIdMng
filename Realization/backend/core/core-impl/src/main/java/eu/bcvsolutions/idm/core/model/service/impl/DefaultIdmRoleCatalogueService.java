@@ -192,28 +192,33 @@ public class DefaultIdmRoleCatalogueService
 			IdmRoleCatalogueFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// quick
-		if (StringUtils.isNotEmpty(filter.getText())) {
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
 			predicates.add(
 					builder.or(
-							builder.like(builder.lower(root.get(IdmRoleCatalogue_.name)), "%" + filter.getText().toLowerCase() + "%"),
-							builder.like(builder.lower(root.get(IdmRoleCatalogue_.code)), "%" + filter.getText().toLowerCase() + "%")
+							builder.like(builder.lower(root.get(IdmRoleCatalogue_.name)), "%" + text + "%"),
+							builder.like(builder.lower(root.get(IdmRoleCatalogue_.code)), "%" + text + "%")
 							)
 					);
 		}
-		if (filter.getCode() != null) {
-			predicates.add(builder.equal(root.get(IdmRoleCatalogue_.code), filter.getCode()));
+		String code = filter.getCode();
+		if (StringUtils.isNotEmpty(code)) {
+			predicates.add(builder.equal(root.get(IdmRoleCatalogue_.code), code));
 		}
-		if (filter.getName() != null) {
-			predicates.add(builder.equal(root.get(IdmRoleCatalogue_.name), filter.getName()));
+		String name = filter.getName();
+		if (StringUtils.isNotEmpty(name)) {
+			predicates.add(builder.equal(root.get(IdmRoleCatalogue_.name), name));
 		}
-		if (filter.getParent() != null) {
+		UUID parent = filter.getParent();
+		if (parent != null) {
 			// recursively by default
 			Subquery<IdmRoleCatalogue> subquery = query.subquery(IdmRoleCatalogue.class);
 			Root<IdmRoleCatalogue> subRoot = subquery.from(IdmRoleCatalogue.class);
 			subquery.select(subRoot);
 			Path<IdmForestIndexEntity> forestIndexPath = subRoot.get(IdmRoleCatalogue_.forestIndex);
 			subquery.where(builder.and(
-				builder.equal(subRoot.get(AbstractEntity_.id), filter.getParent()),
+				builder.equal(subRoot.get(AbstractEntity_.id), parent),
 				// This is here because of the structure of forest index. We need to select only subtree and not the element itself.
 				// In order to do that, we must shrink the boundaries of query so it is true only for subtree of given node.
 				// Remember that between clause looks like this a >= x <= b, where a and b are boundaries, in our case lft+1 and rgt-1.

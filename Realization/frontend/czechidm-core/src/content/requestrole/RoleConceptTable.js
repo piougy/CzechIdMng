@@ -92,7 +92,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
       this.context.store.dispatch(formDefinitionManager.fetchEntityIfNeeded(entityFormData.role.identityRoleAttributeDefinition, null, (json, error) => {
         this.handleError(error);
       }));
-      if (selectedIdentityRole.id) {
+      if (selectedIdentityRole.id && selectedIdentityRole.operation !== 'ADD') {
         this.context.store.dispatch(identityRoleManager.fetchFormInstances(selectedIdentityRole.id, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`, (formInstances, error) => {
           if (error) {
             this.addErrorMessage({ hidden: true, level: 'info' }, error);
@@ -336,6 +336,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
         for (const changedIdentityRole of changedIdentityRoles) {
           if (changedIdentityRole.identityRole === concept.id) {
             concept._changed = true;
+            concept._eav = changedIdentityRole._eav;
             for (const property in concept) {
               if (changedIdentityRole.hasOwnProperty(property) && property !== '_embedded' && property !== 'id') {
                 const key = '_' + property + 'Changed';
@@ -490,7 +491,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
         _formInstance = new FormInstance(_identityRoleAttributeDefinition, null);
       }
     }
-
     if (!_formInstance && _identityRoleFormInstance && _identityRoleFormInstance.size === 1) {
       _identityRoleFormInstance.map(instance => {
         _formInstance = instance;

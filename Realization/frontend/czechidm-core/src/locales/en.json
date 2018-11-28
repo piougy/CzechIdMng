@@ -234,7 +234,7 @@
     "removedRecord": "The following entity will not be counted in the bulk job processing: <b>[{{entities}}]</b>.",
     "removedRecord_plural": "The following entities will not be included in the bulk job processing: <b>[{{entities}}]</b>.",
     "created": "Bulk action [{{name}}] was successfully run in a long running task id: [{{longRunningTaskId}}]",
-    "message_empty": "Performing the bulk action [{{name}}]",
+    "message_empty": "Performing the bulk action [{{name}}].",
     "message": "Performing the bulk action [{{name}}] on select record: <b>[{{entities}}]</b>.",
     "message_plural": "Performing the bulk action [{{name}}] on {{count}} records: <b>[{{entities}}]</b>",
     "button": {
@@ -4355,6 +4355,7 @@
       },
       "identity-save-bulk-action": {
         "label": "Re-save identity",
+        "help": "Action does the same thing as click on the save button on the user's detail page.",
         "icon": "fa:save"
       },
       "role-delete-bulk-action": {

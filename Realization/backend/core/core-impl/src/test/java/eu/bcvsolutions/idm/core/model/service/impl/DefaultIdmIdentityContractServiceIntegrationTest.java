@@ -59,7 +59,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * - evaluate state
  * - filter - TODO: move to rest test
  * 
- * TODO: @Transactional
+ * TODO: @Transactional - automatic roles are recount after original transaction ends (LRT)
  * 
  * @author Radek Tomiška
  * @author Marek Klement
@@ -101,14 +101,12 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	}
 	
 	@After 
-	public void logout() {
+	public void after() {
 		// delete this test automatic roles only	
 		if(automaticRoleA != null) try { deleteAutomaticRole(automaticRoleA); } catch (EmptyResultDataAccessException ex) {} ;
 		if(automaticRoleD != null) try { deleteAutomaticRole(automaticRoleD); } catch (EmptyResultDataAccessException ex) {} ;
 		if(automaticRoleE != null) try { deleteAutomaticRole(automaticRoleE); } catch (EmptyResultDataAccessException ex) {} ;
 		if(automaticRoleF != null) try { deleteAutomaticRole(automaticRoleF); } catch (EmptyResultDataAccessException ex) {} ;
-		//
-		super.logout();
 	}	
 	
 	private void prepareTreeStructureAndRoles() {
@@ -1109,5 +1107,31 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		// check
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contractD.getId());
 		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
+	public void testFindLastExpiredContract() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto last = service.findLastExpiredContract(identity.getId(), null);
+		Assert.assertNull(last);
+		//
+		IdmIdentityContractDto contractOne = new IdmIdentityContractDto();
+		contractOne.setIdentity(identity.getId());
+		contractOne.setValidTill(LocalDate.now().minusDays(1));
+		contractOne = service.save(contractOne);
+		//
+		IdmIdentityContractDto contractTwo = new IdmIdentityContractDto();
+		contractTwo.setIdentity(identity.getId());
+		contractTwo.setValidTill(LocalDate.now().minusDays(2));
+		contractTwo = service.save(contractTwo);
+		//
+		last = service.findLastExpiredContract(identity.getId(), contractTwo.getValidTill());
+		Assert.assertNull(last);
+		//
+		last = service.findLastExpiredContract(identity.getId(), null);
+		Assert.assertEquals(contractOne, last);
+		//
+		last = service.findLastExpiredContract(identity.getId(), contractOne.getValidTill());
+		Assert.assertEquals(contractTwo, last);
 	}
 }

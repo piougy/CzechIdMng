@@ -16,6 +16,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
@@ -318,9 +319,16 @@ public class DefaultIdmIdentityContractService
 
 	@Override
 	public IdmIdentityContractDto findLastExpiredContract(UUID identityId, LocalDate expiration) {
-		List<IdmIdentityContract> contracts = repository.findExpiredContracts(expiration, null).getContent();
-		IdmIdentityContract lastValidContract = contracts.stream().max(Comparator.comparing(IdmIdentityContract::getValidTill)).orElse(null);
-		return lastValidContract == null ? null : toDto(lastValidContract);
+		Assert.notNull(identityId);
+		//
+		List<IdmIdentityContract> contracts = repository
+				.findExpiredContracts(
+						expiration == null ? LocalDate.now() : expiration,
+						new PageRequest(0, 1, new Sort(Sort.Direction.DESC, IdmIdentityContract_.validTill.getName()))		
+				)
+				.getContent();
+		//
+		return contracts.isEmpty() ? null : toDto(contracts.get(0));
 	}
 	/**
 	 * Returns contracts sorted by priority:

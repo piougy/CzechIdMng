@@ -1269,7 +1269,21 @@
           "identityRoleAttributes": {
             "header": "Atributy role"
           },
-          "addByIdentity": "Přidat podle uživatele"
+          "addByIdentity": {
+            "header": "Přidat podle uživatele",
+            "useValidFromIdentity": {
+              "label": "Přejmout platnost rolí",
+              "help": "Platnost jednotlových rolí bude převzata od platnosti rolí daného uživatele."
+            },
+            "copyRoleParameters": {
+              "label": "Kopírovat parametry rolí",
+              "help": "Role bude zkopírovány včetně parametrů."
+            },
+            "selectUser": {
+              "label": "Výběr uživatele",
+              "help": "Výběr uživatele od kterého budou kopírované role."
+            }
+          }
         }
     },
     "tasks": {

@@ -1,17 +1,12 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import _ from 'lodash';
-import classNames from 'classnames';
 import { connect } from 'react-redux';
 //
-import * as Basic from '../../basic';
-import * as Utils from '../../../utils';
-import { RoleManager, RoleCatalogueManager, SecurityManager, IdentityManager, IdentityRoleManager, IdentityContractManager } from '../../../redux';
+import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
+import { RoleManager, IdentityManager, IdentityRoleManager, IdentityContractManager } from '../../redux';
 //
-import EntitySelectBox from '../EntitySelectBox/EntitySelectBox';
-import Table from '../Table/Table';
-import Column from '../Table/Column';
-import Tree from '../Tree/Tree';
-import SearchParameters from '../../../domain/SearchParameters';
+import SearchParameters from '../../domain/SearchParameters';
 
 /**
 * Component for select roles by identity.
@@ -32,12 +27,17 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     this.identityContractManager = new IdentityContractManager();
 
     this.state = {
-      selectedIdentity: null
+      selectedIdentity: null,
+      defaultValues: {
+        useValidFromIdentity: true,
+        copyRoleParameters: true
+      },
+      useValidFromIdentity: true
     };
   }
 
   getComponentKey() {
-    return 'component.advanced.RoleSelectByIdentity';
+    return 'content.task.IdentityRoleConceptTable.addByIdentity';
   }
 
   componentDidMount() {
@@ -148,9 +148,8 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     if (event) {
       event.preventDefault();
     }
-    const checked = event.currentTarget.checked;
     this.setState({
-      useValidFormIdentity: checked
+      useValidFromIdentity: event.currentTarget.checked
     });
   }
 
@@ -162,62 +161,66 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
 
   render() {
     const { identityRoles, identityRoleShowLoading, identityUsername } = this.props;
-    const { selectedIdentity, useValidFormIdentity } = this.state;
-
+    const { selectedIdentity, useValidFromIdentity, defaultValues } = this.state;
     const existIdentityRoles = identityRoles && identityRoles.length > 0;
     return (
       <div>
-        <Basic.SelectBox
-          ref="identityContract"
-          manager={ this.identityContractManager }
-          forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername).setFilter('validNowOrInFuture', true) }
-          label={ this.i18n('entity.IdentityRole.identityContract.label') }
-          placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
-          helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
-          returnProperty={false}
-          niceLabel={ (contract) => { return this.identityContractManager.getNiceLabel(contract, false); }}
-          required
-          useFirst/>
+        <Basic.AbstractForm
+            ref="form"
+            data={defaultValues}>
+          <Basic.SelectBox
+            ref="select"
+            label={this.i18n('selectUser.label')}
+            helpBlock={this.i18n('selectUser.help')}
+            onChange={ this._changeIdentity.bind(this) }
+            manager={this.getIdentityManager()}/>
+          <Basic.SelectBox
+            ref="identityContract"
+            manager={ this.identityContractManager }
+            forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername).setFilter('validNowOrInFuture', true) }
+            label={ this.i18n('entity.IdentityRole.identityContract.label') }
+            placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
+            helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
+            returnProperty={false}
+            niceLabel={ (contract) => { return this.identityContractManager.getNiceLabel(contract, false); }}
+            required
+            useFirst/>
           <Basic.Row>
             <Basic.Col lg={ 6 }>
               <Basic.Checkbox
                 ref="useValidFromIdentity"
-                value={useValidFormIdentity}
                 onChange={ this._onChangeValidFromIdentity.bind(this) }
-                label={this.i18n('label.useValidFromIdentity')}/>
+                label={this.i18n('useValidFromIdentity.label')}
+                helpBlock={this.i18n('useValidFromIdentity.help')}/>
             </Basic.Col>
             <Basic.Col lg={ 6 }>
               <Basic.Checkbox
                 ref="copyRoleParameters"
-                label={this.i18n('label.copyRoleParameters')}/>
+                label={this.i18n('copyRoleParameters.label')}
+                helpBlock={this.i18n('copyRoleParameters.help')}/>
             </Basic.Col>
           </Basic.Row>
-        <Basic.Row>
-          <Basic.Col lg={ 6 }>
-            <Basic.DateTimePicker
-              mode="date"
-              ref="validFrom"
-              readOnly={!useValidFormIdentity}
-              label={this.i18n('label.validFrom')}/>
-          </Basic.Col>
-          <Basic.Col lg={ 6 }>
-            <Basic.DateTimePicker
-              mode="date"
-              ref="validTill"
-              readOnly={!useValidFormIdentity}
-              label={this.i18n('label.validTill')}/>
-          </Basic.Col>
-        </Basic.Row>
-        <Basic.SelectBox ref="select"
-          label="Od člověčíka"
-          onChange={ this._changeIdentity.bind(this) }
-          manager={this.getIdentityManager()}
-          placeholder="Select user ..."/>
+          <Basic.Row>
+            <Basic.Col lg={ 6 }>
+              <Basic.DateTimePicker
+                mode="date"
+                ref="validFrom"
+                readOnly={useValidFromIdentity}
+                label={this.i18n('label.validFrom')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 6 }>
+              <Basic.DateTimePicker
+                mode="date"
+                ref="validTill"
+                readOnly={useValidFromIdentity}
+                label={this.i18n('label.validTill')}/>
+            </Basic.Col>
+          </Basic.Row>
+        </Basic.AbstractForm>
         <Basic.Panel>
-          <Basic.Alert rendered={existIdentityRoles} level="info" text={this.i18n('pocet roli', identityRoles.length)}/>
-          <Basic.Alert rendered={!(existIdentityRoles && selectedIdentity)} level="info" text="nejsou role"/>
-          <Basic.Alert rendered={!selectedIdentity} level="info" text="nejdrive vyber uzivatele"/>
-          <Tree
+          <Basic.Alert rendered={existIdentityRoles} level="info" text={this.i18n('dev pocet roli ' + identityRoles.length)}/>
+          <Basic.Alert rendered={!(existIdentityRoles && selectedIdentity)} level="info" text="dev: nejsou role"/>
+          <Advanced.Tree
             showLoading={identityRoleShowLoading}
             ref="identityRolesTree"
             uiKey="identity-roles-tree"

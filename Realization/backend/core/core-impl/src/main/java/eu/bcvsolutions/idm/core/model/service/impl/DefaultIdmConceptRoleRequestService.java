@@ -233,7 +233,7 @@ public class DefaultIdmConceptRoleRequestService extends
 	@Transactional
 	public IdmConceptRoleRequestDto saveInternal(IdmConceptRoleRequestDto dto) {
 		IdmConceptRoleRequestDto savedDto = super.saveInternal(dto);
-		
+
 		if (dto != null && dto.getRole() != null) {
 			IdmRoleDto roleDto = roleService.get(dto.getRole());
 			if (roleDto == null) {

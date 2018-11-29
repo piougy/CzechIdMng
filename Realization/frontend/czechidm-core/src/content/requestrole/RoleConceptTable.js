@@ -10,6 +10,7 @@ import * as Utils from '../../utils';
 import { RoleManager, RoleRequestManager, IdentityManager, IdentityContractManager, RoleTreeNodeManager, FormDefinitionManager, IdentityRoleManager, DataManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import FormInstance from '../../domain/FormInstance';
+import RoleSelectByIdentity from './RoleSelectByIdentity';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -402,13 +403,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
     this._showDetail(newIdentityRoleConcept, true, true);
   }
 
-  /**
-   * Create new identity role concepts by identities from user
-   */
-  _addConceptByIdentity() {
-    this._showRoleByIdentitySelect();
-  }
-
   _showRoleByIdentitySelect() {
     this.setState({
       showRoleByIdentitySelect: true
@@ -421,14 +415,18 @@ export class RoleConceptTable extends Basic.AbstractContent {
     });
   }
 
-  _getRoleByIdentity(event) {
+  _executeRoleRequestByIdentity(event) {
+    const { reloadComponent } = this.props;
     if (event) {
       event.preventDefault();
     }
 
     const roleRequestByIdentity = this.refs.roleSelectByIdentity.getWrappedInstance().createRoleRequestByIdentity();
-    this.context.store.dispatch(roleRequestManager.copyRolesByIdentity(roleRequestByIdentity, null, null));
-    // this._hideRoleByIdentitySelect();
+    this.context.store.dispatch(roleRequestManager.copyRolesByIdentity(roleRequestByIdentity, null, () => {
+      // We also need fetch request for new form attributes
+      this._hideRoleByIdentitySelect();
+      reloadComponent();
+    }));
   }
 
   /**
@@ -537,6 +535,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
       className,
       _identityRoleAttributeDefinition,
       _identityRoleFormInstance,
+      _currentIdentityRoles,
       request } = this.props;
     const { conceptData, detail, showRoleByIdentitySelect } = this.state;
 
@@ -563,136 +562,137 @@ export class RoleConceptTable extends Basic.AbstractContent {
 
     const result = (
       <div>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        <Basic.Toolbar rendered={!detail.show}>
-          <div className="pull-right">
-            <Basic.Button
-              level="success"
-              className="btn-xs"
-              disabled={readOnly}
-              onClick={this._addConcept.bind(this)}>
-              <Basic.Icon value="fa:plus"/>
+        <Basic.Panel rendered={ request !== null && _currentIdentityRoles !== null && !detail.show && !showRoleByIdentitySelect}>
+          <Basic.Confirm ref="confirm-delete" level="danger"/>
+          <Basic.Toolbar rendered={!detail.show && !showRoleByIdentitySelect}>
+            <div className="pull-right">
+              <Basic.Button
+                level="success"
+                className="btn-xs"
+                disabled={readOnly}
+                onClick={this._addConcept.bind(this)}>
+                <Basic.Icon value="fa:plus"/>
+                {' '}
+                {this.i18n('button.add')}
+              </Basic.Button>
               {' '}
-              {this.i18n('button.add')}
-            </Basic.Button>
-            {' '}
-            <Basic.Button
-              level="success"
-              className="btn-xs"
-              disabled={readOnly}
-              onClick={this._showRoleByIdentitySelect.bind(this)}>
-              <Basic.Icon value="fa:plus"/>
-              {' '}
-              {this.i18n('addByIdentity')}
-            </Basic.Button>
-          </div>
-          <div className="clearfix"></div>
-        </Basic.Toolbar>
-        <Basic.Table
-          rendered={!detail.show}
-          hover={false}
-          showLoading={showLoading}
-          data={conceptData}
-          rowClass={this._rowClass}
-          className={className}
-          showRowSelection={false}
-          noData={this.i18n('component.basic.Table.noData')}>
-          <Basic.Column
-            header=""
-            className="detail-button"
-            cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false)}/>
-                );
-              }
-            }
-            sort={false}/>
-          <Basic.Column
-            header={ this.i18n('entity.IdentityRole.role') }
-            cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data }) => {
-                const role = data[rowIndex]._embedded.role;
-                if (!role) {
-                  return '';
+              <Basic.Button
+                level="success"
+                className="btn-xs"
+                disabled={readOnly}
+                onClick={this._showRoleByIdentitySelect.bind(this)}>
+                <Basic.Icon value="fa:plus"/>
+                {' '}
+                {this.i18n('addByIdentity.header')}
+              </Basic.Button>
+            </div>
+            <div className="clearfix"></div>
+          </Basic.Toolbar>
+          <Basic.Table
+            rendered={!detail.show && !showRoleByIdentitySelect}
+            hover={false}
+            showLoading={showLoading}
+            data={conceptData}
+            rowClass={this._rowClass}
+            className={className}
+            showRowSelection={false}
+            noData={this.i18n('component.basic.Table.noData')}>
+            <Basic.Column
+              header=""
+              className="detail-button"
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <Advanced.DetailButton
+                      title={this.i18n('button.detail')}
+                      onClick={this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false)}/>
+                  );
                 }
-                return (
-                  <Advanced.EntityInfo
-                    entityType="role"
-                    entityIdentifier={ role.id }
-                    entity={ role }
-                    face="popover" />
-                );
               }
-            }
-            />
-          <Basic.Column
-            header={this.i18n('entity.IdentityRole.identityContract.title')}
-            cell={
-              ({rowIndex, data}) => {
-                const contract = data[rowIndex]._embedded.identityContract;
-                if (!contract) {
-                  return '';
+              sort={false}/>
+            <Basic.Column
+              header={ this.i18n('entity.IdentityRole.role') }
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  const role = data[rowIndex]._embedded.role;
+                  if (!role) {
+                    return '';
+                  }
+                  return (
+                    <Advanced.EntityInfo
+                      entityType="role"
+                      entityIdentifier={ role.id }
+                      entity={ role }
+                      face="popover" />
+                  );
                 }
-                return (
-                  <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" />
-                );
               }
-            }/>
-          <Basic.Column
-            header={this.i18n('entity.Role.description')}
-            property="_embedded.role.description"
-            rendered={false}
-            />
-          <Basic.Column
-            property="validFrom"
-            header={this.i18n('label.validFrom')}
-            cell={this._conceptDateCell.bind(this)}/>
-          <Basic.Column
-            property="validTill"
-            header={this.i18n('label.validTill')}
-            cell={this._conceptDateCell.bind(this)}/>
-          <Basic.Column
-            property="directRole"
-            header={this.i18n('entity.IdentityRole.directRole.label')}
-            cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data, property }) => {
-                if (!data[rowIndex][property]) {
-                  return null;
+              />
+            <Basic.Column
+              header={this.i18n('entity.IdentityRole.identityContract.title')}
+              cell={
+                ({rowIndex, data}) => {
+                  const contract = data[rowIndex]._embedded.identityContract;
+                  if (!contract) {
+                    return '';
+                  }
+                  return (
+                    <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" />
+                  );
                 }
-                //
-                return (
-                  <Advanced.EntityInfo
-                    entityType="identityRole"
-                    entityIdentifier={ data[rowIndex][property] }
-                    entity={ data[rowIndex]._embedded[property] }
-                    showIdentity={ false }
-                    face="popover" />
-                );
+              }/>
+            <Basic.Column
+              header={this.i18n('entity.Role.description')}
+              property="_embedded.role.description"
+              rendered={false}
+              />
+            <Basic.Column
+              property="validFrom"
+              header={this.i18n('label.validFrom')}
+              cell={this._conceptDateCell.bind(this)}/>
+            <Basic.Column
+              property="validTill"
+              header={this.i18n('label.validTill')}
+              cell={this._conceptDateCell.bind(this)}/>
+            <Basic.Column
+              property="directRole"
+              header={this.i18n('entity.IdentityRole.directRole.label')}
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data, property }) => {
+                  if (!data[rowIndex][property]) {
+                    return null;
+                  }
+                  //
+                  return (
+                    <Advanced.EntityInfo
+                      entityType="identityRole"
+                      entityIdentifier={ data[rowIndex][property] }
+                      entity={ data[rowIndex]._embedded[property] }
+                      showIdentity={ false }
+                      face="popover" />
+                  );
+                }
               }
-            }
-            width={ 150 }/>
-          <Basic.Column
-            property="automaticRole"
-            header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.automaticRole.label')}</Basic.Cell>}
-            cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data }) => {
-                return (
-                  <Basic.BooleanCell propertyValue={ data[rowIndex].automaticRole !== null } className="column-face-bool"/>
-                );
-              }
-            }/>
-          <Basic.Column
-            header={this.i18n('label.action')}
-            className="action"
-            cell={this._conceptActionsCell.bind(this)}/>
-        </Basic.Table>
-
+              width={ 150 }/>
+            <Basic.Column
+              property="automaticRole"
+              header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.automaticRole.label')}</Basic.Cell>}
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  return (
+                    <Basic.BooleanCell propertyValue={ data[rowIndex].automaticRole !== null } className="column-face-bool"/>
+                  );
+                }
+              }/>
+            <Basic.Column
+              header={this.i18n('label.action')}
+              className="action"
+              cell={this._conceptActionsCell.bind(this)}/>
+          </Basic.Table>
+        </Basic.Panel>
         <Basic.Modal
           bsSize="large"
           show={showRoleByIdentitySelect}
@@ -704,7 +704,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
             text={ this.i18n('create.headerByIdentity') }
             rendered={ Utils.Entity.isNew(detail.entity) }/>
           <Basic.Modal.Body>
-            <Advanced.RoleSelectByIdentity
+            <RoleSelectByIdentity
               ref="roleSelectByIdentity"
               identityUsername={identityUsername}
               request={request}/>
@@ -718,7 +718,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
             <Basic.Button
               type="submit"
               level="success"
-              onClick={ this._getRoleByIdentity.bind(this) }
+              onClick={ this._executeRoleRequestByIdentity.bind(this) }
               showLoadingIcon>
               { this.i18n('button.set') }
             </Basic.Button>
@@ -833,7 +833,17 @@ export class RoleConceptTable extends Basic.AbstractContent {
 RoleConceptTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   identityUsername: PropTypes.string.isRequired,
-  className: PropTypes.string
+  className: PropTypes.string,
+  request: PropTypes.object,
+  identityRoles: PropTypes.array,
+  addedIdentityRoles: PropTypes.array,
+  changedIdentityRoles: PropTypes.array,
+  removedIdentityRoles: PropTypes.array,
+  removeConceptFunc: PropTypes.func,
+  createConceptFunc: PropTypes.func,
+  updateConceptFunc: PropTypes.func,
+  conceptRoleRequestManager: PropTypes.objet
+
 };
 
 RoleConceptTable.defaultProps = {

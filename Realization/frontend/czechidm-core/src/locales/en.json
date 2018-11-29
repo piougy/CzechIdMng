@@ -1191,7 +1191,8 @@
         "oldValue": "Old value {{oldValue}}",
         "oldValueNotExist": "Old value was empty",
         "create": {
-          "header": "Add roles"
+          "header": "Add roles",
+          "headerByIdentity": "Add role by user"
         },
         "edit": {
           "header": "Edit roles"
@@ -1219,7 +1220,8 @@
         },
         "identityRoleAttributes": {
           "header": "Role attributes"
-        }
+        },
+        "addByIdentity": "Add by user"
       }
     },
     "tasks": {

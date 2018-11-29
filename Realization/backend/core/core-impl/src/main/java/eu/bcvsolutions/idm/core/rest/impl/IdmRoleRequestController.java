@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
@@ -67,6 +68,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	protected static final String TAG = "Role Request - requests";
 	//
 	private final IdmConceptRoleRequestController conceptRoleRequestController;
+	private final IdmRoleRequestService service;
 	
 	@Autowired
 	public IdmRoleRequestController(
@@ -75,8 +77,10 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		super(service);
 		//
 		Assert.notNull(conceptRoleRequestController);
+		Assert.notNull(service);
 		//
 		this.conceptRoleRequestController = conceptRoleRequestController;
+		this.service = service;
 	}
 	
 	@Override
@@ -165,7 +169,31 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		}
 		return super.post(dto);
 	}
-	
+
+	@RequestMapping(value = "/{backendId}/copy-roles", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_UPDATE + "')")
+	@ApiOperation(
+			value = "Create / update role request", 
+			nickname = "postRoleRequest", 
+			response = IdmRoleRequestDto.class, 
+			tags = { IdmRoleRequestController.TAG },
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_CREATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_CREATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "")})
+					})
+	public ResponseEntity<?> copyRoles(@ApiParam(value = "Role request's uuid identifier.", required = true)
+	@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmRoleRequestByIdentityDto dto) {
+		dto.setRoleRequest(UUID.fromString(backendId));
+		IdmRoleRequestDto roleRequest = this.service.copyRolesByIdentity(dto);
+
+		return new ResponseEntity<Object>(roleRequest, HttpStatus.OK);
+	}
+
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)

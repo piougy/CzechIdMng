@@ -442,6 +442,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             className="vertical-scroll"
             readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
             identityUsername={request && request.applicant}
+            request={request}
             identityRoles={_currentIdentityRoles}
             addedIdentityRoles={addedIdentityRoles}
             changedIdentityRoles={changedIdentityRoles}

@@ -481,6 +481,10 @@ export class RoleConceptTable extends Basic.AbstractContent {
     const { conceptData, detail } = this.state;
 
     let _formInstance = null;
+    let _showEAV = false;
+    if (selectedRole && selectedRole.identityRoleAttributeDefinition) {
+      _showEAV = true;
+    }
     if (selectedRole && _identityRoleAttributeDefinition) {
       if ( detail
         && detail.entity
@@ -687,7 +691,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                       label={this.i18n('label.validTill')}/>
                   </Basic.Col>
                 </Basic.Row>
-                <Basic.Panel rendered={_formInstance} style={{border: '0px'}}>
+                <Basic.Panel rendered={_showEAV} showLoading={!_formInstance} style={{border: '0px'}}>
                   <Basic.ContentHeader>
                     {this.i18n('identityRoleAttributes.header') }
                   </Basic.ContentHeader>

@@ -230,6 +230,7 @@ public class DefaultIdmConceptRoleRequestService extends
 	}
 
 	@Override
+	@Transactional
 	public IdmConceptRoleRequestDto saveInternal(IdmConceptRoleRequestDto dto) {
 		IdmConceptRoleRequestDto savedDto = super.saveInternal(dto);
 		

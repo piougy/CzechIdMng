@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resource;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
@@ -176,6 +178,25 @@ public class IdmConceptRoleRequestController
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_CREATE, description = ""),
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> post(@RequestBody @NotNull IdmConceptRoleRequestDto dto) {
+		// Check if exist same concept for same role and operation type. If yes, we delete it before save new.
+		if (dto != null //
+				&& dto.getRoleRequest() != null //
+				&& dto.getIdentityRole() != null //
+				&& dto.getOperation() != null //
+				&& ConceptRoleRequestOperation.ADD != dto.getOperation() //
+				&& dto.getIdentityContract() != null) {
+			IdmConceptRoleRequestFilter filter = new IdmConceptRoleRequestFilter();
+			filter.setIdentityRoleId(dto.getIdentityRole());
+			filter.setRoleRequestId(dto.getRoleRequest());
+			filter.setOperation(dto.getOperation());
+			filter.setIdentityContractId(dto.getIdentityContract());
+			List<IdmConceptRoleRequestDto> duplicates = getService().find(filter, new PageRequest(0, 1)).getContent();
+			duplicates.forEach(duplicate -> {
+				// Delete duplicated concept first
+				getService().delete(duplicate);
+			});
+		}
+
 		return super.post(dto);
 	}
 

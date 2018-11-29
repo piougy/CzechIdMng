@@ -230,14 +230,25 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   getLabel(defaultValue = null, showOriginalValue = false) {
     const { attribute } = this.props;
     //
+    const hasOriginalValue = this.valueChanged();
     const label = this._getLocalization('label', attribute.name || attribute.code || defaultValue);
-    if (!showOriginalValue) {
+    if (!showOriginalValue && !hasOriginalValue) {
       return label;
     }
+    // We generates component with new value
+    if (!showOriginalValue && hasOriginalValue) {
+      return (
+        <span>
+          {label + ' '}
+          <Basic.Label level="success" text={this.i18n('component.advanced.EavForm.showChanges.newValue')}/>
+        </span>
+      );
+    }
+    // We generates component with original value
     return (
       <span>
         {label + ' '}
-        <Basic.Label level="warning" text="(original value !!)"/>
+        <Basic.Label level="warning" text={this.i18n('component.advanced.EavForm.showChanges.originalValue')}/>
       </span>
     );
   }
@@ -329,25 +340,6 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     return originalValues;
   }
 
-  _renderChangedButton() {
-    const changed = this.valueChanged();
-
-    return (
-      <div>
-        <Basic.LabelWrapper>
-          <Basic.Button
-            level="warning"
-            className="btn-xs"
-            rendered={changed}
-            icon="fa:eye"
-            style={{ marginLeft: 5, marginTop: 30}}
-            title={this.i18n('component.advanced.EavForm.btn.showChanges.title')}
-            titlePlacement="bottom"/>
-        </Basic.LabelWrapper>
-      </div>
-    );
-  }
-
   render() {
     const { attribute} = this.props;
     // check confidential support
@@ -373,8 +365,8 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     }
 
     return (
-      <div style={{ display: 'flex' }}>
-        <div style={{ flex: 1 }}>
+      <div style={{ display: 'flex'}}>
+        <div style={{ flex: 1}}>
           {componentOriginal}
         </div>
         <div style={{marginLeft: 5, flex: 1 }}>

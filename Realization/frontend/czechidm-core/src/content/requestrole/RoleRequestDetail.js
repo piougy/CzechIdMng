@@ -91,6 +91,14 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     }
   }
 
+  /**
+   * Its used for reload the component iner date, eq. refresh roleRequest.
+   * Reload is used as callback from inner components
+   */
+  reloadComponent() {
+    this._initComponent(this.props);
+  }
+
   _initComponentCurrentRoles(props) {
     const { _request } = props;
     //
@@ -188,6 +196,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       }
       this.refs.table.getWrappedInstance().reload();
       this.setState({showLoadingButtonRemove: false});
+      this.reloadComponent();
     })
     .catch(error => {
       this.addError(error);
@@ -245,6 +254,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           }
         }
         this.refs.table.getWrappedInstance().reload();
+        this.reloadComponent();
       } else {
         this.addError(error);
       }
@@ -268,6 +278,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     .then(json => {
       _request.conceptRoles.push(json);
       this.refs.table.getWrappedInstance().reload();
+      this.reloadComponent();
     })
     .catch(error => {
       this.addError(error);
@@ -433,26 +444,25 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={ request !== null && _currentIdentityRoles !== null }>
-          <RoleConceptTable
-            ref="identityRoleConceptTable"
-            uiKey="identity-role-concept-table"
-            showLoading={showLoading}
-            showLoadingButtonRemove={showLoadingButtonRemove}
-            className="vertical-scroll"
-            readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
-            identityUsername={request && request.applicant}
-            request={request}
-            identityRoles={_currentIdentityRoles}
-            addedIdentityRoles={addedIdentityRoles}
-            changedIdentityRoles={changedIdentityRoles}
-            removedIdentityRoles={removedIdentityRoles}
-            removeConceptFunc={this._removeConcept.bind(this)}
-            createConceptFunc={this._createConcept.bind(this)}
-            updateConceptFunc={this._updateConcept.bind(this)}
-            conceptRoleRequestManager={conceptRoleRequestManager}
-            />
-        </Basic.Panel>
+        <RoleConceptTable
+          ref="identityRoleConceptTable"
+          uiKey="identity-role-concept-table"
+          showLoading={showLoading}
+          showLoadingButtonRemove={showLoadingButtonRemove}
+          className="vertical-scroll"
+          readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
+          identityUsername={request && request.applicant}
+          request={request}
+          identityRoles={_currentIdentityRoles}
+          addedIdentityRoles={addedIdentityRoles}
+          changedIdentityRoles={changedIdentityRoles}
+          removedIdentityRoles={removedIdentityRoles}
+          removeConceptFunc={this._removeConcept.bind(this)}
+          createConceptFunc={this._createConcept.bind(this)}
+          updateConceptFunc={this._updateConcept.bind(this)}
+          conceptRoleRequestManager={conceptRoleRequestManager}
+          reloadComponent={this.reloadComponent.bind(this)}
+          />
       </div>
     );
   }

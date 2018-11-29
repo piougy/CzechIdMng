@@ -30,7 +30,6 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -59,10 +58,12 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -77,7 +78,6 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRequestRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -694,9 +694,22 @@ public class DefaultIdmRoleRequestService
 				IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class);
 				// For copy must exist identity role attribute definition
 				if (roleDto.getIdentityRoleAttributeDefinition() != null) {
-					IdmFormDefinitionDto formDefinition = formService.getDefinition(roleDto.getIdentityRoleAttributeDefinition());
+					IdmFormDefinitionDto formDefinition = DtoUtils.getEmbedded(roleDto, IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
 					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRole, formDefinition);
-					conceptRoleRequestDto.setEavs(Lists.newArrayList(formInstance));
+					conceptRoleRequestDto.getEavs().clear();
+
+					// We must create new form instance with copy values
+					IdmFormInstanceDto newFormInstance = new IdmFormInstanceDto();
+					newFormInstance.setFormDefinition(formDefinition);
+					List<IdmFormValueDto> values = newFormInstance.getValues();
+					for (IdmFormValueDto formValue : formInstance.getValues()) {
+						IdmFormAttributeDto attribute = DtoUtils.getEmbedded(formValue, IdmFormValue_.formAttribute, IdmFormAttributeDto.class);
+						IdmFormValueDto copyOfValue = new IdmFormValueDto(attribute);
+						copyOfValue.setValue(formValue.getValue());
+						values.add(copyOfValue);
+					}
+					newFormInstance.setValues(values);
+					conceptRoleRequestDto.getEavs().add(newFormInstance);
 				}
 			}
 
@@ -707,7 +720,7 @@ public class DefaultIdmRoleRequestService
 			conceptRoleRequestDto = conceptRoleRequestService.save(conceptRoleRequestDto);
 		}
 
-		return getIdmRoleRequestService().get(roleRequestId);
+		return this.get(roleRequestId);
 	}
 
 	private void cancelWF(IdmRoleRequestDto dto) {

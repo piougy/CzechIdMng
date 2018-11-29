@@ -71,9 +71,10 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
     });
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { attribute, readOnly, values } = this.props;
-    const singleValue = this.state.value || this.toInputValue(values);
+    const showOriginalValue = originalValues ? true : false;
+    const singleValue = this.state.value || this.toInputValue(showOriginalValue ? originalValues : values);
     // create radio inputs
     const inputs = [];
     for (let i = 1; i <= PrioritySelectFormAttributeRenderer.RADIO_COUNT; i++) {
@@ -82,7 +83,7 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
           <input
             name={ attribute.name }
             type="radio"
-            readOnly={ readOnly || attribute.readonly }
+            readOnly={ showOriginalValue ? true : (readOnly || attribute.readonly) }
             value={ i }
             defaultChecked={ singleValue === i }/> { i }
         </label>
@@ -91,7 +92,7 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
     // raw bootstrap styles are used in this example (Basic radio component should be created instead)
     return (
       <div className="form-group">
-        <label className="control-label">{ attribute.name }</label>
+        <label className="control-label">{ this.getLabel(null, showOriginalValue) }</label>
         <div className="radio" onChange={this.setValue.bind(this)}>
           { inputs }
         </div>

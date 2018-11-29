@@ -112,24 +112,25 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
     return this.getInputValue(formValue);
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { attribute, values } = this.props;
+    const showOriginalValue = originalValues ? true : false;
     //
     return (
       <Basic.SelectBox
         ref={ AbstractFormAttributeRenderer.INPUT }
-        label={ this.getLabel() }
+        label={ this.getLabel(null, showOriginalValue) }
         placeholder={ this.getPlaceholder() }
         manager={ this.getManager() }
-        value={ !attribute.multiple ? this.toInputValue(values) : this.toInputValues(values) }
+        value={ !attribute.multiple ? this.toInputValue(showOriginalValue ? originalValues : values) : this.toInputValues(showOriginalValue ? originalValues : values) }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ this.isReadOnly() }
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }
         multiSelect={ attribute.multiple }/>
     );
   }
 
-  renderMultipleInput() {
-    return this.renderSingleInput();
+  renderMultipleInput(originalValues) {
+    return this.renderSingleInput(originalValues);
   }
 }

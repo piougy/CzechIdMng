@@ -239,16 +239,16 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     if (!showOriginalValue && hasOriginalValue) {
       return (
         <span>
-          {label + ' '}
           <Basic.Label level="success" text={this.i18n('component.advanced.EavForm.showChanges.newValue')}/>
+          {' ' + label}
         </span>
       );
     }
     // We generates component with original value
     return (
       <span>
-        {label + ' '}
         <Basic.Label level="warning" text={this.i18n('component.advanced.EavForm.showChanges.originalValue')}/>
+        {' ' + label}
       </span>
     );
   }

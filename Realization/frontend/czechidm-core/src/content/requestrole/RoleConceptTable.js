@@ -304,6 +304,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
    * @return {array}  conceptData           Final data for concept table
    */
   _compileConceptData({ identityRoles, addedIdentityRoles, removedIdentityRoles, changedIdentityRoles}) {
+    const started = new Date();
     // sort added - direct - automatic - sub roles
     const directRoles = [];
     const automaticRoles = [];
@@ -351,7 +352,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
         }
       }
     }
-
+    console.log("compile taked", started, started.getTime(), new Date().getTime() - started.getTime(), );
     return concepts;
   }
 
@@ -507,7 +508,28 @@ export class RoleConceptTable extends Basic.AbstractContent {
     return true;
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps && (
+      JSON.stringify(nextProps.identityRoles) !== JSON.stringify(this.props.identityRoles) ||
+      JSON.stringify(nextProps.addedIdentityRoles) !== JSON.stringify(this.props.addedIdentityRoles) ||
+      JSON.stringify(nextProps.removedIdentityRoles) !== JSON.stringify(this.props.removedIdentityRoles) ||
+      JSON.stringify(nextProps.changedIdentityRoles) !== JSON.stringify(this.props.changedIdentityRoles) ||
+      nextProps._identityRoleAttributeDefinition !== this.props._identityRoleAttributeDefinition ||
+      nextProps._identityRoleFormInstance !== this.props._identityRoleFormInstance
+    )) {
+      return true;
+    }
+
+    if (nextState && (
+      JSON.stringify(nextState.detail) !== JSON.stringify(this.state.detail)
+    )) {
+      return true;
+    }
+    return false;
+  }
+
   render() {
+    const started = new Date();
     const {
       showLoading,
       identityUsername,
@@ -539,7 +561,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
       });
     }
 
-    return (
+    const result = (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Toolbar rendered={!detail.show}>
@@ -802,6 +824,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
         </Basic.Modal>
       </div>
     );
+    console.log("render taked", started, started.getTime(), new Date().getTime() - started.getTime(), );
+
+    return result;
   }
 }
 
@@ -825,8 +850,7 @@ function select(state) {
   const identityRoleAttributeDefinition = selectedRole.identityRoleAttributeDefinition;
   return {
     _identityRoleFormInstance: selectedIdentityRole ? DataManager.getData(state, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`) : null,
-    _identityRoleAttributeDefinition: formDefinitionManager.getEntity(state, identityRoleAttributeDefinition),
-    _identityRoleAttributeDefinitionShowLoading: formDefinitionManager.isShowLoading(state, null, identityRoleAttributeDefinition)
+    _identityRoleAttributeDefinition: formDefinitionManager.getEntity(state, identityRoleAttributeDefinition)
   };
 }
 

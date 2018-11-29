@@ -10,7 +10,6 @@ import * as Utils from '../../utils';
 import { RoleRequestManager, ConceptRoleRequestManager, IdentityManager, IdentityRoleManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
-import SearchParameters from '../../domain/SearchParameters';
 import RoleConceptTable from './RoleConceptTable';
 
 const uiKey = 'role-request';
@@ -186,7 +185,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
         }
       }
-      this.refs.table.getWrappedInstance().reload();
       this.setState({showLoadingButtonRemove: false});
     })
     .catch(error => {
@@ -244,7 +242,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             _request.conceptRoles[i] = updatedEntity;
           }
         }
-        this.refs.table.getWrappedInstance().reload();
       } else {
         this.addError(error);
       }
@@ -267,7 +264,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     conceptRoleRequestManager.getService().create(concept)
     .then(json => {
       _request.conceptRoles.push(json);
-      this.refs.table.getWrappedInstance().reload();
     })
     .catch(error => {
       this.addError(error);
@@ -310,9 +306,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         showLoading: false
       });
       this.addError(ex);
-      if (this.refs.table) {
-        this.refs.table.getWrappedInstance().reload();
-      }
     });
     return;
   }
@@ -467,7 +460,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       _permissions,
       _identityPermissions } = this.props;
     //
-    const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
     // We want show audit fields only for Admin, but not in concept state.
@@ -566,9 +558,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               {
                 this._renderRoleConceptTable(request, true, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles, showLoadingButtonRemove)
               }
-              {
-                this._renderRoleConceptChangesTable(request, forceSearchParameters, true)
-              }
             </div>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
@@ -601,9 +590,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-        {
-          this._renderRoleConceptChangesTable(request, forceSearchParameters, !showRequestDetail)
-        }
         {
           !identityManager.canRead({}, _identityPermissions)
           ||

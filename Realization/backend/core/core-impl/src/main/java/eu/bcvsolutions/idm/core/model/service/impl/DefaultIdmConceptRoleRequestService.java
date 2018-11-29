@@ -303,9 +303,9 @@ public class DefaultIdmConceptRoleRequestService extends
 											.equals(conceptFormValue.getFormAttribute())
 											&& value.getSeq() == conceptFormValue.getSeq()) //
 									.findFirst() //
-									.orElse(new IdmFormValueDto()); //
+									.orElse(null); //
 							// Compile changes
-							Serializable value = formValue.getValue();
+							Serializable value = formValue != null ? formValue.getValue() : null;
 							Serializable conceptValue = conceptFormValue.getValue();
 
 							if (!Objects.equals(conceptValue, value)) {

@@ -353,7 +353,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
         }
       }
     }
-    console.log("compile taked", started, started.getTime(), new Date().getTime() - started.getTime(), );
+    console.log('compile taked', started, started.getTime(), new Date().getTime() - started.getTime(), );
     return concepts;
   }
 
@@ -507,19 +507,15 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    // return true;
     if (nextProps && (
-      JSON.stringify(nextProps.identityRoles) !== JSON.stringify(this.props.identityRoles) ||
-      JSON.stringify(nextProps.addedIdentityRoles) !== JSON.stringify(this.props.addedIdentityRoles) ||
-      JSON.stringify(nextProps.removedIdentityRoles) !== JSON.stringify(this.props.removedIdentityRoles) ||
-      JSON.stringify(nextProps.changedIdentityRoles) !== JSON.stringify(this.props.changedIdentityRoles) ||
-      nextProps._identityRoleAttributeDefinition !== this.props._identityRoleAttributeDefinition ||
-      nextProps._identityRoleFormInstance !== this.props._identityRoleFormInstance
+      JSON.stringify(nextProps) !== JSON.stringify(this.props)
     )) {
       return true;
     }
 
     if (nextState && (
-      JSON.stringify(nextState.detail) !== JSON.stringify(this.state.detail)
+      JSON.stringify(nextState) !== JSON.stringify(this.state)
     )) {
       return true;
     }
@@ -824,7 +820,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
         </Basic.Modal>
       </div>
     );
-    console.log("render taked", started, started.getTime(), new Date().getTime() - started.getTime(), );
+    console.log('render taked', started, started.getTime(), new Date().getTime() - started.getTime(), );
 
     return result;
   }

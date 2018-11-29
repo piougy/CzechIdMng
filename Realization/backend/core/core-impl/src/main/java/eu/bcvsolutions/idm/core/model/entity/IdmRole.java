@@ -12,6 +12,7 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Formula;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -103,6 +104,9 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	@NotNull
 	@Column(name = "can_be_requested", nullable = false)
 	private boolean canBeRequested;
+	
+	@Formula("(select coalesce(count(1), 0) from idm_role_composition c where c.superior_id = id)")
+	private long childrenCount;
 
 	public IdmRole() {
 	}
@@ -218,5 +222,25 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	 */
 	public String getBaseCode() {
 		return baseCode;
+	}
+	
+	/**
+	 * Count of sub roles
+	 * 
+	 * @since 9.4.0
+	 * @return
+	 */
+	public long getChildrenCount() {
+		return childrenCount;
+	}
+	
+	/**
+	 * Count of sub roles
+	 * 
+	 * @param childrenCount
+	 * @since 9.4.0
+	 */
+	public void setChildrenCount(long childrenCount) {
+		this.childrenCount = childrenCount;
 	}
 }

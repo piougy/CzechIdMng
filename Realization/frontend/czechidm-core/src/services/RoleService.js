@@ -64,7 +64,7 @@ export default class RoleService extends AbstractRequestFormableService {
    */
   getRootSearchParameters() {
     // root search - all roles can be roots
-    return this.getDefaultSearchParameters().setSize(50);
+    return this.getDefaultSearchParameters().clearSort().setSort('childrenCount', 'desc').setSort('code').setSize(50);
   }
 
   /**
@@ -72,7 +72,7 @@ export default class RoleService extends AbstractRequestFormableService {
    */
   getTreeSearchParameters() {
     // quick search suppors filtering by parent already
-    return this.getDefaultSearchParameters().setSize(50);
+    return this.getRootSearchParameters();
   }
 
   /**

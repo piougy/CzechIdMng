@@ -498,14 +498,35 @@ class Tree extends Basic.AbstractContextComponent {
     }
     // default
     return classNames(
-      { folder: node.childrenCount > 0 },
+      { folder: node.childrenCount === undefined || node.childrenCount > 0 },
       { file: node.childrenCount === 0 }
     );
+  }
+
+  _getNodeNiceLabel(node) {
+    if (!node) {
+      return null;
+    }
+    //
+    const { nodeNiceLabel } = this.props;
+    if (nodeNiceLabel === null) {
+      // no label (icon only)
+      return null;
+    }
+    //
+    if (nodeNiceLabel) {
+      return nodeNiceLabel(node);
+    }
+    return this.getManager().getNiceLabel(node);
   }
 
   _renderHeader() {
     const { header, multiSelect, traverse } = this.props;
     const { selected, activeNodeId } = this.state;
+    //
+    if (header === null) { // => not rendered
+      return header;
+    }
     //
     // TODO: render count, when multiSelect?
     if ((!multiSelect || traverse) && selected.size > 0) {
@@ -653,11 +674,11 @@ class Tree extends Basic.AbstractContextComponent {
                       className={ iconClassNames }
                       showLoading={ uiState && uiState.showLoading }/>
                     {
-                      node.childrenCount
+                      node.childrenCount && this._getNodeNiceLabel(node)
                       ?
-                      `[${ this.getManager().getNiceLabel(node) }]`
+                      `[${ this._getNodeNiceLabel(node) }]`
                       :
-                      this.getManager().getNiceLabel(node)
+                      this._getNodeNiceLabel(node)
                     }
                   </Basic.Button>
                   {
@@ -701,6 +722,7 @@ class Tree extends Basic.AbstractContextComponent {
   render() {
     const {
       rendered,
+      header,
       showLoading,
       traverse,
       onDetail,
@@ -744,68 +766,74 @@ class Tree extends Basic.AbstractContextComponent {
     //
     return (
       <div className={ classNames('advanced-tree', className) } style={ style }>
-        <div className="basic-toolbar tree-header">
-          <div className="tree-header-text">
-            { this._renderHeader() }
-          </div>
-          <div className="tree-header-buttons">
-            <DetailButton
-              rendered={ selectedNode !== null && onDetail ? true : false }
-              onClick={ this.onDetail.bind(this, activeNodeId) }
-              title={ this.i18n('detail.link.title') }/>
-
-            {/* RT: search prepare  */}
-            <Basic.Button
-              className="btn-xs hidden"
-              showLoading={ _showLoading }
-              icon="filter"
-              style={{ marginLeft: 3 }}
-              onClick={ this.toogleFilter.bind(this, filterOpened) }>
-              <Basic.Icon icon={!filterOpened ? 'triangle-bottom' : 'triangle-top'} style={{ fontSize: '0.85em'}}/>
-            </Basic.Button>
-
-            <Basic.Button
-              title={ this.i18n('reload') }
-              titlePlacement="bottom"
-              className="btn-xs"
-              onClick={ this.reload.bind(this, null) }
-              showLoading={ _showLoading }
-              icon="fa:refresh"
-              style={{ marginLeft: 3 }}/>
-          </div>
-        </div>
-        {/* RT: search prepare */}
-        <Basic.Collapse in={ filterOpened }>
+        {
+          header === null
+          ||
           <div>
-            <form
-              className="basic-toolbar"
-              style={{ display: 'flex', marginBottom: 0 }}
-              onSubmit={ this.useFilter.bind(this) }>
-              <div style={{ flex: 1 }}>
-                <Basic.TextField
-                  ref="filter"
-                  label={ null }
-                  placeholder={ 'Search ...' }
-                  className="small"
-                  style={{ marginBottom: 0 }}/>
+            <div className="basic-toolbar tree-header">
+              <div className="tree-header-text">
+                { this._renderHeader() }
               </div>
-              <div className="text-right">
+              <div className="tree-header-buttons">
+                <DetailButton
+                  rendered={ selectedNode !== null && onDetail ? true : false }
+                  onClick={ this.onDetail.bind(this, activeNodeId) }
+                  title={ this.i18n('detail.link.title') }/>
+
+                {/* RT: search prepare  */}
                 <Basic.Button
-                  type="submit"
-                  className="btn-xs"
+                  className="btn-xs hidden"
                   showLoading={ _showLoading }
-                  icon="fa:check"
-                  style={{ marginLeft: 3 }}/>
-                <Basic.Button
-                  className="btn-xs"
-                  showLoading={ _showLoading }
-                  icon="remove"
+                  icon="filter"
                   style={{ marginLeft: 3 }}
-                  onClick={ this.cancelFilter.bind(this) }/>
+                  onClick={ this.toogleFilter.bind(this, filterOpened) }>
+                  <Basic.Icon icon={!filterOpened ? 'triangle-bottom' : 'triangle-top'} style={{ fontSize: '0.85em'}}/>
+                </Basic.Button>
+
+                <Basic.Button
+                  title={ this.i18n('reload') }
+                  titlePlacement="bottom"
+                  className="btn-xs"
+                  onClick={ this.reload.bind(this, null) }
+                  showLoading={ _showLoading }
+                  icon="fa:refresh"
+                  style={{ marginLeft: 3 }}/>
               </div>
-            </form>
+            </div>
+            {/* RT: search prepare */}
+            <Basic.Collapse in={ filterOpened }>
+              <div>
+                <form
+                  className="basic-toolbar"
+                  style={{ display: 'flex', marginBottom: 0 }}
+                  onSubmit={ this.useFilter.bind(this) }>
+                  <div style={{ flex: 1 }}>
+                    <Basic.TextField
+                      ref="filter"
+                      label={ null }
+                      placeholder={ 'Search ...' }
+                      className="small"
+                      style={{ marginBottom: 0 }}/>
+                  </div>
+                  <div className="text-right">
+                    <Basic.Button
+                      type="submit"
+                      className="btn-xs"
+                      showLoading={ _showLoading }
+                      icon="fa:check"
+                      style={{ marginLeft: 3 }}/>
+                    <Basic.Button
+                      className="btn-xs"
+                      showLoading={ _showLoading }
+                      icon="remove"
+                      style={{ marginLeft: 3 }}
+                      onClick={ this.cancelFilter.bind(this) }/>
+                  </div>
+                </form>
+              </div>
+            </Basic.Collapse>
           </div>
-        </Basic.Collapse>
+        }
         <div className="tree-body" style={ bodyStyle }>
           {
             _showLoading
@@ -884,6 +912,10 @@ Tree.propTypes = {
     PropTypes.func
   ),
   /**
+   * Node label. Manager's nice label is used by default.
+   */
+  nodeNiceLabel: PropTypes.func,
+  /**
    * Single (false) or multi selection.
    */
   multiSelect: PropTypes.bool,
@@ -904,7 +936,7 @@ Tree.propTypes = {
    */
   traverse: PropTypes.bool,
   /**
-   * Tree header
+   * Tree header. If ``null`` is given, then header is not rendered.
    */
   header: PropTypes.oneOfType([
     PropTypes.string,

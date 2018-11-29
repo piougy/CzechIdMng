@@ -26,7 +26,7 @@ Entity property names and manager's methods are not configurable - enrich entity
 | onDoubleClick | func | On double click node callback. Selected node is given as parameter. | |
 | onDetail | func | Show detail function. Detail icon is rendered in tree header. | |
 | traverse | bool | raverse to selected folder | false |
-| header | oneOfType([string, element]) | Tree header | this.i18n('component.advanced.Tree.header')|
+| header | oneOfType([string, element]) | Tree header. If ``null`` is given, then header is not rendered. | this.i18n('component.advanced.Tree.header')|
 | noData | oneOfType([string, element]) | If tree roots are empty, then this text will be shown | this.i18n('component.advanced.Tree.noData') |
 | className | string | Tree css |  |
 | style | object | Tree styles |  |
@@ -35,6 +35,7 @@ Entity property names and manager's methods are not configurable - enrich entity
 | clearable | bool   | Selected options can be cleared | true |
 | nodeIcon | oneOfType([string, func]) | Node icon - single icon for all nodes (string) or callback - named parameters "node" and "opened" will be given. { null } can be given - disable default icons. | default icons for folder 'fa:folder', 'fa:folder-open' and file 'fa:file-o' |
 | nodeIconClassName | oneOfType([string, func]) | Node icon class name - string or callback - named parameters "node" and "opened" will be given. { null } can be given - disable default icon class names. | default 'folder' and 'file' |
+| nodeNiceLabel | func | Node label. Manager's nice label is used by default. | manager.getNiceLabel(node) |
 
 
 ## Usage

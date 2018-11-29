@@ -98,7 +98,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		if (defaultRole != null && inactiveOwnerBehavior == null) {
 			throw new ResultCodeException(AccResultCode.SYNCHRONIZATION_INACTIVE_OWNER_BEHAVIOR_MUST_BE_SET);
 		}
-		if (inactiveOwnerBehavior != null && inactiveOwnerBehavior.equals(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED)) {
+		if (SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED == inactiveOwnerBehavior) {
 			SysSystemMappingDto provisioningMapping = systemMappingService.findProvisioningMapping(
 					context.getSystem().getId(),
 					context.getEntityType());
@@ -336,7 +336,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		IdmIdentityContractDto primeContract = identityContractService.getPrimeValidContract(entity.getId());
 		if (primeContract == null) {
 			SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
-			if (inactiveOwnerBehavior.equals(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED)) {
+			if (SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED == inactiveOwnerBehavior) {
 				context.getLogItem().addToLog(MessageFormat.format(
 						"Default role is set, but it will not be assigned - no valid identity contract was found for identity [{0}],"
 						+ " so the account will be in protection.", entity.getCode()));
@@ -551,7 +551,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			// Default role is not specified - no problem
 			return account;
 		}
-		if (inactiveOwnerBehavior.equals(SynchronizationInactiveOwnerBehaviorType.LINK)) {
+		if (SynchronizationInactiveOwnerBehaviorType.LINK == inactiveOwnerBehavior) {
 			return account;
 		}
 

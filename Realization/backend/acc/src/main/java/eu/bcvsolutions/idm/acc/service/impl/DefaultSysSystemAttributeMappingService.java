@@ -301,7 +301,7 @@ public class DefaultSysSystemAttributeMappingService extends
 	@Override
 	public List<SysSystemAttributeMappingDto> getAllPasswordAttributes(UUID systemId, UUID systemMappingId) {
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
-		filter.setPasswordAttribute(true);
+		filter.setPasswordAttribute(Boolean.TRUE);
 		filter.setSystemId(systemId);
 		filter.setSystemMappingId(systemMappingId);
 		return this.find(filter, null).getContent();

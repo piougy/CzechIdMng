@@ -131,7 +131,7 @@ public class DefaultSysRoleSystemAttributeService extends
 							objectClassDto.getSystem(), //
 							AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ENTITY_TYPE,
 							systemMappingDto.getEntityType(), //
-							AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ONLY_EVICTED, true //
+							AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ONLY_EVICTED, Boolean.TRUE //
 					)); //
 			// Execute recalculation LRT
 			longRunningTaskManager.execute(attributeControlledValueRecalculationTask);

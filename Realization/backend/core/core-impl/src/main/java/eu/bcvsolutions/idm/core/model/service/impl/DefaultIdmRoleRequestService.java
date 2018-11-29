@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -18,6 +19,7 @@ import javax.persistence.criteria.Root;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -41,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
@@ -57,6 +61,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
@@ -72,6 +77,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRequestRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -632,6 +638,76 @@ public class DefaultIdmRoleRequestService
 			}
 		}
 		return roleRequest;
+	}
+
+	@Override
+	public IdmRoleRequestDto copyRolesByIdentity(IdmRoleRequestByIdentityDto requestByIdentityDto) {
+		Assert.notNull(requestByIdentityDto, "Request by identity must exist!");
+		Assert.notNull(requestByIdentityDto.getRoleRequest(), "Request must be filled for copy roles!");
+		Assert.notNull(requestByIdentityDto.getIdentityContract(), "Contract must be filled for create role request!");
+
+		List<UUID> onlyIdentityRoles = requestByIdentityDto.getIdentityRoles();
+		UUID fromIdentityId = requestByIdentityDto.getFromIdentity();
+		UUID fromIdentityContractId = requestByIdentityDto.getFromIdentityContract();
+		UUID identityContractId = requestByIdentityDto.getIdentityContract();
+		UUID roleRequestId = requestByIdentityDto.getRoleRequest();
+		LocalDate validFrom = requestByIdentityDto.getValidFrom();
+		LocalDate validTill = requestByIdentityDto.getValidTill();
+
+		if (fromIdentityId == null && fromIdentityContractId == null) {
+			// Throw
+		} else if (fromIdentityId != null && fromIdentityContractId != null) {
+			// Throw
+		}
+
+		List<IdmIdentityRoleDto> identityRoles = null;
+		if (fromIdentityId != null) {
+			identityRoles = identityRoleService.findAllByIdentity(fromIdentityId);
+		} else if (fromIdentityContractId != null) {
+			identityRoles = identityRoleService.findAllByContractPosition(fromIdentityContractId);
+		}
+
+		// If exists selected roles filter it
+		if (!onlyIdentityRoles.isEmpty()) {
+			identityRoles = identityRoles.stream()
+					.filter(identityRole -> onlyIdentityRoles.contains(identityRole.getId()))
+					.collect(Collectors.toList());
+		}
+
+		boolean useValidFromIdentity = requestByIdentityDto.isUseValidFromIdentity();
+		boolean copyRoleParameters = requestByIdentityDto.isCopyRoleParameters();
+		
+		// Create role concept
+		for (IdmIdentityRoleDto identityRole : identityRoles) {
+			IdmConceptRoleRequestDto conceptRoleRequestDto = new IdmConceptRoleRequestDto();
+			
+			if (useValidFromIdentity) {
+				conceptRoleRequestDto.setValidFrom(identityRole.getValidFrom());
+				conceptRoleRequestDto.setValidTill(identityRole.getValidTill());
+			} else {
+				conceptRoleRequestDto.setValidFrom(validFrom);
+				conceptRoleRequestDto.setValidTill(validTill);
+			}
+
+			// Copy role parameters
+			if (copyRoleParameters) {
+				IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class);
+				// For copy must exist identity role attribute definition
+				if (roleDto.getIdentityRoleAttributeDefinition() != null) {
+					IdmFormDefinitionDto formDefinition = formService.getDefinition(roleDto.getIdentityRoleAttributeDefinition());
+					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRole, formDefinition);
+					conceptRoleRequestDto.setEavs(Lists.newArrayList(formInstance));
+				}
+			}
+
+			conceptRoleRequestDto.setIdentityContract(identityContractId);
+			conceptRoleRequestDto.setRoleRequest(roleRequestId);
+			conceptRoleRequestDto.setRole(identityRole.getRole());
+			conceptRoleRequestDto.setOperation(ConceptRoleRequestOperation.ADD);
+			conceptRoleRequestDto = conceptRoleRequestService.save(conceptRoleRequestDto);
+		}
+
+		return getIdmRoleRequestService().get(roleRequestId);
 	}
 
 	private void cancelWF(IdmRoleRequestDto dto) {

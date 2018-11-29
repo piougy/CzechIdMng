@@ -1239,7 +1239,8 @@
           "oldValue": "Původní hodnota {{oldValue}}",
           "oldValueNotExist": "Původní hodnota byla prázdná",
           "create": {
-            "header": "Přidat oprávnění"
+            "header": "Přidat oprávnění",
+            "headerByIdentity": "Přidat oprávnění podle uživatele"
           },
           "edit": {
             "header": "Upravit oprávnění"
@@ -1267,7 +1268,8 @@
           },
           "identityRoleAttributes": {
             "header": "Atributy role"
-          }
+          },
+          "addByIdentity": "Přidat podle uživatele"
         }
     },
     "tasks": {

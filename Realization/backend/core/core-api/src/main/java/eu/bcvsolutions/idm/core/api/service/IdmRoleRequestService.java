@@ -6,6 +6,7 @@ import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -105,4 +106,11 @@ public interface IdmRoleRequestService
 	 */
 	IdmRoleRequestDto createRequest(IdmIdentityContractDto contract, IdmRoleDto... roles);
 
+	/**
+	 * Copy roles from identity, by whole identity or contract or selected identity roles.
+	 *
+	 * @param requestByIdentityDto
+	 * @return
+	 */
+	IdmRoleRequestDto copyRolesByIdentity(IdmRoleRequestByIdentityDto requestByIdentityDto);
 }

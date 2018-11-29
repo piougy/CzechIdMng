@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleManager, IdentityManager, IdentityContractManager, RoleTreeNodeManager, FormDefinitionManager, IdentityRoleManager, DataManager } from '../../redux';
+import { RoleManager, RoleRequestManager, IdentityManager, IdentityContractManager, RoleTreeNodeManager, FormDefinitionManager, IdentityRoleManager, DataManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import FormInstance from '../../domain/FormInstance';
 
@@ -22,6 +22,7 @@ const identityContractManager = new IdentityContractManager();
 const roleTreeNodeManager = new RoleTreeNodeManager();
 const formDefinitionManager = new FormDefinitionManager();
 const identityRoleManager = new IdentityRoleManager();
+const roleRequestManager = new RoleRequestManager();
 let selectedRole = null;
 let selectedIdentityRole = null;
 const uiKeyIdentityRoleFormInstance = 'identity-role-form-instance';
@@ -36,6 +37,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     this.state = {
       conceptData: [],
       filterOpened: this.props.filterOpened,
+      showRoleByIdentitySelect: false,
       detail: {
         show: false,
         entity: {},
@@ -400,6 +402,35 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   /**
+   * Create new identity role concepts by identities from user
+   */
+  _addConceptByIdentity() {
+    this._showRoleByIdentitySelect();
+  }
+
+  _showRoleByIdentitySelect() {
+    this.setState({
+      showRoleByIdentitySelect: true
+    });
+  }
+
+  _hideRoleByIdentitySelect() {
+    this.setState({
+      showRoleByIdentitySelect: false
+    });
+  }
+
+  _getRoleByIdentity(event) {
+    if (event) {
+      event.preventDefault();
+    }
+
+    const roleRequestByIdentity = this.refs.roleSelectByIdentity.getWrappedInstance().createRoleRequestByIdentity();
+    this.context.store.dispatch(roleRequestManager.copyRolesByIdentity(roleRequestByIdentity, null, null));
+    // this._hideRoleByIdentitySelect();
+  }
+
+  /**
    * Generate cell with actions (buttons)
    */
   _conceptActionsCell({rowIndex, data}) {
@@ -477,8 +508,15 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { showLoading, identityUsername, readOnly, className, _identityRoleAttributeDefinition, _identityRoleFormInstance} = this.props;
-    const { conceptData, detail } = this.state;
+    const {
+      showLoading,
+      identityUsername,
+      readOnly,
+      className,
+      _identityRoleAttributeDefinition,
+      _identityRoleFormInstance,
+      request } = this.props;
+    const { conceptData, detail, showRoleByIdentitySelect } = this.state;
 
     let _formInstance = null;
     let _showEAV = false;
@@ -514,6 +552,16 @@ export class RoleConceptTable extends Basic.AbstractContent {
               <Basic.Icon value="fa:plus"/>
               {' '}
               {this.i18n('button.add')}
+            </Basic.Button>
+            {' '}
+            <Basic.Button
+              level="success"
+              className="btn-xs"
+              disabled={readOnly}
+              onClick={this._showRoleByIdentitySelect.bind(this)}>
+              <Basic.Icon value="fa:plus"/>
+              {' '}
+              {this.i18n('addByIdentity')}
             </Basic.Button>
           </div>
           <div className="clearfix"></div>
@@ -622,6 +670,38 @@ export class RoleConceptTable extends Basic.AbstractContent {
             className="action"
             cell={this._conceptActionsCell.bind(this)}/>
         </Basic.Table>
+
+        <Basic.Modal
+          bsSize="large"
+          show={showRoleByIdentitySelect}
+          onHide={ this._hideRoleByIdentitySelect.bind(this) }
+          backdrop="static"
+          keyboard={!showLoading}>
+          <Basic.Modal.Header
+            closeButton={ !showLoading }
+            text={ this.i18n('create.headerByIdentity') }
+            rendered={ Utils.Entity.isNew(detail.entity) }/>
+          <Basic.Modal.Body>
+            <Advanced.RoleSelectByIdentity
+              ref="roleSelectByIdentity"
+              identityUsername={identityUsername}
+              request={request}/>
+          </Basic.Modal.Body>
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="link"
+              onClick={ this._hideRoleByIdentitySelect.bind(this) }>
+              { this.i18n('button.close') }
+            </Basic.Button>
+            <Basic.Button
+              type="submit"
+              level="success"
+              onClick={ this._getRoleByIdentity.bind(this) }
+              showLoadingIcon>
+              { this.i18n('button.set') }
+            </Basic.Button>
+          </Basic.Modal.Footer>
+        </Basic.Modal>
 
         <Basic.Modal
           bsSize="large"

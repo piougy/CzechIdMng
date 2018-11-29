@@ -63,4 +63,20 @@ export default class IdentityRoleService extends FormableEntityService {
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('role.name');
   }
+
+  /**
+   * Returns search parameters for search roots
+   */
+  getRootSearchParameters() {
+    // root search - all identity roles withou composition can be roots
+    return this.getDefaultSearchParameters().setFilter('directRole', true).setSize(50);
+  }
+
+  /**
+   * Search sub roles by parent id
+   */
+  getTreeSearchParameters() {
+    // quick search suppors filtering by parent already
+    return this.getDefaultSearchParameters().setSize(50);
+  }
 }

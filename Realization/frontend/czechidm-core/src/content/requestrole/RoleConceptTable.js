@@ -522,6 +522,71 @@ export class RoleConceptTable extends Basic.AbstractContent {
     return false;
   }
 
+  _conceptActionsCellSimple(value) {
+    const {readOnly, showLoadingButtonRemove} = this.props;
+    const actions = [];
+    const notModificated = !(value._added || value._removed || value._changed);
+    const manualRole = !value.automaticRole && !value.directRole;
+    //
+    actions.push(
+      <Basic.Button
+        level={'danger'}
+        onClick={this._deleteConcept.bind(this, value)}
+        className="btn-xs"
+        disabled={readOnly || !manualRole}
+        showLoading={showLoadingButtonRemove}
+        role="group"
+        title={this.i18n('button.delete')}
+        titlePlacement="bottom">
+        <Basic.Icon icon={notModificated ? 'trash' : 'remove'}/>
+      </Basic.Button>
+    );
+    if (!value._removed) {
+      actions.push(
+        <Basic.Button
+          level={'warning'}
+          onClick={this._showDetail.bind(this, value, true, false)}
+          className="btn-xs"
+          disabled={readOnly || !manualRole}
+          role="group"
+          title={this.i18n('button.edit')}
+          titlePlacement="bottom">
+          <Basic.Icon icon={'edit'}/>
+        </Basic.Button>
+      );
+    }
+    return (
+      <div className="btn-group" role="group">
+        {actions}
+      </div>
+    );
+  }
+  generateTable(data) {
+    const trs = [];
+    data.forEach(concept => {
+      let rowClass;
+      if (concept._added) {
+        rowClass = 'bg-success';
+      }
+      if (concept._removed) {
+        rowClass = 'bg-danger';
+      }
+      if (concept._changed) {
+        rowClass = 'bg-warning';
+      }
+      const row = [];
+      row.push(<td><Advanced.DetailButton
+        title={this.i18n('button.detail')}
+        onClick={this._showDetail.bind(this, concept, !concept._removed, false)}/></td>);
+      row.push(<td>{concept._embedded.role.name}</td>);
+      row.push(<td>{concept._embedded.identityContract ? concept._embedded.identityContract.id : null}</td>);
+      row.push(<td>{this._conceptActionsCellSimple(concept)}</td>);
+      trs.push(<tr className={rowClass}>{row}</tr>);
+    });
+
+    return <table>{trs}</table>;
+  }
+
   render() {
     const started = new Date();
     const {
@@ -558,7 +623,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
 
     const result = (
       <div>
-        <Basic.Panel rendered={ request !== null && _currentIdentityRoles !== null && !detail.show && !showRoleByIdentitySelect}>
+        <Basic.Panel showLoading={showLoading} rendered={ request !== null && _currentIdentityRoles !== null && !detail.show && !showRoleByIdentitySelect}>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
           <Basic.Toolbar rendered={!detail.show && !showRoleByIdentitySelect}>
             <div className="pull-right">
@@ -584,6 +649,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
             </div>
             <div className="clearfix"></div>
           </Basic.Toolbar>
+          {/* this.generateTable(conceptData)*/}
           <Basic.Table
             rendered={!detail.show && !showRoleByIdentitySelect}
             hover={false}

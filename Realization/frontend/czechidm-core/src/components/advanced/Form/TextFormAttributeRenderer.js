@@ -149,18 +149,19 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
     return validation;
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { attribute, values } = this.props;
+    const showOriginalValue = originalValues ? true : false;
     //
     return (
       <Basic.TextField
         ref={ AbstractFormAttributeRenderer.INPUT }
         type={ attribute.confidential ? 'password' : 'text' }
-        label={ this.getLabel() }
+        label={ this.getLabel(null, showOriginalValue) }
         placeholder={ this.getPlaceholder() }
-        value={ this.toInputValue(values) }
+        value={ this.toInputValue(showOriginalValue ? originalValues : values) }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ this.isReadOnly() }
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }
         validation={ this.getInputValidation() }
         required={ this.isRequired() }
         confidential={ attribute.confidential }/>

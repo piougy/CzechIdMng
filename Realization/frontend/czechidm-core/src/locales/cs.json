@@ -531,6 +531,10 @@
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
+        },
+        "showChanges":{
+          "newValue": "(Nová hodnota)",
+          "originalValue": "(Původní hodnota)"
         }
       },
       "Recaptcha": {

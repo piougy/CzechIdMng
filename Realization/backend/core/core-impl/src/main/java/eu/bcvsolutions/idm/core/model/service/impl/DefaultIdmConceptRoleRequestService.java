@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -26,13 +28,11 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
-import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRequestItemAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -95,8 +94,6 @@ public class DefaultIdmConceptRoleRequestService extends
 	private FormService formService;
 	@Autowired
 	private IdmFormAttributeService formAttributeService;
-	@Autowired
-	private RequestManager requestManager;
 
 	@Autowired
 	public DefaultIdmConceptRoleRequestService(IdmConceptRoleRequestRepository repository,
@@ -235,6 +232,7 @@ public class DefaultIdmConceptRoleRequestService extends
 	@Override
 	public IdmConceptRoleRequestDto saveInternal(IdmConceptRoleRequestDto dto) {
 		IdmConceptRoleRequestDto savedDto = super.saveInternal(dto);
+		
 		if (dto != null && dto.getRole() != null) {
 			IdmRoleDto roleDto = roleService.get(dto.getRole());
 			if (roleDto == null) {
@@ -265,44 +263,55 @@ public class DefaultIdmConceptRoleRequestService extends
 				savedDto.getEavs().add(formInstance);
 			}
 		}
-
+		IdmRoleRequestController
 		return savedDto;
 	}
 
 	@Override
 	public void deleteInternal(IdmConceptRoleRequestDto dto) {
+		formService.deleteValues(dto);
 		this.cancelWF(dto);
 		super.deleteInternal(dto);
 	}
-	
+
 	@Override
 	public IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto) {
 		UUID roleId = dto.getRole();
 		if (roleId != null) {
 			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.role, IdmRoleDto.class);
-			// Has role filled attribute definition? 
+			// Has role filled attribute definition?
 			UUID formDefintion = role.getIdentityRoleAttributeDefinition();
 			if (formDefintion != null) {
 				IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(role,
 						IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
 				IdmFormInstanceDto conceptFormInstance = formService.getFormInstance(dto, formDefinitionDto);
-				// If exists identity role, then we try to evaluate changes against EAVs in the current identity role.
-				if (dto.getIdentityRole() != null) {
-					ConceptRoleRequestOperation operation = dto.getOperation();
-					IdmIdentityRoleDto identityRoleDto = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.identityRole, IdmIdentityRoleDto.class);
+				// If exists identity role, then we try to evaluate changes against EAVs in the
+				// current identity role.
+				ConceptRoleRequestOperation operation = dto.getOperation();
+				if (dto.getIdentityRole() != null && ConceptRoleRequestOperation.UPDATE == operation) {
+					IdmIdentityRoleDto identityRoleDto = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.identityRole,
+							IdmIdentityRoleDto.class);
 					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinitionDto);
-					if(formInstance != null && conceptFormInstance != null) {
+					if (formInstance != null && conceptFormInstance != null) {
 						List<IdmFormValueDto> conceptValues = conceptFormInstance.getValues();
 						List<IdmFormValueDto> values = formInstance.getValues();
-						
-						conceptValues.forEach(conceptValue -> {
+
+						conceptValues.forEach(conceptFormValue -> {
 							IdmFormValueDto formValue = values.stream() //
-									.filter(value -> value.getFormAttribute().equals(conceptValue.getFormAttribute())) //
+									.filter(value -> value.getFormAttribute()
+											.equals(conceptFormValue.getFormAttribute())
+											&& value.getSeq() == conceptFormValue.getSeq()) //
 									.findFirst() //
 									.orElse(new IdmFormValueDto()); //
 							// Compile changes
-							List<IdmRequestItemAttributeDto> changes = requestManager.getChanges(formValue, conceptValue, RequestOperationType.valueOf(operation.name()));
-							conceptValue.getChanges().addAll(changes);
+							Serializable value = formValue.getValue();
+							Serializable conceptValue = conceptFormValue.getValue();
+
+							if (!Objects.equals(conceptValue, value)) {
+								conceptFormValue.setChanged(true);
+								conceptFormValue.setOriginalValue(formValue);
+							}
+							// TODO check remove in multivalued attribute
 						});
 					}
 				}

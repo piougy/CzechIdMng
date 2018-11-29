@@ -500,6 +500,10 @@
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes."
+        },
+        "showChanges":{
+          "newValue": "(New value)",
+          "originalValue": "(Original value)"
         }
       },
       "Recaptcha": {

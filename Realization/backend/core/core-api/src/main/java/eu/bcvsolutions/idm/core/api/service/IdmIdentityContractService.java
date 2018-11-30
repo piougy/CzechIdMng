@@ -119,7 +119,7 @@ public interface IdmIdentityContractService extends
 
 	/**
 	 * If given identity has any expired contract, it returns the latest expired (according to validTill).
-	 * Otherwise returns null.
+	 * Otherwise returns null. Parameter identityId is mandatory.
 	 * 
 	 * @param identityId
 	 * @param expiration

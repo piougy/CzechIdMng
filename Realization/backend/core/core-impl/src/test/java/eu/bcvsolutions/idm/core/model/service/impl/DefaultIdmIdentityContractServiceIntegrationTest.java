@@ -1134,4 +1134,39 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		last = service.findLastExpiredContract(identity.getId(), contractOne.getValidTill());
 		Assert.assertEquals(contractTwo, last);
 	}
+
+	@Test
+	public void testCheckExpiredContract() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+
+		List<IdmIdentityContractDto> contracts = service.findAllByIdentity(identity.getId());
+		assertEquals(1, contracts.size());
+
+		IdmIdentityContractDto last = service.findLastExpiredContract(identity.getId(), null);
+		Assert.assertNull(last);
+
+		IdmIdentityContractDto identityContractTwo = getHelper().createIdentityContact(identity);
+
+		last = service.findLastExpiredContract(identity.getId(), null);
+		Assert.assertNull(last);
+
+		contracts = service.findAllByIdentity(identity.getId());
+		assertEquals(2, contracts.size());
+
+		identityContractTwo.setValidTill(LocalDate.now().minusDays(5));
+		identityContractTwo = service.save(identityContractTwo);
+
+		contracts = service.findAllByIdentity(identity.getId());
+		assertEquals(2, contracts.size());
+
+		last = service.findLastExpiredContract(identity.getId(), null);
+		Assert.assertNotNull(last);
+		assertEquals(identityContractTwo.getId(), last.getId());
+
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		contracts = service.findAllByIdentity(identityTwo.getId());
+		assertEquals(1, contracts.size());
+		last = service.findLastExpiredContract(identityTwo.getId(), null);
+		Assert.assertNull(last);
+	}
 }

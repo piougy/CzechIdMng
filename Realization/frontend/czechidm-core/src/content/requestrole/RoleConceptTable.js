@@ -305,7 +305,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
    * @return {array}  conceptData           Final data for concept table
    */
   _compileConceptData({ identityRoles, addedIdentityRoles, removedIdentityRoles, changedIdentityRoles}) {
-    const started = new Date();
     // sort added - direct - automatic - sub roles
     const directRoles = [];
     const automaticRoles = [];
@@ -353,7 +352,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
         }
       }
     }
-    console.log('compile taked', started, started.getTime(), new Date().getTime() - started.getTime(), );
     return concepts;
   }
 
@@ -506,22 +504,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     return true;
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    // return true;
-    if (nextProps && (
-      JSON.stringify(nextProps) !== JSON.stringify(this.props)
-    )) {
-      return true;
-    }
-
-    if (nextState && (
-      JSON.stringify(nextState) !== JSON.stringify(this.state)
-    )) {
-      return true;
-    }
-    return false;
-  }
-
+  // To delete
   _conceptActionsCellSimple(value) {
     const {readOnly, showLoadingButtonRemove} = this.props;
     const actions = [];
@@ -561,6 +544,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
       </div>
     );
   }
+
+  // To delete
   generateTable(data) {
     const trs = [];
     data.forEach(concept => {
@@ -588,7 +573,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   render() {
-    const started = new Date();
     const {
       showLoading,
       identityUsername,
@@ -886,7 +870,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
         </Basic.Modal>
       </div>
     );
-    console.log('render taked', started, started.getTime(), new Date().getTime() - started.getTime(), );
 
     return result;
   }

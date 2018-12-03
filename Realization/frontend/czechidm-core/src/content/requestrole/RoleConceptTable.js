@@ -2,15 +2,13 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import uuid from 'uuid';
-import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleManager, RoleRequestManager, IdentityManager, IdentityContractManager, RoleTreeNodeManager, FormDefinitionManager, IdentityRoleManager, DataManager } from '../../redux';
-import SearchParameters from '../../domain/SearchParameters';
-import FormInstance from '../../domain/FormInstance';
+import { RoleManager, RoleRequestManager, IdentityManager } from '../../redux';
 import RoleSelectByIdentity from './RoleSelectByIdentity';
+import RoleConceptDetail from './RoleConceptDetail';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -19,14 +17,7 @@ import RoleSelectByIdentity from './RoleSelectByIdentity';
 
 const roleManager = new RoleManager();
 const identityManager = new IdentityManager();
-const identityContractManager = new IdentityContractManager();
-const roleTreeNodeManager = new RoleTreeNodeManager();
-const formDefinitionManager = new FormDefinitionManager();
-const identityRoleManager = new IdentityRoleManager();
 const roleRequestManager = new RoleRequestManager();
-let selectedRole = null;
-let selectedIdentityRole = null;
-const uiKeyIdentityRoleFormInstance = 'identity-role-form-instance';
 
 /**
  * @author VS
@@ -81,48 +72,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   /**
-   * Show modal dialog
-   * @param  {Object}  entity           Entity show in dialog
-   * @param  {Boolean} isEdit = false   If is false then form in dialog will be read only
-   */
-  _showDetail(entity, isEdit = false, multiAdd = false) {
-    const entityFormData = _.merge({}, entity, {
-      role: entity._embedded && entity._embedded.role ? entity._embedded.role : null
-    });
-    if (entityFormData.role && entityFormData.role.identityRoleAttributeDefinition) {
-      selectedRole = entityFormData.role;
-      selectedIdentityRole = entityFormData;
-      this.context.store.dispatch(formDefinitionManager.fetchEntityIfNeeded(entityFormData.role.identityRoleAttributeDefinition, null, (json, error) => {
-        this.handleError(error);
-      }));
-      if (selectedIdentityRole.id && selectedIdentityRole.operation !== 'ADD') {
-        this.context.store.dispatch(identityRoleManager.fetchFormInstances(selectedIdentityRole.id, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`, (formInstances, error) => {
-          if (error) {
-            this.addErrorMessage({ hidden: true, level: 'info' }, error);
-            this.setState({ error });
-          }
-        }));
-      } else {
-        selectedIdentityRole = null;
-      }
-    } else {
-      selectedRole = null;
-      selectedIdentityRole = null;
-    }
-    this.setState({
-      detail: {
-        show: true,
-        edit: isEdit && !entity.automaticRole && !entity.directRole,
-        entity: entityFormData,
-        add: multiAdd
-      }
-    }, () => {
-      // this.refs.form.setData(entityFormData);
-      this.refs.role.focus();
-    });
-  }
-
-  /**
    * Close modal dialog
    */
   _closeDetail() {
@@ -143,19 +92,21 @@ export class RoleConceptTable extends Basic.AbstractContent {
       event.preventDefault();
     }
 
-    if (!this.refs.form.isFormValid()) {
+    const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
+    const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
+    if (!form.isFormValid()) {
       return;
     }
-    if (this.refs.eavForm && !this.refs.eavForm.isValid()) {
+    if (eavForm && !eavForm.isValid()) {
       return;
     }
 
     const { identityUsername, createConceptFunc, updateConceptFunc } = this.props;
 
-    const entity = this.refs.form.getData();
+    const entity = form.getData();
     let eavValues = null;
-    if (this.refs.eavForm) {
-      eavValues = {values: this.refs.eavForm.getValues()};
+    if (eavForm) {
+      eavValues = {values: eavForm.getValues()};
     }
     if (entity._added) {
       if (!entity._virtualId && !entity.id && entity.role instanceof Array) {
@@ -401,6 +352,17 @@ export class RoleConceptTable extends Basic.AbstractContent {
     this._showDetail(newIdentityRoleConcept, true, true);
   }
 
+  _showDetail(entity, isEdit = false, multiAdd = false) {
+    this.setState({
+      detail: {
+        show: true,
+        edit: isEdit && !entity.automaticRole && !entity.directRole,
+        entity,
+        add: multiAdd
+      }
+    });
+  }
+
   _showRoleByIdentitySelect() {
     this.setState({
       showRoleByIdentitySelect: true
@@ -469,39 +431,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
         {actions}
       </div>
     );
-  }
-
-  /**
-   * Pre-fill valid-from by contract validity
-   */
-  _onChangeSelectOfContract(value) {
-    const{detail} = this.state;
-    let validFrom = value ? value.validFrom : null;
-    const now = moment().utc().valueOf();
-    if (validFrom && moment(validFrom).isBefore(now)) {
-      validFrom = now;
-    }
-    const entityFormData = _.merge({}, detail.entity);
-    entityFormData.validFrom = validFrom;
-    entityFormData.identityContract = value;
-    this._showDetail(entityFormData, detail.edit, detail.add);
-
-    return false;
-  }
-
-  _onChangeSelectOfRole(value, originalValue) {
-    if (!_.isArray(originalValue) || originalValue.length === 1) {
-      selectedRole = _.isArray(originalValue) ? originalValue[0] : originalValue;
-      if (selectedRole.identityRoleAttributeDefinition) {
-        this.context.store.dispatch(formDefinitionManager.fetchEntityIfNeeded(selectedRole.identityRoleAttributeDefinition, null, (json, error) => {
-          this.handleError(error);
-        }));
-      }
-    } else {
-      selectedRole = null;
-    }
-
-    return true;
   }
 
   // To delete
@@ -578,32 +507,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
       identityUsername,
       readOnly,
       className,
-      _identityRoleAttributeDefinition,
-      _identityRoleFormInstance,
       _currentIdentityRoles,
       request } = this.props;
     const { conceptData, detail, showRoleByIdentitySelect } = this.state;
-
-    let _formInstance = null;
-    let _showEAV = false;
-    if (selectedRole && selectedRole.identityRoleAttributeDefinition) {
-      _showEAV = true;
-    }
-    if (selectedRole && _identityRoleAttributeDefinition) {
-      if ( detail
-        && detail.entity
-        && detail.entity._eav
-        && detail.entity._eav.length === 1) {
-        _formInstance = new FormInstance(_identityRoleAttributeDefinition, detail.entity._eav[0].values);
-      } else if (detail.add) {
-        _formInstance = new FormInstance(_identityRoleAttributeDefinition, null);
-      }
-    }
-    if (!_formInstance && _identityRoleFormInstance && _identityRoleFormInstance.size === 1) {
-      _identityRoleFormInstance.map(instance => {
-        _formInstance = instance;
-      });
-    }
 
     const result = (
       <div>
@@ -787,68 +693,16 @@ export class RoleConceptTable extends Basic.AbstractContent {
               closeButton={ !showLoading }
               text={ this.i18n('edit.header', { role: detail.entity.role }) }
               rendered={ !Utils.Entity.isNew(detail.entity) }/>
-
             <Basic.Modal.Body>
-              <Basic.AbstractForm
-                ref="form"
-                data={detail.entity}
+              <RoleConceptDetail
+                ref="roleConceptDetail"
+                identityUsername={identityUsername}
                 showLoading={showLoading}
-                readOnly={!detail.edit || readOnly}>
-                <Advanced.RoleSelect
-                  required
-                  readOnly={ !detail.entity._added || readOnly }
-                  multiSelect={ detail.entity._added && detail.add }
-                  showActionButtons
-                  header={ this.i18n('selectRoleCatalogue.header') }
-                  onChange={this._onChangeSelectOfRole.bind(this)}
-                  label={ this.i18n('entity.IdentityRole.role') }
-                  ref="role"/>
-                <Basic.SelectBox
-                  ref="identityContract"
-                  manager={ identityContractManager }
-                  forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername).setFilter('validNowOrInFuture', true) }
-                  label={ this.i18n('entity.IdentityRole.identityContract.label') }
-                  placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
-                  helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
-                  returnProperty={false}
-                  readOnly={!detail.entity._added}
-                  onChange={this._onChangeSelectOfContract.bind(this)}
-                  niceLabel={ (contract) => { return identityContractManager.getNiceLabel(contract, false); }}
-                  required
-                  useFirst/>
-                <Basic.LabelWrapper
-                  label={this.i18n('entity.IdentityRole.automaticRole.label')}
-                  helpBlock={this.i18n('entity.IdentityRole.automaticRole.help')}
-                  rendered={ detail.entity.automaticRole !== null }
-                  hidden={ detail.entity._added }>
-                  { detail.entity.automaticRole ? roleTreeNodeManager.getNiceLabel(detail.entity._embedded.automaticRole) : null }
-                </Basic.LabelWrapper>
-                <Basic.Row>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.DateTimePicker
-                      mode="date"
-                      className={detail.entity.hasOwnProperty('_validFromChanged') ? 'text-danger' : null}
-                      ref={detail.entity.hasOwnProperty('_validFromChanged') ? '_validFromChanged' : 'validFrom'}
-                      label={this.i18n('label.validFrom')}/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.DateTimePicker
-                      mode="date"
-                      className={detail.entity.hasOwnProperty('_validTillChanged') ? 'text-danger' : null}
-                      ref={detail.entity.hasOwnProperty('_validTillChanged') ? '_validTillChanged' : 'validTill'}
-                      label={this.i18n('label.validTill')}/>
-                  </Basic.Col>
-                </Basic.Row>
-                <Basic.Panel rendered={_showEAV} showLoading={!_formInstance} style={{border: '0px'}}>
-                  <Basic.ContentHeader>
-                    {this.i18n('identityRoleAttributes.header') }
-                  </Basic.ContentHeader>
-                  <Advanced.EavForm
-                    ref="eavForm"
-                    formInstance={ _formInstance }
-                    readOnly={ false}/>
-                </Basic.Panel>
-              </Basic.AbstractForm>
+                readOnly={readOnly}
+                entity={detail.entity}
+                isEdit={detail.edit}
+                multiAdd={detail.add}
+                />
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button
@@ -897,16 +751,4 @@ RoleConceptTable.defaultProps = {
   showLoadingButtonRemove: false
 };
 
-function select(state) {
-  if (!selectedRole || !selectedRole.identityRoleAttributeDefinition) {
-    return {};
-  }
-
-  const identityRoleAttributeDefinition = selectedRole.identityRoleAttributeDefinition;
-  return {
-    _identityRoleFormInstance: selectedIdentityRole ? DataManager.getData(state, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`) : null,
-    _identityRoleAttributeDefinition: formDefinitionManager.getEntity(state, identityRoleAttributeDefinition)
-  };
-}
-
-export default connect(select, null, null, { withRef: true })(RoleConceptTable);
+export default RoleConceptTable;

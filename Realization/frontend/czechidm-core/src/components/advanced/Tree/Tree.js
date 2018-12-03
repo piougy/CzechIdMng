@@ -508,18 +508,6 @@ class Tree extends Basic.AbstractContextComponent {
     );
   }
 
-  /**
-   * Return nice label for given node. If is defined CB for create nice label
-   * use it.
-   */
-  _getNodeNiceLabel(node) {
-    const { nodeNiceLabel } = this.props;
-    if (nodeNiceLabel) {
-      return nodeNiceLabel(node);
-    }
-    return this.getManager().getNiceLabel(node);
-  }
-
   _renderHeader() {
     const { header, multiSelect, traverse } = this.props;
     const { selected, activeNodeId } = this.state;
@@ -565,12 +553,12 @@ class Tree extends Basic.AbstractContextComponent {
                 level="link"
                 className="embedded"
                 onClick={ this.onSelect.bind(this, parents[0].id) }>
-                <Basic.ShortText text={ this._getNodeNiceLabel(parents[0]) }/>
+                <Basic.ShortText text={ this.getManager().getNiceLabel(parents[0]) }/>
               </Basic.Button>
             </li>
           }
           <li>
-            <Basic.ShortText text={ this._getNodeNiceLabel(selectedNode) }/>
+            <Basic.ShortText text={ this.getManager().getNiceLabel(selectedNode) }/>
           </li>
         </ol>
       );
@@ -672,9 +660,9 @@ class Tree extends Basic.AbstractContextComponent {
                     {
                       node.childrenCount
                       ?
-                      `[${ this._getNodeNiceLabel(node) }]`
+                      `[${ this.getManager().getNiceLabel(node) }]`
                       :
-                      this._getNodeNiceLabel(node)
+                      this.getManager().getNiceLabel(node)
                     }
                   </Basic.Button>
                   {
@@ -900,10 +888,6 @@ Tree.propTypes = {
     PropTypes.string,
     PropTypes.func
   ),
-  /**
-   * Callback for calculare nice label for node. Into callback will be put current node.
-   */
-  nodeNiceLabel: PropTypes.func,
   /**
    * Single (false) or multi selection.
    */

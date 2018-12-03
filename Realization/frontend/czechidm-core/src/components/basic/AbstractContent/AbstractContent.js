@@ -7,7 +7,7 @@ import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
 import ConfigurationManager from '../../../redux/data/ConfigurationManager';
 import { selectNavigationItems, selectNavigationItem, getNavigationItem, hideFooter } from '../../../redux/config/actions';
-import * as util from 'util';
+import equal from 'fast-deep-equal';
 
 /**
 * Basic content = page representation
@@ -45,13 +45,13 @@ export default class AbstractContent extends AbstractContextComponent {
   shouldComponentUpdate(nextProps, nextState) {
     // return true;
     if (nextProps && (
-      util.inspect(nextProps) !== util.inspect(this.props)
+      !equal(nextProps, this.props)
     )) {
       return true;
     }
 
     if (nextState && (
-      util.inspect(nextState) !== util.inspect(this.state)
+      !equal(nextState, this.state)
     )) {
       return true;
     }

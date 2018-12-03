@@ -126,7 +126,8 @@ public class IdmRoleControllerRestTest extends AbstractReadWriteDtoControllerRes
 		getHelper().createRoleComposition(roleRoot, roleOne);
 		getHelper().createRoleComposition(roleRoot, roleTwo);
 		getHelper().createRoleComposition(roleOne, roleOneSub);
-		
+		//
+		Assert.assertEquals(2, getDto(roleRoot.getId()).getChildrenCount());
 		//
 		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setParent(roleRoot.getId());

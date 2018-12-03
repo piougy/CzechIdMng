@@ -54,7 +54,7 @@ public class IdmRoleDto extends FormableDto implements Disableable, Codeable, Ex
     private UUID requestItem; // Isn't persist in the entity
     @Embedded(dtoClass = IdmFormDefinitionDto.class)
 	private UUID identityRoleAttributeDefinition;
-
+    private long childrenCount;
 
     public IdmRoleDto() {
 	}
@@ -195,5 +195,23 @@ public class IdmRoleDto extends FormableDto implements Disableable, Codeable, Ex
 		this.identityRoleAttributeDefinition = identityRoleAttributeDefinition;
 	}
 	
+	/**
+	 * Count of sub roles
+	 * 
+	 * @since 9.4.0
+	 * @return
+	 */
+	public long getChildrenCount() {
+		return childrenCount;
+	}
 	
+	/**
+	 * Count of sub roles
+	 * 
+	 * @param childrenCount
+	 * @since 9.4.0
+	 */
+	public void setChildrenCount(long childrenCount) {
+		this.childrenCount = childrenCount;
+	}
 }

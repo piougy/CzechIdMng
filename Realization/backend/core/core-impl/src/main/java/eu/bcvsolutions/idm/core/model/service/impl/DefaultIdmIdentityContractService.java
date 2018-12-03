@@ -322,7 +322,8 @@ public class DefaultIdmIdentityContractService
 		Assert.notNull(identityId);
 		//
 		List<IdmIdentityContract> contracts = repository
-				.findExpiredContracts(
+				.findExpiredContractsByIdentity(
+						identityId,
 						expiration == null ? LocalDate.now() : expiration,
 						new PageRequest(0, 1, new Sort(Sort.Direction.DESC, IdmIdentityContract_.validTill.getName()))		
 				)

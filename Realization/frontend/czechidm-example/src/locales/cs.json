@@ -83,7 +83,7 @@
           "help": "Manager kontroluje načítání prvků do stromové komponenty",
           "option": {
             "treeNode": "Prvky stromové struktury",
-            "roles": "Role",
+            "role": "Role",
             "roleCatalogue": "Katalog rolí"
           }
         },

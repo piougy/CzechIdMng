@@ -73,12 +73,27 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	Long countByWorkPosition_TreeType(@Param("treeType") IdmTreeType treeType);
 	
 	Long countByWorkPosition_TreeType_Id(UUID treeTypeId);
+
+	/**
+	 * Returns expired contracts for given identity.
+	 *
+	 * @param identityId
+	 * @param expiration
+	 * @param pageable
+	 * @return
+	 */
+	@Query(value = "select e from #{#entityName} e" +
+			" where"
+			+ " (:identityId is null or e.identity.id = :identityId)"
+			+ " and"
+	        + " (validTill is not null and validTill < :expiration)")
+	Page<IdmIdentityContract> findExpiredContractsByIdentity(@Param("identityId") UUID identityId, @Param("expiration") LocalDate expiration, Pageable pageable);
 	
 	/**
 	 * Returns expired contracts. Its useful to find enabled contracts only.
-	 * 
-	 * @param expiration date to compare
-	 * @param disabled find disabled contracts or not
+	 * The method search <b>ALL</b> expired contracts.
+	 *
+	 * @param expiration
 	 * @param pageable
 	 * @return
 	 */

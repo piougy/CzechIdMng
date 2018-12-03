@@ -83,7 +83,7 @@
           "help": "Controlls loading roots anch children into tree component.",
           "option": {
             "treeNode": "Tree nodes",
-            "roles": "Roles",
+            "role": "Roles",
             "roleCatalogue": "Role catalogue"
           }
         },

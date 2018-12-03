@@ -196,6 +196,7 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 		request.setName(automaticRole.getName());
 		request.setRole(automaticRole.getRole());
 		request.setTreeNode(automaticRole.getTreeNode());
+		request.setRecursionType(automaticRole.getRecursionType());
 		request = roleRequestService.save(request);
 		request = roleRequestService.startRequestInternal(request.getId(), true);
 		if (RequestState.EXECUTED == request.getState()) {

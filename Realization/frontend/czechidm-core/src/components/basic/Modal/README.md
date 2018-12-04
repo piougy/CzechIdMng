@@ -3,7 +3,7 @@
 Wrapped react bootstrap modal
 * adds backdrop fix
 * https://github.com/react-bootstrap/react-bootstrap/blob/v0.28.3/src/Modal.js
-* https://react-bootstrap.github.io/components.html#modals
+* https://react-bootstrap.github.io/components/modal/
 
 
 ## Usage

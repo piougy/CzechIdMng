@@ -10,15 +10,11 @@ Input variables:
 - conceptRole (IdmConceptRoleRequestDto)
 - applicantDescription</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <userTask id="approveAssignByGuarantee" name="Approve by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:skipExpression="#{skipApproveByAuthorizers}">
+    <userTask id="approveAssignByGuarantee" name="Approve by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:formKey="dynamicTaskRoleConceptDetail" activiti:skipExpression="#{skipApproveByAuthorizers}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role, null).name}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validFrom" type="localDate" expression="#{conceptRole.validFrom}"></activiti:formProperty>
-        <activiti:formProperty id="validTill" type="localDate" expression="#{conceptRole.validTill}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
@@ -37,19 +33,13 @@ Input variables:
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("add")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;{{${roleService.get(conceptRole.role, null).name}}}&quot; change by role guarantee for &quot;{{${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}}}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
-    <userTask id="approveChangeByGuarantee" name="Approve by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:skipExpression="#{skipApproveByAuthorizers}">
+    <userTask id="approveChangeByGuarantee" name="Approve by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:formKey="dynamicTaskRoleConceptDetail" activiti:skipExpression="#{skipApproveByAuthorizers}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role, null).name}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
         <activiti:formProperty id="validFromDateOld" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole,null).validFrom}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validFromDateNew" type="localDate" expression="${conceptRole.validFrom}"></activiti:formProperty>
         <activiti:formProperty id="validTillDateOld" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole,null).validTill}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validTillDateNew" type="localDate" expression="${conceptRole.validTill}">
-          <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
-        </activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow19" sourceRef="approveChangeByGuarantee" targetRef="exclusivegateway3"></sequenceFlow>
@@ -597,7 +587,7 @@ automaticRoleRequestService.save(requestDto);</script>
         <omgdi:waypoint x="1156.0" y="317.0"></omgdi:waypoint>
         <omgdi:waypoint x="1753.0" y="319.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="60.0" x="1165.0" y="299.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="60.0" x="1165.0" y="299.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
@@ -631,7 +621,7 @@ automaticRoleRequestService.save(requestDto);</script>
         <omgdi:waypoint x="1932.0" y="516.0"></omgdi:waypoint>
         <omgdi:waypoint x="2035.0" y="515.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="99.0" x="1937.0" y="497.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="99.0" x="1937.0" y="497.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">
@@ -689,7 +679,7 @@ automaticRoleRequestService.save(requestDto);</script>
         <omgdi:waypoint x="1693.0" y="368.0"></omgdi:waypoint>
         <omgdi:waypoint x="1833.0" y="353.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="60.0" x="1187.0" y="386.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="60.0" x="1187.0" y="386.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">

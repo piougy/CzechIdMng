@@ -91,6 +91,9 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
           </Basic.AbstractForm>
         </Basic.Panel>
         <Basic.Panel showLoading = {showLoadingInternal}>
+          <Basic.AbstractForm ref="formData" data={formDataValues} style={{ padding: '15px 15px 0px 15px' }}>
+            {this._getFormDataComponents(task)}
+          </Basic.AbstractForm>
           <RoleConceptDetail
             ref="roleConceptDetail"
             identityUsername={task.applicant}
@@ -101,9 +104,6 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
             isEdit={canExecute}
             multiAdd={false}
             />
-          <Basic.AbstractForm ref="formData" data={formDataValues} style={{ padding: '15px 15px 0px 15px' }}>
-            {this._getFormDataComponents(task)}
-          </Basic.AbstractForm>
           <Basic.PanelFooter>
             <DecisionButtons task={task} onClick={this._validateAndCompleteTask.bind(this)} readOnly={!canExecute} />
           </Basic.PanelFooter>

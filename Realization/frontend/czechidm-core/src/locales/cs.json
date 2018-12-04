@@ -1275,6 +1275,7 @@
               "label": "Výběr uživatele",
               "help": "Výběr uživatele od kterého budou kopírované role."
             },
+            "roleSelectionHeader": "Výběr rolí",
             "roleSelect": "Výběr rolí od uživatele {{username}}",
             "selectedRoles": "Vybrané role",
             "noRoles": "Neexistují žádné přiřazené role",

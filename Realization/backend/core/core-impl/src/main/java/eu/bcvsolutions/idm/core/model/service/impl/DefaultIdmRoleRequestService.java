@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -58,12 +57,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -108,7 +104,8 @@ public class DefaultIdmRoleRequestService
 	private final EntityEventManager entityEventManager;
 	@Autowired
 	private FormService formService;
-	@Autowired private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService; 
+	@Autowired
+	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService; 
 	private IdmRoleRequestService roleRequestService;
 
 	@Autowired
@@ -646,76 +643,20 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(requestByIdentityDto.getRoleRequest(), "Request must be filled for copy roles!");
 		Assert.notNull(requestByIdentityDto.getIdentityContract(), "Contract must be filled for create role request!");
 
-		List<UUID> onlyIdentityRoles = requestByIdentityDto.getIdentityRoles();
-		UUID fromIdentityId = requestByIdentityDto.getFromIdentity();
-		UUID fromIdentityContractId = requestByIdentityDto.getFromIdentityContract();
 		UUID identityContractId = requestByIdentityDto.getIdentityContract();
 		UUID roleRequestId = requestByIdentityDto.getRoleRequest();
 		LocalDate validFrom = requestByIdentityDto.getValidFrom();
 		LocalDate validTill = requestByIdentityDto.getValidTill();
 
-		if (fromIdentityId == null && fromIdentityContractId == null) {
-			// Throw
-		} else if (fromIdentityId != null && fromIdentityContractId != null) {
-			// Throw
-		}
+		List<UUID> roles = requestByIdentityDto.getRoles();
 
-		List<IdmIdentityRoleDto> identityRoles = null;
-		if (fromIdentityId != null) {
-			identityRoles = identityRoleService.findAllByIdentity(fromIdentityId);
-		} else if (fromIdentityContractId != null) {
-			identityRoles = identityRoleService.findAllByContractPosition(fromIdentityContractId);
-		}
-
-		// If exists selected roles filter it
-		if (!onlyIdentityRoles.isEmpty()) {
-			identityRoles = identityRoles.stream()
-					.filter(identityRole -> onlyIdentityRoles.contains(identityRole.getId()))
-					.collect(Collectors.toList());
-		}
-
-		boolean useValidFromIdentity = requestByIdentityDto.isUseValidFromIdentity();
-		boolean copyRoleParameters = requestByIdentityDto.isCopyRoleParameters();
-		
-		// Create role concept
-		for (IdmIdentityRoleDto identityRole : identityRoles) {
+		for (UUID roleId : roles) {
 			IdmConceptRoleRequestDto conceptRoleRequestDto = new IdmConceptRoleRequestDto();
-			
-			if (useValidFromIdentity) {
-				conceptRoleRequestDto.setValidFrom(identityRole.getValidFrom());
-				conceptRoleRequestDto.setValidTill(identityRole.getValidTill());
-			} else {
-				conceptRoleRequestDto.setValidFrom(validFrom);
-				conceptRoleRequestDto.setValidTill(validTill);
-			}
-
-			// Copy role parameters
-			if (copyRoleParameters) {
-				IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class);
-				// For copy must exist identity role attribute definition
-				if (roleDto.getIdentityRoleAttributeDefinition() != null) {
-					IdmFormDefinitionDto formDefinition = DtoUtils.getEmbedded(roleDto, IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
-					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRole, formDefinition);
-					conceptRoleRequestDto.getEavs().clear();
-
-					// We must create new form instance with copy values
-					IdmFormInstanceDto newFormInstance = new IdmFormInstanceDto();
-					newFormInstance.setFormDefinition(formDefinition);
-					List<IdmFormValueDto> values = newFormInstance.getValues();
-					for (IdmFormValueDto formValue : formInstance.getValues()) {
-						IdmFormAttributeDto attribute = DtoUtils.getEmbedded(formValue, IdmFormValue_.formAttribute, IdmFormAttributeDto.class);
-						IdmFormValueDto copyOfValue = new IdmFormValueDto(attribute);
-						copyOfValue.setValue(formValue.getValue());
-						values.add(copyOfValue);
-					}
-					newFormInstance.setValues(values);
-					conceptRoleRequestDto.getEavs().add(newFormInstance);
-				}
-			}
-
 			conceptRoleRequestDto.setIdentityContract(identityContractId);
 			conceptRoleRequestDto.setRoleRequest(roleRequestId);
-			conceptRoleRequestDto.setRole(identityRole.getRole());
+			conceptRoleRequestDto.setRole(roleId);
+			conceptRoleRequestDto.setValidFrom(validFrom);
+			conceptRoleRequestDto.setValidTill(validTill);
 			conceptRoleRequestDto.setOperation(ConceptRoleRequestOperation.ADD);
 			conceptRoleRequestDto = conceptRoleRequestService.save(conceptRoleRequestDto);
 		}

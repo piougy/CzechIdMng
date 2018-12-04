@@ -320,8 +320,11 @@ public class IdmRoleCatalogueController extends AbstractReadWriteDtoController<I
 	public Resources<?> findChildren(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
-		return autocomplete(parameters, pageable);
-	}	
+		IdmRoleCatalogueFilter filter = toFilter(parameters);
+		filter.setRecursively(false);
+		//
+		return toResources(find(filter, pageable, IdmBasePermission.AUTOCOMPLETE), IdmTreeNode.class);
+	}
 	
 	@Override
 	protected IdmRoleCatalogueFilter toFilter(MultiValueMap<String, Object> parameters) {

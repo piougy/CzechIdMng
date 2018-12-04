@@ -30,6 +30,12 @@ public class IdmRoleCatalogueFilter extends DataFilter implements ExternalIdenti
 	//
 	public static final String PARAMETER_NAME = "name";
 	public static final String PARAMETER_CODE = "code";
+	/**
+	 * Catalogue items recursively down
+	 */
+	public static final String PARAMETER_RECURSIVELY = "recursively";
+	public static final boolean DEFAULT_RECURSIVELY = true;
+	
 	
 	public IdmRoleCatalogueFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -92,4 +98,24 @@ public class IdmRoleCatalogueFilter extends DataFilter implements ExternalIdenti
 	public void setRoots(Boolean roots) {
 		data.set(PARAMETER_ROOTS, roots);
 	}
+	
+	/**
+	 * @since 9.4.0
+	 * @return
+	 */
+	public boolean isRecursively() {
+    	Object first = data.getFirst(PARAMETER_RECURSIVELY);
+    	if (first == null) {
+    		return DEFAULT_RECURSIVELY;
+    	}
+    	return BooleanUtils.toBoolean(first.toString());
+    }
+
+	/**
+	 * @since 9.4.0
+	 * @param recursively
+	 */
+    public void setRecursively(boolean recursively) {
+    	data.set(PARAMETER_RECURSIVELY, recursively);
+    }
 }

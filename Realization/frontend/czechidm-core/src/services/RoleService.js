@@ -112,4 +112,24 @@ export default class RoleService extends AbstractRequestFormableService {
       return json;
     });
   }
+
+  /**
+   * Returns form definition for role attributes
+   *
+   * @param  {string} id entity identifier
+   * @return {promise}
+   */
+  getAttributeFormDefinition(id) {
+    return RestApiService
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}/attribute-form-definition`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
 }

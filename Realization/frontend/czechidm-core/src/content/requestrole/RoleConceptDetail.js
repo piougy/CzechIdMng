@@ -5,17 +5,18 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { IdentityContractManager, RoleTreeNodeManager, FormDefinitionManager, DataManager, IdentityRoleManager } from '../../redux';
+import { IdentityContractManager, RoleTreeNodeManager, RoleManager, DataManager, IdentityRoleManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import FormInstance from '../../domain/FormInstance';
 
 const identityRoleManager = new IdentityRoleManager();
 const identityContractManager = new IdentityContractManager();
 const roleTreeNodeManager = new RoleTreeNodeManager();
-const formDefinitionManager = new FormDefinitionManager();
+const roleManager = new RoleManager();
 let selectedRole = null;
 let selectedIdentityRole = null;
 const uiKeyIdentityRoleFormInstance = 'identity-role-form-instance';
+const uiKeyRoleAttributeFormDefinition = 'role-attribute-form-definition';
 
 /**
  * Detail of role concept request
@@ -59,13 +60,17 @@ export class RoleConceptDetail extends Basic.AbstractContent {
 
   _initComponent(props) {
     const entity = props.entity;
+    if (!entity) {
+      return;
+    }
+
     const entityFormData = _.merge({}, entity, {
       role: entity._embedded && entity._embedded.role ? entity._embedded.role : null
     });
     if (entityFormData.role && entityFormData.role.identityRoleAttributeDefinition) {
       selectedRole = entityFormData.role;
       selectedIdentityRole = entityFormData;
-      this.context.store.dispatch(formDefinitionManager.fetchEntityIfNeeded(entityFormData.role.identityRoleAttributeDefinition, null, (json, error) => {
+      this.context.store.dispatch(roleManager.fetchAttributeFormDefinition(entityFormData.role.id, `${uiKeyRoleAttributeFormDefinition}-${entityFormData.role.id}`, (json, error) => {
         this.handleError(error);
       }));
       if (selectedIdentityRole.id && selectedIdentityRole.operation !== 'ADD') {
@@ -82,7 +87,9 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       selectedRole = null;
       selectedIdentityRole = null;
     }
-    this.refs.role.focus();
+    if (this.refs.role) {
+      this.refs.role.focus();
+    }
   }
 
   /**
@@ -108,7 +115,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     if (!_.isArray(originalValue) || originalValue.length === 1) {
       selectedRole = _.isArray(originalValue) ? originalValue[0] : originalValue;
       if (selectedRole.identityRoleAttributeDefinition) {
-        this.context.store.dispatch(formDefinitionManager.fetchEntityIfNeeded(selectedRole.identityRoleAttributeDefinition, null, (json, error) => {
+        this.context.store.dispatch(roleManager.fetchAttributeFormDefinition(selectedRole.id, `${uiKeyRoleAttributeFormDefinition}-${selectedRole.id}`, (json, error) => {
           this.handleError(error);
         }));
       }
@@ -126,7 +133,15 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       identityUsername,
       readOnly,
       _identityRoleAttributeDefinition,
-      _identityRoleFormInstance, entity, isEdit, multiAdd} = this.props;
+      _identityRoleFormInstance,
+      style,
+      entity,
+      isEdit,
+      multiAdd} = this.props;
+
+    if (!entity) {
+      return null;
+    }
 
     let _formInstance = null;
     let _showEAV = false;
@@ -152,6 +167,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       <Basic.AbstractForm
         ref="form"
         data={entity}
+        style={style}
         showLoading={showLoading}
         readOnly={!isEdit || readOnly}>
         <Advanced.RoleSelect
@@ -236,7 +252,7 @@ function select(state) {
   const identityRoleAttributeDefinition = selectedRole.identityRoleAttributeDefinition;
   return {
     _identityRoleFormInstance: selectedIdentityRole ? DataManager.getData(state, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`) : null,
-    _identityRoleAttributeDefinition: formDefinitionManager.getEntity(state, identityRoleAttributeDefinition)
+    _identityRoleAttributeDefinition: identityRoleAttributeDefinition ? DataManager.getData(state, `${uiKeyRoleAttributeFormDefinition}-${selectedRole.id}`) : null,
   };
 }
 

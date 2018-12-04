@@ -78,6 +78,28 @@ export default class RoleManager extends AbstractRequestFormableManager {
       }
     };
   }
+
+  /**
+   * Load form definition for role attributes
+   *
+   * @param  {string} id role identifier
+   * @param {string} uiKey
+   * @returns {action}
+   */
+  fetchAttributeFormDefinition(id, uiKey) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      //
+      this.getService().getAttributeFormDefinition(id)
+      .then(json => {
+        dispatch(this.dataManager.receiveData(uiKey, json));
+      })
+      .catch(error => {
+        // TODO: data uiKey
+        dispatch(this.receiveError(null, uiKey, error));
+      });
+    };
+  }
 }
 
 RoleManager.UI_KEY_AVAILABLE_AUTHORITIES = 'available-authorities';

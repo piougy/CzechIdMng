@@ -123,11 +123,26 @@ public class DefaultIdmConceptRoleRequestService extends
 			// nothing to check
 			return null;
 		}
-		if (!ObjectUtils.isEmpty(permission)
-				&& !getAuthorizationManager().evaluate(entity.getRoleRequest(), permission)) {
-			throw new ForbiddenEntityException(entity.getId(), permission);
+
+		if (ObjectUtils.isEmpty(permission)) {
+			return entity;
 		}
-		return entity;
+
+		// We have rights on the concept, when we have rights on whole request
+		if (getAuthorizationManager().evaluate(entity.getRoleRequest(), permission)) {
+			return entity;
+		}
+
+		// We have rights on the concept, when we have rights on workflow process using in the concept
+		String processId = entity.getWfProcessId();
+		if (!Strings.isNullOrEmpty(processId)) {
+			WorkflowProcessInstanceDto processInstance = workflowProcessInstanceService.get(processId);
+			if (processInstance != null) {
+				return entity;
+			}
+		}
+
+		throw new ForbiddenEntityException(entity.getId(), permission);
 	}
 
 	@Override

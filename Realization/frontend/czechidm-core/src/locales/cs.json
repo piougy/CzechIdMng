@@ -1271,17 +1271,19 @@
           },
           "addByIdentity": {
             "header": "Přidat podle uživatele",
-            "useValidFromIdentity": {
-              "label": "Přejmout platnost rolí",
-              "help": "Platnost jednotlových rolí bude převzata od platnosti rolí daného uživatele."
-            },
-            "copyRoleParameters": {
-              "label": "Kopírovat parametry rolí",
-              "help": "Role bude zkopírovány včetně parametrů."
-            },
             "selectUser": {
               "label": "Výběr uživatele",
               "help": "Výběr uživatele od kterého budou kopírované role."
+            },
+            "roleSelect": "Výběr rolí od uživatele {{username}}",
+            "selectedRoles": "Vybrané role",
+            "noRoles": "Neexistují žádné přiřazené role",
+            "noSelectedRoles": "Žádné nově přiřazené role",
+            "buttons": {
+              "addAllRoles": "Přidat všechny role",
+              "addSelectedRoles": "Přidat pouze vybrané role",
+              "removeSelectedRoles": "Odebrat vybrané role",
+              "removeAllRoles": "Odebrat všechny role"
             }
           }
         }

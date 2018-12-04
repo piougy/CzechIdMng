@@ -1227,17 +1227,19 @@
         },
         "addByIdentity": {
           "header": "Add by user",
-          "useValidFromIdentity": {
-            "label": "Copy validity form roles",
-            "help": "Validity of each roles will be copied from validity roles by user."
-          },
-          "copyRoleParameters": {
-            "label": "Copy role parameters",
-            "help": "Role will be copied including role parameters."
-          },
           "selectUser": {
             "label": "User select",
             "help": "Select the user from whom the roles will be copied."
+          },
+          "roleSelect": "Role select from user {{username}}",
+          "selectedRoles": "Selected role",
+          "noRoles": "No assigned roles exist",
+          "noSelectedRoles": "No newly assigned roles",
+          "buttons": {
+            "addAllRoles": "Add all roles",
+            "addSelectedRoles": "Add only selected roles",
+            "removeSelectedRoles": "Remove selected roles",
+            "removeAllRoles": "Remove all roles"
           }
         }
       }

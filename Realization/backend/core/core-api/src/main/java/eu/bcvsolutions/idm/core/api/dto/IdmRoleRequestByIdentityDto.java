@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +9,7 @@ import org.joda.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.google.common.collect.Lists;
 
 /**
  * Create concepts by identity and their roles. The dto is used only for create
@@ -31,25 +31,13 @@ public class IdmRoleRequestByIdentityDto implements Serializable {
 	private UUID identityContract;
 
 	@JsonProperty(access = Access.WRITE_ONLY)
-	private UUID fromIdentityContract;
-
-	@JsonProperty(access = Access.WRITE_ONLY)
-	private UUID fromIdentity;
-
-	@JsonProperty(access = Access.WRITE_ONLY)
-	private List<UUID> identityRoles;
+	private List<UUID> roles;
 
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private LocalDate validFrom;
 
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private LocalDate validTill;
-
-	@JsonProperty(access = Access.WRITE_ONLY)
-	private boolean useValidFromIdentity = true;
-
-	@JsonProperty(access = Access.WRITE_ONLY)
-	private boolean copyRoleParameters = true;
 
 	public UUID getRoleRequest() {
 		return roleRequest;
@@ -67,31 +55,15 @@ public class IdmRoleRequestByIdentityDto implements Serializable {
 		this.identityContract = identityContract;
 	}
 
-	public UUID getFromIdentityContract() {
-		return fromIdentityContract;
-	}
-
-	public void setFromIdentityContract(UUID fromIdentityContract) {
-		this.fromIdentityContract = fromIdentityContract;
-	}
-
-	public UUID getFromIdentity() {
-		return fromIdentity;
-	}
-
-	public void setFromIdentity(UUID fromIdentity) {
-		this.fromIdentity = fromIdentity;
-	}
-
-	public List<UUID> getIdentityRoles() {
-		if (identityRoles == null) {
-			return new ArrayList<UUID>();
+	public List<UUID> getRoles() {
+		if (roles == null) {
+			return Lists.newArrayList();
 		}
-		return identityRoles;
+		return roles;
 	}
 
-	public void setIdentityRoles(List<UUID> identityRoles) {
-		this.identityRoles = identityRoles;
+	public void setRoles(List<UUID> roles) {
+		this.roles = roles;
 	}
 
 	public LocalDate getValidFrom() {
@@ -109,21 +81,4 @@ public class IdmRoleRequestByIdentityDto implements Serializable {
 	public void setValidTill(LocalDate validTill) {
 		this.validTill = validTill;
 	}
-
-	public boolean isUseValidFromIdentity() {
-		return useValidFromIdentity;
-	}
-
-	public void setUseValidFromIdentity(boolean useValidFromIdentity) {
-		this.useValidFromIdentity = useValidFromIdentity;
-	}
-
-	public boolean isCopyRoleParameters() {
-		return copyRoleParameters;
-	}
-
-	public void setCopyRoleParameters(boolean copyRoleParameters) {
-		this.copyRoleParameters = copyRoleParameters;
-	}
-
 }

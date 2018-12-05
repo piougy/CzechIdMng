@@ -1012,7 +1012,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		String response = getMockMvc().perform(get(getFormDefinitionsUrl(forOwner))
         		.with(authentication(getAuthentication(loginAs)))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();

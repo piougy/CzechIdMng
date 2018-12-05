@@ -161,6 +161,14 @@ class IdentityDashboard extends Basic.AbstractContent {
           onClick={ () => alert('not implemented') }
           style={{ height: 50, marginRight: 3, minWidth: 150 }}
           text="Create user"/>
+        <Basic.Button
+          level="info"
+          icon="link"
+          className="btn-large"
+          onClick={ () => alert('not implemented') }
+          style={{ height: 50, marginRight: 3, minWidth: 150 }}
+          text="Přepočet účtů a provisioning"/>
+
         <br /><br />
 
         <Basic.Row>

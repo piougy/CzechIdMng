@@ -55,6 +55,7 @@ import eu.bcvsolutions.idm.core.event.domain.MockDto;
 import eu.bcvsolutions.idm.core.event.domain.MockOwner;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.NeverEndingProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.ObserveDtoProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.event.EntityEventDeleteExecutedProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -585,5 +586,87 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		//
 		Assert.assertNotNull(observed);
 		Assert.assertTrue(observed);
+	}
+	
+	@Test
+	public void testRemoveRunningEnvent() {
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			getHelper().disable(EntityEventDeleteExecutedProcessor.class);
+			
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
+			//
+			// publish never ends event
+			NeverEndingProcessor.wait = true;
+			EntityEvent<IdmIdentityDto> event = new CoreEvent<>(NeverEndingProcessor.WAIT, identity);
+			manager.processOnBackground(event);
+			//
+			IdmEntityEventFilter filter = new IdmEntityEventFilter();
+			filter.setOwnerId(identity.getId());
+			filter.setEventType(NeverEndingProcessor.WAIT.name());
+			//
+			// wait for executed event is running
+			getHelper().waitForResult(res -> {
+				return !manager.isRunningOwner(identity.getId());
+			}, 500, Integer.MAX_VALUE);
+			Assert.assertTrue(manager.isRunningOwner(identity.getId()));
+			//
+			IdmEntityEventDto entityEvent = entityEventService.find(filter, new PageRequest(0, 1)).getContent().get(0);
+			manager.deleteEvent(entityEvent);
+			//
+			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
+			//
+			// end running event on background
+			NeverEndingProcessor.wait = false;
+			// just for sure
+			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
+		} finally {
+			manager.deleteAllEvents();
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
+		}
+	}
+	
+	@Test
+	public void testDeleteAll() {
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			getHelper().disable(EntityEventDeleteExecutedProcessor.class);
+			//
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
+			//
+			// publish never ends event
+			NeverEndingProcessor.wait = true;
+			EntityEvent<IdmIdentityDto> event = new CoreEvent<>(NeverEndingProcessor.WAIT, identity);
+			manager.processOnBackground(event);
+			//
+			IdmEntityEventFilter filter = new IdmEntityEventFilter();
+			filter.setOwnerId(identity.getId());
+			filter.setEventType(NeverEndingProcessor.WAIT.name());
+			//
+			// wait for executed event is running
+			getHelper().waitForResult(res -> {
+				return !manager.isRunningOwner(identity.getId());
+			}, 500, Integer.MAX_VALUE);
+			Assert.assertTrue(manager.isRunningOwner(identity.getId()));
+			//
+			//
+			manager.deleteAllEvents();
+			Assert.assertEquals(0, entityEventService.find(null).getTotalElements());
+			//
+			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
+			//
+			// end running event on backgroud
+			NeverEndingProcessor.wait = false;
+			// just for sure
+			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
+			Assert.assertEquals(0, entityEventService.find(null).getTotalElements());
+		} finally {
+			manager.deleteAllEvents();
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
+		}
 	}
 }

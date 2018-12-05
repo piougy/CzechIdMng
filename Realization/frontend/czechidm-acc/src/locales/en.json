@@ -1383,7 +1383,7 @@
     "bulk-action": {
       "role-acm-bulk-action": {
         "icon": "link",
-        "label": "Invoke account management",
+        "label": "Recalculate accounts and provision",
         "help": "This operation invokes <strong>account management</strong> for each selected role. The account management will be invoke for all users with the role. Account management itself and subsequent provisioning are performed <strong>asynchronously</strong>.  You can see progress of this operations in the <strong>Events</strong> agenda."
       },
       "system-duplicate-bulk-action": {
@@ -1395,6 +1395,16 @@
         "label": "Remove",
         "help": "Remove selected systems. <strong>Removed system must not contains any accounts and unresolved provisioning operations</strong>.",
         "icon": "fa:trash"
+      },
+      "acc-identity-account-management-bulk-action": {
+        "icon": "link",
+        "label": "Recalculate accounts and provision",
+        "help": "This operation invokes <strong>account management</strong> for each selected users. Account management itself and subsequent provisioning are performed <strong>asynchronously</strong>.  You can see progress of this operations in the <strong>Events</strong> agenda."
+      },
+      "acc-identity-provisioning-bulk-action": {
+        "icon": "link",
+        "label": "Provision without account recalculation",
+        "help": "This operation invokes <strong>provisioning</strong> for each selected users. Provisioning will be performed <strong>asynchronously</strong>. You can see progress of this operations in the <strong>Events</strong> agenda."
       }
     }
   },

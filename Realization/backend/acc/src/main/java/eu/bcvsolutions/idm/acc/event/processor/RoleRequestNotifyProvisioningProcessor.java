@@ -65,6 +65,7 @@ public class RoleRequestNotifyProvisioningProcessor extends AbstractEntityEventP
 		//
 		LOG.debug("Call account management for identity [{}]", identity.getUsername());
 		provisioningService.accountManagement(identity);
+		//
 		LOG.debug("Register change for identity [{}]", identity.getUsername());
 		entityEventManager.changedEntity(identity, event);
 		//

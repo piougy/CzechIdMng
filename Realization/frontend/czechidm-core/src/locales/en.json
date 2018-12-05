@@ -57,7 +57,8 @@
     "value": "Value",
     "yes": "Yes",
     "no": "No",
-    "readOnly": "Read only"
+    "readOnly": "Read only",
+    "waiting": "Waiting"
   },
   "button": {
     "activate": "Activate",

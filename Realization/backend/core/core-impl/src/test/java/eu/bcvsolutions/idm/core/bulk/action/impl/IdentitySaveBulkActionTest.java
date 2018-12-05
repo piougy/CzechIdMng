@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,9 +38,9 @@ import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
  * Integration tests for {@link IdentitySaveBulkAction}
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @deprecated @since 9.4.0 - action is not initialized and will be removed (use concrete bulk action for ACC and Provisioning)
  */
-
+@Ignore
 public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 
 	private String DELETE_PROCESSOR_KEY = "idm.sec.core.processor.entity-event-delete-executed-processor.enabled";

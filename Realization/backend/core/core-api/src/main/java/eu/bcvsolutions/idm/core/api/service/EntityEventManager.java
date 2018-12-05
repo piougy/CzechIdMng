@@ -69,6 +69,14 @@ public interface EntityEventManager {
 	<E extends Serializable> EventContext<E> process(EntityEvent<E> event, EntityEvent<?> parentEvent);
 	
 	/**
+	 * Process event through all registered entity processor in configured order with default context (newly created context) asynchronously 
+	 * 
+	 * @param event
+	 * @since 9.4.0
+	 */
+	void processOnBackground(EntityEvent<? extends Identifiable> event);
+	
+	/**
 	 * Returns all registered entity event processors
 	 * 
 	 * @param filter
@@ -263,6 +271,21 @@ public interface EntityEventManager {
 	 * @since 8.0.0
 	 */
 	IdmEntityEventDto saveEvent(IdmEntityEventDto event);
+	
+	/**
+	 * Delete event. Removes running event from running event application cache => other events for the same owner will be executed.
+	 * 
+	 * @param event
+	 * @since 9.4.0
+	 */
+	void deleteEvent(IdmEntityEventDto entityEvent);
+	
+	/**
+	 * Delete all persisted events and their states. Removes running event from running event application cache => other events for the same owner will be executed.
+	 * 
+	 * @since 9.4.0
+	 */
+	void deleteAllEvents();
 	
 	/**
 	 * Saves event result

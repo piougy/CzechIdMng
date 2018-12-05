@@ -47,6 +47,8 @@ public interface IdmEntityEventService extends
 	/**
 	 * Delete all persisted events and their states.
 	 * 
+	 * Use {@link EntityEventManager#deleteAllEvents()} - removes running event from application cache too. 
+	 * 
 	 * @since 8.1.4
 	 */
 	void deleteAll();

@@ -1391,7 +1391,7 @@
     "bulk-action": {
       "role-acm-bulk-action": {
         "icon": "link",
-        "label": "Provést přepočet účtů",
+        "label": "Přepočet účtů a provisioning",
         "help": "Tato operace vyvolá pro každou vybranou roli <strong>přepočet účtů</strong>. Přepočet bude proveden pro všechny uživatele s danou rolí. Samotný přepočet i následný provisioning je prováděn <strong>asynchronně</strong>. Postup můžete sledovat v agendě spravující <strong>Události</strong>."
       },
       "system-duplicate-bulk-action": {
@@ -1403,6 +1403,16 @@
         "label": "Odebrat",
         "help": "Smaže vybrané systémy. <strong>Odebíraný systém nesmí obsahovat žádné účty ani nevyřešené provisioning operace</strong>.",
         "icon": "fa:trash"
+      },
+      "acc-identity-account-management-bulk-action": {
+        "icon": "link",
+        "label": "Přepočet účtů a provisioning",
+        "help": "Tato operace vyvolá pro každého vybraného uživatele <strong>přepočet účtů</strong>. Samotný přepočet i následný provisioning je prováděn <strong>asynchronně</strong>. Postup můžete sledovat v agendě spravující <strong>Události</strong>."
+      },
+      "acc-identity-provisioning-bulk-action": {
+        "icon": "link",
+        "label": "Provisioning bez přepočtu účtů",
+        "help": "Tato operace vyvolá pro každého vybraného uživatele <strong>provisioning</strong> na koncové systémy. Samotný provisioning je prováděn <strong>asynchronně</strong>. Postup můžete sledovat v agendě spravující <strong>Události</strong>."
       }
     }
   },

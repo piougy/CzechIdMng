@@ -243,7 +243,7 @@ class Tree extends Basic.AbstractContextComponent {
       }
     }
     // @deprecated - remove after v.10.x release
-    if (result && onSelect) {
+    if (result !== false && onSelect) {
       result = onSelect(nodeId);
     }
     // if onChange or onSelect listener returns false, then we can end
@@ -400,7 +400,7 @@ class Tree extends Basic.AbstractContextComponent {
           if (nodes.has(nodeId) && searchParameters.getPage() > 0) {
             // push at end
             nodes = nodes.set(nodeId, nodes.get(nodeId).concat(data));
-          } else if (currentChildrenCount > 0) {
+          } else if (currentChildrenCount > 0 || nodeId === null) { // we need to know roots is null
             nodes = nodes.set(nodeId, data); // parentId -> children
           }
           //
@@ -681,7 +681,7 @@ class Tree extends Basic.AbstractContextComponent {
                     {
                       node.childrenCount && this._getNodeNiceLabel(node)
                       ?
-                      `[${ this._getNodeNiceLabel(node) }]`
+                      `${ this._getNodeNiceLabel(node) }`
                       :
                       this._getNodeNiceLabel(node)
                     }

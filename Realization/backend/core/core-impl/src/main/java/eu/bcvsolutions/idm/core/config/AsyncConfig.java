@@ -1,7 +1,11 @@
 package eu.bcvsolutions.idm.core.config;
 
 import java.lang.reflect.Method;
+import java.util.Comparator;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
+import eu.bcvsolutions.idm.core.scheduler.api.domain.PriorityFutureTask;
 
 /**
  * Executor configuration
@@ -88,21 +93,24 @@ public class AsyncConfig implements AsyncConfigurer {
 	 * Executor for event processing. Common async pool is not reused - event processing has higher priority than LRT. 
 	 * Both pools should be processed parallel, not blocked.
 	 * Scaled for combination I/O operations (mainly) and computing  (e.g. account management, provisioning) event processing.
-	 * Uses cpu count * 2 as default pool size, 
+	 * Uses cpu count + 1 as default pool size, 
 	 * 
 	 * @return
 	 */
 	@Bean(name = SchedulerConfiguration.EVENT_EXECUTOR_NAME)
 	public Executor eventExecutor() {
 		int cpuCount = Runtime.getRuntime().availableProcessors();
-		int poolSize = cpuCount * 2; 
+		int poolSize = cpuCount + 1; //5
 		//
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		ThreadPoolTaskExecutor executor = new IdmThreadPoolTaskExecutor();
 		int corePoolSize = env.getProperty(SchedulerConfiguration.PROPERTY_EVENT_EXECUTOR_CORE_POOL_SIZE, Integer.class, poolSize);
-		executor.setCorePoolSize(corePoolSize); // ~8
+		executor.setCorePoolSize(corePoolSize); // ~5
 		int maxPoolSize = env.getProperty(SchedulerConfiguration.PROPERTY_EVENT_EXECUTOR_MAX_POOL_SIZE, Integer.class, corePoolSize * 2);
-		executor.setMaxPoolSize(maxPoolSize); // ~16
-		int queueCapacity = env.getProperty(SchedulerConfiguration.PROPERTY_EVENT_EXECUTOR_QUEUE_CAPACITY, Integer.class, corePoolSize);
+		executor.setMaxPoolSize(maxPoolSize); // ~10
+		int queueCapacity = env.getProperty(
+				SchedulerConfiguration.PROPERTY_EVENT_EXECUTOR_QUEUE_CAPACITY, 
+				Integer.class,
+				SchedulerConfiguration.DEFAULT_EVENT_EXECUTOR_QUEUE_CAPACITY);
 		executor.setQueueCapacity(queueCapacity);
 		executor.setThreadPriority(env.getProperty(SchedulerConfiguration.PROPERTY_EVENT_EXECUTOR_THREAD_PRIORITY, Integer.class, 6));
 		executor.setThreadNamePrefix("event-task-executor-");
@@ -117,5 +125,57 @@ public class AsyncConfig implements AsyncConfigurer {
 				queueCapacity);
 		//
 		return new DelegatingSecurityContextAsyncTaskExecutor(executor);
+	}
+	
+	/**
+	 * Adds {@link PriorityBlockingQueue} to thread pool executor.
+	 * 
+	 * @author Radek Tomiška
+	 */
+	private class IdmThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected BlockingQueue<Runnable> createQueue(int queueCapacity) {
+			if (queueCapacity > 0) {
+				return new PriorityBlockingQueue<Runnable>(queueCapacity, new PriorityFutureTaskComparator());
+			} else {
+				return new SynchronousQueue<Runnable>();
+			}
+		}
+	}
+
+	/**
+	 * Evaluates thread priority
+	 * 
+	 * @author Radek Tomiška
+	 *
+	 */
+	private class PriorityFutureTaskComparator implements Comparator<Runnable> {
+		public int compare(Runnable o1, Runnable o2) {
+	        if (o1 == null && o2 == null) {
+	            return 0;
+			}
+	        if (o1 == null) {
+	            return -1;
+			}
+	        if (o2 == null) {
+	            return 1;
+			}
+	        if (!(o1 instanceof PriorityFutureTask) && !(o2 instanceof PriorityFutureTask)) {
+	        	return 0;
+	        }
+	        if (!(o1 instanceof PriorityFutureTask) && (o2 instanceof PriorityFutureTask)) {
+	        	return -1;
+	        }
+	        if ((o1 instanceof PriorityFutureTask) && !(o2 instanceof PriorityFutureTask)) {
+	        	return 1;
+	        }
+            int p1 = ((PriorityFutureTask<?>) o1).getPriority();
+            int p2 = ((PriorityFutureTask<?>) o2).getPriority();
+
+            return p1 > p2 ? 1 : (p1 == p2 ? 0 : -1);
+		}
 	}
 }

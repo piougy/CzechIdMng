@@ -257,7 +257,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		IdmTreeNodeDto node4 = getHelper().createTreeNode(treeType, node3);
 		// before index will be droped
 		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
-		filter.setTreeNode(node2.getId());
+		filter.setParent(node2.getId());
 		filter.setRecursively(true);
 		//
 		List<IdmTreeNodeDto> results = service.find(filter, null).getContent();

@@ -6,11 +6,9 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -20,16 +18,15 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Bulk operation for save identity
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
+ * @deprecated @since 9.4.0 Use concrete bulk actions for execute ACM or provisioning only
  */
-@Enabled(CoreModuleDescriptor.MODULE_ID)
-@Component(IdentitySaveBulkAction.NAME)
+@Deprecated
 @Description("Bulk action save identity.")
 public class IdentitySaveBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {
 

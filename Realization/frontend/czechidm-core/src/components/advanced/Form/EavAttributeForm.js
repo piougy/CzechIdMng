@@ -56,14 +56,16 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
     const { formAttributes } = this.props;
     const filledFormValues = {};
     //
-    formAttributes.forEach(attribute => {
-      const formComponent = this.refs[attribute.code];
-      if (!formComponent) {
-        // unsupported persistentType
-        return true;
-      }
-      filledFormValues[attribute.code] = formComponent.refs[AbstractFormAttributeRenderer.INPUT].getValue();
-    });
+    if (formAttributes) {
+      formAttributes.forEach(attribute => {
+        const formComponent = this.refs[attribute.code];
+        if (!formComponent) {
+          // unsupported persistentType
+          return true;
+        }
+        filledFormValues[attribute.code] = formComponent.refs[AbstractFormAttributeRenderer.INPUT].getValue();
+      });
+    }
     return filledFormValues;
   }
 

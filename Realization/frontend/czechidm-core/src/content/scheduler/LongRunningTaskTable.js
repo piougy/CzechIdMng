@@ -211,7 +211,13 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                 if (!entity.result || !entity.result.state) {
                   return null;
                 }
-                const label = OperationStateEnum.findSymbolByKey(entity.result.state) !== OperationStateEnum.RUNNING ? null : this.getManager().getProcessedCount(entity);
+                let label = null;
+                if (OperationStateEnum.findSymbolByKey(entity.result.state) === OperationStateEnum.RUNNING && !entity.running) {
+                  // task is prepared for execution in the queue
+                  label = this.i18n('label.waiting');
+                } else if (OperationStateEnum.findSymbolByKey(entity.result.state) === OperationStateEnum.RUNNING) {
+                  label = this.getManager().getProcessedCount(entity);
+                }
                 //
                 return (
                   <Advanced.OperationResult

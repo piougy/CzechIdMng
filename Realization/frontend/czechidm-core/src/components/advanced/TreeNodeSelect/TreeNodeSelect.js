@@ -442,7 +442,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               traverse={ false }
               clearable={ (required && !multiSelect) ? false : true }
               multiSelect={ multiSelect }
-              selected={ selected }
+              selected={ !selected || multiSelect ? selected : [ selected ] }
               header={
                 _forceTreeType
                 ?

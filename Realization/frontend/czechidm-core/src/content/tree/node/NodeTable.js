@@ -226,7 +226,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                 header={
                   !type || !showTreeTypeSelect
                   ?
-                  null
+                  undefined
                   :
                   <Basic.SelectBox
                     ref="treeTypeId"

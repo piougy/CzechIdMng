@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
@@ -70,6 +71,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
+import eu.bcvsolutions.idm.core.scheduler.api.domain.PriorityFutureTask;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
@@ -285,7 +287,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	public <E extends Identifiable> void changedEntity(E owner, EntityEvent<? extends Identifiable> originalEvent) {
 		Assert.notNull(owner);
 		//
-		changedEntity(owner.getClass(), lookupService.getOwnerId(owner), originalEvent);
+		IdmEntityEventDto event = prepareEvent(owner, originalEvent);
+		event.setEventType(CoreEventType.NOTIFY.name());
+		//
+		putToQueue(event);
 	}
 	
 	@Override
@@ -314,6 +319,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			// prevent to debug some messages into log - usable for devs
 			return;
 		}
+		// check running events are full already
+		if (runningOwnerEvents.size() > 100) { // TODO: configurable batch size => 70 / 30 hard coded now
+			LOG.trace("Asynchronous running events queue is full, waiting for complete running events.");
+			return;
+		}
+		//
 		processCreated();
 	}
 	
@@ -331,7 +342,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		List<IdmEntityEventDto> events = getCreatedEvents(instanceId);
 		LOG.trace("Events to process [{}] on instance [{}].", events.size(), instanceId);
 		for (IdmEntityEventDto event : events) {
-			// @Transactional
+			// adds @Transactional
 			context.getBean(this.getClass()).executeEvent(event);;
 		}
 		return events.size();
@@ -429,7 +440,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		if (event.getPriority() == PriorityType.IMMEDIATE) {
 			// synchronous processing
 			// we don't persist events and their states
-			// TODO: what about running event with the same owner? And events in queue for the same owner
+			// TODO: what about running event with the same owner? And events in queue for the same owner => no locking now, last wins 
 			process(new CoreEvent<>(EntityEventType.EXECUTE, event));
 			return;
 		}
@@ -453,12 +464,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		}
 		// execute event in new thread asynchronously
 		try {
-			eventConfiguration.getExecutor().execute(new Runnable() {
+			eventConfiguration.getExecutor().execute(new PriorityFutureTask<EventContext<?>>(new Callable<EventContext<?>>() {
 				
 				@Override
-				public void run() {
+				public EventContext<?> call() throws Exception {
 					try {
-						process(new CoreEvent<>(EntityEventType.EXECUTE, event));
+						return process(new CoreEvent<>(EntityEventType.EXECUTE, event));
 					} catch (Exception ex) {
 						// exception handling only ... all processor should persist their own entity state (see AbstractEntityEventProcessor)
 						ResultModel resultModel;
@@ -480,36 +491,23 @@ public class DefaultEntityEventManager implements EntityEventManager {
 										.build());
 						
 						LOG.error(resultModel.toString(), ex);
+						return null;
 					} finally {
 						LOG.trace("Event [{}] ends for owner with id [{}].", event.getId(), event.getOwnerId());
 						removeRunningEvent(event);
 					}
 				}
-			});
+			}, (event.getPriority() == PriorityType.HIGH ? Thread.MAX_PRIORITY : Thread.NORM_PRIORITY)));
 			//
 			LOG.trace("Running event [{}] for owner with id [{}].", event.getId(), event.getOwnerId());
 		} catch (RejectedExecutionException ex) {
-			// thread pool is full - wait for another try
-			// TODO: Thread.wait(300) ?
+			// thread pool queue is full - wait for another try
 			removeRunningEvent(event);
 		}
 	}
 	
-	private void removeRunningEvent(IdmEntityEventDto event) {
-		runningOwnerEvents.remove(event.getOwnerId());
-		UUID superOwnerId = event.getSuperOwnerId();
-		if (superOwnerId != null) {
-			runningOwnerEvents.remove(superOwnerId);
-		}
-	}
-	
-	/**
-	 * TODO: Will be this method useful?
-	 * 
-	 * @param event
-	 */
-	@SuppressWarnings("unused")
-	private void runOnBackground(EntityEvent<? extends Identifiable> event) {
+	@Override
+	public void processOnBackground(EntityEvent<? extends Identifiable> event) {
 		Assert.notNull(event);
 		//
 		putToQueue(prepareEvent(event.getContent(), event));
@@ -519,6 +517,20 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmEntityEventDto saveEvent(IdmEntityEventDto entityEvent) {
 		return entityEventService.save(entityEvent);
+	}
+	
+	@Override
+	public void deleteEvent(IdmEntityEventDto entityEvent) {
+		entityEventService.delete(entityEvent);
+		if (entityEvent.getResult().getState() == OperationState.RUNNING) {
+			removeRunningEvent(entityEvent);
+		}
+	}
+	
+	@Override
+	public synchronized void deleteAllEvents() {
+		entityEventService.deleteAll();
+		runningOwnerEvents.clear();
 	}
 	
 	@Override
@@ -625,6 +637,24 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Override
 	public boolean isAsynchronous() {
 		return eventConfiguration.isAsynchronous();
+	}
+	
+	private void removeRunningEvent(IdmEntityEventDto event) {
+		runningOwnerEvents.remove(event.getOwnerId());
+		UUID superOwnerId = event.getSuperOwnerId();
+		if (superOwnerId != null) {
+			runningOwnerEvents.remove(superOwnerId);
+		}
+	}
+	
+	/**
+	 * Returns true if some event for given owner currently running.
+	 * 
+	 * @param ownerId
+	 * @return
+	 */
+	protected boolean isRunningOwner(UUID ownerId) {
+		return runningOwnerEvents.containsKey(ownerId);
 	}
 	
 	private void setEnabled(EntityEventProcessor<?> processor, boolean enabled) {

@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -30,8 +31,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 public class EntityEventDeleteBulkAction extends AbstractRemoveBulkAction<IdmEntityEventDto, IdmEntityEventFilter> {
 
 	public static final String NAME = "core-entity-event-delete-bulk-action";
-
+	//
 	@Autowired private IdmEntityEventService service;
+	@Autowired private EntityEventManager entityEventManager;
 	
 	@Override
 	public String getName() {
@@ -55,7 +57,7 @@ public class EntityEventDeleteBulkAction extends AbstractRemoveBulkAction<IdmEnt
 			return new OperationResult.Builder(OperationState.EXECUTED).build();
 		}
 		try {
-			this.getService().delete(dto);
+			entityEventManager.deleteEvent(dto);
 			return new OperationResult.Builder(OperationState.EXECUTED).build();
 		} catch(ResultCodeException ex) {
 			return new OperationResult.Builder(OperationState.EXCEPTION).setException(ex).build();

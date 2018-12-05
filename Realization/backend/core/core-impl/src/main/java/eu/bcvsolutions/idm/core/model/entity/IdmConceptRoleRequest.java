@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
  * Concept for requested role.
@@ -32,7 +33,7 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 		@Index(name = "idx_idm_conc_role_request", columnList = "request_role_id"),
 		@Index(name = "idx_idm_conc_role_role", columnList = "role_id")
 })
-public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEntity {
+public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEntity, FormableEntity {
 
 	
 	private static final long serialVersionUID = 1L;

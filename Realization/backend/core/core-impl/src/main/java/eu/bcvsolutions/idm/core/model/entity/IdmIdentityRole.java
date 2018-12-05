@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
  * Assigned identity role
@@ -41,7 +42,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 		@Index(name = "idx_idm_identity_role_d_r_id", columnList = "direct_role_id"),
 		@Index(name = "idx_idm_identity_role_comp_id", columnList = "role_composition_id")
 })
-public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, AuditSearchable, ExternalIdentifiable {
+public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, AuditSearchable, ExternalIdentifiable, FormableEntity {
 
 	private static final long serialVersionUID = 9208706652291035265L;
 	

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -30,9 +31,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
+import eu.bcvsolutions.idm.core.api.dto.IdmConfidentialStorageValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConfidentialStorageValueFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmConfidentialStorageValueService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.audit.rest.impl.IdmAuditController;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -59,6 +68,10 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Autowired private ConfigurableEnvironment configurableEnviroment;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	@Autowired private ApplicationContext context;
+	@Autowired private IdmConfidentialStorageValueService conidentialStorageValueService;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmAuditService auditService;
+	@Autowired private IdmAuditController auditController;
 	//
 	private DefaultIdmConfidentialStorage confidentalStorage;
 	
@@ -424,6 +437,52 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test(expected = ResultCodeException.class)
 	public void runChangeConfidetialKeySmallKey() {
 		runChangeConfidentialStorageKeyTask("123456789");
+	}
+
+	@Test
+	public void testRemoveOwnerAndCheckAudit() {
+		IdmIdentityDto identity = this.getHelper().createIdentity((GuardedString) null);
+
+		confidentalStorage.saveGuardedString(identity.getId(), IdmIdentity.class, identity.getUsername(),
+				new GuardedString(identity.getUsername()));
+
+		IdmConfidentialStorageValueFilter filter = new IdmConfidentialStorageValueFilter();
+		filter.setOwnerId(identity.getId());
+		List<IdmConfidentialStorageValueDto> values = conidentialStorageValueService.find(filter, null).getContent();
+		IdmConfidentialStorageValueDto storageValueDto = values.get(0);
+		assertEquals(1, values.size());
+		storageValueDto = conidentialStorageValueService.get(storageValueDto.getId());
+		assertNotNull(storageValueDto);
+
+		IdmAuditFilter auditFilter = new IdmAuditFilter();
+		auditFilter.setEntityId(storageValueDto.getId());
+		List<IdmAuditDto> audits = auditService.find(auditFilter, null).getContent();
+		assertEquals(1, audits.size());
+
+		confidentalStorage.delete(identity, identity.getUsername());
+		identityService.delete(identity);
+
+		values = conidentialStorageValueService.find(filter, null).getContent();
+		assertEquals(0, values.size());
+		audits = auditService.find(auditFilter, null).getContent();
+		assertEquals(2, audits.size());
+
+		for (IdmAuditDto audit : audits) {
+			assertEquals(storageValueDto.getId(), audit.getEntityId());
+		}
+
+		audits = auditController.find(auditFilter, null, null).getContent();
+		assertEquals(2, audits.size());
+		for (IdmAuditDto audit : audits) {
+			assertEquals(storageValueDto.getId(), audit.getEntityId());
+		}
+
+	}
+
+	@Test
+	public void testNonExistingId() {
+		IdmConfidentialStorageValueDto storageValueDto = conidentialStorageValueService.get(UUID.randomUUID());
+		assertNull(storageValueDto);
 	}
 
 	/**

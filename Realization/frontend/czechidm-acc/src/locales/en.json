@@ -1103,7 +1103,8 @@
       "TREE": "Tree",
       "ROLE_CATALOGUE": "Role catalogue",
       "CONTRACT": "Identity contract",
-      "CONTRACT_SLICE": "Contract time slices"
+      "CONTRACT_SLICE": "Contract time slices",
+      "IDENTITY_ROLE": "Assigned roles"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -1194,6 +1195,15 @@
       "PARENT": "Parent (String)",
       "EXTERNAL_ID": "External ID (String)",
       "DISABLED": "Disabled (boolean)"
+    },
+    "IdentityRoleAttributeEnum": {
+      "IDENTITY_CONTRACT": "Identity contract (IdmIdentityContract - UUID)",
+      "ROLE": "Role (IdmRole - UUID)",
+      "VALID_FROM": "Valid from (LocalDate)",
+      "VALID_TILL": "Valid till (LocalDate)",
+      "ROLE_COMPOSITION": "Assigned by business role (IdmRoleComposition - UUID)",
+      "CONTRACT_POSITION": "Next position on the contract (IdmContractPosition - UUID)",
+      "EXTERNAL_ID": "External identifier (String)"
     },
     "RoleCatalogueAttributeEnum": {
       "CODE": "Code (String)",

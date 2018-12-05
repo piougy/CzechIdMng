@@ -333,6 +333,11 @@ class Tree extends Basic.AbstractContextComponent {
     this.refs.filter.setValue(null);
   }
 
+  getValue() {
+    const { selected } = this.state;
+    return selected.toArray();
+  }
+
   _loadNodes(nodeId = null, props = null, filter = null) {
     const _props = props ? props : this.props;
     const { roots, forceSearchParameters } = _props;
@@ -729,6 +734,7 @@ class Tree extends Basic.AbstractContextComponent {
       className,
       style,
       bodyStyle,
+      showRefreshButton
     } = this.props;
     const {
       nodes,
@@ -796,6 +802,7 @@ class Tree extends Basic.AbstractContextComponent {
                   className="btn-xs"
                   onClick={ this.reload.bind(this, null) }
                   showLoading={ _showLoading }
+                  rendered={ showRefreshButton }
                   icon="fa:refresh"
                   style={{ marginLeft: 3 }}/>
               </div>
@@ -965,14 +972,19 @@ Tree.propTypes = {
   /**
    * Selected options can be cleared
    */
-  clearable: PropTypes.bool
+  clearable: PropTypes.bool,
+  /**
+   * Show refresh button
+   */
+  showRefreshButton: PropTypes.bool
 };
 
 Tree.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   traverse: false,
   multiSelect: false,
-  clearable: true
+  clearable: true,
+  showRefreshButton: true
 };
 
 function select(state, component) {

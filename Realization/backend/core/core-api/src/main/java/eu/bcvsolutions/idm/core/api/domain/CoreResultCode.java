@@ -278,6 +278,7 @@ public enum CoreResultCode implements ResultCode {
 	REQUEST_ITEM_CANNOT_BE_EXECUTED(HttpStatus.BAD_REQUEST, "Request item [%s] cannot be executed. Must be in state APPROVED or CONCEPT, but is in state [%s]!"),
 	REQUEST_ITEM_CANNOT_BE_CREATED(HttpStatus.BAD_REQUEST, "Request item cannot be created/changed for object [%s]. Parent request must be in state INPROGRESS or CONCEPT or EXCEPTION, but is in state [%s]!"),
 	REQUEST_ITEM_NOT_EXECUTED_PARENT_CANCELED(HttpStatus.BAD_REQUEST, "Request item [%s] could not be executed, because is using DTO from terminated item [%s]!"),
+	REQUEST_ITEM_WRONG_FORM_DEFINITON_IN_VALUES(HttpStatus.BAD_REQUEST, "Request item [%s] could not be saved, because is contains attribute values with wrong form definition! Currently using form definition in the role [%s] is [%s]!"),
 	//
 	// Role composition
 	ROLE_COMPOSITION_ASSIGN_ROLE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Role [%s] by role composition was not assigned."),

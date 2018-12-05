@@ -6,8 +6,9 @@ import uuid from 'uuid';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleManager, IdentityManager, IdentityContractManager, RoleTreeNodeManager } from '../../redux';
-import SearchParameters from '../../domain/SearchParameters';
+import { RoleManager, RoleRequestManager, IdentityManager } from '../../redux';
+import RoleSelectByIdentity from './RoleSelectByIdentity';
+import RoleConceptDetail from './RoleConceptDetail';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -16,8 +17,7 @@ import SearchParameters from '../../domain/SearchParameters';
 
 const roleManager = new RoleManager();
 const identityManager = new IdentityManager();
-const identityContractManager = new IdentityContractManager();
-const roleTreeNodeManager = new RoleTreeNodeManager();
+const roleRequestManager = new RoleRequestManager();
 
 /**
  * @author VS
@@ -29,6 +29,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     this.state = {
       conceptData: [],
       filterOpened: this.props.filterOpened,
+      showRoleByIdentitySelect: false,
       detail: {
         show: false,
         entity: {},
@@ -71,29 +72,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   /**
-   * Show modal dialog
-   * @param  {Object}  entity           Entity show in dialog
-   * @param  {Boolean} isEdit = false   If is false then form in dialog will be read only
-   */
-  _showDetail(entity, isEdit = false, multiAdd = false) {
-    const entityFormData = _.merge({}, entity, {
-      role: entity._embedded && entity._embedded.role ? entity._embedded.role : null
-    });
-
-    this.setState({
-      detail: {
-        show: true,
-        edit: isEdit && !entity.automaticRole && !entity.directRole,
-        entity: entityFormData,
-        add: multiAdd
-      }
-    }, () => {
-      this.refs.form.setData(entityFormData);
-      this.refs.role.focus();
-    });
-  }
-
-  /**
    * Close modal dialog
    */
   _closeDetail() {
@@ -113,13 +91,23 @@ export class RoleConceptTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    if (!this.refs.form.isFormValid()) {
+
+    const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
+    const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
+    if (!form.isFormValid()) {
       return;
     }
-    //
+    if (eavForm && !eavForm.isValid()) {
+      return;
+    }
+
     const { identityUsername, createConceptFunc, updateConceptFunc } = this.props;
 
-    const entity = this.refs.form.getData();
+    const entity = form.getData();
+    let eavValues = null;
+    if (eavForm) {
+      eavValues = {values: eavForm.getValues()};
+    }
     if (entity._added) {
       if (!entity._virtualId && !entity.id && entity.role instanceof Array) {
         for (const roleId of entity.role) {
@@ -129,7 +117,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
           identityRole._embedded = {};
           identityRole._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
           identityRole._embedded.role = roleManager.getEntity(this.context.store.getState(), roleId);
-          createConceptFunc(identityRole, 'ADD');
+          createConceptFunc(identityRole, 'ADD', eavValues);
         }
       } else {
         const addedIdentityRole = this._findAddedIdentityRoleById(entity.id);
@@ -140,9 +128,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
         }
         entity._embedded.role = roleManager.getEntity(this.context.store.getState(), entity.role);
         if (addedIdentityRole) {
-          updateConceptFunc(entity, 'ADD');
+          updateConceptFunc(entity, 'ADD', eavValues);
         } else {
-          createConceptFunc(entity, 'ADD');
+          createConceptFunc(entity, 'ADD', eavValues);
         }
       }
     } else {
@@ -161,9 +149,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
       }
 
       if (changed && changedIdentityRole && changedIdentityRole.id) {
-        updateConceptFunc(changedIdentityRole, 'UPDATE');
+        updateConceptFunc(changedIdentityRole, 'UPDATE', eavValues);
       } else {
-        createConceptFunc(entity, 'UPDATE');
+        createConceptFunc(entity, 'UPDATE', eavValues);
       }
     }
     this.setState({conceptData: this._compileConceptData(this.props)});
@@ -275,11 +263,11 @@ export class RoleConceptTable extends Basic.AbstractContent {
     //
     identityRoles.forEach(identityRole => {
       if (identityRole.directRole) {
-        subRoles.push(identityRole);
+        subRoles.push(_.merge({}, identityRole));
       } else if (identityRole.automaticRole) {
-        automaticRoles.push(identityRole);
+        automaticRoles.push(_.merge({}, identityRole));
       } else {
-        directRoles.push(identityRole);
+        directRoles.push(_.merge({}, identityRole));
       }
     });
     directRoles.sort(this._sortRoles);
@@ -302,10 +290,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
         for (const changedIdentityRole of changedIdentityRoles) {
           if (changedIdentityRole.identityRole === concept.id) {
             concept._changed = true;
-            for (const property in changedIdentityRole) {
-              if (changedIdentityRole.hasOwnProperty(property)) {
+            concept._eav = changedIdentityRole._eav;
+            for (const property in concept) {
+              if (changedIdentityRole.hasOwnProperty(property) && property !== '_embedded' && property !== 'id') {
                 const key = '_' + property + 'Changed';
-                concept[key] = changedIdentityRole[property];
+                if (JSON.stringify(concept[property]) !== JSON.stringify(changedIdentityRole[property])) {
+                  concept[key] = changedIdentityRole[property];
+                }
               }
             }
           }
@@ -361,6 +352,43 @@ export class RoleConceptTable extends Basic.AbstractContent {
     this._showDetail(newIdentityRoleConcept, true, true);
   }
 
+  _showDetail(entity, isEdit = false, multiAdd = false) {
+    this.setState({
+      detail: {
+        show: true,
+        edit: isEdit && !entity.automaticRole && !entity.directRole,
+        entity,
+        add: multiAdd
+      }
+    });
+  }
+
+  _showRoleByIdentitySelect() {
+    this.setState({
+      showRoleByIdentitySelect: true
+    });
+  }
+
+  _hideRoleByIdentitySelect() {
+    this.setState({
+      showRoleByIdentitySelect: false
+    });
+  }
+
+  _executeRoleRequestByIdentity(event) {
+    const { reloadComponent } = this.props;
+    if (event) {
+      event.preventDefault();
+    }
+
+    const roleRequestByIdentity = this.refs.roleSelectByIdentity.getWrappedInstance().createRoleRequestByIdentity();
+    this.context.store.dispatch(roleRequestManager.copyRolesByIdentity(roleRequestByIdentity, null, () => {
+      // We also need fetch request for new form attributes
+      this._hideRoleByIdentitySelect();
+      reloadComponent();
+    }));
+  }
+
   /**
    * Generate cell with actions (buttons)
    */
@@ -405,148 +433,249 @@ export class RoleConceptTable extends Basic.AbstractContent {
     );
   }
 
-  /**
-   * Pre-fill valid-from by contract validity
-   */
-  _onChangeSelectOfContract(value) {
-    const{detail} = this.state;
-    let validFrom = value ? value.validFrom : null;
-    const now = moment().utc().valueOf();
-    if (validFrom && moment(validFrom).isBefore(now)) {
-      validFrom = now;
+  // To delete
+  _conceptActionsCellSimple(value) {
+    const {readOnly, showLoadingButtonRemove} = this.props;
+    const actions = [];
+    const notModificated = !(value._added || value._removed || value._changed);
+    const manualRole = !value.automaticRole && !value.directRole;
+    //
+    actions.push(
+      <Basic.Button
+        level={'danger'}
+        onClick={this._deleteConcept.bind(this, value)}
+        className="btn-xs"
+        disabled={readOnly || !manualRole}
+        showLoading={showLoadingButtonRemove}
+        role="group"
+        title={this.i18n('button.delete')}
+        titlePlacement="bottom">
+        <Basic.Icon icon={notModificated ? 'trash' : 'remove'}/>
+      </Basic.Button>
+    );
+    if (!value._removed) {
+      actions.push(
+        <Basic.Button
+          level={'warning'}
+          onClick={this._showDetail.bind(this, value, true, false)}
+          className="btn-xs"
+          disabled={readOnly || !manualRole}
+          role="group"
+          title={this.i18n('button.edit')}
+          titlePlacement="bottom">
+          <Basic.Icon icon={'edit'}/>
+        </Basic.Button>
+      );
     }
-    const entityFormData = _.merge({}, detail.entity);
-    entityFormData.validFrom = validFrom;
-    entityFormData.identityContract = value;
-    this._showDetail(entityFormData, detail.edit, detail.add);
+    return (
+      <div className="btn-group" role="group">
+        {actions}
+      </div>
+    );
+  }
 
-    return false;
+  // To delete
+  generateTable(data) {
+    const trs = [];
+    data.forEach(concept => {
+      let rowClass;
+      if (concept._added) {
+        rowClass = 'bg-success';
+      }
+      if (concept._removed) {
+        rowClass = 'bg-danger';
+      }
+      if (concept._changed) {
+        rowClass = 'bg-warning';
+      }
+      const row = [];
+      row.push(<td><Advanced.DetailButton
+        title={this.i18n('button.detail')}
+        onClick={this._showDetail.bind(this, concept, !concept._removed, false)}/></td>);
+      row.push(<td>{concept._embedded.role.name}</td>);
+      row.push(<td>{concept._embedded.identityContract ? concept._embedded.identityContract.id : null}</td>);
+      row.push(<td>{this._conceptActionsCellSimple(concept)}</td>);
+      trs.push(<tr className={rowClass}>{row}</tr>);
+    });
+
+    return <table>{trs}</table>;
   }
 
   render() {
-    const { showLoading, identityUsername, readOnly, className } = this.props;
-    const { conceptData, detail } = this.state;
-    //
-    return (
+    const {
+      showLoading,
+      identityUsername,
+      readOnly,
+      className,
+      _currentIdentityRoles,
+      request } = this.props;
+    const { conceptData, detail, showRoleByIdentitySelect } = this.state;
+
+    const result = (
       <div>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        <Basic.Toolbar>
-          <div className="pull-right">
-            <Basic.Button
-              level="success"
-              className="btn-xs"
-              disabled={readOnly}
-              onClick={this._addConcept.bind(this)}>
-              <Basic.Icon value="fa:plus"/>
+        <Basic.Panel showLoading={showLoading} rendered={ request !== null && _currentIdentityRoles !== null && !detail.show && !showRoleByIdentitySelect}>
+          <Basic.Confirm ref="confirm-delete" level="danger"/>
+          <Basic.Toolbar rendered={!detail.show && !showRoleByIdentitySelect}>
+            <div className="pull-right">
+              <Basic.Button
+                level="success"
+                className="btn-xs"
+                disabled={readOnly}
+                onClick={this._addConcept.bind(this)}>
+                <Basic.Icon value="fa:plus"/>
+                {' '}
+                {this.i18n('button.add')}
+              </Basic.Button>
               {' '}
-              {this.i18n('button.add')}
+              <Basic.Button
+                level="success"
+                className="btn-xs"
+                disabled={readOnly}
+                onClick={this._showRoleByIdentitySelect.bind(this)}>
+                <Basic.Icon value="fa:plus"/>
+                {' '}
+                {this.i18n('addByIdentity.header')}
+              </Basic.Button>
+            </div>
+            <div className="clearfix"></div>
+          </Basic.Toolbar>
+          {/* this.generateTable(conceptData)*/}
+          <Basic.Table
+            rendered={!detail.show && !showRoleByIdentitySelect}
+            hover={false}
+            showLoading={showLoading}
+            data={conceptData}
+            rowClass={this._rowClass}
+            className={className}
+            showRowSelection={false}
+            noData={this.i18n('component.basic.Table.noData')}>
+            <Basic.Column
+              header=""
+              className="detail-button"
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <Advanced.DetailButton
+                      title={this.i18n('button.detail')}
+                      onClick={this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false)}/>
+                  );
+                }
+              }
+              sort={false}/>
+            <Basic.Column
+              header={ this.i18n('entity.IdentityRole.role') }
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  const role = data[rowIndex]._embedded.role;
+                  if (!role) {
+                    return '';
+                  }
+                  return (
+                    <Advanced.EntityInfo
+                      entityType="role"
+                      entityIdentifier={ role.id }
+                      entity={ role }
+                      face="popover" />
+                  );
+                }
+              }
+              />
+            <Basic.Column
+              header={this.i18n('entity.IdentityRole.identityContract.title')}
+              cell={
+                ({rowIndex, data}) => {
+                  const contract = data[rowIndex]._embedded.identityContract;
+                  if (!contract) {
+                    return '';
+                  }
+                  return (
+                    <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" />
+                  );
+                }
+              }/>
+            <Basic.Column
+              header={this.i18n('entity.Role.description')}
+              property="_embedded.role.description"
+              rendered={false}
+              />
+            <Basic.Column
+              property="validFrom"
+              header={this.i18n('label.validFrom')}
+              cell={this._conceptDateCell.bind(this)}/>
+            <Basic.Column
+              property="validTill"
+              header={this.i18n('label.validTill')}
+              cell={this._conceptDateCell.bind(this)}/>
+            <Basic.Column
+              property="directRole"
+              header={this.i18n('entity.IdentityRole.directRole.label')}
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data, property }) => {
+                  if (!data[rowIndex][property]) {
+                    return null;
+                  }
+                  //
+                  return (
+                    <Advanced.EntityInfo
+                      entityType="identityRole"
+                      entityIdentifier={ data[rowIndex][property] }
+                      entity={ data[rowIndex]._embedded[property] }
+                      showIdentity={ false }
+                      face="popover" />
+                  );
+                }
+              }
+              width={ 150 }/>
+            <Basic.Column
+              property="automaticRole"
+              header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.automaticRole.label')}</Basic.Cell>}
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  return (
+                    <Basic.BooleanCell propertyValue={ data[rowIndex].automaticRole !== null } className="column-face-bool"/>
+                  );
+                }
+              }/>
+            <Basic.Column
+              header={this.i18n('label.action')}
+              className="action"
+              cell={this._conceptActionsCell.bind(this)}/>
+          </Basic.Table>
+        </Basic.Panel>
+        <Basic.Modal
+          bsSize="large"
+          show={showRoleByIdentitySelect}
+          onHide={ this._hideRoleByIdentitySelect.bind(this) }
+          backdrop="static"
+          keyboard={!showLoading}>
+          <Basic.Modal.Header
+            closeButton={ !showLoading }
+            text={ this.i18n('create.headerByIdentity') }
+            rendered={ Utils.Entity.isNew(detail.entity) }/>
+          <Basic.Modal.Body>
+            <RoleSelectByIdentity
+              ref="roleSelectByIdentity"
+              identityUsername={identityUsername}
+              request={request}/>
+          </Basic.Modal.Body>
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="link"
+              onClick={ this._hideRoleByIdentitySelect.bind(this) }>
+              { this.i18n('button.close') }
             </Basic.Button>
-          </div>
-          <div className="clearfix"></div>
-        </Basic.Toolbar>
-        <Basic.Table
-          hover={false}
-          showLoading={showLoading}
-          data={conceptData}
-          rowClass={this._rowClass}
-          className={className}
-          showRowSelection={false}
-          noData={this.i18n('component.basic.Table.noData')}>
-          <Basic.Column
-            header=""
-            className="detail-button"
-            cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false)}/>
-                );
-              }
-            }
-            sort={false}/>
-          <Basic.Column
-            header={ this.i18n('entity.IdentityRole.role') }
-            cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data }) => {
-                const role = data[rowIndex]._embedded.role;
-                if (!role) {
-                  return '';
-                }
-                return (
-                  <Advanced.EntityInfo
-                    entityType="role"
-                    entityIdentifier={ role.id }
-                    entity={ role }
-                    face="popover" />
-                );
-              }
-            }
-            />
-          <Basic.Column
-            header={this.i18n('entity.IdentityRole.identityContract.title')}
-            cell={
-              ({rowIndex, data}) => {
-                const contract = data[rowIndex]._embedded.identityContract;
-                if (!contract) {
-                  return '';
-                }
-                return (
-                  <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" />
-                );
-              }
-            }/>
-          <Basic.Column
-            header={this.i18n('entity.Role.description')}
-            property="_embedded.role.description"
-            rendered={false}
-            />
-          <Basic.Column
-            property="validFrom"
-            header={this.i18n('label.validFrom')}
-            cell={this._conceptDateCell.bind(this)}/>
-          <Basic.Column
-            property="validTill"
-            header={this.i18n('label.validTill')}
-            cell={this._conceptDateCell.bind(this)}/>
-          <Basic.Column
-            property="directRole"
-            header={this.i18n('entity.IdentityRole.directRole.label')}
-            cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data, property }) => {
-                if (!data[rowIndex][property]) {
-                  return null;
-                }
-                //
-                return (
-                  <Advanced.EntityInfo
-                    entityType="identityRole"
-                    entityIdentifier={ data[rowIndex][property] }
-                    entity={ data[rowIndex]._embedded[property] }
-                    showIdentity={ false }
-                    face="popover" />
-                );
-              }
-            }
-            width={ 150 }/>
-          <Basic.Column
-            property="automaticRole"
-            header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.automaticRole.label')}</Basic.Cell>}
-            cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data }) => {
-                return (
-                  <Basic.BooleanCell propertyValue={ data[rowIndex].automaticRole !== null } className="column-face-bool"/>
-                );
-              }
-            }/>
-          <Basic.Column
-            header={this.i18n('label.action')}
-            className="action"
-            cell={this._conceptActionsCell.bind(this)}/>
-        </Basic.Table>
+            <Basic.Button
+              type="submit"
+              level="success"
+              onClick={ this._executeRoleRequestByIdentity.bind(this) }
+              showLoadingIcon>
+              { this.i18n('button.set') }
+            </Basic.Button>
+          </Basic.Modal.Footer>
+        </Basic.Modal>
 
         <Basic.Modal
           bsSize="large"
@@ -564,59 +693,16 @@ export class RoleConceptTable extends Basic.AbstractContent {
               closeButton={ !showLoading }
               text={ this.i18n('edit.header', { role: detail.entity.role }) }
               rendered={ !Utils.Entity.isNew(detail.entity) }/>
-
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={!detail.edit || readOnly}>
-
-                <Advanced.RoleSelect
-                  required
-                  readOnly={ !detail.entity._added || readOnly }
-                  multiSelect={ detail.entity._added && detail.add }
-                  showActionButtons
-                  header={ this.i18n('selectRoleCatalogue.header') }
-                  label={ this.i18n('entity.IdentityRole.role') }
-                  ref="role"/>
-
-                <Basic.SelectBox
-                  ref="identityContract"
-                  manager={ identityContractManager }
-                  forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername).setFilter('validNowOrInFuture', true) }
-                  label={ this.i18n('entity.IdentityRole.identityContract.label') }
-                  placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
-                  helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
-                  returnProperty={false}
-                  readOnly={!detail.entity._added}
-                  onChange={this._onChangeSelectOfContract.bind(this)}
-                  niceLabel={ (contract) => { return identityContractManager.getNiceLabel(contract, false); }}
-                  required
-                  useFirst/>
-
-                <Basic.LabelWrapper
-                  label={this.i18n('entity.IdentityRole.automaticRole.label')}
-                  helpBlock={this.i18n('entity.IdentityRole.automaticRole.help')}
-                  rendered={ detail.entity.automaticRole !== null }
-                  hidden={ detail.entity._added }>
-                  { detail.entity.automaticRole ? roleTreeNodeManager.getNiceLabel(detail.entity._embedded.automaticRole) : null }
-                </Basic.LabelWrapper>
-
-                <Basic.Row>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.DateTimePicker
-                      mode="date"
-                      className={detail.entity.hasOwnProperty('_validFromChanged') ? 'text-danger' : null}
-                      ref={detail.entity.hasOwnProperty('_validFromChanged') ? '_validFromChanged' : 'validFrom'}
-                      label={this.i18n('label.validFrom')}/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.DateTimePicker
-                      mode="date"
-                      className={detail.entity.hasOwnProperty('_validTillChanged') ? 'text-danger' : null}
-                      ref={detail.entity.hasOwnProperty('_validTillChanged') ? '_validTillChanged' : 'validTill'}
-                      label={this.i18n('label.validTill')}/>
-                  </Basic.Col>
-                </Basic.Row>
-
-              </Basic.AbstractForm>
+              <RoleConceptDetail
+                ref="roleConceptDetail"
+                identityUsername={identityUsername}
+                showLoading={showLoading}
+                readOnly={readOnly}
+                entity={detail.entity}
+                isEdit={detail.edit}
+                multiAdd={detail.add}
+                />
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button
@@ -625,7 +711,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
                 showLoading={ showLoading }>
                 { this.i18n('button.close') }
               </Basic.Button>
-
               <Basic.Button
                 type="submit"
                 level="success"
@@ -639,13 +724,25 @@ export class RoleConceptTable extends Basic.AbstractContent {
         </Basic.Modal>
       </div>
     );
+
+    return result;
   }
 }
 
 RoleConceptTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   identityUsername: PropTypes.string.isRequired,
-  className: PropTypes.string
+  className: PropTypes.string,
+  request: PropTypes.object,
+  identityRoles: PropTypes.array,
+  addedIdentityRoles: PropTypes.array,
+  changedIdentityRoles: PropTypes.array,
+  removedIdentityRoles: PropTypes.array,
+  removeConceptFunc: PropTypes.func,
+  createConceptFunc: PropTypes.func,
+  updateConceptFunc: PropTypes.func,
+  conceptRoleRequestManager: PropTypes.objet
+
 };
 
 RoleConceptTable.defaultProps = {
@@ -653,6 +750,5 @@ RoleConceptTable.defaultProps = {
   showLoading: false,
   showLoadingButtonRemove: false
 };
-
 
 export default RoleConceptTable;

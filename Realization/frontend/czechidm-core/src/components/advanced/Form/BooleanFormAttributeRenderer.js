@@ -46,16 +46,17 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
     return formValue.booleanValue ? formValue.booleanValue : formValue.value;
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { values } = this.props;
+    const showOriginalValue = originalValues ? true : false;
     //
     return (
       <Basic.Checkbox
         ref={ AbstractFormAttributeRenderer.INPUT }
-        label={ this.getLabel() }
-        value={ this.toInputValue(values) }
+        label={ this.getLabel(null, showOriginalValue) }
+        value={ this.toInputValue(showOriginalValue ? originalValues : values) }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ this.isReadOnly() }
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }/>
     );
   }

@@ -51,7 +51,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
       return filledFormValues;
     }
     if (componentValue) {
-      const textValues = componentValue.split('\n');
+      const textValues = typeof componentValue === 'string' ? componentValue.split('\n') : [componentValue];
       for (let i = 0; i < textValues.length; i++) {
         let formValue = null;
         if (values && i < values.length) {
@@ -149,26 +149,28 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
     return validation;
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { attribute, values } = this.props;
+    const showOriginalValue = originalValues ? true : false;
     //
     return (
       <Basic.TextField
         ref={ AbstractFormAttributeRenderer.INPUT }
         type={ attribute.confidential ? 'password' : 'text' }
-        label={ this.getLabel() }
+        label={ this.getLabel(null, showOriginalValue) }
         placeholder={ this.getPlaceholder() }
-        value={ this.toInputValue(values) }
+        value={ this.toInputValue(showOriginalValue ? originalValues : values) }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ this.isReadOnly() }
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }
         validation={ this.getInputValidation() }
         required={ this.isRequired() }
         confidential={ attribute.confidential }/>
     );
   }
 
-  renderMultipleInput() {
+  renderMultipleInput(originalValues) {
     const { attribute, values } = this.props;
+    const showOriginalValue = originalValues ? true : false;
     //
     return (
       <Basic.TextArea
@@ -177,7 +179,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         required={ this.isRequired() }
         label={
           <span>
-            { this.getLabel() }
+            { this.getLabel(null, showOriginalValue) }
             {' '}
             <Basic.Tooltip placement="bottom" value={ this.i18n('component.advanced.EavForm.multiple.title') }>
               {
@@ -186,9 +188,9 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
             </Basic.Tooltip>
           </span>
         }
-        value={ this.toInputValues(values) }
-        helpBlock={ this.getHelpBlock(this.i18n('multiple.title')) }
-        readOnly={ this.isReadOnly() }
+        value={ this.toInputValues(showOriginalValue ? originalValues : values) }
+        helpBlock={ this.getHelpBlock() }
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }
         placeholder={ this.getPlaceholder() }/>
     );
   }

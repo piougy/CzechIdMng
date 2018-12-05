@@ -30,6 +30,7 @@ public enum AccGroupPermission implements GroupPermission {
 	ROLECATALOGUEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	SYNCHRONIZATION(IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
 	CONTRACTACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	IDENTITYROLEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	CONTRACTSLICEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	PROVISIONINGBREAK(
 			IdmBasePermission.ADMIN,
@@ -91,6 +92,11 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String PROVISIONINGBREAK_CREATE = "PROVISIONINGBREAK" + BasePermission.SEPARATOR + "CREATE";
 	public static final String PROVISIONINGBREAK_UPDATE = "PROVISIONINGBREAK" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String PROVISIONINGBREAK_DELETE = "PROVISIONINGBREAK" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String IDENTITY_ROLE_ACCOUNT_READ = "IDENTITYROLEACCOUNT" + BasePermission.SEPARATOR + "READ";
+	public static final String IDENTITY_ROLE_ACCOUNT_CREATE = "IDENTITYROLEACCOUNT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String IDENTITY_ROLE_ACCOUNT_UPDATE = "IDENTITYROLEACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String IDENTITY_ROLE_ACCOUNT_DELETE = "IDENTITYROLEACCOUNT" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

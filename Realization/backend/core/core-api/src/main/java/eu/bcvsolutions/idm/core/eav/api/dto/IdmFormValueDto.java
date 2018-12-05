@@ -68,6 +68,10 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	private short seq;
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
+	@JsonProperty(access = Access.READ_ONLY, value="_changed")
+	private boolean changed;
+	@JsonProperty(access = Access.READ_ONLY, value="_originalValue")
+	private IdmFormValueDto originalValue;
 	//
 	@JsonIgnore
 	private transient FormableEntity owner;
@@ -221,6 +225,22 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	@JsonProperty(access = Access.READ_ONLY)
 	public Serializable getValue() {
 		return getValue(persistentType);
+	}
+
+	public boolean isChanged() {
+		return changed;
+	}
+
+	public void setChanged(boolean changed) {
+		this.changed = changed;
+	}
+
+	public IdmFormValueDto getOriginalValue() {
+		return originalValue;
+	}
+
+	public void setOriginalValue(IdmFormValueDto originalValue) {
+		this.originalValue = originalValue;
 	}
 
 	/**

@@ -7,6 +7,7 @@ import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
 import ConfigurationManager from '../../../redux/data/ConfigurationManager';
 import { selectNavigationItems, selectNavigationItem, getNavigationItem, hideFooter } from '../../../redux/config/actions';
+import equal from 'fast-deep-equal';
 
 /**
 * Basic content = page representation
@@ -34,6 +35,27 @@ export default class AbstractContent extends AbstractContextComponent {
     if (this.hideFooter()) {
       this.context.store.dispatch(hideFooter(true));
     }
+  }
+
+  /**
+  * Method for stop redundant component rendering. This is very naive implementation, where are checked changes on props and state.
+  * This check should not have any inpact on count of rendering, but has big.
+  * Check with deep transform objects to string is not recommendit for bad performence, but for us is that very usefull.
+  */
+  shouldComponentUpdate(nextProps, nextState) {
+    // return true;
+    if (nextProps && (
+      !equal(nextProps, this.props)
+    )) {
+      return true;
+    }
+
+    if (nextState && (
+      !equal(nextState, this.state)
+    )) {
+      return true;
+    }
+    return false;
   }
 
   /**

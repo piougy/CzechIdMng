@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
-public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentifiable {
+public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentifiable, CorrelationFilter {
 	
 	public static final String PARAMETER_DIRECT_ROLE = "directRole"; // true / false
 	public static final String PARAMETER_DIRECT_ROLE_ID = "directRoleId";
@@ -147,5 +147,25 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	
 	public void setContractPositionId(UUID contractPositionId) {
 		data.set(PARAMETER_CONTRACT_POSITION_ID, contractPositionId);
+	}
+
+	@Override
+	public String getProperty() {
+		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
+	}
+
+	@Override
+	public void setProperty(String property) {
+		data.set(PARAMETER_CORRELATION_PROPERTY, property);
+	}
+
+	@Override
+	public String getValue() {
+		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
+	}
+
+	@Override
+	public void setValue(String value) {
+		data.set(PARAMETER_CORRELATION_VALUE, value);
 	}
 }

@@ -8,6 +8,10 @@ module.exports = {
       'component': require('./src/content/task/identityRole/DynamicTaskRoleDetail')
     },
     {
+      'id': 'dynamicTaskRoleConceptDetail',
+      'component': require('./src/content/task/identityRole/DynamicTaskRoleConceptDetail')
+    },
+    {
       'id': 'dynamicAutomaticRoleTaskDetail',
       'component': require('./src/content/task/identityRole/DynamicTaskAutomaticRoleDetail')
     },

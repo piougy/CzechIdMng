@@ -12,15 +12,11 @@ Input variables:
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent2" name="End"></endEvent>
     <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;{{${roleService.get(conceptRole.role, null).name}}}&quot; remove by manager for &quot;{{${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}}}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
-    <userTask id="approveByManager" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:skipExpression="#{skipApproveByManager}">
+    <userTask id="approveByManager" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:formKey="dynamicTaskRoleConceptDetail" activiti:skipExpression="#{skipApproveByManager}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role, null).name}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validFrom" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole, null).validFrom}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validTill" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole, null).validTill}" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow19" sourceRef="approveByManager" targetRef="exclusivegateway3"></sequenceFlow>
@@ -196,7 +192,7 @@ if(!skip){
         <omgdi:waypoint x="882.0" y="204.0"></omgdi:waypoint>
         <omgdi:waypoint x="883.0" y="255.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="61.0" x="903.0" y="219.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="61.0" x="903.0" y="219.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
@@ -207,7 +203,7 @@ if(!skip){
         <omgdi:waypoint x="1149.0" y="204.0"></omgdi:waypoint>
         <omgdi:waypoint x="1150.0" y="250.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="99.0" x="1154.0" y="228.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="99.0" x="1154.0" y="228.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">

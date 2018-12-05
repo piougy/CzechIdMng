@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -21,18 +23,32 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole_;
@@ -72,6 +88,12 @@ public class DefaultIdmConceptRoleRequestService extends
 	private final IdmAutomaticRoleRepository automaticRoleRepository;
 	@Autowired
 	private WorkflowTaskInstanceService workflowTaskInstanceService;
+	@Autowired
+	private IdmRoleService roleService;
+	@Autowired
+	private FormService formService;
+	@Autowired
+	private IdmFormAttributeService formAttributeService;
 
 	@Autowired
 	public DefaultIdmConceptRoleRequestService(IdmConceptRoleRequestRepository repository,
@@ -101,11 +123,26 @@ public class DefaultIdmConceptRoleRequestService extends
 			// nothing to check
 			return null;
 		}
-		if (!ObjectUtils.isEmpty(permission)
-				&& !getAuthorizationManager().evaluate(entity.getRoleRequest(), permission)) {
-			throw new ForbiddenEntityException(entity.getId(), permission);
+
+		if (ObjectUtils.isEmpty(permission)) {
+			return entity;
 		}
-		return entity;
+
+		// We have rights on the concept, when we have rights on whole request
+		if (getAuthorizationManager().evaluate(entity.getRoleRequest(), permission)) {
+			return entity;
+		}
+
+		// We have rights on the concept, when we have rights on workflow process using in the concept
+		String processId = entity.getWfProcessId();
+		if (!Strings.isNullOrEmpty(processId)) {
+			WorkflowProcessInstanceDto processInstance = workflowProcessInstanceService.get(processId);
+			if (processInstance != null) {
+				return entity;
+			}
+		}
+
+		throw new ForbiddenEntityException(entity.getId(), permission);
 	}
 
 	@Override
@@ -137,6 +174,7 @@ public class DefaultIdmConceptRoleRequestService extends
 													// any attribute like this
 			dto.setEmbedded(embedded);
 		}
+
 		return dto;
 	}
 
@@ -207,9 +245,96 @@ public class DefaultIdmConceptRoleRequestService extends
 	}
 
 	@Override
+	@Transactional
+	public IdmConceptRoleRequestDto saveInternal(IdmConceptRoleRequestDto dto) {
+		IdmConceptRoleRequestDto savedDto = super.saveInternal(dto);
+
+		if (dto != null && dto.getRole() != null) {
+			IdmRoleDto roleDto = roleService.get(dto.getRole());
+			if (roleDto == null) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", dto.getRole()));
+			}
+
+			List<IdmFormValueDto> attributeValues = dto.getEavs().size() == 1 && dto.getEavs().get(0) != null
+					? dto.getEavs().get(0).getValues()
+					: null;
+			UUID formDefinition = roleDto.getIdentityRoleAttributeDefinition();
+
+			// Check if all attributes has correct form definition
+			if (attributeValues != null && formDefinition != null) {
+				attributeValues.stream() //
+						.filter(value -> { //
+							IdmFormAttributeDto attributeDto = formAttributeService.get(value.getFormAttribute());
+							return !formDefinition.equals(attributeDto.getFormDefinition());
+						}).findFirst() //
+						.ifPresent(present -> {
+							throw new ResultCodeException(CoreResultCode.REQUEST_ITEM_WRONG_FORM_DEFINITON_IN_VALUES,
+									ImmutableMap.of("item", savedDto.getId(), "role", savedDto.getRole(),
+											"formDefinition", formDefinition));
+						});
+				List<IdmFormValueDto> savedValues = formService.saveValues(savedDto, formDefinition, attributeValues);
+				IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+				formInstance.setValues(savedValues);
+				savedDto.getEavs().clear();
+				savedDto.getEavs().add(formInstance);
+			}
+		}
+
+		return savedDto;
+	}
+
+	@Override
 	public void deleteInternal(IdmConceptRoleRequestDto dto) {
+		formService.deleteValues(dto);
 		this.cancelWF(dto);
 		super.deleteInternal(dto);
+	}
+
+	@Override
+	public IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto) {
+		UUID roleId = dto.getRole();
+		if (roleId != null) {
+			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.role, IdmRoleDto.class);
+			// Has role filled attribute definition?
+			UUID formDefintion = role.getIdentityRoleAttributeDefinition();
+			if (formDefintion != null) {
+				IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(role,
+						IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
+				IdmFormInstanceDto conceptFormInstance = formService.getFormInstance(dto, formDefinitionDto);
+				// If exists identity role, then we try to evaluate changes against EAVs in the
+				// current identity role.
+				ConceptRoleRequestOperation operation = dto.getOperation();
+				if (dto.getIdentityRole() != null && ConceptRoleRequestOperation.UPDATE == operation) {
+					IdmIdentityRoleDto identityRoleDto = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.identityRole,
+							IdmIdentityRoleDto.class);
+					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinitionDto);
+					if (formInstance != null && conceptFormInstance != null) {
+						List<IdmFormValueDto> conceptValues = conceptFormInstance.getValues();
+						List<IdmFormValueDto> values = formInstance.getValues();
+
+						conceptValues.forEach(conceptFormValue -> {
+							IdmFormValueDto formValue = values.stream() //
+									.filter(value -> value.getFormAttribute()
+											.equals(conceptFormValue.getFormAttribute())
+											&& value.getSeq() == conceptFormValue.getSeq()) //
+									.findFirst() //
+									.orElse(null); //
+							// Compile changes
+							Serializable value = formValue != null ? formValue.getValue() : null;
+							Serializable conceptValue = conceptFormValue.getValue();
+
+							if (!Objects.equals(conceptValue, value)) {
+								conceptFormValue.setChanged(true);
+								conceptFormValue.setOriginalValue(formValue);
+							}
+							// TODO check remove in multivalued attribute
+						});
+					}
+				}
+				return conceptFormInstance;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -297,10 +422,9 @@ public class DefaultIdmConceptRoleRequestService extends
 						// Active task exists and has decision for 'disapprove'. Complete task (process)
 						// with this decision.
 						workflowTaskInstanceService.completeTask(task.getId(), disapprove.getId(), null, null, null);
-						this.addToLog(dto,
-								MessageFormat.format(
-										"Workflow process with ID [{0}] was disapproved, because this concept is deleted/canceled",
-										dto.getWfProcessId()));
+						this.addToLog(dto, MessageFormat.format(
+								"Workflow process with ID [{0}] was disapproved, because this concept is deleted/canceled",
+								dto.getWfProcessId()));
 						return;
 					}
 				}

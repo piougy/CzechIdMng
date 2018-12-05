@@ -501,7 +501,6 @@ public class DefaultRequestManager implements RequestManager {
 			return null;
 		}
 
-		List<IdmRequestItemAttributeDto> resultAttributes = new ArrayList<>();
 		Class<? extends Requestable> dtoClass;
 		try {
 			dtoClass = (Class<? extends Requestable>) Class.forName(item.getOwnerType());
@@ -520,8 +519,23 @@ public class DefaultRequestManager implements RequestManager {
 			}
 		}
 		Requestable changedDto = this.get(item.getRequest(), currentDto);
-		Map<String, Object> currentFieldsValues = this.dtoToMap((AbstractDto) currentDto);
-		Map<String, Object> changedFieldsValues = this.dtoToMap((AbstractDto) changedDto);
+		RequestOperationType itemOperation = item.getOperation();
+		List<IdmRequestItemAttributeDto> resultAttributes = getChanges((AbstractDto)currentDto, (AbstractDto)changedDto, itemOperation);
+
+		IdmRequestItemChangesDto result = new IdmRequestItemChangesDto();
+		result.setRequestItem(item);
+		result.getAttributes().addAll(resultAttributes);
+
+		LOG.debug(MessageFormat.format("End of reading the request item with changes [{0}].", item));
+		return result;
+	}
+
+	@Override
+	public List<IdmRequestItemAttributeDto> getChanges(AbstractDto currentDto, AbstractDto changedDto,
+			RequestOperationType itemOperation) {
+		List<IdmRequestItemAttributeDto> resultAttributes = new ArrayList<>();
+		Map<String, Object> currentFieldsValues = this.dtoToMap(currentDto);
+		Map<String, Object> changedFieldsValues = this.dtoToMap(changedDto);
 
 		// First add all new attributes
 		changedFieldsValues.keySet().stream().forEach(changedAttribute -> {
@@ -575,36 +589,32 @@ public class DefaultRequestManager implements RequestManager {
 				if ((changedValue == null && currentValue == null)
 						|| (changedValue != null && changedValue.equals(currentValue))
 						|| (currentValue != null && currentValue.equals(changedValue))) {
-					attribute.setChanged(RequestOperationType.UPDATE == item.getOperation() ? false : true);
+					attribute.setChanged(RequestOperationType.UPDATE == itemOperation ? false : true);
 					attribute.setValue(new IdmRequestAttributeValueDto(changedValue, currentValue,
-							RequestOperationType.UPDATE == item.getOperation() ? null : item.getOperation()));
+							RequestOperationType.UPDATE == itemOperation ? null : itemOperation));
 				} else {
 					attribute.setChanged(true);
 					attribute
-							.setValue(new IdmRequestAttributeValueDto(changedValue, currentValue, item.getOperation()));
+							.setValue(new IdmRequestAttributeValueDto(changedValue, currentValue, itemOperation));
 				}
 			}
 			resultAttributes.add(attribute);
 		});
 
 		// Make all values nicer
-		resultAttributes.forEach(attribute -> {
-			attribute.getValue().setValue(this.makeNiceValue(attribute.getValue().getValue()));
-			attribute.getValue().setOldValue(this.makeNiceValue(attribute.getValue().getOldValue()));
+		resultAttributes.stream() //
+				.filter(attribute -> attribute.getValue() != null) //
+				.forEach(attribute -> { //
+					attribute.getValue().setValue(this.makeNiceValue(attribute.getValue().getValue()));
+					attribute.getValue().setOldValue(this.makeNiceValue(attribute.getValue().getOldValue()));
 
-			List<IdmRequestAttributeValueDto> attributeValues = attribute.getValues();
-			attributeValues.forEach(attributeValue -> {
-				attributeValue.setValue(this.makeNiceValue(attributeValue.getValue()));
-				attributeValue.setOldValue(this.makeNiceValue(attributeValue.getOldValue()));
-			});
-		});
-
-		IdmRequestItemChangesDto result = new IdmRequestItemChangesDto();
-		result.setRequestItem(item);
-		result.getAttributes().addAll(resultAttributes);
-
-		LOG.debug(MessageFormat.format("End of reading the request item with changes [{0}].", item));
-		return result;
+					List<IdmRequestAttributeValueDto> attributeValues = attribute.getValues();
+					attributeValues.forEach(attributeValue -> {
+						attributeValue.setValue(this.makeNiceValue(attributeValue.getValue()));
+						attributeValue.setOldValue(this.makeNiceValue(attributeValue.getOldValue()));
+					});
+				});
+		return resultAttributes;
 	}
 
 	@Override

@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
+import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
@@ -33,7 +34,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -134,11 +134,11 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected EntityAccountFilter createEntityAccountFilter() {
 		return new AccRoleAccountFilter();
 	}
-
-	@SuppressWarnings("rawtypes")
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected ReadWriteDtoService getEntityAccountService() {
-		return roleAccoutnService;
+	protected EntityAccountService<EntityAccountDto, EntityAccountFilter> getEntityAccountService() {
+		return (EntityAccountService)roleAccoutnService;
 	}
 
 	@Override

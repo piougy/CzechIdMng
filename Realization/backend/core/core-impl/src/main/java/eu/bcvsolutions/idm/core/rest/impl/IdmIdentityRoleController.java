@@ -7,7 +7,9 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,16 +21,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -53,6 +65,8 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmIdentityRoleController extends AbstractReadWriteDtoController<IdmIdentityRoleDto, IdmIdentityRoleFilter> {
 	
 	protected static final String TAG = "Identity roles ~ assigned roles";
+	@Autowired
+	private IdmFormDefinitionController formDefinitionController;
 	
 	@Autowired
 	public IdmIdentityRoleController(IdmIdentityRoleService service) {
@@ -176,12 +190,84 @@ public class IdmIdentityRoleController extends AbstractReadWriteDtoController<Id
 		return super.getPermissions(backendId);
 	}
 	
+	
+	/**
+	 * Returns form definition to given role.
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYROLE_READ + "')")
+	@ApiOperation(
+			value = "Identity role extended attributes form definitions", 
+			nickname = "getIdentityRoleFormDefinitions", 
+			tags = { IdmIdentityRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYROLE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYROLE_READ, description = "") })
+				})
+	public ResponseEntity<?> getFormDefinitions(
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		
+		IdmIdentityRoleDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		// Search definition by definition in role
+		IdmRoleDto roleDto = DtoUtils.getEmbedded(dto, IdmIdentityRole_.role, IdmRoleDto.class);
+		if (roleDto != null && roleDto.getIdentityRoleAttributeDefinition() != null) {
+			return  formDefinitionController.getDefinitions(roleDto.getIdentityRoleAttributeDefinition());
+		}
+		
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	/**
+	 * Returns entity's filled form values
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYROLE_READ + "')")
+	@ApiOperation(
+			value = "Identity role form definition - read values", 
+			nickname = "getRoleFormValues", 
+			tags = { IdmIdentityRoleController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYROLE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYROLE_READ, description = "") })
+				})
+	public Resource<?> getFormValues(
+			@ApiParam(value = "Identity role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId, 
+			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
+			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
+		IdmIdentityRoleDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		//
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityRole.class, definitionCode);
+		//
+		return formDefinitionController.getFormValues(dto, formDefinition);
+	}
+	
 	@Override
 	protected IdmIdentityRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmIdentityRoleFilter filter = new  IdmIdentityRoleFilter(parameters);
 		// TODO: resolve codeable parameters automatically ...
 		filter.setIdentityId(getParameterConverter().toEntityUuid(parameters, IdmIdentityRoleFilter.PARAMETER_IDENTITY_ID, IdmIdentityDto.class));
 		filter.setRoleId(getParameterConverter().toEntityUuid(parameters, IdmIdentityRoleFilter.PARAMETER_ROLE_ID, IdmRoleDto.class));
+		filter.setDirectRoleId(getParameterConverter().toEntityUuid(parameters, "parent", IdmRoleDto.class));
 		//
 		return filter;
 	}

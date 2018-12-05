@@ -41,16 +41,17 @@ export default class BooleanSelectFormAttributeRenderer extends BooleanFormAttri
     return formValue.booleanValue ? formValue.booleanValue.toString() : formValue.value.toString();
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { values } = this.props;
+    const showOriginalValue = originalValues ? true : false;
     //
     return (
       <Basic.BooleanSelectBox
         ref={ AbstractFormAttributeRenderer.INPUT }
-        label={ this.getLabel() }
-        value={ this.toInputValue(values) }
+        label={ this.getLabel(null, showOriginalValue) }
+        value={ this.toInputValue(showOriginalValue ? originalValues : values) }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ this.isReadOnly() }
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }
         placeholder={ this.getPlaceholder() }/>
     );

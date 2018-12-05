@@ -8,6 +8,7 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager, IdentityContractManager } from '../../redux';
+import IdentityRoleEav from './IdentityRoleEav';
 
 const manager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
@@ -68,9 +69,15 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     });
   }
 
+  _onChangeSelectTabs(activeKey) {
+    this.setState({
+      activeKey
+    });
+  }
+
   render() {
     const { forceSearchParameters, showAddButton, showDetailButton, _showLoading, columns, className, rendered } = this.props;
-    const { detail } = this.state;
+    const { detail, activeKey } = this.state;
     //
     if (!rendered) {
       return null;
@@ -234,60 +241,78 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               text={this.i18n('edit.header', { role: detail.entity._embedded ? roleManager.getNiceLabel(detail.entity._embedded.role) : null })}
               rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={ _showLoading } readOnly={ !TEST_ADD_ROLE_DIRECTLY }>
-                <Basic.SelectBox
-                  ref="role"
-                  manager={ roleManager }
-                  label={ this.i18n('entity.IdentityRole.role') }
-                  required/>
-                <Basic.SelectBox
-                  ref="identityContract"
-                  manager={ identityContractManager }
-                  label={ this.i18n('entity.IdentityRole.identityContract.label') }
-                  helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
-                  readOnly={ !TEST_ADD_ROLE_DIRECTLY }
-                  required/>
-                <Basic.LabelWrapper
-                  label={ this.i18n('entity.IdentityRole.automaticRole.label') }
-                  helpBlock={ this.i18n('entity.IdentityRole.automaticRole.help') }
-                  rendered={ detail.entity.automaticRole }>
-                  { detail.entity.automaticRole ? roleTreeNodeManager.getNiceLabel(detail.entity._embedded.automaticRole) : null }
-                </Basic.LabelWrapper>
-                <Basic.Row>
-                  <Basic.Col md={ 6 }>
-                    <Basic.DateTimePicker
-                      mode="date"
-                      ref="validFrom"
-                      label={this.i18n('label.validFrom')}/>
-                  </Basic.Col>
-                  <Basic.Col md={ 6 }>
-                    <Basic.DateTimePicker
-                      mode="date"
-                      ref="validTill"
-                      label={this.i18n('label.validTill')}/>
-                  </Basic.Col>
-                </Basic.Row>
-              </Basic.AbstractForm>
-
-              {
-                detail.entity.directRole !== null
-                ||
-                <div>
-                  <Basic.ContentHeader style={{ marginBottom: 0 }} className="marginable">
-                    <Basic.Icon value="arrow-down"/>
-                    {' '}
-                    { this.i18n('detail.directRole.subRoles.header') }
-                  </Basic.ContentHeader>
-                  <IdentityRoleTable
-                    uiKey={ `${this.getUiKey()}-all-sub-roles` }
-                    showAddButton={ false }
-                    forceSearchParameters={ new SearchParameters().setFilter('directRoleId', detail.entity.id) }
-                    showDetailButton={ false }
-                    params={ this.props.params }
-                    columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['identityContract', 'directRole', 'automaticRole']) }
-                    className="marginable"/>
-                </div>
-              }
+              <Basic.Tabs
+                activeKey={ activeKey }
+                onSelect={ this._onChangeSelectTabs.bind(this)}>
+                <Basic.Tab
+                  eventKey={ 1 }
+                  title={ this.i18n('detail.tabs.basic') }
+                  style={{ padding: 15}}
+                  >
+                  <Basic.AbstractForm ref="form" showLoading={ _showLoading } readOnly={ !TEST_ADD_ROLE_DIRECTLY }>
+                    <Basic.SelectBox
+                      ref="role"
+                      manager={ roleManager }
+                      label={ this.i18n('entity.IdentityRole.role') }
+                      required/>
+                    <Basic.SelectBox
+                      ref="identityContract"
+                      manager={ identityContractManager }
+                      label={ this.i18n('entity.IdentityRole.identityContract.label') }
+                      helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
+                      readOnly={ !TEST_ADD_ROLE_DIRECTLY }
+                      required/>
+                    <Basic.LabelWrapper
+                      label={ this.i18n('entity.IdentityRole.automaticRole.label') }
+                      helpBlock={ this.i18n('entity.IdentityRole.automaticRole.help') }
+                      rendered={ detail.entity.automaticRole }>
+                      { detail.entity.automaticRole ? roleTreeNodeManager.getNiceLabel(detail.entity._embedded.automaticRole) : null }
+                    </Basic.LabelWrapper>
+                    <Basic.Row>
+                      <Basic.Col md={ 6 }>
+                        <Basic.DateTimePicker
+                          mode="date"
+                          ref="validFrom"
+                          label={this.i18n('label.validFrom')}/>
+                      </Basic.Col>
+                      <Basic.Col md={ 6 }>
+                        <Basic.DateTimePicker
+                          mode="date"
+                          ref="validTill"
+                          label={this.i18n('label.validTill')}/>
+                      </Basic.Col>
+                    </Basic.Row>
+                  </Basic.AbstractForm>
+                  {
+                    detail.entity.directRole !== null
+                    ||
+                    <div>
+                      <Basic.ContentHeader style={{ marginBottom: 0 }} className="marginable">
+                        <Basic.Icon value="arrow-down"/>
+                        {' '}
+                        { this.i18n('detail.directRole.subRoles.header') }
+                      </Basic.ContentHeader>
+                      <IdentityRoleTable
+                        uiKey={ `${this.getUiKey()}-all-sub-roles` }
+                        showAddButton={ false }
+                        forceSearchParameters={ new SearchParameters().setFilter('directRoleId', detail.entity.id) }
+                        showDetailButton={ false }
+                        params={ this.props.params }
+                        columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['identityContract', 'directRole', 'automaticRole']) }
+                        className="marginable"/>
+                    </div>
+                  }
+                </Basic.Tab>
+                <Basic.Tab
+                  eventKey={ 2 }
+                  rendered={detail && detail.entity && detail.entity._embedded && detail.entity._embedded.role.identityRoleAttributeDefinition ? true : false}
+                  style={{ padding: 15}}
+                  title={this.i18n('detail.tabs.attributes')}>
+                    <IdentityRoleEav
+                      entityId={detail.entity.id}
+                    />
+                </Basic.Tab>
+              </Basic.Tabs>
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>

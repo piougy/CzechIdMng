@@ -18,6 +18,7 @@ import javax.persistence.criteria.Root;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -25,10 +26,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -43,6 +42,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
@@ -57,12 +57,17 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
@@ -93,14 +98,15 @@ public class DefaultIdmRoleRequestService
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmIdentityService identityService;
-	private final ObjectMapper objectMapper;
 	private final SecurityService securityService;
 	private final ApplicationContext applicationContext;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final EntityEventManager entityEventManager;
+	@Autowired
+	private FormService formService;
+	@Autowired
+	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService; 
 	private IdmRoleRequestService roleRequestService;
-	//
-	@Autowired private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService; 
 
 	@Autowired
 	public DefaultIdmRoleRequestService(IdmRoleRequestRepository repository,
@@ -113,7 +119,6 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(conceptRoleRequestService, "Concept role request service is required!");
 		Assert.notNull(identityRoleService, "Identity role service is required!");
 		Assert.notNull(identityService, "Identity service is required!");
-		Assert.notNull(objectMapper, "Object mapper is required!");
 		Assert.notNull(securityService, "Security service is required!");
 		Assert.notNull(applicationContext, "Application context is required!");
 		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
@@ -123,7 +128,6 @@ public class DefaultIdmRoleRequestService
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.identityRoleService = identityRoleService;
 		this.identityService = identityService;
-		this.objectMapper = objectMapper;
 		this.securityService = securityService;
 		this.applicationContext = applicationContext;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
@@ -192,7 +196,9 @@ public class DefaultIdmRoleRequestService
 			LOG.error(ex.getLocalizedMessage(), ex);
 			IdmRoleRequestDto request = get(requestId);
 			Throwable exceptionToLog = ExceptionUtils.resolveException(ex);
-			this.addToLog(request, Throwables.getStackTraceAsString(exceptionToLog));
+			// Whole stack trace is too big, so we will save only message to the request log.
+			String message = exceptionToLog.getLocalizedMessage();
+			this.addToLog(request, message != null ? message : ex.getLocalizedMessage());
 			request.setState(RoleRequestState.EXCEPTION);
 			return save(request);
 		}
@@ -265,13 +271,7 @@ public class DefaultIdmRoleRequestService
 		}
 
 		// Convert whole request to JSON and persist (without logs and embedded data)
-		try {
-			IdmRoleRequestDto requestOriginal = get(requestId);
-			trimRequest(requestOriginal);
-			request.setOriginalRequest(objectMapper.writeValueAsString(requestOriginal));
-		} catch (JsonProcessingException e) {
-			throw new RoleRequestException(CoreResultCode.BAD_REQUEST, e);
-		}
+		// Original request was canceled (since 9.4.0)
 
 		// Request will be set on in progress state
 		request.setState(RoleRequestState.IN_PROGRESS);
@@ -637,6 +637,33 @@ public class DefaultIdmRoleRequestService
 		return roleRequest;
 	}
 
+	@Override
+	public IdmRoleRequestDto copyRolesByIdentity(IdmRoleRequestByIdentityDto requestByIdentityDto) {
+		Assert.notNull(requestByIdentityDto, "Request by identity must exist!");
+		Assert.notNull(requestByIdentityDto.getRoleRequest(), "Request must be filled for copy roles!");
+		Assert.notNull(requestByIdentityDto.getIdentityContract(), "Contract must be filled for create role request!");
+
+		UUID identityContractId = requestByIdentityDto.getIdentityContract();
+		UUID roleRequestId = requestByIdentityDto.getRoleRequest();
+		LocalDate validFrom = requestByIdentityDto.getValidFrom();
+		LocalDate validTill = requestByIdentityDto.getValidTill();
+
+		List<UUID> roles = requestByIdentityDto.getRoles();
+
+		for (UUID roleId : roles) {
+			IdmConceptRoleRequestDto conceptRoleRequestDto = new IdmConceptRoleRequestDto();
+			conceptRoleRequestDto.setIdentityContract(identityContractId);
+			conceptRoleRequestDto.setRoleRequest(roleRequestId);
+			conceptRoleRequestDto.setRole(roleId);
+			conceptRoleRequestDto.setValidFrom(validFrom);
+			conceptRoleRequestDto.setValidTill(validTill);
+			conceptRoleRequestDto.setOperation(ConceptRoleRequestOperation.ADD);
+			conceptRoleRequestDto = conceptRoleRequestService.save(conceptRoleRequestDto);
+		}
+
+		return this.get(roleRequestId);
+	}
+
 	private void cancelWF(IdmRoleRequestDto dto) {
 		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
 			WorkflowFilterDto filter = new WorkflowFilterDto();
@@ -667,6 +694,15 @@ public class DefaultIdmRoleRequestService
 		if (conceptRole == null || identityRole == null) {
 			return null;
 		}
+		
+		IdmRoleDto roleDto = DtoUtils.getEmbedded(conceptRole, IdmConceptRoleRequest_.role, IdmRoleDto.class);
+		if (roleDto != null && roleDto.getIdentityRoleAttributeDefinition() != null) {
+			IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(roleDto, IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
+			IdmFormInstanceDto formInstance = formService.getFormInstance(conceptRole, formDefinitionDto);
+			identityRole.getEavs().clear();
+			identityRole.getEavs().add(formInstance);
+		}
+		
 		identityRole.setRole(conceptRole.getRole());
 		identityRole.setIdentityContract(conceptRole.getIdentityContract());
 		identityRole.setValidFrom(conceptRole.getValidFrom());

@@ -501,6 +501,10 @@
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes."
+        },
+        "showChanges":{
+          "newValue": "(New value)",
+          "originalValue": "(Original value)"
         }
       },
       "Recaptcha": {
@@ -1192,7 +1196,8 @@
         "oldValue": "Old value {{oldValue}}",
         "oldValueNotExist": "Old value was empty",
         "create": {
-          "header": "Add roles"
+          "header": "Add roles",
+          "headerByIdentity": "Add role by user"
         },
         "edit": {
           "header": "Edit roles"
@@ -1216,6 +1221,27 @@
           "delete": {
             "header": "Delete roles",
             "message": "Do you really want to delete roles"
+          }
+        },
+        "identityRoleAttributes": {
+          "header": "Role attributes"
+        },
+        "addByIdentity": {
+          "header": "Add by user",
+          "selectUser": {
+            "label": "User select",
+            "help": "Select the user from whom the roles will be copied."
+          },
+          "roleSelectionHeader": "Selection of roles",
+          "roleSelect": "Roles select from user {{username}}",
+          "selectedRoles": "Selected roles",
+          "noRoles": "No assigned roles exist",
+          "noSelectedRoles": "No newly assigned roles",
+          "buttons": {
+            "addAllRoles": "Add all roles",
+            "addSelectedRoles": "Add only selected roles",
+            "removeSelectedRoles": "Remove selected roles",
+            "removeAllRoles": "Remove all roles"
           }
         }
       }
@@ -2177,6 +2203,10 @@
             "subRoles": {
               "header": "Roles assigned by this role"
             }
+          },
+          "tabs": {
+            "basic": "Basic informations",
+            "attributes": "Role's attributes"
           }
         },
         "contracts": {
@@ -3142,6 +3172,10 @@
       "subRoles": "Subordinate roles",
       "authorities": "Authorizations",
       "approveRemove": "Role removal approval",
+      "identityRoleAttributeDefinition": {
+        "label": "Definition of assigned attributes",
+        "help": "The attributes in this definition will be filled in during role assignment."
+      },
       "canBeRequested": "Can be requested",
       "description": "Description",
       "guarantees": "Role authorizers",

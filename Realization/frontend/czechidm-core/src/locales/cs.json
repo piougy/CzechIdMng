@@ -532,6 +532,10 @@
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
+        },
+        "showChanges":{
+          "newValue": "(Nová hodnota)",
+          "originalValue": "(Původní hodnota)"
         }
       },
       "Recaptcha": {
@@ -1236,7 +1240,8 @@
           "oldValue": "Původní hodnota {{oldValue}}",
           "oldValueNotExist": "Původní hodnota byla prázdná",
           "create": {
-            "header": "Přidat oprávnění"
+            "header": "Přidat oprávnění",
+            "headerByIdentity": "Přidat oprávnění podle uživatele"
           },
           "edit": {
             "header": "Upravit oprávnění"
@@ -1260,6 +1265,27 @@
             "delete": {
               "header": "Odstranění oprávnění",
               "message": "Opravdu chcete toto oprávnění odstranit?"
+            }
+          },
+          "identityRoleAttributes": {
+            "header": "Atributy role"
+          },
+          "addByIdentity": {
+            "header": "Přidat podle uživatele",
+            "selectUser": {
+              "label": "Výběr uživatele",
+              "help": "Výběr uživatele od kterého budou kopírované role."
+            },
+            "roleSelectionHeader": "Výběr rolí",
+            "roleSelect": "Výběr rolí od uživatele {{username}}",
+            "selectedRoles": "Vybrané role",
+            "noRoles": "Neexistují žádné přiřazené role",
+            "noSelectedRoles": "Žádné nově přiřazené role",
+            "buttons": {
+              "addAllRoles": "Přidat všechny role",
+              "addSelectedRoles": "Přidat pouze vybrané role",
+              "removeSelectedRoles": "Odebrat vybrané role",
+              "removeAllRoles": "Odebrat všechny role"
             }
           }
         }
@@ -2228,6 +2254,10 @@
             "subRoles": {
               "header": "Role přiřazené dle této role"
             }
+          },
+          "tabs": {
+            "basic": "Základní informace",
+            "attributes": "Atributy role"
           }
         },
         "contracts": {
@@ -3193,6 +3223,10 @@
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",
       "approveRemove": "Schvalovat odebírání rolí",
+      "identityRoleAttributeDefinition": {
+        "label": "Definice přidělovaných atributů",
+        "help": "Atributy v této definici, budou vyplňovány během přidělování role."
+      },
       "canBeRequested": "O roli lze žádat",
       "description": "Popis",
       "guarantees": "Garanti role",

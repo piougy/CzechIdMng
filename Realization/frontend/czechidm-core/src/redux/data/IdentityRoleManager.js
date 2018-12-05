@@ -1,4 +1,4 @@
-import EntityManager from './EntityManager';
+import FormableEntityManager from './FormableEntityManager';
 import { IdentityRoleService, IdentityService } from '../../services';
 
 const identityService = new IdentityService();
@@ -9,7 +9,7 @@ const identityService = new IdentityService();
  * @author Radek Tomiška
  *
  */
-export default class IdentityRoleManager extends EntityManager {
+export default class IdentityRoleManager extends FormableEntityManager {
 
   constructor() {
     super();

@@ -86,6 +86,7 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 	private final IdmFormDefinitionController formDefinitionController;
 	private final IdmAuthorizationPolicyService authorizationPolicyService;
 	private final SecurityService securityService;
+	private final FormService formService;
 	
 	@Autowired
 	public IdmRoleController(
@@ -101,11 +102,13 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(authorizationPolicyService);
 		Assert.notNull(securityService);
+		Assert.notNull(formService);
 		//
 		this.auditService = auditService;
 		this.formDefinitionController = formDefinitionController;
 		this.authorizationPolicyService = authorizationPolicyService;
 		this.securityService = securityService;
+		this.formService = formService;
 	}
 	
 	@Override
@@ -395,6 +398,37 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 			@ApiParam(value = "Role's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return formDefinitionController.getDefinitions(IdmRole.class);
+	}
+	
+	/**
+	 * Returns form definition for role attributes
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/attribute-form-definition", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Definition for role attributes", 
+			nickname = "getAttributeFormDefinition", 
+			tags = { IdmRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_AUTOCOMPLETE, description = "") })
+				})
+	public ResponseEntity<?> getAttributeFormDefinition(
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		IdmRoleDto roleDto = getService().get(backendId);
+		if (roleDto != null && roleDto.getIdentityRoleAttributeDefinition() != null) {
+			IdmFormDefinitionDto definition = formService.getDefinition(roleDto.getIdentityRoleAttributeDefinition());
+			return new ResponseEntity<IdmFormDefinitionDto>(definition, HttpStatus.OK);
+		}
+		
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	/**

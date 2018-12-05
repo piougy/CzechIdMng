@@ -10,17 +10,11 @@ Input variables:
 - conceptRole (IdmConceptRoleRequestDto)
 - applicantDescription</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <userTask id="approveAssignByManager" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:skipExpression="#{skipApproveByManager}">
+    <userTask id="approveAssignByManager" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:formKey="dynamicTaskRoleConceptDetail" activiti:skipExpression="#{skipApproveByManager}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" type="textArea" writable="false">
-          <activiti:value id="placeholder" name="Poznámka"></activiti:value>
-        </activiti:formProperty>
-        <activiti:formProperty id="validFrom" type="localDate" expression="#{conceptRole.validFrom}"></activiti:formProperty>
-        <activiti:formProperty id="validTill" type="localDate" expression="#{conceptRole.validTill}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow39"></exclusiveGateway>
@@ -38,19 +32,13 @@ Input variables:
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("add")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;{{${roleService.get(conceptRole.role).name}}}&quot; change by manager for &quot;{{${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}}}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
-    <userTask id="approveChangeByManager" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:skipExpression="#{skipApproveByManager}">
+    <userTask id="approveChangeByManager" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:formKey="dynamicTaskRoleConceptDetail" activiti:skipExpression="#{skipApproveByManager}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
         <activiti:formProperty id="validFromDateOld" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole,null).validFrom}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validFromDateNew" type="localDate" expression="${conceptRole.validFrom}"></activiti:formProperty>
         <activiti:formProperty id="validTillDateOld" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole,null).validTill}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validTillDateNew" type="localDate" expression="${conceptRole.validTill}">
-          <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
-        </activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow19" sourceRef="approveChangeByManager" targetRef="exclusivegateway3"></sequenceFlow>
@@ -325,7 +313,7 @@ if(!skip){
         <omgdi:waypoint x="980.0" y="366.0"></omgdi:waypoint>
         <omgdi:waypoint x="981.0" y="418.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="61.0" x="1001.0" y="381.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="61.0" x="1001.0" y="381.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
@@ -341,7 +329,7 @@ if(!skip){
         <omgdi:waypoint x="1247.0" y="366.0"></omgdi:waypoint>
         <omgdi:waypoint x="1248.0" y="413.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="99.0" x="1252.0" y="390.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="99.0" x="1252.0" y="390.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">

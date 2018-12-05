@@ -1,7 +1,7 @@
-import AbstractService from './AbstractService';
+import FormableEntityService from './FormableEntityService';
 import SearchParameters from '../domain/SearchParameters';
 
-class ConceptRoleRequestService extends AbstractService {
+class ConceptRoleRequestService extends FormableEntityService {
 
   getApiPath() {
     return '/concept-role-requests';

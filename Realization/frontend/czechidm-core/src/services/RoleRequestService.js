@@ -3,6 +3,8 @@ import SearchParameters from '../domain/SearchParameters';
 import RestApiService from './RestApiService';
 import ResponseUtils from '../utils/ResponseUtils';
 
+import * as Utils from '../utils';
+
 class RoleRequestService extends AbstractService {
 
   getApiPath() {
@@ -52,6 +54,23 @@ class RoleRequestService extends AbstractService {
       }
       return json;
     });
+  }
+
+  copyRolesByIdentity(roleRequestByIdentity) {
+    const roleRequestId = roleRequestByIdentity.roleRequest;
+    return RestApiService
+      .post(this.getApiPath() + `/${encodeURIComponent(roleRequestId)}/copy-roles`, roleRequestByIdentity)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        return jsonResponse;
+      }).catch(ex => {
+        throw this._resolveException(ex);
+      });
   }
 
 }

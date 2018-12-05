@@ -28,17 +28,18 @@ export default class RichTextAreaFormAttributeRenderer extends TextFormAttribute
     return false;
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { values } = this.props;
+    const showOriginalValue = originalValues ? true : false;
     //
     return (
       <RichTextArea
         ref={ TextFormAttributeRenderer.INPUT }
-        label={ this.getLabel() }
-        value={ this.toInputValue(values) }
+        label={ this.getLabel(null, showOriginalValue) }
+        value={ this.toInputValue(showOriginalValue ? originalValues : values) }
         placeholder={ this.getPlaceholder() }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ this.isReadOnly() }
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }/>
     );
   }

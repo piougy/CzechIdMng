@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
@@ -53,7 +54,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
@@ -98,7 +98,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		if (defaultRole != null && inactiveOwnerBehavior == null) {
 			throw new ResultCodeException(AccResultCode.SYNCHRONIZATION_INACTIVE_OWNER_BEHAVIOR_MUST_BE_SET);
 		}
-		if (inactiveOwnerBehavior != null && inactiveOwnerBehavior.equals(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED)) {
+		if (SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED == inactiveOwnerBehavior) {
 			SysSystemMappingDto provisioningMapping = systemMappingService.findProvisioningMapping(
 					context.getSystem().getId(),
 					context.getEntityType());
@@ -336,7 +336,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		IdmIdentityContractDto primeContract = identityContractService.getPrimeValidContract(entity.getId());
 		if (primeContract == null) {
 			SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
-			if (inactiveOwnerBehavior.equals(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED)) {
+			if (SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED == inactiveOwnerBehavior) {
 				context.getLogItem().addToLog(MessageFormat.format(
 						"Default role is set, but it will not be assigned - no valid identity contract was found for identity [{0}],"
 						+ " so the account will be in protection.", entity.getCode()));
@@ -385,10 +385,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		return new AccIdentityAccountFilter();
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected ReadWriteDtoService getEntityAccountService() {
-		return identityAccoutnService;
+	protected EntityAccountService<EntityAccountDto, EntityAccountFilter> getEntityAccountService() {
+		return (EntityAccountService)identityAccoutnService;
 	}
 
 	@Override
@@ -551,7 +551,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			// Default role is not specified - no problem
 			return account;
 		}
-		if (inactiveOwnerBehavior.equals(SynchronizationInactiveOwnerBehaviorType.LINK)) {
+		if (SynchronizationInactiveOwnerBehaviorType.LINK == inactiveOwnerBehavior) {
 			return account;
 		}
 

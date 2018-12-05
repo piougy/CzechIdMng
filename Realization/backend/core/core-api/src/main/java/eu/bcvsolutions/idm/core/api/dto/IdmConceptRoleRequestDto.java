@@ -1,15 +1,17 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.util.UUID;
+
+import org.joda.time.LocalDate;
+import org.springframework.hateoas.core.Relation;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
-import org.joda.time.LocalDate;
-import org.springframework.hateoas.core.Relation;
-
-import java.util.UUID;
 
 /**
  * Dto for concept role request
@@ -17,7 +19,7 @@ import java.util.UUID;
  * @author svandav
  */
 @Relation(collectionRelation = "conceptRoleRequests")
-public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
+public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
 
     private static final long serialVersionUID = 1L;
     public static final String WF_PROCESS_FIELD = "wfProcessId";
@@ -129,7 +131,7 @@ public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
         this.log = log;
     }
 
-    public String addToLog(String text) {
+	public String addToLog(String text) {
         if (text != null) {
             StringBuilder builder = new StringBuilder();
             if (this.log != null) {

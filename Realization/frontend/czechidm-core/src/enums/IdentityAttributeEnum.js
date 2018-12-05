@@ -55,6 +55,12 @@ export default class IdentityAttributeEnum extends AbstractEnum {
       case this.DESCRIPTION: {
         return 'description';
       }
+      case this.ASSIGNED_ROLES: {
+        return 'assignedRoles';
+      }
+      case this.ASSIGNED_ROLES_FOR_SYSTEM: {
+        return 'assignedRolesForSystem';
+      }
       default: {
         return null;
       }
@@ -97,6 +103,12 @@ export default class IdentityAttributeEnum extends AbstractEnum {
       case 'description': {
         return this.DESCRIPTION;
       }
+      case 'assignedRoles': {
+        return this.ASSIGNED_ROLES;
+      }
+      case 'assignedRolesForSystem': {
+        return this.DESCRIPTION;
+      }
       default: {
         return null;
       }
@@ -128,3 +140,5 @@ IdentityAttributeEnum.PHONE = Symbol('PHONE');
 IdentityAttributeEnum.TITLE_BEFORE = Symbol('TITLE_BEFORE');
 IdentityAttributeEnum.TITLE_AFTER = Symbol('TITLE_AFTER');
 IdentityAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
+IdentityAttributeEnum.ASSIGNED_ROLES = Symbol('ASSIGNED_ROLES');
+IdentityAttributeEnum.ASSIGNED_ROLES_FOR_SYSTEM = Symbol('ASSIGNED_ROLES_FOR_SYSTEM');

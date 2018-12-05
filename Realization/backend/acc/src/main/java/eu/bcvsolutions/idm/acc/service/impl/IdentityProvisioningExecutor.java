@@ -1,7 +1,11 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,6 +16,8 @@ import org.springframework.util.CollectionUtils;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.AssignedRoleDto;
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
@@ -38,14 +44,25 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -55,15 +72,20 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  * @author Radek Tomiška
  */
 @Service
-@Qualifier(value=IdentityProvisioningExecutor.NAME)
+@Qualifier(value = IdentityProvisioningExecutor.NAME)
 public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<IdmIdentityDto> {
  
 	public static final String NAME = "identityProvisioningService";
+	public final static String ASSIGNED_ROLES_FIELD = "assignedRoles";
+	public final static String ASSIGNED_ROLES_FOR_SYSTEM_FIELD = "assignedRolesForSystem";
+	
 	private final AccIdentityAccountService identityAccountService;
 	private final SysRoleSystemService roleSystemService;
 	private final IdmRoleService roleService;
 	private final IdmIdentityService identityService;
 	private final AccAccountManagementService accountManagementService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
 	public IdentityProvisioningExecutor(
@@ -181,6 +203,90 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		});
 
 		return roleSystemAttributesAll;
+	}
+	
+	@Override
+	protected Object getAttributeValue(String uid, IdmIdentityDto dto, AttributeMapping attribute, SysSystemDto system) {
+		if (attribute != null //
+				&& (ASSIGNED_ROLES_FIELD.equals(attribute.getIdmPropertyName()) //
+						|| ASSIGNED_ROLES_FOR_SYSTEM_FIELD.equals(attribute.getIdmPropertyName()) //
+				)) { //
+			assertNotNull(dto.getId());
+
+			IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+			identityRoleFilter.setIdentityId(dto.getId());
+			identityRoleFilter.setValid(Boolean.TRUE);
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+			// TODO: ASSIGNED_ROLES_FOR_SYSTEM_FIELD identityRoles.stream().filter(identityRole -> identityRole.get)
+
+			List<AssignedRoleDto> assignedRoles = new ArrayList<>();
+			identityRoles.forEach(identityRole -> {
+				IdmFormInstanceDto formInstanceDto = identityRoleService.getRoleAttributeValues(identityRole);
+				identityRole.getEavs().clear();
+				identityRole.getEavs().add(formInstanceDto);
+				// Convert identityRole to AssignedRoleDto
+				assignedRoles.add(this.convertToAssignedRoleDto(identityRole));
+			});
+
+			return attributeMappingService.transformValueToResource(uid, assignedRoles, attribute, dto);
+		}
+		return super.getAttributeValue(uid, dto, attribute, system);
+	}
+	
+	private AssignedRoleDto convertToAssignedRoleDto(IdmIdentityRoleDto identityRole) {
+		if (identityRole == null) {
+			return null;
+		}
+
+		AssignedRoleDto dto = new AssignedRoleDto();
+		dto.setId(identityRole.getId());
+		dto.setExternalId(identityRole.getExternalId());
+		dto.setValidFrom(identityRole.getValidFrom());
+		dto.setValidTill(identityRole.getValidTill());
+		dto.setRole(DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class, null));
+		dto.setIdentityContract(DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract,
+				IdmIdentityContractDto.class, null));
+		dto.setContractPosition(DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.contractPosition,
+				IdmContractPositionDto.class, null));
+		dto.setDirectRole(
+				DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.directRole, IdmIdentityRoleDto.class, null));
+		dto.setRoleTreeNode(DtoUtils.getEmbedded(identityRole, IdmIdentityRoleDto.PROPERTY_ROLE_TREE_NODE,
+				AbstractIdmAutomaticRoleDto.class, null));
+		dto.setRoleComposition(DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.roleComposition,
+				IdmRoleCompositionDto.class, null));
+		
+		UUID definition = dto.getRole().getIdentityRoleAttributeDefinition();
+		if (definition != null) {
+			// Definition for role attributes exists
+			IdmFormInstanceDto formInstanceDto = identityRole.getEavs() //
+					.stream() //
+					.filter(formInstance -> definition.equals(formInstance.getFormDefinition().getId())) //
+					.findFirst() //
+					.orElse(null);
+
+			if (formInstanceDto != null) {
+				List<IdmFormValueDto> values = formInstanceDto.getValues();
+				values.stream() // Search all attributes
+						.map(IdmFormValueDto::getFormAttribute) //
+						.distinct() //
+						.forEach(attribute -> {
+							
+							List<IdmFormValueDto> formValues = values.stream() // Search all values for one attribute
+									.filter(value -> attribute.equals(value.getFormAttribute())) //
+									.collect(Collectors.toList()); //
+							IdmFormAttributeDto formAttributeDto = DtoUtils.getEmbedded(formValues.get(0),
+									IdmFormValue_.formAttribute, IdmFormAttributeDto.class);
+
+							dto.getAttributes().put(formAttributeDto.getCode(), formValues.stream() //
+									.map(IdmFormValueDto::getValue) // Value is always list
+									.collect(Collectors.toList()) //
+							);
+						});
+			}
+		}
+
+		return dto;
+
 	}
 
 	@Override

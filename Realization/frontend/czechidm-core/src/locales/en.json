@@ -744,7 +744,9 @@
       "TITLE_AFTER": "Title after (String)",
       "DESCRIPTION": "Description (String)",
       "PHONE": "Phone (String)",
-      "EMAIL": "Email (String)"
+      "EMAIL": "Email (String)",
+      "ASSIGNED_ROLES": "User assigned roles",
+      "ASSIGNED_ROLES_FOR_SYSTEM": "User assigned roles (for this system)"
     },
     "ContractAttributeEnum": {
       "IDENTITY": "Owner (IdmIdentity - Id or username)",

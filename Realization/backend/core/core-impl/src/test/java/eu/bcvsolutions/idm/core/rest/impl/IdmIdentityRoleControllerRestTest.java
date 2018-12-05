@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -149,5 +150,12 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		//
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getId().equals(one.getId())));
+	}
+	
+	@Test
+	@Ignore
+	@Override
+	public void testSaveFormDefinition() throws Exception {
+		// We don't want testing form definition - IdentityRole has extra behavior (role attributes) for Form (definition is changing by role)
 	}
 }

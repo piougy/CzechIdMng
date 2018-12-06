@@ -42,16 +42,16 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
     const filledFormValues = [];
     //
     if (!formComponent) {
-      // not supported compoenents
-      return filledFormValues;
+      // not supported component - undefined => not controll
+      return undefined;
     }
     const componentValue = formComponent.getValue();
     // undefined values are not sent (confidential properties  etc.)
     if (componentValue === undefined) {
-      return filledFormValues;
+      return undefined;
     }
     if (componentValue) {
-      const textValues = componentValue.split('\n');
+      const textValues = typeof componentValue === 'string' ? componentValue.split('\n') : [componentValue];
       for (let i = 0; i < textValues.length; i++) {
         let formValue = null;
         if (values && i < values.length) {

@@ -3,7 +3,7 @@ import React from 'react';
 import { Advanced } from 'czechidm-core';
 
 /**
- * Priority form value component. Does'nt support:
+ * Priority form value component. Doesn't support:
  * - multiple
  * - confidential
  * - placeholder

@@ -78,7 +78,12 @@ export default class EavForm extends Basic.AbstractContextComponent {
         // unsupported persistentType
         return true;
       }
-      filledFormValues = filledFormValues.concat(formComponent.getValues());
+      const values = formComponent.getValues();
+      if (values === undefined) {
+        // values are not controlled
+        return true;
+      }
+      filledFormValues = filledFormValues.concat(values);
     });
     return filledFormValues;
   }

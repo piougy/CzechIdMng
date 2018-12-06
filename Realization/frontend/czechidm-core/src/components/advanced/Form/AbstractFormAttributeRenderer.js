@@ -346,6 +346,10 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
           return;
         }
       });
+    } else {
+      if (values._changed === true) {
+        return true;
+      }
     }
     return changed;
   }
@@ -353,15 +357,25 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   getOriginalValues() {
     const {values} = this.props;
     const originalValues = [];
-    values.forEach(value => {
-      if (value._changed === true) {
-        if (value._originalValue) {
-          originalValues.push(value._originalValue);
+    if (_.isArray(values)) {
+      values.forEach(value => {
+        if (value._changed === true) {
+          if (value._originalValue) {
+            originalValues.push(value._originalValue);
+          }
+        } else {
+          originalValues.push(value);
+        }
+      });
+    } else {
+      if (values._changed === true) {
+        if (values._originalValue) {
+          originalValues.push(values._originalValue);
         }
       } else {
-        originalValues.push(value);
+        originalValues.push(values);
       }
-    });
+    }
     return originalValues;
   }
 

@@ -339,12 +339,14 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
       return false;
     }
     let changed = false;
-    values.forEach(value => {
-      if (value._changed === true) {
-        changed = true;
-        return;
-      }
-    });
+    if (_.isArray(values)) {
+      values.forEach(value => {
+        if (value._changed === true) {
+          changed = true;
+          return;
+        }
+      });
+    }
     return changed;
   }
 

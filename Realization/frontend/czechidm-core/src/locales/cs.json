@@ -57,7 +57,8 @@
     "value": "Hodnota",
     "yes": "Ano",
     "no": "Ne",
-    "readOnly": "Pouze pro čtení"
+    "readOnly": "Pouze pro čtení",
+    "waiting": "Čeká"
   },
   "button": {
     "activate": "Aktivovat",
@@ -775,7 +776,9 @@
       "TITLE_AFTER": "Titul za (String)",
       "DESCRIPTION": "Poznámka (String)",
       "PHONE": "Telefon (String)",
-      "EMAIL": "Email (String)"
+      "EMAIL": "Email (String)",
+      "ASSIGNED_ROLES": "Přiřazené role uživatele",
+      "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento system)"
     },
     "ContractAttributeEnum": {
       "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",

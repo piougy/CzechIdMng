@@ -428,7 +428,10 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	public Resources<?> findChildren(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
-		return autocomplete(parameters, pageable);
+		IdmTreeNodeFilter filter = toFilter(parameters);
+		filter.setRecursively(false);
+		//
+		return toResources(find(filter, pageable, IdmBasePermission.AUTOCOMPLETE), IdmTreeNode.class);
 	}
 	
 	/**

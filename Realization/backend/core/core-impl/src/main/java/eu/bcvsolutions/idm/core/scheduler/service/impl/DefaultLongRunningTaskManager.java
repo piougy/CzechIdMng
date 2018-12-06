@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -42,6 +43,8 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
+ * 
+ * TODO: LRT can define priority - e.g. user bulk actions should have higher priority see PriorityFutureTask.
  * 
  * @author Radek Tomiška
  *
@@ -195,8 +198,17 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		markTaskAsRunning(getValidTask(futureTask.getExecutor()));
 		//
-		LOG.debug("Execute task [{}] asynchronously", futureTask.getExecutor().getLongRunningTaskId());
-		executor.execute(futureTask.getFutureTask());
+		try {
+			LOG.debug("Execute task [{}] asynchronously", futureTask.getExecutor().getLongRunningTaskId());
+			//
+			executor.execute(futureTask.getFutureTask());
+		} catch (RejectedExecutionException ex) {
+			// thread pool queue is full - wait for another try
+			LOG.info("Execute task [{}] asynchronously will be postponed.", futureTask.getExecutor().getLongRunningTaskId());
+			//
+			IdmLongRunningTaskDto task = service.get(futureTask.getExecutor().getLongRunningTaskId());
+			markTaskAsCreated(task);
+		}
 	}
 	
 	@Override
@@ -383,6 +395,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	
 	private synchronized IdmLongRunningTaskDto markTaskAsRunning(IdmLongRunningTaskDto task) {
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		return service.save(task);
+	}
+	
+	private synchronized IdmLongRunningTaskDto markTaskAsCreated(IdmLongRunningTaskDto task) {
+		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 		return service.save(task);
 	}
 	

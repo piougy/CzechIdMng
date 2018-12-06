@@ -81,7 +81,6 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
-import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
@@ -618,19 +617,6 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			return null;
 		}
 
-		// Find connector identification persisted in system
-		IcConnectorKey connectorKey = system.getConnectorKey();
-		if (connectorKey == null) {
-			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", system.getName()));
-		}
-
-		// Find connector configuration persisted in system
-		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
-		if (connectorConfig == null) {
-			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", system.getName()));
-		}
 		// One IDM object can be mapped to one connector object (= one connector
 		// class).
 		SysSystemMappingDto mapping = getMapping(system, systemEntity.getEntityType());
@@ -647,7 +633,9 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
 				new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName()), null);
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
-				.setOperationType(operationType).setSystemEntity(systemEntity).setEntityIdentifier(entityId)
+				.setOperationType(operationType) //
+				.setSystemEntity(systemEntity) //
+				.setEntityIdentifier(entityId) //
 				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
 		//
 		return operationBuilder.build();
@@ -703,7 +691,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			if (attribute.isUid()) {
 				// TODO: now we set UID from SystemEntity, may be UID from
 				// AccAccount will be more correct
-				Object uidValue = getAttributeValue(uid, dto, attribute);
+				Object uidValue = getAttributeValue(uid, dto, attribute, system);
 				if (uidValue == null) {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
 							ImmutableMap.of("system", system.getName()));
@@ -717,7 +705,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 						schemaAttributeDto.getName(), schemaAttributeDto.getClassType()), uidValue);
 			} else {
 				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute,
-						schemaAttributeDto.getName(),schemaAttributeDto.getClassType()), getAttributeValue(uid, dto, attribute));
+						schemaAttributeDto.getName(),schemaAttributeDto.getClassType()), getAttributeValue(uid, dto, attribute, system));
 			}
 		});
 
@@ -747,7 +735,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 						&& schemaAttributeParent.equals(schemaAttribute)
 						&& attributeParent.getStrategyType() == attribute.getStrategyType();
 			}).forEach(attribute -> {
-				Object value = getAttributeValue(uid, dto, attribute);
+				Object value = getAttributeValue(uid, dto, attribute, system);
 				// We don`t want null item in list (problem with
 				// provisioning in IC)
 				if (value != null) {
@@ -766,12 +754,12 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			if (!accountAttributes.containsKey(attributeParentKey)) {
 				// we must put merged values as array list
 				accountAttributes.put(attributeParentKey, new ArrayList<>(mergedValues));
-			}
-		}
+ 			}
+    	}
 		return accountAttributes;
 	}
 
-	protected Object getAttributeValue(String uid, DTO dto, AttributeMapping attribute) {
+	protected Object getAttributeValue(String uid, DTO dto, AttributeMapping attribute, SysSystemDto system) {
 		return attributeMappingService.getAttributeValue(uid, dto, attribute);
 	}
 

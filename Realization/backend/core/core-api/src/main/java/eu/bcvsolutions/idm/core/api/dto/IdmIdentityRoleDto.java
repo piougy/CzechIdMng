@@ -29,6 +29,7 @@ public class IdmIdentityRoleDto extends FormableDto implements ValidableEntity, 
 	//
 	public static final String PROPERTY_IDENTITY_CONTRACT = "identityContract";
 	public static final String PROPERTY_ROLE = "role";
+	public static final String PROPERTY_ROLE_TREE_NODE = "roleTreeNode";
 	//
 	@Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(notes = "Unique external identifier.")

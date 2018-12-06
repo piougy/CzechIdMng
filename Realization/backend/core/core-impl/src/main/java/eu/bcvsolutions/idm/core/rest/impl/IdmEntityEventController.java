@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -56,15 +57,11 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 	protected static final String TAG = "Entity events";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmEntityEventController.class);
 	//
-	private final IdmEntityEventService service;
-	//
 	@Autowired private EntityEventManager manager;
 	
 	@Autowired
 	public IdmEntityEventController(IdmEntityEventService service) {
 		super(service);
-		//
-		this.service = service;
 	}
 	
 	@ResponseBody
@@ -75,7 +72,7 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 			tags = { IdmEntityEventController.TAG },
 			notes = "Delete all persisted events and their states.")
 	public ResponseEntity<?> deleteAll() {
-		service.deleteAll();
+		manager.deleteAllEvents();
 		//
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
@@ -97,6 +94,13 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 			dto.getEmbedded().put("ownerId", loadedDtos.get(ownerId));
 		});
 		return results;
+	}
+	
+	@Override
+	public void deleteDto(IdmEntityEventDto dto) {
+		getService().checkAccess(dto, IdmBasePermission.DELETE);
+		//
+		manager.deleteEvent(dto);
 	}
 	
 	@Override

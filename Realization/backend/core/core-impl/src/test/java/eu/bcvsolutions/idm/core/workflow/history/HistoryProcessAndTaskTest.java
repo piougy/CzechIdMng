@@ -5,11 +5,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
 import org.activiti.engine.runtime.ProcessInstance;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.junit.After;
@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
@@ -215,8 +216,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 	 */
 	abstract class IgnoreSetIdMixIn
 	{
-		@JsonProperty("id")
-		@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="class")
-		public abstract void setId(String id);
+		@JsonIgnore
+		public abstract void setId(Serializable id);
 	}
 }

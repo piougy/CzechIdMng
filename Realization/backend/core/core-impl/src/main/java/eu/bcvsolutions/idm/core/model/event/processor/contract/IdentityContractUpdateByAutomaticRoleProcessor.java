@@ -86,13 +86,19 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			//
 			// remove all automatic roles by attribute
 			if (!assignedRoles.isEmpty()) {
-				assignedRoles = assignedRoles.stream().filter(autoRole -> {
-					AbstractIdmAutomaticRoleDto automaticRoleDto = DtoUtils.getEmbedded(autoRole, IdmIdentityRole_.automaticRole, (AbstractIdmAutomaticRoleDto) null);
-					if (automaticRoleDto instanceof IdmRoleTreeNodeDto) {
-						return true;
-					}
-					return false;
-				}).collect(Collectors.toList());
+				assignedRoles = assignedRoles
+						.stream()
+						.filter(autoRole -> {
+							AbstractIdmAutomaticRoleDto automaticRoleDto = DtoUtils.getEmbedded(autoRole, IdmIdentityRole_.automaticRole, (AbstractIdmAutomaticRoleDto) null);
+							if (automaticRoleDto instanceof IdmRoleTreeNodeDto) {
+								return true;
+							}
+							return false;
+						})
+						.filter(identityRole -> {
+							return identityRole.getContractPosition() == null;
+						})
+						.collect(Collectors.toList());
 			}
 			//
 			Set<UUID> previousAutomaticRoles = assignedRoles.stream()

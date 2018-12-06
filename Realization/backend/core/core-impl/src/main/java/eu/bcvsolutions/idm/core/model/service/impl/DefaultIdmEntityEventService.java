@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +74,24 @@ public class DefaultIdmEntityEventService
 			DateTime executeDate,
 			PriorityType priority,
 			Pageable pageable) {
-		return toDtoPage(repository.findToExecute(instanceId, OperationState.CREATED, executeDate, priority, pageable));
+		return findToExecute(instanceId, executeDate, priority, null, pageable);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmEntityEventDto> findToExecute(
+			String instanceId, 
+			DateTime executeDate, 
+			PriorityType priority,
+			List<UUID> exceptOwnerIds, 
+			Pageable pageable) {
+		if (CollectionUtils.isEmpty(exceptOwnerIds)) {
+			return toDtoPage(repository.findToExecute(instanceId, OperationState.CREATED, executeDate, priority, pageable));
+		}
+		if (exceptOwnerIds.size() > 500) {
+			throw new IllegalArgumentException(String.format("Except owners size exceeded, given [%s], max [%s]", exceptOwnerIds.size(), 500));
+		}
+		return toDtoPage(repository.findToExecute(instanceId, OperationState.CREATED, executeDate, priority, exceptOwnerIds, pageable));
 	}
 	
 	@Override

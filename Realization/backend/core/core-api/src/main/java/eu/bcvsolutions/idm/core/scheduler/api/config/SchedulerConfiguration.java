@@ -88,7 +88,7 @@ public interface SchedulerConfiguration {
 	
 	/**
 	 * Waiting events to be processed. Uses 1000 as default - prevent to prepare events repetitively and use additional threads till maxPoolSize.
-	 * {@link PriorityBlockingQueue} is used for queue => full capacity is initialized at application start.
+	 * {@link LinkedBlockingQueue} is used for queue => capacity is initialized dynamically.
 	 * {@link AbotrPolicy} is set for rejected tasks.
 	 */
 	String PROPERTY_EVENT_EXECUTOR_QUEUE_CAPACITY = "scheduler.event.executor.queueCapacity";

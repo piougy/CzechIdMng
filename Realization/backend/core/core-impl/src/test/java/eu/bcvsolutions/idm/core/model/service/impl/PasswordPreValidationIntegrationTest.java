@@ -44,6 +44,7 @@ public class PasswordPreValidationIntegrationTest extends AbstractIntegrationTes
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testLenght() {
 		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName(System.currentTimeMillis() + "");

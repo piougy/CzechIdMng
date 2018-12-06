@@ -70,7 +70,10 @@ export default class ExampleComponents extends Basic.AbstractContent {
     });
   }
 
-  onSettingSubmit() {
+  onSettingSubmit(event) {
+    if (event) {
+      event.preventDefault();
+    }
     this.setState({
       setting: this.refs.form.getData()
     }, () => {

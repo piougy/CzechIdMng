@@ -776,7 +776,9 @@
       "TITLE_AFTER": "Titul za (String)",
       "DESCRIPTION": "Poznámka (String)",
       "PHONE": "Telefon (String)",
-      "EMAIL": "Email (String)"
+      "EMAIL": "Email (String)",
+      "ASSIGNED_ROLES": "Přiřazené role uživatele",
+      "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento system)"
     },
     "ContractAttributeEnum": {
       "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
@@ -4111,7 +4113,7 @@
       "seq": {
         "label": "Pořadí",
         "placeholder": "Nastavte pořadí",
-        "help": "Generátory jsou spracovávány dle pořadí od nejmenšího po největší. V případě že dva generátory generují hodnoty pro stejný atribut, výsledná hodnota bude vygenerována z posledního generátoru."
+        "help": "Generátory jsou zpracovávány dle pořadí od nejmenšího po největší. V případě že dva generátory generují hodnoty pro stejný atribut, výsledná hodnota bude vygenerována z posledního generátoru."
       },
       "description": {
         "label": "Popis"

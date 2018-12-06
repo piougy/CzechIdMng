@@ -11,6 +11,9 @@ const formAttributeManager = new FormAttributeManager();
  * - supper class for all face type renderers
  * - provide basic implementation for single value Input
  * - multi value input has to be implemented in descendant
+ * - Rendered should return values:
+ * -- form value with null (even for multivalues) - for empty values (null value will be removed on BE)
+ * -- undefined - value will be not controlled (preserve value on BE)
  *
  * @author Radek Tomiška
  */
@@ -43,20 +46,40 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    */
   getValues() {
     const { attribute } = this.props;
+    let filledFormValues = [];
     //
     if (attribute.multiple) {
-      return this.toFormValues();
-    }
-    const filledFormValues = [];
-    const formValue = this.toFormValue();
-    if (formValue) {
-      filledFormValues.push(formValue);
+      const formValues = this.toFormValues();
+      if (formValues === undefined) {
+        // value is not controlled
+        return undefined;
+      }
+      if (formValues === null || formValues.length === 0) {
+        // value is not filled - form value with null has to be returned (null value will be removed on BE)
+        filledFormValues.push(this.prepareFormValue(null));
+      } else {
+        filledFormValues = filledFormValues.concat(formValues);
+      }
+    } else { // single value
+      const formValue = this.toFormValue();
+      if (formValue === undefined) {
+        // value is not controlled
+        return undefined;
+      }
+      if (formValue) {
+        filledFormValues.push(formValue);
+      }
     }
     return filledFormValues;
   }
 
   getValue() {
     const filledFormValues = this.getValues();
+    //
+    if (filledFormValues === undefined) {
+      // value is not controlled
+      return undefined;
+    }
     //
     // event if multiple output values, return only one
     return filledFormValues.pop();
@@ -126,12 +149,12 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     //
     if (!formComponent) {
       // not supported compoenents
-      return null;
+      return undefined;
     }
     const componentValue = formComponent.getValue();
     // undefined values are not sent (confidential properties  etc.)
     if (componentValue === undefined) {
-      return null;
+      return undefined;
     }
     return this.fillFormValue(this.prepareFormValue(values ? values[0] : null), componentValue);
   }

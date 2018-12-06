@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
@@ -331,6 +332,69 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		position = service.save(position);
 		//
 		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+	}
+	
+	/**
+	 * Prevent to remove automatic roles assigned by contract position, when contract primary position is changed.
+	 */
+	@Test
+	public void testPreventToRemoveRoles() {
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmTreeNodeDto treeNodeOne = getHelper().createTreeNode();
+		IdmRoleTreeNodeDto automaticRoleOne = getHelper().createAutomaticRole(roleOne, treeNodeOne);
+		//
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmTreeNodeDto treeNodeTwo = getHelper().createTreeNode();
+		IdmRoleTreeNodeDto automaticRoleTwo = getHelper().createAutomaticRole(roleTwo, treeNodeTwo);
+		//
+		// create identity
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+		//
+		// empty roles
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(identity.getId());
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.find(filter, null).getContent();
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		// create contract positon
+		IdmContractPositionDto contractPosition = getHelper().createContractPosition(contract, treeNodeOne);
+		assignedRoles = identityRoleService.find(filter, null).getContent();
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getAutomaticRole().equals(automaticRoleOne.getId())));
+		//
+		// update contract
+		contract.setWorkPosition(treeNodeTwo.getId());
+		contract = contractService.save(contract);
+		//
+		assignedRoles = identityRoleService.find(filter, null).getContent();
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getAutomaticRole().equals(automaticRoleOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getAutomaticRole().equals(automaticRoleTwo.getId())));
+		//
+		// clear prime contract position
+		contract.setWorkPosition(null);
+		contract = contractService.save(contract);
+		//
+		assignedRoles = identityRoleService.find(filter, null).getContent();
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getAutomaticRole().equals(automaticRoleOne.getId())));
+		//
+		contract.setWorkPosition(treeNodeTwo.getId());
+		contract = contractService.save(contract);
+		//
+		// remove contract 
+		service.delete(contractPosition);
+		//
+		assignedRoles = identityRoleService.find(filter, null).getContent();
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getAutomaticRole().equals(automaticRoleTwo.getId())));
+		// 
+		// remove contract position
+		contractService.delete(contract);
+		//
+		assignedRoles = identityRoleService.find(filter, null).getContent();
 		Assert.assertTrue(assignedRoles.isEmpty());
 	}
 }

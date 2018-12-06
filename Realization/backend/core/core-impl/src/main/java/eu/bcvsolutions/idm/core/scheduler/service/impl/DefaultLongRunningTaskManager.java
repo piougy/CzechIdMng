@@ -44,8 +44,6 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 /**
  * Default implementation {@link LongRunningTaskManager}
  * 
- * TODO: LRT can define priority - e.g. user bulk actions should have higher priority see PriorityFutureTask.
- * 
  * @author Radek Tomiška
  *
  */
@@ -57,8 +55,8 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	private final ConfigurationService configurationService;
 	private final SecurityService securityService;
 	private final EntityEventManager entityEventManager;
-	@Autowired
-	private AttachmentManager attachmentManager;
+	//
+	@Autowired private AttachmentManager attachmentManager;
 	
 	@Autowired
 	public DefaultLongRunningTaskManager(

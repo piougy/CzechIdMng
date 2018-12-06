@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
@@ -71,12 +70,13 @@ import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
-import eu.bcvsolutions.idm.core.scheduler.api.domain.PriorityFutureTask;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Entity (dto) processing based on event publishing.
+ * 
+ * TODO: remove duplicate events operation though whole queue (e.q. stopProcessing -> synchronize all entities -> deduplicate -> startProcessing).
  * 
  * @author Radek Tomiška
  *
@@ -464,12 +464,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		}
 		// execute event in new thread asynchronously
 		try {
-			eventConfiguration.getExecutor().execute(new PriorityFutureTask<EventContext<?>>(new Callable<EventContext<?>>() {
+			eventConfiguration.getExecutor().execute(new Runnable() {
 				
 				@Override
-				public EventContext<?> call() throws Exception {
+				public void run() {
 					try {
-						return process(new CoreEvent<>(EntityEventType.EXECUTE, event));
+						process(new CoreEvent<>(EntityEventType.EXECUTE, event));
 					} catch (Exception ex) {
 						// exception handling only ... all processor should persist their own entity state (see AbstractEntityEventProcessor)
 						ResultModel resultModel;
@@ -491,13 +491,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 										.build());
 						
 						LOG.error(resultModel.toString(), ex);
-						return null;
 					} finally {
 						LOG.trace("Event [{}] ends for owner with id [{}].", event.getId(), event.getOwnerId());
 						removeRunningEvent(event);
 					}
 				}
-			}, (event.getPriority() == PriorityType.HIGH ? Thread.MAX_PRIORITY : Thread.NORM_PRIORITY)));
+			});
 			//
 			LOG.trace("Running event [{}] for owner with id [{}].", event.getId(), event.getOwnerId());
 		} catch (RejectedExecutionException ex) {
@@ -800,18 +799,24 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	protected List<IdmEntityEventDto> getCreatedEvents(String instanceId) {
 		Assert.notNull(instanceId);
 		//
+		// already running owners are excluded (super owner is excluded too)
+		List<UUID> exceptOwnerIds = Lists.newArrayList(runningOwnerEvents.keySet());
+		exceptOwnerIds = exceptOwnerIds.subList(0, exceptOwnerIds.size() > 100 ? 100 : exceptOwnerIds.size());
+		//
 		// load created events - high priority
 		DateTime executeDate = new DateTime();
 		Page<IdmEntityEventDto> highEvents = entityEventService.findToExecute(
 				instanceId,
 				executeDate,
 				PriorityType.HIGH,
+				exceptOwnerIds,
 				new PageRequest(0, 100, new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
 		// load created events - low priority
 		Page<IdmEntityEventDto> normalEvents = entityEventService.findToExecute(
 				instanceId,
 				executeDate,
 				PriorityType.NORMAL,
+				exceptOwnerIds,
 				new PageRequest(0, 100, new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
 		// merge events
 		List<IdmEntityEventDto> events = new ArrayList<>();

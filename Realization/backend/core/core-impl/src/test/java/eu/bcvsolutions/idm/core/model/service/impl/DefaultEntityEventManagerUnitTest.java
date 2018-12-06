@@ -76,7 +76,8 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 				.findToExecute(
 						any(), 
 						any(DateTime.class), 
-						eq(PriorityType.HIGH), 
+						eq(PriorityType.HIGH),
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(events));
 		when(entityEventService
@@ -84,6 +85,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.NORMAL), 
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(events));
 		//
@@ -97,6 +99,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.HIGH), 
+						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.HIGH, 100));
 		when(entityEventService
@@ -104,6 +107,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(),						
 						any(DateTime.class), 
 						eq(PriorityType.NORMAL), 
+						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 0));
 		
@@ -120,6 +124,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.HIGH), 
+						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.HIGH, 0));
 		when(entityEventService
@@ -127,6 +132,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.NORMAL), 
+						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 100));
 		
@@ -143,6 +149,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.HIGH), 
+						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.HIGH, 100));
 		when(entityEventService
@@ -150,6 +157,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.NORMAL), 
+						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 30));
 		
@@ -166,6 +174,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.HIGH), 
+						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.HIGH, 65));
 		when(entityEventService
@@ -173,6 +182,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.NORMAL), 
+						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 50));
 		
@@ -201,6 +211,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.HIGH), 
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(highEvents));
 		//
@@ -220,6 +231,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.NORMAL), 
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(normalEvents));
 		//
@@ -253,6 +265,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.HIGH), 
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(highEvents));
 		//
@@ -272,6 +285,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(),						
 						any(DateTime.class), 
 						eq(PriorityType.NORMAL), 
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(normalEvents));
 		//
@@ -314,6 +328,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.HIGH), 
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(highEvents));
 		//
@@ -338,6 +353,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(), 						
 						any(DateTime.class), 
 						eq(PriorityType.NORMAL), 
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(normalEvents));
 		when(entityEventService
@@ -409,15 +425,17 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 				.findToExecute(
 						any(), 						
 						any(DateTime.class), 
-						eq(PriorityType.HIGH), 
+						eq(PriorityType.HIGH),
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(highEvents));
 		//
 		when(entityEventService
 				.findToExecute(
-						any(), 						
-						any(DateTime.class), 
-						eq(PriorityType.NORMAL), 
+						any(),	
+						any(DateTime.class),
+						eq(PriorityType.NORMAL),
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(new ArrayList<>()));
 		//
@@ -455,7 +473,8 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 				.findToExecute(
 						any(), 						
 						any(DateTime.class), 
-						eq(PriorityType.HIGH), 
+						eq(PriorityType.HIGH),
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(highEvents));
 		//
@@ -479,7 +498,8 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 				.findToExecute(
 						any(), 
 						any(DateTime.class), 
-						eq(PriorityType.NORMAL), 
+						eq(PriorityType.NORMAL),
+						any(),
 						any()))
 				.thenReturn(new PageImpl<>(normalEvents));
 		//

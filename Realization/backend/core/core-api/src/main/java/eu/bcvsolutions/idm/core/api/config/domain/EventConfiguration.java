@@ -65,6 +65,9 @@ public interface EventConfiguration extends Configurable {
 	 */
 	boolean isAsynchronous();
 	
+	// TODO: stop processing created events only
+	//boolean stopProcessing();
+	
 	/**
 	 * Asynchronous events will be executed on server instance with returned id.
 	 * 

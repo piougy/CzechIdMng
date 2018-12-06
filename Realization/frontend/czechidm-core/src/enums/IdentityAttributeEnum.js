@@ -9,6 +9,10 @@ export default class IdentityAttributeEnum extends AbstractEnum {
     return super.getNiceLabel(`core:enums.IdentityAttributeEnum.${key}`);
   }
 
+  static getHelpBlockLabel(key) {
+    return super.getNiceLabel(`core:enums.IdentityAttributeEnum.helpBlock.${key}`);
+  }
+
   static findKeyBySymbol(sym) {
     return super.findKeyBySymbol(this, sym);
   }
@@ -107,7 +111,7 @@ export default class IdentityAttributeEnum extends AbstractEnum {
         return this.ASSIGNED_ROLES;
       }
       case 'assignedRolesForSystem': {
-        return this.DESCRIPTION;
+        return this.ASSIGNED_ROLES_FOR_SYSTEM;
       }
       default: {
         return null;

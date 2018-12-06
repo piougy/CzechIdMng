@@ -113,4 +113,11 @@ public interface IdmRoleRequestService
 	 * @return
 	 */
 	IdmRoleRequestDto copyRolesByIdentity(IdmRoleRequestByIdentityDto requestByIdentityDto);
+
+	/**
+	 * Request and concept validation
+	 *  
+	 * @param request
+	 */
+	void validate(IdmRoleRequestDto request);
 }

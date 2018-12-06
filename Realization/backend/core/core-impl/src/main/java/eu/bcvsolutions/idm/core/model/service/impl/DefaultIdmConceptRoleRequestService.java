@@ -291,7 +291,7 @@ public class DefaultIdmConceptRoleRequestService extends
 	}
 
 	@Override
-	public IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto) {
+	public IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto, boolean checkChanges) {
 		UUID roleId = dto.getRole();
 		if (roleId != null) {
 			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.role, IdmRoleDto.class);
@@ -301,6 +301,11 @@ public class DefaultIdmConceptRoleRequestService extends
 				IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(role,
 						IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
 				IdmFormInstanceDto conceptFormInstance = formService.getFormInstance(dto, formDefinitionDto);
+				
+				if (!checkChanges) { // Return only EAV values, without compare changes
+					return conceptFormInstance;
+				}
+				
 				// If exists identity role, then we try to evaluate changes against EAVs in the
 				// current identity role.
 				ConceptRoleRequestOperation operation = dto.getOperation();

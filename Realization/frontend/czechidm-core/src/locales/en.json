@@ -747,7 +747,21 @@
       "PHONE": "Phone (String)",
       "EMAIL": "Email (String)",
       "ASSIGNED_ROLES": "User assigned roles",
-      "ASSIGNED_ROLES_FOR_SYSTEM": "User assigned roles (for this system)"
+      "ASSIGNED_ROLES_FOR_SYSTEM": "User assigned roles (for this system)",
+      "helpBlock": {
+        "USERNAME": "",
+        "EXTERNAL_CODE": "",
+        "DISABLED": "",
+        "FIRSTNAME": "",
+        "LASTNAME": "",
+        "TITLE_BEFORE": "",
+        "TITLE_AFTER": "",
+        "DESCRIPTION": "",
+        "PHONE": "",
+        "EMAIL": "",
+        "ASSIGNED_ROLES": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET).",
+        "ASSIGNED_ROLES_FOR_SYSTEM": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles which <strong>assigned this system</strong> (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET)."
+      }
     },
     "ContractAttributeEnum": {
       "IDENTITY": "Owner (IdmIdentity - Id or username)",
@@ -5392,6 +5406,10 @@
     "LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD": {
       "title": "Task completed successfully. The result can be downloaded.",
       "message": "The long task has been successfully completed. Result is ready to download."
+    },
+    "ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE": {
+      "title": "Request is invalid!",
+      "message": "Concept for role [{{roleCode}}], has invalid attribute [{{attributeCode}}]! Invalidate concepts will be highlighted in the reqeust."
     }
   },
   "validationError": {

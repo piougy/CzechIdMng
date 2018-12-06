@@ -48,6 +48,7 @@ import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -59,6 +60,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
@@ -235,6 +237,9 @@ public class DefaultIdmRoleRequestService
 				RoleRequestState.CONCEPT == request.getState() || RoleRequestState.DUPLICATED == request.getState()
 						|| RoleRequestState.EXCEPTION == request.getState(),
 				"Only role request with CONCEPT or EXCEPTION or DUPLICATED state can be started!");
+		
+		// Request and concepts validation
+		this.validate(request);
 
 		IdmRoleRequestDto duplicant = validateOnDuplicity(request);
 
@@ -254,7 +259,7 @@ public class DefaultIdmRoleRequestService
 
 		// Check on same applicants in all role concepts
 		boolean identityNotSame = this.get(request.getId()).getConceptRoles().stream().anyMatch(concept -> {
-			// get contract dto from embedded map
+			// get contract DTO from embedded map
 			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
 					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
 			if (contract == null) {
@@ -476,6 +481,38 @@ public class DefaultIdmRoleRequestService
 		request.setState(RoleRequestState.EXECUTED);
 		return this.save(request);
 
+	}
+	
+	@Override
+	public void validate(IdmRoleRequestDto request) {
+		Assert.notNull(request);
+
+		List<IdmConceptRoleRequestDto> conceptRoles = request.getConceptRoles();
+		conceptRoles.forEach(concept -> {
+			IdmFormInstanceDto formInstanceDto = conceptRoleRequestService.getRoleAttributeValues(concept, false);
+			if (formInstanceDto != null) {
+				List<InvalidFormAttributeDto> validationResults = formService.validate(formInstanceDto);
+				if (validationResults != null && !validationResults.isEmpty()) {
+					IdmRoleDto role = null;
+					if(concept.getRole() != null) {
+						role = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role, IdmRoleDto.class);
+					} else {
+						IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole, IdmIdentityRoleDto.class);
+						if (identityRole != null) {
+							 role = DtoUtils.getEmbedded(concept, IdmIdentityRole_.role, IdmRoleDto.class);
+						}
+					}
+					throw new ResultCodeException(CoreResultCode.ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE,
+							ImmutableMap.of( //
+									"concept", concept.getId(), //
+									"roleCode", role != null ? role.getCode() : "",
+									"request", request.getId(), //
+									"attributeCode", validationResults.get(0).getAttributeCode() //
+									) //
+							); //
+				}
+			}
+		});
 	}
 
 	@Override

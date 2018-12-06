@@ -137,7 +137,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		// Add EAV values and evaluate changes on EAV values for concepts 
 		if (dto != null) {
 			dto.getConceptRoles().forEach(concept -> {
-				IdmFormInstanceDto formInstanceDto = conceptService.getRoleAttributeValues(concept);
+				IdmFormInstanceDto formInstanceDto = conceptService.getRoleAttributeValues(concept, true);
 				if (formInstanceDto != null) {
 					concept.getEavs().clear();
 					concept.getEavs().add(formInstanceDto);
@@ -269,7 +269,11 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> startRequest(
 			@ApiParam(value = "Role request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		((IdmRoleRequestService) this.getService()).startRequest(UUID.fromString(backendId), true);
+		IdmRoleRequestDto requestDto = this.getDto(backendId);
+		// Validate
+		service.validate(requestDto);
+		// Start request
+		service.startRequest(UUID.fromString(backendId), true);
 		return this.get(backendId);
 	}
 

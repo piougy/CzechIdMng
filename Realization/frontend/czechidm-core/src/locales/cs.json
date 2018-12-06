@@ -778,7 +778,21 @@
       "PHONE": "Telefon (String)",
       "EMAIL": "Email (String)",
       "ASSIGNED_ROLES": "Přiřazené role uživatele",
-      "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento system)"
+      "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento system)",
+      "helpBlock": {
+        "USERNAME": "",
+        "EXTERNAL_CODE": "",
+        "DISABLED": "",
+        "FIRSTNAME": "",
+        "LASTNAME": "",
+        "TITLE_BEFORE": "",
+        "TITLE_AFTER": "",
+        "DESCRIPTION": "",
+        "PHONE": "",
+        "EMAIL": "",
+        "ASSIGNED_ROLES": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET).",
+        "ASSIGNED_ROLES_FOR_SYSTEM": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele, které přiřazují <strong>tento systém</strong> (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET)."
+      }
     },
     "ContractAttributeEnum": {
       "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
@@ -5442,6 +5456,10 @@
     "LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD": {
       "title": "Úloha úspěšně dokončena. Výsledek je možné stáhnout.",
       "message": "Dlouhotrvající úloha byla úspěšně dokončena, její výsledek je připraven ke stažení."
+    },
+    "ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE": {
+      "title": "Žádost není validní!",
+      "message": "Koncept pro roli [{{roleCode}}], nemá validní atribut [{{attributeCode}}]! Nevalidní koncepty budou v žádosti označeny."
     }
   },
   "validationError": {

@@ -45,8 +45,9 @@ public interface IdmConceptRoleRequestService
 	 * against the identity-role form values.
 	 * 
 	 * @param dto
+	 * @param checkChanges If true, then changes against the identity role will be evaluated.
 	 * @return
 	 */
-	IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto);
+	IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto, boolean checkChanges);
 
 }

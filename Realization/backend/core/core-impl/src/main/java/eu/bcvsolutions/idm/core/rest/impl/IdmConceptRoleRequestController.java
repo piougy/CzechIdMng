@@ -172,7 +172,7 @@ public class IdmConceptRoleRequestController
 	@Override
 	public IdmConceptRoleRequestDto getDto(Serializable backendId) {
 		IdmConceptRoleRequestDto concept = super.getDto(backendId);
-		IdmFormInstanceDto formInstanceDto = service.getRoleAttributeValues(concept);
+		IdmFormInstanceDto formInstanceDto = service.getRoleAttributeValues(concept, true);
 		if (formInstanceDto != null) {
 			concept.getEavs().clear();
 			concept.getEavs().add(formInstanceDto);

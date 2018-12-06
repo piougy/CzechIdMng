@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -760,4 +761,14 @@ public interface FormService extends ScriptEnabled {
 	 * @return
 	 */
 	<O extends FormableEntity> FormValueService<O> getFormValueService(Class<? extends Identifiable> ownerType);
+
+	/**
+	 * Validation for given form instance.
+	 * 
+	 * Only validation on missing value is implemented now. TODO: regex ..
+	 * 
+	 * @param formInstance
+	 * @return
+	 */
+	List<InvalidFormAttributeDto> validate(IdmFormInstanceDto formInstance);
 }

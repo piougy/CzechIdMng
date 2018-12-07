@@ -42,6 +42,8 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
     private String wfProcessId;
     @JsonProperty(access = Access.READ_ONLY)
     private String log;
+    @JsonProperty(access = Access.READ_ONLY)
+    private boolean valid = true; // Is concept valid?
 
 	public UUID getRoleRequest() {
         return roleRequest;
@@ -130,6 +132,15 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
     public void setLog(String log) {
         this.log = log;
     }
+    
+
+	public boolean isValid() {
+		return valid;
+	}
+
+	public void setValid(boolean valid) {
+		this.valid = valid;
+	}
 
 	public String addToLog(String text) {
         if (text != null) {

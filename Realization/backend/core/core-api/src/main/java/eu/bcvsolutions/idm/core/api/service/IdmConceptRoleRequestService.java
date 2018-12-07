@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -49,5 +50,12 @@ public interface IdmConceptRoleRequestService
 	 * @return
 	 */
 	IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto, boolean checkChanges);
+
+	/**
+	 * Validate form attributes for given concept
+	 * @param concept
+	 * @return
+	 */
+	List<InvalidFormAttributeDto> validateFormAttributes(IdmConceptRoleRequestDto concept);
 
 }

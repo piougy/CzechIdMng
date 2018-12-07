@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
@@ -42,6 +45,8 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
@@ -68,8 +73,8 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	//
 	private final IdmConceptRoleRequestController conceptRoleRequestController;
 	private final IdmRoleRequestService service;
-	
-
+	@Autowired
+	private FormService formService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptService;
 
@@ -127,24 +132,9 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") }) })
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Role request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		return super.get(backendId);
-	}
-
-	@Override
-	public IdmRoleRequestDto getDto(Serializable backendId) {
-
-		IdmRoleRequestDto dto = super.getDto(backendId);
-		// Add EAV values and evaluate changes on EAV values for concepts 
-		if (dto != null) {
-			dto.getConceptRoles().forEach(concept -> {
-				IdmFormInstanceDto formInstanceDto = conceptService.getRoleAttributeValues(concept, true);
-				if (formInstanceDto != null) {
-					concept.getEavs().clear();
-					concept.getEavs().add(formInstanceDto);
-				}
-			});
-		}
-		return dto;
+		ResponseEntity<?> response = super.get(backendId);
+		this.addMetadataToConcepts(response);
+		return response;
 	}
 
 	@Override
@@ -165,7 +155,9 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED,
 					ImmutableMap.of("new", dto));
 		}
-		return super.post(dto);
+		ResponseEntity<?> response = super.post(dto);
+		this.addMetadataToConcepts(response);
+		return response;
 	}
 
 
@@ -206,7 +198,9 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Role request's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
 			@RequestBody @NotNull IdmRoleRequestDto dto) {
-		return super.put(backendId, dto);
+		ResponseEntity<?> response =  super.put(backendId, dto);
+		this.addMetadataToConcepts(response);
+		return response;
 	}
 
 	@Override
@@ -306,6 +300,37 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		//
 		return toResources(conceptRoleRequestController.find(filter, pageable, IdmBasePermission.READ),
 				IdmRoleRequestDto.class);
+	}
+	
+	private void addMetadataToConcepts(ResponseEntity<?> response) {
+		if(response != null && response.getBody() instanceof Resource) {
+			@SuppressWarnings("unchecked")
+			Resource<IdmRoleRequestDto> resource = (Resource<IdmRoleRequestDto>) response.getBody();
+			this.addMetadataToConcepts(resource.getContent());
+		}
+	}
+	
+	private IdmRoleRequestDto addMetadataToConcepts(IdmRoleRequestDto dto) {
+		// Add EAV values and evaluate changes on EAV values for concepts 
+		if (dto != null) {
+			dto.getConceptRoles().stream() //
+			.filter(concept -> ConceptRoleRequestOperation.REMOVE != concept.getOperation()) //
+			.forEach(concept -> { //
+				IdmFormInstanceDto formInstanceDto = conceptService.getRoleAttributeValues(concept, true);
+				if (formInstanceDto != null) {
+					concept.getEavs().clear();
+					concept.getEavs().add(formInstanceDto);
+					// Validate the concept
+					List<InvalidFormAttributeDto> validationResults = formService.validate(formInstanceDto);
+					if (validationResults != null && !validationResults.isEmpty()) {
+						// Concept is not valid (no other metadata for validation problem is not
+						// necessary now)
+						concept.setValid(false);
+					}
+				}
+			});
+		}
+		return dto;
 	}
 
 	@Override

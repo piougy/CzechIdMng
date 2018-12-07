@@ -1259,6 +1259,9 @@
             "removeSelectedRoles": "Remove selected roles",
             "removeAllRoles": "Remove all roles"
           }
+        },
+        "alert": {
+          "invalidConcept": "Request is invalid. For more informations go to the detail."
         }
       }
     },
@@ -5410,6 +5413,10 @@
     "ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE": {
       "title": "Request is invalid!",
       "message": "Concept for role [{{roleCode}}], has invalid attribute [{{attributeCode}}]! Invalidate concepts will be highlighted in the reqeust."
+    },
+    "IDENTITY_ROLE_UNVALID_ATTRIBUTE": {
+      "title": "User role is invalid!",
+      "message": "User role [{{roleCode}}], has invalid attribute [{{attributeCode}}]!"
     }
   },
   "validationError": {

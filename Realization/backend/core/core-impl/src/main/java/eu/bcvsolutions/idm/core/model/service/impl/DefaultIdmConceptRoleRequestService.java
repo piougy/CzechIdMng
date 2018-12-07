@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole;
@@ -380,6 +381,18 @@ public class DefaultIdmConceptRoleRequestService extends
 	@Transactional(readOnly = true)
 	public List<IdmConceptRoleRequestDto> findAllByRoleRequest(UUID roleRequestId) {
 		return toDtos(repository.findAllByRoleRequest_Id(roleRequestId), false);
+	}
+	
+	@Override
+	public List<InvalidFormAttributeDto> validateFormAttributes(IdmConceptRoleRequestDto concept) {
+		if(concept != null && ConceptRoleRequestOperation.REMOVE == concept.getOperation()) {
+			return null;
+		}
+		IdmFormInstanceDto formInstanceDto = this.getRoleAttributeValues(concept, false);
+		if (formInstanceDto != null) {
+			return formService.validate(formInstanceDto);
+		}
+		return null;
 	}
 
 	@Override

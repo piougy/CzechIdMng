@@ -99,7 +99,7 @@ class LongRunningTaskItems extends Advanced.AbstractTableContent {
                 return (
                   <Advanced.DetailButton
                     title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    onClick={this.showDetail.bind(this, data[rowIndex], null)}/>
                 );
               }
             }/>
@@ -112,7 +112,7 @@ class LongRunningTaskItems extends Advanced.AbstractTableContent {
               ({ data, rowIndex }) => {
                 const entity = data[rowIndex];
                 return (
-                  <Advanced.OperationResult value={ entity.operationResult } detailLink={ () => this.showDetail(data[rowIndex]) }/>
+                  <Advanced.OperationResult value={ entity.operationResult } detailLink={ () => this.showDetail(data[rowIndex], null) }/>
                 );
               }
             }

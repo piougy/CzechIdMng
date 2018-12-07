@@ -1303,6 +1303,9 @@
               "removeSelectedRoles": "Odebrat vybrané role",
               "removeAllRoles": "Odebrat všechny role"
             }
+          },
+          "alert": {
+            "invalidConcept": "Požadavek je nevalidní. Pro více informací přejděte na detail."
           }
         }
     },
@@ -5460,6 +5463,10 @@
     "ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE": {
       "title": "Žádost není validní!",
       "message": "Koncept pro roli [{{roleCode}}], nemá validní atribut [{{attributeCode}}]! Nevalidní koncepty budou v žádosti označeny."
+    },
+    "IDENTITY_ROLE_UNVALID_ATTRIBUTE": {
+      "title": "Role uživatele není validní!",
+      "message": "Role [{{roleCode}}] uživatele, nemá validní atribut [{{attributeCode}}]!"
     }
   },
   "validationError": {

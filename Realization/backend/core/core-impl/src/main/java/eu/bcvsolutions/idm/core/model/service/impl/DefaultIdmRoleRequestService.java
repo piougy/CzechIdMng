@@ -489,28 +489,25 @@ public class DefaultIdmRoleRequestService
 
 		List<IdmConceptRoleRequestDto> conceptRoles = request.getConceptRoles();
 		conceptRoles.forEach(concept -> {
-			IdmFormInstanceDto formInstanceDto = conceptRoleRequestService.getRoleAttributeValues(concept, false);
-			if (formInstanceDto != null) {
-				List<InvalidFormAttributeDto> validationResults = formService.validate(formInstanceDto);
-				if (validationResults != null && !validationResults.isEmpty()) {
-					IdmRoleDto role = null;
-					if(concept.getRole() != null) {
-						role = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role, IdmRoleDto.class);
-					} else {
-						IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole, IdmIdentityRoleDto.class);
-						if (identityRole != null) {
-							 role = DtoUtils.getEmbedded(concept, IdmIdentityRole_.role, IdmRoleDto.class);
-						}
+			List<InvalidFormAttributeDto> validationResults = conceptRoleRequestService.validateFormAttributes(concept);
+			if (validationResults != null && !validationResults.isEmpty()) {
+				IdmRoleDto role = null;
+				if(concept.getRole() != null) {
+					role = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role, IdmRoleDto.class);
+				} else {
+					IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole, IdmIdentityRoleDto.class);
+					if (identityRole != null) {
+						 role = DtoUtils.getEmbedded(concept, IdmIdentityRole_.role, IdmRoleDto.class);
 					}
-					throw new ResultCodeException(CoreResultCode.ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE,
-							ImmutableMap.of( //
-									"concept", concept.getId(), //
-									"roleCode", role != null ? role.getCode() : "",
-									"request", request.getId(), //
-									"attributeCode", validationResults.get(0).getAttributeCode() //
-									) //
-							); //
 				}
+				throw new ResultCodeException(CoreResultCode.ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE,
+						ImmutableMap.of( //
+								"concept", concept.getId(), //
+								"roleCode", role != null ? role.getCode() : "",
+								"request", concept.getRoleRequest(), //
+								"attributeCode", validationResults.get(0).getAttributeCode() //
+								) //
+						); //
 			}
 		});
 	}

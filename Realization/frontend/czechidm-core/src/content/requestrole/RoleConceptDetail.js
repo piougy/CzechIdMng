@@ -73,13 +73,17 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       this.context.store.dispatch(roleManager.fetchAttributeFormDefinition(entityFormData.role.id, `${uiKeyRoleAttributeFormDefinition}-${entityFormData.role.id}`, (json, error) => {
         this.handleError(error);
       }));
-      if (selectedIdentityRole.id && selectedIdentityRole.operation !== 'ADD') {
-        this.context.store.dispatch(identityRoleManager.fetchFormInstances(selectedIdentityRole.id, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`, (formInstances, error) => {
-          if (error) {
-            this.addErrorMessage({ hidden: true, level: 'info' }, error);
-            this.setState({ error });
-          }
-        }));
+
+      if (selectedIdentityRole.id && selectedIdentityRole.operation !== 'ADD' ) {
+        // Form definition will be loaded from identityRole only if selectedIdentityRole is identity-role not concept
+        if (selectedIdentityRole.state === undefined) {
+          this.context.store.dispatch(identityRoleManager.fetchFormInstances(selectedIdentityRole.id, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`, (formInstances, error) => {
+            if (error) {
+              this.addErrorMessage({ hidden: true, level: 'info' }, error);
+              this.setState({ error });
+            }
+          }));
+        }
       } else {
         selectedIdentityRole = null;
       }

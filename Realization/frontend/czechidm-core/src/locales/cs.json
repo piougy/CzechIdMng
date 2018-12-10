@@ -5467,6 +5467,10 @@
     "IDENTITY_ROLE_UNVALID_ATTRIBUTE": {
       "title": "Role uživatele není validní!",
       "message": "Role [{{roleCode}}] uživatele, nemá validní atribut [{{attributeCode}}]!"
+    },
+    "FORM_DEFINITION_DELETE_FAILED_ROLE": {
+      "title": "Definici formuláře není možné smazat!",
+      "message": "Definici formuláře [{{definition}}] není možné smazat, protože je použita na roli [{{role}}]!"
     }
   },
   "validationError": {

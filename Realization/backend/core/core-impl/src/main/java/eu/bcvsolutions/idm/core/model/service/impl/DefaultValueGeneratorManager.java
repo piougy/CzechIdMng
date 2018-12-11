@@ -117,7 +117,7 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 	@SuppressWarnings("unchecked")
 	private <E extends AbstractDto> ValueGenerator<E> getGenerator(IdmGenerateValueDto generatorDto) {
 		String generatorType = generatorDto.getGeneratorType();
-		if (!generators.containsKey(generatorType)) {
+		if (!getAllGenerators().containsKey(generatorType)) {
 			return null;
 		}
 		//

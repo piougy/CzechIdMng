@@ -4598,6 +4598,16 @@
             "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
           }
         }
+      },
+      "core-concept-role-request-form-default-value-generator": {
+        "label": "Doplnění standardních hodnot pro parametry rolí v žádostech",
+        "help": "Generátor doplní všem atributům pro danou roli standardní hodnoty. Pro generátor nemůže být nastavena funkce 'Přegenerování hodnot'.",
+        "attributes": {
+          "regexmultiplevalues": {
+            "label": "Oddělovač",
+            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
+          }
+        }
       }
     },
     "long-running-task": {

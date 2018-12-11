@@ -226,7 +226,8 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           <Advanced.EavForm
             ref="eavForm"
             formInstance={ _formInstance }
-            readOnly={!isEdit || readOnly}></Advanced.EavForm>
+            readOnly={!isEdit || readOnly}
+            useDefaultValue/>
         </Basic.Panel>
       </Basic.AbstractForm>
     );

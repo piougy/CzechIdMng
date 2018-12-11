@@ -4548,6 +4548,16 @@
             "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
           }
         }
+      },
+      "core-concept-role-request-form-default-value-generator": {
+        "label": "Addition default values for the role parameters in role request",
+        "help": "Generator add default values for role parameters attributes. For the generator, can not be set feature 'Regenerate value'.",
+        "attributes": {
+          "regexmultiplevalues": {
+            "label": "Separator",
+            "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
+          }
+        }
       }
     },
     "long-running-task": {

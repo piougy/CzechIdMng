@@ -56,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -106,6 +107,8 @@ public class DefaultIdmRoleRequestService
 	private final EntityEventManager entityEventManager;
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private IdmRoleService roleService;
 	@Autowired
 	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService; 
 	private IdmRoleRequestService roleRequestService;
@@ -493,9 +496,15 @@ public class DefaultIdmRoleRequestService
 			if (validationResults != null && !validationResults.isEmpty()) {
 				IdmRoleDto role = null;
 				if(concept.getRole() != null) {
-					role = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role, IdmRoleDto.class);
+					role = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role, IdmRoleDto.class, null);
+					if (role == null) {
+						role = roleService.get(concept.getRole());
+					}
 				} else {
-					IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole, IdmIdentityRoleDto.class);
+					IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole, IdmIdentityRoleDto.class, null);
+					if (identityRole == null) {
+						identityRole = identityRoleService.get(concept.getIdentityRole());
+					}
 					if (identityRole != null) {
 						 role = DtoUtils.getEmbedded(concept, IdmIdentityRole_.role, IdmRoleDto.class);
 					}

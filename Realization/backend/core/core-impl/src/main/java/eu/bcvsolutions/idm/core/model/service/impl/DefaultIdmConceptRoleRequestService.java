@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -95,6 +96,8 @@ public class DefaultIdmConceptRoleRequestService extends
 	private FormService formService;
 	@Autowired
 	private IdmFormAttributeService formAttributeService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	public DefaultIdmConceptRoleRequestService(IdmConceptRoleRequestRepository repository,
@@ -295,13 +298,23 @@ public class DefaultIdmConceptRoleRequestService extends
 	public IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto, boolean checkChanges) {
 		UUID roleId = dto.getRole();
 		if (roleId != null) {
-			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.role, IdmRoleDto.class);
+			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.role, IdmRoleDto.class, null);
+			if(role == null) {
+				role = roleService.get(roleId);
+			}
 			// Has role filled attribute definition?
 			UUID formDefintion = role.getIdentityRoleAttributeDefinition();
 			if (formDefintion != null) {
 				IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(role,
 						IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
-				IdmFormInstanceDto conceptFormInstance = formService.getFormInstance(dto, formDefinitionDto);
+				IdmFormInstanceDto conceptFormInstance = null;
+				List<IdmFormInstanceDto> eavs = dto.getEavs();
+				// Get form instance from givne concept first
+				if (eavs != null && eavs.size() == 1) {
+					conceptFormInstance = eavs.get(0);
+				} else {
+					conceptFormInstance = formService.getFormInstance(dto, formDefinitionDto);
+				}
 				
 				if (!checkChanges) { // Return only EAV values, without compare changes
 					return conceptFormInstance;
@@ -312,7 +325,10 @@ public class DefaultIdmConceptRoleRequestService extends
 				ConceptRoleRequestOperation operation = dto.getOperation();
 				if (dto.getIdentityRole() != null && ConceptRoleRequestOperation.UPDATE == operation) {
 					IdmIdentityRoleDto identityRoleDto = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.identityRole,
-							IdmIdentityRoleDto.class);
+							IdmIdentityRoleDto.class, null);
+					if(identityRoleDto == null) {
+						identityRoleDto = identityRoleService.get(dto.getIdentityRole());
+					}
 					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinitionDto);
 					if (formInstance != null && conceptFormInstance != null) {
 						List<IdmFormValueDto> conceptValues = conceptFormInstance.getValues();

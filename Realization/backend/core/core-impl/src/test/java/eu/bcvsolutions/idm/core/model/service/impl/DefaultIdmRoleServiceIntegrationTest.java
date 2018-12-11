@@ -3,8 +3,13 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.beans.IntrospectionException;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -15,33 +20,54 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
+import eu.bcvsolutions.idm.core.rest.impl.IdmRoleRequestController;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractRestTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Basic role service operations
@@ -52,7 +78,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTest {
+public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmRoleCatalogueRoleService idmRoleCatalogueRoleService;
@@ -60,7 +86,16 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	@Autowired private IdmRoleGuaranteeRoleService roleGuaranteeRoleService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private RoleConfiguration roleConfiguration;
+	@Autowired private FormService formService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmConceptRoleRequestService conceptRoleService;
+	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private IdmRoleRequestController roleRequestController;
+	@Autowired(required = false)
+	@Qualifier("objectMapper")
+	private ObjectMapper mapper;
 	//
+	private final static String IP = "IP";
 	private DefaultIdmRoleService roleService;
 
 	@Before
@@ -345,5 +380,141 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		roleDto = roleService.getByCode(roleCode);
 		assertNotNull(roleDto);
 		assertEquals(role.getId(), roleDto.getId());
+	}
+	
+	@Test
+	public void testCreateRoleWithAttributes() {
+		this.createRoleWithAttributes();
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testCreateIdentityRoleWithoutRequiredValue() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleDto role = createRoleWithAttributes();
+		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		
+		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+		identityRole.setIdentityContract(identityContact.getId());
+		identityRole.setRole(role.getId());
+		identityRole = identityRoleService.save(identityRole); 
+	}
+	
+	@Test
+	public void testCreateIdentityRoleWithRequiredValue() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleDto role = createRoleWithAttributes();
+		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmFormDefinitionDto definition = formService.getDefinition(role.getIdentityRoleAttributeDefinition());
+		IdmFormAttributeDto ipAttributeDto = definition.getFormAttributes().stream() //
+				.filter(attribute -> IP.equals(attribute.getCode())) //
+				.findFirst() //
+				.get(); //
+
+		// Add value
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setStringValue(getHelper().createName());
+		formValue.setPersistentType(PersistentType.TEXT);
+		formValue.setFormAttribute(ipAttributeDto.getId());
+
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+		formInstance.setFormDefinition(definition);
+		formInstance.getValues().add(formValue);
+		//
+		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+		identityRole.setIdentityContract(identityContact.getId());
+		identityRole.setRole(role.getId());
+		identityRole.getEavs().add(formInstance);
+
+		identityRole = identityRoleService.save(identityRole);
+
+		assertTrue(!identityRole.getEavs().isEmpty());
+		formInstance = identityRoleService.getRoleAttributeValues(identityRole);
+		assertEquals(definition, formInstance.getFormDefinition());
+		assertEquals(formValue.getStringValue(), formInstance.getValues().get(0).getStringValue());
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testCreateConceptRoleWithoutRequiredValue() throws Exception {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleDto role = createRoleWithAttributes();
+		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		
+		IdmRoleRequestDto roleRequest = getHelper().createRoleRequest(identityContact, role);
+		
+	    // Get request by id
+
+		String response = getMockMvc().perform(get(getDetailRoleRequestUrl(roleRequest.getId()))
+					.with(authentication(getAdminAuthentication()))
+					.contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+		
+		IdmRoleRequestDto createdDto = (IdmRoleRequestDto) mapper.readValue(response, roleRequest.getClass());
+		
+		roleRequestService.validate(createdDto);
+	}
+	
+	@Test
+	public void testCreateConceptRoleWithRequiredValue() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleDto role = createRoleWithAttributes();
+		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmFormDefinitionDto definition = formService.getDefinition(role.getIdentityRoleAttributeDefinition());
+		IdmFormAttributeDto ipAttributeDto = definition.getFormAttributes().stream() //
+				.filter(attribute -> IP.equals(attribute.getCode())) //
+				.findFirst() //
+				.get(); //
+
+		// Add value
+		IdmFormValueDto formValue = new IdmFormValueDto(ipAttributeDto);
+		formValue.setStringValue(getHelper().createName());
+		formValue.setPersistentType(PersistentType.TEXT);
+		formValue.setFormAttribute(ipAttributeDto.getId());
+
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+		formInstance.setFormDefinition(definition);
+		formInstance.getValues().add(formValue);
+		// Create request
+		IdmRoleRequestDto request = new IdmRoleRequestDto();
+		request.setApplicant(identity.getId());
+		request.setRequestedByType(RoleRequestedByType.MANUALLY);
+		request.setExecuteImmediately(true);
+		request = roleRequestService.save(request);
+		// Create concept
+		IdmConceptRoleRequestDto conceptRole = new IdmConceptRoleRequestDto();
+		conceptRole.setIdentityContract(identityContact.getId());
+		conceptRole.setRole(role.getId());
+		conceptRole.setRoleRequest(request.getId());
+		conceptRole.getEavs().add(formInstance);
+		conceptRole = conceptRoleService.save(conceptRole);
+		// Validate request
+		roleRequestService.validate(request);
+
+		assertTrue(!conceptRole.getEavs().isEmpty());
+		formInstance = conceptRoleService.getRoleAttributeValues(conceptRole, false);
+		assertEquals(formValue.getStringValue(), formInstance.getValues().get(0).getStringValue());
+
+	}
+	
+	private String getDetailRoleRequestUrl(Serializable backendId) {
+		return String.format("%s/%s", BaseDtoController.BASE_PATH + "/role-requests", backendId);
+	}
+	
+	private IdmRoleDto createRoleWithAttributes() {
+		IdmRoleDto role = getHelper().createRole();
+		assertNull(role.getIdentityRoleAttributeDefinition());
+		
+		IdmFormAttributeDto ipAttribute = new IdmFormAttributeDto(IP);
+		ipAttribute.setPersistentType(PersistentType.TEXT);
+		ipAttribute.setRequired(true);
+		
+		IdmFormDefinitionDto definition = formService.createDefinition(IdmIdentityRole.class, ImmutableList.of(ipAttribute));
+		role.setIdentityRoleAttributeDefinition(definition.getId());
+		role = roleService.save(role);
+		assertNotNull(role.getIdentityRoleAttributeDefinition());
+		
+		return role;
 	}
 }

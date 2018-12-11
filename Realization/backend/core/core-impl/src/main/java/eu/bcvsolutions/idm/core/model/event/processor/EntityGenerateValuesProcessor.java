@@ -24,18 +24,19 @@ public class EntityGenerateValuesProcessor extends CoreEventProcessor<AbstractDt
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(EntityGenerateValuesProcessor.class);
 	public static final String PROCESSOR_NAME = "core-entity-generate-values-processor";
-	//
-	@Autowired private ValueGeneratorManager valueGeneratorManager;
-	
+
+	@Autowired
+	private ValueGeneratorManager valueGeneratorManager;
+
 	public EntityGenerateValuesProcessor() {
 		super(CoreEventType.CREATE);
 	}
-	
+
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
-	
+
 	@Override
 	public EventResult<AbstractDto> process(EntityEvent<AbstractDto> event) {
 		AbstractDto entityDto = event.getContent();

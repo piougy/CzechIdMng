@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -98,6 +99,8 @@ public class DefaultIdmConceptRoleRequestService extends
 	private IdmFormAttributeService formAttributeService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private ValueGeneratorManager valueGeneratorManager;
 
 	@Autowired
 	public DefaultIdmConceptRoleRequestService(IdmConceptRoleRequestRepository repository,
@@ -254,6 +257,11 @@ public class DefaultIdmConceptRoleRequestService extends
 		IdmConceptRoleRequestDto savedDto = super.saveInternal(dto);
 
 		if (dto != null && dto.getRole() != null) {
+			// TODO: concept role request hasn't events, after implement events for the dto, please remove this.
+			if (isNew(dto)) {
+				dto = valueGeneratorManager.generate(dto);
+			}
+
 			IdmRoleDto roleDto = roleService.get(dto.getRole());
 			if (roleDto == null) {
 				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", dto.getRole()));

@@ -85,6 +85,11 @@ public class DefaultIdmIdentityRoleService
 	
 	@Override
 	public IdmFormInstanceDto getRoleAttributeValues(IdmIdentityRoleDto dto) {
+		Assert.notNull(dto);
+		List<IdmFormInstanceDto> eavs = dto.getEavs();
+		if(eavs != null && eavs.size() == 1) {
+			return eavs.get(0);
+		}
 		UUID roleId = dto.getRole();
 		if (roleId != null) {
 			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmIdentityRole_.role, IdmRoleDto.class);

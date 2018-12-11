@@ -5427,6 +5427,10 @@
     "IDENTITY_ROLE_UNVALID_ATTRIBUTE": {
       "title": "User role is invalid!",
       "message": "User role [{{roleCode}}], has invalid attribute [{{attributeCode}}]!"
+    },
+    "FORM_DEFINITION_DELETE_FAILED_ROLE": {
+      "title": "Form definition cannot be deleted!",
+      "message": "Form definition [{{definition}}]  cannot be deleted, because is using in the role [{{role}}]!"
     }
   },
   "validationError": {

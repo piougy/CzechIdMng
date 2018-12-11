@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -233,6 +234,12 @@ public class DefaultIdmRoleService
             );
 			//
 			predicates.add(builder.exists(subquery));
+		}
+		// form definition for role attributes
+		UUID definitionId = filter.getAttributeFormDefinitionId();
+		if (definitionId != null) {
+			predicates.add(builder.equal(root.get(IdmRole_.identityRoleAttributeDefinition).get(IdmFormDefinition_.id),
+					definitionId));
 		}
 		//
 		return predicates;

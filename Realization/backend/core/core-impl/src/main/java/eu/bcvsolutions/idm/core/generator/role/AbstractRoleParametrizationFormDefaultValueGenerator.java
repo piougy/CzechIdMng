@@ -54,11 +54,11 @@ public abstract class AbstractRoleParametrizationFormDefaultValueGenerator<DTO e
 			if (StringUtils.isEmpty((attribute.getDefaultValue()))) {
 
 				// Check given values
-				List<IdmFormValueDto> existingValues = existingEavs.getValues().stream() //
+				List<IdmFormValueDto> existingValues = existingEavs == null ? null : existingEavs.getValues().stream() //
 						.filter(existingEav -> { //
 							return existingEav.getFormAttribute().equals(attribute.getId());
 						}).collect(Collectors.toList()); //
-				if (!existingValues.isEmpty()) {
+				if (existingValues != null && !existingValues.isEmpty()) {
 					// Given value exist and default value doesn't exist
 					values.addAll(existingValues);
 				}

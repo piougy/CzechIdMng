@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.beans.IntrospectionException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -411,7 +412,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 				.get(); //
 
 		// Add value
-		IdmFormValueDto formValue = new IdmFormValueDto();
+		IdmFormValueDto formValue = new IdmFormValueDto(ipAttributeDto);
 		formValue.setStringValue(getHelper().createName());
 		formValue.setPersistentType(PersistentType.TEXT);
 		formValue.setFormAttribute(ipAttributeDto.getId());
@@ -442,7 +443,6 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 		IdmRoleRequestDto roleRequest = getHelper().createRoleRequest(identityContact, role);
 		
 	    // Get request by id
-
 		String response = getMockMvc().perform(get(getDetailRoleRequestUrl(roleRequest.getId()))
 					.with(authentication(getAdminAuthentication()))
 					.contentType(TestHelper.HAL_CONTENT_TYPE))
@@ -457,7 +457,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	}
 	
 	@Test
-	public void testCreateConceptRoleWithRequiredValue() {
+	public void testCreateConceptRoleWithRequiredValue() throws Exception {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmRoleDto role = createRoleWithAttributes();
 		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
@@ -489,8 +489,19 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 		conceptRole.setRoleRequest(request.getId());
 		conceptRole.getEavs().add(formInstance);
 		conceptRole = conceptRoleService.save(conceptRole);
+		
+		 // Get request by id
+		String response = getMockMvc().perform(get(getDetailRoleRequestUrl(request.getId()))
+					.with(authentication(getAdminAuthentication()))
+					.contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+		
+		IdmRoleRequestDto restRequest = (IdmRoleRequestDto) mapper.readValue(response, request.getClass());
 		// Validate request
-		roleRequestService.validate(request);
+		roleRequestService.validate(restRequest);
 
 		assertTrue(!conceptRole.getEavs().isEmpty());
 		formInstance = conceptRoleService.getRoleAttributeValues(conceptRole, false);

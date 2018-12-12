@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
@@ -48,52 +47,70 @@ public abstract class AbstractRoleParametrizationFormDefaultValueGenerator<DTO e
 		// BIG TODO: form definition will not exist please support each attribute, or?
 		IdmFormDefinitionDto definition = formDefinitionService.get(formDefinitionId);
 		// Internal behavior #getValuesFromInstances wants default form value
-		// eavs.forEach(eav -> eav.setFormDefinition(definition));
-		
+
 		List<IdmFormValueDto> values = new ArrayList<>();
-		
 		for (IdmFormAttributeDto attribute : definition.getFormAttributes()) {
 			// check if exists default values
 			if (StringUtils.isEmpty((attribute.getDefaultValue()))) {
+
+				// Check given values
+				List<IdmFormValueDto> existingValues = existingEavs.getValues().stream() //
+						.filter(existingEav -> { //
+							return existingEav.getFormAttribute().equals(attribute.getId());
+						}).collect(Collectors.toList()); //
+				if (!existingValues.isEmpty()) {
+					// Given value exist and default value doesn't exist
+					values.addAll(existingValues);
+				}
 				continue;
 			}
 
-			IdmFormValueDto value = new IdmFormValueDto(attribute);
-			value.setValue(attribute.getDefaultValue());
-			if (!valueGenerator.isRegenerateValue()) {
+			if (valueGenerator.isRegenerateValue()) {
+				// For regenerate just create values by default values
+				String regex = this.getRegex(valueGenerator);
+				String[] defaultValues = attribute.getDefaultValue().split(regex);
+				for (String defaultValue : defaultValues) {
+					IdmFormValueDto value = new IdmFormValueDto(attribute);
+					value.setValue(defaultValue);
+					values.add(value);
+				}
+			} else {
 				if (existingEavs != null) {
-					IdmFormValueDto existingValue = existingEavs.getValues()
-					.stream() //
-					.filter(existingVal -> { //
-						return existingVal.getFormAttribute().equals(attribute.getId()); //
-					}) //
-					.findFirst() //
-					.orElse(null); //
-					if (existingValue != null && !ObjectUtils.isEmpty(existingValue.getValue(attribute.getPersistentType()))) {
-						value.setValue(existingValue.getValue(attribute.getPersistentType()));
+					// With check existing values
+					List<IdmFormValueDto> existingValues = existingEavs.getValues()
+							.stream() //
+							.filter(existingVal -> { //
+								return existingVal.getFormAttribute().equals(attribute.getId()); //
+							}) //
+							.collect(Collectors.toList()); //
+					if (!existingValues.isEmpty()) {
+						// If existing value isn't empty use it (given values)
+						existingValues.forEach(existingValue -> {
+							IdmFormValueDto value = new IdmFormValueDto(attribute);
+							value.setValue(existingValue.getValue(attribute.getPersistentType()));
+							values.add(value);
+						});
+					} else {
+						// If given values is empty use default
+						if (attribute.isMultiple()) {
+							// Default value may be multiple, just iterate over value splited by regex
+							String regex = this.getRegex(valueGenerator);
+							String[] defaultValues = attribute.getDefaultValue().split(regex);
+							for (String defaultValue : defaultValues) {
+								IdmFormValueDto value = new IdmFormValueDto(attribute);
+								value.setValue(defaultValue);
+								values.add(value);
+							}
+						} else {
+							// If is value single valued use it as is it
+							IdmFormValueDto value = new IdmFormValueDto(attribute);
+							value.setValue(attribute.getDefaultValue());
+							values.add(value);
+						}
 					}
 				}
+				
 			}
-			
-			values.add(value);
-//			List<IdmFormValueDto> valuesFromInstances = getValuesFromInstances(eavs, definition, attribute);
-//
-//			
-//			
-//			if (valuesFromInstances.isEmpty()) {
-//				// values are empty, just add all
-//				valuesFromInstances
-//						.addAll(getTransformedValues(valueGenerator, attribute.getDefaultValue(), attribute));
-//			} else {
-//				// some value exists, check regenerate
-//				if (valueGenerator.isRegenerateValue()) {
-//					// replace values
-//					valuesFromInstances = getTransformedValues(valueGenerator, attribute.getDefaultValue(), attribute);
-//				}
-//			}
-//
-//			// replace values in eavs
-//			eavs = replaceValuesInFormInstance(valuesFromInstances, eavs, definition, attribute, dto);
 		}
 
 		return new IdmFormInstanceDto(dto, definition, values);

@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import { IdentityContractManager, RoleTreeNodeManager, RoleManager, DataManager, IdentityRoleManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import FormInstance from '../../domain/FormInstance';
@@ -227,7 +228,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
             ref="eavForm"
             formInstance={ _formInstance }
             readOnly={!isEdit || readOnly}
-            useDefaultValue/>
+            useDefaultValue={Utils.Entity.isNew(entity)}/>
         </Basic.Panel>
       </Basic.AbstractForm>
     );

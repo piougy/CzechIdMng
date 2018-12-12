@@ -16,6 +16,7 @@ module.exports = {
         'titleKey': 'example:content.examples.title',
         'icon': 'gift',
         'iconColor': '#FF8A80',
+        'path': '/example/components',
         'order': 11,
         'items': [
           {

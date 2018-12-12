@@ -58,16 +58,24 @@ import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.config.domain.DefaultContractSliceConfiguration;
 import eu.bcvsolutions.idm.core.config.domain.DefaultRoleConfiguration;
 import eu.bcvsolutions.idm.core.config.domain.DefaultTreeConfiguration;
+import eu.bcvsolutions.idm.core.eav.api.service.CodeListManager;
 import eu.bcvsolutions.idm.core.eav.api.service.CommonFormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmCodeListItemService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmCodeListService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.repository.IdmCodeListItemRepository;
+import eu.bcvsolutions.idm.core.eav.repository.IdmCodeListRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormRepository;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCodeListManager;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCommonFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmCodeListItemService;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmCodeListService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.ecm.api.config.AttachmentConfiguration;
@@ -195,6 +203,8 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmPasswordRepository passwordRepository;
 	@Autowired private IdmPasswordPolicyRepository passwordPolicyRepository;
 	@Autowired private IdmFormRepository formRepository;
+	@Autowired private IdmCodeListRepository codeListRepository;
+	@Autowired private IdmCodeListItemRepository codeListItemRepository;
 	@Autowired private IdmAttachmentRepository attachmentRepository;
 	@Autowired private IdmAutomaticRoleAttributeRepository automaticRoleAttributeRepository;
 	@Autowired private IdmAutomaticRoleAttributeRuleRepository automaticRoleAttributeRuleRepository;
@@ -745,6 +755,41 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(CommonFormService.class)
 	public CommonFormService commonFormService() {
 		return new DefaultCommonFormService(formRepository, formService(), formDefinitionService());
+	}
+	
+	/**
+	 * Code lists. Use {@link #codeListManager()} instead.
+	 * 
+	 * @return
+	 * @see #codeListManager() 
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmCodeListService.class)
+	public IdmCodeListService codeListService() {
+		return new DefaultIdmCodeListService(codeListRepository, entityEventManager());
+	}
+	
+	/**
+	 * Code list items. Use {@link #codeListManager()} instead.
+	 * 
+	 * @return
+	 * @see #codeListManager()
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmCodeListItemService.class)
+	public IdmCodeListItemService codeListItemService() {
+		return new DefaultIdmCodeListItemService(codeListItemRepository, formService(), entityEventManager());
+	}
+	
+	/**
+	 * Code list manager
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(CodeListManager.class)
+	public CodeListManager codeListManager() {
+		return new DefaultCodeListManager();
 	}
 	
 	/**

@@ -17,7 +17,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
@@ -29,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
  *
  */
 @Relation(collectionRelation = "formDefinitions")
-public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEntity, Codeable {
+public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEntity {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -56,6 +55,13 @@ public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEnt
 	private transient Map<UUID, IdmFormAttributeDto> mappedAttributes;
 	private transient Map<String, Serializable> mappedKeys;
 
+	public IdmFormDefinitionDto() {
+	}
+	
+	public IdmFormDefinitionDto(UUID id) {
+		super(id);
+	}
+	
 	public String getType() {
 		return type;
 	}
@@ -64,7 +70,6 @@ public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEnt
 		this.type = type;
 	}
 
-	@Override
 	public String getCode() {
 		return code;
 	}

@@ -513,34 +513,34 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getSelectComponent() {
-    const { placeholder, fieldLabel, multiSelect, clearable} = this.props;
+    const { placeholder, fieldLabel, multiSelect, clearable, showLoading } = this.props;
     const { isLoading, options, readOnly, disabled, value } = this.state;
     //
     // from new version react-select is necessary turn off onBlurResetsInput and closeOnSelect
     // onBlurResetsInput made problems with submit form and focus
     return (
-        <Select
-          ref="selectComponent"
-          isLoading={isLoading}
-          value={value}
-          onChange={this.onChange}
-          disabled={readOnly || disabled}
-          ignoreCase
-          ignoreAccents={false}
-          multi={ multiSelect }
-          onValueClick={this.gotoContributor}
-          valueKey={ITEM_FULL_KEY}
-          labelKey={fieldLabel}
-          onBlurResetsInput={false}
-          closeOnSelect={ !multiSelect }
-          noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
-          placeholder={this.getPlaceholder(placeholder)}
-          searchingText={this.i18n('component.basic.SelectBox.searchingText')}
-          searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-          clearable={clearable}
-          onInputChange={this.onInputChange.bind(this)}
-          options={options}
-          onOpen={ this.onOpen.bind(this) }/>
+      <Select
+        ref="selectComponent"
+        isLoading={ isLoading || showLoading}
+        value={value}
+        onChange={this.onChange}
+        disabled={readOnly || disabled}
+        ignoreCase
+        ignoreAccents={false}
+        multi={ multiSelect }
+        onValueClick={this.gotoContributor}
+        valueKey={ITEM_FULL_KEY}
+        labelKey={fieldLabel}
+        onBlurResetsInput={false}
+        closeOnSelect={ !multiSelect }
+        noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
+        placeholder={this.getPlaceholder(placeholder)}
+        searchingText={this.i18n('component.basic.SelectBox.searchingText')}
+        searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
+        clearable={clearable}
+        onInputChange={this.onInputChange.bind(this)}
+        options={options}
+        onOpen={ this.onOpen.bind(this) }/>
     );
   }
 }

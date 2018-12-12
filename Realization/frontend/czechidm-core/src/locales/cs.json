@@ -528,7 +528,8 @@
           "TREE-NODE-SELECT": "Výběr prvku stromu (SelectBox)",
           "ROLE-CATALOGUE-SELECT": "Výběr složky z katalogu rolí (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
-          "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)"
+          "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
+          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
@@ -641,7 +642,8 @@
       "DATETIME": "Datum + čas",
       "BYTEARRAY": "Bitové pole",
       "UUID": "Uuid identifikátor",
-      "ATTACHMENT": "Příloha"
+      "ATTACHMENT": "Příloha",
+      "CODELIST": "Číselník"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -894,6 +896,8 @@
       "FORMDEFINITION": "Formuláře - definice",
       "FORMATTRIBUTE": "Formuláře - atributy",
       "FORMVALUE": "Formuláře - hodnoty",
+      "CODELIST": "Číselníky",
+      "CODELISTITEM": "Číselníky - položky",
       "NOTIFICATIONCONFIGURATION": "Notifikace - konfigurace",
       "NOTIFICATIONTEMPLATE": "Notifikace - šablony",
       "PASSWORDPOLICY": "Politiky hesel",
@@ -1684,6 +1688,48 @@
         "value": {
           "placeholder": "Hodnota atributu"
         }
+      }
+    },
+    "code-lists": {
+      "header": "Číselníky",
+      "title": "Číselníky",
+      "edit": {
+        "title": "Detail číselníku"
+      },
+      "create": {
+        "title": "Nový číselník",
+        "header": "Nový číselník"
+      },
+      "filter": {
+        "text": "Kód či název"
+      },
+      "attributes": {
+        "title": "Atributy číselníku"
+      },
+      "detail": {
+        "title": "Základní informace"
+      },
+      "save": {
+        "success": "Číselník [{{record}}] byl úspěšně uložen"
+      },
+      "items": {
+        "header": "Položky",
+        "title": "Položky číselníku",
+        "edit": {
+          "title": "Detail hodnoty číselníku",
+          "header": "{{record}} <small>detail hodnoty číselníku</small>"
+        },
+        "create": {
+          "title": "Nová hodnota číselníku",
+          "header": "Nová hodnota číselníku"
+        },
+        "save": {
+          "success": "Hodnota číselníku [{{record}}] byla úspěšně uložena"
+        }
+      },
+      "attributes": {
+        "header": "Atributy",
+        "title": "Atributy"
       }
     },
     "confidentialStorage": {
@@ -3049,7 +3095,12 @@
     "creator": "Vytvořil",
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
-
+    "code": {
+      "label": "Kód"
+    },
+    "description": {
+      "label": "Popis"
+    },
     "Identity": {
       "_type": "Uživatel",
       "username": "Uživatelské jméno",
@@ -3199,6 +3250,11 @@
         "label": "Typ zobrazení",
         "placeholder": "Vyberte typ zobrazení nebo ponechte výchozí ...",
         "help": "Určuje typ zobrazení atributu na formuláři. Defaultně se typ zobrazení řídí typem atributu."
+      },
+      "codeList": {
+        "label": "Číselník",
+        "placeholder": "Vyberte číselník ...",
+        "help": ""
       },
       "description": "Popis",
       "required": "Povinný",
@@ -3461,8 +3517,8 @@
       "shortName": "Název",
       "parentId": "Nadřazený prvek",
       "parent": {
-          "name": "Nadřazený prvek",
-          "false": "Nemá předka"
+        "name": "Nadřazený prvek",
+        "false": "Nemá předka"
       },
       "treeType": {
         "label": "$t(entity.TreeNode.treeType.name)",
@@ -4156,6 +4212,39 @@
         "label": "Systémový generátor",
         "help": "Systémový generátor nemůže být smazán a nelze upravovat některé jeho atributy."
       }
+    },
+    "CodeList": {
+      "_type": "Číselník",
+      "code": {
+        "label": "$t(entity.code.label)"
+      },
+      "name": {
+        "label": "$t(entity.name)"
+      },
+      "description": {
+        "label": "$t(entity.description.label)"
+      }
+    },
+    "CodeListItem": {
+      "_type": "Hodnota číselníku",
+      "codeList": {
+        "label": "$t(entity.CodeList._type)",
+        "help": "Hodnota patří do číselníku."
+      },
+      "code": {
+        "label": "$t(entity.code.label)",
+        "help": "Systémová hodnota. Unikátní v rámci číselníku."
+      },
+      "name": {
+        "label": "Hodnota",
+        "help": "Hodnota bude zobrazen uživateli ve výběrech jako název položky."
+      },
+      "description": {
+        "label": "$t(entity.description.label)"
+      },
+      "level": {
+        "label": "Level"
+      }
     }
   },
   "wf": {
@@ -4468,6 +4557,16 @@
       "core-entity-event-delete-bulk-action": {
         "label": "Odebrat",
         "help": "Odstraní vybrané události.",
+        "icon": "fa:trash"
+      },
+      "core-code-list-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané číselníky.",
+        "icon": "fa:trash"
+      },
+      "core-code-list-item-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané položky číselníku.",
         "icon": "fa:trash"
       }
     },

@@ -191,20 +191,23 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@TransactionalEventListener
 	public synchronized<V> void executeInternal(LongRunningFutureTask<V> futureTask) {
 		Assert.notNull(futureTask);
-		Assert.notNull(futureTask.getExecutor());
+		LongRunningTaskExecutor<V> taskExecutor = futureTask.getExecutor();
+		Assert.notNull(taskExecutor);
 		Assert.notNull(futureTask.getFutureTask());
 		//
-		markTaskAsRunning(getValidTask(futureTask.getExecutor()));
+		markTaskAsRunning(getValidTask(taskExecutor));
+		UUID longRunningTaskId = taskExecutor.getLongRunningTaskId();
 		//
 		try {
-			LOG.debug("Execute task [{}] asynchronously", futureTask.getExecutor().getLongRunningTaskId());
+			LOG.debug("Execute task [{}] asynchronously", longRunningTaskId);
 			//
 			executor.execute(futureTask.getFutureTask());
 		} catch (RejectedExecutionException ex) {
 			// thread pool queue is full - wait for another try
-			LOG.info("Execute task [{}] asynchronously will be postponed.", futureTask.getExecutor().getLongRunningTaskId());
+			UUID taskId = futureTask.getExecutor().getLongRunningTaskId();
+			LOG.info("Execute task [{}] asynchronously will be postponed.", taskId);
 			//
-			IdmLongRunningTaskDto task = service.get(futureTask.getExecutor().getLongRunningTaskId());
+			IdmLongRunningTaskDto task = service.get(taskId);
 			markTaskAsCreated(task);
 		}
 	}

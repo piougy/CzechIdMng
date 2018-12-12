@@ -51,7 +51,7 @@ export default class FormAttributeManager extends EntityManager {
       const _componentFaceType = component.faceType || component.persistentType;
       // persistent and face type has to fit
       return attribute.persistentType.toLowerCase() === component.persistentType.toLowerCase()
-          && _attributeFaceType.toLowerCase() === _componentFaceType.toLowerCase();
+          && (_attributeFaceType.toLowerCase() === _componentFaceType.toLowerCase() || component.faceType === undefined);
     });
   }
 

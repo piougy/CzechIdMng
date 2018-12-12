@@ -191,13 +191,15 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@TransactionalEventListener
 	public synchronized<V> void executeInternal(LongRunningFutureTask<V> futureTask) {
 		Assert.notNull(futureTask);
-		Assert.notNull(futureTask.getExecutor());
+		LongRunningTaskExecutor<V> taskExecutor = futureTask.getExecutor();
+		Assert.notNull(taskExecutor);
 		Assert.notNull(futureTask.getFutureTask());
 		//
-		markTaskAsRunning(getValidTask(futureTask.getExecutor()));
+		markTaskAsRunning(getValidTask(taskExecutor));
+		UUID longRunningTaskId = taskExecutor.getLongRunningTaskId();
 		//
 		try {
-			LOG.debug("Execute task [{}] asynchronously", futureTask.getExecutor().getLongRunningTaskId());
+			LOG.debug("Execute task [{}] asynchronously", longRunningTaskId);
 			//
 			executor.execute(futureTask.getFutureTask());
 		} catch (RejectedExecutionException ex) {

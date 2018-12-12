@@ -63,7 +63,7 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, definitionId } = this.props;
+    const { uiKey, definitionId, className } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -76,6 +76,7 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
           manager={ attributeManager }
           forceSearchParameters={ new SearchParameters().setFilter('definitionId', definitionId) }
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+          className={ className }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -147,6 +148,11 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
                       level="warning"
                       value={ faceType }
                       title={ this.i18n('component.advanced.EavForm.persistentType.unsupported.title', { name: data[rowIndex].persistentType, face: faceType }) } />
+                  );
+                }
+                if (formComponent.persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST)) {
+                  return (
+                    <span>{ faceType }</span>
                   );
                 }
                 return (

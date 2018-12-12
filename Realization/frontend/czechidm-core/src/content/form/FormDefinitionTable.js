@@ -64,78 +64,76 @@ export class FormDefinitionTable extends Advanced.AbstractTableContent {
     const { uiKey, definitionManager } = this.props;
     const { filterOpened } = this.state;
     return (
-      <Basic.Row>
-        <div className="col-lg-12">
-          <Basic.Confirm ref="confirm-delete" level="danger"/>
-          <Advanced.Table
-            ref="table"
-            uiKey={uiKey}
-            manager={definitionManager}
-            showRowSelection={SecurityManager.hasAuthority('FORMDEFINITION_DELETE')}
-            rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-            actions={
-              [
-                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-              ]
-            }
-            filter={
-              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row className="last">
-                    <Basic.Col lg={ 6 }>
-                      <Advanced.Filter.TextField
-                        ref="text"
-                        placeholder={this.i18n('filter.text')}/>
-                    </Basic.Col>
-                    <Basic.Col lg={ 6 } className="text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </Basic.Col>
-                  </Basic.Row>
-                </Basic.AbstractForm>
-              </Advanced.Filter>
-            }
-            buttons={
-              [
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { })}
-                  rendered={SecurityManager.hasAuthority('FORMDEFINITION_CREATE')}
-                  icon="fa:plus">
-                  { this.i18n('button.add') }
-                </Basic.Button>
-              ]
-            }
-            filterOpened={ filterOpened }
-            _searchParameters={ this.getSearchParameters() }>
-            <Advanced.Column
-              header=""
-              className="detail-button"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                  );
-                }
+      <div>
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Advanced.Table
+          ref="table"
+          uiKey={uiKey}
+          manager={definitionManager}
+          showRowSelection={SecurityManager.hasAuthority('FORMDEFINITION_DELETE')}
+          rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+          actions={
+            [
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+            ]
+          }
+          filter={
+            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+              <Basic.AbstractForm ref="filterForm">
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 6 }>
+                    <Advanced.Filter.TextField
+                      ref="text"
+                      placeholder={this.i18n('filter.text')}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 } className="text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                  </Basic.Col>
+                </Basic.Row>
+              </Basic.AbstractForm>
+            </Advanced.Filter>
+          }
+          buttons={
+            [
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={this.showDetail.bind(this, { })}
+                rendered={SecurityManager.hasAuthority('FORMDEFINITION_CREATE')}
+                icon="fa:plus">
+                { this.i18n('button.add') }
+              </Basic.Button>
+            ]
+          }
+          filterOpened={ filterOpened }
+          _searchParameters={ this.getSearchParameters() }>
+          <Advanced.Column
+            header=""
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                );
               }
-              sort={false}/>
-            <Advanced.Column property="type" sort
-              face="text" width="75px"
-              cell={
-                ({ rowIndex, data, property }) => {
-                  return Utils.Ui.getSimpleJavaType(data[rowIndex][property]);
-                }}/>
-            <Advanced.Column property="main" header={this.i18n('entity.FormDefinition.main.label')} face="bool" sort />
-            <Advanced.Column property="code" sort/>
-            <Advanced.Column property="name" sort/>
-            <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormDefinition.unmodifiable.label')} face="bool" sort />
-          </Advanced.Table>
-        </div>
-      </Basic.Row>
-      );
+            }
+            sort={false}/>
+          <Advanced.Column property="type" sort
+            face="text" width="75px"
+            cell={
+              ({ rowIndex, data, property }) => {
+                return Utils.Ui.getSimpleJavaType(data[rowIndex][property]);
+              }}/>
+          <Advanced.Column property="main" header={this.i18n('entity.FormDefinition.main.label')} face="bool" sort />
+          <Advanced.Column property="code" sort/>
+          <Advanced.Column property="name" sort/>
+          <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormDefinition.unmodifiable.label')} face="bool" sort />
+        </Advanced.Table>
+      </div>
+    );
   }
 }
 

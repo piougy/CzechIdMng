@@ -333,7 +333,7 @@ public class IdmProfileController extends AbstractEventableDtoController<IdmProf
 			value = "Prevalidate bulk action for profiles", 
 			nickname = "prevalidateBulkAction", 
 			response = IdmBulkActionDto.class, 
-			tags = { IdmRoleController.TAG }, 
+			tags = { IdmProfileController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.PROFILE_READ, description = "")}),

@@ -193,6 +193,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.EXECUTE),
 	FORMDEFINITION(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -208,6 +209,22 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	FORMVALUE(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	CODELIST(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT,
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	CODELISTITEM(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -475,6 +492,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String AUTOMATIC_ROLE_REQUEST_DELETE = "AUTOMATICROLEREQUEST" + BasePermission.SEPARATOR + "DELETE";
 	public static final String AUTOMATIC_ROLE_REQUEST_AUTOCOMPLETE = "AUTOMATICROLEREQUEST" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	//
+	public static final String FORM_DEFINITION_COUNT = "FORMDEFINITION" + BasePermission.SEPARATOR + "COUNT";
 	public static final String FORM_DEFINITION_AUTOCOMPLETE = "FORMDEFINITION" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String FORM_DEFINITION_READ = "FORMDEFINITION" + BasePermission.SEPARATOR + "READ";
 	public static final String FORM_DEFINITION_CREATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "CREATE";
@@ -490,6 +508,20 @@ public enum CoreGroupPermission implements GroupPermission {
 	//
 	public static final String FORM_VALUE_READ = "FORMVALUE" + BasePermission.SEPARATOR + "READ";
 	public static final String FORM_VALUE_UPDATE = "FORMVALUE" + BasePermission.SEPARATOR + "UPDATE";
+	//
+	public static final String CODE_LIST_ITEM_COUNT = "CODELISTITEM" + BasePermission.SEPARATOR + "COUNT";
+	public static final String CODE_LIST_ITEM_AUTOCOMPLETE = "CODELISTITEM" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String CODE_LIST_ITEM_READ = "CODELISTITEM" + BasePermission.SEPARATOR + "READ";
+	public static final String CODE_LIST_ITEM_CREATE = "CODELISTITEM" + BasePermission.SEPARATOR + "CREATE";
+	public static final String CODE_LIST_ITEM_UPDATE = "CODELISTITEM" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String CODE_LIST_ITEM_DELETE = "CODELISTITEM" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String CODE_LIST_COUNT = "CODELIST" + BasePermission.SEPARATOR + "COUNT";
+	public static final String CODE_LIST_AUTOCOMPLETE = "CODELIST" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String CODE_LIST_READ = "CODELIST" + BasePermission.SEPARATOR + "READ";
+	public static final String CODE_LIST_CREATE = "CODELIST" + BasePermission.SEPARATOR + "CREATE";
+	public static final String CODE_LIST_UPDATE = "CODELIST" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String CODE_LIST_DELETE = "CODELIST" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String WORKFLOW_DEFINITION_READ = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "READ";
 	public static final String WORKFLOW_DEFINITION_CREATE = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "CREATE";

@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.eav.entity.IdmCodeListItem;
+import eu.bcvsolutions.idm.core.eav.entity.IdmCodeListItemValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmForm;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue;
 import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
@@ -122,7 +124,6 @@ public class FormableConfiguration {
 		return new AbstractFormValueService<IdmContractSlice, IdmContractSliceFormValue>(repository, confidentialStorage) {};
 	}
 	
-	
 	/**
 	 * Eav attributes for common eav form
 	 * - persists filters, configurable properties, etc.
@@ -136,6 +137,20 @@ public class FormableConfiguration {
 			AbstractFormValueRepository<IdmForm, IdmFormValue> repository, 
 			ConfidentialStorage confidentialStorage) {
 		return new AbstractFormValueService<IdmForm, IdmFormValue>(repository, confidentialStorage) {};
+	}
+	
+	/**
+	 * Eav attributes for codelists
+	 * 
+	 * @param repository
+	 * @param confidentialStorage
+	 * @return
+	 */
+	@Bean
+	public AbstractFormValueService<IdmCodeListItem, IdmCodeListItemValue> codeListItemValueService(
+			AbstractFormValueRepository<IdmCodeListItem, IdmCodeListItemValue> repository, 
+			ConfidentialStorage confidentialStorage) {
+		return new AbstractFormValueService<IdmCodeListItem, IdmCodeListItemValue>(repository, confidentialStorage) {};
 	}
 	
 	/**

@@ -293,6 +293,14 @@ module.exports = {
       'labelKey': 'core:component.advanced.EavForm.faceType.ATTACHMENT'
     },
     {
+      'id': 'code-list-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'CODELIST',
+      'faceType': undefined,
+      'component': require('./src/components/advanced/Form/CodeListSelectFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.CODELIST'
+    },
+    {
       'id': 'identity-select-box',
       'type': 'entity-select-box',
       'priority': 0,

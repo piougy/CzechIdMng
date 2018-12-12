@@ -811,7 +811,8 @@ module.exports = {
             'type': 'HAS_ANY_AUTHORITY',
             'authorities': [
               'TREETYPE_READ', 'TREENODE_READ', 'CONFIGURATION_READ', 'MODULE_READ', 'GENERATEVALUE_READ',
-              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ', 'CONFIDENTIALSTORAGEVALUE_READ'
+              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ',
+              'CONFIDENTIALSTORAGEVALUE_READ', 'CODELIST_READ'
             ]
           }
         ],
@@ -1107,6 +1108,46 @@ module.exports = {
                 'path': '/scripts/:entityId/references',
                 'icon': '',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
+              }
+            ]
+          },
+          {
+            'id': 'code-lists',
+            'labelKey': 'content.code-lists.header',
+            'titleKey': 'content.code-lists.title',
+            'icon': 'fa:wpforms',
+            'iconColor': '#000000',
+            'order': 35,
+            'path': '/code-lists',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELIST_READ'] } ],
+            'items': [
+              {
+                'id': 'code-list-detail',
+                'labelKey': 'content.code-lists.detail.title',
+                'order': 10,
+                'path': '/code-lists/:entityId/detail',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELIST_READ'] } ]
+              },
+              {
+                'id': 'code-list-items',
+                'labelKey': 'content.code-lists.items.header',
+                'titleKey': 'content.code-lists.items.title',
+                'order': 100,
+                'path': '/code-lists/:entityId/items',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELISTITEM_READ'] } ]
+              },
+              {
+                'id': 'code-list-attributes',
+                'labelKey': 'content.code-lists.attributes.title',
+                'order': 200,
+                'path': '/code-lists/:entityId/attributes',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
               }
             ]
           },

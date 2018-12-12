@@ -27,7 +27,7 @@ export default class FormAttributes extends Basic.AbstractContent {
       <Basic.Panel className={'no-border last'}>
         <Basic.PanelHeader text={this.i18n('content.formDefinitions.attributes.title')} />
         <Basic.PanelBody style={{ padding: 0 }}>
-          <FormAttributeTable uiKey="form-attributes-table" definitionId={ entityId } />
+          <FormAttributeTable uiKey="form-attributes-table" definitionId={ entityId } className="no-margin" />
         </Basic.PanelBody>
       </Basic.Panel>
     );

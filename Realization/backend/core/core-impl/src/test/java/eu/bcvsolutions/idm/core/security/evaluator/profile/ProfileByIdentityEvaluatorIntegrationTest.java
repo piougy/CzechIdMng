@@ -37,7 +37,6 @@ public class ProfileByIdentityEvaluatorIntegrationTest extends AbstractIntegrati
 		IdmIdentityDto identityOther = getHelper().createIdentity();
 		IdmRoleDto role = getHelper().createRole();
 		getHelper().createIdentityRole(identity, role);
-		getHelper().createIdentityRole(identity, role);
 		//
 		List<IdmProfileDto> profiles = null;
 		IdmProfileDto profile = getHelper().createProfile(identity);

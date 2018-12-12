@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import { IdentityContractManager, RoleTreeNodeManager, RoleManager, DataManager, IdentityRoleManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import FormInstance from '../../domain/FormInstance';
@@ -73,13 +74,17 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       this.context.store.dispatch(roleManager.fetchAttributeFormDefinition(entityFormData.role.id, `${uiKeyRoleAttributeFormDefinition}-${entityFormData.role.id}`, (json, error) => {
         this.handleError(error);
       }));
-      if (selectedIdentityRole.id && selectedIdentityRole.operation !== 'ADD') {
-        this.context.store.dispatch(identityRoleManager.fetchFormInstances(selectedIdentityRole.id, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`, (formInstances, error) => {
-          if (error) {
-            this.addErrorMessage({ hidden: true, level: 'info' }, error);
-            this.setState({ error });
-          }
-        }));
+
+      if (selectedIdentityRole.id && selectedIdentityRole.operation !== 'ADD' ) {
+        // Form definition will be loaded from identityRole only if selectedIdentityRole is identity-role not concept
+        if (selectedIdentityRole.state === undefined) {
+          this.context.store.dispatch(identityRoleManager.fetchFormInstances(selectedIdentityRole.id, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`, (formInstances, error) => {
+            if (error) {
+              this.addErrorMessage({ hidden: true, level: 'info' }, error);
+              this.setState({ error });
+            }
+          }));
+        }
       } else {
         selectedIdentityRole = null;
       }
@@ -222,7 +227,8 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           <Advanced.EavForm
             ref="eavForm"
             formInstance={ _formInstance }
-            readOnly={!isEdit || readOnly}></Advanced.EavForm>
+            readOnly={!isEdit || readOnly}
+            useDefaultValue={Utils.Entity.isNew(entity)}/>
         </Basic.Panel>
       </Basic.AbstractForm>
     );

@@ -1263,6 +1263,9 @@
             "removeSelectedRoles": "Remove selected roles",
             "removeAllRoles": "Remove all roles"
           }
+        },
+        "alert": {
+          "invalidConcept": "Request is invalid. For more informations go to the detail."
         }
       }
     },
@@ -4644,6 +4647,16 @@
             "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
           }
         }
+      },
+      "core-concept-role-request-form-default-value-generator": {
+        "label": "Addition default values for the role parameters in role request",
+        "help": "Generator add default values for role parameters attributes. For the generator, can not be set feature 'Regenerate value'.",
+        "attributes": {
+          "regexmultiplevalues": {
+            "label": "Separator",
+            "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
+          }
+        }
       }
     },
     "long-running-task": {
@@ -5509,6 +5522,14 @@
     "ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE": {
       "title": "Request is invalid!",
       "message": "Concept for role [{{roleCode}}], has invalid attribute [{{attributeCode}}]! Invalidate concepts will be highlighted in the reqeust."
+    },
+    "IDENTITY_ROLE_UNVALID_ATTRIBUTE": {
+      "title": "User role is invalid!",
+      "message": "User role [{{roleCode}}], has invalid attribute [{{attributeCode}}]!"
+    },
+    "FORM_DEFINITION_DELETE_FAILED_ROLE": {
+      "title": "Form definition cannot be deleted!",
+      "message": "Form definition [{{definition}}]  cannot be deleted, because is using in the role [{{role}}]!"
     }
   },
   "validationError": {

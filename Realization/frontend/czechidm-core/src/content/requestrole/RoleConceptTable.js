@@ -433,6 +433,24 @@ export class RoleConceptTable extends Basic.AbstractContent {
     );
   }
 
+  _conceptAlertCell({rowIndex, data}) {
+    const value = data[rowIndex];
+    if (value.valid === false) {
+      return (
+        <Basic.Icon
+          icon={'fa:warning'}
+          title={this.i18n('alert.invalidConcept')}
+          style={{
+            color: '#ed9e2e',
+            fontSize: 'large',
+            marginTop: '1px',
+            verticalAlign: 'middle'
+          }}/>
+      );
+    }
+    return null;
+  }
+
   // To delete
   _conceptActionsCellSimple(value) {
     const {readOnly, showLoadingButtonRemove} = this.props;
@@ -643,6 +661,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
               header={this.i18n('label.action')}
               className="action"
               cell={this._conceptActionsCell.bind(this)}/>
+            <Basic.Column
+              cell={this._conceptAlertCell.bind(this)}/>
           </Basic.Table>
         </Basic.Panel>
         <Basic.Modal

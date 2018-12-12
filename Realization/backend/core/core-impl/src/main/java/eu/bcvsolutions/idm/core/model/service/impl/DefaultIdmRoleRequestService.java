@@ -56,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -106,6 +107,8 @@ public class DefaultIdmRoleRequestService
 	private final EntityEventManager entityEventManager;
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private IdmRoleService roleService;
 	@Autowired
 	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService; 
 	private IdmRoleRequestService roleRequestService;
@@ -489,28 +492,31 @@ public class DefaultIdmRoleRequestService
 
 		List<IdmConceptRoleRequestDto> conceptRoles = request.getConceptRoles();
 		conceptRoles.forEach(concept -> {
-			IdmFormInstanceDto formInstanceDto = conceptRoleRequestService.getRoleAttributeValues(concept, false);
-			if (formInstanceDto != null) {
-				List<InvalidFormAttributeDto> validationResults = formService.validate(formInstanceDto);
-				if (validationResults != null && !validationResults.isEmpty()) {
-					IdmRoleDto role = null;
-					if(concept.getRole() != null) {
-						role = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role, IdmRoleDto.class);
-					} else {
-						IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole, IdmIdentityRoleDto.class);
-						if (identityRole != null) {
-							 role = DtoUtils.getEmbedded(concept, IdmIdentityRole_.role, IdmRoleDto.class);
-						}
+			List<InvalidFormAttributeDto> validationResults = conceptRoleRequestService.validateFormAttributes(concept);
+			if (validationResults != null && !validationResults.isEmpty()) {
+				IdmRoleDto role = null;
+				if(concept.getRole() != null) {
+					role = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role, IdmRoleDto.class, null);
+					if (role == null) {
+						role = roleService.get(concept.getRole());
 					}
-					throw new ResultCodeException(CoreResultCode.ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE,
-							ImmutableMap.of( //
-									"concept", concept.getId(), //
-									"roleCode", role != null ? role.getCode() : "",
-									"request", request.getId(), //
-									"attributeCode", validationResults.get(0).getAttributeCode() //
-									) //
-							); //
+				} else {
+					IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole, IdmIdentityRoleDto.class, null);
+					if (identityRole == null) {
+						identityRole = identityRoleService.get(concept.getIdentityRole());
+					}
+					if (identityRole != null) {
+						 role = DtoUtils.getEmbedded(concept, IdmIdentityRole_.role, IdmRoleDto.class);
+					}
 				}
+				throw new ResultCodeException(CoreResultCode.ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE,
+						ImmutableMap.of( //
+								"concept", concept.getId(), //
+								"roleCode", role != null ? role.getCode() : "",
+								"request", concept.getRoleRequest(), //
+								"attributeCode", validationResults.get(0).getAttributeCode() //
+								) //
+						); //
 			}
 		});
 	}

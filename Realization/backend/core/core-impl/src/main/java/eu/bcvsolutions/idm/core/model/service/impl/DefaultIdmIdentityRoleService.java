@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -84,6 +85,11 @@ public class DefaultIdmIdentityRoleService
 	
 	@Override
 	public IdmFormInstanceDto getRoleAttributeValues(IdmIdentityRoleDto dto) {
+		Assert.notNull(dto);
+		List<IdmFormInstanceDto> eavs = dto.getEavs();
+		if(eavs != null && eavs.size() == 1) {
+			return eavs.get(0);
+		}
 		UUID roleId = dto.getRole();
 		if (roleId != null) {
 			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmIdentityRole_.role, IdmRoleDto.class);
@@ -94,6 +100,15 @@ public class DefaultIdmIdentityRoleService
 						IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
 				return this.getFormService().getFormInstance(dto, formDefinitionDto);
 			}
+		}
+		return null;
+	}
+	
+	@Override
+	public List<InvalidFormAttributeDto> validateFormAttributes(IdmIdentityRoleDto identityRole) {
+		IdmFormInstanceDto formInstanceDto = this.getRoleAttributeValues(identityRole);
+		if (formInstanceDto != null) {
+			return this.getFormService().validate(formInstanceDto);
 		}
 		return null;
 	}

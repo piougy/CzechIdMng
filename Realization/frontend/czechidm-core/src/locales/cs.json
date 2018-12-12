@@ -1307,6 +1307,9 @@
               "removeSelectedRoles": "Odebrat vybrané role",
               "removeAllRoles": "Odebrat všechny role"
             }
+          },
+          "alert": {
+            "invalidConcept": "Požadavek je nevalidní. Pro více informací přejděte na detail."
           }
         }
     },
@@ -4694,6 +4697,16 @@
             "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
           }
         }
+      },
+      "core-concept-role-request-form-default-value-generator": {
+        "label": "Doplnění standardních hodnot pro parametry rolí v žádostech",
+        "help": "Generátor doplní všem atributům pro danou roli standardní hodnoty. Pro generátor nemůže být nastavena funkce 'Přegenerování hodnot'.",
+        "attributes": {
+          "regexmultiplevalues": {
+            "label": "Oddělovač",
+            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
+          }
+        }
       }
     },
     "long-running-task": {
@@ -5559,6 +5572,14 @@
     "ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE": {
       "title": "Žádost není validní!",
       "message": "Koncept pro roli [{{roleCode}}], nemá validní atribut [{{attributeCode}}]! Nevalidní koncepty budou v žádosti označeny."
+    },
+    "IDENTITY_ROLE_UNVALID_ATTRIBUTE": {
+      "title": "Role uživatele není validní!",
+      "message": "Role [{{roleCode}}] uživatele, nemá validní atribut [{{attributeCode}}]!"
+    },
+    "FORM_DEFINITION_DELETE_FAILED_ROLE": {
+      "title": "Definici formuláře není možné smazat!",
+      "message": "Definici formuláře [{{definition}}] není možné smazat, protože je použita na roli [{{role}}]!"
     }
   },
   "validationError": {

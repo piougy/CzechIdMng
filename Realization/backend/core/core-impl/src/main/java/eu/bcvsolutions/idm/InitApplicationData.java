@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -35,6 +36,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.config.flyway.CoreFlywayConfig;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.generator.identity.IdentityFormDefaultValueGenerator;
+import eu.bcvsolutions.idm.core.generator.role.ConceptRoleRequestFormDefaultValueGenerator;
+import eu.bcvsolutions.idm.core.generator.role.IdentityRoleFormDefaultValueGenerator;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -87,6 +90,8 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	@Autowired private IdmGenerateValueService generateValueService;
 	//
 	private static final UUID DEFAULT_FORM_GENERATE_VALUE_ID = UUID.fromString("61ae4b97-421d-4075-8911-8003989f30df"); // static system generate value uuid
+	private static final UUID DEFAULT_CONCEPT_ROLE_REQUEST_FORM_GENERATE_VALUE_ID = UUID.fromString("f1752a83-c496-4f94-8e5d-e1705cbd76ee"); // static system generate value uuid
+	private static final UUID DEFAULT_IDENTITY_ROLE_FORM_GENERATE_VALUE_ID = UUID.fromString("a5239276-c538-4da7-9b83-30e370a0e8a5"); // static system generate value uuid
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -117,6 +122,22 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				IdmGenerateValueDto generateValue = new IdmGenerateValueDto(DEFAULT_FORM_GENERATE_VALUE_ID);
 				generateValue.setDtoType(IdmIdentityDto.class.getCanonicalName());
 				generateValue.setGeneratorType(IdentityFormDefaultValueGenerator.class.getCanonicalName());
+				generateValue.setSeq((short) 100);
+				generateValue.setUnmodifiable(true);
+				generateValueService.save(generateValue);
+			}
+			if (generateValueService.get(DEFAULT_CONCEPT_ROLE_REQUEST_FORM_GENERATE_VALUE_ID) == null) {
+				IdmGenerateValueDto generateValue = new IdmGenerateValueDto(DEFAULT_CONCEPT_ROLE_REQUEST_FORM_GENERATE_VALUE_ID);
+				generateValue.setDtoType(IdmConceptRoleRequestDto.class.getCanonicalName());
+				generateValue.setGeneratorType(ConceptRoleRequestFormDefaultValueGenerator.class.getCanonicalName());
+				generateValue.setSeq((short) 100);
+				generateValue.setUnmodifiable(true);
+				generateValueService.save(generateValue);
+			}
+			if (generateValueService.get(DEFAULT_IDENTITY_ROLE_FORM_GENERATE_VALUE_ID) == null) {
+				IdmGenerateValueDto generateValue = new IdmGenerateValueDto(DEFAULT_IDENTITY_ROLE_FORM_GENERATE_VALUE_ID);
+				generateValue.setDtoType(IdmIdentityRoleDto.class.getCanonicalName());
+				generateValue.setGeneratorType(IdentityRoleFormDefaultValueGenerator.class.getCanonicalName());
 				generateValue.setSeq((short) 100);
 				generateValue.setUnmodifiable(true);
 				generateValueService.save(generateValue);

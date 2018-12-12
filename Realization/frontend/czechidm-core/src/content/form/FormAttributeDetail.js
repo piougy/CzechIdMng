@@ -42,14 +42,14 @@ class FormAttributeDetail extends Basic.AbstractContent {
     if (isNew) {
       this.context.store.dispatch(manager.receiveEntity(entityId,
         {
-          persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.TEXT),
+          persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT),
           seq: 0,
           unmodifiable: false,
           formDefinition: formDefinitionId
         }, null, () => {
           this.refs.code.focus();
           this.setState({
-            persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.TEXT)
+            persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT)
           });
         }));
     } else {

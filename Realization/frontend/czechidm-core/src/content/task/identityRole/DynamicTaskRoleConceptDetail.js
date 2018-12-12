@@ -60,6 +60,67 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
     this.context.store.dispatch(taskManager.completeTask(task, formData, this.props.uiKey, this._afterComplete.bind(this)));
   }
 
+
+  _updateConcept(data, type, formInstance) {
+    this.setState({showLoading: true});
+    const concept = {
+      'id': data.id,
+      'operation': type,
+      'roleRequest': data.roleRequest,
+      'identityContract': data.identityContract.id,
+      'role': data.role,
+      'identityRole': data.identityRole,
+      'validFrom': data.validFrom,
+      'validTill': data.validTill,
+      '_eav': [formInstance]
+    };
+    this.context.store.dispatch(conceptRoleRequestManager.updateEntity(concept, null, (updatedEntity, error) => {
+      if (!error) {
+        this._initComponent(this.props);
+        this.setState({showLoading: false});
+      } else {
+        this.setState({showLoading: false});
+        this.addError(error);
+      }
+    }));
+  }
+
+  /**
+   * Save added or changed entities to arrays and recompile concept data.
+   */
+  _saveConcept(event) {
+    if (event) {
+      event.preventDefault();
+    }
+
+    const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
+    const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
+    if (!form.isFormValid()) {
+      return;
+    }
+    if (eavForm && !eavForm.isValid()) {
+      return;
+    }
+
+    const entity = form.getData();
+    let eavValues = null;
+    if (eavForm) {
+      eavValues = {values: eavForm.getValues()};
+    }
+    this._updateConcept(entity, entity.operation, eavValues);
+  }
+
+  _goBack() {
+    const { task } = this.props;
+    const { canGoBack } = this.state;
+    if (canGoBack) {
+      this.context.router.goBack();
+    } else {
+      // transmition to /task, history doesnt exist, for now transmition to identity task
+      this.context.router.push(`tasks/identity/${task.variables.implementerIdentifier}`);
+    }
+  }
+
   render() {
     const {task, canExecute, taskManager, _entity} = this.props;
     const { showLoading} = this.state;
@@ -89,23 +150,43 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
             {this._getApplicantAndRequester(task)}
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>
-        </Basic.Panel>
-        <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.AbstractForm ref="formData" data={formDataValues} style={{ padding: '15px 15px 0px 15px' }}>
             {this._getFormDataComponents(task)}
           </Basic.AbstractForm>
+          <Basic.PanelFooter>
+            <DecisionButtons
+              task={task}
+              onClick={this._validateAndCompleteTask.bind(this)}
+              showBackButton
+              readOnly={!canExecute} />
+          </Basic.PanelFooter>
+        </Basic.Panel>
+        <Basic.Panel showLoading = {showLoadingInternal}>
           <RoleConceptDetail
             ref="roleConceptDetail"
             identityUsername={task.applicant}
             showLoading={showLoadingInternal}
             style={{ padding: '15px 15px 0px 15px' }}
-            readOnly
+            readOnly={!canExecute}
             entity={entity}
             isEdit={canExecute}
             multiAdd={false}
             />
           <Basic.PanelFooter>
-            <DecisionButtons task={task} onClick={this._validateAndCompleteTask.bind(this)} readOnly={!canExecute} />
+            <Basic.Button
+              type="button"
+              level="link"
+              onClick={this._goBack.bind(this)}
+              showLoading={showLoading}>{this.i18n('button.back')}
+            </Basic.Button>
+            <Basic.Button
+              level="success"
+              onClick={this._saveConcept.bind(this)}
+              showLoading={ showLoading }
+              showLoadingIcon
+              rendered={canExecute}>
+              { this.i18n('button.save') }
+            </Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
       </div>

@@ -122,6 +122,7 @@ public enum CoreResultCode implements ResultCode {
 	FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - this definition is flaged as system definition."),
 	FORM_DEFINITION_INCOMPATIBLE_CHANGE(HttpStatus.CONFLICT, "Form definition [%s][%s] cannot be updated. Attribute's [%s] property [%s] cannot be updated automatically [%s to %s]. Provide change script for updating form definition or define new form definition (~new version)."),
 	FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - some automatic rules use this attribute."),
+	FORM_DEFINITION_DELETE_FAILED_ROLE(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - role [%s] using that defintion."),
 	// audit
 	AUDIT_REVISION_NOT_SAME(HttpStatus.BAD_REQUEST, "Audit revision are not same."),
 	AUDIT_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),
@@ -201,7 +202,9 @@ public enum CoreResultCode implements ResultCode {
 	ROLE_REQUEST_APPLICANTS_NOT_SAME(HttpStatus.BAD_REQUEST, "Some concept/s role in role request [%s] have different applicant than [%s]!"),
 	ROLE_REQUEST_EXECUTED_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Request [%s] in EXECUTED state cannot be deleted!"),
 	ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "Field 'requested by' in request [%s] cannot be 'AUTOMATICALLY' via REST API!"),
-	ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Concept [%s] (pro roli [%s]) in the request [%s] has unvalid attribute [%s]!"),
+	ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Concept [%s] (for role [%s]) in the request [%s] has unvalid attribute [%s]!"),
+	//
+	IDENTITY_ROLE_UNVALID_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Identity-role [%s] (for role [%s]) has unvalid attribute [%s]!"),
 	// 
 	// Recaptcha
 	RECAPTCHA_SECRET_KEY_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "Recaptcha component is wrong configured, property [%s] is missing - configure property value."),

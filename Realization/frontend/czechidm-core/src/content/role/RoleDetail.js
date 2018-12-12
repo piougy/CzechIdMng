@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import RolePriorityEnum from '../../enums/RolePriorityEnum';
@@ -229,8 +230,9 @@ class RoleDetail extends Basic.AbstractContent {
 
                     <Basic.Row>
                       <Basic.Col lg={ 4 }>
-                        <Basic.TextField
+                        <Advanced.CodeListSelect
                           ref="environment"
+                          code="environment"
                           label={ this.i18n('entity.Role.environment.label') }
                           helpBlock={ this.i18n(`entity.Role.environment.${ entity.environment ? 'helpCode' : 'help' }`, { escape: false, code: entity.code }) }
                           max={ 255 }/>

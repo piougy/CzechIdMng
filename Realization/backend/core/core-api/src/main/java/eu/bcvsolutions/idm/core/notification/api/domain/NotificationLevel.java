@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.core.notification.api.domain;
 import org.springframework.http.HttpStatus;
 
 /**
- * Notification level
+ * Common level
+ * 
+ * TODO: rename, move to core package
  * 
  * @author Radek Tomiška
  */

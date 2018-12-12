@@ -497,7 +497,8 @@
           "TREE-NODE-SELECT": "Select tree node (SelectBox)",
           "ROLE-CATALOGUE-SELECT": "Select folder in role catalogue (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
-          "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)"
+          "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
+          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)"
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes."
@@ -610,7 +611,8 @@
       "DATETIME": "Date + time",
       "BYTEARRAY": "Byte array",
       "UUID": "Uuid identifier",
-      "ATTACHMENT": "Attachment"
+      "ATTACHMENT": "Attachment",
+      "CODELIST": "Code list"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -863,6 +865,8 @@
       "FORMDEFINITION": "Forms - definitions",
       "FORMATTRIBUTE": "Forms - attributes",
       "FORMVALUE": "Forms - values",
+      "CODELIST": "Code lists",
+      "CODELISTITEM": "Code lists - items",
       "NOTIFICATIONCONFIGURATION": "Notifications - configuration",
       "NOTIFICATIONTEMPLATE": "Notifications - templates",
       "PASSWORDPOLICY": "Password policy",
@@ -1624,6 +1628,48 @@
         "value": {
           "placeholder": "Attribute value"
         }
+      }
+    },
+    "code-lists": {
+      "header": "Code lists",
+      "title": "Code lists",
+      "edit": {
+        "title": "Code list detail"
+      },
+      "create": {
+        "title": "New code list",
+        "header": "new code list"
+      },
+      "filter": {
+        "text": "Code or name"
+      },
+      "attributes": {
+        "title": "Attributes"
+      },
+      "detail": {
+        "title": "Basic information"
+      },
+      "save": {
+        "success": "Code list [{{record}}] successfully saved"
+      },
+      "items": {
+        "header": "Items",
+        "title": "Code list items",
+        "edit": {
+          "title": "Code list value detail",
+          "header": "{{record}} <small>code list value detail</small>"
+        },
+        "create": {
+          "title": "New code list value",
+          "header": "New code list value"
+        },
+        "save": {
+          "success": "Code list value [{{record}}] successfully saved"
+        }
+      },
+      "attributes": {
+        "header": "Attributes",
+        "title": "Attributes"
       }
     },
     "confidentialStorage": {
@@ -2986,7 +3032,12 @@
     "creator": "Creator",
     "validFrom": "Valid from",
     "validTill": "Valid till",
-
+    "code": {
+      "label": "Code"
+    },
+    "description": {
+      "label": "Description"
+    },
     "Identity": {
       "_type": "User",
       "username": "Login",
@@ -3136,6 +3187,11 @@
         "label": "Face type",
         "placeholder": "Select face type or leave it default ...",
         "help": "Choose attribute renderer. Default renderer is chosen by attribute type."
+      },
+      "codeList": {
+        "label": "Code list",
+        "placeholder": "Select code list ...",
+        "help": ""
       },
       "description": "Description",
       "required": "Required",
@@ -4094,6 +4150,39 @@
         "label": "System generator",
         "help": "System generator cannot be deleted. Some of its configurations are not editable."
       }
+    },
+    "CodeList": {
+      "_type": "Code list",
+      "code": {
+        "label": "$t(entity.code.label)"
+      },
+      "name": {
+        "label": "$t(entity.name)"
+      },
+      "description": {
+        "label": "$t(entity.description.label)"
+      }
+    },
+    "CodeListItem": {
+      "_type": "HCode list value",
+      "codeList": {
+        "label": "$t(entity.CodeList._type)",
+        "help": "Value belongs to code list."
+      },
+      "code": {
+        "label": "$t(entity.code.label)",
+        "help": "System value. Unigue in code list scope."
+      },
+      "name": {
+        "label": "Value",
+        "help": "User friendly code list value (name). Visible in select boxes."
+      },
+      "description": {
+        "label": "$t(entity.description.label)"
+      },
+      "level": {
+        "label": "Level"
+      }
     }
   },
   "wf": {
@@ -4406,6 +4495,16 @@
       "core-entity-event-delete-bulk-action": {
         "label": "Remove",
         "help": "Remove selected events.",
+        "icon": "fa:trash"
+      },
+      "core-code-list-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected code lists.",
+        "icon": "fa:trash"
+      },
+      "core-code-list-item-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected code list items.",
         "icon": "fa:trash"
       }
     },

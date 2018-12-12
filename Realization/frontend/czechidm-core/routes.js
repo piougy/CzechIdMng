@@ -728,6 +728,33 @@ module.exports = {
       ]
     },
     {
+      path: 'code-lists',
+      component: require('./src/content/codelist/CodeLists'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELIST_READ'] } ]
+    },
+    {
+      path: 'code-lists/',
+      component: require('./src/content/codelist/CodeListRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELIST_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId/detail',
+          component: require('./src/content/codelist/CodeListDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELIST_READ'] } ]
+        },
+        {
+          path: ':entityId/items',
+          component: require('./src/content/codelist/CodeListItems'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELISTITEM_READ'] } ]
+        },
+        {
+          path: ':entityId/attributes',
+          component: require('./src/content/codelist/CodeListAttributes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
+        }
+      ]
+    },
+    {
       path: 'password-policies',
       component: require('./src/content/passwordpolicy/PasswordPolicies'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]

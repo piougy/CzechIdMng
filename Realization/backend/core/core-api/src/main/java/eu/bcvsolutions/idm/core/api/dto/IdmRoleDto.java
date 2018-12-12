@@ -110,7 +110,6 @@ public class IdmRoleDto extends FormableDto implements Disableable, Codeable, Ex
 
     public void setDescription(String description) {
         this.description = description;
-
     }
 
     public boolean isApproveRemove() {

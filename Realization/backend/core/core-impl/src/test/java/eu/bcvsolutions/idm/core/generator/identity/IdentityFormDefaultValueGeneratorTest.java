@@ -409,6 +409,7 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 		// check values
 		List<IdmFormValueDto> values = generatedEav.getValues().stream().filter(val -> val.getFormAttribute().equals(att1.getId())).collect(Collectors.toList());
 		assertEquals(1, values.size());
+		@SuppressWarnings("unused")
 		IdmFormValueDto value = values.get(0);
 		// ///////////////////////////////////assertEquals(givenNewValue, value.getValue().toString());
 

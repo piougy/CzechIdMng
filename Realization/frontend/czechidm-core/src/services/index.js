@@ -71,6 +71,8 @@ import AbstractRequestService from './AbstractRequestService';
 import ProfileService from './ProfileService';
 import GenerateValueService from './GenerateValueService';
 import AttachmentService from './AttachmentService';
+import CodeListService from './CodeListService';
+import CodeListItemService from './CodeListItemService';
 
 const ServiceRoot = {
   RestApiService,
@@ -138,7 +140,9 @@ const ServiceRoot = {
   AbstractRequestService,
   ProfileService,
   GenerateValueService,
-  AttachmentService
+  AttachmentService,
+  CodeListService,
+  CodeListItemService
 };
 
 ServiceRoot.version = '0.0.1';

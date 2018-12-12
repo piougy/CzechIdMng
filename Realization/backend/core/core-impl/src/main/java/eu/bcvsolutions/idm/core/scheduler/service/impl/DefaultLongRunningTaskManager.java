@@ -202,9 +202,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			executor.execute(futureTask.getFutureTask());
 		} catch (RejectedExecutionException ex) {
 			// thread pool queue is full - wait for another try
-			LOG.info("Execute task [{}] asynchronously will be postponed.", futureTask.getExecutor().getLongRunningTaskId());
+			UUID taskId = futureTask.getExecutor().getLongRunningTaskId();
+			LOG.info("Execute task [{}] asynchronously will be postponed.", taskId);
 			//
-			IdmLongRunningTaskDto task = service.get(futureTask.getExecutor().getLongRunningTaskId());
+			IdmLongRunningTaskDto task = service.get(taskId);
 			markTaskAsCreated(task);
 		}
 	}

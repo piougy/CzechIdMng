@@ -90,24 +90,24 @@ public abstract class AbstractRoleParametrizationFormDefaultValueGenerator<DTO e
 							value.setValue(existingValue.getValue(attribute.getPersistentType()));
 							values.add(value);
 						});
-					} else {
-						// If given values is empty use default
-						if (attribute.isMultiple()) {
-							// Default value may be multiple, just iterate over value splited by regex
-							String regex = this.getRegex(valueGenerator);
-							String[] defaultValues = attribute.getDefaultValue().split(regex);
-							for (String defaultValue : defaultValues) {
-								IdmFormValueDto value = new IdmFormValueDto(attribute);
-								value.setValue(defaultValue);
-								values.add(value);
-							}
-						} else {
-							// If is value single valued use it as is it
-							IdmFormValueDto value = new IdmFormValueDto(attribute);
-							value.setValue(attribute.getDefaultValue());
-							values.add(value);
-						}
+						continue;
 					}
+				}
+				// If given values is empty use default
+				if (attribute.isMultiple()) {
+					// Default value may be multiple, just iterate over value splited by regex
+					String regex = this.getRegex(valueGenerator);
+					String[] defaultValues = attribute.getDefaultValue().split(regex);
+					for (String defaultValue : defaultValues) {
+						IdmFormValueDto value = new IdmFormValueDto(attribute);
+						value.setValue(defaultValue);
+						values.add(value);
+					}
+				} else {
+					// If is value single valued use it as is it
+					IdmFormValueDto value = new IdmFormValueDto(attribute);
+					value.setValue(attribute.getDefaultValue());
+					values.add(value);
 				}
 				
 			}

@@ -1,9 +1,7 @@
 package eu.bcvsolutions.idm.core.generator.role;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -114,111 +112,6 @@ public abstract class AbstractRoleParametrizationFormDefaultValueGenerator<DTO e
 		}
 
 		return new IdmFormInstanceDto(dto, definition, values);
-	}
-
-	/**
-	 * Replace all values in given form instance. Replace will be done for given
-	 * definition and attribute
-	 *
-	 * @param replaceValues
-	 * @param eavs
-	 * @param definition
-	 * @param attribute
-	 * @return
-	 */
-	protected List<IdmFormInstanceDto> replaceValuesInFormInstance(List<IdmFormValueDto> replaceValues,
-			List<IdmFormInstanceDto> eavs, IdmFormDefinitionDto definition, IdmFormAttributeDto attribute, DTO dto) {
-		if (replaceValues.isEmpty()) {
-			return eavs;
-		}
-		Optional<IdmFormInstanceDto> foundedInstance = eavs.stream()
-				.filter(eav -> eav.getFormDefinition().getId().equals(definition.getId())).findFirst();
-		if (foundedInstance.isPresent()) {
-			IdmFormInstanceDto instanceDto = foundedInstance.get();
-			eavs.remove(instanceDto);
-
-			// remove all attributes that is equal to given attribute
-			List<IdmFormValueDto> values = instanceDto.getValues();
-			values.removeIf(value -> value.getFormAttribute().equals(attribute.getId()));
-			values.addAll(replaceValues);
-			eavs.add(instanceDto);
-		} else {
-			// create new instance
-			eavs.add(new IdmFormInstanceDto(dto, definition, replaceValues));
-		}
-		return eavs;
-	}
-
-	/**
-	 * Create {@link IdmFormValueDto} by given attribute and given value
-	 *
-	 * @param attribute
-	 * @param value
-	 * @return
-	 */
-	protected IdmFormValueDto createValue(IdmFormAttributeDto attribute, Serializable value) {
-		IdmFormValueDto formValueDto = new IdmFormValueDto(attribute);
-		formValueDto.setValue(value);
-		return formValueDto;
-	}
-
-	/**
-	 * Return all values founded in given eavs. In Eavs will be searched by given
-	 * definition and attribute.
-	 *
-	 * @param eavs
-	 * @param definition
-	 * @param attribute
-	 * @return
-	 */
-	protected List<IdmFormValueDto> getValuesFromInstances(List<IdmFormInstanceDto> eavs,
-			IdmFormDefinitionDto definition, IdmFormAttributeDto attribute) {
-		List<IdmFormValueDto> result = new ArrayList<>();
-		if (eavs == null) {
-			return result;
-		}
-
-		Optional<IdmFormInstanceDto> first = eavs.stream()
-				.filter(eav -> eav.getFormDefinition().getCode().equals(definition.getCode())).findFirst();
-
-		if (first.isPresent()) {
-			IdmFormInstanceDto formInstanceDto = first.get();
-
-			List<IdmFormValueDto> values = formInstanceDto.getValues();
-
-			if (values == null || values.isEmpty()) {
-				return result;
-			}
-
-			// find all values for given attribute
-			result.addAll(values.stream().filter(value -> value.getFormAttribute().equals(attribute.getId()))
-					.collect(Collectors.toList()));
-		}
-
-		// if doesn't exist return empty list
-		return result;
-	}
-
-	/**
-	 * Transform values to {@link List} of {@link IdmFormValueDto}
-	 *
-	 * @param valueGenerator
-	 * @param value
-	 * @param attribute
-	 * @return
-	 */
-	protected List<IdmFormValueDto> getTransformedValues(IdmGenerateValueDto valueGenerator, String value,
-			IdmFormAttributeDto attribute) {
-		List<IdmFormValueDto> result = new ArrayList<>();
-		if (attribute.isMultiple()) {
-			String regex = getRegex(valueGenerator);
-			for (String splitedValue : value.split(regex)) {
-				result.add(createValue(attribute, splitedValue));
-			}
-		} else {
-			result.add(createValue(attribute, value));
-		}
-		return result;
 	}
 
 	/**

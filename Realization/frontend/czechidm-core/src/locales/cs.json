@@ -1296,11 +1296,20 @@
               "label": "Výběr uživatele",
               "help": "Výběr uživatele od kterého budou kopírované role."
             },
+            "copyRoleParameters": {
+              "label": "Kopírovat včetně parametrů rolí",
+              "help": "Po zaškrtnutí budou zkopírovany vyplněné hodnoty parametrů rolí."
+            },
+            "selectIdentityContract": {
+              "label": "Úvazek vybraného uživatele",
+              "help": "Výběr úvazku od uživatele. Výběr úvazku filtruje uživatelovi role.",
+              "placeholder": "Vyberte úvazek"
+            },
             "roleSelectionHeader": "Výběr rolí",
             "roleSelect": "Výběr rolí od uživatele {{username}}",
-            "selectedRoles": "Vybrané role",
-            "noRoles": "Neexistují žádné přiřazené role",
-            "noSelectedRoles": "Žádné nově přiřazené role",
+            "selectedIdentityRoles": "Vybrané role",
+            "noIdentityRoles": "Neexistují žádné přiřazené role",
+            "noSelectedIdentityRoles": "Žádné nově přiřazené role",
             "buttons": {
               "addAllRoles": "Přidat všechny role",
               "addSelectedRoles": "Přidat pouze vybrané role",

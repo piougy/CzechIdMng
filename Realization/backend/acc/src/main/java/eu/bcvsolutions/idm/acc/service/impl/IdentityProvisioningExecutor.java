@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -208,7 +210,10 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
 			identityRoleFilter.setIdentityId(dto.getId());
 			identityRoleFilter.setValid(Boolean.TRUE);
-			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService
+					.find(identityRoleFilter,
+							new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmIdentityRole_.created.getName())))
+					.getContent();
 			List<IdmIdentityRoleDto> identityRolesToProcess = Lists.newArrayList();
 
 			if (ASSIGNED_ROLES_FOR_SYSTEM_FIELD.equals(attribute.getIdmPropertyName())) {
@@ -243,7 +248,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 				identityRole.getEavs().clear();
 				identityRole.getEavs().add(formInstanceDto);
 				// Convert identityRole to AssignedRoleDto
-				assignedRoles.add(this.convertToAssignedRoleDto(identityRole));
+				assignedRoles.add(IdentityProvisioningExecutor.convertToAssignedRoleDto(identityRole));
 			});
 
 			return attributeMappingService.transformValueToResource(uid, assignedRoles, attribute, dto);
@@ -251,7 +256,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		return super.getAttributeValue(uid, dto, attribute, system);
 	}
 
-	private AssignedRoleDto convertToAssignedRoleDto(IdmIdentityRoleDto identityRole) {
+	public static AssignedRoleDto convertToAssignedRoleDto(IdmIdentityRoleDto identityRole) {
 		if (identityRole == null) {
 			return null;
 		}

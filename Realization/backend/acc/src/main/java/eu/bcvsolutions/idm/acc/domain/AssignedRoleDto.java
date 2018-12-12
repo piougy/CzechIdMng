@@ -100,7 +100,12 @@ public class AssignedRoleDto extends AbstractDto implements ValidableEntity {
 	public void setAttributes(Map<String, List<Object>> attributes) {
 		this.attributes = attributes;
 	}
-	
-	
+	@Override
+	public String toString() {
+		return "AssignedRoleDto [externalId=" + externalId + ", identityContract=" + identityContract
+				+ ", contractPosition=" + contractPosition + ", role=" + role + ", validFrom=" + validFrom
+				+ ", validTill=" + validTill + ", roleTreeNode=" + roleTreeNode + ", directRole=" + directRole
+				+ ", roleComposition=" + roleComposition + ", attributes=" + attributes + "]";
+	}
 
 }

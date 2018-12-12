@@ -32,7 +32,7 @@ public class TestResource {
 	private String password;
 	@Column(name = "EMAIL", length = DefaultFieldLengths.NAME)
 	private String email;
-	@Column(name = "DESCRIP", length = DefaultFieldLengths.NAME)
+	@Column(name = "DESCRIP", length = DefaultFieldLengths.DESCRIPTION)
 	private String descrip;
 	@Column(name = "STATUS", length = DefaultFieldLengths.NAME)
 	private String status;

@@ -51,7 +51,8 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
   }
 
   validate(showValidationError, cb) {
-    const { readOnly, rendered } = this.props;
+    const { rendered } = this.props;
+    const { readOnly } = this.state;
     //
     if (readOnly || !rendered) {
       return true;
@@ -189,7 +190,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
   }
 
   _renderShowTreeIcon() {
-    const { readOnly } = this.props;
+    const { readOnly } = this.state;
     //
     return (
       <div>
@@ -208,8 +209,8 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { rendered, readOnly, required, value } = this.props;
-    const { showTree, selectedNodeId } = this.state;
+    const { rendered, required, value } = this.props;
+    const { showTree, selectedNodeId, readOnly } = this.state;
     //
     if (!rendered) {
       return null;

@@ -200,6 +200,42 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
+	public void testCharValue() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.CHAR);
+		//
+		char current = 'a';
+		//
+		formValue.setValue(current);
+		//
+		Assert.assertEquals(current, formValue.getValue());
+	}
+	
+	@Test
+	public void testCharValueAsObject() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.CHAR);
+		//
+		Character current = 'a';
+		//
+		formValue.setValue(current);
+		//
+		Assert.assertEquals(current, formValue.getValue());
+	}
+	
+	@Test
+	public void testCharValueAsString() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.CHAR);
+		//
+		Character current = 'a';
+		//
+		formValue.setValue(current.toString());
+		//
+		Assert.assertEquals(current, formValue.getValue());
+	}
+	
+	@Test
 	public void testBooleanValueAsString() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.BOOLEAN);

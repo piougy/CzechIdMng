@@ -77,7 +77,8 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
   }
 
   validate(showValidationError, cb) {
-    const { readOnly, rendered } = this.props;
+    const { rendered } = this.props;
+    const { readOnly } = this.state;
     //
     if (readOnly || !rendered) {
       return true;
@@ -314,7 +315,8 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
   }
 
   _renderShowTreeIcon() {
-    const { showTreeType, readOnly } = this.props;
+    const { showTreeType } = this.props;
+    const { readOnly } = this.state;
     //
     return (
       <div>
@@ -339,12 +341,17 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
       showTreeType,
       forceSearchParameters,
       required,
-      readOnly,
       value,
       hidden,
       multiSelect
     } = this.props;
-    const { treeTypeId, showTree, selected, defaultTreeType } = this.state;
+    const {
+      treeTypeId,
+      showTree,
+      selected,
+      defaultTreeType,
+      readOnly
+    } = this.state;
     //
     // resolve selected tree type from given tree node
     const selectedTreeType = this.state.selectedTreeType || defaultTreeType;

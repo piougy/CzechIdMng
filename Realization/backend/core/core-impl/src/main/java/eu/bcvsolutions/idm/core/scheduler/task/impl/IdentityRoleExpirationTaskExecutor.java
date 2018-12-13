@@ -22,6 +22,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * Expected usage is in cooperation with CronTaskTrigger, running
  * once a day after midnight.
  * 
+ * TODO: statefull + continue on exception
+ * 
  * @author Jan Helbich
  * @author Radek Tomiška
  */
@@ -51,18 +53,19 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskE
 		int pageSize = 100;
 		boolean hasNextPage = false;
 		do {
-			Page<IdmIdentityRoleDto> roles = service.findExpiredRoles(expiration, new PageRequest(0, pageSize)); // 0 => from start - roles from previous search are already removed
-			hasNextPage = roles.hasContent();
+			Page<IdmIdentityRoleDto> assignedRoles = service.findExpiredRoles(expiration, new PageRequest(0, pageSize)); // 0 => from start - roles from previous search are already removed
+			hasNextPage = assignedRoles.hasContent();
 			if (count == null) {
-				count = roles.getTotalElements();
+				count = assignedRoles.getTotalElements();
 			}
 			
-			for (Iterator<IdmIdentityRoleDto> i = roles.iterator(); i.hasNext() && hasNextPage;) {
-				IdmIdentityRoleDto role = i.next();
+			for (Iterator<IdmIdentityRoleDto> i = assignedRoles.iterator(); i.hasNext() && hasNextPage;) {
+				IdmIdentityRoleDto assignedRole = i.next();
 				
-				LOG.debug("Remove role: [{}] from contract id: [{}].", role.getRole(), role.getIdentityContract());
-				
-				service.delete(role);
+				if (assignedRole.getDirectRole() == null) { // sub role will be removed by it's direct role
+					LOG.debug("Remove role: [{}] from contract id: [{}].", assignedRole.getRole(), assignedRole.getIdentityContract());
+					service.delete(assignedRole);
+				}
 				++counter;
 				hasNextPage &= updateState();
 			}

@@ -84,7 +84,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
   }
 
   validate(showValidationError, cb) {
-    const { readOnly, rendered } = this.props;
+    const { rendered } = this.props;
+    const { readOnly } = this.state;
     //
     if (readOnly || !rendered) {
       return true;
@@ -331,7 +332,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
   }
 
   _renderShowTreeIcon() {
-    const { readOnly } = this.props;
+    const { readOnly } = this.state;
     //
     return (
       <div>
@@ -353,7 +354,6 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     const {
       columns,
       multiSelect,
-      readOnly,
       showActionButtons,
       selectRowClass,
       hidden,
@@ -365,7 +365,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     const {
       selectedRows,
       roleCatalogue,
-      showRoleCatalogue
+      showRoleCatalogue,
+      readOnly
     } = this.state;
     //
     if (!rendered) {

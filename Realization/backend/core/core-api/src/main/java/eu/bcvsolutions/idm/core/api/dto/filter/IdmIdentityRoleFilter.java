@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  */
 public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentifiable, CorrelationFilter {
 	
-	public static final String PARAMETER_DIRECT_ROLE = "directRole"; // true / false
+	public static final String PARAMETER_DIRECT_ROLE = "directRole"; //if its direct role (true) or not (false - depends on some filled direct role)
 	public static final String PARAMETER_DIRECT_ROLE_ID = "directRoleId";
 	public static final String PARAMETER_ROLE_COMPOSITION_ID = "roleCompositionId";
 	public static final String PARAMETER_ROLE_ID = "roleId";

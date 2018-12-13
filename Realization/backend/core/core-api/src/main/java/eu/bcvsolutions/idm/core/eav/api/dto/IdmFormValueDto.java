@@ -507,6 +507,18 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 				} else {
 					throw wrongType(value, null);
 				}
+				break;
+			case CHAR: 
+				if (value == null) {
+					setStringValue(null);
+				} else if (value instanceof String) {
+					setStringValue((String) value);
+				} else if(value instanceof Character) {
+					setStringValue(((Character) value).toString());
+				} else {
+					throw wrongType(value, null);
+				}
+				break;
 			default:
 				if (value == null) {
 					setStringValue(null);

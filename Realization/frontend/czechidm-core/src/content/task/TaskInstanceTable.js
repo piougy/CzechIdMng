@@ -68,11 +68,11 @@ export class TaskInstanceTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, taskInstanceManager, columns, searchParameters, showFilter, showToolbar, username } = this.props;
+    const { uiKey, taskInstanceManager, columns, searchParameters, showFilter, showToolbar, username, userContext } = this.props;
     const { filterOpened} = this.state;
     let _searchParameters = null;
     if (searchParameters == null) {
-      _searchParameters = taskInstanceManager.getDefaultSearchParameters().setFilter('candidateOrAssigned', username);
+      _searchParameters = taskInstanceManager.getDefaultSearchParameters().setFilter('candidateOrAssigned', username || userContext.username);
     } else {
       _searchParameters = searchParameters;
     }
@@ -186,7 +186,7 @@ function select(state, component) {
   return {
     _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
     _showLoading: component.taskInstanceManager.isShowLoading(state, `${component.uiKey}-detail`),
-    username: state.security.userContext.username
+    userContext: state.security.userContext
   };
 }
 

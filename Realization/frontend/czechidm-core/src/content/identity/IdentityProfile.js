@@ -9,6 +9,7 @@ const identityManager = new IdentityManager();
 
 /**
  * Identity detail route
+ * - full identity profile ~ detail
  *
  * @author Radek Tomiška
  */

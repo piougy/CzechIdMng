@@ -3406,6 +3406,7 @@
       },
       "description": "Note",
       "main": {
+        "short": "M",
         "label": "Main position",
         "help": "Main / prime work position. It's created automatically when the user is created.",
         "title": "Main position"

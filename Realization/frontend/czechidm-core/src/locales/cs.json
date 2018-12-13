@@ -3457,6 +3457,7 @@
       },
       "description": "Popis",
       "main": {
+        "short": "H",
         "label": "Hlavní pozice",
         "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele.",
         "title": "Hlavní pozice"

@@ -48,11 +48,17 @@ class RunningTasks extends Basic.AbstractContent {
   }
 
   render() {
-    const { _entities, _showLoading } = this.props;
+    const { _entities, _showLoading, creatorId } = this.props;
     //
     return (
       <div>
-        <Helmet title={ this.i18n('title') } />
+        {
+          creatorId
+          ?
+          null
+          :
+          <Helmet title={ this.i18n('title') } />
+        }
         <Basic.Toolbar>
           <div className="pull-right">
             <Advanced.RefreshButton

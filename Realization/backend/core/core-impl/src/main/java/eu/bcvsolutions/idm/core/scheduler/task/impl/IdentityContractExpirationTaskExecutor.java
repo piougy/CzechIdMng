@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -48,13 +49,26 @@ public class IdentityContractExpirationTaskExecutor extends AbstractSchedulableS
 	public Page<IdmIdentityContractDto> getItemsToProcess(Pageable pageable) {
 		return identityContractService.findExpiredContracts(expiration, pageable);
 	}
+	
+	@Override
+	public boolean continueOnException() {
+		return true;
+	}
+	
+	@Override
+	public boolean requireNewTransaction() {
+		return true;
+	}
 
 	@Override
 	public Optional<OperationResult> processItem(IdmIdentityContractDto dto) {
 		LOG.info("Remove roles by expired identity contract [{}]. Contract ended for expiration less than [{}]",  dto.getId(), expiration);
 		try {
+			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+			filter.setIdentityContractId(dto.getId());
+			filter.setDirectRole(Boolean.TRUE);
 			// remove all referenced roles
-			identityRoleService.findAllByContract(dto.getId()).forEach(identityRole -> {
+			identityRoleService.find(filter, null).forEach(identityRole -> {
 				identityRoleService.delete(identityRole);
 			});
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());

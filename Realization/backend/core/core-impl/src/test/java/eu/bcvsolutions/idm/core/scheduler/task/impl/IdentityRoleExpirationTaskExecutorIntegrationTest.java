@@ -4,9 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -14,32 +12,22 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Integration test for IdentityRoleExpirationTaskExecutor
  * 
  * @author Filip Mestanek
+ * @author Radek Tomiška
  */
 public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper testHelper;
 	@Autowired private IdentityRoleExpirationTaskExecutor expirationExecutor;
 	@Autowired private IdmIdentityRoleService identityRoleService;
-	
-	private IdmIdentityDto identity;
-	
-	@Before
-	public void login() {
-		loginAsAdmin();
-	}
-	
-	@After
-	public void logout() {
-		super.logout();
-	}
+	@Autowired private LongRunningTaskManager lrtManager;
 	
 	/**
 	 * This test assigns expired role and checks, whether
@@ -52,24 +40,14 @@ public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractI
 		expirationExecutor.init(new HashMap<>());
 		expirationExecutor.process();
 				
-		prepareData();
-		
-		expirationExecutor.init(new HashMap<>());
-		expirationExecutor.process();
-		
-		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
-		Assert.assertEquals(0, roles.size());
-	}
-	
-	private void prepareData() {
 		// Role
-		IdmRoleDto role = testHelper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 		
 		// Identity
-		identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		
 		// Identity contract
-		IdmIdentityContractDto contract = testHelper.createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
 		
 		// Role on contract
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
@@ -82,5 +60,52 @@ public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractI
 		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(1, roles.size());
 		Assert.assertTrue(LocalDate.now().isAfter(roles.get(0).getValidTill()));
+		
+		expirationExecutor.init(new HashMap<>());
+		expirationExecutor.process();
+		
+		roles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(0, roles.size());
+	}
+	
+	@Test
+	public void testExpiredBusinessRole() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+		//
+		// normal and business role
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleRoot = getHelper().createRole();
+		IdmRoleDto roleSub = getHelper().createRole();
+		getHelper().createRoleComposition(roleRoot, roleSub);
+		//
+		// assign roles
+		IdmIdentityRoleDto assignedRoleOne = getHelper().createIdentityRole(contract, roleRoot);
+		IdmIdentityRoleDto assignedRoleTwo = getHelper().createIdentityRole(contract, roleOne);
+		//
+		// expire contract
+		assignedRoleOne.setValidTill(LocalDate.now().minusDays(2));
+		assignedRoleOne = identityRoleService.save(assignedRoleOne);
+		assignedRoleTwo.setValidTill(LocalDate.now().minusDays(2));
+		assignedRoleTwo = identityRoleService.save(assignedRoleTwo);
+		//
+		// test after create before lrt is executed
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityContractId(contract.getId());
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.find(filter, null).getContent();
+		//
+		Assert.assertEquals(3, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(roleOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(roleRoot.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(roleSub.getId())));
+		Assert.assertTrue(assignedRoles.stream().allMatch(ir -> !ir.isValid()));
+		//
+		IdentityRoleExpirationTaskExecutor lrt = new IdentityRoleExpirationTaskExecutor();
+		lrt.init(null);
+		lrtManager.executeSync(lrt);
+		//
+		assignedRoles = identityRoleService.find(filter, null).getContent();
+		//
+		Assert.assertTrue(assignedRoles.isEmpty());
 	}
 }

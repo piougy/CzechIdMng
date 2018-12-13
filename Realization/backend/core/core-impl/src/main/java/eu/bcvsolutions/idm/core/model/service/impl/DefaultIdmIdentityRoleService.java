@@ -225,7 +225,7 @@ public class DefaultIdmIdentityRoleService
 			predicates.add(builder.equal(root.get(IdmIdentityRole_.roleComposition).get(IdmRoleComposition_.id), roleCompositionId));
 		}
 		//
-		// is automatic role
+		// is direct role
 		Boolean directRole = filter.getDirectRole();
 		if (directRole != null) {
 			if (directRole) {

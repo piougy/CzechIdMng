@@ -1252,11 +1252,20 @@
             "label": "User select",
             "help": "Select the user from whom the roles will be copied."
           },
+          "copyRoleParameters": {
+            "label": "Copy including role parameters",
+            "help": "After check, will be copied parameter values filled in roles."
+          },
+          "selectIdentityContract": {
+            "label": "Contract of the selected user",
+            "help": "Select contract of user. Select contract filtering roles of selected user.",
+            "placeholder": "Select contract"
+          },
           "roleSelectionHeader": "Selection of roles",
           "roleSelect": "Roles select from user {{username}}",
-          "selectedRoles": "Selected roles",
-          "noRoles": "No assigned roles exist",
-          "noSelectedRoles": "No newly assigned roles",
+          "selectedIdentityRoles": "Selected roles",
+          "noIdentityRoles": "No assigned roles exist",
+          "noSelectedIdentityRoles": "No newly assigned roles",
           "buttons": {
             "addAllRoles": "Add all roles",
             "addSelectedRoles": "Add only selected roles",

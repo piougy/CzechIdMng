@@ -1111,7 +1111,7 @@
       "ROLE_CATALOGUE": "Katalog rolí",
       "CONTRACT": "Pracovní pozice",
       "CONTRACT_SLICE": "Časové řezy pozic",
-      "IDENTITY_ROLE": "Přiřazené role"
+      "IDENTITY_ROLE": "Přiřazené role (alfa verze)"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",

@@ -9,7 +9,6 @@ import org.joda.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.google.common.collect.Lists;
 
 /**
  * Create concepts by identity and their roles. The dto is used only for create
@@ -31,13 +30,16 @@ public class IdmRoleRequestByIdentityDto implements Serializable {
 	private UUID identityContract;
 
 	@JsonProperty(access = Access.WRITE_ONLY)
-	private List<UUID> roles;
+	private List<UUID> identityRoles;
 
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private LocalDate validFrom;
 
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private LocalDate validTill;
+
+	@JsonProperty(access = Access.WRITE_ONLY)
+	private boolean copyRoleParameters = false;
 
 	public UUID getRoleRequest() {
 		return roleRequest;
@@ -55,17 +57,6 @@ public class IdmRoleRequestByIdentityDto implements Serializable {
 		this.identityContract = identityContract;
 	}
 
-	public List<UUID> getRoles() {
-		if (roles == null) {
-			return Lists.newArrayList();
-		}
-		return roles;
-	}
-
-	public void setRoles(List<UUID> roles) {
-		this.roles = roles;
-	}
-
 	public LocalDate getValidFrom() {
 		return validFrom;
 	}
@@ -81,4 +72,21 @@ public class IdmRoleRequestByIdentityDto implements Serializable {
 	public void setValidTill(LocalDate validTill) {
 		this.validTill = validTill;
 	}
+
+	public List<UUID> getIdentityRoles() {
+		return identityRoles;
+	}
+
+	public void setIdentityRoles(List<UUID> identityRoles) {
+		this.identityRoles = identityRoles;
+	}
+
+	public boolean isCopyRoleParameters() {
+		return copyRoleParameters;
+	}
+
+	public void setCopyRoleParameters(boolean copyRoleParameters) {
+		this.copyRoleParameters = copyRoleParameters;
+	}
+
 }

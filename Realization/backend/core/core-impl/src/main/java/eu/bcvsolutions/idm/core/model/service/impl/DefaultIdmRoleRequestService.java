@@ -29,6 +29,7 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -690,17 +691,36 @@ public class DefaultIdmRoleRequestService
 		UUID roleRequestId = requestByIdentityDto.getRoleRequest();
 		LocalDate validFrom = requestByIdentityDto.getValidFrom();
 		LocalDate validTill = requestByIdentityDto.getValidTill();
+		boolean copyRoleParameters = requestByIdentityDto.isCopyRoleParameters();
 
-		List<UUID> roles = requestByIdentityDto.getRoles();
+		List<UUID> identityRoles = requestByIdentityDto.getIdentityRoles();
+		
+		for (UUID identityRoleId : identityRoles) {
+			IdmIdentityRoleDto identityRoleDto = identityRoleService.get(identityRoleId);
+			if (identityRoleDto == null) {
+				LOG.error("For given identity role id [{}] was not found entity. ", identityRoleId);
+				continue;
+			}
 
-		for (UUID roleId : roles) {
 			IdmConceptRoleRequestDto conceptRoleRequestDto = new IdmConceptRoleRequestDto();
 			conceptRoleRequestDto.setIdentityContract(identityContractId);
 			conceptRoleRequestDto.setRoleRequest(roleRequestId);
-			conceptRoleRequestDto.setRole(roleId);
+			conceptRoleRequestDto.setRole(identityRoleDto.getRole());
 			conceptRoleRequestDto.setValidFrom(validFrom);
 			conceptRoleRequestDto.setValidTill(validTill);
 			conceptRoleRequestDto.setOperation(ConceptRoleRequestOperation.ADD);
+
+			// Copy role parameters
+			if (copyRoleParameters) {
+				IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRoleDto, IdmIdentityRole_.role, IdmRoleDto.class);
+				// For copy must exist identity role attribute definition
+				if (roleDto.getIdentityRoleAttributeDefinition() != null) {
+					IdmFormDefinitionDto formDefinition = formService.getDefinition(roleDto.getIdentityRoleAttributeDefinition());
+					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinition);
+					conceptRoleRequestDto.setEavs(Lists.newArrayList(formInstance));
+				}
+			}
+
 			conceptRoleRequestDto = conceptRoleRequestService.save(conceptRoleRequestDto);
 		}
 

@@ -4644,7 +4644,7 @@
         }
       },
       "core-identity-form-default-value-generator": {
-        "label": "Addition default values for the forms with next inforamtion",
+        "label": "Addition default values for the forms with next informations",
         "help": "Generator add default values for all attributes.",
         "attributes": {
           "formdefinitionuuid": {
@@ -4660,6 +4660,16 @@
       "core-concept-role-request-form-default-value-generator": {
         "label": "Addition default values for the role parameters in role request",
         "help": "Generator add default values for role parameters attributes. For the generator, can not be set feature 'Regenerate value'.",
+        "attributes": {
+          "regexmultiplevalues": {
+            "label": "Separator",
+            "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
+          }
+        }
+      },
+      "core-identity-role-form-default-value-generator": {
+        "label": "Addition default values for the assigned role extended attributes",
+        "help": "Generator add default values for assigned role extended attributes. For the generator, can not be set feature 'Regenerate value'.",
         "attributes": {
           "regexmultiplevalues": {
             "label": "Separator",

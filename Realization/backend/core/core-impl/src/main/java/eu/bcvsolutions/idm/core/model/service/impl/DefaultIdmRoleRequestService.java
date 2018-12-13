@@ -689,6 +689,7 @@ public class DefaultIdmRoleRequestService
 
 		UUID identityContractId = requestByIdentityDto.getIdentityContract();
 		UUID roleRequestId = requestByIdentityDto.getRoleRequest();
+		IdmRoleRequestDto requestDto = this.get(roleRequestId);
 		LocalDate validFrom = requestByIdentityDto.getValidFrom();
 		LocalDate validTill = requestByIdentityDto.getValidTill();
 		boolean copyRoleParameters = requestByIdentityDto.isCopyRoleParameters();
@@ -709,10 +710,13 @@ public class DefaultIdmRoleRequestService
 			conceptRoleRequestDto.setValidFrom(validFrom);
 			conceptRoleRequestDto.setValidTill(validTill);
 			conceptRoleRequestDto.setOperation(ConceptRoleRequestOperation.ADD);
+			conceptRoleRequestDto.addToLog(MessageFormat.format(
+					"Concept was added from the copy roles operation (includes identity-role attributes [{0}]).",
+					 copyRoleParameters));
 
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRoleDto, IdmIdentityRole_.role, IdmRoleDto.class);
 			// Copy role parameters
 			if (copyRoleParameters) {
-				IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRoleDto, IdmIdentityRole_.role, IdmRoleDto.class);
 				// For copy must exist identity role attribute definition
 				if (roleDto.getIdentityRoleAttributeDefinition() != null) {
 					IdmFormDefinitionDto formDefinition = formService.getDefinition(roleDto.getIdentityRoleAttributeDefinition());
@@ -722,9 +726,12 @@ public class DefaultIdmRoleRequestService
 			}
 
 			conceptRoleRequestDto = conceptRoleRequestService.save(conceptRoleRequestDto);
+			requestDto.addToLog(MessageFormat.format(
+					"Concept with ID [{0}] for role [{1}] was added from the copy roles operation (includes identity-role attributes [{2}]).",
+					conceptRoleRequestDto.getId(), roleDto.getCode(), copyRoleParameters));
 		}
 
-		return this.get(roleRequestId);
+		return this.save(requestDto);
 	}
 
 	private void cancelWF(IdmRoleRequestDto dto) {

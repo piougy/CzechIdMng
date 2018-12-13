@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [9.4.0]
 - [#1372](https://redmine.czechidm.com/issues/1372) - HTTP status 206 for long running task supports download result from them.
 - Deprecated static properties ``PARAMETER_PROPERTY`` and ``PARAMETER_VALUE`` defined in ``IdmTreeNodeFilter`` were removed (deprecated @since 8.2.0). Use static properties ``PARAMETER_CORRELATION_PROPERTY`` and ``PARAMETER_CORRELATION_VALUE`` instead.
-- [#1378](https://redmine.czechidm.com/issues/1378) Dashbord content was redesigned. ``Index.js``, ``layout`` in frontend ``czechidm-app`` module was updated - don't forget to **update this module**, if project specific app module is used.
+- [#1378](https://redmine.czechidm.com/issues/1378) Dashboard content was redesigned and split into two component - dashboard (system info) and identity dashboard (identity info). ``Index.js``, ``layout`` in frontend ``czechidm-app`` module was updated - don't forget to **update this module**, if project specific app module is used. Changes are backward compatible - previously created dashboards will be rendered in new dashboard content. New dashboard components with type ``identity-dashboard`` can be registered.
 
 ## [9.3.0]
 - [#1290](https://redmine.czechidm.com/issues/1290) - ``SchedulableStatefulExecutor`` supports separating processing of items, read more in [documentation](https://wiki.czechidm.com/devel/documentation/application_configuration/dev/scheduled_tasks/task-scheduler#stateful_task_executors). Use new properties ``continueOnException``, ``requireNewTransaction`` in your custom LRT, when the same behavior is needed.

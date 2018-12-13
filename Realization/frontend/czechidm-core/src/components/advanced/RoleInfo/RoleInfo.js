@@ -87,7 +87,9 @@ export class RoleInfo extends AbstractEntityInfo {
       <Basic.Column property="value"/>
     ];
   }
-
+  /**
+   * TODO: add original popover content
+   *
   _renderPopover() {
     return (
       <Tree
@@ -99,7 +101,7 @@ export class RoleInfo extends AbstractEntityInfo {
         onChange={ () => false }
         nodeIcon={ this.getEntityIcon() }/>
     );
-  }
+  }*/
 
   /**
    * Returns popover info content

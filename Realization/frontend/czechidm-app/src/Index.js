@@ -26,6 +26,7 @@ import filter from 'redux-localstorage-filter';
 import { syncHistory, routeReducer } from 'react-router-redux';
 //
 import { Reducers, Managers, Basic, ConfigActions } from 'czechidm-core';
+import Dashboard from 'czechidm-core/src/content/Dashboard';
 import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 //
 // this parts are genetater dynamicaly to dist - after build will be packed by browserify to sources
@@ -382,7 +383,7 @@ store.dispatch(ConfigActions.appInit(config, moduleDescriptors, componentDescrip
             cb(null, App );
           },
           indexRoute: {
-            component: require('./layout/Dashboard'),
+            component: Dashboard,
             onEnter: Managers.SecurityManager.checkAccess,
             access: [{ type: 'IS_AUTHENTICATED' }]
           },

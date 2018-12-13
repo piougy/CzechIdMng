@@ -6,8 +6,7 @@ module.exports = {
     {
       'id': 'vsDashboard',
       'type': 'dashboard',
-      'span': '8',
-      'order': '4',
+      'order': '400',
       'component': require('./src/content/dashboards/VsDashboard')
     },
     {

@@ -24,24 +24,29 @@ module.exports = {
       'component': require('./src/content/task/roleTreeNode/AutomaticRoleTaskDetail')
     },
     {
+      'id': 'identity-role-dashboard',
+      'type': 'identity-dashboard',
+      'dashboard': false,
+      'order': '100',
+      'component': require('./src/content/dashboards/IdentityRoleDashboard')
+    },
+    {
+      'id': 'identity-contract-dashboard',
+      'type': 'identity-dashboard',
+      'dashboard': false,
+      'order': '200',
+      'component': require('./src/content/dashboards/IdentityContractDashboard')
+    },
+    {
       'id': 'assigned-task-dashboard',
-      'type': 'dashboard',
-      'span': '8',
-      'order': '3',
+      'type': 'identity-dashboard',
+      'order': '300',
       'component': require('./src/content/dashboards/AssignedTaskDashboard')
     },
     {
-      'id': 'profile-dashboard',
-      'type': 'dashboard',
-      'span': '4',
-      'order': '1',
-      'component': require('./src/content/dashboards/ProfileDashboard')
-    },
-    {
       'id': 'long-running-task-dashboard',
-      'type': 'dashboard',
-      'span': '12',
-      'order': '50',
+      'type': 'identity-dashboard',
+      'order': '500',
       'component': require('./src/content/dashboards/LongRunningTaskDashboard')
     },
     {

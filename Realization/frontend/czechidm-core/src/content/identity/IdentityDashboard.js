@@ -1,41 +1,33 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import _ from 'lodash';
 import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import SearchParameters from '../../domain/SearchParameters';
-import { IdentityManager, IdentityContractManager, WorkflowTaskInstanceManager, DataManager, SecurityManager } from '../../redux';
+import { IdentityManager, DataManager, ConfigurationManager } from '../../redux';
+import ComponentService from '../../services/ComponentService';
 import OrganizationPosition from './OrganizationPosition';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
-import IdentityRoleTableComponent, { IdentityRoleTable } from './IdentityRoleTable';
-import ContractStateEnum from '../../enums/ContractStateEnum';
-import TaskInstanceTable from '../task/TaskInstanceTable';
-import RunningTasks from '../scheduler/RunningTasks';
 
 const identityManager = new IdentityManager();
-const identityContractManager = new IdentityContractManager();
-const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
+const componentService = new ComponentService();
 
 /**
  * Identity dashboard - personalized dashboard with quick buttons and overview
  *
  * TODO:
- * - profile component (- depends on identity) - usage on dashboard (depends on system)
- * - implement all buttons
- * - registration for profile and dashboard
+ * - implement all buttons + registrate buttons
+ * - extract css styles
+ * - dashboard component super class
  *
- * @beta PoC - design only
  * @author Radek Tomiška
  * @since 9.4.0
  */
 class IdentityDashboard extends Basic.AbstractContent {
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
     };
   }
@@ -48,9 +40,6 @@ class IdentityDashboard extends Basic.AbstractContent {
     this.context.store.dispatch(identityManager.fetchEntity(identityIdentifier, null, (entity, error) => {
       this.handleError(error);
     }));
-    this.context.store.dispatch(identityManager.fetchAuthorities(identityIdentifier, `identity-authorities-${identityIdentifier}`, (entity, error) => {
-      this.handleError(error);
-    }));
     this.context.store.dispatch(identityManager.downloadProfileImage(identityIdentifier));
   }
 
@@ -59,20 +48,14 @@ class IdentityDashboard extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    if (this.isDashboard()) {
-      return 'dashboard';
+    if (!this.isDashboard()) {
+      return 'identities';
     }
     return null;
   }
 
   isDashboard() {
-    const identityIdentifier = this.getIdentityIdentifier();
-    const { userContext } = this.props;
-    // FIXME: dashboard parameter
-    if (identityIdentifier === userContext.username || identityIdentifier === userContext.id) {
-      return true;
-    }
-    return false;
+    return this.props.dashboard;
   }
 
   getIdentityIdentifier() {
@@ -89,8 +72,33 @@ class IdentityDashboard extends Basic.AbstractContent {
     return null;
   }
 
+  onIdentityDetail() {
+    this.context.router.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/profile`);
+  }
+
+  /**
+   * Return true when currently logged user can change password
+   *
+   */
+  _canPasswordChange() {
+    const { passwordChangeType, _permissions } = this.props;
+    //
+    return identityManager.canChangePassword(passwordChangeType, _permissions);
+  }
+
   onPasswordChange() {
     this.context.router.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/password`);
+  }
+
+  /**
+   * Can change identity permission
+   *
+   * @return {[type]} [description]
+   */
+  _canChangePermissions() {
+    const { _permissions } = this.props;
+    //
+    return Utils.Permission.hasPermission(_permissions, 'CHANGEPERMISSION');
   }
 
   onChangePermissions() {
@@ -104,11 +112,9 @@ class IdentityDashboard extends Basic.AbstractContent {
     const {
       identity,
       _imageUrl,
-      _permissions,
-      authorities
+      _permissions
     } = this.props;
     const identityIdentifier = this.getIdentityIdentifier();
-    const _authorities = authorities ? authorities.map(authority => authority.authority) : null;
     //
     // FIXME: showloading / 403 / 404
     if (!identity) {
@@ -133,56 +139,73 @@ class IdentityDashboard extends Basic.AbstractContent {
 
         <OrganizationPosition identity={ identityIdentifier } showLink={ false }/>
 
-        <Basic.Button
-          level="primary"
-          icon="ok"
-          className="btn-large"
-          text={ this.i18n('content.password.change.header') }
-          onClick={ this.onPasswordChange.bind(this) }
-          style={{ height: 50, marginRight: 3, minWidth: 150 }}/>
-        <Basic.Button
-          level="warning"
-          icon="fa:key"
-          className="btn-large"
-          text={ this.i18n('content.identity.roles.changePermissions') }
-          onClick={ this.onChangePermissions.bind(this) }
-          style={{ height: 50, marginRight: 3, minWidth: 150 }}/>
-        <Basic.Button
-          level="danger"
-          icon="fa:square-o"
-          className="btn-large"
-          style={{ height: 50, marginRight: 3, minWidth: 150 }}
-          onClick={ () => alert('not implemented') }
-          text="Disable identity"/>
-        <Basic.Button
-          level="success"
-          icon="fa:plus"
-          className="btn-large"
-          onClick={ () => alert('not implemented') }
-          style={{ height: 50, marginRight: 3, minWidth: 150 }}
-          text="Create user"/>
-        <Basic.Button
-          level="info"
-          icon="link"
-          className="btn-large"
-          onClick={ () => alert('not implemented') }
-          style={{ height: 50, marginRight: 3, minWidth: 150 }}
-          text="Přepočet účtů a provisioning"/>
+        <div style={{ paddingBottom: 15 }}>
+          <Basic.Button
+            level="success"
+            icon="fa:angle-double-right"
+            className="btn-large"
+            onClick={ this.onIdentityDetail.bind(this) }
+            style={{ height: 50, marginRight: 3, minWidth: 150 }}
+            text={ this.i18n('component.advanced.IdentityInfo.link.detail.label') }
+            rendered={ identityManager.canRead(identity, _permissions) } />
+          <Basic.Button
+            level="primary"
+            icon="ok"
+            className="btn-large"
+            text={ this.i18n('content.password.change.header') }
+            onClick={ this.onPasswordChange.bind(this) }
+            style={{ height: 50, marginRight: 3, minWidth: 150 }}
+            rendered={ this._canPasswordChange() }/>
+          <Basic.Button
+            level="warning"
+            icon="fa:key"
+            className="btn-large"
+            text={ this.i18n('content.identity.roles.changePermissions') }
+            onClick={ this.onChangePermissions.bind(this) }
+            style={{ height: 50, marginRight: 3, minWidth: 150 }}
+            rendered={ this._canChangePermissions() }/>
 
-        <br /><br />
+          <Basic.Button
+            level="danger"
+            icon="fa:square-o"
+            className="btn-large hidden"
+            style={{ height: 50, marginRight: 3, minWidth: 150 }}
+            onClick={ () => alert('not implemented') }
+            text="Disable identity"/>
+          <Basic.Button
+            level="success"
+            icon="fa:plus"
+            className="btn-large hidden"
+            onClick={ () => alert('not implemented') }
+            style={{ height: 50, marginRight: 3, minWidth: 150 }}
+            text="Create user"/>
+          <Basic.Button
+            level="info"
+            icon="link"
+            className="btn-large hidden"
+            onClick={ () => alert('not implemented') }
+            style={{ height: 50, marginRight: 3, minWidth: 150 }}
+            text="Přepočet účtů a provisioning"/>
+        </div>
 
         <Basic.Row>
-          <Basic.Col lg={ 4 }>
+          <Basic.Col lg={ 3 } rendered={ !this.isDashboard() }>
             <Basic.ContentHeader
               icon="user"
               text={ this.i18n('content.identity.profile.header') }
-              buttons={[
-                <Link to={ `/identity/${encodeURIComponent(identityIdentifier)}/profile` }>
-                  <Basic.Icon value="fa:angle-double-right"/>
-                  {' '}
-                  { this.i18n('button.edit') }
-                </Link>
-              ]}/>
+              buttons={
+                identityManager.canSave(identity, _permissions)
+                ?
+                  [
+                    <Link to={ `/identity/${encodeURIComponent(identityIdentifier)}/profile` }>
+                      <Basic.Icon value="fa:angle-double-right"/>
+                      {' '}
+                      { this.i18n('button.edit') }
+                    </Link>
+                  ]
+                :
+                null
+            }/>
             <Basic.Panel style={{ marginBottom: 0 }}>
               <div className="basic-table">
                 <table className="table table-condensed">
@@ -221,7 +244,7 @@ class IdentityDashboard extends Basic.AbstractContent {
 
               <Basic.ContentHeader
                 text="EAV1"
-                style={{ padding: '0 15px', marginBottom: 0, marginTop: 15 }}
+                style={{ padding: '0 15px', marginBottom: 0, marginTop: 15, display: 'none' }}
                 buttons={[
                   <a href="#" onClick={ (e) => { e.preventDefault(); alert('not-implementerd'); return false; }}>
                     <Basic.Icon value="fa:angle-double-right"/>
@@ -229,91 +252,18 @@ class IdentityDashboard extends Basic.AbstractContent {
                     { this.i18n('button.edit') }
                   </a>
                 ]}/>
-              <div className="basic-table">
+              <div className="basic-table hidden">
                 <table className="table table-condensed">
                   <tbody>
                     <tr>
                       <td style={{ borderTop: 'none', width: 150 }}>property</td>
                       <th style={{ borderTop: 'none' }}>value</th>
                     </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
                   </tbody>
                 </table>
               </div>
 
-              <Basic.ContentHeader
-                text="EAV2"
-                style={{ padding: '0 15px', marginBottom: 0, marginTop: 15 }}
-                buttons={[
-                  <a href="#" onClick={ (e) => { e.preventDefault(); alert('not-implementerd'); return false; }}>
-                    <Basic.Icon value="fa:angle-double-right"/>
-                    {' '}
-                    { this.i18n('button.edit') }
-                  </a>
-                ]}/>
-              <div className="basic-table">
-                <table className="table table-condensed">
-                  <tbody>
-                    <tr>
-                      <td style={{ borderTop: 'none', width: 150 }}>property</td>
-                      <th style={{ borderTop: 'none' }}>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                    <tr>
-                      <td>property</td>
-                      <th>value</th>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <Basic.PanelFooter>
+              <Basic.PanelFooter rendered={ identityManager.canRead(identity, _permissions) }>
                 <Link to={ `/identity/${encodeURIComponent(identityIdentifier)}/profile` }>
                   <Basic.Icon value="fa:angle-double-right"/>
                   {' '}
@@ -322,155 +272,35 @@ class IdentityDashboard extends Basic.AbstractContent {
               </Basic.PanelFooter>
             </Basic.Panel>
           </Basic.Col>
-          <Basic.Col lg={ 8 }>
-            <Basic.ContentHeader
-              icon="fa:universal-access"
-              text={ this.i18n('content.identity.roles.directRoles.header') }
-              buttons={[
-                <Link to={ `/identity/${encodeURIComponent(identityIdentifier)}/roles` }>
-                  <Basic.Icon value="fa:angle-double-right"/>
-                  {' '}
-                  { this.i18n('component.advanced.IdentityInfo.link.detail.label') }
-                </Link>
-              ]}/>
-            <Basic.Panel>
-              <IdentityRoleTableComponent
-                uiKey={ `dashboard-${identityIdentifier}` }
-                forceSearchParameters={ new SearchParameters().setFilter('identityId', identityIdentifier).setFilter('directRole', true) }
-                showAddButton
-                params={ this.props.params }
-                columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole']) }
-                _permissions={ _permissions }/>
-            </Basic.Panel>
-
-            <Basic.ContentHeader
-              icon="fa:building"
-              text={ this.i18n('content.identity.identityContracts.header') }
-              buttons={[
-                <Link to={ `/identity/${encodeURIComponent(identityIdentifier)}/contracts` }>
-                  <Basic.Icon value="fa:angle-double-right"/>
-                  {' '}
-                  { this.i18n('component.advanced.IdentityInfo.link.detail.label') }
-                </Link>
-              ]}/>
-            <Basic.Panel>
-              {/* FIXME: active operations */}
-              {/* FIXME: contract table component */}
-              <Advanced.Table
-                ref="contract-table"
-                uiKey={ 'todo-identity-contracts-key' }
-                manager={ identityContractManager }
-                forceSearchParameters={ new SearchParameters().setFilter('identity', identityIdentifier) }
-                rowClass={({rowIndex, data}) => { return data[rowIndex].state ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); }}>
-                <Advanced.Column
-                  header={'H'}
-                  title={ this.i18n('entity.IdentityContract.main.help') }
-                  property="main"
-                  face="bool"/>
-                <Advanced.Column
-                  property="position"
-                  header={this.i18n('entity.IdentityContract.position')}
-                  width={ 200 }
-                  sort/>
-                <Basic.Column
-                  property="workPosition"
-                  header={this.i18n('entity.IdentityContract.workPosition')}
-                  width={ 350 }
-                  cell={
-                    ({ rowIndex, data }) => {
-                      return (
-                        <span>
-                          {
-                            data[rowIndex]._embedded && data[rowIndex]._embedded.workPosition
-                            ?
-                            <Advanced.EntityInfo
-                              entity={ data[rowIndex]._embedded.workPosition }
-                              entityType="treeNode"
-                              entityIdentifier={ data[rowIndex].workPosition }
-                              face="popover" />
-                            :
-                            null
-                          }
-                        </span>
-                      );
-                    }
-                  }
-                />
-                <Advanced.Column
-                  property="validFrom"
-                  header={this.i18n('entity.IdentityContract.validFrom')}
-                  face="date"
-                  sort
-                />
-                <Advanced.Column
-                  property="validTill"
-                  header={this.i18n('entity.IdentityContract.validTill')}
-                  face="date"
-                  sort/>
-                <Advanced.Column
-                  property="state"
-                  header={this.i18n('entity.IdentityContract.state.label')}
-                  face="enum"
-                  enumClass={ ContractStateEnum }
-                  width={100}
-                  sort/>
-                <Advanced.Column
-                  property="externe"
-                  header={this.i18n('entity.IdentityContract.externe')}
-                  face="bool"
-                  width={100}
-                  sort/>
-              </Advanced.Table>
-            </Basic.Panel>
-
-            <Basic.Alert level="info" className="no-margin">
-              Account table (TODO: registration - accmodule)
-            </Basic.Alert>
+          <Basic.Col lg={ !this.isDashboard() ? 9 : 12 }>
+            {
+              componentService
+                .getComponentDefinitions(ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE)
+                .filter(component => !this.isDashboard() || component.dashboard !== false)
+                .map(component => {
+                  const DashboardComponent = component.component;
+                  return (
+                    <DashboardComponent
+                      key={`${ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE}-${component.id}`}
+                      entityId={ identity.username }
+                      identity={ identity }
+                      permissions={ _permissions }/>
+                  );
+                })
+            }
           </Basic.Col>
         </Basic.Row>
-
-        <Basic.ContentHeader
-          icon="tasks"
-          text={ this.i18n('content.tasks-assigned.assigned') }
-          rendered={ SecurityManager.hasAuthority('WORKFLOWTASK_READ', { authorities: _authorities, isAuthenticated: true }) }/>
-        <Basic.Panel rendered={ SecurityManager.hasAuthority('WORKFLOWTASK_READ', { authorities: _authorities, isAuthenticated: true }) }>
-          {/* TODO: default workflowTaskInstanceManager inside of component */}
-          <TaskInstanceTable uiKey="task_instance_dashboard_table" taskInstanceManager={ workflowTaskInstanceManager } filterOpened={false}/>
-        </Basic.Panel>
-
-        <Basic.ContentHeader
-          icon="fa:calendar-times-o"
-          text={ this.i18n('dashboard.longRunningTaskDashboard.header') }
-          rendered={ SecurityManager.hasAuthority('SCHEDULER_READ', { authorities: _authorities, isAuthenticated: true }) } />
-        <Basic.Panel rendered={ SecurityManager.hasAuthority('SCHEDULER_READ', { authorities: _authorities, isAuthenticated: true }) }>
-          <RunningTasks creatorId={ identity.id } />
-        </Basic.Panel>
-        {
-          !this.isDashboard()
-          ||
-          <div>
-            <Basic.Alert level="info">
-              Super Admin: { SecurityManager.hasAuthority('APP_ADMIN', { authorities: _authorities, isAuthenticated: true }) ? 'yes' : 'no' } (monitoring, event queue)
-              <br />
-              Loaded authorities: { _authorities ? _authorities.join(', ') : '[N/A]' }
-            </Basic.Alert>
-            <Basic.Alert level="info">
-              System admin: { SecurityManager.hasAuthority('SYSTEM_ADMIN', { authorities: _authorities, isAuthenticated: true }) ? 'yes' : 'no' } (provisioning queue)
-            </Basic.Alert>
-            <Basic.Alert level="info">
-              System VS: { SecurityManager.hasAuthority('VSREQUEST_READ', { authorities: _authorities, isAuthenticated: true }) ? 'yes' : 'no' } (vs tasks)
-            </Basic.Alert>
-          </div>
-        }
       </div>
     );
   }
 }
 
 IdentityDashboard.propTypes = {
+  dashboard: PropTypes.bool
 };
 
 IdentityDashboard.defaultProps = {
+  dashboard: false
 };
 
 function select(state, component) {
@@ -481,7 +311,7 @@ function select(state, component) {
   return {
     userContext: state.security.userContext,
     identity: identityManager.getEntity(state, entityId),
-    authorities: DataManager.getData(state, `identity-authorities-${entityId}`),
+    passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
     _imageUrl: profile ? profile.imageUrl : null,
     _permissions: identityManager.getPermissions(state, null, entityId)
   };

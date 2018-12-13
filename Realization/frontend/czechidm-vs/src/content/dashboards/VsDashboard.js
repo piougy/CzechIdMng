@@ -22,19 +22,23 @@ export default class VsDashboard extends Basic.AbstractContent {
     }
     const searchActive = new Domain.SearchParameters().setFilter('state', 'IN_PROGRESS');
     return (
-      <Basic.Panel>
-        <Basic.PanelHeader text={this.i18n('header')}/>
-        <VsRequestTable
-          uiKey="vs-request-table-dashboard"
-          columns= {['uid', 'systemId', 'operationType', 'created', 'creator', 'operations']}
-          showFilter={false}
-          forceSearchParameters={searchActive}
-          showToolbar={false}
-          showPageSize={false}
-          showRowSelection={false}
-          showId={false}
-          filterOpened={false}/>
-      </Basic.Panel>
+      <div>
+        <Basic.ContentHeader
+          icon="link"
+          text={ this.i18n('header') }/>
+        <Basic.Panel>
+          <VsRequestTable
+            uiKey="vs-request-table-dashboard"
+            columns= {['uid', 'systemId', 'operationType', 'created', 'creator', 'operations']}
+            showFilter={false}
+            forceSearchParameters={searchActive}
+            showToolbar={false}
+            showPageSize={false}
+            showRowSelection={false}
+            showId={false}
+            filterOpened={false}/>
+        </Basic.Panel>
+      </div>
     );
   }
 }

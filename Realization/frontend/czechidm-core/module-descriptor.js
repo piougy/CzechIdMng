@@ -20,7 +20,7 @@ module.exports = {
         'iconColor': '#428BCA',
         'order': 10,
         'priority': 0,
-        'path': '/identity/:loggedUsername/dashboard',
+        'path': '/',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ],
       },
       {

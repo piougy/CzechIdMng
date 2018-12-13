@@ -263,7 +263,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
             property=""
             header=""
             rendered={_.includes(columns, 'operations')}
-            width="55px"
+            width={ 75 }
             className="detail-button"
             cell={this._getButtonsCell.bind(this)}/>
         </Advanced.Table>

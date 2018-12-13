@@ -101,8 +101,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
    * Pre-fill valid-from by contract validity
    */
   _onChangeSelectOfContract(value) {
-    const{entity, isEdit, multiAdd} = this.props;
-
+    const entity = this.state && this.state.entity ? this.state.entity : this.props.entity;
     let validFrom = value ? value.validFrom : null;
     const now = moment().utc().valueOf();
     if (validFrom && moment(validFrom).isBefore(now)) {
@@ -111,7 +110,11 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     const entityFormData = _.merge({}, entity);
     entityFormData.validFrom = validFrom;
     entityFormData.identityContract = value;
-    this._initComponent({entity: entityFormData, isEdit, multiAdd});
+    if ( this.refs.role) {
+      entityFormData.role = this.refs.role.getValue();
+    }
+
+    this.setState({entity: entityFormData});
 
     return true;
   }
@@ -131,7 +134,6 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     return true;
   }
 
-
   render() {
     const {
       showLoading,
@@ -140,10 +142,10 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       _identityRoleAttributeDefinition,
       _identityRoleFormInstance,
       style,
-      entity,
       isEdit,
       multiAdd} = this.props;
 
+    const entity = this.state && this.state.entity ? this.state.entity : this.props.entity;
     if (!entity) {
       return null;
     }

@@ -125,4 +125,12 @@ public class IdmCodeListItem extends AbstractEntity implements FormableEntity, E
 	public String getIcon() {
 		return icon;
 	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 }

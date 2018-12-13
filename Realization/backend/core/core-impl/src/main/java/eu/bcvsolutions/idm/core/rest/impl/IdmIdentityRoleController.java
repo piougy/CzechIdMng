@@ -267,7 +267,6 @@ public class IdmIdentityRoleController extends AbstractReadWriteDtoController<Id
 		// TODO: resolve codeable parameters automatically ...
 		filter.setIdentityId(getParameterConverter().toEntityUuid(parameters, IdmIdentityRoleFilter.PARAMETER_IDENTITY_ID, IdmIdentityDto.class));
 		filter.setRoleId(getParameterConverter().toEntityUuid(parameters, IdmIdentityRoleFilter.PARAMETER_ROLE_ID, IdmRoleDto.class));
-		filter.setDirectRoleId(getParameterConverter().toEntityUuid(parameters, "parent", IdmRoleDto.class));
 		//
 		return filter;
 	}

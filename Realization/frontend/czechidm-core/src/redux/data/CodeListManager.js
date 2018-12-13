@@ -56,8 +56,13 @@ export default class CodeListManager extends EntityManager {
             dispatch(this.dataManager.receiveData(uiKey, data));
           })
           .catch(error => {
-            // TODO: data uiKey
-            dispatch(this.receiveError(null, uiKey, error));
+            if (error.statusCode === 400) {
+              // FIXME: 204 / 404 - codelist doesn't found
+              // FIXME: 403 - input only
+            } else {
+              // TODO: data uiKey
+              dispatch(this.receiveError(null, uiKey, error));
+            }
           });
       }
     };

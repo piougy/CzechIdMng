@@ -1104,7 +1104,7 @@
       "ROLE_CATALOGUE": "Role catalogue",
       "CONTRACT": "Identity contract",
       "CONTRACT_SLICE": "Contract time slices",
-      "IDENTITY_ROLE": "Assigned roles"
+      "IDENTITY_ROLE": "Assigned roles (alfa version)"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",

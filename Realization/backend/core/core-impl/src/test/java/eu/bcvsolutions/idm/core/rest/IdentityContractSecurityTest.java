@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
@@ -85,11 +86,11 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	@Test
 	public void createWorkPositions() {
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
-
-		IdmIdentityDto user = identityService.getByUsername("kopr");
+		
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		
 		Map<String, String> body = new HashMap<>();
-		body.put("identity", user.getId().toString());
+		body.put("identity", identity.getId().toString());
 		body.put("position", "TEST_POSITION");
 		
         String jsonContent = null;
@@ -138,8 +139,8 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	public void deleteWorkPositions() {
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
 
-		IdmIdentityDto user = identityService.getByUsername("kopr");
-		List<IdmIdentityContract> pages = identityContractRepository.findAllByIdentity_Id(user.getId(), null);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		List<IdmIdentityContract> pages = identityContractRepository.findAllByIdentity_Id(identity.getId(), null);
 		
 		Serializable positionId = null;
 		for	(IdmIdentityContract position : pages) {

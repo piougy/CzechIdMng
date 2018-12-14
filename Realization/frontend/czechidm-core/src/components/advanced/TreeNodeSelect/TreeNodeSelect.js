@@ -227,6 +227,9 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
     let _selected = null;
     if (!multiSelect) {
       _selected = nodeId || selected;
+      if (_selected && _.isArray(_selected) && _selected.length > 0) {
+        _selected = _selected[0];
+      }
     } else {
       _selected = selected || [];
       if (nodeId && !_.includes(_selected, nodeId)) {
@@ -449,7 +452,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               traverse={ false }
               clearable={ (required && !multiSelect) ? false : true }
               multiSelect={ multiSelect }
-              selected={ !selected || multiSelect ? selected : [ selected ] }
+              selected={ !selected || _.isArray(selected) ? selected : [ selected ] }
               header={
                 _forceTreeType
                 ?
@@ -482,7 +485,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               level="success"
               showLoadingIcon
               onClick={ this.onSelect.bind(this, null) }
-              disabled={ !selected ? true : false }>
+              disabled={ !selected || (_.isArray(selected) && selected.length === 0) ? true : false }>
               {this.i18n('button.select')}
             </Basic.Button>
           </Basic.Modal.Footer>

@@ -130,6 +130,9 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
     let _selected = null;
     if (!multiSelect) {
       _selected = nodeId || selected;
+      if (_selected && _.isArray(_selected) && _selected.length > 0) {
+        _selected = _selected[0];
+      }
     } else {
       _selected = selected || [];
       if (nodeId && !_.includes(_selected, nodeId)) {
@@ -269,7 +272,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               onDoubleClick={ (nodeId) => this.onSelect(nodeId) }
               clearable={ false }
               multiSelect={ multiSelect }
-              selected={ selected }
+              selected={ !selected || _.isArray(selected) ? selected : [ selected ] }
               />
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
@@ -283,7 +286,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               level="success"
               showLoadingIcon
               onClick={ this.onSelect.bind(this, null) }
-              disabled={ !selected ? true : false }>
+              disabled={ !selected || (_.isArray(selected) && selected.length === 0) ? true : false }>
               {this.i18n('button.select')}
             </Basic.Button>
           </Basic.Modal.Footer>

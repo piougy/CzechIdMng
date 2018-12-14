@@ -526,7 +526,7 @@ class Tree extends Basic.AbstractContextComponent {
   }
 
   _renderHeader() {
-    const { header, multiSelect, traverse } = this.props;
+    const { header, multiSelect } = this.props;
     const { selected, activeNodeId } = this.state;
     //
     if (header === null) { // => not rendered
@@ -534,8 +534,8 @@ class Tree extends Basic.AbstractContextComponent {
     }
     //
     // TODO: render count, when multiSelect?
-    if ((!multiSelect || traverse) && selected.size > 0) {
-      const selectedNode = this._getNode(activeNodeId);
+    if (!multiSelect && selected.size > 0) {
+      const selectedNode = activeNodeId ? this._getNode(activeNodeId) : this._getNode(selected.first());
       const parents = [];
       let _node = selectedNode;
       while (_node !== null && _node.parent !== null) {

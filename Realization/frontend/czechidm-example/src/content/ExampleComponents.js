@@ -159,7 +159,8 @@ export default class ExampleComponents extends Basic.AbstractContent {
                 header={ this.i18n('label.selected') }
                 onChange={ () => false }
                 noData={ this.i18n('label.select') }
-                roots={ selectedNodes }/>
+                roots={ selectedNodes }
+                showRefreshButton={ false }/>
             </Basic.Col>
           </Basic.Row>
         </Basic.Panel>

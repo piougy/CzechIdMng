@@ -100,6 +100,7 @@ public class DefaultCodeListManager implements CodeListManager {
 	}
 
 	@Override
+	@Transactional
 	public IdmCodeListItemDto createItem(Serializable codeListIdentifier, String code, String name, BasePermission... permission) {
 		Assert.notNull(codeListIdentifier);
 		Assert.notNull(code);

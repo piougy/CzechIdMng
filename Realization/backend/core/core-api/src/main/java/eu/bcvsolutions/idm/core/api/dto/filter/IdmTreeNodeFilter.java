@@ -66,7 +66,12 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
     }
     
     public UUID getParent() {
-    	return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT));
+    	UUID parent = DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT));
+    	if (parent != null) {
+    		return parent;
+    	}
+    	// TODO: remove after 10.x will be released
+    	return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT_TREE_NODE_ID));
 	}
 
 	public void setParent(UUID parent) {

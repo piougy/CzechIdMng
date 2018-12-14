@@ -30,6 +30,10 @@ export default class RoleManager extends AbstractRequestFormableManager {
     return 'roles';
   }
 
+  getIdentifierAlias() {
+    return 'code';
+  }
+
   /**
    * Load available authorities from BE if needed. Available authorities can be changed, when some module is enabled / disabled.
    *

@@ -34,6 +34,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.config.flyway.CoreFlywayConfig;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseCodeList;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmCodeListDto;
+import eu.bcvsolutions.idm.core.eav.api.service.CodeListManager;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.generator.identity.IdentityFormDefaultValueGenerator;
 import eu.bcvsolutions.idm.core.generator.role.ConceptRoleRequestFormDefaultValueGenerator;
@@ -88,6 +91,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	@Autowired private TreeConfiguration treeConfiguration;
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private IdmGenerateValueService generateValueService;
+	@Autowired private CodeListManager codeListManager;
 	//
 	private static final UUID DEFAULT_FORM_GENERATE_VALUE_ID = UUID.fromString("61ae4b97-421d-4075-8911-8003989f30df"); // static system generate value uuid
 	private static final UUID DEFAULT_CONCEPT_ROLE_REQUEST_FORM_GENERATE_VALUE_ID = UUID.fromString("f1752a83-c496-4f94-8e5d-e1705cbd76ee"); // static system generate value uuid
@@ -102,6 +106,14 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 		securityService.setSystemAuthentication();
 		//
 		try {
+			//
+			// prepare system code lists
+			if (codeListManager.get(BaseCodeList.ENVIRONMENT) == null) {
+				IdmCodeListDto environment = codeListManager.create(BaseCodeList.ENVIRONMENT);
+				codeListManager.createItem(environment, "development", "environment.development.title");
+				codeListManager.createItem(environment, "test", "environment.test.title");
+				codeListManager.createItem(environment, "production", "environment.production.title");
+			}
 			//
 			// prepare default form definitions
 			if (formService.getDefinition(IdmIdentity.class) == null) {

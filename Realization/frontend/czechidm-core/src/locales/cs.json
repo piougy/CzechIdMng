@@ -283,6 +283,11 @@
       "short": "T",
       "label": "Test",
       "title": "Testovací prostředí"
+    },
+    "production": {
+      "short": "P",
+      "label": "Produkce",
+      "title": "Produkční prostředí"
     }
   },
   "navigation" : {

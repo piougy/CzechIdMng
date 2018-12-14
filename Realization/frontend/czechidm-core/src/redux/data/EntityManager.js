@@ -1085,7 +1085,7 @@ export default class EntityManager {
                 dispatch(this.receiveEntity(id, entity, uiKey, cb));
               } else {
                 // entity not found
-                dispatch(this.receiveError({ id }, uiKey, { statusCode: 404, statusEnum: 'NOT_FOUND', parameters: { entity: id } }, cb));
+                dispatch(this.receiveError({ id }, uiKey, { module: 'core', statusCode: 404, statusEnum: 'NOT_FOUND', parameters: { entity: id } }, cb));
               }
             } else {
               dispatch(this.receiveError({ id }, uiKey, error, cb));

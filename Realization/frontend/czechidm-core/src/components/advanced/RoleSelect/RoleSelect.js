@@ -297,23 +297,26 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       event.preventDefault();
     }
     //
+    const { onChange, multiSelect } = this.props;
     const selectedRows = [];
-    if (_.isArray(value)) {
-      for (const index in value) {
-        if (value.hasOwnProperty(index)) {
-          if (value[index] && value[index].id) {
-            selectedRows.push(value[index].id);
+    //
+    if (value) {
+      if (_.isArray(value)) {
+        for (const index in value) {
+          if (value.hasOwnProperty(index)) {
+            if (value[index] && value[index].id) {
+              selectedRows.push(value[index].id);
+            }
           }
         }
-      }
-    } else {
-      if (value.id) {
-        selectedRows.push(value.id);
+      } else {
+        if (value.id) {
+          selectedRows.push(value.id);
+        }
       }
     }
     //
     let result = true;
-    const { onChange, multiSelect } = this.props;
     if (onChange) {
       if (multiSelect) {
         result = onChange(selectedRows, value);

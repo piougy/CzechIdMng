@@ -118,7 +118,11 @@ public interface LongRunningTaskManager {
 	 * must exists otherwise is throw error {@link EntityNotFoundException}.
 	 *
 	 * @param longRunningTaskId
+	 * @param attachmentId
+	 * @param permission permissions to evaluate (AND)
 	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 9.4.0
 	 */
-	IdmAttachmentDto getAttachmentForLongRunningTask(UUID longRunningTaskId, UUID attachmentId);
+	IdmAttachmentDto getAttachment(UUID longRunningTaskId, UUID attachmentId, BasePermission... permission);
 }

@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -34,6 +32,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
@@ -48,16 +47,6 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 	private AttachmentManager attachmentManager;
 	@Autowired
 	private LongRunningTaskManager longRunningTaskManager;
-	
-	@Before
-	public void login() {
-		loginAsAdmin();
-	}
-	
-	@After
-	public void logout() {
-		super.logout();
-	}
 
 	@Test
 	public void processBulkAction() throws IOException {
@@ -97,7 +86,7 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 		assertNotNull(attachmentDto);
 		assertEquals(longRunningTask.getId(), attachmentDto.getOwnerId());
 
-		IdmAttachmentDto attachmentForLongRunningTask = longRunningTaskManager.getAttachmentForLongRunningTask(longRunningTask.getId(), attachmentDto.getId());
+		IdmAttachmentDto attachmentForLongRunningTask = longRunningTaskManager.getAttachment(longRunningTask.getId(), attachmentDto.getId());
 		assertNotNull(attachmentForLongRunningTask);
 		assertEquals(attachmentDto.getId(), attachmentForLongRunningTask.getId());
 		
@@ -140,7 +129,7 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 
 		UUID attachmentOneId = UUID.fromString(longRunningTask.getResult().getModel().getParameters().get(AttachableEntity.PARAMETER_ATTACHMENT_ID).toString());
 		try {
-			longRunningTaskManager.getAttachmentForLongRunningTask(longRunningTask2.getId(), attachmentOneId);
+			longRunningTaskManager.getAttachment(longRunningTask2.getId(), attachmentOneId, IdmBasePermission.READ);
 			fail();
 		} catch (ForbiddenEntityException e) {
 			// Correct behavior
@@ -149,7 +138,7 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 		}
 
 		try {
-			longRunningTaskManager.getAttachmentForLongRunningTask(UUID.randomUUID(), attachmentOneId);
+			longRunningTaskManager.getAttachment(UUID.randomUUID(), attachmentOneId, IdmBasePermission.READ);
 			fail();
 		} catch (EntityNotFoundException e) {
 			// Correct behavior
@@ -158,7 +147,7 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 		}
 
 		UUID attachmentTwoId = UUID.fromString(longRunningTask2.getResult().getModel().getParameters().get(AttachableEntity.PARAMETER_ATTACHMENT_ID).toString());
-		IdmAttachmentDto attachmentDto = longRunningTaskManager.getAttachmentForLongRunningTask(longRunningTask2.getId(), attachmentTwoId);
+		IdmAttachmentDto attachmentDto = longRunningTaskManager.getAttachment(longRunningTask2.getId(), attachmentTwoId);
 		assertNotNull(attachmentDto);
 	}
 }

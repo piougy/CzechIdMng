@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -36,6 +37,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -59,8 +61,8 @@ public class IdmLongRunningTaskController
 
 	protected static final String TAG = "Long running tasks";
 	private final LongRunningTaskManager longRunningTaskManager;
-	@Autowired
-	private AttachmentManager attachmentManager;
+	//
+	@Autowired private AttachmentManager attachmentManager;
 
 	@Autowired
 	public IdmLongRunningTaskController(
@@ -161,9 +163,12 @@ public class IdmLongRunningTaskController
 		if (longRunningTaskDto == null) {
 			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
-
-		IdmAttachmentDto attachmentDto = longRunningTaskManager.getAttachmentForLongRunningTask(longRunningTaskDto.getId(), UUID.fromString(attachmentId));
-		InputStream is = attachmentManager.getAttachmentData(attachmentDto.getId());
+		//
+		IdmAttachmentDto attachmentDto = longRunningTaskManager.getAttachment(
+				longRunningTaskDto.getId(), 
+				DtoUtils.toUuid(attachmentId), 
+				IdmBasePermission.READ);
+		InputStream is = attachmentManager.getAttachmentData(attachmentDto.getId(), IdmBasePermission.READ);
 
 		String attachmentName = longRunningTaskDto.getTaskType() + "-" + longRunningTaskDto.getCreated().toString("yyyyMMddHHmmss");
 		return ResponseEntity.ok()

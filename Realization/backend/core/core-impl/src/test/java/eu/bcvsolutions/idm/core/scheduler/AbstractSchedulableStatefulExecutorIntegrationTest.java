@@ -209,7 +209,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			//
 			longRunningTaskManager.execute(executor);
 			Function<String, Boolean> continueFunction = res -> {
-				return !longRunningTaskManager.getLongRunningTask(executor).isRunning();
+				return !longRunningTaskManager.getLongRunningTask(executor).getResultState().isSuccessful();
 			};
 			getHelper().waitForResult(continueFunction);
 			//

@@ -126,7 +126,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 			} else {
 				IdmTreeNodeDto organizationRoot = new IdmTreeNodeDto();
 				organizationRoot.setCode("root");
-				organizationRoot.setName("Organization ROOT");
+				organizationRoot.setName("Organization");
 				organizationRoot.setTreeType(treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE).getId());
 				organizationRoot = this.treeNodeService.save(organizationRoot);
 			}

@@ -165,13 +165,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
         <Basic.ContentHeader text={ header === null ? this.i18n('result.header') : header }/>
 
         <div style={{ marginBottom: 15 }}>
-          {
-            !downloadComponent
-            ||
-            <span>
-              {downloadComponent}
-            </span>
-          }
+          { downloadComponent }
           <Basic.EnumValue
             level={ message ? message.level : null }
             value={value.state}

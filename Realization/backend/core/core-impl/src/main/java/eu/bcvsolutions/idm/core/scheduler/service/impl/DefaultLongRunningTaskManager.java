@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -30,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.ecm.entity.IdmAttachment;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
@@ -38,8 +40,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
@@ -348,25 +350,26 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 
 	@Override
-	public IdmAttachmentDto getAttachmentForLongRunningTask(UUID longRunningTaskId, UUID attachmentId) {
+	public IdmAttachmentDto getAttachment(UUID longRunningTaskId, UUID attachmentId, BasePermission... permission) {
 		Assert.notNull(longRunningTaskId);
 		Assert.notNull(attachmentId);
 
-		IdmLongRunningTaskDto longRunningTaskDto = service.get(longRunningTaskId);
+		IdmLongRunningTaskDto longRunningTaskDto = service.get(longRunningTaskId, permission);
 
 		if (longRunningTaskDto == null) {
 			throw new EntityNotFoundException(service.getEntityClass(), longRunningTaskId);
 		}
 
-		IdmAttachmentDto attachmentDto = attachmentManager.get(attachmentId);
+		IdmAttachmentDto attachmentDto = attachmentManager.get(attachmentId, permission);
 
 		if (attachmentDto == null) {
-			throw new EntityNotFoundException(service.getEntityClass(), attachmentId);
+			throw new EntityNotFoundException(IdmAttachment.class, attachmentId);
 		}
 
-		if (!attachmentDto.getOwnerId().equals(longRunningTaskDto.getId())) {
-			throw new ForbiddenEntityException(attachmentId, IdmBasePermission.READ);
+		if (!ObjectUtils.isEmpty(PermissionUtils.trimNull(permission)) && !attachmentDto.getOwnerId().equals(longRunningTaskDto.getId())) {
+			throw new ForbiddenEntityException(attachmentId, PermissionUtils.trimNull(permission));
 		}
+		//
 		return attachmentDto;
 	}
 

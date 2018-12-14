@@ -51,7 +51,7 @@ class IdentityDashboard extends Basic.AbstractContent {
     if (!this.isDashboard()) {
       return 'identities';
     }
-    return null;
+    return undefined;
   }
 
   isDashboard() {

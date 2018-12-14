@@ -253,6 +253,11 @@
       "short": "T",
       "label": "Test",
       "title": "Test environment"
+    },
+    "production": {
+      "short": "P",
+      "label": "Production",
+      "title": "Production environment"
     }
   },
   "navigation" : {

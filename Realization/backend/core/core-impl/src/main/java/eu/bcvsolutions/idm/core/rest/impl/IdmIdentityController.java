@@ -846,10 +846,10 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			@PathVariable String backendId) {
 		IdmProfileDto profile = profileService.findOneByIdentity(backendId, IdmBasePermission.AUTOCOMPLETE);
 		if (profile == null) {
-			return new ResponseEntity<InputStreamResource>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<InputStreamResource>(HttpStatus.NO_CONTENT);
 		}
 		if (profile.getImage() == null) {
-			return new ResponseEntity<InputStreamResource>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<InputStreamResource>(HttpStatus.NO_CONTENT);
 		}
 		IdmAttachmentDto attachment = attachmentManager.get(profile.getImage());
 		String mimetype = attachment.getMimetype();

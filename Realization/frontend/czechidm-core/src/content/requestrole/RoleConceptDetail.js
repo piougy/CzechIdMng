@@ -64,7 +64,6 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     if (!entity) {
       return;
     }
-
     const entityFormData = _.merge({}, entity, {
       role: entity._embedded && entity._embedded.role ? entity._embedded.role : null
     });
@@ -150,11 +149,6 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       return null;
     }
 
-    const entityFormData = _.merge({}, entity, {
-      role: entity._embedded && entity._embedded.role ? entity._embedded.role : null,
-      identityContract: entity._embedded && entity._embedded.identityContract ? entity._embedded.identityContract : null
-    });
-
     let _formInstance = null;
     let _showEAV = false;
     if (selectedRole && selectedRole.identityRoleAttributeDefinition) {
@@ -178,13 +172,13 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     return (
       <Basic.AbstractForm
         ref="form"
-        data={entityFormData}
+        data={entity}
         style={style}
         showLoading={showLoading}
         readOnly={!isEdit || readOnly}>
         <Advanced.RoleSelect
           required
-          readOnly={ !entity._added || readOnly }
+          readOnly={ !entity._added || readOnly || !Utils.Entity.isNew(entity)}
           multiSelect={ entity._added && multiAdd }
           showActionButtons
           header={ this.i18n('selectRoleCatalogue.header') }
@@ -199,7 +193,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
           helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
           returnProperty={false}
-          readOnly={!entity._added}
+          readOnly={!entity._added || readOnly || !Utils.Entity.isNew(entity)}
           onChange={this._onChangeSelectOfContract.bind(this)}
           niceLabel={ (contract) => { return identityContractManager.getNiceLabel(contract, false); }}
           required

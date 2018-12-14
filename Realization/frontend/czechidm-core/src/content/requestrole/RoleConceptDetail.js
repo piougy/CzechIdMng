@@ -150,6 +150,11 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       return null;
     }
 
+    const entityFormData = _.merge({}, entity, {
+      role: entity._embedded && entity._embedded.role ? entity._embedded.role : null,
+      identityContract: entity._embedded && entity._embedded.identityContract ? entity._embedded.identityContract : null
+    });
+
     let _formInstance = null;
     let _showEAV = false;
     if (selectedRole && selectedRole.identityRoleAttributeDefinition) {
@@ -173,7 +178,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     return (
       <Basic.AbstractForm
         ref="form"
-        data={entity}
+        data={entityFormData}
         style={style}
         showLoading={showLoading}
         readOnly={!isEdit || readOnly}>

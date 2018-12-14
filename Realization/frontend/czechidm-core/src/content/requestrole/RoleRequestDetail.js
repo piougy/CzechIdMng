@@ -7,7 +7,7 @@ import moment from 'moment';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleRequestManager, ConceptRoleRequestManager, IdentityManager, IdentityRoleManager } from '../../redux';
+import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import RoleConceptTable from './RoleConceptTable';
@@ -16,7 +16,6 @@ const uiKey = 'role-request';
 const uiKeyAttributes = 'concept-role-requests';
 const conceptRoleRequestManager = new ConceptRoleRequestManager();
 const roleRequestManager = new RoleRequestManager();
-const identityManager = new IdentityManager();
 const identityRoleManager = new IdentityRoleManager();
 
 /**
@@ -467,8 +466,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       _currentIdentityRoles,
       editableInStates,
       showRequestDetail,
-      _permissions,
-      _identityPermissions } = this.props;
+      _permissions } = this.props;
     //
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
@@ -477,7 +475,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const showLoading = !request || _showLoading || this.state.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
     const showLoadingButtonRemove = this.state.showLoadingButtonRemove;
-
     if (this.state.showLoading || !request) {
       return (<div>
         <Basic.ContentHeader rendered={ showRequestDetail }>
@@ -601,8 +598,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           </Basic.Panel>
         </form>
         {
-          !identityManager.canRead({}, _identityPermissions)
-          ||
           this._renderRoleConceptTable(request, !showRequestDetail,
             isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
             changedIdentityRoles, removedIdentityRoles)
@@ -641,8 +636,7 @@ function select(state, component) {
     _request: entity,
     _showLoading: entity ? false : true,
     _currentIdentityRoles,
-    _permissions: roleRequestManager.getPermissions(state, null, entity),
-    _identityPermissions: identityManager.getPermissions(state, null, identityId)
+    _permissions: roleRequestManager.getPermissions(state, null, entity)
   };
 }
 

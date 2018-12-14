@@ -44,7 +44,6 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
     }
     const formDataValues = this._toFormDataValues(task.formData);
     const taskName = taskManager.localize(task, 'name');
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />

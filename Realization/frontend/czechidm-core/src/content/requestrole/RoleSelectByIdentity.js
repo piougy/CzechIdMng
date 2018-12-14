@@ -337,7 +337,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
               <Basic.Row>
                 <Basic.Button
                   style={ buttonsStyle }
-                  level="warning"
+                  level="danger"
                   titleDelayShow="0"
                   title={ this.i18n('buttons.removeSelectedIdentityRoles') }
                   onClick={ this._removeSelectedIdentityRoles.bind(this) }
@@ -348,7 +348,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
               <Basic.Row>
                 <Basic.Button
                   style={ buttonsStyle }
-                  level="warning"
+                  level="danger"
                   titleDelayShow="0"
                   title={ this.i18n('buttons.removeAllIdentityRoles') }
                   onClick={ this._removeAllIdentityRoles.bind(this) }

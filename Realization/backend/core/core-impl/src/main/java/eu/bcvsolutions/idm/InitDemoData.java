@@ -302,6 +302,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				IdmRoleDto role2 = new IdmRoleDto();
 				role2.setCode("customRole");
+				role2.setCanBeRequested(true);
 				// TODO: subroles are disabled for now
 				//List<IdmRoleComposition> subRoles = new ArrayList<>();
 				//subRoles.add(new IdmRoleComposition(role2, superAdminRole));
@@ -311,16 +312,17 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				IdmRoleDto roleManager = new IdmRoleDto();
 				roleManager.setCode("manager");
+				roleManager.setCanBeRequested(true);
 				roleManager = this.roleService.save(roleManager);
 				LOG.info(MessageFormat.format("Role created [id: {0}]", roleManager.getId()));
 				//
 				//
 				IdmIdentityDto identity = new IdmIdentityDto();
-				identity.setUsername("tomiska");
-				identity.setPassword(new GuardedString("heslo"));
-				identity.setFirstName("Radek");
-				identity.setLastName("Tomiška");
-				identity.setEmail("radek.tomiska@bcvsolutions.eu");
+				identity.setUsername("john");
+				identity.setPassword(new GuardedString("john"));
+				identity.setFirstName("John");
+				identity.setLastName("Doe");
+				identity.setEmail("john.doe@bcvsolutions.eu");
 				identity = this.identityService.save(identity);
 				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity.getId()));
 				//
@@ -342,20 +344,20 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identityRole2 = identityRoleService.save(identityRole2);
 				//
 				IdmIdentityDto identity2 = new IdmIdentityDto();
-				identity2.setUsername("svanda");
-				identity2.setFirstName("Vít");
-				identity2.setPassword(new GuardedString("heslo"));
-				identity2.setLastName("Švanda");
-				identity2.setEmail("vit.svanda@bcvsolutions.eu");
+				identity2.setUsername("jane");
+				identity2.setFirstName("Jane");
+				identity2.setPassword(new GuardedString("jane"));
+				identity2.setLastName("Doe");
+				identity2.setEmail("jane.doe@bcvsolutions.eu");
 				identity2 = this.identityService.save(identity2);
 				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity2.getId()));
 				//
 				IdmIdentityDto identity3 = new IdmIdentityDto();
-				identity3.setUsername("kopr");
-				identity3.setFirstName("Ondrej");
-				identity3.setPassword(new GuardedString("heslo"));
-				identity3.setLastName("Kopr");
-				identity3.setEmail("ondrej.kopr@bcvsolutions.eu");
+				identity3.setUsername("novak");
+				identity3.setFirstName("Jan");
+				identity3.setPassword(new GuardedString("novak"));
+				identity3.setLastName("Novák");
+				identity3.setEmail("jan.novak@bcvsolutions.eu");
 				identity3 = this.identityService.save(identity3);
 				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//

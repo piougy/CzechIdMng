@@ -17,9 +17,12 @@ class AssignedTaskDashboard extends Basic.AbstractContent {
   }
 
   render() {
-    const { identity } = this.props;
+    const { identity, userContext } = this.props;
 
     if (!identity || !SecurityManager.hasAuthority('WORKFLOWTASK_READ') ) {
+      return null;
+    }
+    if (identity.username !== userContext.username && !SecurityManager.hasAuthority('WORKFLOWTASK_ADMIN')) {
       return null;
     }
     //

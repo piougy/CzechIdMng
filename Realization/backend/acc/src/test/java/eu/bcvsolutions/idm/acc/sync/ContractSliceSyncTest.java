@@ -526,6 +526,9 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
 		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		// Before start HR process will be started select current contract task
+		((SysSyncContractConfigDto) config).setStartOfHrProcesses(true);
+		config = syncConfigService.save(config);
 		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
 
 		IdmIdentityDto owner = helper.createIdentity(CONTRACT_OWNER_ONE);

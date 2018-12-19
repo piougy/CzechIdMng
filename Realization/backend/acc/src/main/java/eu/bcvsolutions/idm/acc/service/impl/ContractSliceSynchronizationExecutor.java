@@ -509,6 +509,10 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		// contract.
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+		//
+		// Skip recalculate contract slice during synchronization. Contract slice recalculation will
+		// be done with HR process.
+		event.getProperties().put(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE);
 
 		IdmContractSliceDto slice = sliceService.publish(event).getContent();
 

@@ -9,6 +9,10 @@ export default class TreeAttributeEnum extends Enums.AbstractEnum {
     return super.getNiceLabel(`acc:enums.TreeAttributeEnum.${key}`);
   }
 
+  static getHelpBlockLabel(key) {
+    return super.getNiceLabel(`acc:enums.TreeAttributeEnum.helpBlock.${key}`);
+  }
+
   static findKeyBySymbol(sym) {
     return super.findKeyBySymbol(this, sym);
   }

@@ -9,6 +9,10 @@ export default class RoleCatalogueAttributeEnum extends Enums.AbstractEnum {
     return super.getNiceLabel(`acc:enums.RoleCatalogueAttributeEnum.${key}`);
   }
 
+  static getHelpBlockLabel(key) {
+    return super.getNiceLabel(`acc:enums.RoleCatalogueAttributeEnum.helpBlock.${key}`);
+  }
+
   static findKeyBySymbol(sym) {
     return super.findKeyBySymbol(this, sym);
   }

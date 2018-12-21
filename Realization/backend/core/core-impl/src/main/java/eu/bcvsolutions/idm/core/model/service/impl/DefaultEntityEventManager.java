@@ -76,6 +76,8 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 /**
  * Entity (dto) processing based on event publishing.
  * 
+ * TODO: remove duplicate events operation though whole queue (e.q. stopProcessing -> synchronize all entities -> deduplicate -> startProcessing).
+ * 
  * @author Radek Tomiška
  *
  */
@@ -285,7 +287,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	public <E extends Identifiable> void changedEntity(E owner, EntityEvent<? extends Identifiable> originalEvent) {
 		Assert.notNull(owner);
 		//
-		changedEntity(owner.getClass(), lookupService.getOwnerId(owner), originalEvent);
+		IdmEntityEventDto event = prepareEvent(owner, originalEvent);
+		event.setEventType(CoreEventType.NOTIFY.name());
+		//
+		putToQueue(event);
 	}
 	
 	@Override
@@ -314,6 +319,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			// prevent to debug some messages into log - usable for devs
 			return;
 		}
+		// check running events are full already
+		if (runningOwnerEvents.size() > 100) { // TODO: configurable batch size => 70 / 30 hard coded now
+			LOG.trace("Asynchronous running events queue is full, waiting for complete running events.");
+			return;
+		}
+		//
 		processCreated();
 	}
 	
@@ -331,7 +342,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		List<IdmEntityEventDto> events = getCreatedEvents(instanceId);
 		LOG.trace("Events to process [{}] on instance [{}].", events.size(), instanceId);
 		for (IdmEntityEventDto event : events) {
-			// @Transactional
+			// adds @Transactional
 			context.getBean(this.getClass()).executeEvent(event);;
 		}
 		return events.size();
@@ -429,7 +440,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		if (event.getPriority() == PriorityType.IMMEDIATE) {
 			// synchronous processing
 			// we don't persist events and their states
-			// TODO: what about running event with the same owner? And events in queue for the same owner
+			// TODO: what about running event with the same owner? And events in queue for the same owner => no locking now, last wins 
 			process(new CoreEvent<>(EntityEventType.EXECUTE, event));
 			return;
 		}
@@ -489,27 +500,13 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			//
 			LOG.trace("Running event [{}] for owner with id [{}].", event.getId(), event.getOwnerId());
 		} catch (RejectedExecutionException ex) {
-			// thread pool is full - wait for another try
-			// TODO: Thread.wait(300) ?
+			// thread pool queue is full - wait for another try
 			removeRunningEvent(event);
 		}
 	}
 	
-	private void removeRunningEvent(IdmEntityEventDto event) {
-		runningOwnerEvents.remove(event.getOwnerId());
-		UUID superOwnerId = event.getSuperOwnerId();
-		if (superOwnerId != null) {
-			runningOwnerEvents.remove(superOwnerId);
-		}
-	}
-	
-	/**
-	 * TODO: Will be this method useful?
-	 * 
-	 * @param event
-	 */
-	@SuppressWarnings("unused")
-	private void runOnBackground(EntityEvent<? extends Identifiable> event) {
+	@Override
+	public void processOnBackground(EntityEvent<? extends Identifiable> event) {
 		Assert.notNull(event);
 		//
 		putToQueue(prepareEvent(event.getContent(), event));
@@ -519,6 +516,20 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmEntityEventDto saveEvent(IdmEntityEventDto entityEvent) {
 		return entityEventService.save(entityEvent);
+	}
+	
+	@Override
+	public void deleteEvent(IdmEntityEventDto entityEvent) {
+		entityEventService.delete(entityEvent);
+		if (entityEvent.getResult().getState() == OperationState.RUNNING) {
+			removeRunningEvent(entityEvent);
+		}
+	}
+	
+	@Override
+	public synchronized void deleteAllEvents() {
+		entityEventService.deleteAll();
+		runningOwnerEvents.clear();
 	}
 	
 	@Override
@@ -625,6 +636,24 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Override
 	public boolean isAsynchronous() {
 		return eventConfiguration.isAsynchronous();
+	}
+	
+	private void removeRunningEvent(IdmEntityEventDto event) {
+		runningOwnerEvents.remove(event.getOwnerId());
+		UUID superOwnerId = event.getSuperOwnerId();
+		if (superOwnerId != null) {
+			runningOwnerEvents.remove(superOwnerId);
+		}
+	}
+	
+	/**
+	 * Returns true if some event for given owner currently running.
+	 * 
+	 * @param ownerId
+	 * @return
+	 */
+	protected boolean isRunningOwner(UUID ownerId) {
+		return runningOwnerEvents.containsKey(ownerId);
 	}
 	
 	private void setEnabled(EntityEventProcessor<?> processor, boolean enabled) {
@@ -770,18 +799,24 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	protected List<IdmEntityEventDto> getCreatedEvents(String instanceId) {
 		Assert.notNull(instanceId);
 		//
+		// already running owners are excluded (super owner is excluded too)
+		List<UUID> exceptOwnerIds = Lists.newArrayList(runningOwnerEvents.keySet());
+		exceptOwnerIds = exceptOwnerIds.subList(0, exceptOwnerIds.size() > 100 ? 100 : exceptOwnerIds.size());
+		//
 		// load created events - high priority
 		DateTime executeDate = new DateTime();
 		Page<IdmEntityEventDto> highEvents = entityEventService.findToExecute(
 				instanceId,
 				executeDate,
 				PriorityType.HIGH,
+				exceptOwnerIds,
 				new PageRequest(0, 100, new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
 		// load created events - low priority
 		Page<IdmEntityEventDto> normalEvents = entityEventService.findToExecute(
 				instanceId,
 				executeDate,
 				PriorityType.NORMAL,
+				exceptOwnerIds,
 				new PageRequest(0, 100, new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
 		// merge events
 		List<IdmEntityEventDto> events = new ArrayList<>();

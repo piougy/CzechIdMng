@@ -36,19 +36,20 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
     return formValue.dateValue ? formValue.dateValue : formValue.value;
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { attribute, values } = this.props;
+    const showOriginalValue = originalValues ? true : false;
     //
     return (
       <Basic.DateTimePicker
         ref={ AbstractFormAttributeRenderer.INPUT }
         mode={ attribute.persistentType.toLowerCase() }
         required={ this.isRequired() }
-        label={ this.getLabel() }
+        label={ this.getLabel(null, showOriginalValue) }
         placeholder={ this.getPlaceholder() }
-        value={ this.toInputValue(values) }
+        value={ this.toInputValue(showOriginalValue ? originalValues : values) }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ this.isReadOnly() }/>
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }/>
     );
   }
 

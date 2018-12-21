@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleRequestType;
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.domain.RequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
@@ -378,7 +379,54 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 		IdmRoleTreeNodeDto treeAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
 		Assert.assertNotNull(treeAutomaticRole);
 		Assert.assertEquals(nodeOne.getId(), treeAutomaticRole.getTreeNode());
+		Assert.assertEquals(RecursionType.NO, treeAutomaticRole.getRecursionType());
 		Assert.assertEquals(role.getId(), treeAutomaticRole.getRole());
+	}
+
+	@Test
+	public void testCreateTreeAutomaticRoleWithRecursion() {
+		IdmRoleDto role = prepareRole();
+		IdmTreeNodeDto nodeOne = helper.createTreeNode();
+
+		IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();
+		automaticRole.setRole(role.getId());
+		automaticRole.setName(role.getCode());
+		automaticRole.setRecursionType(RecursionType.DOWN);
+		automaticRole.setTreeNode(nodeOne.getId());
+
+		// Create automatic role via manager
+		automaticRole = automaticRoleManager.createAutomaticRoleByTree(automaticRole, true);
+		Assert.assertNotNull(automaticRole.getId());
+
+		IdmRoleTreeNodeDto treeAutomaticRole = roleTreeNodeService.get(automaticRole.getId());
+		Assert.assertNotNull(treeAutomaticRole);
+		Assert.assertEquals(RecursionType.DOWN, treeAutomaticRole.getRecursionType());
+
+		// Create second
+		IdmRoleTreeNodeDto automaticRoleTwo = new IdmRoleTreeNodeDto();
+		automaticRoleTwo.setRole(role.getId());
+		automaticRoleTwo.setName(role.getCode());
+		automaticRoleTwo.setRecursionType(RecursionType.UP);
+		automaticRoleTwo.setTreeNode(nodeOne.getId());
+
+		// Create automatic role via manager
+		IdmRoleTreeNodeDto treeAutomaticRoleTwo = automaticRoleManager.createAutomaticRoleByTree(automaticRoleTwo,
+				true);
+		Assert.assertNotNull(treeAutomaticRoleTwo.getId());
+		Assert.assertEquals(RecursionType.UP, treeAutomaticRoleTwo.getRecursionType());
+
+		// Create third
+		IdmRoleTreeNodeDto automaticRoleThree = new IdmRoleTreeNodeDto();
+		automaticRoleThree.setRole(role.getId());
+		automaticRoleThree.setName(role.getCode());
+		automaticRoleThree.setRecursionType(RecursionType.NO);
+		automaticRoleThree.setTreeNode(nodeOne.getId());
+
+		// Create automatic role via manager
+		IdmRoleTreeNodeDto treeAutomaticRoleThree = automaticRoleManager.createAutomaticRoleByTree(automaticRoleThree,
+				true);
+		Assert.assertNotNull(treeAutomaticRoleThree.getId());
+		Assert.assertEquals(RecursionType.NO, treeAutomaticRoleThree.getRecursionType());
 	}
 
 	@Test

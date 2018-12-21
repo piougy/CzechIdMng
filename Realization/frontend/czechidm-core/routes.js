@@ -23,6 +23,11 @@ module.exports = {
       priority: 0
     },
     {
+      path: 'identity/:entityId/dashboard',
+      component: require('./src/content/identity/IdentityDashboard'),
+      access: [ { 'type': 'IS_AUTHENTICATED'}]
+    },
+    {
       path: 'identity/:entityId/',
       component: require('./src/content/identity/Identity'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ],
@@ -719,6 +724,33 @@ module.exports = {
           path: ':entityId/values',
           component: require('./src/content/form/FormAttributeValues'),
           access: [{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] }]
+        }
+      ]
+    },
+    {
+      path: 'code-lists',
+      component: require('./src/content/codelist/CodeLists'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELIST_READ'] } ]
+    },
+    {
+      path: 'code-lists/',
+      component: require('./src/content/codelist/CodeListRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELIST_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId/detail',
+          component: require('./src/content/codelist/CodeListDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELIST_READ'] } ]
+        },
+        {
+          path: ':entityId/items',
+          component: require('./src/content/codelist/CodeListItems'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CODELISTITEM_READ'] } ]
+        },
+        {
+          path: ':entityId/attributes',
+          component: require('./src/content/codelist/CodeListAttributes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['FORMATTRIBUTE_READ'] } ]
         }
       ]
     },

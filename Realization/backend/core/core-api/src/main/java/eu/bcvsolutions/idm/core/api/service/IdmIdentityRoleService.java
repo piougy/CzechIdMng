@@ -12,6 +12,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -87,4 +89,20 @@ public interface IdmIdentityRoleService extends
 	 * @return
 	 */
 	Page<IdmIdentityRoleDto> findValidRoles(UUID identityId, Pageable pageable);
+
+	/**
+	 * Get form instance for given identity role
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	IdmFormInstanceDto getRoleAttributeValues(IdmIdentityRoleDto dto);
+
+	/**
+	 * Validate form attributes for given identityRole
+	 * 
+	 * @param identityRole
+	 * @return
+	 */
+	List<InvalidFormAttributeDto> validateFormAttributes(IdmIdentityRoleDto identityRole);
 }

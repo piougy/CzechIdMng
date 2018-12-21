@@ -63,6 +63,38 @@
         }
       }
     },
+    "components": {
+      "header": "Components",
+      "label": "$t(example:content.components.header)",
+      "title": "Example of components usage on frontend.",
+      "tree": {
+        "header": "Tree component",
+        "fileIcon": {
+          "label": "File icon"
+        },
+        "folderIcon": {
+          "label": "Folder icon"
+        },
+        "folderOpenIcon": {
+          "label": "Folder icon - opened"
+        },
+        "managerType": {
+          "label": "Manager for",
+          "help": "Controlls loading roots anch children into tree component.",
+          "option": {
+            "treeNode": "Tree nodes",
+            "role": "Roles",
+            "roleCatalogue": "Role catalogue"
+          }
+        },
+        "traverse": {
+          "label": "Traverse mode"
+        },
+        "multiSelect": {
+          "label": "Multi select"
+        }
+      }
+    },
     "example-products": {
       "header": "Products",
       "label": "Products",
@@ -113,6 +145,16 @@
           "faileveryn": {
             "label": "Failure on every Xth identity",
             "help": "Every X-th identity will not be successful"
+          }
+        }
+      },
+      "identity-username-export-bulk-action": {
+        "icon": "fa:cloud-download",
+        "label": "Export usernames into CSV",
+        "attributes": {
+          "splitcharacter": {
+            "label": "Split character",
+            "help": "The character that will be used to separate the columns"
           }
         }
       }

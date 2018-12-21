@@ -77,8 +77,8 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 	}
 	
 	@Override
-	protected Object getAttributeValue(String uid, IdmRoleCatalogueDto dto, AttributeMapping attribute) {
-		Object idmValue = super.getAttributeValue(uid, dto, attribute);
+	protected Object getAttributeValue(String uid, IdmRoleCatalogueDto dto, AttributeMapping attribute, SysSystemDto system) {
+		Object idmValue = super.getAttributeValue(uid, dto, attribute, system);
 
 		if (attribute.isEntityAttribute()
 				&& TreeSynchronizationExecutor.PARENT_FIELD.equals(attribute.getIdmPropertyName())) {

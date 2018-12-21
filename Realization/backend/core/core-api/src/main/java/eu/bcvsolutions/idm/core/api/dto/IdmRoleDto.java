@@ -14,10 +14,11 @@ import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Dto for role
+ * DTO for role
  *
  * @author svandav
  * @author Radek Tomiška
@@ -51,7 +52,9 @@ public class IdmRoleDto extends FormableDto implements Disableable, Codeable, Ex
     private String description;
     @Embedded(dtoClass = IdmRequestItemDto.class)
     private UUID requestItem; // Isn't persist in the entity
-
+    @Embedded(dtoClass = IdmFormDefinitionDto.class)
+	private UUID identityRoleAttributeDefinition;
+    private long childrenCount;
 
     public IdmRoleDto() {
 	}
@@ -107,7 +110,6 @@ public class IdmRoleDto extends FormableDto implements Disableable, Codeable, Ex
 
     public void setDescription(String description) {
         this.description = description;
-
     }
 
     public boolean isApproveRemove() {
@@ -176,5 +178,39 @@ public class IdmRoleDto extends FormableDto implements Disableable, Codeable, Ex
 	 */
 	public void setBaseCode(String baseCode) {
 		this.baseCode = baseCode;
+	}
+
+	/**
+	 * @since 9.4.0
+	 */
+	public UUID getIdentityRoleAttributeDefinition() {
+		return identityRoleAttributeDefinition;
+	}
+
+	/**
+	 * @since 9.4.0
+	 */
+	public void setIdentityRoleAttributeDefinition(UUID identityRoleAttributeDefinition) {
+		this.identityRoleAttributeDefinition = identityRoleAttributeDefinition;
+	}
+	
+	/**
+	 * Count of sub roles
+	 * 
+	 * @since 9.4.0
+	 * @return
+	 */
+	public long getChildrenCount() {
+		return childrenCount;
+	}
+	
+	/**
+	 * Count of sub roles
+	 * 
+	 * @param childrenCount
+	 * @since 9.4.0
+	 */
+	public void setChildrenCount(long childrenCount) {
+		this.childrenCount = childrenCount;
 	}
 }

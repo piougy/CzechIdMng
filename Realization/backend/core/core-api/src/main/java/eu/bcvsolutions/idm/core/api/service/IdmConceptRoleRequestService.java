@@ -6,6 +6,8 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -38,5 +40,22 @@ public interface IdmConceptRoleRequestService
 	 * @param dto
 	 */
 	IdmConceptRoleRequestDto cancel(IdmConceptRoleRequestDto dto);
+
+	/**
+	 * Return form instance for given concept. Values contains changes evaluated
+	 * against the identity-role form values.
+	 * 
+	 * @param dto
+	 * @param checkChanges If true, then changes against the identity role will be evaluated.
+	 * @return
+	 */
+	IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto, boolean checkChanges);
+
+	/**
+	 * Validate form attributes for given concept
+	 * @param concept
+	 * @return
+	 */
+	List<InvalidFormAttributeDto> validateFormAttributes(IdmConceptRoleRequestDto concept);
 
 }

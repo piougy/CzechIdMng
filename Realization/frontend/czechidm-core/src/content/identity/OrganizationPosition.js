@@ -35,7 +35,15 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { identity, rendered, showLoading, _showLoading, _workPosition } = this.props;
+    const {
+      identity,
+      rendered,
+      showLoading,
+      _showLoading,
+       _workPosition,
+       showLink
+     } = this.props;
+    //
     if (!rendered || !identity) {
       return null;
     }
@@ -78,7 +86,7 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
     }
     items.push(
       <li key={ `op-i-${ identity }` }>
-        <Advanced.IdentityInfo username={identity} face="link"/>
+        <Advanced.IdentityInfo username={identity} face={ showLink ? 'link' : 'text' }/>
       </li>
     );
     //
@@ -95,13 +103,15 @@ OrganizationPosition.propTypes = {
   identity: PropTypes.string,
   _workPosition: PropTypes.object,
   defaultTreeType: PropTypes.object,
+  showLink: PropTypes.bool,
 };
 OrganizationPosition.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   identity: null,
   _workPosition: null,
   _showLoading: true,
-  defaultTreeType: null
+  defaultTreeType: null,
+  showLink: true
 };
 
 function select(state, component) {

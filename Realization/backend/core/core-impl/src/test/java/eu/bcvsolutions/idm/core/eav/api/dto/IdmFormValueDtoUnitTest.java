@@ -251,4 +251,17 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		formValue.setValue("TRUE");
 		Assert.assertTrue((Boolean) formValue.getValue());
 	}
+	
+	@Test
+	public void testCodelistValue() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.CODELIST);
+		//
+		String value = "codeOne";
+		//
+		formValue.setValue(value);
+		//
+		Assert.assertEquals(value, formValue.getValue());
+		Assert.assertEquals(value, formValue.getShortTextValue());
+	}
 }

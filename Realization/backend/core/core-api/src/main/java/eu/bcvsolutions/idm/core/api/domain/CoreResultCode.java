@@ -122,6 +122,7 @@ public enum CoreResultCode implements ResultCode {
 	FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - this definition is flaged as system definition."),
 	FORM_DEFINITION_INCOMPATIBLE_CHANGE(HttpStatus.CONFLICT, "Form definition [%s][%s] cannot be updated. Attribute's [%s] property [%s] cannot be updated automatically [%s to %s]. Provide change script for updating form definition or define new form definition (~new version)."),
 	FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - some automatic rules use this attribute."),
+	FORM_DEFINITION_DELETE_FAILED_ROLE(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - role [%s] using that defintion."),
 	// audit
 	AUDIT_REVISION_NOT_SAME(HttpStatus.BAD_REQUEST, "Audit revision are not same."),
 	AUDIT_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),
@@ -159,6 +160,7 @@ public enum CoreResultCode implements ResultCode {
 	LONG_RUNNING_TASK_CANCELED_BY_RESTART(HttpStatus.GONE, "Task [%s] type [%s] on instance [%s] was canceled during restart."),
 	LONG_RUNNING_TASK_INTERRUPT(HttpStatus.INTERNAL_SERVER_ERROR, "Task [%s] type [%s] on instance [%s] was interrupted."),
 	LONG_RUNNING_TASK_INIT_FAILED(HttpStatus.BAD_REQUEST, "Task [%s] type [%s] has invalid properties."),
+	LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD(HttpStatus.PARTIAL_CONTENT, "Task finished successfully, result can be download as separate attachment."),
 	//
 	PASSWORD_EXPIRATION_TASK_DAYS_BEFORE(HttpStatus.BAD_REQUEST, "'Days before' parameter is required and has to be number greater than zero, given [%s]."),
 	//
@@ -200,6 +202,9 @@ public enum CoreResultCode implements ResultCode {
 	ROLE_REQUEST_APPLICANTS_NOT_SAME(HttpStatus.BAD_REQUEST, "Some concept/s role in role request [%s] have different applicant than [%s]!"),
 	ROLE_REQUEST_EXECUTED_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Request [%s] in EXECUTED state cannot be deleted!"),
 	ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "Field 'requested by' in request [%s] cannot be 'AUTOMATICALLY' via REST API!"),
+	ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Concept [%s] (for role [%s]) in the request [%s] has unvalid attribute [%s]!"),
+	//
+	IDENTITY_ROLE_UNVALID_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Identity-role [%s] (for role [%s]) has unvalid attribute [%s]!"),
 	// 
 	// Recaptcha
 	RECAPTCHA_SECRET_KEY_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "Recaptcha component is wrong configured, property [%s] is missing - configure property value."),
@@ -277,6 +282,7 @@ public enum CoreResultCode implements ResultCode {
 	REQUEST_ITEM_CANNOT_BE_EXECUTED(HttpStatus.BAD_REQUEST, "Request item [%s] cannot be executed. Must be in state APPROVED or CONCEPT, but is in state [%s]!"),
 	REQUEST_ITEM_CANNOT_BE_CREATED(HttpStatus.BAD_REQUEST, "Request item cannot be created/changed for object [%s]. Parent request must be in state INPROGRESS or CONCEPT or EXCEPTION, but is in state [%s]!"),
 	REQUEST_ITEM_NOT_EXECUTED_PARENT_CANCELED(HttpStatus.BAD_REQUEST, "Request item [%s] could not be executed, because is using DTO from terminated item [%s]!"),
+	REQUEST_ITEM_WRONG_FORM_DEFINITON_IN_VALUES(HttpStatus.BAD_REQUEST, "Request item [%s] could not be saved, because is contains attribute values with wrong form definition! Currently using form definition in the role [%s] is [%s]!"),
 	//
 	// Role composition
 	ROLE_COMPOSITION_ASSIGN_ROLE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Role [%s] by role composition was not assigned."),

@@ -124,7 +124,7 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
             isLoading: false
           }, () => {
             this.addMessage({
-              message: this.i18n('message.success.upload', { record: file.name })
+              level: 'info', message: this.i18n('message.success.upload', { record: file.name })
             });
             this.refs[AbstractFormAttributeRenderer.INPUT].setValue(uploadedAttachment.id);
           });
@@ -138,17 +138,19 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
     });
   }
 
-  getContent() {
+  getContent(originalValues) {
     const { values } = this.props;
     const { showValidationError } = this.state;
+    const showOriginalValue = originalValues ? true : false;
+    const _values = showOriginalValue ? originalValues : values;
     //
     let formValue = null;
-    if (values && _.isArray(values)) {
-      if (values.length > 0) {
-        formValue = values[0];
+    if (_values && _.isArray(_values)) {
+      if (_values.length > 0) {
+        formValue = _values[0];
       }
     } else {
-      formValue = values;
+      formValue = _values;
     }
     const result = [];
     if (formValue === null || !formValue.uuidValue) {
@@ -174,9 +176,10 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
     return result;
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { values } = this.props;
     const { isLoading, showValidationError } = this.state;
+    const showOriginalValue = originalValues ? true : false;
     //
     const style = {};
     if (showValidationError) {
@@ -189,25 +192,25 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
     //
     return (
       <Basic.LabelWrapper
-        label={ this.getLabel() }
+        label={ this.getLabel(null, showOriginalValue) }
         className={ className }
         helpBlock={ this.getHelpBlock() }>
         <Dropzone
           ref="dropzone"
           multiple={ false }
-          readOnly={ this.isReadOnly() }
+          readOnly={ showOriginalValue ? true : this.isReadOnly() }
           onDrop={ this._onDrop.bind(this) }
           showLoading={ isLoading }
           required={ this.isRequired() }
           style={ style }>
-          { this.getContent() }
+          { this.getContent(originalValues) }
         </Dropzone>
 
         {/* Attachment uuid is stored in hiden input */}
         <Basic.TextField
           ref={ AbstractFormAttributeRenderer.INPUT }
-          value={ this.toInputValue(values) }
-          readOnly={ this.isReadOnly() }
+          value={ this.toInputValue(showOriginalValue ? originalValues : values) }
+          readOnly={ showOriginalValue ? true : this.isReadOnly() }
           validation={ this.getInputValidation() }
           required={ this.isRequired() }
           hidden/>

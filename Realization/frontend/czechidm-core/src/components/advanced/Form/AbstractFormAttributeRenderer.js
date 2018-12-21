@@ -250,10 +250,30 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    * form definition code and attribute code.
    * If key in localization and form name is not defined, it will be used default value.
    */
-  getLabel(defaultValue = null) {
+  getLabel(defaultValue = null, showOriginalValue = false) {
     const { attribute } = this.props;
     //
-    return this._getLocalization('label', attribute.name || attribute.code || defaultValue);
+    const hasOriginalValue = this.valueChanged();
+    const label = this._getLocalization('label', attribute.name || attribute.code || defaultValue);
+    if (!showOriginalValue && !hasOriginalValue) {
+      return label;
+    }
+    // We generates component with new value
+    if (!showOriginalValue && hasOriginalValue) {
+      return (
+        <span>
+          <Basic.Label level="success" text={this.i18n('component.advanced.EavForm.showChanges.newValue')}/>
+          {' ' + label}
+        </span>
+      );
+    }
+    // We generates component with original value
+    return (
+      <span>
+        <Basic.Label level="warning" text={this.i18n('component.advanced.EavForm.showChanges.originalValue')}/>
+        {' ' + label}
+      </span>
+    );
   }
 
   /**
@@ -313,8 +333,54 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     return this._unsupportedMode('multiple');
   }
 
+  valueChanged() {
+    const {values} = this.props;
+    if (!values) {
+      return false;
+    }
+    let changed = false;
+    if (_.isArray(values)) {
+      values.forEach(value => {
+        if (value._changed === true) {
+          changed = true;
+          return;
+        }
+      });
+    } else {
+      if (values._changed === true) {
+        return true;
+      }
+    }
+    return changed;
+  }
+
+  getOriginalValues() {
+    const {values} = this.props;
+    const originalValues = [];
+    if (_.isArray(values)) {
+      values.forEach(value => {
+        if (value._changed === true) {
+          if (value._originalValue) {
+            originalValues.push(value._originalValue);
+          }
+        } else {
+          originalValues.push(value);
+        }
+      });
+    } else {
+      if (values._changed === true) {
+        if (values._originalValue) {
+          originalValues.push(values._originalValue);
+        }
+      } else {
+        originalValues.push(values);
+      }
+    }
+    return originalValues;
+  }
+
   render() {
-    const { attribute } = this.props;
+    const { attribute} = this.props;
     // check confidential support
     if (attribute.confidential && !this.supportsConfidential()) {
       return (
@@ -327,7 +393,26 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     if (!this.supportsMultiple() && attribute.multiple) {
       return this._unsupportedMode('multiple');
     }
-    return (attribute.multiple) ? this.renderMultipleInput() : this.renderSingleInput();
+    const changed = this.valueChanged();
+    const component = (attribute.multiple) ? this.renderMultipleInput() : this.renderSingleInput();
+    let componentOriginal = null;
+    if (changed) {
+      const originalValues = this.getOriginalValues();
+      componentOriginal = (attribute.multiple) ? this.renderMultipleInput(originalValues) : this.renderSingleInput(originalValues);
+    } else {
+      return component;
+    }
+
+    return (
+      <div style={{ display: 'flex'}}>
+        <div style={{ flex: 1}}>
+          {componentOriginal}
+        </div>
+        <div style={{marginLeft: 5, flex: 1 }}>
+          {component}
+        </div>
+     </div>
+    );
   }
 }
 

@@ -21,15 +21,6 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
   }
 
   /**
-   * Returns true, when multi value mode is supported
-   *
-   * @return {boolean}
-   */
-  supportsMultiple() {
-    return false;
-  }
-
-  /**
    * Returns true, when confidential mode is supported
    *
    * @return {boolean}
@@ -38,21 +29,22 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
     return false;
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { attribute, values, uiKey } = this.props;
+    const showOriginalValue = originalValues ? true : false;
     //
     return (
       <TreeNodeSelect
         ref={ AbstractFormAttributeRenderer.INPUT }
         uiKey={ uiKey || `form-attribute-${attribute.code}` }
         manager={ this.getManager() }
-        header={ this.getLabel() }
-        label={ this.getLabel() }
+        header={ this.getLabel(null, showOriginalValue) }
+        label={ this.getLabel(null, showOriginalValue) }
         placeholder={ this.getPlaceholder() }
         helpBlock={ this.getHelpBlock() }
         showTreeType={ false }
-        value={ !attribute.multiple ? this.toInputValue(values) : this.toInputValues(values) }
-        readOnly={ this.isReadOnly() }
+        value={ !attribute.multiple ? this.toInputValue(showOriginalValue ? originalValues : values) : this.toInputValues(showOriginalValue ? originalValues : values) }
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }
         multiSelect={ attribute.multiple }/>
     );

@@ -7,12 +7,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -21,10 +23,15 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.ecm.entity.IdmAttachment;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
@@ -34,6 +41,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
@@ -49,6 +57,8 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	private final ConfigurationService configurationService;
 	private final SecurityService securityService;
 	private final EntityEventManager entityEventManager;
+	//
+	@Autowired private AttachmentManager attachmentManager;
 	
 	@Autowired
 	public DefaultLongRunningTaskManager(
@@ -183,13 +193,25 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@TransactionalEventListener
 	public synchronized<V> void executeInternal(LongRunningFutureTask<V> futureTask) {
 		Assert.notNull(futureTask);
-		Assert.notNull(futureTask.getExecutor());
+		LongRunningTaskExecutor<V> taskExecutor = futureTask.getExecutor();
+		Assert.notNull(taskExecutor);
 		Assert.notNull(futureTask.getFutureTask());
 		//
-		markTaskAsRunning(getValidTask(futureTask.getExecutor()));
+		markTaskAsRunning(getValidTask(taskExecutor));
+		UUID longRunningTaskId = taskExecutor.getLongRunningTaskId();
 		//
-		LOG.debug("Execute task [{}] asynchronously", futureTask.getExecutor().getLongRunningTaskId());
-		executor.execute(futureTask.getFutureTask());
+		try {
+			LOG.debug("Execute task [{}] asynchronously", longRunningTaskId);
+			//
+			executor.execute(futureTask.getFutureTask());
+		} catch (RejectedExecutionException ex) {
+			// thread pool queue is full - wait for another try
+			UUID taskId = futureTask.getExecutor().getLongRunningTaskId();
+			LOG.info("Execute task [{}] asynchronously will be postponed.", taskId);
+			//
+			IdmLongRunningTaskDto task = service.get(taskId);
+			markTaskAsCreated(task);
+		}
 	}
 	
 	@Override
@@ -326,7 +348,31 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, 
 				SchedulerConfiguration.DEFAULT_TASK_ASYNCHRONOUS_ENABLED);
 	}
-	
+
+	@Override
+	public IdmAttachmentDto getAttachment(UUID longRunningTaskId, UUID attachmentId, BasePermission... permission) {
+		Assert.notNull(longRunningTaskId);
+		Assert.notNull(attachmentId);
+
+		IdmLongRunningTaskDto longRunningTaskDto = service.get(longRunningTaskId, permission);
+
+		if (longRunningTaskDto == null) {
+			throw new EntityNotFoundException(service.getEntityClass(), longRunningTaskId);
+		}
+
+		IdmAttachmentDto attachmentDto = attachmentManager.get(attachmentId, permission);
+
+		if (attachmentDto == null) {
+			throw new EntityNotFoundException(IdmAttachment.class, attachmentId);
+		}
+
+		if (!ObjectUtils.isEmpty(PermissionUtils.trimNull(permission)) && !attachmentDto.getOwnerId().equals(longRunningTaskDto.getId())) {
+			throw new ForbiddenEntityException(attachmentId, PermissionUtils.trimNull(permission));
+		}
+		//
+		return attachmentDto;
+	}
+
 	/**
 	 * Prepares executor's LRT
 	 * 
@@ -353,6 +399,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	
 	private synchronized IdmLongRunningTaskDto markTaskAsRunning(IdmLongRunningTaskDto task) {
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		return service.save(task);
+	}
+	
+	private synchronized IdmLongRunningTaskDto markTaskAsCreated(IdmLongRunningTaskDto task) {
+		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 		return service.save(task);
 	}
 	

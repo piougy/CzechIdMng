@@ -23,10 +23,16 @@ public class IdmRoleFilter
 		extends DataFilter 
 		implements CorrelationFilter, ExternalIdentifiable {
 
+	/**
+	 * Parent role identifier - find sub roles by role composition
+	 */
+	public static final String PARAMETER_PARENT = IdmTreeNodeFilter.PARAMETER_PARENT;
+	//
 	public static final String PARAMETER_ROLE_CATALOGUE = "roleCatalogue";
 	public static final String PARAMETER_GUARANTEE = "guarantee";
 	public static final String PARAMETER_ENVIRONMENT = "environment";
 	public static final String PARAMETER_BASE_CODE = "baseCode";
+	public static final String PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF = "identityRoleAttributeDefinition";
 	
 	private RoleType roleType;
 	
@@ -74,12 +80,12 @@ public class IdmRoleFilter
 		data.set(PARAMETER_ROLE_CATALOGUE, roleCatalogueId);
 	}
 
-	public UUID getGuaranteeId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_GUARANTEE));
+	public UUID getAttributeFormDefinitionId() {
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF));
 	}
 
-	public void setGuaranteeId(UUID guaranteeId) {
-		data.set(PARAMETER_GUARANTEE, guaranteeId);
+	public void setAttributeFormDefinitionId(UUID id) {
+		data.set(PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF, id);
 	}
 	
 	@Override
@@ -106,5 +112,29 @@ public class IdmRoleFilter
 	
 	public void setBaseCode(String baseCode) {
 		data.set(PARAMETER_BASE_CODE, baseCode);
+	}
+	
+	public UUID getGuaranteeId() {
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_GUARANTEE));
+	}
+
+	public void setGuaranteeId(UUID guaranteeId) {
+		data.set(PARAMETER_GUARANTEE, guaranteeId);
+	}
+	
+	/**
+	 * @since 9.4.0
+	 * @return
+	 */
+	public UUID getParent() {
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT));
+	}
+
+	/**
+	 * @since 9.4.0
+	 * @param parent
+	 */
+	public void setParent(UUID parent) {
+		data.set(PARAMETER_PARENT, parent);
 	}
 }

@@ -7,6 +7,7 @@ import { RoleManager, RoleCompositionManager, SecurityManager } from '../../../r
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import RolePriorityEnum from '../../../enums/RolePriorityEnum';
 import SearchParameters from '../../../domain/SearchParameters';
+import Tree from '../Tree/Tree';
 
 const uiKeyRoles = 'role-composition-sub-table';
 const manager = new RoleManager();
@@ -86,6 +87,21 @@ export class RoleInfo extends AbstractEntityInfo {
       <Basic.Column property="value"/>
     ];
   }
+  /**
+   * TODO: add original popover content
+   *
+  _renderPopover() {
+    return (
+      <Tree
+        uiKey={ `role-info-${ this.getEntityId() }` }
+        manager={ this.getManager() }
+        roots={[ this.getEntity() ]}
+        header={ null }
+        bodyStyle={{ padding: 0 }}
+        onChange={ () => false }
+        nodeIcon={ this.getEntityIcon() }/>
+    );
+  }*/
 
   /**
    * Returns popover info content

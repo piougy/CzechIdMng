@@ -279,7 +279,7 @@ class EnumSelectBox extends SelectBox {
   }
 
   getSelectComponent() {
-    const { placeholder, multiSelect, fieldLabel, searchable, clearable } = this.props;
+    const { placeholder, multiSelect, fieldLabel, searchable, clearable, showLoading } = this.props;
     const { value, readOnly, disabled } = this.state;
     //
     return (
@@ -288,7 +288,7 @@ class EnumSelectBox extends SelectBox {
           ref="selectComponent"
           title={"title"}
           value={value}
-          onChange={this.onChange}
+          onChange={ this.onChange }
           disabled={readOnly || disabled}
           ignoreCase
           clearable={clearable}
@@ -303,7 +303,8 @@ class EnumSelectBox extends SelectBox {
           searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
           onInputChange={this.onInputChange.bind(this)}
           options={this.getOptions()}
-          searchable={searchable}/>
+          searchable={searchable}
+          isLoading={ showLoading }/>
       </span>
     );
   }

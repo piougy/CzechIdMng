@@ -1,6 +1,6 @@
 {
   "name": "czechidm-app",
-  "version": "9.3.2-snapshot",
+  "version": "9.4.0-rc.1",
   "description": "Main application module for czechidm.",
   "main": "index.html",
   "keywords": [
@@ -72,7 +72,6 @@
     "jwt-decode": "2.1.0",
     "lodash": "4.17.5",
     "log4js": "0.6.36",
-    "marked": "0.3.9",
     "moment": "2.21.0",
     "normalize.less": "1.0.0",
     "object-assign": "4.0.1",
@@ -106,7 +105,8 @@
     "stringify": "5.1.0",
     "uuid": "2.0.1",
     "vinyl-fs": "3.0.2",
-    "zxcvbn": "4.4.1"
+    "zxcvbn": "4.4.1",
+    "fast-deep-equal": "2.0.1"
   },
   "devDependencies": {
     "babel": "5.8.38",

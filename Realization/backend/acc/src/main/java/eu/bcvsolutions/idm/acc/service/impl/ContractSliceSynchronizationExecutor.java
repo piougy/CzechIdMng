@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccContractSliceAccountService;
+import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
@@ -62,7 +63,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice_;
@@ -550,12 +550,13 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	protected EntityAccountFilter createEntityAccountFilter() {
 		return new AccContractSliceAccountFilter();
 	}
-
-	@SuppressWarnings("rawtypes")
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected ReadWriteDtoService getEntityAccountService() {
-		return contractAccoutnService;
+	protected EntityAccountService<EntityAccountDto, EntityAccountFilter> getEntityAccountService() {
+		return (EntityAccountService)contractAccoutnService;
 	}
+
 
 	@Override
 	protected EntityAccountDto createEntityAccountDto() {

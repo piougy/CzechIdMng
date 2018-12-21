@@ -2,17 +2,15 @@ package eu.bcvsolutions.idm.core.bulk.action.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,10 +24,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.bulk.action.impl.IdentitySaveBulkAction;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
@@ -40,9 +38,9 @@ import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
  * Integration tests for {@link IdentitySaveBulkAction}
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @deprecated @since 9.4.0 - action is not initialized and will be removed (use concrete bulk action for ACC and Provisioning)
  */
-
+@Ignore
 public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 
 	private String DELETE_PROCESSOR_KEY = "idm.sec.core.processor.entity-event-delete-executed-processor.enabled";
@@ -87,10 +85,6 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 		Set<UUID> ids = this.getIdFromList(identities);
 		bulkAction.setIdentifiers(this.getIdFromList(identities));
 
-		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentitySaveBulkAction.ONLY_NOTIFY_CODE, Boolean.TRUE);
-		bulkAction.setProperties(properties);
-
 		// turn off remove events
 		configurationService.setBooleanValue(DELETE_PROCESSOR_KEY, Boolean.FALSE);
 
@@ -109,8 +103,7 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 			List<IdmEntityEventDto> events = entityEventService.find(filter, null).getContent();
 			assertEquals(1, events.size());
 			IdmEntityEventDto eventDto = events.get(0);
-			assertNull(eventDto.getParentEventType());
-			assertNull(eventDto.getParent());
+			assertEquals(CoreEventType.UPDATE.name(), eventDto.getParentEventType());
 		}
 	}
 
@@ -173,10 +166,6 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 		filter.setLastName(testLastName);
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentitySaveBulkAction.NAME);
 
-		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentitySaveBulkAction.ONLY_NOTIFY_CODE, Boolean.TRUE);
-		bulkAction.setProperties(properties);
-
 		bulkAction.setTransformedFilter(filter);
 		bulkAction.setFilter(toMap(filter));
 		bulkAction.setRemoveIdentifiers(Sets.newHashSet(removedIdentity.getId(), removedIdentity2.getId()));
@@ -202,8 +191,7 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 			} else {
 				assertEquals(1, events.size());
 				IdmEntityEventDto eventDto = events.get(0);
-				assertNull(eventDto.getParentEventType());
-				assertNull(eventDto.getParent());
+				assertEquals(CoreEventType.UPDATE.name(), eventDto.getParentEventType());
 			}
 		}
 	}
@@ -223,10 +211,6 @@ public class IdentitySaveBulkActionTest extends AbstractBulkActionTest {
 
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentitySaveBulkAction.NAME);
 		Set<UUID> ids = this.getIdFromList(identities);
-
-		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentitySaveBulkAction.ONLY_NOTIFY_CODE, Boolean.TRUE);
-		bulkAction.setProperties(properties);
 
 		bulkAction.setIdentifiers(this.getIdFromList(identities));
 

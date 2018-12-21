@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,9 +35,11 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -78,9 +81,10 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	
 	protected static final String TAG = "Tree structure - nodes";
 	private final IdmTreeNodeService treeNodeService;
-	private final IdmAuditService auditService;
 	//
-	private final IdmFormDefinitionController formDefinitionController;
+	@Autowired private TreeConfiguration treeConfiguration;
+	@Autowired private IdmAuditService auditService;
+	@Autowired private IdmFormDefinitionController formDefinitionController;
 	
 	@Autowired
 	public IdmTreeNodeController(
@@ -366,7 +370,9 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	@ApiOperation(
 			value = "Search root tree nodes", 
 			nickname = "searchRootTreeNodes", 
-			tags = { IdmRoleCatalogueController.TAG })
+			tags = { IdmRoleCatalogueController.TAG },
+			notes = "Tree type parameter can be used. If no tree type ios given, then configured default tree type is used."
+					+ " If no default tree type is configured, then all roots are returnde")
 	@ApiImplicitParams({
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
@@ -380,8 +386,24 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	public Resources<?> findRoots(
 			@ApiParam(value = "Tree type uuid identifier.", required = false)
 			@RequestParam(value = "treeTypeId", required = false) String treeTypeId,
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
-		Page<IdmTreeNodeDto> roots = this.treeNodeService.findRoots(UUID.fromString(treeTypeId), pageable);
+		UUID treeTypeIdentifier = null;
+		if (StringUtils.isNotEmpty(treeTypeId)) {
+			treeTypeIdentifier = UUID.fromString(treeTypeId);
+		} else {
+			IdmTreeTypeDto defaultType = treeConfiguration.getDefaultType();
+			if (defaultType != null) {
+				treeTypeIdentifier = defaultType.getId();
+			}
+		}
+		IdmTreeNodeFilter filter = toFilter(parameters);
+		filter.setRoots(Boolean.TRUE);
+		if (treeTypeIdentifier != null) {
+			filter.setTreeTypeId(treeTypeIdentifier);
+		}
+		//
+		Page<IdmTreeNodeDto> roots = find(filter, pageable, IdmBasePermission.AUTOCOMPLETE);
 		return toResources(roots, IdmTreeNode.class);
 	}
 	
@@ -392,7 +414,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 			value = "Search sub tree nodes", 
 			nickname = "searchChildrenTreeNodes", 
 			tags = { IdmRoleCatalogueController.TAG },
-			notes = "Finds direct chilren by given parent node uuid identifier.")
+			notes = "Finds direct chilren by given parent node uuid identifier. Set 'parent' parameter.")
 	@ApiImplicitParams({
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
@@ -404,11 +426,12 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
                         "Multiple sort criteria are supported.")
 	})
 	public Resources<?> findChildren(
-			@ApiParam(value = "Superior tree node's uuid identifier.", required = true)
-			@RequestParam(value = "parent") @NotNull String parent,
-			@PageableDefault Pageable pageable) {	
-		Page<IdmTreeNodeDto> children = this.treeNodeService.findChildrenByParent(UUID.fromString(parent), pageable);
-		return toResources(children, IdmTreeNode.class);
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		IdmTreeNodeFilter filter = toFilter(parameters);
+		filter.setRecursively(false);
+		//
+		return toResources(find(filter, pageable, IdmBasePermission.AUTOCOMPLETE), IdmTreeNode.class);
 	}
 	
 	/**

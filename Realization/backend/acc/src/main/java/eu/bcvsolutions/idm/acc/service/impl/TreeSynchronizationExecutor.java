@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
+import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
@@ -53,7 +54,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -214,7 +214,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param icAttributes
 	 * @param account
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMappingDto> mappedAttributes,
 			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account,
@@ -452,10 +451,10 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		return transformedValue;
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected ReadWriteDtoService getEntityAccountService() {
-		return treeAccountService;
+	protected EntityAccountService<EntityAccountDto, EntityAccountFilter> getEntityAccountService() {
+		return (EntityAccountService)treeAccountService;
 	}
 
 	@Override

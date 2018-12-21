@@ -12,14 +12,20 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -52,6 +58,8 @@ public class DefaultIdmFormDefinitionService
 	private final IdmFormDefinitionRepository formDefinitionRepository;
 	private final IdmFormAttributeService formAttributeService;
 	private final LookupService lookupService;
+	@Autowired
+	private IdmRoleService roleService;
 
 	@Autowired
 	public DefaultIdmFormDefinitionService(
@@ -131,6 +139,15 @@ public class DefaultIdmFormDefinitionService
 			formAttributeService.delete(formAttribute);
 		});
 		//
+		if(dto.getId() != null) {
+			IdmRoleFilter roleFilter = new IdmRoleFilter();
+			roleFilter.setAttributeFormDefinitionId(dto.getId());
+			
+			List<IdmRoleDto> roles = roleService.find(roleFilter, new PageRequest(0, 1)).getContent();
+			if(roles.size() > 0) {
+				throw new ResultCodeException(CoreResultCode.FORM_DEFINITION_DELETE_FAILED_ROLE, ImmutableMap.of("definition", dto.getCode(), "role", roles.get(0).getCode()));
+			}
+		}
 		super.deleteInternal(dto);
 	}
 	

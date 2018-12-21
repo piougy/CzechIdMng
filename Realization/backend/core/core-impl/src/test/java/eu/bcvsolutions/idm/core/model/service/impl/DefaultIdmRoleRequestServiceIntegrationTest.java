@@ -1,7 +1,13 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.joda.time.LocalDate;
@@ -16,6 +22,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.ImmutableList;
+
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -25,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
@@ -35,7 +44,15 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
@@ -68,6 +85,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	private IdmRoleService roleService;
 	@Autowired
 	private IdmConfigurationService configurationService;
+	@Autowired
+	private FormService formService;
 	//
 	private IdmRoleDto roleA;
 
@@ -355,4 +374,252 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 
 	}
 
+	@Test
+	@Transactional
+	public void testCopyRolesByIdentity() {
+		IdmIdentityDto identityDto = this.getHelper().createIdentity((GuardedString) null);
+
+		IdmRoleDto roleOne = this.getHelper().createRole();
+		IdmRoleDto roleTwo = this.getHelper().createRole();
+		IdmIdentityContractDto primeContract = this.getHelper().getPrimeContract(identityDto);
+		this.getHelper().createIdentityRole(primeContract, roleOne);
+		this.getHelper().createIdentityRole(primeContract, roleTwo);
+		
+		List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identityDto.getId());
+		List<UUID> identityRolesId = allByIdentity.stream().map(IdmIdentityRoleDto::getId).collect(Collectors.toList());
+
+		IdmIdentityDto newIdentity = this.getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto newIdentityContract = this.getHelper().getPrimeContract(newIdentity);
+
+		IdmRoleRequestDto createdRequest = roleRequestService.createRequest(newIdentityContract);
+
+		IdmRoleRequestByIdentityDto requestByIdentityDto = new IdmRoleRequestByIdentityDto();
+		requestByIdentityDto.setIdentityContract(newIdentityContract.getId());
+		requestByIdentityDto.setIdentityRoles(identityRolesId);
+		requestByIdentityDto.setRoleRequest(createdRequest.getId());
+		IdmRoleRequestDto copyRolesByIdentity = roleRequestService.copyRolesByIdentity(requestByIdentityDto);
+
+		assertNotNull(copyRolesByIdentity);
+		assertEquals(createdRequest.getId(), copyRolesByIdentity.getId());
+		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService
+				.findAllByRoleRequest(copyRolesByIdentity.getId());
+		assertEquals(2, concepts.size());
+
+		IdmConceptRoleRequestDto conceptOne = concepts.stream().filter(concept -> {
+			return concept.getRole().equals(roleOne.getId());
+		}).findAny().orElse(null);
+		assertNotNull(conceptOne);
+
+		IdmConceptRoleRequestDto conceptTwo = concepts.stream().filter(concept -> {
+			return concept.getRole().equals(roleTwo.getId());
+		}).findAny().orElse(null);
+		assertNotNull(conceptTwo);
+	}
+
+	@Test
+	@Transactional
+	public void testCopyRolesByIdentityWithValid() {
+		LocalDate validFrom = LocalDate.now().minusDays(5);
+		LocalDate validTill = LocalDate.now().plusDays(55);
+
+		IdmIdentityDto identityDto = this.getHelper().createIdentity((GuardedString) null);
+
+		IdmRoleDto roleOne = this.getHelper().createRole();
+		IdmRoleDto roleTwo = this.getHelper().createRole();
+		IdmIdentityContractDto primeContract = this.getHelper().getPrimeContract(identityDto);
+		this.getHelper().createIdentityRole(primeContract, roleOne);
+		this.getHelper().createIdentityRole(primeContract, roleTwo);
+
+		IdmIdentityDto newIdentity = this.getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto newIdentityContract = this.getHelper().getPrimeContract(newIdentity);
+
+		List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identityDto.getId());
+		List<UUID> identityRolesId = allByIdentity.stream().map(IdmIdentityRoleDto::getId).collect(Collectors.toList());
+
+		IdmRoleRequestDto createdRequest = roleRequestService.createRequest(newIdentityContract);
+
+		IdmRoleRequestByIdentityDto requestByIdentityDto = new IdmRoleRequestByIdentityDto();
+		requestByIdentityDto.setIdentityContract(newIdentityContract.getId());
+		requestByIdentityDto.setRoleRequest(createdRequest.getId());
+		requestByIdentityDto.setIdentityRoles(identityRolesId);
+		requestByIdentityDto.setValidFrom(validFrom);
+		requestByIdentityDto.setValidTill(validTill);
+		IdmRoleRequestDto copyRolesByIdentity = roleRequestService.copyRolesByIdentity(requestByIdentityDto);
+
+		assertNotNull(copyRolesByIdentity);
+		assertEquals(createdRequest.getId(), copyRolesByIdentity.getId());
+		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService
+				.findAllByRoleRequest(copyRolesByIdentity.getId());
+		assertEquals(2, concepts.size());
+
+		IdmConceptRoleRequestDto conceptOne = concepts.stream().filter(concept -> {
+			return concept.getRole().equals(roleOne.getId());
+		}).findAny().orElse(null);
+		assertNotNull(conceptOne);
+		assertEquals(validFrom, conceptOne.getValidFrom());
+		assertEquals(validTill, conceptOne.getValidTill());
+
+		IdmConceptRoleRequestDto conceptTwo = concepts.stream().filter(concept -> {
+			return concept.getRole().equals(roleTwo.getId());
+		}).findAny().orElse(null);
+		assertNotNull(conceptTwo);
+		assertEquals(validFrom, conceptTwo.getValidFrom());
+		assertEquals(validTill, conceptTwo.getValidTill());
+	}
+
+	@Test
+	@Transactional
+	public void testCopyRolesWithParameters() {
+		String attributeOneCode = "attr-" + System.currentTimeMillis();
+		String attributeOneDefaultValue = "test-one-" + System.currentTimeMillis();
+		String attributeTwoCode = "attr-two-" + System.currentTimeMillis();
+		String attributeTwoDefaultValue = "test-" + System.currentTimeMillis();
+		// Prepare identity, role and parameters
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmFormAttributeDto attributeOne = new IdmFormAttributeDto(attributeOneCode);
+		attributeOne.setPersistentType(PersistentType.SHORTTEXT);
+		attributeOne.setRequired(true);
+		attributeOne.setDefaultValue(attributeOneDefaultValue);
+
+		IdmFormAttributeDto attributeTwo = new IdmFormAttributeDto(attributeTwoCode);
+		attributeTwo.setPersistentType(PersistentType.SHORTTEXT);
+		attributeTwo.setRequired(true);
+		attributeTwo.setDefaultValue(attributeTwoDefaultValue);
+
+		IdmFormDefinitionDto definition = formService.createDefinition(IdmIdentityRole.class,
+				ImmutableList.of(attributeOne, attributeTwo));
+		roleOne.setIdentityRoleAttributeDefinition(definition.getId());
+		roleOne = roleService.save(roleOne);
+
+		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		this.getHelper().createIdentityRole(identityContact, roleOne);
+		this.getHelper().createIdentityRole(identityContact, roleTwo);
+
+		// Assign roles by identity
+		IdmIdentityDto identityDto = this.getHelper().createIdentity((GuardedString) null);
+
+		List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
+		List<UUID> identityRolesId = allByIdentity.stream().map(IdmIdentityRoleDto::getId).collect(Collectors.toList());
+
+		IdmIdentityContractDto identityContractDto = getHelper().createIdentityContact(identityDto);
+		IdmRoleRequestDto createdRequest = roleRequestService.createRequest(identityContractDto);
+
+		IdmRoleRequestByIdentityDto requestByIdentityDto = new IdmRoleRequestByIdentityDto();
+		requestByIdentityDto.setIdentityContract(identityContractDto.getId());
+		requestByIdentityDto.setRoleRequest(createdRequest.getId());
+		requestByIdentityDto.setIdentityRoles(identityRolesId);
+		requestByIdentityDto.setCopyRoleParameters(true);
+		IdmRoleRequestDto copyRolesByIdentity = roleRequestService.copyRolesByIdentity(requestByIdentityDto);
+
+		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService
+				.findAllByRoleRequest(copyRolesByIdentity.getId());
+		assertEquals(2, concepts.size());
+
+		UUID roleOneId = roleOne.getId();
+		IdmConceptRoleRequestDto conceptOne = concepts.stream().filter(concept -> {
+			return concept.getRole().equals(roleOneId);
+		}).findAny().orElse(null);
+		assertNotNull(conceptOne);
+
+		IdmConceptRoleRequestDto conceptTwo = concepts.stream().filter(concept -> {
+			return concept.getRole().equals(roleTwo.getId());
+		}).findAny().orElse(null);
+		assertNotNull(conceptTwo);
+
+		IdmFormInstanceDto formInstanceOne = conceptRoleRequestService.getRoleAttributeValues(conceptOne, false);
+		IdmFormInstanceDto formInstanceTwo = conceptRoleRequestService.getRoleAttributeValues(conceptTwo, false);
+		assertNotNull(formInstanceOne);
+		assertNull(formInstanceTwo);
+
+		assertEquals(2, formInstanceOne.getValues().size());
+
+		attributeOne = definition.getFormAttributes().stream().filter(att -> {
+			return att.getCode().equals(attributeOneCode);
+		}).findFirst().orElse(null);
+		attributeTwo = definition.getFormAttributes().stream().filter(att -> {
+			return att.getCode().equals(attributeTwoCode);
+		}).findFirst().orElse(null);
+		assertNotNull(attributeOne);
+		assertNotNull(attributeTwo);
+
+		UUID attributeOneId = attributeOne.getId();
+		IdmFormValueDto valueDto = formInstanceOne.getValues().stream().filter(value -> {
+			return value.getFormAttribute().equals(attributeOneId);
+		}).findFirst().orElse(null);
+		assertNotNull(valueDto);
+		assertEquals(attributeOneDefaultValue, valueDto.getValue());
+
+		UUID attributeTwoId = attributeTwo.getId();
+		valueDto = formInstanceOne.getValues().stream().filter(value -> {
+			return value.getFormAttribute().equals(attributeTwoId);
+		}).findFirst().orElse(null);
+		assertNotNull(valueDto);
+		assertEquals(attributeTwoDefaultValue, valueDto.getValue());
+	}
+
+	@Test
+	@Transactional
+	public void testCopyRolesWithParametersWithoutValues() {
+		String attributeOneCode = "attr-" + System.currentTimeMillis();
+		String attributeTwoCode = "attr-two-" + System.currentTimeMillis();
+		// Prepare identity, role and parameters
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmFormAttributeDto attributeOne = new IdmFormAttributeDto(attributeOneCode);
+		attributeOne.setPersistentType(PersistentType.SHORTTEXT);
+		attributeOne.setRequired(false);
+
+		IdmFormAttributeDto attributeTwo = new IdmFormAttributeDto(attributeTwoCode);
+		attributeTwo.setPersistentType(PersistentType.SHORTTEXT);
+		attributeTwo.setRequired(false);
+
+		IdmFormDefinitionDto definition = formService.createDefinition(IdmIdentityRole.class,
+				ImmutableList.of(attributeOne, attributeTwo));
+		roleOne.setIdentityRoleAttributeDefinition(definition.getId());
+		roleOne = roleService.save(roleOne);
+
+		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		this.getHelper().createIdentityRole(identityContact, roleOne);
+		this.getHelper().createIdentityRole(identityContact, roleTwo);
+
+		// Assign roles by identity
+		IdmIdentityDto identityDto = this.getHelper().createIdentity((GuardedString) null);
+
+		List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
+		List<UUID> identityRolesId = allByIdentity.stream().map(IdmIdentityRoleDto::getId).collect(Collectors.toList());
+
+		IdmIdentityContractDto identityContractDto = getHelper().createIdentityContact(identityDto);
+		IdmRoleRequestDto createdRequest = roleRequestService.createRequest(identityContractDto);
+
+		IdmRoleRequestByIdentityDto requestByIdentityDto = new IdmRoleRequestByIdentityDto();
+		requestByIdentityDto.setIdentityContract(identityContractDto.getId());
+		requestByIdentityDto.setRoleRequest(createdRequest.getId());
+		requestByIdentityDto.setIdentityRoles(identityRolesId);
+		requestByIdentityDto.setCopyRoleParameters(true);
+		IdmRoleRequestDto copyRolesByIdentity = roleRequestService.copyRolesByIdentity(requestByIdentityDto);
+
+		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService
+				.findAllByRoleRequest(copyRolesByIdentity.getId());
+		assertEquals(2, concepts.size());
+
+		UUID roleOneId = roleOne.getId();
+		IdmConceptRoleRequestDto conceptOne = concepts.stream().filter(concept -> {
+			return concept.getRole().equals(roleOneId);
+		}).findAny().orElse(null);
+		assertNotNull(conceptOne);
+
+		IdmConceptRoleRequestDto conceptTwo = concepts.stream().filter(concept -> {
+			return concept.getRole().equals(roleTwo.getId());
+		}).findAny().orElse(null);
+		assertNotNull(conceptTwo);
+
+		IdmFormInstanceDto formInstanceOne = conceptRoleRequestService.getRoleAttributeValues(conceptOne, false);
+		IdmFormInstanceDto formInstanceTwo = conceptRoleRequestService.getRoleAttributeValues(conceptTwo, false);
+		assertNotNull(formInstanceOne);
+		assertTrue(formInstanceOne.getValues().isEmpty());
+		assertNull(formInstanceTwo);
+	}
 }

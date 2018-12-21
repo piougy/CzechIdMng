@@ -30,6 +30,10 @@ export default class RoleManager extends AbstractRequestFormableManager {
     return 'roles';
   }
 
+  getIdentifierAlias() {
+    return 'code';
+  }
+
   /**
    * Load available authorities from BE if needed. Available authorities can be changed, when some module is enabled / disabled.
    *
@@ -76,6 +80,28 @@ export default class RoleManager extends AbstractRequestFormableManager {
             dispatch(this.receiveError(null, uiKey, error));
           });
       }
+    };
+  }
+
+  /**
+   * Load form definition for role attributes
+   *
+   * @param  {string} id role identifier
+   * @param {string} uiKey
+   * @returns {action}
+   */
+  fetchAttributeFormDefinition(id, uiKey) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      //
+      this.getService().getAttributeFormDefinition(id)
+      .then(json => {
+        dispatch(this.dataManager.receiveData(uiKey, json));
+      })
+      .catch(error => {
+        // TODO: data uiKey
+        dispatch(this.receiveError(null, uiKey, error));
+      });
     };
   }
 }

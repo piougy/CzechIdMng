@@ -1,14 +1,18 @@
 package eu.bcvsolutions.idm.core.scheduler.rest.impl;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
@@ -21,14 +25,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -52,6 +61,8 @@ public class IdmLongRunningTaskController
 
 	protected static final String TAG = "Long running tasks";
 	private final LongRunningTaskManager longRunningTaskManager;
+	//
+	@Autowired private AttachmentManager attachmentManager;
 
 	@Autowired
 	public IdmLongRunningTaskController(
@@ -125,6 +136,46 @@ public class IdmLongRunningTaskController
 			@ApiParam(value = "LRT's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/download/{attachmentId}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
+	@ApiOperation(
+			value = "Download result from LRT",
+			nickname = "downloadReslut",
+			response = IdmLongRunningTaskDto.class,
+			tags={ IdmLongRunningTaskController.TAG }, 
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_READ, description = "") })
+					})
+	public ResponseEntity<?> downloadResult(
+			@ApiParam(value = "LRT's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			@ApiParam(value = "Attachment's id.", required = true)
+			@PathVariable @NotNull String attachmentId) {
+		
+		// check if user has permission for read the long running task
+		IdmLongRunningTaskDto longRunningTaskDto = super.getDto(backendId);
+		if (longRunningTaskDto == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
+		//
+		IdmAttachmentDto attachmentDto = longRunningTaskManager.getAttachment(
+				longRunningTaskDto.getId(), 
+				DtoUtils.toUuid(attachmentId), 
+				IdmBasePermission.READ);
+		InputStream is = attachmentManager.getAttachmentData(attachmentDto.getId(), IdmBasePermission.READ);
+
+		String attachmentName = longRunningTaskDto.getTaskType() + "-" + longRunningTaskDto.getCreated().toString("yyyyMMddHHmmss");
+		return ResponseEntity.ok()
+				.contentLength(attachmentDto.getFilesize())
+				.contentType(MediaType.parseMediaType(attachmentDto.getMimetype()))
+				.header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s.%s\"", attachmentName, attachmentDto.getAttachmentType()))
+				.body(new InputStreamResource(is));
 	}
 
 	/**

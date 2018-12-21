@@ -533,28 +533,49 @@ public class DefaultIdmPasswordPolicyService
 
 		if (passwordPolicy.isEnchancedControl()) {
 			String[] attributes = passwordPolicy.getIdentityAttributeCheck().split(", ");
+			String passwordWithAccents = password.toLowerCase();
+			String passwordWithoutAccents = StringUtils.stripAccents(passwordWithAccents);
+
 			IdmIdentityDto identity = passwordValidationDto.getIdentity();
 			for (int index = 0; index < attributes.length; index++) {
-				if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EMAIL.name())) {
-					if (identity.getEmail() != null
-							&& identity.getEmail().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
-						errors.put(PASSWORD_SIMILAR_EMAIL, identity.getEmail());
-					}
-				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name())) {
-					if (identity.getFirstName() != null && identity.getFirstName().toLowerCase()
-							.matches("(?i).*" + password.toLowerCase() + ".*")) {
-						errors.put(PASSWORD_SIMILAR_FIRSTNAME, identity.getFirstName());
-					}
-				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.LASTNAME.name())) {
-					if (identity.getLastName() != null
-							&& identity.getLastName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
-						errors.put(PASSWORD_SIMILAR_LASTNAME, identity.getLastName());
-					}
-				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.USERNAME.name())) {
-					if (identity.getUsername() != null
-							&& identity.getUsername().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
-						errors.put(PASSWORD_SIMILAR_USERNAME, identity.getUsername());
-					}
+
+				String attributeToCheck = attributes[index];
+				String value = null;
+				String transformedValueWithAccents = null;
+				String transformedValueWithoutAccents = null;
+				String controlledValue = null;
+
+				if (IdmPasswordPolicyIdentityAttributes.EMAIL.name().equals(attributeToCheck)) {
+					value = identity.getEmail();
+					controlledValue = PASSWORD_SIMILAR_EMAIL;
+				} else if (IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name().equals(attributeToCheck)) {
+					value = identity.getFirstName();
+					controlledValue = PASSWORD_SIMILAR_FIRSTNAME;
+				} else if (IdmPasswordPolicyIdentityAttributes.LASTNAME.name().equals(attributeToCheck)) {
+					value = identity.getLastName(); 
+					controlledValue = PASSWORD_SIMILAR_LASTNAME;
+				} else if (IdmPasswordPolicyIdentityAttributes.USERNAME.name().equals(attributeToCheck)) {
+					value = identity.getUsername();
+					controlledValue = PASSWORD_SIMILAR_USERNAME;
+				}
+				
+				value = StringUtils.trimToNull(value);
+				if (StringUtils.isEmpty(value)) {
+					continue;
+				}
+
+				transformedValueWithAccents = StringUtils.lowerCase(value);
+				transformedValueWithoutAccents = StringUtils.stripAccents(transformedValueWithAccents);
+				
+				boolean contains = StringUtils.contains(passwordWithAccents, transformedValueWithAccents);
+				if (contains) {
+					errors.put(controlledValue, value);
+					continue;
+				}
+				contains = StringUtils.contains(passwordWithoutAccents, transformedValueWithoutAccents);
+				if (contains) {
+					errors.put(controlledValue, value);
+					continue;
 				}
 			}
 		}

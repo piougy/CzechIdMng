@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.eav.rest.impl;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -136,6 +137,24 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.FORM_DEFINITION_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countFormDefinitions", 
+			tags = { IdmFormAttributeController.TAG },
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_DEFINITION_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_DEFINITION_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
 	}
 	
 	@Override
@@ -348,6 +367,19 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 		filter.setType(formService.getDefaultDefinitionType(ownerType));
 		//
 		return new ResponseEntity<>(toResources(find(filter, null, permission), getDtoClass()), HttpStatus.OK);
+	}
+	
+	/**
+	 * Returns definition by given ID
+	 * 
+	 * @param definitionId
+	 * @return
+	 */
+	public ResponseEntity<?> getDefinitions(UUID definitionId) {
+		IdmFormDefinitionFilter filter = new IdmFormDefinitionFilter();
+		filter.setId(definitionId);
+		//
+		return new ResponseEntity<>(toResources(find(filter, null, null), getDtoClass()), HttpStatus.OK);
 	}
 	
 	

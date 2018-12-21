@@ -220,13 +220,13 @@ class NodeTable extends Advanced.AbstractTableContent {
                 uiKey="organization-tree"
                 manager={ treeNodeManager }
                 forceSearchParameters={ forceSearchParameters }
-                onSelect={ this._useFilterByTree.bind(this) }
+                onChange={ this._useFilterByTree.bind(this) }
                 ŕendered={ showTree }
                 traverse={ false }
                 header={
                   !type || !showTreeTypeSelect
                   ?
-                  null
+                  undefined
                   :
                   <Basic.SelectBox
                     ref="treeTypeId"

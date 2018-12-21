@@ -163,6 +163,14 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		return true;
 	}
 	
+	/**
+	 * True - supports save form values
+	 * @return
+	 */
+	protected boolean supportsFormValues() {
+		return formService.isFormable(getController().getDtoClass());
+	}
+	
 	@Test
 	public void testGet() throws Exception {
 		DTO dto = createDto();
@@ -355,19 +363,21 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		String name = getHelper().createName();
 		externalIdentifiableDto.setExternalId(name);
 		//
-		DTO duplicate = createDto(dto);
+		DTO original = createDto(dto);
+		DTO duplicate = prepareDto();
+		((ExternalIdentifiable) duplicate).setExternalId(name);
 		//
 		if (!supportsPost()) {
 			try {
-				createDto(dto);
+				createDto(duplicate);
 				Assert.fail();
 			} catch (DuplicateExternalIdException ex) {
-				Assert.assertEquals(duplicate.getId(), ex.getDuplicateId());
+				Assert.assertEquals(original.getId(), ex.getDuplicateId());
 			}
 		} else {
 			getMockMvc().perform(post(getBaseUrl())
 	        		.with(authentication(getAdminAuthentication()))
-	        		.content(getMapper().writeValueAsString(dto))
+	        		.content(getMapper().writeValueAsString(duplicate))
 	                .contentType(TestHelper.HAL_CONTENT_TYPE))
 					.andExpect(status().isConflict());
 		}
@@ -583,7 +593,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	
 	@Test
 	public void testSaveFormDefinition() throws Exception {
-		if(!formService.isFormable(getController().getDtoClass())) {
+		if(!supportsFormValues()) {
 			LOG.info("Controller [{}] doesn't support extended attributes. Method will not be tested.", getController().getClass());
 			return;
 		}
@@ -1012,7 +1022,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		String response = getMockMvc().perform(get(getFormDefinitionsUrl(forOwner))
         		.with(authentication(getAuthentication(loginAs)))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();

@@ -18,7 +18,7 @@ public class EventContentDeletedException extends ResultCodeException {
 	
 	public EventContentDeletedException(IdmEntityEventDto entityEvent) {
 		super(CoreResultCode.EVENT_CONTENT_DELETED, ImmutableMap.of(
-				"eventId", entityEvent.getId(), 
+				"eventId", String.valueOf(entityEvent.getId()), 
 				"eventType", String.valueOf(entityEvent.getEventType()),
 				"ownerId", String.valueOf(entityEvent.getOwnerId()),
 				"instanceId", String.valueOf(entityEvent.getInstanceId())));

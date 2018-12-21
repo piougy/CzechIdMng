@@ -1,7 +1,7 @@
-import EntityManager from './EntityManager';
+import FormableEntityManager from './FormableEntityManager';
 import { ConceptRoleRequestService } from '../../services';
 
-export default class ConceptRoleRequestManager extends EntityManager {
+export default class ConceptRoleRequestManager extends FormableEntityManager {
 
   constructor() {
     super();

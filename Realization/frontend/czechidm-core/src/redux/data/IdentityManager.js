@@ -217,7 +217,7 @@ export default class IdentityManager extends FormableEntityManager {
         dispatch(this.dataManager.requestData(uiKey));
         this.getService().downloadProfileImage(identityId)
           .then(response => {
-            if (response.status === 404) {
+            if (response.status === 404 || response.status === 204) {
               return null;
             } else if (response.status === 200) {
               return response.blob();

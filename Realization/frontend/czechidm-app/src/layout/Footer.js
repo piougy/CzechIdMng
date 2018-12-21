@@ -32,11 +32,15 @@ class Footer extends Basic.AbstractContent {
   }
 
   render() {
-    const { backendVersion } = this.props;
-
+    const { backendVersion, rendered } = this.props;
+    if (!rendered) {
+      return null;
+    }
+    //
     return (
       <footer>
         <div className="pull-left">
+          {/* RT: version is visible ion about page only */}
           <span title={this.i18n('app.version.backend') + ': ' + backendVersion} className="hidden">
             {this.i18n('app.version.frontend')} {packageInfo.version}
           </span>
@@ -62,11 +66,13 @@ class Footer extends Basic.AbstractContent {
 }
 
 Footer.propTypes = {
-  backendVersion: PropTypes.string
+  backendVersion: PropTypes.string,
+  rendered: PropTypes.bool
 };
 
 Footer.defaultProps = {
-  backendVersion: null
+  backendVersion: null,
+  rendered: true
 };
 
 // Which props do we want to inject, given the global state?

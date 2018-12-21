@@ -22,6 +22,8 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { entityId } = this.props.params;
     const defaultSearchParameters = accountManager.getDefaultSearchParameters()
                                       .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
@@ -29,7 +31,6 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
                                       .setFilter('supportChangePassword', true)
                                       .setFilter('identity', entityId);
 
-    this.selectSidebarItem('profile-password');
     this.context.store.dispatch(accountManager.fetchEntities(defaultSearchParameters, `${entityId}-accounts`));
   }
 

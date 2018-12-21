@@ -7,17 +7,15 @@ import moment from 'moment';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleRequestManager, ConceptRoleRequestManager, IdentityManager, IdentityRoleManager } from '../../redux';
+import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
-import SearchParameters from '../../domain/SearchParameters';
 import RoleConceptTable from './RoleConceptTable';
 
 const uiKey = 'role-request';
 const uiKeyAttributes = 'concept-role-requests';
 const conceptRoleRequestManager = new ConceptRoleRequestManager();
 const roleRequestManager = new RoleRequestManager();
-const identityManager = new IdentityManager();
 const identityRoleManager = new IdentityRoleManager();
 
 /**
@@ -91,6 +89,14 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     }
   }
 
+  /**
+   * Its used for reload the component iner date, eq. refresh roleRequest.
+   * Reload is used as callback from inner components
+   */
+  reloadComponent() {
+    this._initComponent(this.props);
+  }
+
   _initComponentCurrentRoles(props) {
     const { _request } = props;
     //
@@ -117,6 +123,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
     this.setState({showLoading: true});
     const formEntity = this.refs.form.getData();
+    delete formEntity.conceptRoles;
 
     if (formEntity.id === undefined) {
       this.context.store.dispatch(roleRequestManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
@@ -185,8 +192,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
         }
       }
-      this.refs.table.getWrappedInstance().reload();
       this.setState({showLoadingButtonRemove: false});
+      this.reloadComponent();
     })
     .catch(error => {
       this.addError(error);
@@ -207,10 +214,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     // }));
   }
 
-  _updateConcept(data, type) {
+  _updateConcept(data, type, formInstance) {
     const {_request} = this.props;
-    // this.setState({showLoading: true});
-
     let concept;
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)) {
       concept = {
@@ -222,6 +227,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         'identityRole': data.identityRole,
         'validFrom': data.validFrom,
         'validTill': data.validTill,
+        '_eav': [formInstance]
       };
     }
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)) {
@@ -234,6 +240,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         'identityRole': data.identityRole,
         'validFrom': data.validFrom,
         'validTill': data.validTill,
+        '_eav': [formInstance]
       };
     }
     this.context.store.dispatch(conceptRoleRequestManager.updateEntity(concept, `${uiKeyAttributes}-detail`, (updatedEntity, error) => {
@@ -243,18 +250,15 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             _request.conceptRoles[i] = updatedEntity;
           }
         }
-        this.refs.table.getWrappedInstance().reload();
-        // this.setState({showLoading: false});
+        this.reloadComponent();
       } else {
-        // this.setState({showLoading: false});
         this.addError(error);
       }
     }));
   }
 
-  _createConcept(data, type) {
+  _createConcept(data, type, formInstance) {
     const {_request} = this.props;
-    // this.setState({showLoading: true});
     const concept = {
       'operation': type,
       'roleRequest': _request.id,
@@ -263,16 +267,15 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       'identityRole': data.id,
       'validFrom': data.validFrom,
       'validTill': data.validTill,
+      '_eav': [formInstance]
     };
 
     conceptRoleRequestManager.getService().create(concept)
     .then(json => {
-      // this.setState({showLoading: false});
       _request.conceptRoles.push(json);
-      this.refs.table.getWrappedInstance().reload();
+      this.reloadComponent();
     })
     .catch(error => {
-      // this.setState({showLoading: false});
       this.addError(error);
     });
 
@@ -313,9 +316,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         showLoading: false
       });
       this.addError(ex);
-      if (this.refs.table) {
-        this.refs.table.getWrappedInstance().reload();
-      }
     });
     return;
   }
@@ -334,6 +334,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     if (!rendered) {
       return null;
     }
+
     return (
       <div>
         <Basic.ContentHeader rendered={ request !== null }>
@@ -435,24 +436,25 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={ request !== null && _currentIdentityRoles !== null }>
-          <RoleConceptTable
-            ref="identityRoleConceptTable"
-            uiKey="identity-role-concept-table"
-            showLoading={showLoading}
-            showLoadingButtonRemove={showLoadingButtonRemove}
-            className="vertical-scroll"
-            readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
-            identityUsername={request && request.applicant}
-            identityRoles={_currentIdentityRoles}
-            addedIdentityRoles={addedIdentityRoles}
-            changedIdentityRoles={changedIdentityRoles}
-            removedIdentityRoles={removedIdentityRoles}
-            removeConceptFunc={this._removeConcept.bind(this)}
-            createConceptFunc={this._createConcept.bind(this)}
-            updateConceptFunc={this._updateConcept.bind(this)}
-            />
-        </Basic.Panel>
+        <RoleConceptTable
+          ref="identityRoleConceptTable"
+          uiKey="identity-role-concept-table"
+          showLoading={showLoading}
+          showLoadingButtonRemove={showLoadingButtonRemove}
+          className="vertical-scroll"
+          readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
+          identityUsername={request && request.applicant}
+          request={request}
+          identityRoles={_currentIdentityRoles}
+          addedIdentityRoles={addedIdentityRoles}
+          changedIdentityRoles={changedIdentityRoles}
+          removedIdentityRoles={removedIdentityRoles}
+          removeConceptFunc={this._removeConcept.bind(this)}
+          createConceptFunc={this._createConcept.bind(this)}
+          updateConceptFunc={this._updateConcept.bind(this)}
+          conceptRoleRequestManager={conceptRoleRequestManager}
+          reloadComponent={this.reloadComponent.bind(this)}
+          />
       </div>
     );
   }
@@ -464,10 +466,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       _currentIdentityRoles,
       editableInStates,
       showRequestDetail,
-      _permissions,
-      _identityPermissions } = this.props;
+      _permissions } = this.props;
     //
-    const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
     // We want show audit fields only for Admin, but not in concept state.
@@ -475,7 +475,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const showLoading = !request || _showLoading || this.state.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
     const showLoadingButtonRemove = this.state.showLoadingButtonRemove;
-
     if (this.state.showLoading || !request) {
       return (<div>
         <Basic.ContentHeader rendered={ showRequestDetail }>
@@ -557,12 +556,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 readOnly
                 label={this.i18n('entity.RoleRequest.log')}/>
               <Basic.TextArea
-                ref="originalRequest"
-                rows={ 5 }
-                hidden={!_adminMode}
-                readOnly
-                label={this.i18n('entity.RoleRequest.originalRequest')}/>
-              <Basic.TextArea
                 ref="description"
                 rows={ 3 }
                 placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
@@ -571,9 +564,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             <div style={{ padding: '15px 15px 0 15px' }}>
               {
                 this._renderRoleConceptTable(request, true, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles, showLoadingButtonRemove)
-              }
-              {
-                this._renderRoleConceptChangesTable(request, forceSearchParameters, true)
               }
             </div>
             <Basic.PanelFooter>
@@ -608,11 +598,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           </Basic.Panel>
         </form>
         {
-          this._renderRoleConceptChangesTable(request, forceSearchParameters, !showRequestDetail)
-        }
-        {
-          !identityManager.canRead({}, _identityPermissions)
-          ||
           this._renderRoleConceptTable(request, !showRequestDetail,
             isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
             changedIdentityRoles, removedIdentityRoles)
@@ -651,8 +636,7 @@ function select(state, component) {
     _request: entity,
     _showLoading: entity ? false : true,
     _currentIdentityRoles,
-    _permissions: roleRequestManager.getPermissions(state, null, entity),
-    _identityPermissions: identityManager.getPermissions(state, null, identityId)
+    _permissions: roleRequestManager.getPermissions(state, null, entity)
   };
 }
 

@@ -122,7 +122,7 @@ public interface IdmIdentityContractService extends
 	 * Otherwise returns null. Parameter identityId is mandatory.
 	 * 
 	 * @param identityId
-	 * @param expiration
+	 * @param expiration [optional] expiration less than given. Current date is used, if {@code null} is given.  
 	 * @return
 	 */
 	IdmIdentityContractDto findLastExpiredContract(UUID identityId, LocalDate expiration);

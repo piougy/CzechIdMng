@@ -56,23 +56,25 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
     const { formAttributes } = this.props;
     const filledFormValues = {};
     //
-    formAttributes.forEach(attribute => {
-      if (attribute.readonly) {
-        // readOnly (~ disabled from our point of view) attributes are not sent to BE
-        return true;
-      }
-      const formComponent = this.refs[attribute.code];
-      if (!formComponent) {
-        // unsupported persistentType
-        return true;
-      }
-      const value = formComponent.refs[AbstractFormAttributeRenderer.INPUT].getValue(); // FIXME: why input is used? see EavForm.
-      if (value === undefined) {
-        // values are not controlled
-        return true;
-      }
-      filledFormValues[attribute.code] = value;
-    });
+    if (formAttributes) {
+      formAttributes.forEach(attribute => {
+        if (attribute.readonly) {
+          // readOnly (~ disabled from our point of view) attributes are not sent to BE
+          return true;
+        }
+        const formComponent = this.refs[attribute.code];
+        if (!formComponent) {
+          // unsupported persistentType
+          return true;
+        }
+        const value = formComponent.refs[AbstractFormAttributeRenderer.INPUT].getValue(); // FIXME: why input is used? see EavForm.
+        if (value === undefined) {
+          // values are not controlled
+          return true;
+        }
+        filledFormValues[attribute.code] = value;
+      });
+    }
     return filledFormValues;
   }
 

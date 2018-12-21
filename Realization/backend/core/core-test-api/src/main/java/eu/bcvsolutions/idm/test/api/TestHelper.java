@@ -737,7 +737,7 @@ public interface TestHelper {
 	/**
 	 * Wait for result - usable for asynchronous tests
 	 * 
-	 * @param continueFunction [option] continue by default, until iterationCount is complete
+	 * @param continueFunction [option] continue by default, until iterationCount is complete. If continueFunction is given, then is iterated while function returns true.
 	 * @param interationWaitMilis [optional] default 300ms
 	 * @param iterationCount [optional] default 50 => max wait 300ms x 50 = 15s
 	 */

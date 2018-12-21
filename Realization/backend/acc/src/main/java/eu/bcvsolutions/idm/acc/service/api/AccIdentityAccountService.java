@@ -7,7 +7,6 @@ import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -19,7 +18,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface AccIdentityAccountService extends 
-		ReadWriteDtoService<AccIdentityAccountDto, AccIdentityAccountFilter>, 
+		EntityAccountService<AccIdentityAccountDto, AccIdentityAccountFilter>, 
 		ScriptEnabled,
 		AuthorizableService<AccIdentityAccountDto> {
 

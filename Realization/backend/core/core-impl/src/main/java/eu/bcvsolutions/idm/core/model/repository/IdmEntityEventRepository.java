@@ -32,7 +32,9 @@ public interface IdmEntityEventRepository extends AbstractEntityRepository<IdmEn
 	List<IdmEntityEvent> findByInstanceIdAndResult_StateOrderByCreatedAsc(String instanceId, OperationState state);
 	
 	/**
-	 * Find event ready to be executed
+	 * Find event ready to be executed.
+	 * 
+	 * Lookout: Should be used, when no running events exists. Use {@link #findToExecute(String, OperationState, DateTime, PriorityType, List, Pageable)} otherwise.
 	 * 
 	 * @param instanceId
 	 * @param state
@@ -40,6 +42,7 @@ public interface IdmEntityEventRepository extends AbstractEntityRepository<IdmEn
 	 * @param priority
 	 * @param pageable
 	 * @return
+	 * @see #findToExecute(String, OperationState, DateTime, PriorityType, List, Pageable)
 	 */
 	@Query(value = "SELECT e FROM #{#entityName} e WHERE"
 			+ " instanceId = :instanceId"
@@ -54,6 +57,36 @@ public interface IdmEntityEventRepository extends AbstractEntityRepository<IdmEn
 			@Param("state") OperationState state,
 			@Param("executeDate") DateTime executeDate,
 			@Param("priority") PriorityType priority,
+			Pageable pageable);
+	
+	/**
+	 * Find event ready to be executed
+	 * 
+	 * @param instanceId
+	 * @param state
+	 * @param executeDate
+	 * @param priority
+	 * @param exceptOwnerIds
+	 * @param pageable
+	 * @return
+	 * @since 9.4.0
+	 */
+	@Query(value = "SELECT e FROM #{#entityName} e WHERE"
+			+ " instanceId = :instanceId"
+			+ " AND"
+			+ " (e.executeDate is null or e.executeDate <= :executeDate)"
+			+ " AND"
+			+ " (:priority is null or e.priority = :priority)"
+			+ " AND"
+			+ " e.result.state = :state"
+			+ " AND"
+			+ " e.ownerId NOT IN (:exceptOwnerIds)")
+	Page<IdmEntityEvent> findToExecute(
+			@Param("instanceId") String instanceId, 
+			@Param("state") OperationState state,
+			@Param("executeDate") DateTime executeDate,
+			@Param("priority") PriorityType priority,
+			@Param("exceptOwnerIds") List<UUID> exceptOwnerIds,
 			Pageable pageable);
 	
 	/**

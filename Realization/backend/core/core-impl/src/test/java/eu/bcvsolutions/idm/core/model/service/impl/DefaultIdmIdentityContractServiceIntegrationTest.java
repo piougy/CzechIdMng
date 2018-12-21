@@ -59,7 +59,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * - evaluate state
  * - filter - TODO: move to rest test
  * 
- * TODO: @Transactional
+ * TODO: @Transactional - automatic roles are recount after original transaction ends (LRT)
  * 
  * @author Radek Tomiška
  * @author Marek Klement
@@ -101,14 +101,12 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	}
 	
 	@After 
-	public void logout() {
+	public void after() {
 		// delete this test automatic roles only	
 		if(automaticRoleA != null) try { deleteAutomaticRole(automaticRoleA); } catch (EmptyResultDataAccessException ex) {} ;
 		if(automaticRoleD != null) try { deleteAutomaticRole(automaticRoleD); } catch (EmptyResultDataAccessException ex) {} ;
 		if(automaticRoleE != null) try { deleteAutomaticRole(automaticRoleE); } catch (EmptyResultDataAccessException ex) {} ;
 		if(automaticRoleF != null) try { deleteAutomaticRole(automaticRoleF); } catch (EmptyResultDataAccessException ex) {} ;
-		//
-		super.logout();
 	}	
 	
 	private void prepareTreeStructureAndRoles() {

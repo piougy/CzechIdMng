@@ -2,11 +2,13 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.UUID;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Default filter for role catalogue, parent
@@ -16,9 +18,24 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
  */
 public class IdmRoleCatalogueFilter extends DataFilter implements ExternalIdentifiable {
 	
-	private UUID parent;
-	private String name;
-	private String code;
+	/**
+	 * Parent catalogue item identifier 
+	 */
+	public static final String PARAMETER_PARENT = IdmTreeNodeFilter.PARAMETER_PARENT;
+	/**
+	 *  Search roots - true / false.
+	 *  @since 9.4.0
+	 */
+	public static final String PARAMETER_ROOTS = IdmTreeNodeFilter.PARAMETER_ROOTS;
+	//
+	public static final String PARAMETER_NAME = "name";
+	public static final String PARAMETER_CODE = "code";
+	/**
+	 * Catalogue items recursively down
+	 */
+	public static final String PARAMETER_RECURSIVELY = "recursively";
+	public static final boolean DEFAULT_RECURSIVELY = true;
+	
 	
 	public IdmRoleCatalogueFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -29,27 +46,27 @@ public class IdmRoleCatalogueFilter extends DataFilter implements ExternalIdenti
 	}
 
 	public String getName() {
-		return name;
+		return (String) data.getFirst(PARAMETER_NAME);
 	}
 
 	public String getCode() {
-		return code;
+		return (String) data.getFirst(PARAMETER_CODE);
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		data.set(PARAMETER_NAME, name);
 	}
 
 	public void setCode(String code) {
-		this.code = code;
+		data.set(PARAMETER_CODE, code);
 	}
 
 	public UUID getParent() {
-		return parent;
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT));
 	}
 
 	public void setParent(UUID parent) {
-		this.parent = parent;
+		data.set(PARAMETER_PARENT, parent);
 	}
 	
 	@Override
@@ -61,4 +78,44 @@ public class IdmRoleCatalogueFilter extends DataFilter implements ExternalIdenti
 	public void setExternalId(String externalId) {
 		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
+	
+	/**
+	 * @since 9.4.0
+	 * @return
+	 */
+	public Boolean getRoots() {
+		Object first = data.getFirst(PARAMETER_ROOTS);
+    	if (first == null) {
+    		return null;
+    	}
+    	return BooleanUtils.toBoolean(first.toString());
+	}
+	
+	/**
+	 * @since 9.4.0
+	 * @param roots
+	 */
+	public void setRoots(Boolean roots) {
+		data.set(PARAMETER_ROOTS, roots);
+	}
+	
+	/**
+	 * @since 9.4.0
+	 * @return
+	 */
+	public boolean isRecursively() {
+    	Object first = data.getFirst(PARAMETER_RECURSIVELY);
+    	if (first == null) {
+    		return DEFAULT_RECURSIVELY;
+    	}
+    	return BooleanUtils.toBoolean(first.toString());
+    }
+
+	/**
+	 * @since 9.4.0
+	 * @param recursively
+	 */
+    public void setRecursively(boolean recursively) {
+    	data.set(PARAMETER_RECURSIVELY, recursively);
+    }
 }

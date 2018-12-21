@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 //
 import * as Basic from '../../basic';
 import { RoleCatalogueManager } from '../../../redux';
@@ -21,7 +22,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
     super(props, context);
     this.state = {
       ...this.state,
-      selectedNodeId: null, // modal
+      selected: null, // modal
       showTree: false
     };
   }
@@ -87,8 +88,16 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
     if (event) {
       event.preventDefault();
     }
+    //
+    // set values to tree
+    const value = this.getValue();
+    let selected = [];
+    if (value) {
+      selected = _.concat(selected, value); // works for single and multi value
+    }
     this.setState({
-      showTree: true
+      showTree: true,
+      selected
     });
   }
 
@@ -116,8 +125,21 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
       event.preventDefault();
     }
     // selected type and node from tree to form
-    const { selectedNodeId } = this.state;
-    this.refs.roleCatalogue.setValue(this.getManager().getEntity(this.context.store.getState(), nodeId || selectedNodeId));
+    const { multiSelect } = this.props;
+    const { selected } = this.state;
+    let _selected = null;
+    if (!multiSelect) {
+      _selected = nodeId || selected;
+      if (_selected && _.isArray(_selected) && _selected.length > 0) {
+        _selected = _selected[0];
+      }
+    } else {
+      _selected = selected || [];
+      if (nodeId && !_.includes(_selected, nodeId)) {
+        _selected = _.concat(_selected, nodeId);
+      }
+    }
+    this.refs.roleCatalogue.setValue(_selected);
     //
     this.hideTree();
   }
@@ -166,12 +188,12 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
    *
    * @param  {event} event
    */
-  onModalSelect(nodeId, event) {
+  onModalSelect(selected, event) {
     if (event) {
       event.preventDefault();
     }
     this.setState({
-      selectedNodeId: nodeId
+      selected
     });
   }
 
@@ -209,8 +231,8 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { rendered, required, value } = this.props;
-    const { showTree, selectedNodeId, readOnly } = this.state;
+    const { rendered, required, value, multiSelect } = this.props;
+    const { showTree, selected, readOnly } = this.state;
     //
     if (!rendered) {
       return null;
@@ -229,7 +251,8 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               helpBlock={ this.getHelpBlock() }
               readOnly={ readOnly }
               required={ required }
-              value={ value }/>
+              value={ value }
+              multiSelect={ multiSelect }/>
           </div>
           { this._renderShowTreeIcon() }
         </div>
@@ -245,8 +268,11 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               ref="roleCatalogueTree"
               uiKey={ this.getUiKey() }
               manager={ this.getManager() }
-              onSelect={ this.onModalSelect.bind(this) }
+              onChange={ this.onModalSelect.bind(this) }
               onDoubleClick={ (nodeId) => this.onSelect(nodeId) }
+              clearable={ false }
+              multiSelect={ multiSelect }
+              selected={ !selected || _.isArray(selected) ? selected : [ selected ] }
               />
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
@@ -260,7 +286,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               level="success"
               showLoadingIcon
               onClick={ this.onSelect.bind(this, null) }
-              disabled={ selectedNodeId === null ? true : false }>
+              disabled={ !selected || (_.isArray(selected) && selected.length === 0) ? true : false }>
               {this.i18n('button.select')}
             </Basic.Button>
           </Basic.Modal.Footer>
@@ -280,6 +306,10 @@ RoleCatalogueSelect.propTypes = {
    * TreeNodemanager instance - manager controls fetching data etc.
    */
   manager: PropTypes.object,
+  /**
+   * The component is in multi select mode
+   */
+  multiSelect: PropTypes.bool,
   /**
    * Role catalogue selectbox label
    */
@@ -304,5 +334,6 @@ RoleCatalogueSelect.propTypes = {
 RoleCatalogueSelect.defaultProps = {
   ...Basic.AbstractFormComponent.defaultProps,
   uiKey: 'role-catalogue-tree',
-  manager: roleCatalogueManager
+  manager: roleCatalogueManager,
+  multiSelect: false
 };

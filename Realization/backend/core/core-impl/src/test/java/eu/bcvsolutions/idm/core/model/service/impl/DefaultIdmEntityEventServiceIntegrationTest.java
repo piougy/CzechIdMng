@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
@@ -19,12 +21,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.EntityEventEvent.EntityEventType;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.event.processor.event.EntityEventDeleteExecutedProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Entity events integration tests
@@ -34,13 +38,14 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Radek Tomiška
  *
  */
+@Transactional
 public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmEntityStateService entityStateService;
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private IdmIdentityService identityService;
+	@Autowired private EntityEventDeleteExecutedProcessor entityEventDeleteExecutedProcessor;
 	//
 	private DefaultIdmEntityEventService entityEventService;
 
@@ -50,7 +55,6 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 	}
 	
 	@Test
-	@Transactional
 	public void testReferentialIntegrity() {
 		IdmEntityEventDto entityEvent = new IdmEntityEventDto();
 		entityEvent.setOwnerType("empty");
@@ -77,10 +81,9 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 	
 	@Test
 	@Ignore
-	@Transactional
 	public void testReferentialIntegrityOwnerIsDeleted() {
-		IdmIdentityDto identity = helper.createIdentity((GuardedString) null);
-		IdmIdentityDto identityTwo = helper.createIdentity((GuardedString) null);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
 		//
 		IdmEntityEventDto entityEvent = new IdmEntityEventDto();
 		entityEvent.setOwnerType(entityEventManager.getOwnerType(identity.getClass()));
@@ -112,7 +115,7 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		Assert.assertNull(entityStateService.get(entityState));
 	}
 	
-	@Transactional
+	@Test
 	public void testReferentialIntegrityParentIsDeleted() {
 		IdmEntityEventDto parentEvent = new IdmEntityEventDto();
 		parentEvent.setOwnerType("empty");
@@ -141,14 +144,14 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		Assert.assertNull(entityEventService.get(entityEvent.getId()));
 	}	
 	
-	@Transactional
+	@Test
 	public void testReferentialIntegrityLastChildIsDeleted() {
 		IdmEntityEventDto parentEvent = new IdmEntityEventDto();
 		parentEvent.setOwnerType("empty");
 		parentEvent.setEventType("empty");
 		parentEvent.setOwnerId(UUID.randomUUID());
 		parentEvent.setInstanceId("empty");
-		parentEvent.setResult(new OperationResultDto(OperationState.BLOCKED));
+		parentEvent.setResult(new OperationResultDto(OperationState.EXECUTED));
 		parentEvent.setPriority(PriorityType.NORMAL);
 		parentEvent = entityEventService.save(parentEvent);
 		//
@@ -157,9 +160,10 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		entityEventOne.setEventType("empty");
 		entityEventOne.setOwnerId(UUID.randomUUID());
 		entityEventOne.setInstanceId("empty");
-		entityEventOne.setResult(new OperationResultDto(OperationState.BLOCKED));
+		entityEventOne.setResult(new OperationResultDto(OperationState.EXECUTED));
 		entityEventOne.setPriority(PriorityType.NORMAL);
 		entityEventOne.setParent(parentEvent.getId());
+		entityEventOne.setRootId(parentEvent.getId());
 		entityEventOne = entityEventService.save(entityEventOne);
 		//
 		IdmEntityEventDto entityEventTwo = new IdmEntityEventDto();
@@ -167,22 +171,23 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		entityEventTwo.setEventType("empty");
 		entityEventTwo.setOwnerId(UUID.randomUUID());
 		entityEventTwo.setInstanceId("empty");
-		entityEventTwo.setResult(new OperationResultDto(OperationState.BLOCKED));
+		entityEventTwo.setResult(new OperationResultDto(OperationState.EXECUTED));
 		entityEventTwo.setPriority(PriorityType.NORMAL);
 		entityEventTwo.setParent(parentEvent.getId());
+		entityEventTwo.setRootId(parentEvent.getId());
 		entityEventTwo = entityEventService.save(entityEventTwo);
 		//
 		Assert.assertNotNull(parentEvent.getId());
 		Assert.assertNotNull(entityEventOne.getId());
 		Assert.assertNotNull(entityEventTwo.getId());
 		//
-		entityEventService.delete(entityEventTwo);
+		entityEventDeleteExecutedProcessor.process(new CoreEvent<IdmEntityEventDto>(EntityEventType.EXECUTE, entityEventTwo));
 		//
 		Assert.assertNotNull(entityEventService.get(parentEvent.getId()));
 		Assert.assertNotNull(entityEventService.get(entityEventOne.getId()));
 		Assert.assertNull(entityEventService.get(entityEventTwo.getId()));
 		//
-		entityEventService.delete(entityEventOne);
+		entityEventDeleteExecutedProcessor.process(new CoreEvent<IdmEntityEventDto>(EntityEventType.EXECUTE, entityEventOne));
 		//
 		Assert.assertNull(entityEventService.get(parentEvent.getId()));
 		Assert.assertNull(entityEventService.get(entityEventOne.getId()));
@@ -190,7 +195,6 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 	}
 	
 	@Test
-	@Transactional
 	public void testDeleteAll() {
 		String mockOwnerType = getHelper().createName();
 		//
@@ -231,5 +235,42 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		List<IdmEntityStateDto> states = entityStateService.find(stateFilter, null).getContent();
 		Assert.assertEquals(1, states.size());
 		Assert.assertEquals(otherState.getId(), states.get(0).getId());
+	}
+	
+	@Test
+	public void testExceptOwner() {
+		String mockOwnerType = getHelper().createName();
+		String instanceId = getHelper().createName();
+		//
+		UUID ownerOne = UUID.randomUUID();
+		IdmEntityEventDto entityEventOne = new IdmEntityEventDto();
+		entityEventOne.setOwnerType(mockOwnerType);
+		entityEventOne.setEventType("empty");
+		entityEventOne.setOwnerId(ownerOne);
+		entityEventOne.setInstanceId(instanceId);
+		entityEventOne.setResult(new OperationResultDto(OperationState.CREATED));
+		entityEventOne.setPriority(PriorityType.NORMAL);
+		entityEventOne = entityEventService.save(entityEventOne);
+		//
+		UUID ownerTwo = UUID.randomUUID();
+		IdmEntityEventDto entityEventTwo = new IdmEntityEventDto();
+		entityEventTwo.setOwnerType(mockOwnerType);
+		entityEventTwo.setEventType("empty");
+		entityEventTwo.setOwnerId(ownerTwo);
+		entityEventTwo.setInstanceId(instanceId);
+		entityEventTwo.setResult(new OperationResultDto(OperationState.CREATED));
+		entityEventTwo.setPriority(PriorityType.NORMAL);
+		entityEventTwo = entityEventService.save(entityEventTwo);
+		//
+		List<IdmEntityEventDto> events = entityEventService.findToExecute(instanceId, null, PriorityType.NORMAL, null, null).getContent();
+		//
+		Assert.assertEquals(2, events.size());
+		Assert.assertTrue(events.stream().anyMatch(e -> e.getOwnerId().equals(ownerOne)));
+		Assert.assertTrue(events.stream().anyMatch(e -> e.getOwnerId().equals(ownerTwo)));
+		//
+		events = entityEventService.findToExecute(instanceId, null, PriorityType.NORMAL, Lists.newArrayList(ownerTwo), null).getContent();
+		//
+		Assert.assertEquals(1, events.size());
+		Assert.assertTrue(events.stream().anyMatch(e -> e.getOwnerId().equals(ownerOne)));
 	}
 }

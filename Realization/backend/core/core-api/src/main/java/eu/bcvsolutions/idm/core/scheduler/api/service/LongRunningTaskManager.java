@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.core.scheduler.api.service;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -109,4 +111,18 @@ public interface LongRunningTaskManager {
 	 * @since 8.2.0
 	 */
 	boolean isAsynchronous();
+
+	/**
+	 * Get attachment for long running task. {@link IdmLongRunningTaskDto} must exists,
+	 * otherwise is throw error {@link EntityNotFoundException}. Also {@link IdmAttachmentDto}
+	 * must exists otherwise is throw error {@link EntityNotFoundException}.
+	 *
+	 * @param longRunningTaskId
+	 * @param attachmentId
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 9.4.0
+	 */
+	IdmAttachmentDto getAttachment(UUID longRunningTaskId, UUID attachmentId, BasePermission... permission);
 }

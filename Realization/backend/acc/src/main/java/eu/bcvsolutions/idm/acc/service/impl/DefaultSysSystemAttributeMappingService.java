@@ -247,7 +247,7 @@ public class DefaultSysSystemAttributeMappingService extends
 		}
 
 		Class<? extends Identifiable> entityType = systemMappingDto.getEntityType().getExtendedAttributeOwnerType();
-		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
+		if (entityType != null && dto.isExtendedAttribute() && formService.isFormable(entityType)) {
 			createExtendedAttributeDefinition(dto, entityType);
 		}
 		return super.saveInternal(dto);
@@ -301,7 +301,7 @@ public class DefaultSysSystemAttributeMappingService extends
 	@Override
 	public List<SysSystemAttributeMappingDto> getAllPasswordAttributes(UUID systemId, UUID systemMappingId) {
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
-		filter.setPasswordAttribute(true);
+		filter.setPasswordAttribute(Boolean.TRUE);
 		filter.setSystemId(systemId);
 		filter.setSystemMappingId(systemMappingId);
 		return this.find(filter, null).getContent();

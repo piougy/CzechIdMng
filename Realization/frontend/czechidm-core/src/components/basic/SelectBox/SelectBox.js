@@ -200,18 +200,25 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getValue() {
-    const { returnProperty } = this.props;
+    const { returnProperty, multiSelect } = this.props;
+    const { value, error } = this.state;
     //
-    if (!this.state.value) {
-      if (this.props.multiSelect === true) {
+    if (error && error.statusCode !== 404) {
+      // select box is not rendered
+      // FIXME: show text field with filled value instead? The same as in code lists?
+      return undefined;
+    }
+    //
+    if (!value) {
+      if (multiSelect === true) {
         return [];
       }
       return null;
     }
     // value is array ... multiselect
-    if (this.state.value instanceof Array && this.props.multiSelect === true) {
+    if (value instanceof Array && multiSelect === true) {
       const copyValues = [];
-      for (const item of this.state.value) {
+      for (const item of value) {
         const copyValue = this._deletePrivateField(_.merge({}, item));
         if (returnProperty) {
           copyValues.push(copyValue[returnProperty]);
@@ -222,7 +229,7 @@ class SelectBox extends AbstractFormComponent {
       return copyValues;
     }
     // value is not array
-    const copyValue = _.merge({}, this.state.value);
+    const copyValue = _.merge({}, value);
     this._deletePrivateField(copyValue);
     // result property value - if value is false, then whole object is returned
     if (returnProperty) {
@@ -242,7 +249,8 @@ class SelectBox extends AbstractFormComponent {
   }
 
   isValid() {
-    if (this.state.isLoading === true) {
+    const { isLoading } = this.state;
+    if (isLoading === true) {
       // value still loading ... component is invalid
       return false;
     }
@@ -430,15 +438,9 @@ class SelectBox extends AbstractFormComponent {
     if (required && !value) {
       showAsterix = true;
     }
-    if (error) {
-      // FIXME: entity can be deleted (e.g. eav values doesn't have referential integrity)
-      return (
-        <FlashMessage message={ this.flashMessagesManager.convertFromError(error) } className="no-margin" />
-      );
-    }
     //
     return (
-      <div className={showAsterix ? 'has-feedback' : ''}>
+      <div className={ showAsterix ? 'has-feedback' : '' }>
         {
           !label
           ||
@@ -459,7 +461,13 @@ class SelectBox extends AbstractFormComponent {
             :
             <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
               <span>
-                {this.getSelectComponent()}
+                {
+                  error
+                  ?
+                  <FlashMessage message={ this.flashMessagesManager.convertFromError(error) } className="no-margin" />
+                  :
+                  this.getSelectComponent()
+                }
                 {
                   feedback != null
                   ?
@@ -513,34 +521,34 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getSelectComponent() {
-    const { placeholder, fieldLabel, multiSelect, clearable} = this.props;
+    const { placeholder, fieldLabel, multiSelect, clearable, showLoading } = this.props;
     const { isLoading, options, readOnly, disabled, value } = this.state;
     //
     // from new version react-select is necessary turn off onBlurResetsInput and closeOnSelect
     // onBlurResetsInput made problems with submit form and focus
     return (
-        <Select
-          ref="selectComponent"
-          isLoading={isLoading}
-          value={value}
-          onChange={this.onChange}
-          disabled={readOnly || disabled}
-          ignoreCase
-          ignoreAccents={false}
-          multi={ multiSelect }
-          onValueClick={this.gotoContributor}
-          valueKey={ITEM_FULL_KEY}
-          labelKey={fieldLabel}
-          onBlurResetsInput={false}
-          closeOnSelect={ !multiSelect }
-          noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
-          placeholder={this.getPlaceholder(placeholder)}
-          searchingText={this.i18n('component.basic.SelectBox.searchingText')}
-          searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-          clearable={clearable}
-          onInputChange={this.onInputChange.bind(this)}
-          options={options}
-          onOpen={ this.onOpen.bind(this) }/>
+      <Select
+        ref="selectComponent"
+        isLoading={ isLoading || showLoading}
+        value={value}
+        onChange={this.onChange}
+        disabled={readOnly || disabled}
+        ignoreCase
+        ignoreAccents={false}
+        multi={ multiSelect }
+        onValueClick={this.gotoContributor}
+        valueKey={ITEM_FULL_KEY}
+        labelKey={fieldLabel}
+        onBlurResetsInput={false}
+        closeOnSelect={ !multiSelect }
+        noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
+        placeholder={this.getPlaceholder(placeholder)}
+        searchingText={this.i18n('component.basic.SelectBox.searchingText')}
+        searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
+        clearable={clearable}
+        onInputChange={this.onInputChange.bind(this)}
+        options={options}
+        onOpen={ this.onOpen.bind(this) }/>
     );
   }
 }
@@ -557,6 +565,9 @@ SelectBox.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
     PropTypes.string
   ]),
+  /**
+   * The component is in multi select mode
+   */
   multiSelect: PropTypes.bool,
   /**
    * "Hard filters"

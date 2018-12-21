@@ -22,14 +22,20 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
-import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
@@ -47,14 +53,14 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Operations with identity roles - usable in wf
+ * Operations with identity roles
  * 
  * @author svanda
  * @author Radek Tomiška
  *
  */
 public class DefaultIdmIdentityRoleService 
-		extends AbstractEventableDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdmIdentityRoleFilter>
+		extends AbstractFormableService<IdmIdentityRoleDto, IdmIdentityRole, IdmIdentityRoleFilter>
 		implements IdmIdentityRoleService {
 
 	private final IdmIdentityRoleRepository repository;
@@ -65,8 +71,9 @@ public class DefaultIdmIdentityRoleService
 	@Autowired
 	public DefaultIdmIdentityRoleService(
 			IdmIdentityRoleRepository repository,
+			FormService formService,
 			EntityEventManager entityEventManager) {
-		super(repository, entityEventManager);
+		super(repository, entityEventManager, formService);
 		//
 		this.repository = repository;
 	}
@@ -74,6 +81,36 @@ public class DefaultIdmIdentityRoleService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.IDENTITYROLE, getEntityClass());
+	}
+	
+	@Override
+	public IdmFormInstanceDto getRoleAttributeValues(IdmIdentityRoleDto dto) {
+		Assert.notNull(dto);
+		List<IdmFormInstanceDto> eavs = dto.getEavs();
+		if(eavs != null && eavs.size() == 1) {
+			return eavs.get(0);
+		}
+		UUID roleId = dto.getRole();
+		if (roleId != null) {
+			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmIdentityRole_.role, IdmRoleDto.class);
+			// Has role filled attribute definition?
+			UUID formDefintion = role.getIdentityRoleAttributeDefinition();
+			if (formDefintion != null) {
+				IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(role,
+						IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
+				return this.getFormService().getFormInstance(dto, formDefinitionDto);
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public List<InvalidFormAttributeDto> validateFormAttributes(IdmIdentityRoleDto identityRole) {
+		IdmFormInstanceDto formInstanceDto = this.getRoleAttributeValues(identityRole);
+		if (formInstanceDto != null) {
+			return this.getFormService().validate(formInstanceDto);
+		}
+		return null;
 	}
 	
 	@Override

@@ -204,13 +204,14 @@ public class DefaultIdmTreeNodeService
 			predicates.add(builder.equal(root.get(IdmTreeNode_.treeType).get(AbstractEntity_.id), filter.getTreeTypeId()));
 		}
 		// parent node
-		if (filter.getTreeNode() != null) {
+		UUID parent = filter.getParent();
+		if (parent != null) {
 			if (filter.isRecursively()) {
 				// forest index needs tree type => same numbers in different trees
 				Subquery<IdmTreeType> subqueryTreeType = query.subquery(IdmTreeType.class);
 				Root<IdmTreeNode> subRootTreeType = subqueryTreeType.from(IdmTreeNode.class);
 				subqueryTreeType.select(subRootTreeType.get(IdmTreeNode_.treeType));
-				subqueryTreeType.where(builder.equal(subRootTreeType.get(IdmTreeNode_.id), filter.getTreeNode()));
+				subqueryTreeType.where(builder.equal(subRootTreeType.get(IdmTreeNode_.id), parent));
 				//
 				Subquery<IdmTreeNode> subquery = query.subquery(IdmTreeNode.class);
 				Root<IdmTreeNode> subRoot = subquery.from(IdmTreeNode.class);
@@ -218,7 +219,7 @@ public class DefaultIdmTreeNodeService
 				Join<IdmTreeNode, IdmForestIndexEntity> forestIndexPath = subRoot.join(IdmTreeNode_.forestIndex);
 				subquery.where(
 						builder.and(
-							builder.equal(subRoot.get(IdmTreeNode_.id), filter.getTreeNode()),
+							builder.equal(subRoot.get(IdmTreeNode_.id), parent),
 							// join tree type
 							builder.equal(root.get(IdmTreeNode_.treeType), subqueryTreeType),
 							// This is here because of the structure of forest index. We need to select only subtree and not the element itself.
@@ -229,7 +230,7 @@ public class DefaultIdmTreeNodeService
 									builder.diff(forestIndexPath.get(IdmForestIndexEntity_.rgt), 1L))));
 				predicates.add(builder.exists(subquery));
 			} else {
-				predicates.add(builder.equal(root.get(IdmTreeNode_.parent).get(AbstractEntity_.id), filter.getTreeNode()));
+				predicates.add(builder.equal(root.get(IdmTreeNode_.parent).get(AbstractEntity_.id), parent));
 			}
 		}
 		// default tree type
@@ -240,6 +241,15 @@ public class DefaultIdmTreeNodeService
 				predicates.add(builder.disjunction());
 			} else {
 				predicates.add(builder.equal(root.get(IdmTreeNode_.treeType).get(IdmTreeType_.id), defaultTreeType.getId()));
+			}
+		}
+		// roots
+		Boolean roots = filter.getRoots();
+		if (roots != null) {
+			if (roots) {
+				predicates.add(builder.isNull(root.get(IdmTreeNode_.parent)));
+			} else {
+				predicates.add(builder.isNotNull(root.get(IdmTreeNode_.parent)));
 			}
 		}
 		//

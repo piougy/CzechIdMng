@@ -19,20 +19,21 @@ export default class TextAreaFormAttributeRenderer extends TextFormAttributeRend
     return false;
   }
 
-  renderSingleInput() {
+  renderSingleInput(originalValues) {
     const { attribute, values } = this.props;
+    const showOriginalValue = originalValues ? true : false;
     //
     if (attribute.confidential) {
-      return super.renderSingleInput();
+      return super.renderSingleInput(originalValues);
     }
     return (
       <Basic.TextArea
         ref={ TextFormAttributeRenderer.INPUT }
-        label={ this.getLabel() }
-        value={ this.toInputValue(values) }
+        label={ this.getLabel(null, showOriginalValue) }
+        value={ this.toInputValue(showOriginalValue ? originalValues : values) }
         placeholder={ this.getPlaceholder() }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ this.isReadOnly() }
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }
         validation={ this.getInputValidation() }
         required={ this.isRequired() }/>
     );

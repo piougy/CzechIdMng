@@ -63,8 +63,15 @@ public class RoleRequestNotifyProvisioningProcessor extends AbstractEntityEventP
 			identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, request.getApplicant());
 		}
 		//
+//		long start = System.currentTimeMillis();
+//		LOG.warn("start");
+		//
 		LOG.debug("Call account management for identity [{}]", identity.getUsername());
 		provisioningService.accountManagement(identity);
+		//
+//		long duration = System.currentTimeMillis() - start;
+//		LOG.warn("end: " + duration + "ms");
+		//
 		LOG.debug("Register change for identity [{}]", identity.getUsername());
 		entityEventManager.changedEntity(identity, event);
 		//

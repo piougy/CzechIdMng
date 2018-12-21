@@ -47,15 +47,17 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
       this._initComponent(nextProps);
     }
     if (_attribute && _attribute !== this.props._attribute) {
-      if (_attribute && this.refs.form) {
+      if (_attribute) {
         this.setState({
           disabledAttribute: _attribute.disabledAttribute,
           entityAttribute: _attribute.entityAttribute,
           extendedAttribute: _attribute.extendedAttribute,
           passwordAttribute: _attribute.passwordAttribute
         }, () => {
-          // Workaround - We need set value after enumeration type was changed
-          this.refs.idmPropertyEnum.setValue(_attribute.idmPropertyEnum);
+          if ( this.refs.form) {
+            // Workaround - We need set value after enumeration type was changed
+            this.refs.idmPropertyEnum.setValue(_attribute.idmPropertyEnum);
+          }
         });
       }
     }
@@ -167,8 +169,10 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     if (item) {
       const field = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY').getField(item.value);
       this.refs.idmPropertyName.setValue(field);
+      this.setState({_idmPropertyName: field});
     } else {
       this.refs.idmPropertyName.setValue(null);
+      this.setState({_idmPropertyName: null});
     }
   }
 
@@ -178,12 +182,12 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   render() {
     const { _showLoading, _attribute, _systemMapping } = this.props;
-    const { disabledAttribute, entityAttribute, extendedAttribute, activeKey, strategyType, passwordAttribute } = this.state;
+    const { disabledAttribute, entityAttribute, extendedAttribute, activeKey, strategyType, passwordAttribute, _idmPropertyName} = this.state;
 
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
     if (!attribute) {
-      return <div/>;
+      return null;
     }
     const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId',
      attribute && attribute.objectClassId ? attribute.objectClassId : Domain.SearchParameters.BLANK_UUID);
@@ -193,7 +197,15 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     const _isEntityAttribute = entityAttribute;
     const _isExtendedAttribute = extendedAttribute;
     const _showNoRepositoryAlert = (!_isExtendedAttribute && !_isEntityAttribute);
+
     const entityTypeEnum = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY');
+    const _idmPropertyNameKey = _idmPropertyName !== undefined ? _idmPropertyName : attribute.idmPropertyName;
+    const propertyHelpBlockLabel = _idmPropertyNameKey ?
+      entityTypeEnum.getHelpBlockLabel(
+        entityTypeEnum.findKeyBySymbol(
+          entityTypeEnum.getEnum(_idmPropertyNameKey)
+        )
+      ) : '';
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled && !passwordAttribute;
     const isSynchronization = _systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION' ? true : false;
     const strategyTypeTemp = strategyType ? strategyType : attribute.strategyType;
@@ -279,6 +291,27 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                   label={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')}
                   readOnly = {_isDisabled || passwordAttribute}
                   helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.help', { escape: false }) }/>
+                <Basic.Row>
+                  <div className="col-lg-6">
+                    <Basic.EnumSelectBox
+                      ref="idmPropertyEnum"
+                      readOnly = {_isDisabled || !_isEntityAttribute || passwordAttribute}
+                      enum={entityTypeEnum}
+                      helpBlock={ this.i18n(`acc:${propertyHelpBlockLabel}`, { escape: false })}
+                      onChange={this._onChangeEntityEnum.bind(this)}
+                      label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyEnum')}
+                      />
+                  </div>
+                  <div className="col-lg-6">
+                    <Basic.TextField
+                      ref="idmPropertyName"
+                      readOnly = {_isDisabled || !_isRequiredIdmField || _isEntityAttribute || passwordAttribute}
+                      label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
+                      helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
+                      required = {_isRequiredIdmField}
+                      max={255}/>
+                  </div>
+                </Basic.Row>
                 <Basic.Checkbox
                   ref="confidentialAttribute"
                   label={this.i18n('acc:entity.SystemAttributeMapping.confidentialAttribute')}
@@ -301,26 +334,6 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                   ref="cached"
                   label={this.i18n('acc:entity.SystemAttributeMapping.cached.label')}
                   helpBlock={this.i18n('acc:entity.SystemAttributeMapping.cached.help', { escape: false })}/>
-                <Basic.Row>
-                  <div className="col-lg-6">
-                    <Basic.EnumSelectBox
-                      ref="idmPropertyEnum"
-                      readOnly = {_isDisabled || !_isEntityAttribute || passwordAttribute}
-                      enum={entityTypeEnum}
-                      onChange={this._onChangeEntityEnum.bind(this)}
-                      label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyEnum')}
-                      />
-                  </div>
-                  <div className="col-lg-6">
-                    <Basic.TextField
-                      ref="idmPropertyName"
-                      readOnly = {_isDisabled || !_isRequiredIdmField || _isEntityAttribute || passwordAttribute}
-                      label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
-                      helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
-                      required = {_isRequiredIdmField}
-                      max={255}/>
-                  </div>
-                </Basic.Row>
                 <Basic.LabelWrapper label=" ">
                   <Basic.Alert
                      rendered={_showNoRepositoryAlert && !passwordAttribute}

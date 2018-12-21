@@ -297,28 +297,31 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       event.preventDefault();
     }
     //
+    const { onChange, multiSelect } = this.props;
     const selectedRows = [];
-    if (_.isArray(value)) {
-      for (const index in value) {
-        if (value.hasOwnProperty(index)) {
-          if (value[index] && value[index].id) {
-            selectedRows.push(value[index].id);
+    //
+    if (value) {
+      if (_.isArray(value)) {
+        for (const index in value) {
+          if (value.hasOwnProperty(index)) {
+            if (value[index] && value[index].id) {
+              selectedRows.push(value[index].id);
+            }
           }
         }
-      }
-    } else {
-      if (value.id) {
-        selectedRows.push(value.id);
+      } else {
+        if (value.id) {
+          selectedRows.push(value.id);
+        }
       }
     }
     //
     let result = true;
-    const { onChange, multiSelect } = this.props;
     if (onChange) {
       if (multiSelect) {
-        result = onChange(selectedRows);
+        result = onChange(selectedRows, value);
       } else {
-        result = onChange(selectedRows.length > 0 ? selectedRows[0] : null);
+        result = onChange(selectedRows.length > 0 ? selectedRows[0] : null, value);
       }
     }
     // if onChange listener returns false, then we can end
@@ -418,7 +421,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                   ref="roleCatalogueTree"
                   uiKey={ `${this.getUiKey()}-tree` }
                   manager={ this.getRoleCatalogueManager() }
-                  onSelect={ this._filterByRoleCatalogue.bind(this) }
+                  onChange={ this._filterByRoleCatalogue.bind(this) }
                   header={ this.i18n('content.roles.select.chooseFolder') }
                   rendered={ showTree }/>
               </Basic.Col>
@@ -512,7 +515,11 @@ RoleSelect.propTypes = {
   roleCatalogueManager: PropTypes.object,
   columns: PropTypes.arrayOf(PropTypes.string),
   showActionButtons: PropTypes.bool,
-  selectRowClass: PropTypes.string
+  selectRowClass: PropTypes.string,
+  /**
+   * The component is in multi select mode
+   */
+  multiSelect: PropTypes.bool
 };
 RoleSelect.defaultProps = {
   ...Basic.AbstractFormComponent.defaultProps,

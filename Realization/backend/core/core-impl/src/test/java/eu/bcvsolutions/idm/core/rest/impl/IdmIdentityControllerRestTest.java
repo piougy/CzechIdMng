@@ -549,7 +549,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 				.andExpect(status().isNotFound());
 		getMockMvc().perform(MockMvcRequestBuilders.get(getDetailUrl(owner.getId()) + "/profile/image")
         		.with(authentication(getAdminAuthentication())))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isNoContent());
 		//
 		String fileName = "file.png";
 		String content = "some image";
@@ -622,14 +622,14 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		// get profile without image
 		getMockMvc().perform(MockMvcRequestBuilders.get(getDetailUrl(owner.getId()) + "/profile/image")
         		.with(authentication(getAdminAuthentication())))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isNoContent());
 		//
 		identityService.delete(owner);
 		//
 		// profile is deleted
 		getMockMvc().perform(MockMvcRequestBuilders.get(getDetailUrl(owner.getId()) + "/profile/image")
         		.with(authentication(getAdminAuthentication())))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isNoContent());
 		// attachment is deleted
 		Assert.assertNull(attachmentManager.get(image));
 		Assert.assertNull(profileService.get(createdProfile));

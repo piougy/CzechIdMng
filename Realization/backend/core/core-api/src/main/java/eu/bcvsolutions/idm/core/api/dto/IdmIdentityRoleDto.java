@@ -23,12 +23,13 @@ import io.swagger.annotations.ApiModelProperty;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "identityRoles")
-public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity, ExternalIdentifiable {
+public class IdmIdentityRoleDto extends FormableDto implements ValidableEntity, ExternalIdentifiable {
 	
 	private static final long serialVersionUID = 1L;
 	//
 	public static final String PROPERTY_IDENTITY_CONTRACT = "identityContract";
 	public static final String PROPERTY_ROLE = "role";
+	public static final String PROPERTY_ROLE_TREE_NODE = "roleTreeNode";
 	//
 	@Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(notes = "Unique external identifier.")

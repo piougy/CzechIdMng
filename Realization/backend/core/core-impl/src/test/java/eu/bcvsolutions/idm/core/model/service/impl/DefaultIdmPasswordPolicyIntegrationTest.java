@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
@@ -846,6 +847,442 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		
 		assertTrue(generatePassword.startsWith(prefix));
 		assertTrue(generatePassword.endsWith(suffix));
+	}
+
+	@Test
+	public void testContainsUsername() {
+		IdmIdentityDto identity = this.getHelper().createIdentity("John", (GuardedString) null);
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setEnchancedControl(true);
+		policy.setIdentityAttributeCheck(IdmIdentity_.username.getName().toUpperCase());
+
+		// Equals
+		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
+		validation.setIdentity(identity);
+		validation.setPassword(identity.getUsername());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Prefix with lower
+		validation.setPassword("123" + identity.getUsername().toLowerCase());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Suffix with upper
+		validation.setPassword(identity.getUsername().toUpperCase() + System.currentTimeMillis());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Suffix and prefix with accent
+		validation.setPassword("demojÓhn" + System.currentTimeMillis());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Prefix with accent
+		validation.setPassword("demojÓhň");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success prefix
+		validation.setPassword("demojoh");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			// Success
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success suffix with accent
+		validation.setPassword("jóhdemo");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			// Success
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testContainsEmail() {
+		String email = "repa@example.tld";
+		IdmIdentityDto identity = this.getHelper().createIdentity((GuardedString) null);
+		identity.setEmail(email);
+		identity = identityService.save(identity);
+
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setEnchancedControl(true);
+		policy.setIdentityAttributeCheck(IdmIdentity_.email.getName().toUpperCase());
+
+		// Equals
+		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
+		validation.setIdentity(identity);
+		validation.setPassword(email);
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Prefix with lower
+		validation.setPassword("123" + email.toLowerCase());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Suffix with upper
+		validation.setPassword(email.toUpperCase() + System.currentTimeMillis());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Suffix and prefix with accent
+		validation.setPassword("demořěpá@example.tld" + System.currentTimeMillis());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Prefix with accent
+		validation.setPassword("demoŘĚPÁ@example");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			// Success
+		} catch (ResultCodeException e) {
+			fail("Password pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success prefix
+		validation.setPassword("demorepa@example.");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			// Success
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success suffix with accent
+		validation.setPassword("@example.tdldemo");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			// Success
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success suffix with accent
+		validation.setPassword("@");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			// Success
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testContainsLastName() {
+		String lastName = "čeněk";
+		IdmIdentityDto identity = this.getHelper().createIdentity((GuardedString) null);
+		identity.setLastName(lastName);
+		identity = identityService.save(identity);
+
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setEnchancedControl(true);
+		policy.setIdentityAttributeCheck(IdmIdentity_.lastName.getName().toUpperCase());
+
+		// Equals
+		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
+		validation.setIdentity(identity);
+		validation.setPassword(lastName);
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		validation.setPassword("cENEkdemo");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Prefix with lower
+		validation.setPassword("123" + lastName.toLowerCase());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Suffix with upper
+		validation.setPassword(lastName.toUpperCase() + System.currentTimeMillis());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Suffix and prefix with accent
+		validation.setPassword("demo" + lastName + System.currentTimeMillis());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Prefix
+		validation.setPassword("demoCENEK");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success prefix
+		validation.setPassword("demočene");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			// Success
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success suffix with accent
+		validation.setPassword("cenedemo");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			// Success
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testContainsFirstName() {
+		String firstName = "%ř8()á";
+		IdmIdentityDto identity = this.getHelper().createIdentity((GuardedString) null);
+		identity.setFirstName(firstName);
+		identity = identityService.save(identity);
+
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setEnchancedControl(true);
+		policy.setIdentityAttributeCheck(IdmIdentity_.firstName.getName().toUpperCase());
+
+		// Equals
+		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
+		validation.setIdentity(identity);
+		validation.setPassword(firstName);
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		validation.setPassword("%r8()ademo");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Prefix with lower
+		validation.setPassword("123" + firstName.toLowerCase());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Suffix with upper
+		validation.setPassword(firstName.toUpperCase() + System.currentTimeMillis());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Suffix and prefix with accent
+		validation.setPassword("demo" + firstName + System.currentTimeMillis());
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Prefix
+		validation.setPassword("demo%Ř8()A");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success suffix with accent
+		validation.setPassword("%r()daemoa");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			// Success
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testContainsCombination() {
+		String firstName = "DěmÓ";
+		String lastName = "Těšť";
+		String username = "ExámplÉ";
+		IdmIdentityDto identity = this.getHelper().createIdentity((GuardedString) null);
+		identity.setFirstName(firstName);
+		identity.setUsername(username);
+		identity.setLastName(lastName);
+		identity = identityService.save(identity);
+
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setEnchancedControl(true);
+		policy.setIdentityAttributeCheck(IdmIdentity_.firstName.getName().toUpperCase() + ", " + IdmIdentity_.username.getName().toUpperCase());
+
+		// Equals
+		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
+		validation.setIdentity(identity);
+		validation.setPassword(firstName);
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Equals
+		validation.setPassword(username);
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		
+		// Equals with not controlled
+		validation.setPassword(lastName);
+		try {
+			passwordPolicyService.validate(validation, policy);
+			// Success
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
 	}
 
 	private void checkMaxHistorySimilarError(ResultCodeException exception, int maxHistorySettingOriginal) {

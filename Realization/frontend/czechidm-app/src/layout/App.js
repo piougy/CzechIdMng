@@ -118,17 +118,15 @@ export class App extends Basic.AbstractContent {
           <div>
             <Helmet title={this.i18n('navigation.menu.home')} titleTemplate={titleTemplate}/>
             <Advanced.Navigation/>
-            <div id="content-container" className={classnames}>
-              {/* children is hidden only - prevent to lost form data, when token is expired */}
-              <div style={ userContext.isExpired ? { display: 'none'} : {} }>
-                { this.props.children }
-              </div>
+            <div id="content-container" className={ classnames }>
               {
-                !userContext.isExpired && !hideFooter
-                ?
-                <Footer />
-                :
-                null
+                userContext.isExpired
+                ||
+                <div>
+                  {/* Childrens are hiden, when token expires => all components are loaded (componentDidMount) after identity is logged again */}
+                  { this.props.children }
+                  <Footer rendered={ !hideFooter }/>
+                </div>
               }
 
               <Advanced.ModalProgressBar
@@ -137,7 +135,7 @@ export class App extends Basic.AbstractContent {
                 count={bulk.size}
                 counter={bulk.counter}/>
 
-              <Basic.Modal dialogClassName="login-container" show={userContext.isExpired}>
+              <Basic.Modal dialogClassName="login-container" show={ userContext.isExpired }>
                 <form onSubmit={this.login.bind(this)}>
                   <Basic.Modal.Header text={this.i18n('error.LOG_IN.title')} />
                   <Basic.Modal.Body>

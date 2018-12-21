@@ -63,7 +63,9 @@ export default class AbstractTableContent extends Basic.AbstractContent {
         entity
       }
     }, () => {
-      this.getFormComponent().setData(entity);
+      if (this.getFormComponent()) {
+        this.getFormComponent().setData(entity);
+      }
       if (cb) {
         cb();
       }

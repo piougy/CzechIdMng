@@ -57,7 +57,8 @@
     "value": "Hodnota",
     "yes": "Ano",
     "no": "Ne",
-    "readOnly": "Pouze pro čtení"
+    "readOnly": "Pouze pro čtení",
+    "waiting": "Čeká"
   },
   "button": {
     "activate": "Aktivovat",
@@ -282,6 +283,11 @@
       "short": "T",
       "label": "Test",
       "title": "Testovací prostředí"
+    },
+    "production": {
+      "short": "P",
+      "label": "Produkce",
+      "title": "Produkční prostředí"
     }
   },
   "navigation" : {
@@ -296,7 +302,11 @@
       "home": "Nástěnka",
       "profile": {
         "label": "Profil",
-        "title": "Můj profil"
+        "title": "$t(navigation.menu.profile.label)"
+      },
+      "dashboard": {
+        "label": "$t(navigation.menu.home)",
+        "title": "$t(navigation.menu.home)"
       },
       "subordinates": {
         "label": "Podřízení",
@@ -381,6 +391,19 @@
         "link": {
           "detail": {
             "label": "Přejít na detail"
+          },
+          "popover": {
+            "title": "Zobrazit vizitku"
+          }
+        }
+      },
+      "IdentityInfo": {
+        "link": {
+          "detail": {
+            "label": "Přejít na plný detail"
+          },
+          "profile": {
+            "label": "Přejít na profil"
           },
           "popover": {
             "title": "Zobrazit vizitku"
@@ -510,10 +533,15 @@
           "TREE-NODE-SELECT": "Výběr prvku stromu (SelectBox)",
           "ROLE-CATALOGUE-SELECT": "Výběr složky z katalogu rolí (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
-          "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)"
+          "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
+          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
+        },
+        "showChanges":{
+          "newValue": "(Nová hodnota)",
+          "originalValue": "(Původní hodnota)"
         }
       },
       "Recaptcha": {
@@ -619,7 +647,8 @@
       "DATETIME": "Datum + čas",
       "BYTEARRAY": "Bitové pole",
       "UUID": "Uuid identifikátor",
-      "ATTACHMENT": "Příloha"
+      "ATTACHMENT": "Příloha",
+      "CODELIST": "Číselník"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -754,7 +783,23 @@
       "TITLE_AFTER": "Titul za (String)",
       "DESCRIPTION": "Poznámka (String)",
       "PHONE": "Telefon (String)",
-      "EMAIL": "Email (String)"
+      "EMAIL": "Email (String)",
+      "ASSIGNED_ROLES": "Přiřazené role uživatele",
+      "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento system)",
+      "helpBlock": {
+        "USERNAME": "",
+        "EXTERNAL_CODE": "",
+        "DISABLED": "",
+        "FIRSTNAME": "",
+        "LASTNAME": "",
+        "TITLE_BEFORE": "",
+        "TITLE_AFTER": "",
+        "DESCRIPTION": "",
+        "PHONE": "",
+        "EMAIL": "",
+        "ASSIGNED_ROLES": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET).",
+        "ASSIGNED_ROLES_FOR_SYSTEM": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele, které přiřazují <strong>tento systém</strong> (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET)."
+      }
     },
     "ContractAttributeEnum": {
       "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
@@ -812,7 +857,7 @@
       "goToProfil": "Přejít na detail profilu"
     },
     "longRunningTaskDashboard": {
-      "header": "Vaše dlouhotrvající úlohy"
+      "header": "Vytvořené dlouhotrvající úlohy"
     }
   },
   "permission": {
@@ -856,6 +901,8 @@
       "FORMDEFINITION": "Formuláře - definice",
       "FORMATTRIBUTE": "Formuláře - atributy",
       "FORMVALUE": "Formuláře - hodnoty",
+      "CODELIST": "Číselníky",
+      "CODELISTITEM": "Číselníky - položky",
       "NOTIFICATIONCONFIGURATION": "Notifikace - konfigurace",
       "NOTIFICATIONTEMPLATE": "Notifikace - šablony",
       "PASSWORDPOLICY": "Politiky hesel",
@@ -1218,7 +1265,8 @@
           "oldValue": "Původní hodnota {{oldValue}}",
           "oldValueNotExist": "Původní hodnota byla prázdná",
           "create": {
-            "header": "Přidat oprávnění"
+            "header": "Přidat oprávnění",
+            "headerByIdentity": "Přidat oprávnění podle uživatele"
           },
           "edit": {
             "header": "Upravit oprávnění"
@@ -1243,6 +1291,39 @@
               "header": "Odstranění oprávnění",
               "message": "Opravdu chcete toto oprávnění odstranit?"
             }
+          },
+          "identityRoleAttributes": {
+            "header": "Atributy role"
+          },
+          "addByIdentity": {
+            "header": "Přidat podle uživatele",
+            "selectUser": {
+              "label": "Výběr uživatele",
+              "help": "Výběr uživatele od kterého budou kopírované role."
+            },
+            "copyRoleParameters": {
+              "label": "Kopírovat včetně parametrů rolí",
+              "help": "Po zaškrtnutí budou zkopírovany vyplněné hodnoty parametrů rolí."
+            },
+            "selectIdentityContract": {
+              "label": "Úvazek vybraného uživatele",
+              "help": "Výběr úvazku od uživatele. Výběr úvazku filtruje uživatelovi role.",
+              "placeholder": "Vyberte úvazek"
+            },
+            "roleSelectionHeader": "Výběr rolí",
+            "roleSelect": "Výběr rolí od uživatele {{username}}",
+            "selectedIdentityRoles": "Vybrané role",
+            "noIdentityRoles": "Neexistují žádné přiřazené role",
+            "noSelectedIdentityRoles": "Žádné nově přiřazené role",
+            "buttons": {
+              "addAllRoles": "Přidat všechny role",
+              "addSelectedRoles": "Přidat pouze vybrané role",
+              "removeSelectedRoles": "Odebrat vybrané role",
+              "removeAllRoles": "Odebrat všechny role"
+            }
+          },
+          "alert": {
+            "invalidConcept": "Požadavek je nevalidní. Pro více informací přejděte na detail."
           }
         }
     },
@@ -1612,6 +1693,48 @@
         "value": {
           "placeholder": "Hodnota atributu"
         }
+      }
+    },
+    "code-lists": {
+      "header": "Číselníky",
+      "title": "Číselníky",
+      "edit": {
+        "title": "Detail číselníku"
+      },
+      "create": {
+        "title": "Nový číselník",
+        "header": "Nový číselník"
+      },
+      "filter": {
+        "text": "Kód či název"
+      },
+      "attributes": {
+        "title": "Atributy číselníku"
+      },
+      "detail": {
+        "title": "Základní informace"
+      },
+      "save": {
+        "success": "Číselník [{{record}}] byl úspěšně uložen"
+      },
+      "items": {
+        "header": "Položky",
+        "title": "Položky číselníku",
+        "edit": {
+          "title": "Detail hodnoty číselníku",
+          "header": "{{record}} <small>detail hodnoty číselníku</small>"
+        },
+        "create": {
+          "title": "Nová hodnota číselníku",
+          "header": "Nová hodnota číselníku"
+        },
+        "save": {
+          "success": "Hodnota číselníku [{{record}}] byla úspěšně uložena"
+        }
+      },
+      "attributes": {
+        "header": "Atributy",
+        "title": "Atributy"
       }
     },
     "confidentialStorage": {
@@ -2091,6 +2214,10 @@
         "positions": "Pracovně právní vztahy",
         "approve": "Schvalovatelem pro role"
       },
+      "dashboard": {
+        "header": "$t(navigation.menu.dashboard.label)",
+        "title": "$t(content.identity.dashboard.header)"
+      },
       "profile": {
         "header": "Osobní údaje",
         "title": "Můj profil",
@@ -2206,6 +2333,10 @@
             "subRoles": {
               "header": "Role přiřazené dle této role"
             }
+          },
+          "tabs": {
+            "basic": "Základní informace",
+            "attributes": "Atributy role"
           }
         },
         "contracts": {
@@ -2969,13 +3100,19 @@
     "creator": "Vytvořil",
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
-
+    "code": {
+      "label": "Kód"
+    },
+    "description": {
+      "label": "Popis"
+    },
     "Identity": {
       "_type": "Uživatel",
       "username": "Uživatelské jméno",
       "externalCode": "Osobní číslo",
       "firstName": "Jméno",
       "lastName": "Příjmení",
+      "fullName": "Jméno",
       "email": "Email",
       "phone": "Telefon",
       "description": "Popis",
@@ -3119,6 +3256,11 @@
         "placeholder": "Vyberte typ zobrazení nebo ponechte výchozí ...",
         "help": "Určuje typ zobrazení atributu na formuláři. Defaultně se typ zobrazení řídí typem atributu."
       },
+      "codeList": {
+        "label": "Číselník",
+        "placeholder": "Vyberte číselník ...",
+        "help": ""
+      },
       "description": "Popis",
       "required": "Povinný",
       "readonly": "$t(label.readOnly)",
@@ -3170,6 +3312,10 @@
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",
       "approveRemove": "Schvalovat odebírání rolí",
+      "identityRoleAttributeDefinition": {
+        "label": "Definice přidělovaných atributů",
+        "help": "Atributy v této definici, budou vyplňovány během přidělování role."
+      },
       "canBeRequested": "O roli lze žádat",
       "description": "Popis",
       "guarantees": "Garanti role",
@@ -3316,6 +3462,7 @@
       },
       "description": "Popis",
       "main": {
+        "short": "H",
         "label": "Hlavní pozice",
         "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele.",
         "title": "Hlavní pozice"
@@ -3376,8 +3523,8 @@
       "shortName": "Název",
       "parentId": "Nadřazený prvek",
       "parent": {
-          "name": "Nadřazený prvek",
-          "false": "Nemá předka"
+        "name": "Nadřazený prvek",
+        "false": "Nemá předka"
       },
       "treeType": {
         "label": "$t(entity.TreeNode.treeType.name)",
@@ -4054,7 +4201,7 @@
       "seq": {
         "label": "Pořadí",
         "placeholder": "Nastavte pořadí",
-        "help": "Generátory jsou spracovávány dle pořadí od nejmenšího po největší. V případě že dva generátory generují hodnoty pro stejný atribut, výsledná hodnota bude vygenerována z posledního generátoru."
+        "help": "Generátory jsou zpracovávány dle pořadí od nejmenšího po největší. V případě že dva generátory generují hodnoty pro stejný atribut, výsledná hodnota bude vygenerována z posledního generátoru."
       },
       "description": {
         "label": "Popis"
@@ -4070,6 +4217,39 @@
       "unmodifiable": {
         "label": "Systémový generátor",
         "help": "Systémový generátor nemůže být smazán a nelze upravovat některé jeho atributy."
+      }
+    },
+    "CodeList": {
+      "_type": "Číselník",
+      "code": {
+        "label": "$t(entity.code.label)"
+      },
+      "name": {
+        "label": "$t(entity.name)"
+      },
+      "description": {
+        "label": "$t(entity.description.label)"
+      }
+    },
+    "CodeListItem": {
+      "_type": "Hodnota číselníku",
+      "codeList": {
+        "label": "$t(entity.CodeList._type)",
+        "help": "Hodnota patří do číselníku."
+      },
+      "code": {
+        "label": "$t(entity.code.label)",
+        "help": "Systémová hodnota. Unikátní v rámci číselníku."
+      },
+      "name": {
+        "label": "Hodnota",
+        "help": "Hodnota bude zobrazen uživateli ve výběrech jako název položky."
+      },
+      "description": {
+        "label": "$t(entity.description.label)"
+      },
+      "level": {
+        "label": "Level"
       }
     }
   },
@@ -4372,13 +4552,8 @@
       },
       "identity-save-bulk-action": {
         "label": "Přeuložit uživatele",
-        "icon": "fa:save",
-        "attributes": {
-          "onlynotify": {
-            "label": "Vyvolat pouze událost NOTIFY",
-            "help": "Po zaškrtnutí nebude vyvoláno klasické uložení uživatele, ale pouze vyvolání události NOTIFY. Tato událost je také zpracovávána asynchronně."
-          }
-        }
+        "help": "Akce provede to samé, jako tlačítko pro uložení na detailu uživatele.",
+        "icon": "fa:save"
       },
       "role-delete-bulk-action": {
         "label": "Odebrat",
@@ -4388,6 +4563,16 @@
       "core-entity-event-delete-bulk-action": {
         "label": "Odebrat",
         "help": "Odstraní vybrané události.",
+        "icon": "fa:trash"
+      },
+      "core-code-list-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané číselníky.",
+        "icon": "fa:trash"
+      },
+      "core-code-list-item-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané položky číselníku.",
         "icon": "fa:trash"
       }
     },
@@ -4522,6 +4707,26 @@
             "label": "Formulář",
             "help": "Formulář musí být pro daný typ entity (IdmIdentity). Pokud necháte prázdné budou hodnoty doplněny pro všechny formuláře."
           },
+          "regexmultiplevalues": {
+            "label": "Oddělovač",
+            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
+          }
+        }
+      },
+      "core-concept-role-request-form-default-value-generator": {
+        "label": "Doplnění standardních hodnot pro parametry rolí v žádostech",
+        "help": "Generátor doplní všem atributům pro danou roli standardní hodnoty. Pro generátor nemůže být nastavena funkce 'Přegenerování hodnot'.",
+        "attributes": {
+          "regexmultiplevalues": {
+            "label": "Oddělovač",
+            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
+          }
+        }
+      },
+      "core-identity-role-form-default-value-generator": {
+        "label": "Doplnění výchozích hodnot pro rozšířené hodnoty v přiřazených rolích uživatele",
+        "help": "Generátor doplní všem atributům pro danou přiřazenou roli standardní hodnoty. Pro generátor nemůže být nastavena funkce 'Přegenerování hodnot'.",
+        "attributes": {
           "regexmultiplevalues": {
             "label": "Oddělovač",
             "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
@@ -5384,6 +5589,22 @@
     "ROLE_CODE_REQUIRED":  {
       "title": "Kód role je povinný",
       "message": "Zadejte kód nebo základní kód ('baseCode') role."
+    },
+    "LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD": {
+      "title": "Úloha úspěšně dokončena. Výsledek je možné stáhnout.",
+      "message": "Dlouhotrvající úloha byla úspěšně dokončena, její výsledek je připraven ke stažení."
+    },
+    "ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE": {
+      "title": "Žádost není validní!",
+      "message": "Koncept pro roli [{{roleCode}}], nemá validní atribut [{{attributeCode}}]! Nevalidní koncepty budou v žádosti označeny."
+    },
+    "IDENTITY_ROLE_UNVALID_ATTRIBUTE": {
+      "title": "Role uživatele není validní!",
+      "message": "Role [{{roleCode}}] uživatele, nemá validní atribut [{{attributeCode}}]!"
+    },
+    "FORM_DEFINITION_DELETE_FAILED_ROLE": {
+      "title": "Definici formuláře není možné smazat!",
+      "message": "Definici formuláře [{{definition}}] není možné smazat, protože je použita na roli [{{role}}]!"
     }
   },
   "validationError": {

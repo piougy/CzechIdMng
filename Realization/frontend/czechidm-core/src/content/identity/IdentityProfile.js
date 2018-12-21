@@ -9,6 +9,7 @@ const identityManager = new IdentityManager();
 
 /**
  * Identity detail route
+ * - full identity profile ~ detail
  *
  * @author Radek Tomiška
  */
@@ -26,6 +27,10 @@ class Profile extends Basic.AbstractContent {
     return 'content.identity.profile';
   }
 
+  getNavigationKey() {
+    return 'profile-personal';
+  }
+
   componentWillMount() {
     this.setState({
       showLoading: true
@@ -33,8 +38,9 @@ class Profile extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { entityId } = this.props.params;
-    this.selectNavigationItems(['identity-profile', 'profile-personal']);
     this.context.store.dispatch(identityManager.fetchEntity(entityId, null, (entity, error) => {
       this.handleError(error);
     }));

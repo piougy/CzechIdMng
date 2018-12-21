@@ -4,15 +4,18 @@ import Joi from 'joi';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
-import { FormAttributeManager } from '../../redux';
+import { FormAttributeManager, CodeListManager } from '../../redux';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 import ComponentService from '../../services/ComponentService';
 //
 const componentService = new ComponentService();
 const manager = new FormAttributeManager();
+const codeListManager = new CodeListManager();
 
 /**
  * Form attribute detail
+ *
+ * FIXME: Persistent type has to be change double timi - the first onChange is consumed ... i don't know why (rt).
  *
  * @author Ondřej Kopr
  * @author Radek Tomiška
@@ -39,14 +42,14 @@ class FormAttributeDetail extends Basic.AbstractContent {
     if (isNew) {
       this.context.store.dispatch(manager.receiveEntity(entityId,
         {
-          persistentType: PersistentTypeEnum.TEXT,
+          persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT),
           seq: 0,
           unmodifiable: false,
           formDefinition: formDefinitionId
         }, null, () => {
           this.refs.code.focus();
           this.setState({
-            persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.TEXT)
+            persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT)
           });
         }));
     } else {
@@ -76,24 +79,27 @@ class FormAttributeDetail extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-
+    //
+    const entity = this.refs.form.getData();
     this.setState({
       _showLoading: true
-    }, this.refs.form.processStarted());
+    }, () => {
+      this.refs.form.processStarted();
+      //
+      const saveEntity = {
+        ...entity,
+        faceType: entity.persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) ? entity.codeList : entity.faceType
+      };
 
-    const entity = this.refs.form.getData();
-    const saveEntity = {
-      ...entity
-    };
-
-    if (entity.id === undefined) {
-      saveEntity.formDefinition = formDefinition;
-      this.context.store.dispatch(manager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error);
-      }));
-    } else {
-      this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, this._afterSave.bind(this)));
-    }
+      if (entity.id === undefined) {
+        saveEntity.formDefinition = formDefinition;
+        this.context.store.dispatch(manager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
+          this._afterSave(createdEntity, error);
+        }));
+      } else {
+        this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      }
+    });
   }
 
   _isUnmodifiable() {
@@ -105,7 +111,6 @@ class FormAttributeDetail extends Basic.AbstractContent {
    * Method set showLoading to false and if is'nt error then show success message
    */
   _afterSave(entity, error) {
-    const { isNew } = this.props;
     if (error) {
       this.setState({
         _showLoading: false
@@ -117,9 +122,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
       _showLoading: false
     });
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    if (isNew) {
-      this.context.router.goBack();
-    }
+    // FIXME: go back can be undefined
+    this.context.router.goBack();
   }
 
   /**
@@ -127,7 +131,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
    * @param  {SelectBox.option} persistentType option from enum select box
    */
   onChangePersistentType(persistentType) {
-    this.setState( {
+    this.setState({
       persistentType: persistentType.value
     }, () => {
       // clear selected face type
@@ -168,7 +172,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
 
   render() {
     const { entity, showLoading, _permissions } = this.props;
-    const { _showLoading } = this.state;
+    const { _showLoading, persistentType } = this.state;
     //
     return (
       <div>
@@ -214,10 +218,10 @@ class FormAttributeDetail extends Basic.AbstractContent {
                     <Basic.EnumSelectBox
                       ref="persistentType"
                       enum={ PersistentTypeEnum }
-                      readOnly={this._isUnmodifiable()}
-                      label={this.i18n('entity.FormAttribute.persistentType')}
+                      readOnly={ this._isUnmodifiable() }
+                      label={ this.i18n('entity.FormAttribute.persistentType') }
                       onChange={ this.onChangePersistentType.bind(this) }
-                      max={255}
+                      max={ 255 }
                       useSymbol={ false }
                       required
                       clearable={ false }/>
@@ -236,7 +240,18 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       options={ this.getFaceTypes() }
                       label={ this.i18n('entity.FormAttribute.faceType.label') }
                       helpBlock={ this.i18n('entity.FormAttribute.faceType.help') }
-                      placeholder={ this.i18n('entity.FormAttribute.faceType.placeholder') }/>
+                      placeholder={ this.i18n('entity.FormAttribute.faceType.placeholder') }
+                      hidden={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) }/>
+                    <Basic.SelectBox
+                      ref="codeList"
+                      manager={ codeListManager }
+                      label={ this.i18n('entity.FormAttribute.codeList.label') }
+                      helpBlock={ this.i18n('entity.FormAttribute.codeList.help') }
+                      placeholder={ this.i18n('entity.FormAttribute.codeList.placeholder') }
+                      hidden={ persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) }
+                      required={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) }
+                      clearable={ false }
+                      returnProperty="code"/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
                     <Basic.TextField
@@ -308,10 +323,13 @@ FormAttributeDetail.defaultProps = {
 
 function select(state, component) {
   const { entityId } = component.params;
-
+  const entity = manager.getEntity(state, entityId);
+  if (entity && entity.persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST)) {
+    entity.codeList = entity.faceType;
+  }
   //
   return {
-    entity: manager.getEntity(state, entityId),
+    entity,
     showLoading: manager.isShowLoading(state, null, entityId),
     _permissions: manager.getPermissions(state, null, entityId)
   };

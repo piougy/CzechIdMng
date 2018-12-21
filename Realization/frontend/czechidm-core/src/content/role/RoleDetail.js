@@ -5,16 +5,18 @@ import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import RolePriorityEnum from '../../enums/RolePriorityEnum';
-import { RoleManager, SecurityManager, RequestManager } from '../../redux';
+import { RoleManager, SecurityManager, RequestManager, FormDefinitionManager } from '../../redux';
 import RequestTable from '../request/RequestTable';
 import SearchParameters from '../../domain/SearchParameters';
 
 let roleManager = null;
 const uiKeyRoleRequest = 'role-universal-request-table';
 const requestManager = new RequestManager();
+const formDefinitionManager = new FormDefinitionManager();
 
 /**
  * Role detail
@@ -184,6 +186,8 @@ class RoleDetail extends Basic.AbstractContent {
     requestsForceSearch = requestsForceSearch.setFilter('ownerId', entity.id ? entity.id : SearchParameters.BLANK_UUID);
     requestsForceSearch = requestsForceSearch.setFilter('ownerType', 'eu.bcvsolutions.idm.core.api.dto.IdmRoleDto');
     requestsForceSearch = requestsForceSearch.setFilter('states', ['IN_PROGRESS', 'CONCEPT', 'EXCEPTION']);
+
+    const identityRoleAttributeForceSearch = new SearchParameters().setFilter('type', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole');
     //
     return (
       <div>
@@ -226,8 +230,9 @@ class RoleDetail extends Basic.AbstractContent {
 
                     <Basic.Row>
                       <Basic.Col lg={ 4 }>
-                        <Basic.TextField
+                        <Advanced.CodeListSelect
                           ref="environment"
+                          code="environment"
                           label={ this.i18n('entity.Role.environment.label') }
                           helpBlock={ this.i18n(`entity.Role.environment.${ entity.environment ? 'helpCode' : 'help' }`, { escape: false, code: entity.code }) }
                           max={ 255 }/>
@@ -253,6 +258,12 @@ class RoleDetail extends Basic.AbstractContent {
                       label={this.i18n('entity.Role.priority')}
                       readOnly
                       required/>
+                    <Basic.SelectBox
+                      ref="identityRoleAttributeDefinition"
+                      manager={formDefinitionManager}
+                      forceSearchParameters={identityRoleAttributeForceSearch}
+                      label={this.i18n('entity.Role.identityRoleAttributeDefinition.label')}
+                      helpBlock={this.i18n('entity.Role.identityRoleAttributeDefinition.help')}/>
                     <Basic.Checkbox
                       ref="approveRemove"
                       label={this.i18n('entity.Role.approveRemove')}/>

@@ -18,6 +18,10 @@ public interface AttachableEntity extends BaseEntity {
 	Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 	String DEFAULT_ENCODING = DEFAULT_CHARSET.name();
 	String DEFAULT_MIMETYPE = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+	/*
+	 * Is used for put attachment id into result model parameter.
+	 */
+	String PARAMETER_ATTACHMENT_ID = "attachmentId";
 	
 	/**
 	 * Entity with {@link UUID} identifier only

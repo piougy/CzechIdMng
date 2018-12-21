@@ -20,6 +20,10 @@ export class IdentityInfo extends AbstractEntityInfo {
     super(props, context);
   }
 
+  getComponentKey() {
+    return 'component.advanced.IdentityInfo';
+  }
+
   getManager() {
     return manager;
   }
@@ -70,7 +74,7 @@ export class IdentityInfo extends AbstractEntityInfo {
    * @return {string}
    */
   getLink() {
-    return `/identity/${encodeURIComponent(this.getEntityId())}/profile`;
+    return `/identity/${encodeURIComponent(this.getEntityId())}/dashboard`;
   }
 
   /**
@@ -189,7 +193,7 @@ export class IdentityInfo extends AbstractEntityInfo {
                   <Link to={ this.getLink() }>
                     <Basic.Icon value="fa:angle-double-right"/>
                     {' '}
-                    {this.i18n('component.advanced.EntityInfo.link.detail.label')}
+                    { this.i18n('link.profile.label') }
                   </Link>
                 )) }
               </tbody>

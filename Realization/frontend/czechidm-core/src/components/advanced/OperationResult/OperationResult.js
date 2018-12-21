@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 //
 import * as Basic from '../../basic';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
+import { AttachmentService } from '../../../services';
 
 /**
 * Operation result component - shows enum value and result code with flash message
@@ -13,10 +14,14 @@ import OperationStateEnum from '../../../enums/OperationStateEnum';
 * @author Radek Tomiška
 *
 */
+
+const PARTIAL_CONTENT_STATUS = 206;
+
 export default class OperationResult extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
+    this.attachmentService = new AttachmentService();
   }
 
   getComponentKey() {
@@ -106,6 +111,36 @@ export default class OperationResult extends Basic.AbstractContextComponent {
     );
   }
 
+  _getDownloadComponent(value) {
+    const { downloadLinkPrefix, downloadLinkSuffix } = this.props;
+    const model = value.model;
+
+    if (model && model.statusCode === PARTIAL_CONTENT_STATUS) {
+      const parameters = model.parameters;
+      let attachmentId = null;
+      // attachmentId must exists
+      if (parameters && parameters.attachmentId) {
+        attachmentId = parameters.attachmentId;
+      } else {
+        return null;
+      }
+
+      const downloadUrl = this.attachmentService.getDownloadUrl(attachmentId, downloadLinkPrefix, downloadLinkSuffix);
+      return (
+        <a
+          key={ `attachment-download-${attachmentId}` }
+          href={ downloadUrl }
+          title={ this.i18n('button.download')}
+          className="btn btn-xs btn-primary">
+          <Basic.Icon value="fa:download" />
+          {' '}
+          { this.i18n('button.download') }
+        </a>
+      );
+    }
+    return null;
+  }
+
   _showDetail(event) {
     if (event) {
       event.preventDefault();
@@ -123,15 +158,18 @@ export default class OperationResult extends Basic.AbstractContextComponent {
   _renderFull() {
     const { value, stateLabel, header } = this.props;
     const message = this.getFlashManager().convertFromResultModel(value.model);
+    const downloadComponent = this._getDownloadComponent(value);
     //
     return (
       <div>
         <Basic.ContentHeader text={ header === null ? this.i18n('result.header') : header }/>
 
         <div style={{ marginBottom: 15 }}>
+          { downloadComponent }
           <Basic.EnumValue
             level={ message ? message.level : null }
             value={value.state}
+            style={{ marginLeft: downloadComponent ? 15 : 0 }}
             enum={ OperationStateEnum }
             label={ stateLabel }/>
           {
@@ -209,7 +247,22 @@ OperationResult.propTypes = {
    * Header text
    * @type {[type]}
    */
-  header: PropTypes.string
+  header: PropTypes.string,
+  /**
+   * Download link prefix for specific download url.
+   * When is download link prefix null classic download url from attachment controller
+   * will be used. Eq.: /attachments/{$attachmentId}/download
+   *
+   * @type {String}
+   */
+  downloadLinkPrefix: PropTypes.string,
+  /**
+   * Download link prefix for specific download url. Suffix can be used only with
+   * prefix. Cant be used itself.
+   *
+   * @type {String}
+   */
+  downloadLinkSuffix: PropTypes.string
 };
 OperationResult.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
@@ -218,5 +271,7 @@ OperationResult.defaultProps = {
   stateLabel: null,
   rendered: true,
   detailLink: null,
-  header: null // default text from component locale will be used
+  header: null, // default text from component locale will be used
+  downloadLinkPrefix: null,
+  downloadLinkSuffix: null
 };

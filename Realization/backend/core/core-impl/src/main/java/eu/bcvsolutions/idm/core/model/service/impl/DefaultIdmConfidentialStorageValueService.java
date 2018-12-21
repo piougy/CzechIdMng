@@ -47,7 +47,7 @@ public class DefaultIdmConfidentialStorageValueService extends
 		IdmConfidentialStorageValueDto result = super.toDto(entity, dto);
 		//
 		// indicate, if value is filled only
-		if (result.getValue() != null && result.getValue().length > 0) {
+		if (result != null && result.getValue() != null && result.getValue().length > 0) {
 			result.setSerializableValue(GuardedString.SECRED_PROXY_STRING);
 		}
 		//

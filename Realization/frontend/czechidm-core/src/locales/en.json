@@ -57,7 +57,8 @@
     "value": "Value",
     "yes": "Yes",
     "no": "No",
-    "readOnly": "Read only"
+    "readOnly": "Read only",
+    "waiting": "Waiting"
   },
   "button": {
     "activate": "Activate",
@@ -234,7 +235,7 @@
     "removedRecord": "The following entity will not be counted in the bulk job processing: <b>[{{entities}}]</b>.",
     "removedRecord_plural": "The following entities will not be included in the bulk job processing: <b>[{{entities}}]</b>.",
     "created": "Bulk action [{{name}}] was successfully run in a long running task id: [{{longRunningTaskId}}]",
-    "message_empty": "Performing the bulk action [{{name}}]",
+    "message_empty": "Performing the bulk action [{{name}}].",
     "message": "Performing the bulk action [{{name}}] on select record: <b>[{{entities}}]</b>.",
     "message_plural": "Performing the bulk action [{{name}}] on {{count}} records: <b>[{{entities}}]</b>",
     "button": {
@@ -252,6 +253,11 @@
       "short": "T",
       "label": "Test",
       "title": "Test environment"
+    },
+    "production": {
+      "short": "P",
+      "label": "Production",
+      "title": "Production environment"
     }
   },
   "navigation" : {
@@ -265,8 +271,12 @@
     "menu": {
       "home": "Dashboard",
       "profile": {
-        "label": "Profile",
-        "title": "My profile"
+        "label": "$t(navigation.menu.home)",
+        "title": "$t(navigation.menu.profile.label)"
+      },
+      "dashboard": {
+        "label": "$t(navigation.menu.home)",
+        "title": "$t(navigation.menu.home)"
       },
       "subordinates": {
         "label": "My subordinates",
@@ -351,6 +361,19 @@
         "link": {
           "detail": {
             "label": "Show full detail"
+          },
+          "popover": {
+            "title": "Show info card"
+          }
+        }
+      },
+      "IdentityInfo": {
+        "link": {
+          "detail": {
+            "label": "Show full detail"
+          },
+          "profile": {
+            "label": "Show profile"
           },
           "popover": {
             "title": "Show info card"
@@ -479,10 +502,15 @@
           "TREE-NODE-SELECT": "Select tree node (SelectBox)",
           "ROLE-CATALOGUE-SELECT": "Select folder in role catalogue (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
-          "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)"
+          "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
+          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)"
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes."
+        },
+        "showChanges":{
+          "newValue": "(New value)",
+          "originalValue": "(Original value)"
         }
       },
       "Recaptcha": {
@@ -588,7 +616,8 @@
       "DATETIME": "Date + time",
       "BYTEARRAY": "Byte array",
       "UUID": "Uuid identifier",
-      "ATTACHMENT": "Attachment"
+      "ATTACHMENT": "Attachment",
+      "CODELIST": "Code list"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -723,7 +752,23 @@
       "TITLE_AFTER": "Title after (String)",
       "DESCRIPTION": "Description (String)",
       "PHONE": "Phone (String)",
-      "EMAIL": "Email (String)"
+      "EMAIL": "Email (String)",
+      "ASSIGNED_ROLES": "User assigned roles",
+      "ASSIGNED_ROLES_FOR_SYSTEM": "User assigned roles (for this system)",
+      "helpBlock": {
+        "USERNAME": "",
+        "EXTERNAL_CODE": "",
+        "DISABLED": "",
+        "FIRSTNAME": "",
+        "LASTNAME": "",
+        "TITLE_BEFORE": "",
+        "TITLE_AFTER": "",
+        "DESCRIPTION": "",
+        "PHONE": "",
+        "EMAIL": "",
+        "ASSIGNED_ROLES": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET).",
+        "ASSIGNED_ROLES_FOR_SYSTEM": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles which <strong>assigned this system</strong> (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET)."
+      }
     },
     "ContractAttributeEnum": {
       "IDENTITY": "Owner (IdmIdentity - Id or username)",
@@ -781,7 +826,7 @@
       "goToProfil": "Go to profile"
     },
     "longRunningTaskDashboard": {
-      "header": "Your long running task"
+      "header": "Created long running tasks"
     }
   },
   "permission": {
@@ -825,6 +870,8 @@
       "FORMDEFINITION": "Forms - definitions",
       "FORMATTRIBUTE": "Forms - attributes",
       "FORMVALUE": "Forms - values",
+      "CODELIST": "Code lists",
+      "CODELISTITEM": "Code lists - items",
       "NOTIFICATIONCONFIGURATION": "Notifications - configuration",
       "NOTIFICATIONTEMPLATE": "Notifications - templates",
       "PASSWORDPOLICY": "Password policy",
@@ -1174,7 +1221,8 @@
         "oldValue": "Old value {{oldValue}}",
         "oldValueNotExist": "Old value was empty",
         "create": {
-          "header": "Add roles"
+          "header": "Add roles",
+          "headerByIdentity": "Add role by user"
         },
         "edit": {
           "header": "Edit roles"
@@ -1199,6 +1247,39 @@
             "header": "Delete roles",
             "message": "Do you really want to delete roles"
           }
+        },
+        "identityRoleAttributes": {
+          "header": "Role attributes"
+        },
+        "addByIdentity": {
+          "header": "Add by user",
+          "selectUser": {
+            "label": "User select",
+            "help": "Select the user from whom the roles will be copied."
+          },
+          "copyRoleParameters": {
+            "label": "Copy including role parameters",
+            "help": "After check, will be copied parameter values filled in roles."
+          },
+          "selectIdentityContract": {
+            "label": "Contract of the selected user",
+            "help": "Select contract of user. Select contract filtering roles of selected user.",
+            "placeholder": "Select contract"
+          },
+          "roleSelectionHeader": "Selection of roles",
+          "roleSelect": "Roles select from user {{username}}",
+          "selectedIdentityRoles": "Selected roles",
+          "noIdentityRoles": "No assigned roles exist",
+          "noSelectedIdentityRoles": "No newly assigned roles",
+          "buttons": {
+            "addAllRoles": "Add all roles",
+            "addSelectedRoles": "Add only selected roles",
+            "removeSelectedRoles": "Remove selected roles",
+            "removeAllRoles": "Remove all roles"
+          }
+        },
+        "alert": {
+          "invalidConcept": "Request is invalid. For more informations go to the detail."
         }
       }
     },
@@ -1564,6 +1645,48 @@
         "value": {
           "placeholder": "Attribute value"
         }
+      }
+    },
+    "code-lists": {
+      "header": "Code lists",
+      "title": "Code lists",
+      "edit": {
+        "title": "Code list detail"
+      },
+      "create": {
+        "title": "New code list",
+        "header": "new code list"
+      },
+      "filter": {
+        "text": "Code or name"
+      },
+      "attributes": {
+        "title": "Attributes"
+      },
+      "detail": {
+        "title": "Basic information"
+      },
+      "save": {
+        "success": "Code list [{{record}}] successfully saved"
+      },
+      "items": {
+        "header": "Items",
+        "title": "Code list items",
+        "edit": {
+          "title": "Code list value detail",
+          "header": "{{record}} <small>code list value detail</small>"
+        },
+        "create": {
+          "title": "New code list value",
+          "header": "New code list value"
+        },
+        "save": {
+          "success": "Code list value [{{record}}] successfully saved"
+        }
+      },
+      "attributes": {
+        "header": "Attributes",
+        "title": "Attributes"
       }
     },
     "confidentialStorage": {
@@ -2040,6 +2163,10 @@
         "subordinates": "Subordinates",
         "positions": "Contracted positions"
       },
+      "dashboard": {
+        "header": "$t(navigation.menu.dashboard.label)",
+        "title": "$t(content.identity.dashboard.header)"
+      },
       "profile": {
         "header": "Personal data",
         "title": "My profile",
@@ -2155,6 +2282,10 @@
             "subRoles": {
               "header": "Roles assigned by this role"
             }
+          },
+          "tabs": {
+            "basic": "Basic informations",
+            "attributes": "Role's attributes"
           }
         },
         "contracts": {
@@ -2918,13 +3049,19 @@
     "creator": "Creator",
     "validFrom": "Valid from",
     "validTill": "Valid till",
-
+    "code": {
+      "label": "Code"
+    },
+    "description": {
+      "label": "Description"
+    },
     "Identity": {
       "_type": "User",
       "username": "Login",
       "externalCode": "Personal number",
       "firstName": "First name",
       "lastName": "Surname",
+      "fullName": "Name",
       "email": "E-mail",
       "phone": "Phone",
       "description": "Note",
@@ -3068,6 +3205,11 @@
         "placeholder": "Select face type or leave it default ...",
         "help": "Choose attribute renderer. Default renderer is chosen by attribute type."
       },
+      "codeList": {
+        "label": "Code list",
+        "placeholder": "Select code list ...",
+        "help": ""
+      },
       "description": "Description",
       "required": "Required",
       "readonly": "$t(label.readOnly)",
@@ -3119,6 +3261,10 @@
       "subRoles": "Subordinate roles",
       "authorities": "Authorizations",
       "approveRemove": "Role removal approval",
+      "identityRoleAttributeDefinition": {
+        "label": "Definition of assigned attributes",
+        "help": "The attributes in this definition will be filled in during role assignment."
+      },
       "canBeRequested": "Can be requested",
       "description": "Description",
       "guarantees": "Role authorizers",
@@ -3265,6 +3411,7 @@
       },
       "description": "Note",
       "main": {
+        "short": "M",
         "label": "Main position",
         "help": "Main / prime work position. It's created automatically when the user is created.",
         "title": "Main position"
@@ -4021,6 +4168,39 @@
         "label": "System generator",
         "help": "System generator cannot be deleted. Some of its configurations are not editable."
       }
+    },
+    "CodeList": {
+      "_type": "Code list",
+      "code": {
+        "label": "$t(entity.code.label)"
+      },
+      "name": {
+        "label": "$t(entity.name)"
+      },
+      "description": {
+        "label": "$t(entity.description.label)"
+      }
+    },
+    "CodeListItem": {
+      "_type": "HCode list value",
+      "codeList": {
+        "label": "$t(entity.CodeList._type)",
+        "help": "Value belongs to code list."
+      },
+      "code": {
+        "label": "$t(entity.code.label)",
+        "help": "System value. Unigue in code list scope."
+      },
+      "name": {
+        "label": "Value",
+        "help": "User friendly code list value (name). Visible in select boxes."
+      },
+      "description": {
+        "label": "$t(entity.description.label)"
+      },
+      "level": {
+        "label": "Level"
+      }
     }
   },
   "wf": {
@@ -4322,13 +4502,8 @@
       },
       "identity-save-bulk-action": {
         "label": "Re-save identity",
-        "icon": "fa:save",
-        "attributes": {
-          "onlynotify": {
-            "label": "Throw only NOTIFY event",
-            "help": "After selecting, the user's classic save will not be invoked, but only NOTIFY event will be thrown. This event is also processed asynchronously."
-          }
-        }
+        "help": "Action does the same thing as click on the save button on the user's detail page.",
+        "icon": "fa:save"
       },
       "role-delete-bulk-action": {
         "label": "Remove",
@@ -4338,6 +4513,16 @@
       "core-entity-event-delete-bulk-action": {
         "label": "Remove",
         "help": "Remove selected events.",
+        "icon": "fa:trash"
+      },
+      "core-code-list-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected code lists.",
+        "icon": "fa:trash"
+      },
+      "core-code-list-item-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected code list items.",
         "icon": "fa:trash"
       }
     },
@@ -4465,13 +4650,33 @@
         }
       },
       "core-identity-form-default-value-generator": {
-        "label": "Addition default values for the forms with next inforamtion",
+        "label": "Addition default values for the forms with next informations",
         "help": "Generator add default values for all attributes.",
         "attributes": {
           "formdefinitionuuid": {
             "label": "Form",
             "help": "Form must be for given entity type (IdmIdentity). If you leave form empty, the values will be added to all form definition."
           },
+          "regexmultiplevalues": {
+            "label": "Separator",
+            "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
+          }
+        }
+      },
+      "core-concept-role-request-form-default-value-generator": {
+        "label": "Addition default values for the role parameters in role request",
+        "help": "Generator add default values for role parameters attributes. For the generator, can not be set feature 'Regenerate value'.",
+        "attributes": {
+          "regexmultiplevalues": {
+            "label": "Separator",
+            "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
+          }
+        }
+      },
+      "core-identity-role-form-default-value-generator": {
+        "label": "Addition default values for the assigned role extended attributes",
+        "help": "Generator add default values for assigned role extended attributes. For the generator, can not be set feature 'Regenerate value'.",
+        "attributes": {
           "regexmultiplevalues": {
             "label": "Separator",
             "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
@@ -5334,6 +5539,22 @@
     "ROLE_CODE_REQUIRED":  {
       "title": "Role code is required",
       "message": "Fill role code or base code."
+    },
+    "LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD": {
+      "title": "Task completed successfully. The result can be downloaded.",
+      "message": "The long task has been successfully completed. Result is ready to download."
+    },
+    "ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE": {
+      "title": "Request is invalid!",
+      "message": "Concept for role [{{roleCode}}], has invalid attribute [{{attributeCode}}]! Invalidate concepts will be highlighted in the reqeust."
+    },
+    "IDENTITY_ROLE_UNVALID_ATTRIBUTE": {
+      "title": "User role is invalid!",
+      "message": "User role [{{roleCode}}], has invalid attribute [{{attributeCode}}]!"
+    },
+    "FORM_DEFINITION_DELETE_FAILED_ROLE": {
+      "title": "Form definition cannot be deleted!",
+      "message": "Form definition [{{definition}}]  cannot be deleted, because is using in the role [{{role}}]!"
     }
   },
   "validationError": {

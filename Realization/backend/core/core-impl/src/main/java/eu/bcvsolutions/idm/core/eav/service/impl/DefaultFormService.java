@@ -53,6 +53,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormDefinitionFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
@@ -1171,6 +1172,47 @@ public class DefaultFormService implements FormService {
 		} catch (IntrospectionException | InstantiationException | IllegalAccessException e) {
 			throw new CoreException("Cannot read configuration property!", e);
 		}
+	}
+	
+	@Override
+	public List<InvalidFormAttributeDto> validate(IdmFormInstanceDto formInstance) {
+		Assert.notNull(formInstance, "Form instance cannot be null!");
+		IdmFormDefinitionDto definition = formInstance.getFormDefinition();
+		Assert.notNull(definition, "Form definition cannot be null!");
+
+		List<IdmFormValueDto> formValues = formInstance.getValues();
+		List<InvalidFormAttributeDto> results = Lists.newArrayList();
+		
+		definition.getFormAttributes().forEach(formAttribute -> {
+			List<IdmFormValueDto> formValueForAttributes = formValues.stream()
+					.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute()))
+					.collect(Collectors.toList());
+			InvalidFormAttributeDto result = this.validateAttribute(formAttribute,
+					formValueForAttributes != null ? formValueForAttributes : null);
+			if (result != null) {
+				results.add(result);
+			}
+		});
+		return results;
+	}
+
+	private InvalidFormAttributeDto validateAttribute(IdmFormAttributeDto formAttribute,
+			List<IdmFormValueDto> formValues) {
+		Assert.notNull(formAttribute);
+		if (formAttribute.isRequired()) {
+			if (formValues != null && !formValues.isEmpty()) {
+				if (formValues.stream() //
+						.filter(formValue -> formValue.getValue() != null) //
+						.findFirst() //
+						.isPresent()) { //
+					return null;
+				}
+			}
+			InvalidFormAttributeDto result = new InvalidFormAttributeDto(formAttribute);
+			result.setMissingValue(true);
+			return result;
+		}
+		return null;
 	}
 
 	private void initPersistentType(Method readMethod, IdmFormAttributeDto formAttribute) {

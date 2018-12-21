@@ -61,7 +61,8 @@ public interface SchedulerConfiguration {
 	String PROPERTY_TASK_EXECUTOR_MAX_POOL_SIZE = "scheduler.task.executor.maxPoolSize";
 	
 	/**
-	 * Waiting tasks to be processed. Uses {@code Integer.MAX_VALUE} as default.
+	 * Waiting tasks to be processed. Uses {@code Integer.MAX_VALUE} as default. 
+	 * {@link LinkedBlockingQueue} is used for queue => capacity is initialized dynamically.
 	 * {@link AbotrPolicy} is set for rejected tasks.	
 	 */
 	String PROPERTY_TASK_EXECUTOR_QUEUE_CAPACITY = "scheduler.task.executor.queueCapacity";
@@ -74,7 +75,7 @@ public interface SchedulerConfiguration {
 	int DEFAULT_TASK_EXECUTOR_THREAD_PRIORITY = 5;
 	
 	/**
-	 * Event executor core pool size. Uses CPU count * 2 as default.
+	 * Event executor core pool size. Uses CPU count +1 as default.
 	 */
 	String PROPERTY_EVENT_EXECUTOR_CORE_POOL_SIZE = "scheduler.event.executor.corePoolSize";
 	
@@ -86,10 +87,12 @@ public interface SchedulerConfiguration {
 	String PROPERTY_EVENT_EXECUTOR_MAX_POOL_SIZE = "scheduler.event.executor.maxPoolSize";
 	
 	/**
-	 * Waiting events to be processed. Uses corePoolSize * 2 as default.
+	 * Waiting events to be processed. Uses 1000 as default - prevent to prepare events repetitively and use additional threads till maxPoolSize.
+	 * {@link LinkedBlockingQueue} is used for queue => capacity is initialized dynamically.
 	 * {@link AbotrPolicy} is set for rejected tasks.
 	 */
 	String PROPERTY_EVENT_EXECUTOR_QUEUE_CAPACITY = "scheduler.event.executor.queueCapacity";
+	int DEFAULT_EVENT_EXECUTOR_QUEUE_CAPACITY = 1000;
 	
 	/**
 	 * Thread priority for threads in event executor pool - 6 by default (a little higher priority than normal 5).

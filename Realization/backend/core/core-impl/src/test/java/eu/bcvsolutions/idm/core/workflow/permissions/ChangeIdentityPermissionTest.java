@@ -624,6 +624,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	@Transactional
 	public void testGetTaskByAnotherUser() {

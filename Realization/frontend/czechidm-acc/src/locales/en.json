@@ -1194,7 +1194,14 @@
       "NAME": "Name (String)",
       "PARENT": "Parent (String)",
       "EXTERNAL_ID": "External ID (String)",
-      "DISABLED": "Disabled (boolean)"
+      "DISABLED": "Disabled (boolean)",
+      "helpBlock": {
+        "CODE": "",
+        "NAME": "",
+        "PARENT": "",
+        "EXTERNAL_ID": "",
+        "DISABLED": ""
+      }
     },
     "IdentityRoleAttributeEnum": {
       "IDENTITY_CONTRACT": "Identity contract (IdmIdentityContract - UUID)",
@@ -1203,7 +1210,16 @@
       "VALID_TILL": "Valid till (LocalDate)",
       "ROLE_COMPOSITION": "Assigned by business role (IdmRoleComposition - UUID)",
       "CONTRACT_POSITION": "Next position on the contract (IdmContractPosition - UUID)",
-      "EXTERNAL_ID": "External identifier (String)"
+      "EXTERNAL_ID": "External identifier (String)",
+      "helpBlock": {
+        "IDENTITY_CONTRACT": "",
+        "ROLE": "",
+        "VALID_FROM": "",
+        "VALID_TILL": "",
+        "ROLE_COMPOSITION": "",
+        "CONTRACT_POSITION": "",
+        "EXTERNAL_ID": ""
+      }
     },
     "RoleCatalogueAttributeEnum": {
       "CODE": "Code (String)",
@@ -1211,7 +1227,15 @@
       "PARENT": "Parent (String)",
       "DESCRIPTION": "Description (String)",
       "URL": "URL (String)",
-      "URL_TITLE": "URL title (String)"
+      "URL_TITLE": "URL title (String)",
+      "helpBlock": {
+        "CODE": "",
+        "NAME": "",
+        "PARENT": "",
+        "DESCRIPTION": "",
+        "URL": "",
+        "URL_TITLE": ""
+      }
     },
     "RoleAttributeEnum": {
       "NAME": "Name (String)",
@@ -1221,7 +1245,17 @@
       "APPROVE_REMOVE": "Approve remove (Boolean)",
       "PRIORITY": "Priority (Integer)",
       "DESCRIPTION": "Description (String)",
-      "DISABLED": "Disabled (boolean)"
+      "DISABLED": "Disabled (boolean)",
+      "helpBlock": {
+        "NAME": "",
+        "BASE_CODE": "",
+        "ENVIRONMENT": "",
+        "ROLE_TYPE": "",
+        "APPROVE_REMOVE": "",
+        "PRIORITY": "",
+        "DESCRIPTION": "",
+        "DISABLED": ""
+      }
     }
   },
   "permission": {

@@ -782,7 +782,21 @@
       "DISABLED": "Disabled (boolean)",
       "GUARANTEES": "Guarantees (IdmIdentity - List of ids or usernames)",
       "POSITIONS": "Other positions (IdmTreeNode - List of ids or codes)",
-      "STATE": "State (ContractState - String)"
+      "STATE": "State (ContractState - String)",
+      "helpBlock": {
+        "IDENTITY": "",
+        "VALID_FROM": "",
+        "VALID_TILL": "",
+        "WORK_POSITION": "",
+        "POSITION": "",
+        "EXTERNE": "",
+        "MAIN": "",
+        "DESCRIPTION": "",
+        "DISABLED": "",
+        "GUARANTEES": "",
+        "POSITIONS": "",
+        "STATE": ""
+      }
     },
     "ContractSliceAttributeEnum": {
       "IDENTITY": "Owner (IdmIdentity - Id or username)",
@@ -797,7 +811,22 @@
       "DISABLED": "Disabled (boolean)",
       "GUARANTEES": "Guarantees (IdmIdentity - List of ids or usernames)",
       "STATE": "State (ContractState - String)",
-      "CONTRACT_CODE": "Code of the parent contract (String - same for all slices)"
+      "CONTRACT_CODE": "Code of the parent contract (String - same for all slices)",
+      "helpBlock": {
+        "IDENTITY": "",
+        "VALID_FROM": "",
+        "CONTRACT_VALID_FROM": "",
+        "CONTRACT_VALID_TILL": "",
+        "WORK_POSITION": "",
+        "POSITION": "",
+        "EXTERNE": "",
+        "MAIN": "",
+        "DESCRIPTION": "",
+        "DISABLED": "",
+        "GUARANTEES": "",
+        "STATE": "",
+        "CONTRACT_CODE": ""
+      }
     },
     "IdentityStateEnum": {
       "CREATED": "Created",

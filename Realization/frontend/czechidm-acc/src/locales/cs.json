@@ -1201,7 +1201,14 @@
       "NAME": "Název (String)",
       "PARENT": "Rodič (String)",
       "EXTERNAL_ID": "Externí ID (String)",
-      "DISABLED": "Zakázaný (boolean)"
+      "DISABLED": "Zakázaný (boolean)",
+      "helpBlock": {
+        "CODE": "",
+        "NAME": "",
+        "PARENT": "",
+        "EXTERNAL_ID": "",
+        "DISABLED": ""
+      }
     },
     "IdentityRoleAttributeEnum": {
       "IDENTITY_CONTRACT": "Identifikátor kontraktu (IdmIdentityContract - UUID)",
@@ -1210,7 +1217,16 @@
       "VALID_TILL": "Platnost do (LocalDate)",
       "ROLE_COMPOSITION": "Přiřazeno business rolí (IdmRoleComposition - UUID)",
       "CONTRACT_POSITION": "Další pozice na kontraktu (IdmContractPosition - UUID)",
-      "EXTERNAL_ID": "Externí identifikátor (String)"
+      "EXTERNAL_ID": "Externí identifikátor (String)",
+      "helpBlock": {
+        "IDENTITY_CONTRACT": "",
+        "ROLE": "",
+        "VALID_FROM": "",
+        "VALID_TILL": "",
+        "ROLE_COMPOSITION": "",
+        "CONTRACT_POSITION": "",
+        "EXTERNAL_ID": ""
+      }
     },
     "RoleCatalogueAttributeEnum": {
       "CODE": "Kód (String)",
@@ -1218,7 +1234,15 @@
       "PARENT": "Rodič (String)",
       "DESCRIPTION": "Popis (String)",
       "URL": "URL (String)",
-      "URL_TITLE": "Popis URL (String)"
+      "URL_TITLE": "Popis URL (String)",
+      "helpBlock": {
+        "CODE": "",
+        "NAME": "",
+        "PARENT": "",
+        "DESCRIPTION": "",
+        "URL": "",
+        "URL_TITLE": ""
+      }
     },
     "RoleAttributeEnum": {
       "NAME": "Název (String)",
@@ -1228,7 +1252,17 @@
       "APPROVE_REMOVE": "Schvalovat odebrání (Boolean)",
       "PRIORITY": "Priorita (Integer)",
       "DESCRIPTION": "Popis (String)",
-      "DISABLED": "Zakázaný (boolean)"
+      "DISABLED": "Zakázaný (boolean)",
+      "helpBlock": {
+        "NAME": "",
+        "BASE_CODE": "",
+        "ENVIRONMENT": "",
+        "ROLE_TYPE": "",
+        "APPROVE_REMOVE": "",
+        "PRIORITY": "",
+        "DESCRIPTION": "",
+        "DISABLED": ""
+      }
     }
   },
   "permission": {

@@ -813,7 +813,21 @@
       "DISABLED": "Zakázaný (boolean)",
       "GUARANTEES": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
       "POSITIONS": "Další pozice (IdmTreeNode - List identifikátorů nebo kódů)",
-      "STATE": "Stav (ContractState - String)"
+      "STATE": "Stav (ContractState - String)",
+      "helpBlock": {
+        "IDENTITY": "",
+        "VALID_FROM": "",
+        "VALID_TILL": "",
+        "WORK_POSITION": "",
+        "POSITION": "",
+        "EXTERNE": "",
+        "MAIN": "",
+        "DESCRIPTION": "",
+        "DISABLED": "",
+        "GUARANTEES": "",
+        "POSITIONS": "",
+        "STATE": ""
+      }
     },
     "ContractSliceAttributeEnum": {
       "IDENTITY": "Vlastník (IdmIdentity - Id nebo uživ. jméno)",
@@ -828,7 +842,22 @@
       "DISABLED": "Zakázaný (boolean)",
       "GUARANTEES": "Vedoucí (IdmIdentity - List identifikátorů nebo uživ. jmen)",
       "STATE": "Stav (ContractState - String)",
-      "CONTRACT_CODE": "Kód nadřazeného kontraktu (String - stejný pro všechny řezy)"
+      "CONTRACT_CODE": "Kód nadřazeného kontraktu (String - stejný pro všechny řezy)",
+      "helpBlock": {
+        "IDENTITY": "",
+        "VALID_FROM": "",
+        "CONTRACT_VALID_FROM": "",
+        "CONTRACT_VALID_TILL": "",
+        "WORK_POSITION": "",
+        "POSITION": "",
+        "EXTERNE": "",
+        "MAIN": "",
+        "DESCRIPTION": "",
+        "DISABLED": "",
+        "GUARANTEES": "",
+        "STATE": "",
+        "CONTRACT_CODE": ""
+      }
     },
     "IdentityStateEnum": {
       "CREATED": "Vytvořen(a)",

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
@@ -1168,5 +1169,24 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		assertEquals(1, contracts.size());
 		last = service.findLastExpiredContract(identityTwo.getId(), null);
 		Assert.assertNull(last);
+	}
+	
+	@Test
+	@Transactional
+	public void testOtherMainContractByValidFrom() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto contractOne = getHelper().getPrimeContract(identity);
+		contractOne.setWorkPosition(null);
+		contractOne.setMain(false);
+		contractOne.setValidFrom(new LocalDate().minusDays(2));
+		service.save(contractOne);
+		IdmIdentityContractDto contractTwo = getHelper().createIdentityContact(identity, null, new LocalDate().minusDays(1), null);
+		//
+		Assert.assertEquals(contractOne.getId(), getHelper().getPrimeContract(identity).getId());
+		//
+		contractTwo.setValidFrom(new LocalDate().minusDays(3));
+		service.save(contractTwo);
+		//
+		Assert.assertEquals(contractTwo.getId(), getHelper().getPrimeContract(identity).getId());
 	}
 }

@@ -260,17 +260,6 @@ public class DefaultIdmIdentityContractService
 		return contract;
 	}
 	
-	/**
-	 * Returns given identity's prime contract, by contract's priority:
-	 * - 1. main
-	 * - 2. valid (validable and not disabled)
-	 * - 3. with working position with default tree type
-	 * - 4. with working position with any tree type
-	 * - 5. other with lowest valid from
-	 * 
-	 * @param identityId
-	 * @return
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public IdmIdentityContractDto getPrimeContract(UUID identityId) {
@@ -286,17 +275,6 @@ public class DefaultIdmIdentityContractService
 		return toDto(contracts.get(contracts.size() - 1));
 	}
 	
-	/**
-	 * Returns given valid identity's prime contract, by contract's priority:
-	 * - 1. main
-	 * - 2. valid (validable and not disabled)
-	 * - 3. with working position with default tree type
-	 * - 4. with working position with any tree type
-	 * - 5. other with lowest valid from
-	 * 
-	 * @param identityId
-	 * @return
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public IdmIdentityContractDto getPrimeValidContract(UUID identityId) {
@@ -337,7 +315,8 @@ public class DefaultIdmIdentityContractService
 	 * - 2. valid (validable and not disabled)
 	 * - 3. with working position with default tree type
 	 * - 4. with working position with any tree type
-	 * - 5. other with lowest valid from
+	 * - 5. with undefined valid from
+	 * - 6. other with lowest valid from
 	 * 
 	 * @author Radek Tomiška
 	 *
@@ -366,8 +345,8 @@ public class DefaultIdmIdentityContractService
 			}			
 			// with any tree position
 			builder.append(o1.getWorkPosition() != null, o2.getWorkPosition() != null);
-			// by valid from
-			builder.append(o1.getValidFrom(), o2.getValidFrom());
+			// by the less valid from (or undefined)
+			builder.append(o2.getValidFrom(), o1.getValidFrom());
 			//
 			return builder.toComparison();
 		}

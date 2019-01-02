@@ -251,8 +251,8 @@
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně zrušeny",
       "approve_1": "Vybraný záznam [{{record}}] je třeba schválit, úkol byl úspěšně vytvořen.",
-      "approve_2": "Vybrané záznamy [{{records}}] je třeba schválit, úkoly byl úspěšně vytvořeny.",
-      "approve_5": "Vybrané záznamy [{{record}}] je třeba schválit, úkoly byl úspěšně vytvořeny.",
+      "approve_2": "Vybrané záznamy [{{records}}] je třeba schválit, úkoly byly úspěšně vytvořeny.",
+      "approve_5": "Vybrané záznamy [{{record}}] je třeba schválit, úkoly byly úspěšně vytvořeny.",
       "accepted_1": "Vybraný záznam [{{record}}] bude zpracován asynchronně (vyžaduje schválení nebo spouští dlouhotrvající úlohu).",
       "accepted_2": "Vybrané záznamy [{{record}}] budou zpracovány asynchronně (vyžadují schválení nebo spouští dlouhotrvající úlohu).",
       "accepted_5": "Vybrané záznamy [{{record}}] budou zpracovány asynchronně (vyžadují schválení nebo spouští dlouhotrvající úlohu)."
@@ -785,7 +785,7 @@
       "PHONE": "Telefon (String)",
       "EMAIL": "Email (String)",
       "ASSIGNED_ROLES": "Přiřazené role uživatele",
-      "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento system)",
+      "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento systém)",
       "helpBlock": {
         "USERNAME": "",
         "EXTERNAL_CODE": "",
@@ -1393,8 +1393,8 @@
         },
         "identifiers": {
           "label": "Identifikátory",
-          "placeholder": "Identifikátory - uživatelská jména nebo osobní čísla. $t(content.identities.filter.identifiers.tooltip)",
-          "tooltip": "Vkládejte jednotlivé hodnoty oddělené čárkou."
+          "placeholder": "Vyhledávání po skupinkách s pomocí uživatelského jména nebo osobního čísla. $t(content.identities.filter.identifiers.tooltip)",
+          "tooltip": "Vkládejte jednotlivé hodnoty své skupiny uživatelů oddělené čárkou."
         },
         "state": {
           "label": "Stav",
@@ -2282,16 +2282,16 @@
           "passwordsNotMatch": "Zadané nové heslo se neshoduje se zadaným heslem pro kontrolu.",
           "newIdmManagerIsTheSame": {
             "title": "Uživatel {{username}} je shodný s deaktivovaným uživatelem",
-            "message": "Vyberte prosím jiného uživatele, který má býti nastaven jako nový vedoucí"
+            "message": "Vyberte prosím jiného uživatele, který má být nastaven jako nový vedoucí"
           },
           "newIdmManagerIsRequired": {
             "title": "Vyberte prosím uživatele",
-            "message": "Vyberte prosím uživatele, který má býti nastaven jako nový vedoucí"
+            "message": "Vyberte prosím uživatele, který má být nastaven jako nový vedoucí"
           }
         },
         "messages": {
           "deactiveDisabled": "Není možné deaktivovat sebe sama.",
-          "subordinatesCount": "Uživatel <strong>{{username}}</strong>, který má býti deaktivovaný, je vedoucím pro <strong>{{subordinatesCount}}</strong> uživatelů. <br/> Vyberte prosím nového vedoucího pro všechny zobrazené uživatele.",
+          "subordinatesCount": "Uživatel <strong>{{username}}</strong>, který má být deaktivovaný, je vedoucím pro <strong>{{subordinatesCount}}</strong> uživatelů. <br/> Vyberte prosím nového vedoucího pro všechny zobrazené uživatele.",
           "saved": "Uživatel {{username}} byl úspěšně uložen",
           "deactivated": "Uživatel {{username}} byl úspěšně deaktivován",
           "deactivateBreak": {
@@ -2348,7 +2348,7 @@
         "create": {
           "header": "Přiřazení nové role",
           "success": "Uživateli [{{username}}] byla úspěšně přidána role [{{role}}].",
-          "accepted": "Role [{{role}}] pro uživatele [{{username}}] byla úspěšně předána ke zpracování. Role musí býti před přiřazením nejdříve schválena."
+          "accepted": "Role [{{role}}] pro uživatele [{{username}}] byla úspěšně předána ke zpracování. Role musí být před přiřazením nejdříve schválena."
         },
         "edit": {
           "header": "{{role}} <small>detail přiřazené role</small>",
@@ -2370,7 +2370,7 @@
         },
         "contracts": {
           "empty": {
-            "message": "Uživatel nemá žádné platné pracovně právní vztahy, ke kterým by mohly býti přiřazeny role. Přidejte prosím alespoň jeden platný pracovně právní vztah.",
+            "message": "Uživatel nemá žádné platné pracovně právní vztahy, ke kterým by mohly být přiřazeny role. Přidejte prosím alespoň jeden platný pracovně právní vztah.",
             "button": "Přidat PPV"
           }
         },
@@ -2390,9 +2390,9 @@
           "body": {
             "title": "Základní oprávnění jsou rozdělena do kategorií. Po přiřazení aktivní role získá uživatel přiřazená oprávnění (dle platnosti přiřazení), která jsou vyhodnocována v různých částech aplikace.",
             "checkbox": {
-              "title": "Checkbox u názvu kategorie znázorňuje, zda-li jsou některé základní oprávnění v dané kategorii přidělena:",
+              "title": "Checkbox u názvu kategorie znázorňuje, zda-li jsou některá základní oprávnění v dané kategorii přidělena:",
               "none": "Nejsou přidělena žádná oprávnění v dané kategorii,",
-              "some": "jsou přidělena některá z oprávnění v dané kategorii - pro zobrazení konkrétních přidělených oprávnění je možné rozbalit danou kategorii,",
+              "some": "Jsou přidělena některá z oprávnění v dané kategorii - pro zobrazení konkrétních přidělených oprávnění je možné rozbalit danou kategorii,",
               "all": "jsou přidělena všechna oprávnění v dané kategorii."
             }
           }
@@ -2424,7 +2424,7 @@
           "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
           "failed": "Heslo nebylo změněno, provisioning hesla na účty [{{accounts}}] pro uživatele [{{username}}] nebyl úspěšný.",
           "notChanged": "Heslo nebylo změněno. $t(content.identity.passwordChange.message.noAccounts)",
-          "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném účtu libovolně krát.",
+          "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném účtu libovolněkrát.",
           "noContent": "Nemáte přiděleno oprávnění pro změnu hesla.",
           "noAccounts": "Neexistují žádné účty, na kterých je možné měnit heslo."
         },
@@ -2539,7 +2539,7 @@
           "title": "Přiřazení nové pozice",
           "header": "Přiřazení nové pozice",
           "success": "Pozice [{{position}}] byla úspěšně přidána.",
-          "accepted": "Pozice [{{position}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
+          "accepted": "Pozice [{{position}}] byla úspěšně předána ke zpracování. Pozice musí být před přiřazením nejdříve schválena."
         },
         "save": {
           "success": "PPV [{{name}}] byl úspěšně uložen"
@@ -4656,15 +4656,15 @@
     "value-generator": {
       "core-identity-username-value-generator": {
         "label": "Standardní generátor uživatelského jména",
-        "help": "Generátor generuje uživatelské jméno na základě vyplněných hodnot 'jméno' a 'příjmení', z těchto hodnot odstraní diaktiritku, ořízne je na definovaný počet a spojí pomocí spojovníku.",
+        "help": "Generátor generuje uživatelské jméno na základě vyplněných hodnot 'jméno' a 'příjmení', z těchto hodnot odstraní diakritiku, ořízne je na definovaný počet a spojí pomocí spojovníku.",
         "attributes": {
           "connectioncharacter": {
             "label": "Spojovací znak",
-            "help": "Znak/y které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna. V tomto případě bude jméno a příjmení spojeno bez žádného spojovacího znaku."
+            "help": "Znak/y které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna. V tomto případě bude jméno a příjmení spojeno bez jakéhokoli spojovacího znaku."
           },
           "firstnamecharactercount": {
             "label": "Počet znaků ze jména",
-            "help": "Maximální počet znaků které budou použity z jména."
+            "help": "Maximální počet znaků, které budou použity z jména."
           },
           "lastnamecharactercount": {
             "label": "Počet znaků z příjmení",
@@ -4672,11 +4672,11 @@
           },
           "searchuniqueusername": {
             "label": "Ověřovat unikátní uživatelské jméno",
-            "help": "Nově vygenerované uživatelské jméno bude vyhledáno a v případě existence bude dodáván číselný suffix. Suffix může být inkrementován."
+            "help": "Nově vygenerované uživatelské jméno bude vyhledáno a v případě existence bude dodán číselný suffix. Suffix může být inkrementován."
           },
           "firstnamefirst": {
             "label": "Jméno uživatele použít první",
-            "help": "Při generování bude prvně doplněno jméno uživatele následně příjmení. Při odškrknutí bude pořadí opačné."
+            "help": "Při generování bude nejdříve doplněno jméno uživatele, následně příjmení. Při odškrtnutí bude pořadí opačné."
           },
           "replacewhitespacescharacter": {
             "label": "Znak/y pro vyplnění mezer",
@@ -4698,7 +4698,7 @@
           },
           "firstnamecharactercount": {
             "label": "Počet znaků ze jména",
-            "help": "Maximální počet znaků které budou použity z jména."
+            "help": "Maximální počet znaků, které budou použity z jména."
           },
           "lastnamecharactercount": {
             "label": "Počet znaků z příjmení",
@@ -4714,7 +4714,7 @@
           },
           "replacewhitespacescharacter": {
             "label": "Znak/y pro vyplnění mezer",
-            "help": "Znak/y budou použity pro nahrazení mezer a to i vně uživatelského jména a emailového suffixu. Pokud ponecháte prázdné, všechny mezery budou odstraněny."
+            "help": "Znak/y budou použity pro nahrazení mezer, a to i vně uživatelského jména a emailového suffixu. Pokud ponecháte prázdné, všechny mezery budou odstraněny."
           }
         }
       },
@@ -4734,7 +4734,7 @@
         "attributes": {
           "formdefinitionuuid": {
             "label": "Formulář",
-            "help": "Formulář musí být pro daný typ entity (IdmIdentity). Pokud necháte prázdné budou hodnoty doplněny pro všechny formuláře."
+            "help": "Formulář musí být pro daný typ entity (IdmIdentity). Pokud necháte prázdné, budou hodnoty doplněny pro všechny formuláře."
           },
           "regexmultiplevalues": {
             "label": "Oddělovač",
@@ -4748,7 +4748,7 @@
         "attributes": {
           "regexmultiplevalues": {
             "label": "Oddělovač",
-            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
+            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y, kterým jsou odděleny. Pokud necháte prázdné, bude použit znak ','."
           }
         }
       },
@@ -4758,7 +4758,7 @@
         "attributes": {
           "regexmultiplevalues": {
             "label": "Oddělovač",
-            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
+            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y, kterým jsou odděleny. Pokud necháte prázdné, bude použit znak ','."
           }
         }
       }
@@ -4795,7 +4795,7 @@
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Změna hesla neproběhla",
-      "message": "Vyberte alespoň jeden systém, na kterém má býti heslo změněno."
+      "message": "Vyberte alespoň jeden systém, na kterém má být heslo změněno."
     },
     "PASSWORD_CHANGE_CURRENT_FAILED_IDM": {
       "title": "Změna hesla neproběhla",

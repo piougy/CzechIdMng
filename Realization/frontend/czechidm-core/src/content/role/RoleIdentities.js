@@ -32,8 +32,7 @@ export default class RoleIdentities extends Basic.AbstractContent {
   }
 
   render() {
-    const entityId = this.props.params.entityId;
-    const forceSearchParameters = new SearchParameters().setFilter('role', entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('role', this.props.params.entityId);
     const columns = _.difference(IdentityTable.defaultProps.columns, ['username']);
     columns.push('entityInfo');
     //
@@ -43,9 +42,9 @@ export default class RoleIdentities extends Basic.AbstractContent {
 
         <Basic.ContentHeader icon="fa:group" text={ this.i18n('header') } style={{ marginBottom: 0 }}/>
         <IdentityTableComponent
-          uiKey={`role-identities-table-${entityId}`}
+          uiKey="role-identities-table"
           identityManager={ this.getManager() }
-          filterOpened
+          filterOpened={ false }
           forceSearchParameters={ forceSearchParameters }
           showAddButton={ false }
           columns={ columns }

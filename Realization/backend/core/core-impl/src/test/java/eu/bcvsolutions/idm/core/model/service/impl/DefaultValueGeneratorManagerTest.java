@@ -6,9 +6,8 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -24,18 +23,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
+@Transactional
 public class DefaultValueGeneratorManagerTest extends AbstractGeneratorTest {
-
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-
-	@After
-	public void logout() {
-		cleanAllGenerator();
-		super.logout();
-	}
 
 	@Test
 	public void testCreateGenerator() {

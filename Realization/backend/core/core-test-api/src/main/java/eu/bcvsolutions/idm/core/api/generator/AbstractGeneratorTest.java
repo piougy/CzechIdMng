@@ -2,10 +2,8 @@ package eu.bcvsolutions.idm.core.api.generator;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.After;
-import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -25,33 +23,13 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
+@Transactional
 public abstract class AbstractGeneratorTest extends AbstractIntegrationTest {
 
 	@Autowired
 	protected IdmGenerateValueService generatedAttributeService;
 	@Autowired
 	protected ValueGeneratorManager valueGeneratorManager;
-
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-
-	@After
-	public void logout() {
-		cleanAllGenerator();
-		super.logout();
-	}
-	
-	/**
-	 * Clean all created generators
-	 */
-	protected void cleanAllGenerator() {
-		Page<IdmGenerateValueDto> generators = generatedAttributeService.find(null);
-		for (IdmGenerateValueDto generator : generators) {
-			generatedAttributeService.delete(generator);
-		}
-	}
 	
 	/**
 	 * Create generated attribute

@@ -326,7 +326,6 @@ public class ConceptRoleRequestFormDefaultValueGeneratorTest extends AbstractGen
 	 *
 	 */
 	private IdmGenerateValueDto createGenerator() {
-		this.cleanAllGenerator();
 		IdmGenerateValueDto generateValue = new IdmGenerateValueDto();
 		generateValue.setDtoType(getDtoType().getCanonicalName());
 		generateValue.setGeneratorType(getGeneratorType());

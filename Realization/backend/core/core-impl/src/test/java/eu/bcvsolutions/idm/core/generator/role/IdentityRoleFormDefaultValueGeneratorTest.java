@@ -322,7 +322,6 @@ public class IdentityRoleFormDefaultValueGeneratorTest extends AbstractGenerator
 	 *
 	 */
 	private IdmGenerateValueDto createGenerator() {
-		this.cleanAllGenerator();
 		IdmGenerateValueDto generateValue = new IdmGenerateValueDto();
 		generateValue.setDtoType(getDtoType().getCanonicalName());
 		generateValue.setGeneratorType(getGeneratorType());

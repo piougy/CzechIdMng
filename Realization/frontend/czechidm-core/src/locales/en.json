@@ -1219,7 +1219,7 @@
         "implementerIdentifier": "Applicant",
         "successComplete": "Task {{name}} successfully solved.",
         "completeTaskConfirmTitle": "Confirmation of task completion",
-        "completeTaskConfirmDetail": "Do you really want this task to terminate?",
+        "completeTaskConfirmDetail": "Do you really want to settle this task?",
         "role": {
           "currentRoles": "Currently assigned permissions",
           "conceptIdentityRoles": "Applicant's roles"
@@ -1238,8 +1238,8 @@
           "approved":"Task successfully approved",
           "disapproved": "Task successfully rejected",
           "confirmTaskApproveTitle": "Task approve confirmation",
-          "confirmTaskApprove": "Do you really want this task to approve?",
-          "confirmTaskDisapprove": "Do you really want this task to reject?",
+          "confirmTaskApprove": "Do you really want to approve this task?",
+          "confirmTaskDisapprove": "Do you really want to reject this task?",
           "confirmTaskDisapproveTitle": "Task reject confirmation"
         }
       },
@@ -1327,7 +1327,7 @@
       "title": "Users",
       "filter": {
         "name": {
-          "placeholder": "Username, personal number, surname, name, e-mail or note"
+          "placeholder": "Login, personal number, surname, name, e-mail or note"
         },
         "organization": {
           "label": "Org. structure",
@@ -1349,8 +1349,8 @@
         },
         "identifiers": {
           "label": "Identifiers",
-          "placeholder": "Identifiers - usernames or personal numbers. $t(content.identities.filter.identifiers.tooltip)",
-          "tooltip": "Enter individual values separated by a comma."
+          "placeholder": "Own group search by usernames or personal numbers. $t(content.identities.filter.identifiers.tooltip)",
+          "tooltip": "Enter individual values of your group, separated by a comma."
         },
         "state": {
           "label": "State",
@@ -1596,7 +1596,7 @@
         }
       },
       "request":{
-        "header": "Request for change the automatic role"
+        "header": "Change request for automatic role"
       }
     },
     "formDefinitions": {
@@ -2171,7 +2171,7 @@
           "header": "Superior roles"
         },
         "sub": {
-          "header": "Sub roles"
+          "header": "Subroles"
         },
         "save": {
           "success": "Business role [{{record}}] successfully saved. Role will be assigned to the users on the background asynchronously."
@@ -3145,7 +3145,7 @@
         "help": ""
       },
       "sub": {
-        "label": "Sub role",
+        "label": "Subrole",
         "help": ""
       }
     },
@@ -4242,7 +4242,7 @@
         },
         "returnedRequestFromHelpdesk": {
           "name": "The request was returned from 'Helpdesk'",
-          "description":"Returned change of permissions request for '{{0}}'"
+          "description":"Returned change-of-permissions request for '{{0}}'"
         },
         "approveByManager": {
           "name": "Approval by manager",
@@ -4250,7 +4250,7 @@
         },
         "returnedRequestFromManager": {
           "name": "The request was returned from manager",
-          "description":"Returned change of permissions request for '{{0}}'"
+          "description":"Returned change-of-permissions request for '{{0}}'"
         },
         "approveByUserManager": {
           "name": "Approval by user manager",
@@ -4258,7 +4258,7 @@
         },
         "returnedRequestFromUserManager": {
           "name": "The request was returned from user manager",
-          "description":"Returned change of permissions request for '{{0}}'"
+          "description":"Returned change-of-permissions request for '{{0}}'"
         },
         "approvedBySecurity": {
           "name": "Approval by security department",
@@ -5114,8 +5114,8 @@
       "message": "Extended attribute type 'TEXT' is not supported."
     },
     "AUTOMATIC_ROLE_REQUEST_START_WITHOUT_RULE": {
-      "title": "Request for automatic role must have at least on rule!",
-      "message": "Request for automatic role [{{request}}] must have at least on rule!"
+      "title": "Request for automatic role must have at least one rule!",
+      "message": "Request for automatic role [{{request}}] must have at least one rule!"
     },
     "EVENT_CANCELED_BY_RESTART": {
       "title": "Event was canceled",
@@ -5502,8 +5502,8 @@
       "message": "Form definition id [{{formDefinitionId}}], has not type. Correct type: [{{dtoType}}]."
     },
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
-      "title": "Username cann't be empty",
-      "message": "Username has not been filled. Please fill the username or enable the username generator."
+      "title": "Login cann't be empty",
+      "message": "Login has not been filled. Please fill the login or enable the login generator."
     },
     "DTO_CANNOT_BE_CONVERT_TO_JSON": {
       "title": "DTO cannot be convert to the JSON!",

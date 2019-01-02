@@ -36,8 +36,9 @@ class IdentityService extends FormableEntityService {
         return entity.username;
       }
       toString += this.getFullName(entity);
-      toString += (entity.username ? ` (${entity.username})` : '');
-      toString += (entity.externalCode ? ` (${entity.externalCode})` : '');
+      toString += ` (${ entity.username }`;
+      toString += (entity.externalCode ? `, ${entity.externalCode}` : '');
+      toString += `)`;
     }
     return toString;
   }

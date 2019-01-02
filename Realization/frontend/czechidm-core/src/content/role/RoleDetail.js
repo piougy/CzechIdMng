@@ -216,6 +216,7 @@ class RoleDetail extends Basic.AbstractContent {
                           label={ this.i18n('entity.Role.baseCode.label') }
                           helpBlock={ this.i18n('entity.Role.baseCode.help') }
                           max={ 255 }
+                          required
                           onChange={ this._onChangeCode.bind(this) }/>
                       </Basic.Col>
                       <Basic.Col lg={ 8 }>

@@ -7,7 +7,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager, IdentityContractManager } from '../../redux';
+import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager, IdentityContractManager, CodeListManager } from '../../redux';
 import IdentityRoleEav from './IdentityRoleEav';
 
 const manager = new IdentityRoleManager();
@@ -15,6 +15,7 @@ const identityManager = new IdentityManager();
 const roleManager = new RoleManager();
 const roleTreeNodeManager = new RoleTreeNodeManager();
 const identityContractManager = new IdentityContractManager();
+const codeListManager = new CodeListManager();
 
 const TEST_ADD_ROLE_DIRECTLY = false;
 
@@ -28,6 +29,12 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
   }
 
   getContentKey() {
@@ -141,6 +148,22 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               }
             }
             rendered={ _.includes(columns, 'role') }/>
+          <Advanced.Column
+            header={this.i18n('entity.Role.environment.label')}
+            title={this.i18n('entity.Role.environment.help')}
+            width={ 125 }
+            face="text"
+            sort
+            sortProperty="role.environment"
+            rendered={_.includes(columns, 'environment')}
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.CodeListValue code="environment" value={ data[rowIndex]._embedded.role.environment }/>
+                );
+              }
+            }
+            />
           <Advanced.Column
             header={this.i18n('entity.IdentityRole.identityContract.title')}
             property="identityContract"
@@ -371,7 +394,7 @@ IdentityRoleTable.propTypes = {
 
 IdentityRoleTable.defaultProps = {
   rendered: true,
-  columns: ['role', 'identityContract', 'contractPosition', 'validFrom', 'validTill', 'directRole', 'automaticRole'],
+  columns: ['role', 'environment', 'identityContract', 'contractPosition', 'validFrom', 'validTill', 'directRole', 'automaticRole'],
   forceSearchParameters: null,
   showAddButton: true,
   showDetailButton: true,

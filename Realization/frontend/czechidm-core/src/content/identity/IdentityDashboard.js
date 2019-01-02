@@ -17,7 +17,7 @@ const componentService = new ComponentService();
  * Identity dashboard - personalized dashboard with quick buttons and overview
  *
  * TODO:
- * - implement all buttons + registrate buttons
+ * - implement all buttons + register buttons
  * - extract css styles
  * - dashboard component super class
  *
@@ -141,7 +141,6 @@ class IdentityDashboard extends Basic.AbstractContent {
 
         <div style={{ paddingBottom: 15 }}>
           <Basic.Button
-            level="success"
             icon="fa:angle-double-right"
             className="btn-large"
             onClick={ this.onIdentityDetail.bind(this) }
@@ -149,7 +148,6 @@ class IdentityDashboard extends Basic.AbstractContent {
             text={ this.i18n('component.advanced.IdentityInfo.link.detail.label') }
             rendered={ identityManager.canRead(identity, _permissions) } />
           <Basic.Button
-            level="primary"
             icon="ok"
             className="btn-large"
             text={ this.i18n('content.password.change.header') }
@@ -157,7 +155,6 @@ class IdentityDashboard extends Basic.AbstractContent {
             style={{ height: 50, marginRight: 3, minWidth: 150 }}
             rendered={ this._canPasswordChange() }/>
           <Basic.Button
-            level="warning"
             icon="fa:key"
             className="btn-large"
             text={ this.i18n('content.identity.roles.changePermissions') }
@@ -187,109 +184,21 @@ class IdentityDashboard extends Basic.AbstractContent {
             style={{ height: 50, marginRight: 3, minWidth: 150 }}
             text="Přepočet účtů a provisioning"/>
         </div>
-
-        <Basic.Row>
-          <Basic.Col lg={ 3 } rendered={ !this.isDashboard() }>
-            <Basic.ContentHeader
-              icon="user"
-              text={ this.i18n('content.identity.profile.header') }
-              buttons={
-                identityManager.canSave(identity, _permissions)
-                ?
-                  [
-                    <Link to={ `/identity/${encodeURIComponent(identityIdentifier)}/profile` }>
-                      <Basic.Icon value="fa:angle-double-right"/>
-                      {' '}
-                      { this.i18n('button.edit') }
-                    </Link>
-                  ]
-                :
-                null
-            }/>
-            <Basic.Panel style={{ marginBottom: 0 }}>
-              <div className="basic-table">
-                <table className="table table-condensed">
-                  <tbody>
-                    <tr>
-                      <td style={{ borderTop: 'none', width: 150 }}>{ this.i18n('entity.Identity.username')} </td>
-                      <th style={{ borderTop: 'none' }}>{ identity.username }</th>
-                    </tr>
-                    <tr>
-                      <td>{ this.i18n('entity.Identity.fullName')} </td>
-                      <th>{ identityManager.getNiceLabel(identity) }</th>
-                    </tr>
-                    <tr>
-                      <td>{ this.i18n('entity.Identity.state.label')} </td>
-                      <th><Basic.EnumValue value={ identity.state } enum={ IdentityStateEnum} /></th>
-                    </tr>
-                    <tr>
-                      <td>{ this.i18n('entity.Identity.externalCode')} </td>
-                      <th>{ identity.externalCode }</th>
-                    </tr>
-                    <tr>
-                      <td>{ this.i18n('entity.Identity.email')} </td>
-                      <th>{ identity.email }</th>
-                    </tr>
-                    <tr>
-                      <td>{ this.i18n('entity.Identity.phone')} </td>
-                      <th>{ identity.phone }</th>
-                    </tr>
-                    <tr>
-                      <td>{ this.i18n('entity.Identity.description')} </td>
-                      <td>{ identity.description }</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <Basic.ContentHeader
-                text="EAV1"
-                style={{ padding: '0 15px', marginBottom: 0, marginTop: 15, display: 'none' }}
-                buttons={[
-                  <a href="#" onClick={ (e) => { e.preventDefault(); alert('not-implementerd'); return false; }}>
-                    <Basic.Icon value="fa:angle-double-right"/>
-                    {' '}
-                    { this.i18n('button.edit') }
-                  </a>
-                ]}/>
-              <div className="basic-table hidden">
-                <table className="table table-condensed">
-                  <tbody>
-                    <tr>
-                      <td style={{ borderTop: 'none', width: 150 }}>property</td>
-                      <th style={{ borderTop: 'none' }}>value</th>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <Basic.PanelFooter rendered={ identityManager.canRead(identity, _permissions) }>
-                <Link to={ `/identity/${encodeURIComponent(identityIdentifier)}/profile` }>
-                  <Basic.Icon value="fa:angle-double-right"/>
-                  {' '}
-                  { this.i18n('component.advanced.IdentityInfo.link.detail.label') }
-                </Link>
-              </Basic.PanelFooter>
-            </Basic.Panel>
-          </Basic.Col>
-          <Basic.Col lg={ !this.isDashboard() ? 9 : 12 }>
-            {
-              componentService
-                .getComponentDefinitions(ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE)
-                .filter(component => !this.isDashboard() || component.dashboard !== false)
-                .map(component => {
-                  const DashboardComponent = component.component;
-                  return (
-                    <DashboardComponent
-                      key={`${ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE}-${component.id}`}
-                      entityId={ identity.username }
-                      identity={ identity }
-                      permissions={ _permissions }/>
-                  );
-                })
-            }
-          </Basic.Col>
-        </Basic.Row>
+        {
+          componentService
+            .getComponentDefinitions(ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE)
+            .filter(component => !this.isDashboard() || component.dashboard !== false)
+            .map(component => {
+              const DashboardComponent = component.component;
+              return (
+                <DashboardComponent
+                  key={`${ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE}-${component.id}`}
+                  entityId={ identity.username }
+                  identity={ identity }
+                  permissions={ _permissions }/>
+              );
+            })
+        }
       </div>
     );
   }

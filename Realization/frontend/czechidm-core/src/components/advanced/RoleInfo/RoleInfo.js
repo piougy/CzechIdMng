@@ -8,6 +8,7 @@ import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import RolePriorityEnum from '../../../enums/RolePriorityEnum';
 import SearchParameters from '../../../domain/SearchParameters';
 import Tree from '../Tree/Tree';
+import CodeListValue from '../CodeListValue/CodeListValue';
 
 const uiKeyRoles = 'role-composition-sub-table';
 const manager = new RoleManager();
@@ -114,13 +115,23 @@ export class RoleInfo extends AbstractEntityInfo {
     const content = [
       {
         label: this.i18n('entity.name'),
-        value: manager.getNiceLabel(entity)
+        value: entity.name
       },
       {
-        label: this.i18n('entity.Role.priorityEnum'),
-        value: (<Basic.EnumValue enum={ RolePriorityEnum } value={ RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(entity.priority)) } />)
+        label: this.i18n('entity.Role.code.label'),
+        value: entity.baseCode
       }
     ];
+    if (entity.environment) {
+      content.push({
+        label: this.i18n('entity.Role.environment.label'),
+        value: (<CodeListValue code="environment" value={ entity.environment }/>)
+      });
+    }
+    content.push({
+      label: this.i18n('entity.Role.priorityEnum'),
+      value: (<Basic.EnumValue enum={ RolePriorityEnum } value={ RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(entity.priority)) } />)
+    });
     // subroles
     if (_subRolesUi) {
       content.push({

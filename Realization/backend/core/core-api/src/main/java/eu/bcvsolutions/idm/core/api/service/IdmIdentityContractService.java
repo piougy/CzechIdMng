@@ -84,8 +84,13 @@ public interface IdmIdentityContractService extends
 	IdmIdentityContractDto prepareMainContract(UUID identityId);
 	
 	/**
-	 * Returns given identity's prime contract.
-	 * If no main contract is defined, then returns the first contract with working position defined (default tree type has higher priority).
+	 * Returns given identity's prime contract, by contract's priority:
+	 * - 1. main
+	 * - 2. valid (validable and not disabled)
+	 * - 3. with working position with default tree type
+	 * - 4. with working position with any tree type
+	 * - 5. with undefined valid from
+	 * - 6. other with lowest valid from
 	 * 
 	 * @param identityId
 	 * @return
@@ -110,7 +115,8 @@ public interface IdmIdentityContractService extends
 	 * - 2. valid (validable and not disabled)
 	 * - 3. with working position with default tree type
 	 * - 4. with working position with any tree type
-	 * - 5. other with lowest valid from
+	 * - 5. with undefined valid from
+	 * - 6. other with lowest valid from
 	 * 
 	 * @param identityId
 	 * @return

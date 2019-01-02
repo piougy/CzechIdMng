@@ -202,25 +202,24 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		when(contractSliceService.find(any(IdmContractSliceFilter.class), any(PageRequest.class))).thenReturn(new PageImpl<IdmContractSliceDto>(new ArrayList<>()));
 		
 		//
-		Assert.assertEquals(oneContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
+		Assert.assertEquals(twoContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}
 	
 	@Test
 	public void testOtherMainContractByValidFrom() {
 		List<IdmIdentityContract> contracts = new ArrayList<>();
 		IdmIdentityContract oneContract = new IdmIdentityContract(UUID.randomUUID());
-		oneContract.setValidFrom(new LocalDate());
+		oneContract.setValidFrom(new LocalDate().minusDays(2));
 		oneContract.setMain(false);
 		IdmIdentityContract twoContract = new IdmIdentityContract(UUID.randomUUID());
 		twoContract.setMain(false);
-		twoContract.setValidFrom(new LocalDate().plusDays(1));
+		twoContract.setValidFrom(new LocalDate().minusDays(1));
 		contracts.add(twoContract);
 		contracts.add(oneContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
 		when(treeConfiguration.getDefaultType()).thenReturn(null);
 		when(contractSliceService.find(any(IdmContractSliceFilter.class), any(PageRequest.class))).thenReturn(new PageImpl<IdmContractSliceDto>(new ArrayList<>()));
-		
 		//
 		Assert.assertEquals(oneContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}

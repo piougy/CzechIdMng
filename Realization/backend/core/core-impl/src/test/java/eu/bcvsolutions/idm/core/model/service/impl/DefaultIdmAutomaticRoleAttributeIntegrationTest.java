@@ -1257,13 +1257,13 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 			}
 		}
 		assertFalse(contractCheck1);
-		assertTrue(contractCheck2);
-		assertFalse(contractCheck3);
+		assertFalse(contractCheck2);
+		assertTrue(contractCheck3);
 		
 		IdmIdentityContractDto newNewPrimeContract = testHelper.getPrimeContract(identity.getId());
 		assertNotEquals(newPrimeContract.getId(), newNewPrimeContract.getId());
 		
-		assertEquals(contract2, newNewPrimeContract);
+		assertEquals(contract3, newNewPrimeContract);
 		
 		identityContractService.delete(newNewPrimeContract);
 		

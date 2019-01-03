@@ -16,16 +16,15 @@ const RESOURCE_IDM = `0:${IDM_NAME}`;
 const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
 const PASSWORD_PREVALIDATION = 'PASSWORD_PREVALIDATION';
 
+const identityManager = new IdentityManager();
+const identityService = new IdentityService();
+const securityManager = new SecurityManager();
+
 /**
  * Basic password change fields (old password and new password) and validation message
  *
  * @author Ondřej Kopr
  */
-
-const identityManager = new IdentityManager();
-const identityService = new IdentityService();
-const securityManager = new SecurityManager();
-
 class PasswordChangeComponent extends Basic.AbstractFormComponent {
 
   constructor(props, context) {

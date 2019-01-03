@@ -107,8 +107,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		//
 		Page<IdmProcessedTaskItemDto> p = getItemFromQueue(entityRef);
 		//
-		Assert.isTrue(p.getTotalElements() == 1);
-		itemService.deleteInternal(p.iterator().next());
+		p.forEach(item -> itemService.deleteInternal(item));
 	}
 
 	@Override
@@ -196,7 +195,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	private void processCandidate(DTO candidate, boolean dryRun) {
 		if (isInProcessedQueue(candidate)) {
 			// item was processed earlier - just drop the count by one
-			// FIXME: this is confusing => task ends with 0 count, if all 
+			// FIXME: this is confusing => task ends with 0 count, if all items are skipped (processed before)
 			--count;
 			return;
 		}

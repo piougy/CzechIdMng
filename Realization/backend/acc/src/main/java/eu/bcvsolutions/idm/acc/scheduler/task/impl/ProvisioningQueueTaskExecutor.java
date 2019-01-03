@@ -46,6 +46,12 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 	}
 	
 	@Override
+	public boolean isInProcessedQueue(SysProvisioningBatchDto dto) {
+		// we want to log items, but we want to execute them every times
+		return false;
+	}
+	
+	@Override
 	protected boolean start() {
 		LOG.debug("Start processing created provisioning operation in queue.");
 		//
@@ -69,19 +75,9 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 
 	@Override
 	public Optional<OperationResult> processItem(SysProvisioningBatchDto dto) {
-		LOG.debug("Start processinig created batch [{}] from queue.",  dto.getId());
+		LOG.debug("Start processing created batch [{}] from queue.",  dto.getId());
 		try {
-			// TODO: multi thread
-//			FutureTask<OperationResult> futureTask = new FutureTask<>(new Callable<OperationResult>() {
-//				@Override
-//				public OperationResult call() throws Exception {
-//					LOG.error(".... +: " + dto.getId());
-//					return provisioningExecutor.execute(dto);
-//				}				
-//			});
-//			executor.execute(futureTask);
-//			return Optional.of(new OperationResult.Builder(OperationState.RUNNING).build());
-			return Optional.of(provisioningExecutor.execute(dto));		
+			return Optional.of(provisioningExecutor.execute(dto));	
 		} catch (Exception ex) {
 			// just for sure - execute should return appropriate result always
 			LOG.error("Process [{}] batch from queue failed", dto.getId(), ex);

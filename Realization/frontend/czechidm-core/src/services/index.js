@@ -73,6 +73,7 @@ import GenerateValueService from './GenerateValueService';
 import AttachmentService from './AttachmentService';
 import CodeListService from './CodeListService';
 import CodeListItemService from './CodeListItemService';
+import RoleFormAttributeService from './RoleFormAttributeService';
 
 const ServiceRoot = {
   RestApiService,
@@ -142,7 +143,8 @@ const ServiceRoot = {
   GenerateValueService,
   AttachmentService,
   CodeListService,
-  CodeListItemService
+  CodeListItemService,
+  RoleFormAttributeService
 };
 
 ServiceRoot.version = '0.0.1';

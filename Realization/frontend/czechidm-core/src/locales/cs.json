@@ -2131,6 +2131,19 @@
           "success": "Garant [{{record}}] byl úspěšně uložen."
         }
       },
+      "formAttributes": {
+        "header": "Atributy role",
+        "title": "Atributy role",
+        "create": {
+          "header": "Přidat atribut role"
+        },
+        "edit": {
+          "header": "{{name}} <small>detail atributu role</small>"
+        },
+        "save": {
+          "success": "Atribut role [{{record}}] byl úspěšně uložen."
+        }
+      },
       "eav": {
         "header": "Další údaje",
         "title": "Další údaje",
@@ -3343,7 +3356,7 @@
       "approveRemove": "Schvalovat odebírání rolí",
       "identityRoleAttributeDefinition": {
         "label": "Definice přidělovaných atributů",
-        "help": "Atributy v této definici, budou vyplňovány během přidělování role."
+        "help": "Nejdříve vyplňte (a uložte) hlavní definici atributů. Z této definice následně zvolte ty atributy, které mají být vyplňovány během přidělování role."
       },
       "canBeRequested": "O roli lze žádat",
       "description": "Popis",
@@ -4279,6 +4292,17 @@
       },
       "level": {
         "label": "Level"
+      }
+    },
+    "RoleFormAttribute": {
+      "role": {
+        "label": "Role"
+      },
+      "formAttribute": {
+        "label": "Definice atributu"
+      },
+      "defaultValue": {
+        "label": "Výchozí hodnota"
       }
     }
   },
@@ -5634,6 +5658,10 @@
     "FORM_DEFINITION_DELETE_FAILED_ROLE": {
       "title": "Definici formuláře není možné smazat!",
       "message": "Definici formuláře [{{definition}}] není možné smazat, protože je použita na roli [{{role}}]!"
+    },
+    "ROLE_FORM_ATTRIBUTE_CHANGE_DEF_NOT_ALLOWED": {
+      "title": "Není možné provést změnu definice atributů role!",
+      "message": "Není možné provést změnu definice atributů role [{{role}}], protože má nastavený alespoň jeden atribut (pro původní definici). Nejprve musíte odebrat všechny nastavené atributy role!"
     }
   },
   "validationError": {

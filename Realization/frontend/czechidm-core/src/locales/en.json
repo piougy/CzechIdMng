@@ -2083,6 +2083,19 @@
           "success": "Authorizer [{{record}}] successfully saved."
         }
       },
+      "formAttributes": {
+        "header": "Role attributes",
+        "title": "Role attributes",
+        "create": {
+          "header": "Create role attribute"
+        },
+        "edit": {
+          "header": "{{name}} <small>role attribute detail</small>"
+        },
+        "save": {
+          "success": "Role attribute [{{record}}] successfully saved."
+        }
+      },
       "eav": {
         "header": "More information",
         "title": "More information",
@@ -3292,7 +3305,7 @@
       "approveRemove": "Role removal approval",
       "identityRoleAttributeDefinition": {
         "label": "Definition of assigned attributes",
-        "help": "The attributes in this definition will be filled in during role assignment."
+        "help": "First select (and save) the main definition. From this definition, you can select attributes that should be filled in during role assignment."
       },
       "canBeRequested": "Can be requested",
       "description": "Description",
@@ -4229,6 +4242,17 @@
       },
       "level": {
         "label": "Level"
+      }
+    },
+    "RoleFormAttribute": {
+      "role": {
+        "label": "Role"
+      },
+      "formAttribute": {
+        "label": "Attribute definition"
+      },
+      "defaultValue": {
+        "label": "Default value"
       }
     }
   },
@@ -5584,6 +5608,10 @@
     "FORM_DEFINITION_DELETE_FAILED_ROLE": {
       "title": "Form definition cannot be deleted!",
       "message": "Form definition [{{definition}}]  cannot be deleted, because is using in the role [{{role}}]!"
+    },
+    "ROLE_FORM_ATTRIBUTE_CHANGE_DEF_NOT_ALLOWED": {
+      "title": "It is not possible to change the definition of role attributes!",
+      "message": "It is not possible to change the definition of role [{{role}}] attributes, because it has at least one attribute set (for the original definition). First, you must remove all sets role attributes!"
     }
   },
   "validationError": {

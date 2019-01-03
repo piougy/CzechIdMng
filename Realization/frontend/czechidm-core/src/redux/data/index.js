@@ -69,6 +69,7 @@ import ProfileManager from './ProfileManager';
 import GenerateValueManager from './GenerateValueManager';
 import CodeListManager from './CodeListManager';
 import CodeListItemManager from './CodeListItemManager';
+import RoleFormAttributeManager from './RoleFormAttributeManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -134,7 +135,8 @@ const ManagerRoot = {
   ProfileManager,
   GenerateValueManager,
   CodeListManager,
-  CodeListItemManager
+  CodeListItemManager,
+  RoleFormAttributeManager
 };
 
 ManagerRoot.version = '0.0.1';

@@ -58,6 +58,12 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
     super.afterSave(entity, error);
   }
 
+  _onChangeFormAttribute(value) {
+    if (value) {
+      this.refs.defaultValue.setValue(value.defaultValue);
+    }
+  }
+
   render() {
     const { forceSearchParameters, _showLoading, _permissions, className, formDefinition } = this.props;
     const { detail } = this.state;
@@ -147,6 +153,7 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
                   manager={ formAttributeManager }
                   label={ this.i18n('entity.RoleFormAttribute.formAttribute.label') }
                   forceSearchParameters={formAttributeForceSearch}
+                  onChange={this._onChangeFormAttribute.bind(this)}
                   useFirst
                   required/>
                 <Basic.TextField

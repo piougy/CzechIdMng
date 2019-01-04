@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -127,4 +128,15 @@ public interface IdmRoleService extends
 	 * @since 9.3.0
 	 */
 	String getCodeWithEnvironment(IdmRoleDto role);
+
+	/**
+	 * Finds form definition for given role by sub-definition. Returns only
+	 * attributes that has same attribute sets in this role as sub-definition
+	 * (IdmRoleFormAttribute). The default value returned in attributes is used from
+	 * sub-definition attribute.
+	 * 
+	 * @param role
+	 * @return
+	 */
+	IdmFormDefinitionDto getFormAttributeSubdefinition(IdmRoleDto role);
 }

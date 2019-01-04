@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -34,12 +35,12 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -67,6 +68,10 @@ public class IdmIdentityRoleController extends AbstractReadWriteDtoController<Id
 	protected static final String TAG = "Identity roles ~ assigned roles";
 	@Autowired
 	private IdmFormDefinitionController formDefinitionController;
+	@Autowired
+	private IdmRoleService roleService;
+	@Autowired
+	private FormService formService;
 	
 	@Autowired
 	public IdmIdentityRoleController(IdmIdentityRoleService service) {
@@ -221,7 +226,8 @@ public class IdmIdentityRoleController extends AbstractReadWriteDtoController<Id
 		// Search definition by definition in role
 		IdmRoleDto roleDto = DtoUtils.getEmbedded(dto, IdmIdentityRole_.role, IdmRoleDto.class);
 		if (roleDto != null && roleDto.getIdentityRoleAttributeDefinition() != null) {
-			return  formDefinitionController.getDefinitions(roleDto.getIdentityRoleAttributeDefinition());
+			IdmFormDefinitionDto definition = roleService.getFormAttributeSubdefinition(roleDto);
+			return formDefinitionController.toResources(Lists.newArrayList(definition));
 		}
 		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -229,6 +235,8 @@ public class IdmIdentityRoleController extends AbstractReadWriteDtoController<Id
 	
 	/**
 	 * Returns entity's filled form values
+	 * 
+	 * In this case is code of definition ignored, we will loaded only definition by given role and sub-definition.
 	 * 
 	 * @param backendId
 	 * @return
@@ -249,16 +257,19 @@ public class IdmIdentityRoleController extends AbstractReadWriteDtoController<Id
 	public Resource<?> getFormValues(
 			@ApiParam(value = "Identity role's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId, 
-			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
+			@ApiParam(value = "Code of form definition (default will be used if no code is given)."
+					+ " In this case is code of definition ignored, we will loaded only definition by given role and sub-definition.",
+					required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
 		IdmIdentityRoleDto dto = getDto(backendId);
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityRole.class, definitionCode);
+		IdmRoleDto roleDto = DtoUtils.getEmbedded(dto, IdmIdentityRole_.role, IdmRoleDto.class);
+		IdmFormDefinitionDto definition = roleService.getFormAttributeSubdefinition(roleDto);
 		//
-		return formDefinitionController.getFormValues(dto, formDefinition);
+		return new Resource<>(formService.getFormInstance(dto, definition));
 	}
 	
 	@Override

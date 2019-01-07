@@ -26,6 +26,7 @@ public class IdmRoleFormAttributeFilter extends DataFilter {
 
 	private UUID role;
 	private UUID formDefinition;
+	private UUID formAttribute;
 
 	public UUID getFormDefinition() {
 		return formDefinition;
@@ -41,5 +42,13 @@ public class IdmRoleFormAttributeFilter extends DataFilter {
 
 	public void setRole(UUID role) {
 		this.role = role;
+	}
+
+	public UUID getFormAttribute() {
+		return formAttribute;
+	}
+
+	public void setFormAttribute(UUID formAttribute) {
+		this.formAttribute = formAttribute;
 	}
 }

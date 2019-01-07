@@ -51,17 +51,23 @@ public class DefaultIdmRoleFormAttributeService
 	protected List<Predicate> toPredicates(Root<IdmRoleFormAttribute> root, CriteriaQuery<?> query,
 			CriteriaBuilder builder, IdmRoleFormAttributeFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
-		//
-		// role
+
+		// Role
 		UUID role = filter.getRole();
 		if (role != null) {
 			predicates.add(builder.equal(root.get(IdmRoleFormAttribute_.role).get(IdmRole_.id), role));
 		}
-		// form definition
+		// Form definition
 		UUID definition = filter.getFormDefinition();
 		if (definition != null) {
 			predicates.add(builder.equal(root.get(IdmRoleFormAttribute_.formAttribute)
 					.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.id), definition));
+		}
+		// Form attribute
+		UUID attribute = filter.getFormAttribute();
+		if (attribute != null) {
+			predicates.add(
+					builder.equal(root.get(IdmRoleFormAttribute_.formAttribute).get(IdmFormAttribute_.id), attribute));
 		}
 		return predicates;
 	}

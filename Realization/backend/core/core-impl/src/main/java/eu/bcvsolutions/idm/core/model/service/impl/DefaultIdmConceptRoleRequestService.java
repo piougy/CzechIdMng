@@ -313,11 +313,10 @@ public class DefaultIdmConceptRoleRequestService extends
 			// Has role filled attribute definition?
 			UUID formDefintion = role.getIdentityRoleAttributeDefinition();
 			if (formDefintion != null) {
-				IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(role,
-						IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
+				IdmFormDefinitionDto formDefinitionDto = roleService.getFormAttributeSubdefinition(role);
 				IdmFormInstanceDto conceptFormInstance = null;
 				List<IdmFormInstanceDto> eavs = dto.getEavs();
-				// Get form instance from givne concept first
+				// Get form instance from given concept first
 				if (eavs != null && eavs.size() == 1) {
 					conceptFormInstance = eavs.get(0);
 				} else {

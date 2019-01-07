@@ -814,7 +814,11 @@ public class DefaultFormService implements FormService {
 		//
 		BasePermission[] permissions = PermissionUtils.trimNull(permission);
 		FormableEntity ownerEntity = getOwnerEntity(owner);
-		formDefinition = getDefinition(checkDefaultDefinition(owner.getClass(), formDefinition).getId()); // load => prevent to modify input definition
+		// Definition will be reloaded only if is given definition trimmed (we need to not reloading the definition in case use the sub-definition (role-attributes))
+		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
+		if(formDefinition.isTrimmed()) {
+			formDefinition = getDefinition(formDefinition.getId()); // load => prevent to modify input definition
+		}
 		FormValueService<FormableEntity> formValueService = getFormValueService(owner);
 		List<IdmFormValueDto> values = formValueService.getValues(ownerEntity, formDefinition, permission);
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(ownerEntity, formDefinition, values);

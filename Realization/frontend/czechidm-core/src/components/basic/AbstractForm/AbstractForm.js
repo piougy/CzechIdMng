@@ -8,6 +8,8 @@ import Loading from '../Loading/Loading';
 import _ from 'lodash';
 
 /**
+ * Abstract form component
+ *
  * @author Vít Švanda
  */
 class AbstractForm extends AbstractContextComponent {
@@ -107,8 +109,16 @@ class AbstractForm extends AbstractContextComponent {
         }
         if (json.hasOwnProperty(key)) {
           const value = json[key];
-          // set new value to component
-          component.setValue(value);
+          // Set new value to component
+          // If component using complex value and value in given json is primitive,
+          // then we try to use value from _embedded object (optimalization for prevent
+          // to many request and solving problem with rights (in WF tasks ...)).
+          const isPrimitive = Object(value) !== value;
+          if (component.isValueComplex() === true && isPrimitive === true && json._embedded && json._embedded[key]) {
+            component.setValue(json._embedded[key]);
+          } else {
+            component.setValue(value);
+          }
         } else {
           component.setValue(null);
         }

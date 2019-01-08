@@ -155,6 +155,10 @@ public class DefaultIdmRoleService
 					if (result != null) {
 						// Set default value from sub-definition attribute
 						attribute.setDefaultValue(result.getDefaultValue());
+						// Set validations
+						// Required
+						attribute.setRequired(result.isRequired());
+						// TODO: Add other validations - @Ondra - here is correct place for it ;)
 						return true;
 					}
 					return false;

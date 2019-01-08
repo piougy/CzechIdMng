@@ -1187,10 +1187,10 @@ public class DefaultFormService implements FormService {
 		List<IdmFormValueDto> formValues = formInstance.getValues();
 		List<InvalidFormAttributeDto> results = Lists.newArrayList();
 		
-		definition.getFormAttributes().forEach(formAttribute -> {
-			List<IdmFormValueDto> formValueForAttributes = formValues.stream()
-					.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute()))
-					.collect(Collectors.toList());
+		definition.getFormAttributes().forEach(formAttribute -> { //
+			List<IdmFormValueDto> formValueForAttributes = formValues.stream() //
+					.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute())) //
+					.collect(Collectors.toList()); //
 			InvalidFormAttributeDto result = this.validateAttribute(formAttribute,
 					formValueForAttributes != null ? formValueForAttributes : null);
 			if (result != null) {

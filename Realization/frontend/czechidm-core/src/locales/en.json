@@ -3265,6 +3265,19 @@
       "unmodifiable": {
         "help": "System attribute cannot be deleted. Some of its configurations are not editable.",
         "label": "System attribute"
+      },
+      "unique": {
+        "label": "Unique value"
+      },
+      "regex": {
+        "label": "Regular expression",
+        "help": "Validate a value with the regular expression."
+      },
+      "min": {
+        "label": "Minimal value"
+      },
+      "max": {
+        "label": "Maximum value"
       }
     },
     "FormValue": {

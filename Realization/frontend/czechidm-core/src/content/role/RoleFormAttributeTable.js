@@ -6,6 +6,7 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { RoleFormAttributeManager, FormAttributeManager, RoleManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
+import Joi from 'joi';
 
 let manager = new RoleFormAttributeManager();
 let roleManager = new RoleManager();
@@ -160,6 +161,25 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
                   ref="defaultValue"
                   label={ this.i18n('entity.RoleFormAttribute.defaultValue.label') }
                 />
+                <Basic.Checkbox
+                  ref="required"
+                  label={this.i18n('entity.FormAttribute.required')}/>
+                <Basic.Checkbox
+                  ref="unique"
+                  label={this.i18n('entity.FormAttribute.unique.label')}/>
+                <Basic.TextField
+                  ref="regex"
+                  label={this.i18n('entity.FormAttribute.regex.label')}
+                  helpBlock={this.i18n('entity.FormAttribute.regex.help')}
+                  />
+                <Basic.TextField
+                  ref="min"
+                  label={this.i18n('entity.FormAttribute.min.label')}
+                  validation={Joi.number().precision(2).allow(null)}/>
+                <Basic.TextField
+                  ref="max"
+                  label={this.i18n('entity.FormAttribute.max.label')}
+                  validation={Joi.number().precision(2).allow(null)}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

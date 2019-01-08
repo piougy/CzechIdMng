@@ -3316,7 +3316,20 @@
       "unmodifiable": {
         "help": "Systémový atribut nemůže být smazán a nelze upravovat některé jeho atributy.",
         "label": "Systémový atribut"
-       }
+      },
+     "unique": {
+       "label": "Unikátní hodnota"
+     },
+     "regex": {
+       "label": "Regulární výraz",
+       "help": "Validovat hodnotu pomocí regulárního výrazu"
+     },
+     "min": {
+       "label": "Minimální hodnota"
+     },
+     "max": {
+       "label": "Maximální hodnota"
+     }
     },
     "FormValue": {
       "ownerId": {

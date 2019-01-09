@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleFormAttribute;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleFormAttribute_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
@@ -44,7 +45,7 @@ public class DefaultIdmRoleFormAttributeService
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return null;
+		return new AuthorizableType(CoreGroupPermission.ROLEFORMATTRIBUTE, getEntityClass());
 	}
 
 	@Override

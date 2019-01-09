@@ -336,7 +336,8 @@ module.exports = {
                 'labelKey': 'content.role.formAttributes.title',
                 'icon': 'fa:th-list',
                 'order': 500,
-                'path': '/role/:entityId/form-attributes'
+                'path': '/role/:entityId/form-attributes',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
               },
               {
                 'id': 'role-catalogue-roles',

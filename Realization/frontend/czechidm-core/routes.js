@@ -320,7 +320,8 @@ module.exports = {
         },
         {
           path: 'form-attributes',
-          component: require('./src/content/role/RoleFormAttributes')
+          component: require('./src/content/role/RoleFormAttributes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
         },
         {
           path: 'catalogues',

@@ -60,7 +60,7 @@ public class RoleSaveProcessor
 		IdmRoleDto originalSource = event.getOriginalSource();
 		
 		UUID roleAttributeDefinition = entity.getIdentityRoleAttributeDefinition();
-		UUID originalRoleAttributeDefinition = originalSource.getIdentityRoleAttributeDefinition();
+		UUID originalRoleAttributeDefinition = originalSource != null ? originalSource.getIdentityRoleAttributeDefinition() : null;
 		// Validation - form definition can be changed only if none role-form-attributes exists (for this role)
 		if(!Objects.equals(roleAttributeDefinition, originalRoleAttributeDefinition)) {
 			IdmRoleFormAttributeFilter roleFormAttributeFilter = new IdmRoleFormAttributeFilter();

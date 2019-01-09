@@ -891,6 +891,7 @@
       "ROLECATALOGUEROLE": "Role catalog - assigned roles",
       "ROLEGUARANTEE": "$t(entity.Role.guarantees) - by identity",
       "ROLEGUARANTEEROLE": "$t(entity.Role.guarantees) - by role",
+      "ROLEFORMATTRIBUTE": "Role attributes",
       "ROLECOMPOSITION": "Business roles definition",
       "ROLETREENODE": "Automatic roles (organization structure)",
       "TREENODE": "Tree nodes",

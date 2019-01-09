@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
@@ -42,20 +43,30 @@ import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.ProvisioningQueueTaskExecutor;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.RetryProvisioningTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
@@ -89,7 +100,11 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	@Autowired private TestProvisioningExceptionProcessor testProvisioningExceptionProcessor;
 	@Autowired private FormService formService;
 	@Autowired private DataSource dataSource;
-	//	
+	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private SysProvisioningArchiveService provisioningArchiveService;
+	@Autowired private ConfigurationService configurationService;
+	@Autowired private SchedulerManager schedulerManager;
+	//
 	private SysProvisioningOperationService provisioningOperationService;
 	private ProvisioningExecutor provisioningExecutor;
 	
@@ -614,6 +629,61 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		Assert.assertEquals(firstname, resource.getFirstname());
 		batch = provisioningBatchService.get(batch.getId());
 		Assert.assertNull(batch.getNextAttempt());
+	}
+	
+	@Test
+	public void testAsynchronousQueueSynchronized() throws Exception {
+		//
+		// schedule task to process queue async
+		Task task = new Task();
+		task.setInstanceId(configurationService.getInstanceId());
+		task.setTaskType(ProvisioningQueueTaskExecutor.class);
+		task = schedulerManager.createTask(task);
+		CronTaskTrigger trigger = new CronTaskTrigger();
+		trigger.setTaskId(task.getId());
+		trigger.setCron("0/5 * * * * ?");
+		//
+		schedulerManager.createTrigger(task.getId(), trigger);
+		//
+		// turn on async processing
+		getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		//
+		try {
+			int count = 50;
+			// system with asynchronous provisioning
+			SysSystemDto system = getHelper().createTestResourceSystem(true);
+			system.setQueue(true);
+			system = systemService.save(system);
+			//
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			IdmRoleDto role = getHelper().createRole();
+			getHelper().createRoleSystem(role, system);
+			getHelper().createIdentityRole(identity, role);
+			//
+			for (int index = 0; index < count; index++) {
+				// async provisioning by the notify event
+				entityEventManager.changedEntity(identity);
+				Thread.sleep(25);
+			}
+			//
+			SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+			filter.setEntityIdentifier(identity.getId());
+			//
+			// wait for the active operations are processed
+			getHelper().waitForResult(res -> {
+				List<SysProvisioningArchiveDto> executedOperations = provisioningArchiveService.find(filter, null).getContent();
+				//
+				return executedOperations.size() != count + 1;
+			});
+			//
+			// check archive is executed
+			Assert.assertTrue(provisioningArchiveService.find(filter, null).getContent().stream().allMatch(a -> a.getResultState().isSuccessful()));
+		} finally {
+			schedulerManager.deleteTask(task.getId());
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		}
 	}
 	
 	@Test

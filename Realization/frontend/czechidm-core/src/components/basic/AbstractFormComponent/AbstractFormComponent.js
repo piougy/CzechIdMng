@@ -93,6 +93,17 @@ class AbstractFormComponent extends AbstractContextComponent {
   }
 
   /**
+  * Defines if component works with complex value.
+  * That is using for correct set input value in form component.
+  * Complex value could be exist in _embedded map and we need to now if
+  * should be used value from field (UUID) or _embedded (entity).
+  *
+  */
+  isValueComplex() {
+    return false;
+  }
+
+  /**
    * Resolves required attribute validation
    *
    * @return {object} Joi validation

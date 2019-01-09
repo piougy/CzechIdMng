@@ -157,7 +157,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 
 	@Override
 	@Transactional(noRollbackFor = ProvisioningException.class)
-	public void execute(SysProvisioningOperationDto provisioningOperation) {
+	public synchronized void execute(SysProvisioningOperationDto provisioningOperation) {
 		//
 		// execute - after original transaction is commited
 		// only if system supports synchronous processing
@@ -187,7 +187,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	 */
 	@TransactionalEventListener
 	@Transactional(noRollbackFor = ProvisioningException.class, propagation = Propagation.REQUIRES_NEW)
-	public SysProvisioningOperationDto executeInternal(SysProvisioningOperationDto provisioningOperation) {
+	public synchronized SysProvisioningOperationDto executeInternal(SysProvisioningOperationDto provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		Assert.notNull(provisioningOperation.getSystemEntity());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
@@ -218,7 +218,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	@Override
-	public OperationResult execute(SysProvisioningBatchDto batch) {
+	public synchronized OperationResult execute(SysProvisioningBatchDto batch) {
 		Assert.notNull(batch);
 		batch = batchService.get(batch.getId());
 		//	

@@ -319,11 +319,16 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		filter.setFirstName(person1.getFirstName());
 		filter.setRecursively(true);
 		filter.setTreeNode(node1id);
-		Page<IdmIdentityDto> result = identityService.find(filter, null);
-		assertEquals("Wrong Recursive firstname", 4, result.getTotalElements());
+		List<IdmIdentityDto> results = identityService.find(filter, null).getContent();
+		Assert.assertEquals("Wrong Recursive firstname", 3, results.size());
+		Assert.assertTrue(results.stream().anyMatch(i -> i.getId().equals(person1.getId())));
+		Assert.assertTrue(results.stream().anyMatch(i -> i.getId().equals(person2.getId())));
+		Assert.assertTrue(results.stream().anyMatch(i -> i.getId().equals(person3.getId())));
+		//
 		filter.setRecursively(false);
-		result = identityService.find(filter, null);
-		assertEquals("Wrong NonRecursive firstname", 1, result.getTotalElements());
+		results = identityService.find(filter, null).getContent();
+		Assert.assertEquals("Wrong NonRecursive firstname", 1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(i -> i.getId().equals(person1.getId())));
 	}
 
 	@Test

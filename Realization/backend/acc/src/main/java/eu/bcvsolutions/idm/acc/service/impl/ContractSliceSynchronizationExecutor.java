@@ -53,6 +53,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
@@ -80,7 +81,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ClearDirtyStateForContractSliceTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAttributeTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.SelectCurrentContractSliceTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
@@ -152,8 +155,12 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
 		log = super.syncCorrectlyEnded(log, context);
 		log = synchronizationLogService.save(log);
+		SysSyncContractConfigDto config = getConfig(context);
 
-		if (getConfig(context).isStartOfHrProcesses()) {
+		if (config.isStartOfHrProcesses()) {
+			// Together with HR process is also executed cleared dirty contract slice
+			log = executeClearDirtyStateForContractSlice(log);
+
 			// start all HR process with skip automatic role recalculation
 			// Enable contracts task
 			log = executeHrProcess(log, new HrEnableContractProcess(true));
@@ -168,7 +175,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 					LocalDateTime.now()));
 		}
 
-		if (getConfig(context).isStartAutoRoleRec()) {
+		if (config.isStartAutoRoleRec()) {
 			log = executeAutomaticRoleRecalculation(log);
 		} else {
 			log.addToLog(MessageFormat.format("Start automatic role recalculation (after sync) isn't allowed [{0}]",
@@ -496,6 +503,10 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		// contract.
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+		//
+		// Set dirty state during recalculation, the process of recalculation will be solved in ClearDirtyStateForContractSliceTaskExecutor
+		// ClearDirtyStateForContractSliceTaskExecutor will be started with HR processes.
+		event.getProperties().put(IdmContractSliceService.SET_DIRTY_STATE_CONTRACT_SLICE, Boolean.TRUE);
 
 		IdmContractSliceDto slice = sliceService.publish(event).getContent();
 
@@ -638,10 +649,43 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		// contract.
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+		//
+		// Skip recalculation, now isn't needed
+		event.getProperties().put(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE);
 
 		entityEventManager.process(event);
 	}
 
+	/**
+	 * Execute {@link SelectCurrentContractSliceTaskExecutor}
+	 *
+	 * @param log
+	 * @return
+	 */
+	private SysSyncLogDto executeClearDirtyStateForContractSlice(SysSyncLogDto log) {
+		ClearDirtyStateForContractSliceTaskExecutor executor = new ClearDirtyStateForContractSliceTaskExecutor();
+
+		log.addToLog(MessageFormat.format(
+				"After success sync have to be run clear dirty state for contract slices. We start him (synchronously) now [{0}].",
+				LocalDateTime.now()));
+
+		OperationResult executeSync = longRunningTaskManager.executeSync(executor);
+		if (executeSync != null) {
+			if (executeSync.getState() == OperationState.EXECUTED) {
+				log.addToLog(MessageFormat.format("Clear dirty state end in [{0}].",
+						LocalDateTime.now()));
+			} else if (executeSync.getState() == OperationState.EXCEPTION) {
+				log.addToLog(MessageFormat.format("Warning - clear dirty state is not executed correctly. Ended in [{0}].",
+						LocalDateTime.now()));
+			}
+		} else {
+			log.addToLog(MessageFormat.format("Warning - select corrent contract slice is not executed correctly, Returned operation result is null. Ended in [{0}].",
+					LocalDateTime.now()));
+		}
+
+		return log;
+	}
+	
 	/**
 	 * Start automatic role by attribute recalculation synchronously.
 	 *

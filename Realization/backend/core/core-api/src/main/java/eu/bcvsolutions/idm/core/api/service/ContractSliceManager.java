@@ -109,4 +109,12 @@ public interface ContractSliceManager extends ScriptEnabled  {
 	 */
 	List<IdmContractSliceGuaranteeDto> findSliceGuarantees(UUID sliceId);
 
+	/**
+	 * Recalculate contract slice. It is used for compare previous slice and currently saved. In method is updated parent contract and set validity.
+	 *
+	 * @param slice
+	 * @param originalSlice
+	 * @param eventProperties
+	 */
+	void recalculateContractSlice(IdmContractSliceDto slice, IdmContractSliceDto originalSlice, Map<String, Serializable> eventProperties);
 }

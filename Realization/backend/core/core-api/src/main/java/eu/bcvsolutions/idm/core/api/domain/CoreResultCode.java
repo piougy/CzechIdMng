@@ -23,6 +23,7 @@ public enum CoreResultCode implements ResultCode {
 	ACCEPTED(HttpStatus.ACCEPTED, "	"),
 	DELETED(HttpStatus.ACCEPTED, "Request to delete content accepted."),
 	DRY_RUN(HttpStatus.NO_CONTENT, "Dry run mode"),
+	DIRTY_STATE(HttpStatus.CREATED, "For entity id [%s] was set dirty state flag."),
 	//
 	// Commons 4xx
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "The value is wrong!"),

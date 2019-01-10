@@ -36,8 +36,9 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { identity } = this.props;
+    const { identity, entityId } = this.props;
     this.refs.form.setData(identity);
+    this.context.store.dispatch(identityManager.fetchProfilePermissions(entityId));
   }
 
   componentWillReceiveProps(nextProps) {

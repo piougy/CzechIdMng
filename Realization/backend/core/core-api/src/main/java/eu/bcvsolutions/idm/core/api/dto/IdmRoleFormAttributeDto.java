@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 
 /**
@@ -16,7 +17,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
  *
  */
 @Relation(collectionRelation = "roleFormAttributes")
-public class IdmRoleFormAttributeDto extends AbstractDto {
+public class IdmRoleFormAttributeDto extends AbstractDto implements Requestable {
 
 	private static final long serialVersionUID = 1L;
 	//
@@ -30,6 +31,8 @@ public class IdmRoleFormAttributeDto extends AbstractDto {
 	private BigDecimal min;
 	private String regex;
 	private boolean required;
+	@Embedded(dtoClass = IdmRequestItemDto.class)
+	private UUID requestItem; // Isn't persist in the entity
 
 	public IdmRoleFormAttributeDto() {
 	}
@@ -100,5 +103,15 @@ public class IdmRoleFormAttributeDto extends AbstractDto {
 
 	public void setRequired(boolean required) {
 		this.required = required;
+	}
+	
+	@Override
+	public UUID getRequestItem() {
+		return requestItem;
+	}
+
+	@Override
+	public void setRequestItem(UUID requestItem) {
+		this.requestItem = requestItem;
 	}
 }

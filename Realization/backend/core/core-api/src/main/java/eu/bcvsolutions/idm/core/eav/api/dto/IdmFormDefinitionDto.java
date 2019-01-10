@@ -17,6 +17,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
@@ -28,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
  *
  */
 @Relation(collectionRelation = "formDefinitions")
-public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEntity {
+public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEntity, Codeable {
 
 	private static final long serialVersionUID = 1L;
 	

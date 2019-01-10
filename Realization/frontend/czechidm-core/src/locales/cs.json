@@ -113,7 +113,7 @@
     "text": {
       "help": {
         "header": "Filtrování",
-        "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chceme hledat samotné speciální znaky přidáme zpětné lomítko <strong>\\\\%,\\\\.</strong></div>"
+        "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chcete hledat samotné speciální znaky, přidejte zpětné lomítko <strong>\\\\%,\\\\.</strong></div>"
       }
     },
     "module": {
@@ -1262,9 +1262,9 @@
           "applicantFullName": "Jméno žadatele",
           "applicant": "Žádost pro",
           "implementerIdentifier": "Žadatel",
-          "successComplete": "Úkol {{name}} byl úspěšně vyřešen.",
-          "completeTaskConfirmTitle": "Potvrzení ukončení úkolu",
-          "completeTaskConfirmDetail": "Opravdu chcete tento úkol ukončit?",
+          "successComplete": "Úkol {{name}} byl úspěšně vyřízen.",
+          "completeTaskConfirmTitle": "Potvrzení dokončení úkolu",
+          "completeTaskConfirmDetail": "Opravdu chcete tento úkol dokončit?",
           "role": {
             "currentRoles": "Aktuálně přiřazená oprávnění",
             "conceptIdentityRoles": "Oprávnění žadatele"
@@ -1341,7 +1341,7 @@
               "placeholder": "Vyberte úvazek"
             },
             "roleSelectionHeader": "Výběr rolí",
-            "roleSelect": "Výběr rolí od uživatele {{username}}",
+            "roleSelect": "Výběr rolí uživatele {{username}}",
             "selectedIdentityRoles": "Vybrané role",
             "noIdentityRoles": "Neexistují žádné přiřazené role",
             "noSelectedIdentityRoles": "Žádné nově přiřazené role",
@@ -1578,7 +1578,7 @@
         "header": "Automatické role dle organizační struktury",
         "title": "Dle organizační struktury"
       },
-      "emptyRules": "Nenalezeny žádné pravidla. Automatická role nebude přidělena žádným uživatelům.",
+      "emptyRules": "Nenalezena žádné pravidla. Automatická role nebude přidělena žádným uživatelům.",
       "attribute": {
         "header": "Automatické role na základě atributu",
         "title": "Na základě atributu",
@@ -1620,11 +1620,11 @@
           }
         },
         "save": {
-          "success": "Uložení nové automatické role na základě atributu proběhlo úspešně.",
+          "success": "Uložení nové automatické role na základě atributu proběhlo úspěšně.",
           "recalculate": "Automatická role [{{name}}] bude přepočítána. Přiřazení role identitám proběhne asynchronně na pozadí. Průběh můžete sledovat v agendě dlouhotrvajících úloh."
         },
         "filter": {
-          "text": "Název automatické role, nebo role"
+          "text": "Název automatické role nebo role"
         },
         "attributeCantBeUsed": {
           "text": "Atribut [{{name}}] nemůže být použit pro vytvoření nového pravidla",
@@ -1796,7 +1796,7 @@
         "header": "Nový skript"
       },
       "save": {
-        "success": "Skript [{{name}}] bylo úspěšně uložen"
+        "success": "Skript [{{name}}] byl úspěšně uložen"
       },
       "filter": {
         "text": "Kód / Název / Popis"
@@ -1833,7 +1833,7 @@
         "createRequest": {
           "header": "Změny role podléhají schvalování.",
           "label": "Vytvořit žádost o změnu",
-          "text": "Pokud chcete provést změny, tak nejprve vytvořte žádost."
+          "text": "Pokud chcete provést změny, nejprve vytvořte žádost."
         }
       },
       "edit": {
@@ -2162,7 +2162,7 @@
         "label": "Automatické role",
         "filter": {
           "text": {
-            "placeholder": "Název automatické role, nebo role"
+            "placeholder": "Název automatické role nebo role"
           },
           "treeNodeId": {
             "placeholder": "Prvek stromové struktury"
@@ -2184,7 +2184,7 @@
             "header_2": "Odebrání automatických rolí",
             "header_5": "$t(action.delete.header_2)",
             "message_1": "Opravdu chcete odebrat automatickou roli [<strong>{{record}}</strong>]? Všem uživatelům, kteří získali roli prostřednictvím této automatické role, bude přiřazená role odebrána.",
-            "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> automatické role? Všem uživatelům, kteří získali role prostřednictvím těchto automatický rolí, budou přiřazené role odebrány.",
+            "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> automatické role? Všem uživatelům, kteří získali role prostřednictvím těchto automatických rolí, budou přiřazené role odebrány.",
             "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> automatických rolí? Všem uživatelům, kteří získali role prostřednictvím těchto automatických rolí, budou přiřazené role odebrány.",
             "error": "Při odebírání záznamu [{{record}}] nastala chyba",
             "success_1": "Vybraný záznam [{{record}}] byl úspěšně smazán",
@@ -2332,7 +2332,7 @@
           },
           "button": {
             "break": {
-              "title": "Přeruší zpracování - doposavad zpracování uživatelé budiž zpracovaní",
+              "title": "Přeruší zpracování - uživatelé zpracovaní až do této chvíle budou zpracováni",
               "label": "Přerušit operaci",
               "proceed": "Přerušuji operaci ..."
             }
@@ -2392,7 +2392,7 @@
           "header": "Napřímo přiřazené role"
         },
         "subRoles": {
-          "header": "Role přiřazené dle business rolí"
+          "header": "Role získané na základě business rolí"
         }
       },
       "authorities": {
@@ -2427,7 +2427,7 @@
         "changeType": {
           "DISABLED": "Změna hesla není na tomto prostředí povolena.",
           "CUSTOM": "Změnit heslo je možné na každém účtu zvlášť.",
-          "ALL_ONLY": "Změnit heslo je možné pouze pro všechny účty naráz."
+          "ALL_ONLY": "Změnit heslo je možné pouze pro všechny účty najednou."
         },
         "accounts": {
           "label": "Na systému",
@@ -2438,7 +2438,7 @@
           "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
           "failed": "Heslo nebylo změněno, provisioning hesla na účty [{{accounts}}] pro uživatele [{{username}}] nebyl úspěšný.",
           "notChanged": "Heslo nebylo změněno. $t(content.identity.passwordChange.message.noAccounts)",
-          "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném účtu libovolněkrát.",
+          "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné ho měnit na libovolném účtu libovolněkrát.",
           "noContent": "Nemáte přiděleno oprávnění pro změnu hesla.",
           "noAccounts": "Neexistují žádné účty, na kterých je možné měnit heslo."
         },
@@ -2453,20 +2453,20 @@
         "label": "Detail záznamu"
       },
       "identityContracts": {
-        "header": "Pracovně právní vztahy",
+        "header": "Pracovněprávní vztahy",
         "title": "$t(content.identity.identityContracts.header)",
         "identityContracts": {
-          "empty": "Nenalezeny žádné pracovně právní vztahy."
+          "empty": "Nenalezeny žádné pracovněprávní vztahy."
         },
         "delete": {
           "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
         }
       },
       "contractSlices": {
-        "header": "Časové řezy pracovně právních vztahů",
+        "header": "Časové řezy pracovněprávních vztahů",
         "title": "$t(content.identity.contractSlices.header)",
         "contractSlices": {
-          "empty": "Nenalezeny žádné časové řezy pracovně právních vztahů."
+          "empty": "Nenalezeny žádné časové řezy pracovněprávních vztahů."
         },
         "delete": {
           "success": "Pozice (časový řez) [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
@@ -2500,7 +2500,7 @@
               "title": "Odebrání delegace",
               "message": "Opravdu chcete odebrat delegaci na uživatele <strong>{{delegate}}</strong>?"
             },
-            "success": "Odebrání delegace na uživatele [{{delegate}}] úspěšně proběhlo."
+            "success": "Odebrání delegace na uživatele [{{delegate}}] proběhlo úspěšně."
           }
         },
         "button": {
@@ -2539,7 +2539,7 @@
     },
     "identity-contract": {
       "detail": {
-        "header": "Detail pracovně právního vztahu",
+        "header": "Detail pracovněprávního vztahu",
         "title": "Detail PPV",
         "label": "Základní údaje",
         "invalidContract":"Detail neplatného PPV",
@@ -2578,7 +2578,7 @@
         "title": "Vedoucí",
         "label": "Vedoucí",
         "guarantees": {
-          "direct": "Nastavení garanti <small>přímo pro tento vztah</small>",
+          "direct": "Vedoucí (odpovědné osoby) <small>nastavení přímo pro tento vztah</small>",
           "byTree": "Vedoucí <small>dle stromových struktur</small>"
         },
         "edit": {
@@ -2592,7 +2592,7 @@
         "action": {
           "save": {
             "success_0": "N/A",
-            "success_1": "Pro pracovní pozici byl úspěšně uložen garant [{{record}}]"
+            "success_1": "Pro pracovní pozici byl úspěšně uložen vedoucí (odpovědná osoba) [{{record}}]"
           }
         }
       },
@@ -3215,7 +3215,7 @@
       }
     },
     "RoleGuarantee": {
-      "_type": "Garant role - definovaný uživatelem",
+      "_type": "Garant role - přímý výběr uživatele",
       "role": {
         "label": "Role"
       },
@@ -3225,7 +3225,7 @@
       }
     },
     "RoleGuaranteeRole": {
-      "_type": "Garant role - definovaný rolí",
+      "_type": "Garant role - určený rolí",
       "role": {
         "label": "Role"
       },
@@ -3662,7 +3662,7 @@
         "message": "Zpráva",
         "textMessage": "Zpráva (text)",
         "htmlMessage": "Zpráva (html)",
-        "renderedHtmlMessage": "Zpráva (vykreslné html)",
+        "renderedHtmlMessage": "Zpráva (vykreslené html)",
         "model": "Zpráva (model)"
       },
       "sender": "Odesílatel",

@@ -19,6 +19,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -29,6 +31,8 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -58,7 +62,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * - eav attributes with authorization policies
  * - profile CRUD
  * 
- * - TODO: move filters here
+ * - TODO: move all filters here
  * 
  * @author Radek Tomiška
  *
@@ -652,5 +656,34 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		IdmProfileDto createdProfile = (IdmProfileDto) getMapper().readValue(response, IdmProfileDto.class);
 		Assert.assertEquals(owner.getId(), createdProfile.getIdentity());
 		Assert.assertEquals("en", createdProfile.getPreferredLanguage());
+	}
+	
+	@Test
+	public void testFindByTreeNodeRecursively() {
+		IdmTreeTypeDto treeTypeOne = getHelper().createTreeType();
+		IdmTreeTypeDto treeTypeTwo = getHelper().createTreeType();
+		IdmTreeNodeDto treeNodeOne = getHelper().createTreeNode(treeTypeOne, null);
+		IdmTreeNodeDto treeNodeOneSub = getHelper().createTreeNode(treeTypeOne, treeNodeOne);
+		IdmTreeNodeDto treeNodeTwo = getHelper().createTreeNode(treeTypeTwo, null);
+		IdmTreeNodeDto treeNodeTwoSub = getHelper().createTreeNode(treeTypeTwo, treeNodeTwo);
+		//
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		getHelper().createIdentityContact(identityOne, treeNodeOneSub);
+		//
+		// FIXME: map parameter values in filter into data
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.add("treeNodeId", treeNodeTwo.getId().toString());
+		parameters.add("recursively", Boolean.TRUE.toString());
+		List<IdmIdentityDto> identities = find(parameters);
+		//
+		Assert.assertTrue(identities.isEmpty());
+		//
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		getHelper().createIdentityContact(identityTwo, treeNodeTwoSub);
+		//
+		identities = find(parameters);
+		//
+		Assert.assertEquals(1, identities.size());
+		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityTwo.getId())));
 	}
 }

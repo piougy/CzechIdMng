@@ -181,7 +181,7 @@
           },
           "startOfHrProcesses": {
             "label": "Po dokončení spustit HR procesy",
-            "helpBlock": "Po úspěšném dokončení synchronizace, budou spuštěny HR procesy."
+            "helpBlock": "Po úspěšném dokončení synchronizace, budou spuštěny HR procesy. V případě synchronizace časových řezů je společně s HR procesy pouštěna rekalkulace časových řezů."
           },
           "startAutoRoleRec": {
             "label": "Po dokončení spustit přepočet automatických rolí",

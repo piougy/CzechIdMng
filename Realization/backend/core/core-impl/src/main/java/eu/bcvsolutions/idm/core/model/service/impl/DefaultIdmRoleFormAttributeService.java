@@ -10,12 +10,15 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -23,11 +26,12 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleFormAttribute;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleFormAttribute_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleFormAttributeRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Service for relation between role and definition of form-attribution. Is
- * elementary part of role form "subdefinition".
+ * elementary part of role form "sub-definition".
  * 
  * @author Vít Švanda
  *
@@ -71,5 +75,19 @@ public class DefaultIdmRoleFormAttributeService
 					builder.equal(root.get(IdmRoleFormAttribute_.formAttribute).get(IdmFormAttribute_.id), attribute));
 		}
 		return predicates;
+	}
+
+	@Override
+	public IdmRoleFormAttributeDto addAttributeToSubdefintion(IdmRoleDto role, IdmFormAttributeDto attribute,  BasePermission... permission) {
+		Assert.notNull(role);
+		Assert.notNull(attribute);
+		
+		IdmRoleFormAttributeDto roleFormAttributeDto = new IdmRoleFormAttributeDto();
+		roleFormAttributeDto.setRole(role.getId());
+		roleFormAttributeDto.setFormAttribute(attribute.getId());
+		roleFormAttributeDto.setDefaultValue(attribute.getDefaultValue());
+		roleFormAttributeDto.setRequired(attribute.isRequired());
+		
+		return this.save(roleFormAttributeDto, permission);
 	}
 }

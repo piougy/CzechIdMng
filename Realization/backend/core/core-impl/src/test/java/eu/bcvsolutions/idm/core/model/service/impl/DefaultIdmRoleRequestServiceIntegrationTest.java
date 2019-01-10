@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
@@ -87,6 +88,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	private IdmConfigurationService configurationService;
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private IdmRoleFormAttributeService roleFormAttributeService;
 	//
 	private IdmRoleDto roleA;
 
@@ -492,6 +495,10 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 				ImmutableList.of(attributeOne, attributeTwo));
 		roleOne.setIdentityRoleAttributeDefinition(definition.getId());
 		roleOne = roleService.save(roleOne);
+		IdmRoleDto roleOneFinal = roleOne;
+		definition.getFormAttributes().forEach(attribute -> {
+			roleFormAttributeService.addAttributeToSubdefintion(roleOneFinal, attribute);
+		});
 
 		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
 		this.getHelper().createIdentityRole(identityContact, roleOne);
@@ -580,6 +587,11 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 				ImmutableList.of(attributeOne, attributeTwo));
 		roleOne.setIdentityRoleAttributeDefinition(definition.getId());
 		roleOne = roleService.save(roleOne);
+		IdmRoleDto roleOneFinal = roleOne;
+		definition.getFormAttributes().forEach(attribute -> {
+			roleFormAttributeService.addAttributeToSubdefintion(roleOneFinal, attribute);
+		});
+
 
 		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
 		this.getHelper().createIdentityRole(identityContact, roleOne);

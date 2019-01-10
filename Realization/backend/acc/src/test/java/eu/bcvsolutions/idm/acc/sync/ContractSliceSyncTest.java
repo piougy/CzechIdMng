@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.sync;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +31,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccContractSliceAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
@@ -49,6 +52,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestContractSliceResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractSliceAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -58,10 +62,15 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.ContractSynchronizationExecutor;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
+import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
@@ -69,6 +78,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -130,6 +140,12 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	private ContractSliceManager contractSliceManager;
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private IdmAuditService auditService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private AccIdentityAccountService identityAccountService;
 
 	@Before
 	public void init() {
@@ -721,6 +737,143 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 	}
 
+	@Test
+	public void setDirtyStateAndCheckIt() {
+		// create tree type and node, tree node is used as position in contrac slice synchronization
+		IdmTreeTypeDto treeType = this.getHelper().createTreeType();
+		IdmTreeNodeDto treeNode = this.getHelper().createTreeNode(treeType, null);
+
+		// create two roles, one role is used as automatic role by organization structure
+		// second role is used as manually added
+		IdmRoleDto roleOne = this.getHelper().createRole();
+		IdmRoleDto roleTwo = this.getHelper().createRole();
+		this.getHelper().createAutomaticRole(roleOne, treeNode);
+
+		// init system
+		SysSystemDto system = initData();
+
+		// set default tree type for synchronization
+		SysSyncContractConfigDto config = (SysSyncContractConfigDto) doCreateSyncConfig(system);
+		config.setDefaultTreeType(treeType.getId());
+		syncConfigService.save(config);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		// for sure remove all contracts
+		contractService.findAllByIdentity(identity.getId()).forEach(contract -> {
+			contractService.delete(contract);
+		});
+
+		// check current delete audits record for identity (and their related entities)
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setOwnerId(identity.getId().toString());
+		filter.setModification("DELETE");
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+		assertEquals(0, audits.size());
+
+		// check current slices
+		IdmContractSliceFilter contractSliceFilter = new IdmContractSliceFilter();
+		contractSliceFilter.setIdentity(identity.getId());
+		List<IdmContractSliceDto> slices = contractSliceService.find(contractSliceFilter, null).getContent();
+		assertEquals(0, slices.size());
+		
+		// check current contracts
+		List<IdmIdentityContractDto> allByIdentity = contractService.findAllByIdentity(identity.getId());
+		assertEquals(0, allByIdentity.size());
+
+		// delete all data in resource
+		this.getBean().deleteAllResourceData();
+
+		// create step one data, please see inside method
+		this.getBean().createTestDataStepOne(identity.getUsername(), treeNode.getCode());
+
+		// start synchronization
+		helper.startSynchronization(config);
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// after first synchronization exists one contract
+		allByIdentity = contractService.findAllByIdentity(identity.getId());
+		assertEquals(1, allByIdentity.size());
+
+		// after first synchronization exists one slice
+		slices = contractSliceService.find(contractSliceFilter, null).getContent();
+		assertEquals(1, slices.size());
+
+		// after first synchronization exists one identity role - automatic role
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
+
+		// manually create identity account for check if identity account will be changed or deleted after second synchronization
+		// this state create two audit records for the identity account
+		AccIdentityAccountDto identityAccount = helper.createIdentityAccount(system, identity);
+		identityAccount.setIdentityRole(identityRoleDto.getId());
+		identityAccount = identityAccountService.save(identityAccount);
+
+		// add manually role
+		IdmIdentityContractDto identityContractDto = allByIdentity.get(0);
+		this.getHelper().createIdentityRole(identityContractDto, roleTwo);
+
+		// check current identity roles - one is automatic, second is manually added
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(2, identityRoles.size());
+
+		// prepare data for second step
+		this.getBean().createTestDataStepTwo(identity.getUsername(), treeNode.getCode());
+		helper.startSynchronization(config);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// after second synchronization still exists one contract
+		allByIdentity = contractService.findAllByIdentity(identity.getId());
+		assertEquals(1, allByIdentity.size());
+
+		// after second synchronization exists two slices
+		slices = contractSliceService.find(contractSliceFilter, null).getContent();
+		assertEquals(2, slices.size());
+
+		// after second synchronization must also exists both roles
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(2, identityRoles.size());
+
+		// check delete operation for identity and their related entities
+		filter = new IdmAuditFilter();
+		filter.setOwnerId(identity.getId().toString());
+		filter.setModification("DELETE");
+		audits = auditService.find(filter, null).getContent();
+		assertEquals(0, audits.size());
+
+		// check audit for identity roles
+		for (IdmIdentityRoleDto identityRole : identityRoles) {
+			filter = new IdmAuditFilter();
+			filter.setEntityId(identityRole.getId());
+			List<IdmAuditDto> auditsForIdentityRole = auditService.find(filter, null).getContent();
+			if (identityRole.getAutomaticRole() == null) {
+				// manually added role, just create
+				assertEquals(1, auditsForIdentityRole.size());
+			} else {
+				// automatic role change validity
+				assertEquals(2, auditsForIdentityRole.size());
+			}
+		}
+
+		// check audit records for identity account, exists two record, because helper create one and second create save with change identity role
+		filter = new IdmAuditFilter();
+		filter.setEntityId(identityAccount.getId());
+		List<IdmAuditDto> auditsForIdentityAccount = auditService.find(filter, null).getContent();
+		assertEquals(2, auditsForIdentityAccount.size());
+
+		// some tests expect data as contract slice with id 1. Just for sure we clear test slices
+		slices = contractSliceService.find(contractSliceFilter, null).getContent();
+		slices.forEach(slice -> {
+			contractSliceService.delete(slice);
+		});
+
+		identityService.delete(identity);
+	}
+
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType,
 			int count) {
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
@@ -867,6 +1020,18 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		entityManager.persist(this.createContract("4", CONTRACT_OWNER_ONE, null, "true", null, null, null, null, null,
 				LocalDate.now(), "TWO"));
 
+	}
+
+	@Transactional
+	public void createTestDataStepOne(String owner, String treeNodeCode) {
+		entityManager.persist(this.createContract("1", owner, null, "true", treeNodeCode, null, null, LocalDate.now().minusDays(10), null, LocalDate.now().minusDays(7), "ONE"));
+	}
+
+	@Transactional
+	public void createTestDataStepTwo(String owner, String treeNodeCode) {
+		TestContractSliceResource sliceOne = entityManager.find(TestContractSliceResource.class, "1");
+		sliceOne.setValidTill(LocalDate.now().minusDays(7));
+		entityManager.persist(this.createContract("2", owner, null, "true", treeNodeCode, null, null, LocalDate.now().minusDays(4), null, LocalDate.now().minusDays(5), "ONE"));
 	}
 
 	@Transactional

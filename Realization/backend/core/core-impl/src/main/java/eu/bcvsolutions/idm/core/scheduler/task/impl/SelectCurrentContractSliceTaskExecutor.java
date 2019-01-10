@@ -56,7 +56,7 @@ public class SelectCurrentContractSliceTaskExecutor extends AbstractSchedulableT
 		for (IdmContractSliceDto slice : unvalidSlices) {
 			// Start recalculation
 			List<IdmContractSliceDto> duplicatedSlices = unvalidSlices.stream()
-					.filter(s -> s.getParentContract().equals(slice.getParentContract())).collect(Collectors.toList());
+					.filter(s -> s.getParentContract() != null && s.getParentContract().equals(slice.getParentContract())).collect(Collectors.toList());
 			if (duplicatedSlices.size() > 1) {
 				String errorMsg = MessageFormat.format(
 						"We found more then once slice [{1}] which should be use as contract. This is not allowed. None from this slices will be used as contract. It means contract [{0}] is in incorrect state now!",
@@ -92,7 +92,7 @@ public class SelectCurrentContractSliceTaskExecutor extends AbstractSchedulableT
 
 	@Override
 	protected OperationResult end(OperationResult result, Exception ex) {
-		if (result.getException() != null) {
+		if (result != null && result.getException() != null) {
 			return super.end(result, (Exception) result.getException());
 		}
 		return super.end(result, ex);

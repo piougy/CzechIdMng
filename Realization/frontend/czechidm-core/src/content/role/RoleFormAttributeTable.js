@@ -62,6 +62,7 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
   _onChangeFormAttribute(value) {
     if (value) {
       this.refs.defaultValue.setValue(value.defaultValue);
+      this.refs.required.setValue(value.required);
     }
   }
 

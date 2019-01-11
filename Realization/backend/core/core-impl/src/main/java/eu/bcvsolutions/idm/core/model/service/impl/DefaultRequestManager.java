@@ -924,9 +924,6 @@ public class DefaultRequestManager implements RequestManager {
 		if (requestable instanceof Codeable && ((Codeable) requestable).getCode() != null) {
 			request.setName(((Codeable) requestable).getCode());
 		}
-		if (requestable instanceof Niceable && ((Niceable) requestable).getNiceLabel() != null) {
-			request.setName(((Niceable) requestable).getNiceLabel());
-		}
 		return request;
 	}
 
@@ -1078,6 +1075,10 @@ public class DefaultRequestManager implements RequestManager {
 		if (value instanceof Codeable) {
 			Codeable codeable = (Codeable) value;
 			return codeable.getCode();
+		}
+		if (value instanceof Niceable) {
+			Niceable codeable = (Niceable) value;
+			return codeable.getNiceLabel();
 		}
 		if (value instanceof Identifiable) {
 			Identifiable identifiable = (Identifiable) value;

@@ -10,9 +10,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Niceable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
  *
  */
 @Relation(collectionRelation = "formAttributes")
-public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEntity, Codeable {
+public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEntity, Niceable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -207,5 +207,10 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	
 	public String getFaceType() {
 		return faceType;
+	}
+
+	@Override
+	public String getNiceLabel() {
+		return getCode();
 	}
 }

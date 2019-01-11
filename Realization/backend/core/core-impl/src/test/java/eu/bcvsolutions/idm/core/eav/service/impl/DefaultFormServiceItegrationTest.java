@@ -1163,6 +1163,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		}
 		//
 		// check secured attribute is untouched as admin
+		formDefinition = formService.getDefinition(formDefinition.getId());
 		m = formService.getFormInstance(owner, formDefinition).toValueMap();
 		Assert.assertEquals(updatedValue, (m.get(attributeNotSecuredName).get(0)).getValue());
 		Assert.assertEquals(FORM_VALUE_TWO, (m.get(attributeSecuredName).get(0)).getValue());

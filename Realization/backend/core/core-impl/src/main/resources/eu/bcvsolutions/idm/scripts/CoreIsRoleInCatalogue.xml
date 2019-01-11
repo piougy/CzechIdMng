@@ -49,12 +49,10 @@
 
 	List roleCatalogues = roleCatalogueService.findAllByRole(role.getId());
 
-	for (IdmRoleCatalogueRoleDto roleCatalogue : roleCatalogues) {
-		UUID catalogueId = roleCatalogue.getRoleCatalogue();
-		IdmRoleCatalogueDto mockCatalogue = new IdmRoleCatalogueDto();
-		mockCatalogue.setId(catalogueId);
+	for (IdmRoleCatalogueDto roleCatalogue : roleCatalogues) {
+		UUID catalogueId = roleCatalogue.getId();
 
-		if (supportedCatalogs.contains(mockCatalogue)) {
+		if (supportedCatalogs.contains(roleCatalogue)) {
 			// Supported catalogue is directly set for this role
 			return true;
 		}

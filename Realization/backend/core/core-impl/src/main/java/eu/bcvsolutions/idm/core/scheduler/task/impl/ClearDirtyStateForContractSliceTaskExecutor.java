@@ -120,34 +120,32 @@ public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedul
 			}
 			ResultModel resultModel = dirtyState.getResult().getModel();
 			
-			Map<String, Object> parameters = null;
+			Map<String, Object> parameters = new HashMap<>();
 			if (resultModel != null) {
 				parameters = resultModel.getParameters();
 			}
 			
 			IdmContractSliceDto originalSlice = null;
 			Object originalSliceAsObject = parameters.get(ORIGINAL_SLICE);
-			if (originalSliceAsObject != null  && originalSliceAsObject instanceof IdmContractSliceDto) {
+			if (originalSliceAsObject instanceof IdmContractSliceDto) {
 				originalSlice = (IdmContractSliceDto) originalSliceAsObject;
 			}
 
 			// Transform saved parameters into map string and serializable value
 			Map<String, Serializable> transformedParameters = new HashMap<>();
-			if (parameters != null) {
-				parameters.forEach((key, value) -> {
-					if (key != null && ORIGINAL_SLICE.equals(key)) {
-						// skip original slice
-					} else if (key != null && IdmContractSliceService.SET_DIRTY_STATE_CONTRACT_SLICE.equals(key)) {
-						// remove skip recalculation for contract slice
-					} else if (value == null) {
-						transformedParameters.put(key, null);
-					} else if (value instanceof Serializable) {
-						transformedParameters.put(key, (Serializable)value);
-					} else {
-						LOG.error("Given value [{}] with key [{}] for parameters is not posible cast to serializable. Skip the value", value, key);
-					}
-				});
-			}
+			parameters.forEach((key, value) -> {
+				if (key != null && ORIGINAL_SLICE.equals(key)) {
+					// skip original slice
+				} else if (key != null && IdmContractSliceService.SET_DIRTY_STATE_CONTRACT_SLICE.equals(key)) {
+					// remove skip recalculation for contract slice
+				} else if (value == null) {
+					transformedParameters.put(key, null);
+				} else if (value instanceof Serializable) {
+					transformedParameters.put(key, (Serializable)value);
+				} else {
+					LOG.error("Given value [{}] with key [{}] for parameters is not posible cast to serializable. Skip the value", value, key);
+				}
+			});
 			
 			contractSliceManager.recalculateContractSlice(contractSliceDto, originalSlice, transformedParameters);
 			

@@ -515,7 +515,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 								slices);
 						if (nextSliceForOriginalSlice == null) {
 							// Next slice not exists, it means original slice was last
-							IdmContractSliceDto previousSliceForOriginalSlice = this
+							IdmContractSliceDto previousSliceForOriginalSlice = this.getBean()
 									.findPreviousSlice(originalSlice, slices);
 							if (previousSliceForOriginalSlice != null
 									&& this.getBean().findNextSlice(previousSliceForOriginalSlice, slices) == null) {

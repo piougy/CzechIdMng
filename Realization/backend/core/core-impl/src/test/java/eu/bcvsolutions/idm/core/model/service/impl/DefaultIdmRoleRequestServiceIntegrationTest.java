@@ -571,6 +571,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	public void testCopyRolesWithParametersWithoutValues() {
 		String attributeOneCode = "attr-" + System.currentTimeMillis();
 		String attributeTwoCode = "attr-two-" + System.currentTimeMillis();
+		String attributeThreeCode = "attr-three-" + System.currentTimeMillis();
 		// Prepare identity, role and parameters
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmRoleDto roleOne = getHelper().createRole();
@@ -582,14 +583,20 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		IdmFormAttributeDto attributeTwo = new IdmFormAttributeDto(attributeTwoCode);
 		attributeTwo.setPersistentType(PersistentType.SHORTTEXT);
 		attributeTwo.setRequired(false);
+		
+		IdmFormAttributeDto attributeThree = new IdmFormAttributeDto(attributeThreeCode);
+		attributeThree.setPersistentType(PersistentType.SHORTTEXT);
+		attributeThree.setRequired(true);
 
 		IdmFormDefinitionDto definition = formService.createDefinition(IdmIdentityRole.class,
-				ImmutableList.of(attributeOne, attributeTwo));
+				ImmutableList.of(attributeOne, attributeTwo, attributeThree));
 		roleOne.setIdentityRoleAttributeDefinition(definition.getId());
 		roleOne = roleService.save(roleOne);
 		IdmRoleDto roleOneFinal = roleOne;
 		definition.getFormAttributes().forEach(attribute -> {
-			roleFormAttributeService.addAttributeToSubdefintion(roleOneFinal, attribute);
+			if(!attributeThreeCode.equals(attribute.getCode())) {
+				roleFormAttributeService.addAttributeToSubdefintion(roleOneFinal, attribute);
+			}
 		});
 
 

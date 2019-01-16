@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
@@ -60,6 +61,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
@@ -130,6 +132,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmRoleGuaranteeRoleService roleGuaranteeRoleService;
 	@Autowired private IdmProfileService profileService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
+	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
 	@Autowired private ModuleService moduleService;
 	
 	@Override
@@ -300,6 +303,15 @@ public class DefaultTestHelper implements TestHelper {
 		roleComposition.setSub(sub.getId());
 		//
 		return roleCompositionService.save(roleComposition);
+	}
+	
+	@Override
+	public IdmIncompatibleRoleDto createIncompatibleRole(IdmRoleDto superior, IdmRoleDto sub) {
+		IdmIncompatibleRoleDto IncompatibleRole = new IdmIncompatibleRoleDto();
+		IncompatibleRole.setSuperior(superior.getId());
+		IncompatibleRole.setSub(sub.getId());
+		//
+		return incompatibleRoleService.save(IncompatibleRole);
 	}
 	
 	

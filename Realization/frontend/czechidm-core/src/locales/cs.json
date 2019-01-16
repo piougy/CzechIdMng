@@ -923,6 +923,7 @@
       "ROLEGUARANTEE": "$t(entity.Role.guarantees) - dle identity",
       "ROLEGUARANTEEROLE": "$t(entity.Role.guarantees) - dle role",
       "ROLECOMPOSITION": "Definice business rolí",
+      "INCOMPATIBLEROLE": "Definice neslučitelných rolí",
       "ROLETREENODE": "Automatické role (organizační struktura)",
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
@@ -1959,6 +1960,10 @@
           "label": "Podat žádost",
           "tooltip": "Zahájí žádost o změnu oprávnění. Spustí případné schvalovací procesy."
         }
+      },
+      "confirm-incompatible-role": {
+        "header": "Žádost obsahuje neslučitelé role",
+        "message": "Žádost obsahuje neslučitelé role, žádost bude navíc podléhat schválení neslučitelných rolí. <strong>Chcete odeslat žádost včetně obsažených neslučitelných rolí</strong>?"
       }
     },
     "automaticRoleRequests": {
@@ -2230,6 +2235,30 @@
         "action": {
           "delete": {
             "success": "Odebrání business role uživatelům proběhne na pozadí. Poté bude business role [{{record}}] odebrána."
+          }
+        }
+      },
+      "incompatible-roles": {
+        "header": "Neslučitelné role",
+        "title": "Definice neslučitelných rolí",
+        "create": {
+          "header": "Přidat"
+        },
+        "edit": {
+          "header": "{{name}} <small>detail</small>"
+        },
+        "superior": {
+          "header": "Role definující tuto roli jako neslučitelnou"
+        },
+        "sub": {
+          "header": "Neslučitelné role"
+        },
+        "save": {
+          "success": "Definice neslučitelné role [{{record}}] byla úspěšně uložena."
+        },
+        "action": {
+          "delete": {
+            "success": "Definice neslučitelné role [{{record}}] byla úspěšně odebrána."
           }
         }
       }
@@ -3197,6 +3226,17 @@
       },
       "sub": {
         "label": "Podřazená role",
+        "help": ""
+      }
+    },
+    "IncompatibleRole": {
+      "_type": "Neslučitelná role",
+      "superior": {
+        "label": "Role s definicí",
+        "help": ""
+      },
+      "sub": {
+        "label": "Neslučitelná role",
         "help": ""
       }
     },

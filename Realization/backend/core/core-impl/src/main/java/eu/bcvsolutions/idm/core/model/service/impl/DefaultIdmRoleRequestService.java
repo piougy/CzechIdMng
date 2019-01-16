@@ -561,6 +561,9 @@ public class DefaultIdmRoleRequestService
 
 	@Override
 	public IdmRoleRequest toEntity(IdmRoleRequestDto dto, IdmRoleRequest entity) {
+		if (dto == null) {
+			return null;
+		}
 		// Set persisted value to read only properties
 		// TODO: Create converter for skip fields mark as read only
 		if (dto.getId() != null) {
@@ -583,9 +586,8 @@ public class DefaultIdmRoleRequestService
 		} else {
 			dto.setState(RoleRequestState.CONCEPT);
 		}
-
+		//
 		return super.toEntity(dto, entity);
-
 	}
 
 	private boolean isDuplicated(IdmRoleRequestDto request, IdmRoleRequestDto duplicant) {

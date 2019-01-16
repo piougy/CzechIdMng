@@ -124,6 +124,27 @@ class IdentityService extends FormableEntityService {
   }
 
   /**
+   * Incompatible roles are resolved from currently assigned identity roles
+   *
+   * @param username {string}
+   * @param token {string}
+   * @return {Promise}
+   */
+  getIncompatibleRoles(username, token = null) {
+    return RestApiService
+    .get(this.getApiPath() + `/${encodeURIComponent(username)}/incompatible-roles`, token)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  /**
    * Returns default searchParameters for current entity type
    *
    * @return {object} searchParameters

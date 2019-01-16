@@ -322,6 +322,16 @@ module.exports = {
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECOMPOSITION_READ'] } ]
               },
               {
+                'id': 'incompatible-roles',
+                'type': 'TAB',
+                'icon': 'warning-sign',
+                'labelKey': 'content.role.incompatible-roles.header',
+                'titleKey': 'content.role.incompatible-roles.title',
+                'order': 125,
+                'path': '/role/:entityId/incompatible-roles',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['INCOMPATIBLEROLE_READ'] } ]
+              },
+              {
                 'id': 'role-guarantees',
                 'type': 'TAB',
                 'labelKey': 'content.role.guarantees.title',
@@ -454,6 +464,16 @@ module.exports = {
                 'order': 120,
                 'path': 'requests/:requestId/role/:entityId/compositions',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECOMPOSITION_READ'] } ]
+              },
+              {
+                'id': 'request-incompatible-roles',
+                'type': 'TAB',
+                'icon': 'warning-sign',
+                'labelKey': 'content.role.incompatible-roles.header',
+                'titleKey': 'content.role.incompatible-roles.title',
+                'order': 125,
+                'path': 'requests/:requestId/role/:entityId/incompatible-roles',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['INCOMPATIBLEROLE_READ'] } ]
               },
               {
                 'id': 'request-role-guarantees',

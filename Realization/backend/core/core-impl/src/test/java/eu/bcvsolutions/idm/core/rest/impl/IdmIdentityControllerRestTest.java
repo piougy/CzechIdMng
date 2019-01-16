@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -29,10 +31,12 @@ import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -685,5 +689,51 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		//
 		Assert.assertEquals(1, identities.size());
 		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityTwo.getId())));
+	}
+	
+	@Test
+	public void testGetIncompatibleRolesWithoutRemovedInConcept() throws Exception {
+		IdmIdentityDto applicant = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmRoleDto roleThree = getHelper().createRole();
+		IdmRoleDto roleFour = getHelper().createRole();
+		IdmRoleDto roleFive = getHelper().createRole();
+		IdmRoleDto roleSix = getHelper().createRole();
+		// assign roles
+		getHelper().createIdentityRole(applicant, roleOne);
+		getHelper().createIdentityRole(applicant, roleTwo);
+		getHelper().createIdentityRole(applicant, roleThree);
+		getHelper().createIdentityRole(applicant, roleFour);
+		getHelper().createIdentityRole(applicant, roleFive);
+		// create incompatible roles definition
+		getHelper().createIncompatibleRole(roleOne, roleTwo);
+		getHelper().createIncompatibleRole(roleThree, roleFour);
+		getHelper().createIncompatibleRole(roleFive, roleSix);
+		//
+		String response = getMockMvc().perform(get(String.format("%s/incompatible-roles", getDetailUrl(applicant.getId())))
+        		.with(authentication(getAdminAuthentication()))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		Set<IdmIncompatibleRoleDto> incompatibleRoles = toDtos(response, ResolvedIncompatibleRoleDto.class)
+				.stream()
+				.map(ResolvedIncompatibleRoleDto::getIncompatibleRole)
+				.collect(Collectors.toSet());
+		Assert.assertEquals(2, incompatibleRoles.size());
+		Assert.assertTrue(incompatibleRoles
+				.stream()
+				.anyMatch(ir -> { 
+					return ir.getSuperior().equals(roleOne.getId()) && ir.getSub().equals(roleTwo.getId());
+				}));
+		Assert.assertTrue(incompatibleRoles
+				.stream()
+				.anyMatch(ir -> { 
+					return ir.getSuperior().equals(roleThree.getId()) && ir.getSub().equals(roleFour.getId());
+				}));
 	}
 }

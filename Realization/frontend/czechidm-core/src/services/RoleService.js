@@ -132,4 +132,25 @@ export default class RoleService extends AbstractRequestFormableService {
         return json;
       });
   }
+
+  /**
+   * Incompatible roles are resolved from sub roles.
+   *
+   * @param id {string}
+   * @param token {string}
+   * @return {Promise}
+   */
+  getIncompatibleRoles(id, token = null) {
+    return RestApiService
+    .get(this.getApiPath() + `/${encodeURIComponent(id)}/incompatible-roles`, token)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
 }

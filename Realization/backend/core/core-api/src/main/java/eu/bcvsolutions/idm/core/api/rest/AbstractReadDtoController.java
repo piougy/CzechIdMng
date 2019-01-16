@@ -311,7 +311,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		} else {
 			// Iterable to Page
 			List records = Lists.newArrayList(source);
-			page = new PageImpl(records, new PageRequest(0, records.size()), records.size());
+			page = new PageImpl(records, new PageRequest(0, records.size() > 0 ? records.size() : 10), records.size());
 		}
 		return pageToResources(page, domainType);
 	}

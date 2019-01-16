@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
@@ -268,6 +269,16 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleCompositionDto createRoleComposition(IdmRoleDto superior, IdmRoleDto sub);
+	
+	/**
+	 * Creates incompatible role
+	 * 
+	 * @param superior
+	 * @param sub
+	 * @return
+	 * @since 9.4.0
+	 */
+	IdmIncompatibleRoleDto createIncompatibleRole(IdmRoleDto superior, IdmRoleDto sub);
 	
 	/**
 	 * Create role guarantee - identity

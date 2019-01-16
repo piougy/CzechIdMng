@@ -9,6 +9,7 @@ import * as Utils from '../../utils';
 import { RoleManager, RoleRequestManager, IdentityManager } from '../../redux';
 import RoleSelectByIdentity from './RoleSelectByIdentity';
 import RoleConceptDetail from './RoleConceptDetail';
+import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -437,15 +438,12 @@ export class RoleConceptTable extends Basic.AbstractContent {
     const value = data[rowIndex];
     if (value.valid === false) {
       return (
-        <Basic.Icon
-          icon={'fa:warning'}
-          title={this.i18n('alert.invalidConcept')}
-          style={{
-            color: '#ed9e2e',
-            fontSize: 'large',
-            marginTop: '1px',
-            verticalAlign: 'middle'
-          }}/>
+        <Basic.Button
+          level="danger"
+          className="btn-xs"
+          icon="fa:warning"
+          title={ this.i18n('alert.invalidConcept') }
+          onClick={ this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false) }/>
       );
     }
     return null;
@@ -519,6 +517,16 @@ export class RoleConceptTable extends Basic.AbstractContent {
     return <table>{trs}</table>;
   }
 
+  _getIncompatibleRoles(role) {
+    const { _incompatibleRoles } = this.props;
+    //
+    if (!_incompatibleRoles) {
+      return [];
+    }
+    //
+    return _incompatibleRoles.filter(ir => ir.directRole.id === role.id);
+  }
+
   render() {
     const {
       showLoading,
@@ -589,16 +597,30 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   if (!role) {
                     return '';
                   }
-                  return (
+                  const content = [];
+                  //
+                  content.push(
+                    <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(role) }/>
+                  );
+                  content.push(
                     <Advanced.EntityInfo
                       entityType="role"
                       entityIdentifier={ role.id }
                       entity={ role }
                       face="popover" />
                   );
+                  //
+                  return content;
                 }
               }
               />
+            <Basic.Column
+              header={this.i18n('content.task.IdentityRoleConceptTable.identityRoleAttributes.header')}
+              cell={
+                ({rowIndex, data}) => {
+                  return this._conceptAlertCell({ rowIndex, data });
+                }
+              }/>
             <Basic.Column
               header={this.i18n('entity.IdentityRole.identityContract.title')}
               cell={
@@ -661,8 +683,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
               header={this.i18n('label.action')}
               className="action"
               cell={this._conceptActionsCell.bind(this)}/>
-            <Basic.Column
-              cell={this._conceptAlertCell.bind(this)}/>
           </Basic.Table>
         </Basic.Panel>
         <Basic.Modal
@@ -761,8 +781,11 @@ RoleConceptTable.propTypes = {
   removeConceptFunc: PropTypes.func,
   createConceptFunc: PropTypes.func,
   updateConceptFunc: PropTypes.func,
-  conceptRoleRequestManager: PropTypes.objet
-
+  conceptRoleRequestManager: PropTypes.object,
+  /**
+   * Loaded incompatible roles, which should be shown in role concept table as warning
+   */
+  _incompatibleRoles: PropTypes.array,
 };
 
 RoleConceptTable.defaultProps = {

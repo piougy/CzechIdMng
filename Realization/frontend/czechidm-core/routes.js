@@ -314,6 +314,11 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECOMPOSITION_READ'] } ]
         },
         {
+          path: 'incompatible-roles',
+          component: require('./src/content/role/IncompatibleRoles'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['INCOMPATIBLEROLE_READ'] } ]
+        },
+        {
           path: 'guarantees',
           component: require('./src/content/role/RoleGuarantees'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
@@ -403,6 +408,11 @@ module.exports = {
               path: 'compositions',
               component: require('./src/content/role/RoleCompositions'),
               access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECOMPOSITION_READ'] } ]
+            },
+            {
+              path: 'incompatible-roles',
+              component: require('./src/content/role/IncompatibleRoles'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['INCOMPATIBLEROLE_READ'] } ]
             },
             {
               path: 'guarantees',

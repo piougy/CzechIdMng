@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -32,14 +33,24 @@ public interface IdmRoleCompositionService extends
 	List<IdmRoleCompositionDto> findDirectSubRoles(UUID superiorId, BasePermission... permission);
 	
 	/**
+	 * Return list of all sub roles (all level in depth).
+	 * of role given by its role ID. Returning available sub roles by given permissions (AND).
+	 * 
+	 * @param superiorId
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @since 9.4.0
+	 */
+	List<IdmRoleCompositionDto> findAllSubRoles(UUID superiorId, BasePermission... permission);
+	
+	/**
 	 * Returns all superior roles for given sub role. Superior roles are sorted from sub to upper superior roles.
 	 * 
 	 * @param subId
 	 * @param permission
 	 * @return
 	 */
-	List<IdmRoleCompositionDto> findAllSuperiorRoles(UUID subId, BasePermission... permission);
-	
+	List<IdmRoleCompositionDto> findAllSuperiorRoles(UUID subId, BasePermission... permission);	
 	/**
 	 * Assign (create) identity roles for given direct identity role sub roles.
 	 * Sub roles will have the same metadata - contract, validFrom, validTill and direct identity role will be filled by given.
@@ -68,5 +79,13 @@ public interface IdmRoleCompositionService extends
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	void updateSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission);
+	
+	/**
+	 * Returns all roles used by given compositions (used as superior or sub).
+	 * 
+	 * @param compositions
+	 * @return
+	 */
+	Set<UUID> getDistinctRoles(List<IdmRoleCompositionDto> compositions);
 	
 }

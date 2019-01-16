@@ -7,13 +7,15 @@ import moment from 'moment';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager } from '../../redux';
+import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager, DataManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import RoleConceptTable from './RoleConceptTable';
-
+import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
+//
 const uiKey = 'role-request';
 const uiKeyAttributes = 'concept-role-requests';
+const uiKeyIncompatibleRoles = 'request-incompatible-roles-';
 const conceptRoleRequestManager = new ConceptRoleRequestManager();
 const roleRequestManager = new RoleRequestManager();
 const identityRoleManager = new IdentityRoleManager();
@@ -86,6 +88,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       });
     } else {
       this.context.store.dispatch(roleRequestManager.fetchEntity(_entityId));
+      this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(_entityId, `${ uiKeyIncompatibleRoles }${ _entityId }`));
     }
   }
 
@@ -144,6 +147,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       // this.addMessage({ message: this.i18n('save.success') });
       if (this._getIsNew()) {
         this.context.router.replace(`/role-requests/${entity.id}/detail`);
+        this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(entity.id, `${ uiKeyIncompatibleRoles }${ entity.id }`));
       }
     } else {
       this.addError(error);
@@ -330,6 +334,21 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
+  _confirmIncompatibleRoles(incompatibleRoles) {
+    if (!incompatibleRoles || incompatibleRoles.length === 0) {
+      this.save(true);
+    } else {
+      this.refs['confirm-incompatible-role'].show(
+         null,
+         this.i18n(`confirm-incompatible-role.header`)
+      ).then(() => {
+        this.save(true);
+      }, () => {
+        // Rejected
+      });
+    }
+  }
+
   _renderRoleConceptChangesTable(request, forceSearchParameters, rendered) {
     if (!rendered) {
       return null;
@@ -428,7 +447,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       return null;
     }
     //
-    const { _permissions, canExecute } = this.props;
+    const { _permissions, canExecute, _incompatibleRoles } = this.props;
     return (
       <div>
         <Basic.ContentHeader>
@@ -454,6 +473,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           updateConceptFunc={this._updateConcept.bind(this)}
           conceptRoleRequestManager={conceptRoleRequestManager}
           reloadComponent={this.reloadComponent.bind(this)}
+          _incompatibleRoles={ _incompatibleRoles }
           />
       </div>
     );
@@ -466,7 +486,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       _currentIdentityRoles,
       editableInStates,
       showRequestDetail,
-      _permissions } = this.props;
+      _permissions,
+      _incompatibleRoles,
+      _incompatibleRolesLoading
+    } = this.props;
     //
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
@@ -511,6 +534,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
     return (
       <div>
+        <Basic.Confirm ref="confirm-incompatible-role" level="warning">
+          <IncompatibleRoleWarning incompatibleRoles={ _.uniqWith(_incompatibleRoles, (irOne, irTwo) => { return irOne.id === irTwo.id; }) } face="full"/>
+          <Basic.Alert level="warning" text={ this.i18n(`confirm-incompatible-role.message`, { escape: false }) }/>
+        </Basic.Confirm>
         <form onSubmit={this.save.bind(this, false)}>
           <Helmet title={this.i18n('title')} />
           <Basic.Confirm ref="confirm-delete" level="danger"/>
@@ -578,20 +605,19 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 rendered={_adminMode}
                 level="success"
                 type="submit"
-                showLoading={showLoading}>
+                showLoading={ showLoading || _incompatibleRolesLoading }
+                style={{ marginRight: 3 }}>
                 {this.i18n('button.save')}
               </Basic.Button>
-                {' '}
               <Basic.Button
                 level="success"
+                icon="fa:object-group"
                 disabled={!isEditable}
-                showLoading={showLoading}
-                onClick={this.save.bind(this, true)}
+                showLoading={ showLoading || _incompatibleRolesLoading }
+                onClick={ this._confirmIncompatibleRoles.bind(this, _incompatibleRoles) }
                 rendered={ request && roleRequestManager.canSave(request, _permissions)}
                 titlePlacement="bottom"
-                title={this.i18n('button.createRequest.tooltip')}>
-                <Basic.Icon type="fa" icon="object-group"/>
-                {' '}
+                title={ this.i18n('button.createRequest.tooltip') }>
                 { this.i18n('button.createRequest.label') }
               </Basic.Button>
             </Basic.PanelFooter>
@@ -636,7 +662,9 @@ function select(state, component) {
     _request: entity,
     _showLoading: entity ? false : true,
     _currentIdentityRoles,
-    _permissions: roleRequestManager.getPermissions(state, null, entity)
+    _permissions: roleRequestManager.getPermissions(state, null, entity),
+    _incompatibleRoles: entity ? DataManager.getData(state, `${ uiKeyIncompatibleRoles }${entity.id}`) : null,
+    _incompatibleRolesLoading: entity ? DataManager.isShowLoading(state, `${ uiKeyIncompatibleRoles }${entity.id}`) : false
   };
 }
 

@@ -108,5 +108,5 @@ const Components = {
   CodeListValue
 };
 
-Components.version = '0.0.1';
+Components.version = '9.4.0';
 module.exports = Components;

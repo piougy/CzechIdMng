@@ -1,16 +1,26 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Controller tests
@@ -144,5 +154,44 @@ public class IdmRoleControllerRestTest extends AbstractReadWriteDtoControllerRes
 		filter.setParent(roleTwo.getId());
 		roles = find(filter);
 		Assert.assertTrue(roles.isEmpty());
+	}
+	
+	@Test
+	public void testGetIncompatibleRoles() throws Exception {
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmRoleDto roleThree = getHelper().createRole();
+		IdmRoleDto roleFour = getHelper().createRole();
+		IdmRoleDto roleFive = getHelper().createRole();
+		IdmRoleDto roleSix = getHelper().createRole();
+		// create incompatible roles definition
+		getHelper().createIncompatibleRole(roleTwo, roleFive);
+		getHelper().createIncompatibleRole(roleFive, roleSix);
+		//
+		// create role composition
+		getHelper().createRoleComposition(roleOne, roleTwo);
+		getHelper().createRoleComposition(roleOne, roleThree);
+		getHelper().createRoleComposition(roleTwo, roleFour);
+		getHelper().createRoleComposition(roleThree, roleFive);
+		//
+		String response = getMockMvc().perform(get(String.format("%s/incompatible-roles", getDetailUrl(roleOne.getId())))
+        		.with(authentication(getAdminAuthentication()))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		Set<IdmIncompatibleRoleDto> incompatibleRoles = toDtos(response, ResolvedIncompatibleRoleDto.class)
+				.stream()
+				.map(ResolvedIncompatibleRoleDto::getIncompatibleRole)
+				.collect(Collectors.toSet());
+		Assert.assertEquals(1, incompatibleRoles.size());
+		Assert.assertTrue(incompatibleRoles
+				.stream()
+				.anyMatch(ir -> { 
+					return ir.getSuperior().equals(roleTwo.getId()) && ir.getSub().equals(roleFive.getId());
+				}));
 	}
 }

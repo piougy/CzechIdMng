@@ -3,6 +3,7 @@ import SecurityManager, { RECEIVE_PROFILE } from '../security/SecurityManager';
 import { IdentityService } from '../../services';
 import DataManager from './DataManager';
 import ProfileManager from './ProfileManager';
+import IncompatibleRoleManager from './IncompatibleRoleManager';
 import * as Utils from '../../utils';
 import { RECEIVE_PERMISSIONS } from './EntityManager';
 
@@ -18,6 +19,7 @@ export default class IdentityManager extends FormableEntityManager {
     this.identityService = new IdentityService();
     this.dataManager = new DataManager();
     this.profileManager = new ProfileManager();
+    this.incompatibleRoleManager = new IncompatibleRoleManager();
   }
 
   getService() {
@@ -109,6 +111,26 @@ export default class IdentityManager extends FormableEntityManager {
       this.getService().getAuthorities(username)
         .then(json => {
           dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
+  /**
+   * Load username incompatible roles (by assigned roles) from BE
+   *
+   * @param  {string} username
+   * @param  {string} uiKey
+   * @return {array[object]}
+   */
+  fetchIncompatibleRoles(username, uiKey) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getIncompatibleRoles(username)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json._embedded[this.incompatibleRoleManager.getCollectionType()]));
         })
         .catch(error => {
           dispatch(this.receiveError(null, uiKey, error));

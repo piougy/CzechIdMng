@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -53,6 +54,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
@@ -65,6 +67,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -111,10 +114,12 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmAuditService auditService;
 	@Autowired private IdmTreeNodeService treeNodeService;
-	@Autowired private IdmFormDefinitionController formDefinitionController;
 	@Autowired private PrivateIdentityConfiguration identityConfiguration;
 	@Autowired private IdmProfileService profileService;
 	@Autowired private AttachmentManager attachmentManager;
+	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
+	//
+	@Autowired private IdmFormDefinitionController formDefinitionController;
 	@Autowired private IdmProfileController profileController;
 	//
 	private final IdmIdentityService identityService;
@@ -497,6 +502,13 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
 	}
 	
+	/**
+	 * 
+	 * @param backendId
+	 * @return
+	 * @deprecated @since 9.4.0 use identity role endpoint => pagination is used.
+	 */
+	@Deprecated
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/roles", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
@@ -523,6 +535,42 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		Page<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null, IdmBasePermission.READ);
 		//
 		return toResources(identityRoles, IdmIdentityRoleDto.class);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/incompatible-roles", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@ApiOperation(
+			value = "Incompatible roles assigned to identity", 
+			nickname = "getIdentityIncompatibleRoles", 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
+				},
+			notes = "Incompatible roles are resolved from assigned identity roles, which can logged used read.")
+	public Resources<?> getIncompatibleRoles(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable String backendId) {	
+		IdmIdentityDto identity = getDto(backendId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(identity.getId());		
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null, IdmBasePermission.READ).getContent();
+		//
+		Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(
+				identityRoles
+					.stream()
+					.map(ir -> ir.getRole())
+					.collect(Collectors.toList())
+				);
+		//
+		return toResources(incompatibleRoles, ResolvedIncompatibleRoleDto.class);
 	}
 	
 	/**

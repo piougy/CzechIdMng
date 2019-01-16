@@ -83,7 +83,6 @@ public class DefaultIdmRoleService
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired @Lazy private IdmIdentityService identityService;
 	
-	
 	@Autowired
 	public DefaultIdmRoleService(
 			IdmRoleRepository repository,

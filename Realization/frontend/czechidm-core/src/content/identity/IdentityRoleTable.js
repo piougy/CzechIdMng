@@ -7,8 +7,9 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager, IdentityContractManager, CodeListManager } from '../../redux';
+import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager, IdentityContractManager, CodeListManager, DataManager } from '../../redux';
 import IdentityRoleEav from './IdentityRoleEav';
+import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 
 const manager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
@@ -16,6 +17,7 @@ const roleManager = new RoleManager();
 const roleTreeNodeManager = new RoleTreeNodeManager();
 const identityContractManager = new IdentityContractManager();
 const codeListManager = new CodeListManager();
+const uiKeyIncompatibleRoles = 'identity-incompatible-roles-';
 
 const TEST_ADD_ROLE_DIRECTLY = false;
 
@@ -34,7 +36,9 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     //
+    const { entityId } = this.props.params;
     this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
+    this.context.store.dispatch(identityManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
   }
 
   getContentKey() {
@@ -82,8 +86,26 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     });
   }
 
+  _getIncompatibleRoles(entity) {
+    const { _incompatibleRoles } = this.props;
+    //
+    if (!_incompatibleRoles) {
+      return [];
+    }
+    //
+    return _incompatibleRoles.filter(ir => ir.directRole.id === entity.role);
+  }
+
   render() {
-    const { forceSearchParameters, showAddButton, showDetailButton, _showLoading, columns, className, rendered } = this.props;
+    const {
+      forceSearchParameters,
+      showAddButton,
+      showDetailButton,
+      _showLoading,
+      columns,
+      className,
+      rendered
+    } = this.props;
     const { detail, activeKey } = this.state;
     //
     if (!rendered) {
@@ -117,7 +139,14 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               { this.i18n('changePermissions') }
             </Basic.Button>
           ]}
-          _searchParameters={ this.getSearchParameters() }>
+          _searchParameters={ this.getSearchParameters() }
+          rowClass={ ({rowIndex, data}) => {
+            const entity = data[rowIndex];
+            if (this._getIncompatibleRoles(entity).length > 0) {
+              // return 'warning';
+            }
+            return Utils.Ui.getDisabledRowClass(data[rowIndex]);
+          }}>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -138,13 +167,21 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             cell={
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data }) => {
-                return (
+                const entity = data[rowIndex];
+                const content = [];
+                //
+                content.push(
+                  <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity) }/>
+                );
+                content.push(
                   <Advanced.EntityInfo
                     entityType="role"
-                    entityIdentifier={ data[rowIndex].role }
-                    entity={ data[rowIndex]._embedded.role }
+                    entityIdentifier={ entity.role }
+                    entity={ entity._embedded.role }
                     face="popover" />
                 );
+                //
+                return content;
               }
             }
             rendered={ _.includes(columns, 'role') }/>
@@ -404,7 +441,8 @@ IdentityRoleTable.defaultProps = {
 function select(state, component) {
   return {
     _showLoading: Utils.Ui.isShowLoading(state, component.uiKey),
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    _incompatibleRoles: DataManager.getData(state, `${ uiKeyIncompatibleRoles }${ component.params.entityId }`)
   };
 }
 

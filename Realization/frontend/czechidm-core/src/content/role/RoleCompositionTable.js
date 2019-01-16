@@ -4,8 +4,10 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleCompositionManager, RoleManager } from '../../redux';
-
+import { RoleCompositionManager, RoleManager, DataManager } from '../../redux';
+import IncompatibleRoleWarning from './IncompatibleRoleWarning';
+//
+const uiKeyIncompatibleRoles = 'role-incompatible-roles-';
 let manager = new RoleCompositionManager();
 let roleManager = new RoleManager();
 
@@ -28,12 +30,35 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
     return this.props.uiKey;
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    this._loadIncompatibleRoles();
+  }
+
   getManager() {
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
     manager = this.getRequestManager(this.props.params, manager);
     roleManager = this.getRequestManager(this.props.params, roleManager);
     return manager;
+  }
+
+  _loadIncompatibleRoles() {
+    const { forceSearchParameters } = this.props;
+    let entityId = null;
+    //
+    if (forceSearchParameters) {
+      if (forceSearchParameters.getFilters().has('superiorId')) {
+        entityId = forceSearchParameters.getFilters().get('superiorId');
+      }
+      if (forceSearchParameters.getFilters().has('subId')) {
+        entityId = forceSearchParameters.getFilters().get('subId');
+      }
+    }
+    if (entityId) {
+      this.context.store.dispatch(roleManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
+    }
   }
 
   showDetail(entity) {
@@ -55,9 +80,25 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
   afterSave(entity, error) {
     if (!error) {
       this.addMessage({ level: 'info', message: this.i18n('save.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+      this._loadIncompatibleRoles();
     }
     //
     super.afterSave(entity, error);
+  }
+
+  afterDelete() {
+    super.afterDelete();
+    this._loadIncompatibleRoles();
+  }
+
+  _getIncompatibleRoles(role) {
+    const { _incompatibleRoles } = this.props;
+    //
+    if (!_incompatibleRoles) {
+      return [];
+    }
+    //
+    return _incompatibleRoles.filter(ir => ir.directRole.id === role.id);
   }
 
   render() {
@@ -123,15 +164,23 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
             header={ this.i18n('entity.RoleComposition.superior.label') }
             sort
             cell={
+              /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
-                return (
+                const content = [];
+                //
+                content.push(
+                  <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity._embedded.superior) }/>
+                );
+                content.push(
                   <Advanced.EntityInfo
                     entityType="role"
                     entityIdentifier={ entity.superior }
                     entity={ entity._embedded.superior }
                     face="popover"/>
                 );
+                //
+                return content;
               }
             }
             rendered={ subId !== null }/>
@@ -144,13 +193,20 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
               cell={
                 ({ rowIndex, data }) => {
                   const entity = data[rowIndex];
-                  return (
+                  const content = [];
+                  //
+                  content.push(
+                    <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity._embedded.sub) }/>
+                  );
+                  content.push(
                     <Advanced.EntityInfo
                       entityType="role"
                       entityIdentifier={ entity.sub }
                       entity={ entity._embedded.sub }
                       face="popover"/>
                   );
+                  //
+                  return content;
                 }
               }
               rendered={ superiorId !== null }/>
@@ -229,10 +285,23 @@ RoleCompositionTable.defaultProps = {
 };
 
 function select(state, component) {
+  const forceSearchParameters = component.forceSearchParameters;
+  let entityId = null;
+  //
+  if (forceSearchParameters) {
+    if (forceSearchParameters.getFilters().has('superiorId')) {
+      entityId = forceSearchParameters.getFilters().get('superiorId');
+    }
+    if (forceSearchParameters.getFilters().has('subId')) {
+      entityId = forceSearchParameters.getFilters().get('subId');
+    }
+  }
+  //
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${component.uiKey}-detail`),
     _permissions: Utils.Permission.getPermissions(state, `${component.uiKey}-detail`),
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    _incompatibleRoles: DataManager.getData(state, `${ uiKeyIncompatibleRoles }${ entityId }`)
   };
 }
 

@@ -1,6 +1,7 @@
 import AbstractRequestFormableManager from './AbstractRequestFormableManager';
 import { RoleService} from '../../services';
 import DataManager from './DataManager';
+import IncompatibleRoleManager from './IncompatibleRoleManager';
 
 /**
  * Operations with RoleService
@@ -13,6 +14,7 @@ export default class RoleManager extends AbstractRequestFormableManager {
     super();
     this.service = new RoleService();
     this.dataManager = new DataManager();
+    this.incompatibleRoleManager = new IncompatibleRoleManager();
   }
 
   getService() {
@@ -102,6 +104,26 @@ export default class RoleManager extends AbstractRequestFormableManager {
         // TODO: data uiKey
         dispatch(this.receiveError(null, uiKey, error));
       });
+    };
+  }
+
+  /**
+   * Incompatible roles are resolved from sub roles.
+   *
+   * @param  {string} id
+   * @param  {string} uiKey
+   * @return {array[object]}
+   */
+  fetchIncompatibleRoles(id, uiKey) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getIncompatibleRoles(id)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json._embedded[this.incompatibleRoleManager.getCollectionType()]));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
     };
   }
 }

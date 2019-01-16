@@ -892,6 +892,7 @@
       "ROLEGUARANTEE": "$t(entity.Role.guarantees) - by identity",
       "ROLEGUARANTEEROLE": "$t(entity.Role.guarantees) - by role",
       "ROLECOMPOSITION": "Business roles definition",
+      "INCOMPATIBLEROLE": "Incompatible roles definition (Segregation of Duties)",
       "ROLETREENODE": "Automatic roles (organization structure)",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
@@ -1910,6 +1911,10 @@
           "label": "Submit a request",
           "tooltip": "Start request for change permissions."
         }
+      },
+      "confirm-incompatible-role": {
+        "header": "Request contains incompatible roles",
+        "message": "Request contains incompatible roles, which have to be approved additonally. <strong>Do you really want execute request with included incompatible roles?</strong>"
       }
      },
      "automaticRoleRequests": {
@@ -2179,6 +2184,30 @@
         "action": {
           "delete": {
             "success": "Business role [{{record}}] successfully removed. Assigned role will be removed from the users on the background asynchronously."
+          }
+        }
+      },
+      "incompatible-roles": {
+        "header": "Incompatible roles",
+        "title": "Incompatible roles - Segregation of Duties",
+        "create": {
+          "header": "New"
+        },
+        "edit": {
+          "header": "{{name}} <small>detail</small>"
+        },
+        "superior": {
+          "header": "Roles, which defines this role as incompatible"
+        },
+        "sub": {
+          "header": "Incompatible roles"
+        },
+        "save": {
+          "success": "Incompatible role [{{record}}] successfully saved."
+        },
+        "action": {
+          "delete": {
+            "success": "Incompatible role [{{record}}] successfully removed."
           }
         }
       }
@@ -3146,6 +3175,17 @@
       },
       "sub": {
         "label": "Subrole",
+        "help": ""
+      }
+    },
+    "IncompatibleRole": {
+      "_type": "Incompatible role definition",
+      "superior": {
+        "label": "Owner role",
+        "help": ""
+      },
+      "sub": {
+        "label": "Incompatible role",
         "help": ""
       }
     },

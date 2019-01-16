@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import org.joda.time.LocalDate;
 import org.junit.Assert;
@@ -24,7 +27,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Role composition test
- * - assign subbroles (sync / async)
+ * - assign subroles (sync / async)
  * - remove subroles (sync / async)
  * - role composition validity
  * 
@@ -319,4 +322,69 @@ public class DefaultIdmRoleCompositionServiceIntegrationTest extends AbstractInt
 		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subOne.getId())));
 		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subOneSub.getId())));
 	}
+	
+	@Test
+	@Transactional
+	public void testGetDistinctRoles() {
+		// null => empty
+		Assert.assertTrue(service.getDistinctRoles(null).isEmpty());
+		Assert.assertTrue(service.getDistinctRoles(new ArrayList<>()).isEmpty());
+		//
+		// prepare role composition
+		IdmRoleDto superior = getHelper().createRole();
+		IdmRoleDto subOne = getHelper().createRole();
+		IdmRoleDto subTwo = getHelper().createRole();
+		IdmRoleDto subOneSub = getHelper().createRole();
+		IdmRoleDto subOneSubSub = getHelper().createRole();
+		List<IdmRoleCompositionDto> compositions = new ArrayList<>();
+		compositions.add(getHelper().createRoleComposition(superior, subOne));
+		compositions.add(getHelper().createRoleComposition(superior, subTwo));
+		compositions.add(getHelper().createRoleComposition(subOne, subOneSub));
+		compositions.add(getHelper().createRoleComposition(subOneSub, subOneSubSub));
+		//
+		Set<UUID> distinctRoles = service.getDistinctRoles(compositions);
+		//
+		Assert.assertEquals(5, distinctRoles.size());
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(superior.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOne.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subTwo.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSub.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSubSub.getId())));
+	}
+	
+	@Test
+	@Transactional
+	public void testFindAllSubRoles() {
+		// prepare role composition
+		IdmRoleDto superior = getHelper().createRole();
+		IdmRoleDto subOne = getHelper().createRole();
+		IdmRoleDto subTwo = getHelper().createRole();
+		IdmRoleDto subOneSub = getHelper().createRole();
+		IdmRoleDto subOneSubSub = getHelper().createRole();
+		getHelper().createRoleComposition(superior, subOne);
+		getHelper().createRoleComposition(superior, subTwo);
+		getHelper().createRoleComposition(subOne, subOneSub);
+		getHelper().createRoleComposition(subOneSub, subOneSubSub);
+		//
+		List<IdmRoleCompositionDto> allSubRoles = service.findAllSubRoles(superior.getId());
+		Set<UUID> distinctRoles = service.getDistinctRoles(allSubRoles);
+		Assert.assertEquals(5, distinctRoles.size());
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(superior.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOne.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subTwo.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSub.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSubSub.getId())));
+		//
+		allSubRoles = service.findAllSubRoles(subOneSubSub.getId());
+		Assert.assertTrue(allSubRoles.isEmpty());
+		//
+		allSubRoles = service.findAllSubRoles(subOne.getId());
+		distinctRoles = service.getDistinctRoles(allSubRoles);
+		//
+		Assert.assertEquals(3, distinctRoles.size());
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOne.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSub.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSubSub.getId())));
+	}
+	
 }

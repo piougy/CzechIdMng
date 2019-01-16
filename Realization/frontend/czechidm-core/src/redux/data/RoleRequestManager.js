@@ -1,11 +1,13 @@
 import EntityManager from './EntityManager';
 import { RoleRequestService } from '../../services';
+import IncompatibleRoleManager from './IncompatibleRoleManager';
 
 export default class RoleRequestManager extends EntityManager {
 
   constructor() {
     super();
     this.service = new RoleRequestService();
+    this.incompatibleRoleManager = new IncompatibleRoleManager();
   }
 
   getService() {
@@ -31,6 +33,26 @@ export default class RoleRequestManager extends EntityManager {
       .catch(error => {
         dispatch(this.receiveError(roleRequestByIdentity, uiKey, error, cb));
       });
+    };
+  }
+
+  /**
+   * Incompatible roles are resolved from currently assigned identity roles (which can logged used read) and the current request concepts.
+   *
+   * @param  {string} username
+   * @param  {string} uiKey
+   * @return {array[object]}
+   */
+  fetchIncompatibleRoles(requestId, uiKey) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getIncompatibleRoles(requestId)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json._embedded[this.incompatibleRoleManager.getCollectionType()]));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
     };
   }
 }

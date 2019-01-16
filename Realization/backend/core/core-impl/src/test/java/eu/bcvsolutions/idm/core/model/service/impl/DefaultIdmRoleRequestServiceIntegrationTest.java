@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
@@ -87,6 +88,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	private IdmConfigurationService configurationService;
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private IdmRoleFormAttributeService roleFormAttributeService;
 	//
 	private IdmRoleDto roleA;
 
@@ -492,6 +495,10 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 				ImmutableList.of(attributeOne, attributeTwo));
 		roleOne.setIdentityRoleAttributeDefinition(definition.getId());
 		roleOne = roleService.save(roleOne);
+		IdmRoleDto roleOneFinal = roleOne;
+		definition.getFormAttributes().forEach(attribute -> {
+			roleFormAttributeService.addAttributeToSubdefintion(roleOneFinal, attribute);
+		});
 
 		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
 		this.getHelper().createIdentityRole(identityContact, roleOne);
@@ -564,6 +571,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	public void testCopyRolesWithParametersWithoutValues() {
 		String attributeOneCode = "attr-" + System.currentTimeMillis();
 		String attributeTwoCode = "attr-two-" + System.currentTimeMillis();
+		String attributeThreeCode = "attr-three-" + System.currentTimeMillis();
 		// Prepare identity, role and parameters
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmRoleDto roleOne = getHelper().createRole();
@@ -575,11 +583,22 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		IdmFormAttributeDto attributeTwo = new IdmFormAttributeDto(attributeTwoCode);
 		attributeTwo.setPersistentType(PersistentType.SHORTTEXT);
 		attributeTwo.setRequired(false);
+		
+		IdmFormAttributeDto attributeThree = new IdmFormAttributeDto(attributeThreeCode);
+		attributeThree.setPersistentType(PersistentType.SHORTTEXT);
+		attributeThree.setRequired(true);
 
 		IdmFormDefinitionDto definition = formService.createDefinition(IdmIdentityRole.class,
-				ImmutableList.of(attributeOne, attributeTwo));
+				ImmutableList.of(attributeOne, attributeTwo, attributeThree));
 		roleOne.setIdentityRoleAttributeDefinition(definition.getId());
 		roleOne = roleService.save(roleOne);
+		IdmRoleDto roleOneFinal = roleOne;
+		definition.getFormAttributes().forEach(attribute -> {
+			if(!attributeThreeCode.equals(attribute.getCode())) {
+				roleFormAttributeService.addAttributeToSubdefintion(roleOneFinal, attribute);
+			}
+		});
+
 
 		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
 		this.getHelper().createIdentityRole(identityContact, roleOne);

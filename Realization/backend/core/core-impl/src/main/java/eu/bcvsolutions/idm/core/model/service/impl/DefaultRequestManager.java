@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.domain.Niceable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RequestFilterPredicate;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
@@ -1074,6 +1075,10 @@ public class DefaultRequestManager implements RequestManager {
 		if (value instanceof Codeable) {
 			Codeable codeable = (Codeable) value;
 			return codeable.getCode();
+		}
+		if (value instanceof Niceable) {
+			Niceable codeable = (Niceable) value;
+			return codeable.getNiceLabel();
 		}
 		if (value instanceof Identifiable) {
 			Identifiable identifiable = (Identifiable) value;

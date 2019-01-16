@@ -19,7 +19,7 @@ const ITEM_VALUE = 'value';
 /**
  * A Select control - async loads option from BE.
  *
- * @author svanda
+ * @author Vít Švanda
  * @author Radek Tomiška
  */
 class SelectBox extends AbstractFormComponent {
@@ -53,6 +53,17 @@ class SelectBox extends AbstractFormComponent {
   componentDidMount() {
     super.componentDidMount();
     this._initComponent(this.props);
+  }
+
+  /**
+  * Defines if component works with complex value.
+  * That is using for correct set input value in form component.
+  * Complex value could be exist in _embedded map and we need to now if
+  * should be used value from field (UUID) or _embedded (entity).
+  *
+  */
+  isValueComplex() {
+    return true;
   }
 
   /**

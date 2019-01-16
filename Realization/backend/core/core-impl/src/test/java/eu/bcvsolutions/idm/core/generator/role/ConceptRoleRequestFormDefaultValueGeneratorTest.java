@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.generator.AbstractGeneratorTest;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmGenerateValueService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -59,6 +60,8 @@ public class ConceptRoleRequestFormDefaultValueGeneratorTest extends AbstractGen
 	private IdmRoleRequestService roleRequestService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptRoleRequestService;
+	@Autowired
+	private IdmRoleFormAttributeService roleFormAttributeService;
 
 	@Test
 	public void testGreenLine() {
@@ -74,16 +77,19 @@ public class ConceptRoleRequestFormDefaultValueGeneratorTest extends AbstractGen
 		String attrDefaultValue1 = "666";
 		IdmFormAttributeDto att1 = createAttribute(attrCode1, attrDefaultValue1, PersistentType.LONG,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att1);
 
 		// prepare form attribute 2
 		String attrCode2 = getHelper().createName();
 		String attrDefaultValue2 = getHelper().createName() + getHelper().createName();
 		IdmFormAttributeDto att2 = createAttribute(attrCode2, attrDefaultValue2, PersistentType.SHORTTEXT,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att2);
 
 		// prepare form attribute 3 without default value
 		String attrCode3 = getHelper().createName();
 		IdmFormAttributeDto att3 = createAttribute(attrCode3, null, PersistentType.SHORTTEXT, formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att3);
 
 		IdmConceptRoleRequestDto roleRequestDto = new IdmConceptRoleRequestDto();
 		roleRequestDto.setRole(role.getId());
@@ -140,17 +146,20 @@ public class ConceptRoleRequestFormDefaultValueGeneratorTest extends AbstractGen
 		String attrDefaultValue1 = "100200";
 		IdmFormAttributeDto att1 = createAttribute(attrCode1, attrDefaultValue1, PersistentType.LONG,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att1);
 
 		// prepare form attribute 2
 		String attrCode2 = getHelper().createName();
 		String attrDefaultValue2 = getHelper().createName() + getHelper().createName();
 		IdmFormAttributeDto att2 = createAttribute(attrCode2, attrDefaultValue2, PersistentType.SHORTTEXT,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att2);
 
 		// prepare form attribute 3 without default value
 		String attrCode3 = getHelper().createName();
 		IdmFormAttributeDto att3 = createAttribute(attrCode3, null, PersistentType.SHORTTEXT, formDefinition.getId());
-
+		roleFormAttributeService.addAttributeToSubdefintion(role, att3);
+		
 		IdmRoleRequestDto requestDto = new IdmRoleRequestDto();
 		requestDto.setExecuteImmediately(true);
 		requestDto.setApplicant(identity.getId());
@@ -211,16 +220,19 @@ public class ConceptRoleRequestFormDefaultValueGeneratorTest extends AbstractGen
 		String attrDefaultValue1 = "666";
 		IdmFormAttributeDto att1 = createAttribute(attrCode1, attrDefaultValue1, PersistentType.LONG,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att1);
 
 		// prepare form attribute 2
 		String attrCode2 = getHelper().createName();
 		String attrDefaultValue2 = getHelper().createName() + getHelper().createName();
 		IdmFormAttributeDto att2 = createAttribute(attrCode2, attrDefaultValue2, PersistentType.SHORTTEXT,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att2);
 
 		// prepare form attribute 3 without default value
 		String attrCode3 = getHelper().createName();
 		IdmFormAttributeDto att3 = createAttribute(attrCode3, null, PersistentType.SHORTTEXT, formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att3);
 
 		IdmConceptRoleRequestDto roleRequestDto = new IdmConceptRoleRequestDto();
 		roleRequestDto.setRole(role.getId());

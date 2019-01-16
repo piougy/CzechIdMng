@@ -23,6 +23,7 @@ public enum CoreResultCode implements ResultCode {
 	ACCEPTED(HttpStatus.ACCEPTED, "	"),
 	DELETED(HttpStatus.ACCEPTED, "Request to delete content accepted."),
 	DRY_RUN(HttpStatus.NO_CONTENT, "Dry run mode"),
+	DIRTY_STATE(HttpStatus.CREATED, "For entity id [%s] was set dirty state flag."),
 	//
 	// Commons 4xx
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "The value is wrong!"),
@@ -293,7 +294,9 @@ public enum CoreResultCode implements ResultCode {
 	// generator
 	GENERATOR_FORM_ATTRIBUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "Form attribute for definition [%s] with code [%s] not found."),
 	GENERATOR_FORM_DEFINITION_BAD_TYPE(HttpStatus.BAD_REQUEST, "Given form definition id [%s], has not type. Correct type: [%s]."),
-	GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE(HttpStatus.NOT_FOUND, "Script code [%s] return null or bad dto type. Returned value: [%s].");
+	GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE(HttpStatus.NOT_FOUND, "Script code [%s] return null or bad dto type. Returned value: [%s]."),
+	// Role form attribute
+	ROLE_FORM_ATTRIBUTE_CHANGE_DEF_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "Change of form definition for role [%s] is not allowed, because for this role exists some IdmRoleFormAttribute. First delete them.");
 	
 	private final HttpStatus status;
 	private final String message;

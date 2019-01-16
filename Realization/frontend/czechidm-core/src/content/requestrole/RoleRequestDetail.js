@@ -495,7 +495,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const request = isNew ? this.state.request : _request;
     // We want show audit fields only for Admin, but not in concept state.
     const _adminMode = Utils.Permission.hasPermission(_permissions, 'ADMIN') && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
-    const showLoading = !request || _showLoading || this.state.showLoading;
+    const showLoading = !request || _showLoading || this.state.showLoading || this.props.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
     const showLoadingButtonRemove = this.state.showLoadingButtonRemove;
     if (this.state.showLoading || !request) {

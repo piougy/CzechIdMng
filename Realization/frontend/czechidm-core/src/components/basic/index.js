@@ -46,6 +46,7 @@ import ScriptArea from './ScriptArea/ScriptArea';
 import PasswordStrength from './PasswordStrength/PasswordStrength';
 import Link from './Link/Link';
 import ShortText from './ShortText/ShortText';
+import Div from './Div/Div';
 
 const Components = {
   AbstractComponent,
@@ -109,7 +110,8 @@ const Components = {
   ScriptArea,
   PasswordStrength,
   Link,
-  ShortText
+  ShortText,
+  Div
 };
 
 Components.version = '9.4.0';

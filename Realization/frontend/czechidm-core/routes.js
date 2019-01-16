@@ -324,6 +324,11 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
         },
         {
+          path: 'form-attributes',
+          component: require('./src/content/role/RoleFormAttributes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
+        },
+        {
           path: 'catalogues',
           component: require('./src/content/role/RoleCatalogueRoles'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUEROLE_READ'] } ]
@@ -418,6 +423,11 @@ module.exports = {
               path: 'guarantees',
               component: require('./src/content/role/RoleGuarantees'),
               access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
+            },
+            {
+              path: 'form-attributes',
+              component: require('./src/content/role/RoleFormAttributes'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
             },
             {
               path: 'catalogues',

@@ -70,6 +70,7 @@ import GenerateValueManager from './GenerateValueManager';
 import CodeListManager from './CodeListManager';
 import CodeListItemManager from './CodeListItemManager';
 import IncompatibleRoleManager from './IncompatibleRoleManager';
+import RoleFormAttributeManager from './RoleFormAttributeManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -136,7 +137,8 @@ const ManagerRoot = {
   GenerateValueManager,
   CodeListManager,
   CodeListItemManager,
-  IncompatibleRoleManager
+  IncompatibleRoleManager,
+  RoleFormAttributeManager
 };
 
 ManagerRoot.version = '9.4.0';

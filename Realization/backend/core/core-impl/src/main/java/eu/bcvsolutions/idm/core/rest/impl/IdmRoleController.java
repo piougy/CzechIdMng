@@ -88,11 +88,11 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 	
 	protected static final String TAG = "Roles";
 	//
+	private final IdmRoleService roleService;
 	private final IdmAuditService auditService;
 	private final IdmFormDefinitionController formDefinitionController;
 	private final IdmAuthorizationPolicyService authorizationPolicyService;
 	private final SecurityService securityService;
-	private final FormService formService;
 	//
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
@@ -103,21 +103,20 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 			IdmAuditService auditService,
 			IdmAuthorizationPolicyService authorizationPolicyService,
 			IdmFormDefinitionController formDefinitionController,
-			SecurityService securityService,
-			FormService formService) {
+			SecurityService securityService) {
 		super(roleService);
 		//
 		Assert.notNull(auditService);
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(authorizationPolicyService);
 		Assert.notNull(securityService);
-		Assert.notNull(formService);
+		Assert.notNull(roleService);
 		//
 		this.auditService = auditService;
 		this.formDefinitionController = formDefinitionController;
 		this.authorizationPolicyService = authorizationPolicyService;
 		this.securityService = securityService;
-		this.formService = formService;
+		this.roleService = roleService;
 	}
 	
 	@Override
@@ -433,7 +432,7 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 			@PathVariable @NotNull String backendId) {
 		IdmRoleDto roleDto = getService().get(backendId);
 		if (roleDto != null && roleDto.getIdentityRoleAttributeDefinition() != null) {
-			IdmFormDefinitionDto definition = formService.getDefinition(roleDto.getIdentityRoleAttributeDefinition());
+			IdmFormDefinitionDto definition = roleService.getFormAttributeSubdefinition(roleDto);
 			return new ResponseEntity<IdmFormDefinitionDto>(definition, HttpStatus.OK);
 		}
 		

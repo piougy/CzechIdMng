@@ -322,6 +322,14 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	ROLEFORMATTRIBUTE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),;
 	
 	// String constants could be used in pre / post authorize SpEl expressions
@@ -588,6 +596,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String GENERATE_VALUE_UPDATE = "GENERATEVALUE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String GENERATE_VALUE_DELETE = "GENERATEVALUE" + BasePermission.SEPARATOR + "DELETE";
 	public static final String GENERATE_VALUE_AUTOCOMPLETE = "GENERATEVALUE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	//
+	public static final String ROLEFORMATTRIBUTE_COUNT = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String ROLEFORMATTRIBUTE_AUTOCOMPLETE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String ROLEFORMATTRIBUTE_READ = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "READ";
+	public static final String ROLEFORMATTRIBUTE_CREATE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLEFORMATTRIBUTE_UPDATE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ROLEFORMATTRIBUTE_DELETE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

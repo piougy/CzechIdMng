@@ -55,6 +55,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
@@ -93,6 +94,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmConceptRoleRequestService conceptRoleService;
 	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
 	@Autowired(required = false)
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
@@ -686,6 +688,11 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 		role.setIdentityRoleAttributeDefinition(definition.getId());
 		role = roleService.save(role);
 		assertNotNull(role.getIdentityRoleAttributeDefinition());
+		IdmRoleDto roleFinal = role;
+		definition.getFormAttributes().forEach(attribute -> {
+			roleFormAttributeService.addAttributeToSubdefintion(roleFinal, attribute);
+		});
+
 		
 		return role;
 	}

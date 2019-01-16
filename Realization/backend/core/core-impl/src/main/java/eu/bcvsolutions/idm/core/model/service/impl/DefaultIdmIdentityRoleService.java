@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
@@ -67,6 +68,7 @@ public class DefaultIdmIdentityRoleService
 	//
 	@Autowired private LookupService lookupService;
 	@Autowired private IdmAutomaticRoleRepository automaticRoleRepository;
+	@Autowired private IdmRoleService roleService;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
@@ -96,8 +98,7 @@ public class DefaultIdmIdentityRoleService
 			// Has role filled attribute definition?
 			UUID formDefintion = role.getIdentityRoleAttributeDefinition();
 			if (formDefintion != null) {
-				IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(role,
-						IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
+				IdmFormDefinitionDto formDefinitionDto = roleService.getFormAttributeSubdefinition(role);
 				return this.getFormService().getFormInstance(dto, formDefinitionDto);
 			}
 		}

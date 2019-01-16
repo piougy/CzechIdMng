@@ -181,7 +181,7 @@
           },
           "startOfHrProcesses": {
             "label": "After end, start the HR processes",
-            "helpBlock": "After successful synchronization, HR processes will be executed."
+            "helpBlock": "After successful synchronization, HR processes will be executed. In the case of synchronization of time slices, is also together with HR process started recalculation of time slices."
           },
           "startAutoRoleRec": {
             "label": "After end, start the automatic role recalculation",

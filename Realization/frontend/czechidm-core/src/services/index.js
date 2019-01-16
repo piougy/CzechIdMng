@@ -74,6 +74,7 @@ import AttachmentService from './AttachmentService';
 import CodeListService from './CodeListService';
 import CodeListItemService from './CodeListItemService';
 import IncompatibleRoleService from './IncompatibleRoleService';
+import RoleFormAttributeService from './RoleFormAttributeService';
 
 const ServiceRoot = {
   RestApiService,
@@ -144,7 +145,8 @@ const ServiceRoot = {
   AttachmentService,
   CodeListService,
   CodeListItemService,
-  IncompatibleRoleService
+  IncompatibleRoleService,
+  RoleFormAttributeService
 };
 
 ServiceRoot.version = '9.4.0';

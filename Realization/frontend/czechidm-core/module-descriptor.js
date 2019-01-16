@@ -341,6 +341,15 @@ module.exports = {
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
               },
               {
+                'id': 'role-form-attributes',
+                'type': 'TAB',
+                'labelKey': 'content.role.formAttributes.title',
+                'icon': 'fa:th-list',
+                'order': 500,
+                'path': '/role/:entityId/form-attributes',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
+              },
+              {
                 'id': 'role-catalogue-roles',
                 'type': 'TAB',
                 'labelKey': 'content.role.catalogues.title',
@@ -483,6 +492,15 @@ module.exports = {
                 'order': 130,
                 'path': 'requests/:requestId/role/:entityId/guarantees',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
+              },
+              {
+                'id': 'request-role-form-attributes',
+                'type': 'TAB',
+                'labelKey': 'content.role.formAttributes.title',
+                'icon': 'fa:th-list',
+                'order': 500,
+                'path': 'requests/:requestId/role/:entityId/form-attributes',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
               },
               {
                 'id': 'request-role-catalogue-roles',

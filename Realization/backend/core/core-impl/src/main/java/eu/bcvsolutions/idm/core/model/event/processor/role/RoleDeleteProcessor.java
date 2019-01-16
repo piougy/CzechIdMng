@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCompositionFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
@@ -36,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
@@ -71,6 +73,7 @@ public class RoleDeleteProcessor
 	@Autowired private IdmRoleCatalogueRoleService roleCatalogueRoleService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
+	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
 	
 	public RoleDeleteProcessor() {
 		super(RoleEventType.DELETE);
@@ -196,6 +199,13 @@ public class RoleDeleteProcessor
 		// remove incompatible roles from both sides
 		incompatibleRoleService.findAllByRole(role.getId()).forEach(incompatibleRole -> {
 			incompatibleRoleService.delete(incompatibleRole);
+		});
+		//
+		// Remove role-form-attributes
+		IdmRoleFormAttributeFilter roleFormAttributeFilter = new IdmRoleFormAttributeFilter();
+		roleFormAttributeFilter.setRole(role.getId());
+		roleFormAttributeService.find(roleFormAttributeFilter, null).forEach(roleCatalogue -> {
+			roleFormAttributeService.delete(roleCatalogue);
 		});
 		//
 		service.deleteInternal(role);

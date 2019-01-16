@@ -28,17 +28,22 @@ import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
@@ -82,6 +87,8 @@ public class DefaultIdmRoleService
 	@Autowired private IdmRoleCatalogueRoleService roleCatalogueRoleService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired @Lazy private IdmIdentityService identityService;
+	@Autowired @Lazy private FormService formService;
+	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
 	
 	@Autowired
 	public DefaultIdmRoleService(
@@ -122,6 +129,43 @@ public class DefaultIdmRoleService
 	public IdmRoleDto getByCode(String code) {
 		return toDto(repository.findOneByCode(code));
 	}
+	
+	@Override
+	public IdmFormDefinitionDto getFormAttributeSubdefinition(IdmRoleDto role) {
+		Assert.notNull(role);
+		UUID identityRoleAttributeDefinition = role.getIdentityRoleAttributeDefinition();
+		if(identityRoleAttributeDefinition == null) {
+			return null;
+		}
+		IdmFormDefinitionDto definition = formService.getDefinition(identityRoleAttributeDefinition);
+		List<IdmFormAttributeDto> allAttributes = definition.getFormAttributes();
+		// Find sub-definition for given role
+		IdmRoleFormAttributeFilter attributeFilter = new IdmRoleFormAttributeFilter();
+		attributeFilter.setRole(role.getId());
+		List<IdmRoleFormAttributeDto> roleFormAttributes = roleFormAttributeService.find(attributeFilter, null).getContent();
+		
+		// Find allowed attributes by sub-definition (and set default value from sub-definition attribute)
+		List<IdmFormAttributeDto> allowedAttributes = allAttributes.stream() //
+				.filter(attribute -> {
+					IdmRoleFormAttributeDto result =  roleFormAttributes.stream() //
+							.filter(roleFormAttribute -> attribute.getId().equals(roleFormAttribute.getFormAttribute()))
+							.findFirst() //
+							.orElse(null); //
+					if (result != null) {
+						// Set default value from sub-definition attribute
+						attribute.setDefaultValue(result.getDefaultValue());
+						// Set validations
+						// Required
+						attribute.setRequired(result.isRequired());
+						// TODO: Add other validations - @Ondra - here is correct place for it ;)
+						return true;
+					}
+					return false;
+				}).collect(Collectors.toList());
+		definition.setFormAttributes(allowedAttributes);
+		return definition;
+	}
+	
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmRoleFilter filter) {

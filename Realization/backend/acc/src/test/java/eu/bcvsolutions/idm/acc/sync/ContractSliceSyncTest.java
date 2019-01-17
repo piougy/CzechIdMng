@@ -926,6 +926,13 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		sliceDto = slices.get(0);
 		assertEquals(LocalDate.now().minusDays(20), sliceDto.getValidFrom());
 		assertEquals(null, sliceDto.getValidTill());
+
+		// some tests expect data as contract slice with id 1. Just for sure we clear test slices
+		slices = contractSliceService.find(filter, null).getContent();
+		slices.forEach(slice -> {
+			contractSliceService.delete(slice);
+		});
+
 	}
 
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType,

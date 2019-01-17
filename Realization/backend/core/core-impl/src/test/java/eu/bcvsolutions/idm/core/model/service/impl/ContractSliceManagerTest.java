@@ -6,7 +6,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -22,12 +24,14 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.config.domain.ContractSliceConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
@@ -44,6 +48,7 @@ import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ClearDirtyStateForContractSliceTaskExecutor;
@@ -828,6 +833,36 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	public void clearStateExecutorPageTest() {
+		IdmIdentityDto identity = this.getHelper().createIdentity();
+
+		List<IdmEntityStateDto> dirtyStates = findAllDirtyStatesForSlices();
+		assertEquals(0, dirtyStates.size());
+
+		for (int index = 0; index < 21; index++) {
+			IdmContractSliceDto createContractSlice = this.getHelper().createContractSlice(identity);
+			createDirtyState(createContractSlice);
+		}
+
+		dirtyStates = findAllDirtyStatesForSlices();
+		assertEquals(21, dirtyStates.size());
+
+		ClearDirtyStateForContractSliceTaskExecutor executor = new ClearDirtyStateForContractSliceTaskExecutor();
+		OperationResult result = longRunningTaskManager.executeSync(executor);
+		assertEquals(OperationState.EXECUTED, result.getState());
+
+		dirtyStates = findAllDirtyStatesForSlices();
+		assertEquals(0, dirtyStates.size());
+		
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
+
+		assertNotNull(taskDto.getCount());
+		assertNotNull(taskDto.getCounter());
+		assertEquals(21, taskDto.getCount().longValue());
+		assertEquals(21, taskDto.getCounter().longValue());
+	}
+
+	@Test
 	public void setDirtyStateAndReferentialIntegrityTest() {
 		IdmIdentityDto identity = this.getHelper().createIdentity();
 
@@ -875,6 +910,40 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		filter.setResultCode(CoreResultCode.DIRTY_STATE.getCode());
 		filter.setOwnerType(IdmContractSlice.class.getName());
 		filter.setOwnerId(sliceId);
+		return entityStateManager.findStates(filter, null).getContent();
+	}
+
+	/**
+	 * Create new dirty state for contract slice
+	 *
+	 * @param slice
+	 * @param parameters
+	 * @return
+	 */
+	private IdmEntityStateDto createDirtyState(IdmContractSliceDto slice) {
+		Map<String, Object> transformedMarameters = new HashMap<String, Object>();
+		transformedMarameters.put("entityId", slice.getId());
+		
+		DefaultResultModel resultModel = new DefaultResultModel(CoreResultCode.DIRTY_STATE, transformedMarameters);
+		IdmEntityStateDto dirtyState = new IdmEntityStateDto();
+		dirtyState.setResult(
+				new OperationResultDto
+					.Builder(OperationState.BLOCKED)
+					.setModel(resultModel)
+					.build());
+		return entityStateManager.saveState(slice, dirtyState);
+	}
+
+	/**
+	 * Find all dirty states for contract slices
+	 *
+	 * @param pageable
+	 * @return
+	 */
+	private List<IdmEntityStateDto> findAllDirtyStatesForSlices() {
+		IdmEntityStateFilter filter = new IdmEntityStateFilter();
+		filter.setResultCode(CoreResultCode.DIRTY_STATE.getCode());
+		filter.setOwnerType(IdmContractSlice.class.getName());
 		return entityStateManager.findStates(filter, null).getContent();
 	}
 }

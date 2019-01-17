@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -12,7 +12,6 @@ import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -47,8 +46,6 @@ public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedul
 	
 	public static String ORIGINAL_SLICE = "originalSlice";
 
-	private static final int PAGE_SIZE = 100;
-
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(ClearDirtyStateForContractSliceTaskExecutor.class);
 
@@ -63,35 +60,33 @@ public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedul
 
 	@Override
 	public OperationResult process() {
-		int page = 0;
 		boolean canContinue = true;
 
-		do {
-			Page<IdmEntityStateDto> dirtyStates = findAllDirtyStatesForSlices(new PageRequest(page, PAGE_SIZE));
-			//
-			if (count == null) {
-				count = dirtyStates.getTotalElements();
-			}
-			//
-			for (Iterator<IdmEntityStateDto> iterator = dirtyStates.iterator(); iterator.hasNext() && canContinue;) {
-				IdmEntityStateDto dirtyState = iterator.next();
-				Assert.notNull(dirtyState);
-				Assert.notNull(dirtyState.getId());
+		List<IdmEntityStateDto> dirtyStates = findAllDirtyStatesForSlices(null).getContent();
+		if (count == null) {
+			count = Long.valueOf(dirtyStates.size());
+		}
 
-				processItem(dirtyState);
+		counter = 0l;
 
- 				canContinue &= this.updateState();
- 				//
- 				// flush and clear session - if LRT is wrapped in parent transaction, we need to clear it (same behavior as in stateful tasks)
- 				if (getHibernateSession().isOpen()) {
- 					getHibernateSession().flush();
- 					getHibernateSession().clear();
- 				}
-			}
-			canContinue &= dirtyStates.hasNext();			
-			++page;
-			//
-		} while (canContinue);
+		for (IdmEntityStateDto dirtyState : dirtyStates) {
+			Assert.notNull(dirtyState);
+			Assert.notNull(dirtyState.getId());
+
+			processItem(dirtyState);
+			counter++;
+
+			// flush and clear session - if LRT is wrapped in parent transaction, we need to clear it (same behavior as in stateful tasks)
+ 			if (getHibernateSession().isOpen()) {
+ 				getHibernateSession().flush();
+ 				getHibernateSession().clear();
+ 			}
+ 
+ 			canContinue &= this.updateState();
+ 			if (!canContinue) {
+ 				break;
+ 			}
+		}
 
 		return new OperationResult(OperationState.EXECUTED);
 	}

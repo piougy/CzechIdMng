@@ -1067,9 +1067,9 @@ public class RequestManagerTest extends AbstractCoreWorkflowIntegrationTest {
 		Assert.assertNotNull(changes);
 		List<IdmRequestItemAttributeDto> attributes = changes.getAttributes();
 		IdmRequestItemAttributeDto attributeDto = attributes.stream()
-				.filter(attribute -> "stringValue".equals(attribute.getName())).findFirst().get();
+				.filter(attribute -> "shortTextValue".equals(attribute.getName())).findFirst().get();
 		Assert.assertNotEquals(attributeDto.getValue().getOldValue(), attributeDto.getValue().getValue());
-		Assert.assertEquals(changedValueShortText.getStringValue(), attributeDto.getValue().getValue());
+		Assert.assertEquals(changedValueShortText.getShortTextValue(), attributeDto.getValue().getValue());
 
 		// Delete attributes
 		formService.deleteValues(role, attributeShortText);

@@ -45,7 +45,7 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
     if (!Utils.Entity.isNew(entity)) {
       manager.getService().getConnectorObject(entity.id)
       .then(json => {
-        const detail = this.state.detail;
+        const detail = _.merge({}, this.state.detail);
         detail.connectorObject = json;
         this.setState({detail});
       })
@@ -77,7 +77,6 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
     const { _showLoading } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -199,7 +198,14 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                 className="table-bordered"
                 rendered={ !Utils.Entity.isNew(detail.entity) }>
                 <Basic.Column property="name" header={this.i18n('label.property')}/>
-                <Basic.Column property="values" header={this.i18n('label.value')}/>
+                  <Basic.Column property="values" header={this.i18n('label.value')}
+                    cell={
+                      ({ rowIndex, data }) => {
+                        return (
+                          Utils.Ui.toStringValue(data[rowIndex].values)
+                        );
+                      }
+                    }/>
               </Basic.Table>
             </Basic.Modal.Body>
 

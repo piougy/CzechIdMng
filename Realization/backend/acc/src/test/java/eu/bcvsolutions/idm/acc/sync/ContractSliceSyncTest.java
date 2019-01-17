@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.sync;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -533,9 +534,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
 		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
-		// Before start HR process will be started select current contract task
-		((SysSyncContractConfigDto) config).setStartOfHrProcesses(true);
-		config = syncConfigService.save(config);
 		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
 
 		IdmIdentityDto owner = helper.createIdentity(CONTRACT_OWNER_ONE);
@@ -870,7 +868,69 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		slices.forEach(slice -> {
 			contractSliceService.delete(slice);
 		});
+		identityService.delete(identity);
+	}
 
+	@Test
+	public void deleteLastContractSlice() {
+		// init system
+		SysSystemDto system = initData();
+		this.getBean().deleteAllResourceData();
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		// first expired slice
+		this.getBean().createSlice("1", identity.getUsername(), null, null, null, null, null, LocalDate.now().minusDays(20), LocalDate.now().plusDays(10), LocalDate.now().minusDays(20), "ONE");
+
+		SysSyncContractConfigDto config = (SysSyncContractConfigDto) doCreateSyncConfig(system);
+		config.setStartOfHrProcesses(true);
+		config.setMissingAccountAction(ReconciliationMissingAccountActionType.DELETE_ENTITY);
+		config = (SysSyncContractConfigDto) syncConfigService.save(config);
+		helper.startSynchronization(config);
+
+		IdmContractSliceFilter filter = new IdmContractSliceFilter();
+		filter.setIdentity(identity.getId());
+		List<IdmContractSliceDto> slices = contractSliceService.find(filter, null).getContent();
+		assertEquals(1, slices.size());
+
+		IdmContractSliceDto sliceDto = slices.get(0);
+		assertEquals(LocalDate.now().minusDays(20), sliceDto.getValidFrom());
+		assertEquals(null, sliceDto.getValidTill());
+
+		// create second slice
+		this.getBean().createSlice("2", identity.getUsername(), null, null, null, null, null, LocalDate.now().minusDays(20), LocalDate.now().plusDays(10), LocalDate.now().minusDays(10), "ONE");
+		helper.startSynchronization(config);
+
+		slices = contractSliceService.find(filter, null).getContent();
+		assertEquals(2, slices.size());
+
+		for (IdmContractSliceDto slice : slices) {
+			if ("1".equals(slice.getDescription())) {
+				assertEquals(LocalDate.now().minusDays(20), slice.getValidFrom());
+				assertEquals(LocalDate.now().minusDays(10).minusDays(1), slice.getValidTill());
+			} else if ("2".equals(slice.getDescription())) {
+				assertEquals(LocalDate.now().minusDays(10), slice.getValidFrom());
+				assertEquals(null, slice.getValidTill());
+			} else {
+				fail("Slice with bad id!");
+			}
+		}
+
+		this.getBean().deleteSlice("2");
+
+		helper.startSynchronization(config);
+		slices = contractSliceService.find(filter, null).getContent();
+		assertEquals(1, slices.size());
+
+		sliceDto = slices.get(0);
+		assertEquals(LocalDate.now().minusDays(20), sliceDto.getValidFrom());
+		assertEquals(null, sliceDto.getValidTill());
+
+		// some tests expect data as contract slice with id 1. Just for sure we clear test slices
+		slices = contractSliceService.find(filter, null).getContent();
+		slices.forEach(slice -> {
+			contractSliceService.delete(slice);
+		});
 		identityService.delete(identity);
 	}
 
@@ -1032,6 +1092,19 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		TestContractSliceResource sliceOne = entityManager.find(TestContractSliceResource.class, "1");
 		sliceOne.setValidTill(LocalDate.now().minusDays(7));
 		entityManager.persist(this.createContract("2", owner, null, "true", treeNodeCode, null, null, LocalDate.now().minusDays(4), null, LocalDate.now().minusDays(5), "ONE"));
+	}
+
+	@Transactional
+	public void createSlice(String code, String owner, String leader, String main,
+			String workposition, String state, String disabled, LocalDate validFromContract,
+			LocalDate validTillContract, LocalDate validFromSlice, String contractCode) {
+		entityManager.persist(this.createContract(code, owner, leader, main, workposition, state, disabled, validFromContract, validTillContract, validFromSlice, contractCode));
+	}
+
+	@Transactional
+	public void deleteSlice(String id) {
+		TestContractSliceResource slice = entityManager.find(TestContractSliceResource.class, id);
+		entityManager.remove(slice);
 	}
 
 	@Transactional

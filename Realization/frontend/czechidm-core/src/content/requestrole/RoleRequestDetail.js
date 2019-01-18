@@ -123,9 +123,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-
-    this.setState({showLoading: true});
     const formEntity = this.refs.form.getData();
+    this.setState({showLoading: true});
     delete formEntity.conceptRoles;
 
     if (formEntity.id === undefined) {
@@ -343,8 +342,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
          this.i18n(`confirm-incompatible-role.header`)
       ).then(() => {
         this.save(true);
-      }, () => {
-        // Rejected
       });
     }
   }

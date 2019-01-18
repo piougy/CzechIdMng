@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
@@ -24,6 +26,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
+import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
+import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
@@ -47,6 +51,8 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 	private IdmContractSliceGuaranteeService contractGuaranteeService;
 	@Autowired
 	private EntityStateManager entityStateManager;
+	@Autowired
+	private IdmContractSliceService contractSliceService;
 
 	@Autowired
 	public ContractSliceDeleteProcessor(IdmContractSliceService service) {
@@ -100,6 +106,15 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 			if (nextSlice != null) {
 				contractSliceManager.updateValidTillOnPreviousSlice(nextSlice,
 						contractSliceManager.findAllSlices(contractId));
+			} else {
+				// If next slice doesn't exists, then we need to find previous slice (last after deleting) and set valid till to infinity.
+				IdmContractSliceDto previousSlice = contractSliceManager.findPreviousSlice(slice, contractSliceManager.findAllSlices(contractId));
+				if(previousSlice != null) {
+					// Previous slice will be valid till infinity
+					previousSlice.setValidTill(null);
+					contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, previousSlice,
+							ImmutableMap.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
+				}
 			}
 
 			IdmContractSliceDto validSlice = contractSliceManager.findValidSlice(contractId);

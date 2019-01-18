@@ -63,7 +63,7 @@ class SelectBox extends AbstractFormComponent {
   *
   */
   isValueComplex() {
-    return false;
+    return true;
   }
 
   /**

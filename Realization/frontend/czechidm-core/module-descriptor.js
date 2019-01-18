@@ -333,7 +333,6 @@ module.exports = {
               {
                 'id': 'incompatible-roles',
                 'type': 'TAB',
-                'icon': 'warning-sign',
                 'labelKey': 'content.role.incompatible-roles.header',
                 'titleKey': 'content.role.incompatible-roles.title',
                 'order': 125,
@@ -477,7 +476,6 @@ module.exports = {
               {
                 'id': 'request-incompatible-roles',
                 'type': 'TAB',
-                'icon': 'warning-sign',
                 'labelKey': 'content.role.incompatible-roles.header',
                 'titleKey': 'content.role.incompatible-roles.title',
                 'order': 125,

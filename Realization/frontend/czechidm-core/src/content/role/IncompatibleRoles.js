@@ -33,7 +33,7 @@ export default class IncompatibleRoles extends Basic.AbstractContent {
       <div>
         <Helmet title={this.i18n('title')} />
 
-        <Basic.ContentHeader icon="warning-sign" text={ this.i18n('sub.header') } style={{ marginBottom: 0 }}/>
+        <Basic.ContentHeader text={ this.i18n('sub.header') } style={{ marginBottom: 0 }}/>
         <IncompatibleRoleTable
           uiKey="incompatible-role-sub-table"
           forceSearchParameters={ forceSubSearchParameters }

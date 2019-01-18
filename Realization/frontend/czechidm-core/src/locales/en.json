@@ -3336,11 +3336,11 @@
       "_type": "Role",
       "code": {
         "label": "Code",
-        "help": "Technical name"
+        "help": "Technical name."
       },
       "baseCode": {
-        "label": "Kód",
-        "help": "Technický název role."
+        "label": "Code",
+        "help": "Technical name."
       },
       "environment": {
         "label": "Environment",

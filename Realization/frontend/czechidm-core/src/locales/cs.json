@@ -3363,7 +3363,7 @@
      },
      "regex": {
        "label": "Regulární výraz",
-       "help": "Validovat hodnotu pomocí regulárního výrazu"
+       "help": "Validovat hodnotu pomocí regulárního výrazu."
      },
      "min": {
        "label": "Minimální hodnota"

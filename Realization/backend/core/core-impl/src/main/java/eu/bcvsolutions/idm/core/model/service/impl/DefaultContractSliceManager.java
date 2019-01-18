@@ -412,6 +412,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 			forceRecalculateCurrentUsingSlice = false;
 		}
 
+		boolean recalculateUsingAsContract = false;
 		if (slice.getIdentity() != null) {
 			UUID parentContract = slice.getParentContract();
 
@@ -431,13 +432,17 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 			} else {
 				// Update contract by that slice
 				if(slice.isUsingAsContract()) {
-					IdmIdentityContractDto contract = contractService.get(parentContract);
-					this.getBean().updateContractBySlice(contract, slice, eventProperties);
+					// Validity of slice was changed, slice cannot be using for update the contract
+					if (originalSlice != null && !Objects.equal(originalSlice.getValidFrom(), slice.getValidFrom())) {
+						recalculateUsingAsContract = true;
+					} else {
+						IdmIdentityContractDto contract = contractService.get(parentContract);
+						this.getBean().updateContractBySlice(contract, slice, eventProperties);
+					}
 				}
 			}
 		}
 
-		boolean recalculateUsingAsContract = false;
 		UUID parentContract = slice.getParentContract();
 
 		if (originalSlice == null) {

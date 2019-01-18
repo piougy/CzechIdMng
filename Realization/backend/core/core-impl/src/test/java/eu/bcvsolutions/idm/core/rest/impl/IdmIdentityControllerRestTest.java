@@ -36,7 +36,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+<<<<<<< HEAD
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
+=======
+>>>>>>> 9.3.3
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -690,6 +693,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		Assert.assertEquals(1, identities.size());
 		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityTwo.getId())));
 	}
+<<<<<<< HEAD
 	
 	@Test
 	public void testGetIncompatibleRolesWithoutRemovedInConcept() throws Exception {
@@ -736,4 +740,6 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 					return ir.getSuperior().equals(roleThree.getId()) && ir.getSub().equals(roleFour.getId());
 				}));
 	}
+=======
+>>>>>>> 9.3.3
 }

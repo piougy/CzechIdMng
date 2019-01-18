@@ -931,11 +931,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		slices.forEach(slice -> {
 			contractSliceService.delete(slice);
 		});
-<<<<<<< HEAD
 		identityService.delete(identity);
-=======
-
->>>>>>> 9.3.3
 	}
 
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType,

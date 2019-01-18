@@ -37,69 +37,90 @@ public class AssignedRoleDto extends AbstractDto implements ValidableEntity {
 	private IdmIdentityRoleDto directRole; // direct identity role
 	private IdmRoleCompositionDto roleComposition; // direct role
 	private Map<String, List<Object>> attributes;
+
 	public String getExternalId() {
 		return externalId;
 	}
+
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
 	}
+
 	public IdmIdentityContractDto getIdentityContract() {
 		return identityContract;
 	}
+
 	public void setIdentityContract(IdmIdentityContractDto identityContract) {
 		this.identityContract = identityContract;
 	}
+
 	public IdmContractPositionDto getContractPosition() {
 		return contractPosition;
 	}
+
 	public void setContractPosition(IdmContractPositionDto contractPosition) {
 		this.contractPosition = contractPosition;
 	}
+
 	public IdmRoleDto getRole() {
 		return role;
 	}
+
 	public void setRole(IdmRoleDto role) {
 		this.role = role;
 	}
+
 	public LocalDate getValidFrom() {
 		return validFrom;
 	}
+
 	public void setValidFrom(LocalDate validFrom) {
 		this.validFrom = validFrom;
 	}
+
 	public LocalDate getValidTill() {
 		return validTill;
 	}
+
 	public void setValidTill(LocalDate validTill) {
 		this.validTill = validTill;
 	}
+
 	public AbstractIdmAutomaticRoleDto getRoleTreeNode() {
 		return roleTreeNode;
 	}
+
 	public void setRoleTreeNode(AbstractIdmAutomaticRoleDto roleTreeNode) {
 		this.roleTreeNode = roleTreeNode;
 	}
+
 	public IdmIdentityRoleDto getDirectRole() {
 		return directRole;
 	}
+
 	public void setDirectRole(IdmIdentityRoleDto directRole) {
 		this.directRole = directRole;
 	}
+
 	public IdmRoleCompositionDto getRoleComposition() {
 		return roleComposition;
 	}
+
 	public void setRoleComposition(IdmRoleCompositionDto roleComposition) {
 		this.roleComposition = roleComposition;
 	}
+
 	public Map<String, List<Object>> getAttributes() {
 		if (attributes == null) {
 			attributes = new HashMap<>();
 		}
 		return attributes;
 	}
+
 	public void setAttributes(Map<String, List<Object>> attributes) {
 		this.attributes = attributes;
 	}
+
 	@Override
 	public String toString() {
 		return "AssignedRoleDto [externalId=" + externalId + ", identityContract=" + identityContract

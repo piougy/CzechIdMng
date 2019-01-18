@@ -101,48 +101,44 @@ class RoleFormAttributes extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={ this.i18n('title') } />
-            <Basic.AbstractForm
-              ref="form"
-              data={entity}
-              showLoading={ _showLoading }
-              readOnly={ !roleManager.canSave(entity, _permissions) }>
-              <div style={{ display: 'flex' }}>
-                <div style={{ flex: 1 }}>
-                  <Basic.SelectBox
-                    ref="identityRoleAttributeDefinition"
-                    manager={formDefinitionManager}
-                    forceSearchParameters={identityRoleAttributeForceSearch}
-                    label={this.i18n('entity.Role.identityRoleAttributeDefinition.label')}
-                    helpBlock={this.i18n('entity.Role.identityRoleAttributeDefinition.help')}/>
-                </div>
-                <Basic.LabelWrapper
-                  ref="buttonSave"
-                  label=" "
-                  >
-                    <Basic.Button
-                      type="button"
-                      style={{marginTop: 6}}
-                      level="success"
-                      title={ this.i18n('button.saveAndContinue') }
-                      onClick={ this.save.bind(this, 'CONTINUE') }
-                      showLoading={ _showLoading }
-                      showLoadingIcon
-                      showLoadingText={ this.i18n('button.saving') }
-                      rendered={ roleManager.canSave(entity, _permissions) }>
-                      {this.i18n('button.save')}
-                    </Basic.Button>
-                </Basic.LabelWrapper>
+        <Basic.ContentHeader text={ this.i18n('entity.Role.identityRoleAttributeDefinition.label') } style={{ marginBottom: 0 }}/>
+        <Basic.AbstractForm
+          ref="form"
+          data={entity}
+          showLoading={ _showLoading }
+          readOnly={ !roleManager.canSave(entity, _permissions) }>
+          <div style={{ display: 'flex' }}>
+            <div style={{ flex: 1 }}>
+              <Basic.SelectBox
+                ref="identityRoleAttributeDefinition"
+                manager={formDefinitionManager}
+                forceSearchParameters={identityRoleAttributeForceSearch}
+                label={ null }
+                helpBlock={this.i18n('entity.Role.identityRoleAttributeDefinition.help')}/>
             </div>
-          </Basic.AbstractForm>
-          <Basic.Div rendered={entity.identityRoleAttributeDefinition}>
-            <Basic.ContentHeader icon="fa:th-list" text={ this.i18n('content.role.formAttributes.header') } style={{ marginBottom: 0 }}/>
-            <RoleFormAttributeTable
-              uiKey="role-form-attributes-table"
-              forceSearchParameters={ forceSearchParameters }
-              className="no-margin"
-              formDefinition={entity.identityRoleAttributeDefinition}
-              params={ this.props.params }/>
-          </Basic.Div>
+            <Basic.Button
+              type="button"
+              style={{ marginLeft: 3 }}
+              level="success"
+              title={ this.i18n('button.saveAndContinue') }
+              onClick={ this.save.bind(this, 'CONTINUE') }
+              showLoading={ _showLoading }
+              showLoadingIcon
+              showLoadingText={ this.i18n('button.saving') }
+              rendered={ roleManager.canSave(entity, _permissions) }>
+              {this.i18n('button.save')}
+            </Basic.Button>
+          </div>
+        </Basic.AbstractForm>
+        <Basic.Div rendered={entity.identityRoleAttributeDefinition}>
+          <Basic.ContentHeader icon="fa:th-list" text={ this.i18n('content.role.formAttributes.header') } style={{ marginBottom: 0 }}/>
+          <RoleFormAttributeTable
+            uiKey="role-form-attributes-table"
+            forceSearchParameters={ forceSearchParameters }
+            className="no-margin"
+            formDefinition={entity.identityRoleAttributeDefinition}
+            params={ this.props.params }/>
+        </Basic.Div>
       </div>
     );
   }

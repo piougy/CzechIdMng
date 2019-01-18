@@ -55,7 +55,7 @@ export class IncompatibleRoleTable extends Advanced.AbstractTableContent {
 
   afterSave(entity, error) {
     if (!error) {
-      this.addMessage({ level: 'info', message: this.i18n('save.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+      this.addMessage({ level: 'success', message: this.i18n('save.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
     }
     //
     super.afterSave(entity, error);

@@ -816,7 +816,7 @@ public class DefaultFormService implements FormService {
 		FormableEntity ownerEntity = getOwnerEntity(owner);
 		// Definition will be reloaded only if is given definition trimmed (we need to not reloading the definition in case use the sub-definition (role-attributes))
 		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
-		if(formDefinition.isTrimmed()) {
+		if (formDefinition.isTrimmed()) {
 			formDefinition = getDefinition(formDefinition.getId()); // load => prevent to modify input definition
 		}
 		FormValueService<FormableEntity> formValueService = getFormValueService(owner);

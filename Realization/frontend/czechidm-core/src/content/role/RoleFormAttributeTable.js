@@ -127,6 +127,26 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
             property="defaultValue"
             face="text"
             header={ this.i18n('entity.RoleFormAttribute.defaultValue.label') }/>
+          <Advanced.Column
+            property="required"
+            face="bool"
+            header={ this.i18n('entity.FormAttribute.required') }/>
+          <Advanced.Column
+            property="unique"
+            face="bool"
+            header={ this.i18n('entity.FormAttribute.unique.label') }/>
+          <Advanced.Column
+            property="regex"
+            face="text"
+            header={ this.i18n('entity.FormAttribute.regex.label') }/>
+          <Advanced.Column
+            property="min"
+            face="text"
+            header={ this.i18n('entity.FormAttribute.min.label') }/>
+          <Advanced.Column
+            property="max"
+            face="text"
+            header={ this.i18n('entity.FormAttribute.max.label') }/>
         </Advanced.Table>
 
         <Basic.Modal

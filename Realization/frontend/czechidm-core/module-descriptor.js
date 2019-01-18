@@ -313,6 +313,15 @@ module.exports = {
                 'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
               },
               {
+                'id': 'role-form-attributes',
+                'type': 'TAB',
+                'labelKey': 'content.role.formAttributes.title',
+                'icon': 'fa:th-list',
+                'order': 115,
+                'path': '/role/:entityId/form-attributes',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
+              },
+              {
                 'id': 'role-compositions',
                 'type': 'TAB',
                 'icon': 'fa:universal-access',
@@ -339,15 +348,6 @@ module.exports = {
                 'order': 130,
                 'path': '/role/:entityId/guarantees',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
-              },
-              {
-                'id': 'role-form-attributes',
-                'type': 'TAB',
-                'labelKey': 'content.role.formAttributes.title',
-                'icon': 'fa:th-list',
-                'order': 500,
-                'path': '/role/:entityId/form-attributes',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
               },
               {
                 'id': 'role-catalogue-roles',
@@ -498,7 +498,7 @@ module.exports = {
                 'type': 'TAB',
                 'labelKey': 'content.role.formAttributes.title',
                 'icon': 'fa:th-list',
-                'order': 500,
+                'order': 115,
                 'path': 'requests/:requestId/role/:entityId/form-attributes',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
               },

@@ -324,18 +324,18 @@ class RoleDetail extends Basic.AbstractContent {
             }
             className="bordered">
               <Basic.ContentHeader style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}>
-                <Basic.Icon type="fa" icon="universal-access"/>
+                <Basic.Icon type="fa" icon="key"/>
                 {' '}
                 <span dangerouslySetInnerHTML={{ __html: this.i18n('content.requests.header') }}/>
               </Basic.ContentHeader>
-                <RequestTable
-                  ref="table"
-                  uiKey={uiKeyRoleRequest}
-                  forceSearchParameters={ requestsForceSearch }
-                  showFilter={false}
-                  showLoading={_showLoading}
-                  manager={requestManager}
-                  columns= {['state', 'created', 'modified', 'wf', 'detail']}/>
+              <RequestTable
+                ref="table"
+                uiKey={uiKeyRoleRequest}
+                forceSearchParameters={ requestsForceSearch }
+                showFilter={false}
+                showLoading={_showLoading}
+                manager={requestManager}
+                columns= {['state', 'created', 'modified', 'wf', 'detail']}/>
           </Basic.Tab>
         </Basic.Tabs>
       </div>

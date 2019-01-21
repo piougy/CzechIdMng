@@ -69,7 +69,7 @@ export class RoleInfo extends AbstractEntityInfo {
    * @param  {object} entity
    */
   getEntityIcon() {
-    return 'fa:universal-access';
+    return 'fa:key';
   }
 
   /**

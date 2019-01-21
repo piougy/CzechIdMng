@@ -164,6 +164,10 @@ public class DefaultIdmRoleRequestService
 			predicates.add(builder.equal(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.username),
 					filter.getApplicant()));
 		}
+		UUID creatorId = filter.getCreatorId();
+		if (creatorId != null) {
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.creatorId), creatorId));
+		}
 		//
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(IdmRoleRequest_.state), filter.getState()));

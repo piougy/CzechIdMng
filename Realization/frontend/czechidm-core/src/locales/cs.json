@@ -887,6 +887,15 @@
     },
     "longRunningTaskDashboard": {
       "header": "Vytvořené dlouhotrvající úlohy"
+    },
+    "role-request": {
+      "header": "Žádosti o změnu rolí",
+      "creator": {
+        "header": "Žádosti, které jsem vytvořil"
+      },
+      "applicant": {
+        "header": "Žádosti vytvořené pro mě"
+      }
     }
   },
   "permission": {
@@ -937,7 +946,7 @@
       "NOTIFICATIONCONFIGURATION": "Notifikace - konfigurace",
       "NOTIFICATIONTEMPLATE": "Notifikace - šablony",
       "PASSWORDPOLICY": "Politiky hesel",
-      "ROLEREQUEST": "Agenda žádostí pro přiřazení rolí",
+      "ROLEREQUEST": "Agenda žádostí pro změnu rolí",
       "REQUEST": "Agenda žádostí (univerzální)",
       "REQUESTITEM": "Agenda žádostí - položky žádosti (univerzální)",
       "SCHEDULER": "Nastavení plánovače",
@@ -1909,11 +1918,11 @@
       }
     },
     "roleRequests": {
-      "header": "Žádosti o změnu oprávnění",
+      "header": "Žádosti o změnu rolí",
       "title": "Žádosti o role",
       "applicant": "Žádost pro uživatele",
       "create": {
-        "header": "Vytvořit novou žádost o změnu oprávnění"
+        "header": "Vytvořit novou žádost o změnu rolí"
       },
       "button": {
         "createRequest": "Vytvořit žádost",
@@ -1948,8 +1957,8 @@
 
     },
     "roleRequestDetail": {
-      "header": "Žádost o změnu oprávnění",
-      "title": "Změny oprávnění",
+      "header": "Žádost o změnu rolí",
+      "title": "Změny přiřazených rolí",
       "conceptHeader": "Požadované změny oprávnění",
       "conceptWithCurrentRoleHeader": "Aktuálně přiřazené role (včetně požadovaných změn)",
       "save": {
@@ -2374,7 +2383,7 @@
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
-        "changePermissions": "Změnit oprávnění",
+        "changePermissions": "Žádost o změnu rolí",
         "authorities": "Přidělená oprávnění <small>dle přiřazených rolí</small>",
         "changeRoleProcesses": {
           "header": "Role čekající na schválení",

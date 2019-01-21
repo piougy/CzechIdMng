@@ -148,7 +148,7 @@ class IdentityDashboard extends Basic.AbstractContent {
             text={ this.i18n('component.advanced.IdentityInfo.link.detail.label') }
             rendered={ identityManager.canRead(identity, _permissions) } />
           <Basic.Button
-            icon="ok"
+            icon="lock"
             className="btn-large"
             text={ this.i18n('content.password.change.header') }
             onClick={ this.onPasswordChange.bind(this) }

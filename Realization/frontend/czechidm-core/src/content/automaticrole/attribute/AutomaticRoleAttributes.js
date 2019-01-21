@@ -21,8 +21,8 @@ export default class AutomaticRoleAttributes extends Basic.AbstractContent {
     return 'content.automaticRoles.attribute';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['roles-menu', 'automatic-roles', 'automatic-role-attribute']);
+  getNavigationKey() {
+    return 'automatic-role-attribute';
   }
 
   render() {

@@ -38,6 +38,11 @@
     "react-select": "1.2.1"
   },
   "peerDependencies": {
+    "@fortawesome/fontawesome-free": "5.6.3",
+    "@fortawesome/fontawesome-svg-core": "1.2.12",
+    "@fortawesome/free-regular-svg-icons": "5.6.3",
+    "@fortawesome/free-solid-svg-icons": "5.6.3",
+    "@fortawesome/react-fontawesome": "0.1.4",
     "eslint": "^1.10.3",
     "gulp-mocha": "2.2.0",
     "eslint-config-airbnb": "^0.1.1",
@@ -51,7 +56,6 @@
     "draft-js": "0.10.0",
     "draft-js-export-html": "0.5.2",
     "es6-promise": "3.1.2",
-    "font-awesome": "4.7.0",
     "i18next": "3.4.4",
     "i18next-browser-languagedetector": "1.0.1",
     "i18next-localstorage-cache": "0.3.0",

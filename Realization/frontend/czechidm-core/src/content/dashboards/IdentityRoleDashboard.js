@@ -32,7 +32,7 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
     return (
       <div>
         <Basic.ContentHeader
-          icon="fa:universal-access"
+          icon="fa:key"
           text={ this.i18n('content.identity.roles.directRoles.header') }
           buttons={
             identityManager.canRead(identity, permissions)

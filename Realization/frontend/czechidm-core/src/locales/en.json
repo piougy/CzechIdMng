@@ -856,6 +856,15 @@
     },
     "longRunningTaskDashboard": {
       "header": "Created long running tasks"
+    },
+    "role-request": {
+      "header": "Requests for change roles",
+      "creator": {
+        "header": "Requests, which I created"
+      },
+      "applicant": {
+        "header": "Requests for me"
+      }
     }
   },
   "permission": {
@@ -906,7 +915,7 @@
       "NOTIFICATIONCONFIGURATION": "Notifications - configuration",
       "NOTIFICATIONTEMPLATE": "Notifications - templates",
       "PASSWORDPOLICY": "Password policy",
-      "ROLEREQUEST": "Requests for assigned roles",
+      "ROLEREQUEST": "Requests for change roles",
       "REQUEST": "Requests (universal)",
       "REQUESTITEM": "Requests - items (universal)",
       "SCHEDULER": "Scheduler",
@@ -1862,10 +1871,10 @@
     },
     "roleRequests": {
       "header": "Requests for roles",
-      "title": "Requests for roles",
+      "title": "Requests for change roles",
       "applicant": "Applicant",
       "create": {
-        "header": "Create new request to change the permissions"
+        "header": "Create new request to change assigned roles"
       },
       "button": {
         "createRequest": "Create request",
@@ -1899,18 +1908,18 @@
       }
     },
     "roleRequestDetail": {
-      "header": "Request to change permissions",
-      "title": "Change permissions",
-      "conceptHeader": "Requested change of permissions",
+      "header": "Request to change roles",
+      "title": "Change assigned roles",
+      "conceptHeader": "Requested change of assigned roles",
       "conceptWithCurrentRoleHeader": "Current assigned roles (includes requested changes)",
       "save": {
-        "success": "Request to change permissions successfully saved",
+        "success": "Request to change assigned roles successfully saved",
         "start": "Execute request"
       },
       "button": {
         "createRequest":{
           "label": "Submit a request",
-          "tooltip": "Start request for change permissions."
+          "tooltip": "Start request for change assigned roles."
         }
       },
       "confirm-incompatible-role": {

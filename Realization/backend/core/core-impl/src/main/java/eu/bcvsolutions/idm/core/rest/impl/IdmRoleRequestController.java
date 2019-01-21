@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -449,6 +450,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
 		filter.setStates(getParameterConverter().toEnums(parameters, "states", RoleRequestState.class));
 		filter.setApplicants(getParameterConverter().toUuids(parameters, "applicants"));
+		filter.setCreatorId(getParameterConverter().toEntityUuid(parameters, "creator", IdmIdentityDto.class));
 		return filter;
 	}
 

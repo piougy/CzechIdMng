@@ -21,8 +21,8 @@ export default class AutomaticRoleTrees extends Basic.AbstractContent {
     return 'content.automaticRoles.tree';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['roles-menu', 'automatic-roles', 'automatic-role-tree']);
+  getNavigationKey() {
+    return 'automatic-role-tree';
   }
 
   render() {

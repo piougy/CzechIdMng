@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.model.event.IncompatibleRoleEvent.IncompatibleRo
  * Persists incompatible role
  * 
  * @author Radek Tomiška
- * @since 9.0.0
+ * @since 9.4.0
  */
 @Component(IncompatibleRoleSaveProcessor.PROCESSOR_NAME)
 @Description("Persists incompatible role.")

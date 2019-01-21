@@ -503,6 +503,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	}
 	
 	/**
+	 * Returns identity roles
 	 * 
 	 * @param backendId
 	 * @return

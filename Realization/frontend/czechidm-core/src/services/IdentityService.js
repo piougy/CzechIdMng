@@ -36,8 +36,9 @@ class IdentityService extends FormableEntityService {
         return entity.username;
       }
       toString += this.getFullName(entity);
-      toString += (entity.username ? ` (${entity.username})` : '');
-      toString += (entity.externalCode ? ` (${entity.externalCode})` : '');
+      toString += ` (${ entity.username }`;
+      toString += (entity.externalCode ? `, ${entity.externalCode}` : '');
+      toString += `)`;
     }
     return toString;
   }
@@ -111,6 +112,27 @@ class IdentityService extends FormableEntityService {
   getRoles(username, token = null) {
     return RestApiService
     .get(this.getApiPath() + `/${encodeURIComponent(username)}/roles`, token)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  /**
+   * Incompatible roles are resolved from currently assigned identity roles
+   *
+   * @param username {string}
+   * @param token {string}
+   * @return {Promise}
+   */
+  getIncompatibleRoles(username, token = null) {
+    return RestApiService
+    .get(this.getApiPath() + `/${encodeURIComponent(username)}/incompatible-roles`, token)
     .then(response => {
       return response.json();
     })

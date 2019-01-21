@@ -207,8 +207,11 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
         return 'fa:magic';
       } else if (identityRole.directRole) {
         return 'fa:arrow-down';
+      } else if (identityRole._embedded.role.childrenCount > 0) {
+        // TODO: component:business-role
+        return 'fa:key';
       }
-      return 'fa:universal-access';
+      return 'fa:key';
     }
   }
 

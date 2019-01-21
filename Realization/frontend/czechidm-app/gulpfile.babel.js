@@ -34,7 +34,8 @@ require('babel/register');
 const paths = {
   bundle: 'app.js',
   srcJs: ['node_modules/bootstrap-less/js/bootstrap.min.js', 'node_modules/jquery/dist/jquery.min.js'],
-  srcFont: ['node_modules/bootstrap-less/fonts/*', 'src/fonts/*', 'node_modules/font-awesome/fonts/*'],
+  srcFont: ['node_modules/bootstrap-less/fonts/*', 'src/fonts/*'],
+  srcWebFont: [ 'node_modules/@fortawesome/fontawesome-free/webfonts/*' ],
   srcJsx: 'src/Index.js',
   srcLess: ['src/css/main.less'],
   srcIncludedLess: [],
@@ -52,6 +53,7 @@ const paths = {
   distImg: 'dist/images',
   distCss: 'dist/css',
   distFont: 'dist/fonts',
+  distWebFont: 'dist/webfonts',
   distLocale: 'dist/locales',
   distThemes: 'dist/themes',
   distModule: 'dist/modules',
@@ -500,6 +502,11 @@ gulp.task('fonts', () => {
     .pipe(gulp.dest(paths.distFont));
 });
 
+gulp.task('webfonts', () => {
+  return gulp.src(paths.srcWebFont)
+    .pipe(gulp.dest(paths.distWebFont));
+});
+
 /**
  * Load locales form modules and copy them to dist.
  */
@@ -574,18 +581,18 @@ gulp.task('install', cb => {
 
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
+  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'webfonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
 });
 
 gulp.task('watch-nosync', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserNoSync', 'watchTask', 'watchify', cb);
+  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'webfonts', 'loadModuleLocales', 'browserNoSync', 'watchTask', 'watchify', cb);
 });
 
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserify', cb);
+  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'webfonts', 'loadModuleLocales', 'browserify', cb);
 });
 
 gulp.task('default', ['watch']);

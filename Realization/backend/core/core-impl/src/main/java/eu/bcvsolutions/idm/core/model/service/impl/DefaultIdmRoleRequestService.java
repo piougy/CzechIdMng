@@ -164,6 +164,10 @@ public class DefaultIdmRoleRequestService
 			predicates.add(builder.equal(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.username),
 					filter.getApplicant()));
 		}
+		UUID creatorId = filter.getCreatorId();
+		if (creatorId != null) {
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.creatorId), creatorId));
+		}
 		//
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(IdmRoleRequest_.state), filter.getState()));
@@ -561,6 +565,9 @@ public class DefaultIdmRoleRequestService
 
 	@Override
 	public IdmRoleRequest toEntity(IdmRoleRequestDto dto, IdmRoleRequest entity) {
+		if (dto == null) {
+			return null;
+		}
 		// Set persisted value to read only properties
 		// TODO: Create converter for skip fields mark as read only
 		if (dto.getId() != null) {
@@ -583,9 +590,8 @@ public class DefaultIdmRoleRequestService
 		} else {
 			dto.setState(RoleRequestState.CONCEPT);
 		}
-
+		//
 		return super.toEntity(dto, entity);
-
 	}
 
 	private boolean isDuplicated(IdmRoleRequestDto request, IdmRoleRequestDto duplicant) {

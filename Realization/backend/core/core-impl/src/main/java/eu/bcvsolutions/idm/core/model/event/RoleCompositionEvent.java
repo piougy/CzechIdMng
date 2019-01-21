@@ -18,12 +18,12 @@ public class RoleCompositionEvent extends CoreEvent<IdmRoleCompositionDto> {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Supported core identity events
+	 * Supported event types
 	 *
 	 */
 	public enum RoleCompositionEventType implements EventType {
 		CREATE, 
-		UPDATE, // prolong expiration / disable
+		UPDATE,
 		DELETE,
 		NOTIFY
 	}

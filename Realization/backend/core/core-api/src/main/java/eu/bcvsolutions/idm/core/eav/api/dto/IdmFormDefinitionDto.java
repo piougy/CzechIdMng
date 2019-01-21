@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Niceable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 
@@ -28,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
  *
  */
 @Relation(collectionRelation = "formDefinitions")
-public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEntity {
+public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEntity, Niceable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -211,5 +212,10 @@ public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEnt
 
 	public void setModule(String module) {
 		this.module = module;
+	}
+	
+	@Override
+	public String getNiceLabel() {
+		return getCode();
 	}
 }

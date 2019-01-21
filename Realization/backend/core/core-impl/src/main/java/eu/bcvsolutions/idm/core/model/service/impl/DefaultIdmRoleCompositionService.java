@@ -14,6 +14,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -75,6 +76,17 @@ public class DefaultIdmRoleCompositionService
 	}
 	
 	@Override
+	public List<IdmRoleCompositionDto> findAllSubRoles(UUID superiorId, BasePermission... permission) {
+		Assert.notNull(superiorId);
+		//
+		List<IdmRoleCompositionDto> results = new ArrayList<>();
+		//
+		findAllSubRoles(results, superiorId, permission);
+		//
+		return results;
+	}
+	
+	@Override
 	public List<IdmRoleCompositionDto> findAllSuperiorRoles(UUID subId, BasePermission... permission) {
 		Assert.notNull(subId);
 		//
@@ -83,20 +95,6 @@ public class DefaultIdmRoleCompositionService
 		findAllSuperiorRoles(results, subId, permission);
 		//
 		return results;
-	}
-	
-	private void findAllSuperiorRoles(List<IdmRoleCompositionDto> results, UUID subId, BasePermission... permission) {
-		IdmRoleCompositionFilter filter = new IdmRoleCompositionFilter();
-		filter.setSubId(subId);
-		//
-		find(filter, null, permission)
-			.forEach(superiorRole -> {
-				if (!results.contains(superiorRole)) {
-					results.add(superiorRole);
-					//
-					findAllSuperiorRoles(results, superiorRole.getSuperior(), permission);
-				}				
-			});
 	}
 	
 	/**
@@ -202,6 +200,22 @@ public class DefaultIdmRoleCompositionService
 	}
 	
 	@Override
+	public Set<UUID> getDistinctRoles(List<IdmRoleCompositionDto> compositions) {
+		Set<UUID> results = new HashSet<>();
+		//
+		if (CollectionUtils.isEmpty(compositions)) {
+			return results;
+		}
+		//
+		compositions.forEach(composition -> {
+			results.add(composition.getSuperior());
+			results.add(composition.getSub());
+		});
+		//
+		return results;
+	}
+	
+	@Override
 	protected List<Predicate> toPredicates(Root<IdmRoleComposition> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			IdmRoleCompositionFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
@@ -219,6 +233,34 @@ public class DefaultIdmRoleCompositionService
 		}		
 		//
 		return predicates;
+	}
+	
+	private void findAllSuperiorRoles(List<IdmRoleCompositionDto> results, UUID subId, BasePermission... permission) {
+		IdmRoleCompositionFilter filter = new IdmRoleCompositionFilter();
+		filter.setSubId(subId);
+		//
+		find(filter, null, permission)
+			.forEach(superiorRole -> {
+				if (!results.contains(superiorRole)) {
+					results.add(superiorRole);
+					//
+					findAllSuperiorRoles(results, superiorRole.getSuperior(), permission);
+				}				
+			});
+	}
+	
+	private void findAllSubRoles(List<IdmRoleCompositionDto> results, UUID superiorId, BasePermission... permission) {
+		IdmRoleCompositionFilter filter = new IdmRoleCompositionFilter();
+		filter.setSuperiorId(superiorId);
+		//
+		find(filter, null, permission)
+			.forEach(subRole -> {
+				if (!results.contains(subRole)) {
+					results.add(subRole);
+					//
+					findAllSubRoles(results, subRole.getSub(), permission);
+				}				
+			});
 	}
 	
 	/**

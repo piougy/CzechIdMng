@@ -9,6 +9,10 @@ export default class ContractAttributeEnum extends AbstractEnum {
     return super.getNiceLabel(`core:enums.ContractAttributeEnum.${key}`);
   }
 
+  static getHelpBlockLabel(key) {
+    return super.getNiceLabel(`core:enums.ContractAttributeEnum.helpBlock.${key}`);
+  }
+
   static findKeyBySymbol(sym) {
     return super.findKeyBySymbol(this, sym);
   }

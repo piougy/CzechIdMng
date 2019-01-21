@@ -59,8 +59,6 @@ class CodeListRoutes extends Basic.AbstractContent {
           (this._getIsNew() || !entity )
           ||
           <Basic.PageHeader>
-            <Basic.Icon value="fa:wpforms"/>
-            {' '}
             <span>{ manager.getNiceLabel(entity) } <small>{ this.i18n('edit.title') }</small></span>
           </Basic.PageHeader>
         }

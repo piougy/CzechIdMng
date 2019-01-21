@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -27,22 +27,31 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
@@ -77,6 +86,10 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	private FormService formService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptService;
+	@Autowired 
+	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmIncompatibleRoleService incompatibleRoleService;
 
 	@Autowired
 	public IdmRoleRequestController(IdmRoleRequestService service,
@@ -118,6 +131,24 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	public Resources<?> findQuick(@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.findQuick(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countRoleRequests", 
+			tags = { IdmRoleRequestController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
 	}
 
 	@Override
@@ -216,7 +247,10 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	public ResponseEntity<?> delete(
 			@ApiParam(value = "Role request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
 		IdmRoleRequestService service = ((IdmRoleRequestService) this.getService());
-		IdmRoleRequestDto dto = service.get(backendId);
+		IdmRoleRequestDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
 		//
 		checkAccess(dto, IdmBasePermission.DELETE);
 		//
@@ -302,6 +336,65 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 				IdmRoleRequestDto.class);
 	}
 	
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/incompatible-roles", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_READ + "')")
+	@ApiOperation(
+			value = "Incompatible roles related to this request", 
+			nickname = "getRoleRequestIncompatibleRoles", 
+			tags = { IdmRoleRequestController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") })
+				},
+			notes = "Incompatible roles are resolved from currently assigned identity roles (which can logged used read) and the current request concepts.")
+	public Resources<?> getIncompatibleRoles(
+			@ApiParam(value = "Role request's uuid identifier.", required = true)
+			@PathVariable String backendId) {	
+		IdmRoleRequestDto entity = getDto(backendId);
+		if (entity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		// currently assigned roles
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityId(entity.getApplicant());		
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null, IdmBasePermission.READ).getContent();
+		// roles from concepts
+		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
+		conceptFilter.setRoleRequestId(entity.getId());
+		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestController.find(conceptFilter, null, IdmBasePermission.READ).getContent();
+		Set<UUID> removedIdentityRoleIds = new HashSet<>();
+		//
+		Set<UUID> roleIds = new HashSet<>();
+		concepts
+			.stream()
+			.filter(concept -> {
+				boolean isDelete = concept.getOperation() == ConceptRoleRequestOperation.REMOVE;
+				if (isDelete) {
+					// removed role fixes the incompatibility
+					removedIdentityRoleIds.add(concept.getIdentityRole());
+				}
+				return !isDelete;
+			})
+			.forEach(concept -> {
+				roleIds.add(concept.getRole());
+			});
+		identityRoles
+			.stream()
+			.filter(identityRole -> {
+				return !removedIdentityRoleIds.contains(identityRole.getId());
+			})
+			.forEach(identityRole -> {
+				roleIds.add(identityRole.getRole());
+			});
+		//
+		Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(Lists.newArrayList(roleIds));
+		//
+		return toResources(incompatibleRoles, ResolvedIncompatibleRoleDto.class);
+	}
+	
 	private void addMetadataToConcepts(ResponseEntity<?> response) {
 		if(response != null && response.getBody() instanceof Resource) {
 			@SuppressWarnings("unchecked")
@@ -324,7 +417,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 					List<InvalidFormAttributeDto> validationResults = formService.validate(formInstanceDto);
 					if (validationResults != null && !validationResults.isEmpty()) {
 						// Concept is not valid (no other metadata for validation problem is not
-						// necessary now)
+						// necessary now).
 						concept.setValid(false);
 					}
 				}
@@ -335,7 +428,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 
 	@Override
 	protected IdmRoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmRoleRequestFilter filter = new IdmRoleRequestFilter();
+		IdmRoleRequestFilter filter = new IdmRoleRequestFilter(parameters);
 		filter.setApplicant(getParameterConverter().toString(parameters, "applicant"));
 		filter.setApplicantId(getParameterConverter().toUuid(parameters, "applicantId"));
 		filter.setCreatedFrom(getParameterConverter().toDateTime(parameters, "createdFrom"));
@@ -348,13 +441,14 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 				filter.setApplicantId(UUID.fromString(filter.getApplicant()));
 				filter.setApplicant(null);
 			} catch (IllegalArgumentException ex) {
-				// ok applicant is not UUID
+				// Ok applicant is not UUID
 			}
 		}
 		// TODO: remove redundant state field
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
 		filter.setStates(getParameterConverter().toEnums(parameters, "states", RoleRequestState.class));
 		filter.setApplicants(getParameterConverter().toUuids(parameters, "applicants"));
+		filter.setCreatorId(getParameterConverter().toEntityUuid(parameters, "creator", IdmIdentityDto.class));
 		return filter;
 	}
 

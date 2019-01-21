@@ -15,5 +15,5 @@ const TopManagerRoot = _.merge({}, DataManagerRoot, {
   FlashMessagesManager
 });
 
-TopManagerRoot.version = '0.0.1';
+TopManagerRoot.version = '9.4.0';
 module.exports = TopManagerRoot;

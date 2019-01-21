@@ -228,8 +228,10 @@ class RoleTable extends Advanced.AbstractTableContent {
                         header={ this.i18n('entity.Role.roleCatalogue.name') }/>
                     </Basic.Col>
                     <Basic.Col lg={ 4 }>
-                      <Advanced.Filter.TextField
+                      <Advanced.CodeListSelect
                         ref="environment"
+                        code="environment"
+                        label={ null }
                         placeholder={ this.i18n('entity.Role.environment.label') }/>
                     </Basic.Col>
                   </Basic.Row>

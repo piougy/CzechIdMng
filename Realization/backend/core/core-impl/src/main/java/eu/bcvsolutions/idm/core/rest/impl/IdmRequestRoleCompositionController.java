@@ -264,7 +264,7 @@ public class IdmRequestRoleCompositionController extends AbstractRequestDtoContr
 			value = "What logged identity can do with given record", 
 			nickname = "getPermissionsOnRoleComposition", 
 			tags = { IdmRequestRoleCompositionController.TAG }, 
-			authorizations = { 
+			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.ROLECOMPOSITION_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 

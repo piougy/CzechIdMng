@@ -7,11 +7,16 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.generator.AbstractValueGenerator;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -32,6 +37,10 @@ public abstract class AbstractRoleParametrizationFormDefaultValueGenerator<DTO e
 
 	@Autowired
 	protected IdmFormDefinitionService formDefinitionService;
+	@Autowired
+	private IdmRoleService roleService;
+	@Autowired
+	private IdmRoleFormAttributeService roleFormAttributeService;
 
 	protected IdmFormInstanceDto getDefaultValuesByRoleDefinition(IdmRoleDto roleDto,
 			IdmGenerateValueDto valueGenerator, IdmFormInstanceDto existingEavs, DTO dto) {
@@ -42,14 +51,14 @@ public abstract class AbstractRoleParametrizationFormDefaultValueGenerator<DTO e
 			return null;
 		}
 
-		// BIG TODO: form definition will not exist please support each attribute, or?
-		IdmFormDefinitionDto definition = formDefinitionService.get(formDefinitionId);
+		IdmFormDefinitionDto definition = roleService.getFormAttributeSubdefinition(roleDto);
 		// Internal behavior #getValuesFromInstances wants default form value
 
 		List<IdmFormValueDto> values = new ArrayList<>();
 		for (IdmFormAttributeDto attribute : definition.getFormAttributes()) {
+			String defaultValue = getDefaultValue(attribute, roleDto);
 			// check if exists default values
-			if (StringUtils.isEmpty((attribute.getDefaultValue()))) {
+			if (StringUtils.isEmpty(defaultValue)) {
 
 				// Check given values
 				List<IdmFormValueDto> existingValues = existingEavs == null ? null : existingEavs.getValues().stream() //
@@ -66,10 +75,10 @@ public abstract class AbstractRoleParametrizationFormDefaultValueGenerator<DTO e
 			if (valueGenerator.isRegenerateValue()) {
 				// For regenerate just create values by default values
 				String regex = this.getRegex(valueGenerator);
-				String[] defaultValues = attribute.getDefaultValue().split(regex);
-				for (String defaultValue : defaultValues) {
+				String[] defaultValues = defaultValue.split(regex);
+				for (String defValue : defaultValues) {
 					IdmFormValueDto value = new IdmFormValueDto(attribute);
-					value.setValue(defaultValue);
+					value.setValue(defValue);
 					values.add(value);
 				}
 			} else {
@@ -95,16 +104,16 @@ public abstract class AbstractRoleParametrizationFormDefaultValueGenerator<DTO e
 				if (attribute.isMultiple()) {
 					// Default value may be multiple, just iterate over value splited by regex
 					String regex = this.getRegex(valueGenerator);
-					String[] defaultValues = attribute.getDefaultValue().split(regex);
-					for (String defaultValue : defaultValues) {
+					String[] defaultValues = defaultValue.split(regex);
+					for (String defValue : defaultValues) {
 						IdmFormValueDto value = new IdmFormValueDto(attribute);
-						value.setValue(defaultValue);
+						value.setValue(defValue);
 						values.add(value);
 					}
 				} else {
 					// If is value single valued use it as is it
 					IdmFormValueDto value = new IdmFormValueDto(attribute);
-					value.setValue(attribute.getDefaultValue());
+					value.setValue(defaultValue);
 					values.add(value);
 				}
 				
@@ -112,6 +121,31 @@ public abstract class AbstractRoleParametrizationFormDefaultValueGenerator<DTO e
 		}
 
 		return new IdmFormInstanceDto(dto, definition, values);
+	}
+
+	/**
+	 * Return default value for given form-attribute. First try to find override
+	 * role-form-attribute. If exists, then return it's default value. If not, then
+	 * default value from given form-attribute will be returned.
+	 * 
+	 * @param attribute
+	 * @param role
+	 * @return
+	 */
+	private String getDefaultValue(IdmFormAttributeDto attribute, IdmRoleDto role) {
+		Assert.notNull(attribute);
+		Assert.notNull(role);
+
+		IdmRoleFormAttributeFilter roleFormAttributeFilter = new IdmRoleFormAttributeFilter();
+		roleFormAttributeFilter.setRole(role.getId());
+		roleFormAttributeFilter.setFormAttribute(attribute.getId());
+		List<IdmRoleFormAttributeDto> roleFormAttributes = roleFormAttributeService.find(roleFormAttributeFilter, null)
+				.getContent();
+		if (roleFormAttributes.size() > 0) {
+			return roleFormAttributes.get(0).getDefaultValue();
+		}
+
+		return attribute.getDefaultValue();
 	}
 
 	/**

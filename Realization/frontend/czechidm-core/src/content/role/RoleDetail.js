@@ -9,14 +9,13 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import RolePriorityEnum from '../../enums/RolePriorityEnum';
-import { RoleManager, SecurityManager, RequestManager, FormDefinitionManager } from '../../redux';
+import { RoleManager, SecurityManager, RequestManager } from '../../redux';
 import RequestTable from '../request/RequestTable';
 import SearchParameters from '../../domain/SearchParameters';
 
 let roleManager = null;
 const uiKeyRoleRequest = 'role-universal-request-table';
 const requestManager = new RequestManager();
-const formDefinitionManager = new FormDefinitionManager();
 
 /**
  * Role detail
@@ -186,8 +185,6 @@ class RoleDetail extends Basic.AbstractContent {
     requestsForceSearch = requestsForceSearch.setFilter('ownerId', entity.id ? entity.id : SearchParameters.BLANK_UUID);
     requestsForceSearch = requestsForceSearch.setFilter('ownerType', 'eu.bcvsolutions.idm.core.api.dto.IdmRoleDto');
     requestsForceSearch = requestsForceSearch.setFilter('states', ['IN_PROGRESS', 'CONCEPT', 'EXCEPTION']);
-
-    const identityRoleAttributeForceSearch = new SearchParameters().setFilter('type', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole');
     //
     return (
       <div>
@@ -216,6 +213,7 @@ class RoleDetail extends Basic.AbstractContent {
                           label={ this.i18n('entity.Role.baseCode.label') }
                           helpBlock={ this.i18n('entity.Role.baseCode.help') }
                           max={ 255 }
+                          required
                           onChange={ this._onChangeCode.bind(this) }/>
                       </Basic.Col>
                       <Basic.Col lg={ 8 }>
@@ -258,12 +256,6 @@ class RoleDetail extends Basic.AbstractContent {
                       label={this.i18n('entity.Role.priority')}
                       readOnly
                       required/>
-                    <Basic.SelectBox
-                      ref="identityRoleAttributeDefinition"
-                      manager={formDefinitionManager}
-                      forceSearchParameters={identityRoleAttributeForceSearch}
-                      label={this.i18n('entity.Role.identityRoleAttributeDefinition.label')}
-                      helpBlock={this.i18n('entity.Role.identityRoleAttributeDefinition.help')}/>
                     <Basic.Checkbox
                       ref="approveRemove"
                       label={this.i18n('entity.Role.approveRemove')}/>
@@ -332,18 +324,18 @@ class RoleDetail extends Basic.AbstractContent {
             }
             className="bordered">
               <Basic.ContentHeader style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}>
-                <Basic.Icon type="fa" icon="universal-access"/>
+                <Basic.Icon type="fa" icon="key"/>
                 {' '}
                 <span dangerouslySetInnerHTML={{ __html: this.i18n('content.requests.header') }}/>
               </Basic.ContentHeader>
-                <RequestTable
-                  ref="table"
-                  uiKey={uiKeyRoleRequest}
-                  forceSearchParameters={ requestsForceSearch }
-                  showFilter={false}
-                  showLoading={_showLoading}
-                  manager={requestManager}
-                  columns= {['state', 'created', 'modified', 'wf', 'detail']}/>
+              <RequestTable
+                ref="table"
+                uiKey={uiKeyRoleRequest}
+                forceSearchParameters={ requestsForceSearch }
+                showFilter={false}
+                showLoading={_showLoading}
+                manager={requestManager}
+                columns= {['state', 'created', 'modified', 'wf', 'detail']}/>
           </Basic.Tab>
         </Basic.Tabs>
       </div>

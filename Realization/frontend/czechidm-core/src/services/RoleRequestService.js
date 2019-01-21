@@ -73,6 +73,27 @@ class RoleRequestService extends AbstractService {
       });
   }
 
+  /**
+   * Incompatible roles are resolved from currently assigned identity roles (which can logged used read) and the current request concepts.
+   *
+   * @param requestId {string}
+   * @param token {string}
+   * @return {Promise}
+   */
+  getIncompatibleRoles(requestId, token = null) {
+    return RestApiService
+    .get(this.getApiPath() + `/${encodeURIComponent(requestId)}/incompatible-roles`, token)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
 }
 
 export default RoleRequestService;

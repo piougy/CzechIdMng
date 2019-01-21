@@ -782,7 +782,21 @@
       "DISABLED": "Disabled (boolean)",
       "GUARANTEES": "Guarantees (IdmIdentity - List of ids or usernames)",
       "POSITIONS": "Other positions (IdmTreeNode - List of ids or codes)",
-      "STATE": "State (ContractState - String)"
+      "STATE": "State (ContractState - String)",
+      "helpBlock": {
+        "IDENTITY": "",
+        "VALID_FROM": "",
+        "VALID_TILL": "",
+        "WORK_POSITION": "",
+        "POSITION": "",
+        "EXTERNE": "",
+        "MAIN": "",
+        "DESCRIPTION": "",
+        "DISABLED": "",
+        "GUARANTEES": "",
+        "POSITIONS": "",
+        "STATE": ""
+      }
     },
     "ContractSliceAttributeEnum": {
       "IDENTITY": "Owner (IdmIdentity - Id or username)",
@@ -797,7 +811,22 @@
       "DISABLED": "Disabled (boolean)",
       "GUARANTEES": "Guarantees (IdmIdentity - List of ids or usernames)",
       "STATE": "State (ContractState - String)",
-      "CONTRACT_CODE": "Code of the parent contract (String - same for all slices)"
+      "CONTRACT_CODE": "Code of the parent contract (String - same for all slices)",
+      "helpBlock": {
+        "IDENTITY": "",
+        "VALID_FROM": "",
+        "CONTRACT_VALID_FROM": "",
+        "CONTRACT_VALID_TILL": "",
+        "WORK_POSITION": "",
+        "POSITION": "",
+        "EXTERNE": "",
+        "MAIN": "",
+        "DESCRIPTION": "",
+        "DISABLED": "",
+        "GUARANTEES": "",
+        "STATE": "",
+        "CONTRACT_CODE": ""
+      }
     },
     "IdentityStateEnum": {
       "CREATED": "Created",
@@ -827,6 +856,15 @@
     },
     "longRunningTaskDashboard": {
       "header": "Created long running tasks"
+    },
+    "role-request": {
+      "header": "Requests for change roles",
+      "creator": {
+        "header": "Requests, which I created"
+      },
+      "applicant": {
+        "header": "Requests for me"
+      }
     }
   },
   "permission": {
@@ -840,7 +878,7 @@
       "DELETE": "Delete",
       "EXECUTE": "Execute",
       "PASSWORDCHANGE": "Password change",
-      "CHANGEPERMISSION": "Manage authorizations"
+      "CHANGEPERMISSION": "Change roles"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -862,7 +900,9 @@
       "ROLECATALOGUEROLE": "Role catalog - assigned roles",
       "ROLEGUARANTEE": "$t(entity.Role.guarantees) - by identity",
       "ROLEGUARANTEEROLE": "$t(entity.Role.guarantees) - by role",
+      "ROLEFORMATTRIBUTE": "Role attributes",
       "ROLECOMPOSITION": "Business roles definition",
+      "INCOMPATIBLEROLE": "Incompatible roles definition (Segregation of Duties)",
       "ROLETREENODE": "Automatic roles (organization structure)",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
@@ -875,7 +915,7 @@
       "NOTIFICATIONCONFIGURATION": "Notifications - configuration",
       "NOTIFICATIONTEMPLATE": "Notifications - templates",
       "PASSWORDPOLICY": "Password policy",
-      "ROLEREQUEST": "Requests for assigned roles",
+      "ROLEREQUEST": "Requests for change roles",
       "REQUEST": "Requests (universal)",
       "REQUESTITEM": "Requests - items (universal)",
       "SCHEDULER": "Scheduler",
@@ -1190,9 +1230,9 @@
         "implementerIdentifier": "Applicant",
         "successComplete": "Task {{name}} successfully solved.",
         "completeTaskConfirmTitle": "Confirmation of task completion",
-        "completeTaskConfirmDetail": "Do you really want this task to terminate?",
+        "completeTaskConfirmDetail": "Do you really want to settle this task?",
         "role": {
-          "currentRoles": "Currently assigned permissions",
+          "currentRoles": "Currently assigned roles",
           "conceptIdentityRoles": "Applicant's roles"
         }
       },
@@ -1209,8 +1249,8 @@
           "approved":"Task successfully approved",
           "disapproved": "Task successfully rejected",
           "confirmTaskApproveTitle": "Task approve confirmation",
-          "confirmTaskApprove": "Do you really want this task to approve?",
-          "confirmTaskDisapprove": "Do you really want this task to reject?",
+          "confirmTaskApprove": "Do you really want to approve this task?",
+          "confirmTaskDisapprove": "Do you really want to reject this task?",
           "confirmTaskDisapproveTitle": "Task reject confirmation"
         }
       },
@@ -1222,7 +1262,7 @@
         "oldValueNotExist": "Old value was empty",
         "create": {
           "header": "Add roles",
-          "headerByIdentity": "Add role by user"
+          "headerByIdentity": "Add roles by user"
         },
         "edit": {
           "header": "Edit roles"
@@ -1298,7 +1338,7 @@
       "title": "Users",
       "filter": {
         "name": {
-          "placeholder": "Username, personal number, surname, name, e-mail or note"
+          "placeholder": "Login, personal number, surname, name, e-mail or note"
         },
         "organization": {
           "label": "Org. structure",
@@ -1320,8 +1360,8 @@
         },
         "identifiers": {
           "label": "Identifiers",
-          "placeholder": "Identifiers - usernames or personal numbers. $t(content.identities.filter.identifiers.tooltip)",
-          "tooltip": "Enter individual values separated by a comma."
+          "placeholder": "Own group search by usernames or personal numbers. $t(content.identities.filter.identifiers.tooltip)",
+          "tooltip": "Enter individual values of your group, separated by a comma."
         },
         "state": {
           "label": "State",
@@ -1567,7 +1607,7 @@
         }
       },
       "request":{
-        "header": "Request for change the automatic role"
+        "header": "Change request for automatic role"
       }
     },
     "formDefinitions": {
@@ -1830,11 +1870,11 @@
       }
     },
     "roleRequests": {
-      "header": "Requests for roles",
+      "header": "Requests for change roles",
       "title": "Requests for roles",
       "applicant": "Applicant",
       "create": {
-        "header": "Create new request to change the permissions"
+        "header": "Create new request to change assigned roles"
       },
       "button": {
         "createRequest": "Create request",
@@ -1868,19 +1908,23 @@
       }
     },
     "roleRequestDetail": {
-      "header": "Request to change permissions",
-      "title": "Change permissions",
-      "conceptHeader": "Requested change of permissions",
+      "header": "Request to change roles",
+      "title": "Change assigned roles",
+      "conceptHeader": "Requested change of assigned roles",
       "conceptWithCurrentRoleHeader": "Current assigned roles (includes requested changes)",
       "save": {
-        "success": "Request to change permissions successfully saved",
+        "success": "Request to change assigned roles successfully saved",
         "start": "Execute request"
       },
       "button": {
         "createRequest":{
           "label": "Submit a request",
-          "tooltip": "Start request for change permissions."
+          "tooltip": "Start request for change assigned roles."
         }
+      },
+      "confirm-incompatible-role": {
+        "header": "Request contains incompatible roles",
+        "message": "Request contains incompatible roles, which have to be approved additonally. <strong>Do you really want execute request with included incompatible roles?</strong>"
       }
      },
      "automaticRoleRequests": {
@@ -2054,6 +2098,19 @@
           "success": "Authorizer [{{record}}] successfully saved."
         }
       },
+      "formAttributes": {
+        "header": "Role attributes",
+        "title": "Role attributes",
+        "create": {
+          "header": "Create role attribute"
+        },
+        "edit": {
+          "header": "{{name}} <small>role attribute detail</small>"
+        },
+        "save": {
+          "success": "Role attribute [{{record}}] successfully saved."
+        }
+      },
       "eav": {
         "header": "More information",
         "title": "More information",
@@ -2142,7 +2199,7 @@
           "header": "Superior roles"
         },
         "sub": {
-          "header": "Sub roles"
+          "header": "Subroles"
         },
         "save": {
           "success": "Business role [{{record}}] successfully saved. Role will be assigned to the users on the background asynchronously."
@@ -2150,6 +2207,30 @@
         "action": {
           "delete": {
             "success": "Business role [{{record}}] successfully removed. Assigned role will be removed from the users on the background asynchronously."
+          }
+        }
+      },
+      "incompatible-roles": {
+        "header": "Incompatible roles",
+        "title": "Incompatible roles - Segregation of Duties",
+        "create": {
+          "header": "New"
+        },
+        "edit": {
+          "header": "{{name}} <small>detail</small>"
+        },
+        "superior": {
+          "header": "Roles, which defines this role as incompatible"
+        },
+        "sub": {
+          "header": "Incompatible roles"
+        },
+        "save": {
+          "success": "Incompatible role [{{record}}] successfully saved."
+        },
+        "action": {
+          "delete": {
+            "success": "Incompatible role [{{record}}] successfully removed."
           }
         }
       }
@@ -2251,7 +2332,7 @@
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
-        "changePermissions": "Manage authorizations",
+        "changePermissions": "Request to change roles",
         "authorities": "Granted authorizations <small>from assigned roles</small>",
         "changeRoleProcesses": {
           "header": "Roles pending approval",
@@ -2260,10 +2341,10 @@
         },
         "changePermissionRequests": {
           "label": "Requests",
-          "header": "Requests for authorization change"
+          "header": "Requests for change roles"
         },
         "conceptPermissionRequests": {
-          "header": "Concepts of requests for authorization change"
+          "header": "Concepts of requests for change roles"
         },
         "create": {
           "header": "Assign new role",
@@ -3116,7 +3197,18 @@
         "help": ""
       },
       "sub": {
-        "label": "Sub role",
+        "label": "Subrole",
+        "help": ""
+      }
+    },
+    "IncompatibleRole": {
+      "_type": "Incompatible role definition",
+      "superior": {
+        "label": "Owner role",
+        "help": ""
+      },
+      "sub": {
+        "label": "Incompatible role",
         "help": ""
       }
     },
@@ -3223,6 +3315,19 @@
       "unmodifiable": {
         "help": "System attribute cannot be deleted. Some of its configurations are not editable.",
         "label": "System attribute"
+      },
+      "unique": {
+        "label": "Unique value"
+      },
+      "regex": {
+        "label": "Regular expression",
+        "help": "Validate a value with the regular expression."
+      },
+      "min": {
+        "label": "Minimal value"
+      },
+      "max": {
+        "label": "Maximum value"
       }
     },
     "FormValue": {
@@ -3240,11 +3345,11 @@
       "_type": "Role",
       "code": {
         "label": "Code",
-        "help": "Technical name"
+        "help": "Technical name."
       },
       "baseCode": {
-        "label": "Kód",
-        "help": "Technický název role."
+        "label": "Code",
+        "help": "Technical name."
       },
       "environment": {
         "label": "Environment",
@@ -3263,7 +3368,7 @@
       "approveRemove": "Role removal approval",
       "identityRoleAttributeDefinition": {
         "label": "Definition of assigned attributes",
-        "help": "The attributes in this definition will be filled in during role assignment."
+        "help": "First select (and save) the main definition. From this definition, you can select attributes that should be filled in during role assignment."
       },
       "canBeRequested": "Can be requested",
       "description": "Description",
@@ -3940,7 +4045,7 @@
       "log": "Log",
       "description": {
         "label" : "Description",
-        "placeholder": "Verbal description of a request to change the permissions"
+        "placeholder": "Verbal description of a request to change assinged roles"
       },
       "created": "Created",
       "modified": "Modified",
@@ -4201,39 +4306,50 @@
       "level": {
         "label": "Level"
       }
+    },
+    "RoleFormAttribute": {
+      "role": {
+        "label": "Role"
+      },
+      "formAttribute": {
+        "label": "Attribute definition"
+      },
+      "defaultValue": {
+        "label": "Default value"
+      }
     }
   },
   "wf": {
     "approve-identity-change-permissions" : {
-      "name": "Change of permissions for user '{{0}}'",
+      "name": "Change of assigned roles for user '{{0}}'",
       "task": {
         "approveByHelpDesk": {
           "name": "Approval by 'Helpdesk'",
-          "description":"Approving a change of permissions for '{{0}}' (Helpdesk)"
+          "description":"Approving a change of assigned roles for '{{0}}' (Helpdesk)"
         },
         "returnedRequestFromHelpdesk": {
           "name": "The request was returned from 'Helpdesk'",
-          "description":"Returned change of permissions request for '{{0}}'"
+          "description":"Returned change-of-roles request for '{{0}}'"
         },
         "approveByManager": {
           "name": "Approval by manager",
-          "description":"Approving a change of permissions by manager for '{{0}}'"
+          "description":"Approving a change of assigned roles by manager for '{{0}}'"
         },
         "returnedRequestFromManager": {
           "name": "The request was returned from manager",
-          "description":"Returned change of permissions request for '{{0}}'"
+          "description":"Returned change-of-roles request for '{{0}}'"
         },
         "approveByUserManager": {
           "name": "Approval by user manager",
-          "description":"Approving a change of permissions by user manager for '{{0}}'"
+          "description":"Approving a change of assigned roles by user manager for '{{0}}'"
         },
         "returnedRequestFromUserManager": {
           "name": "The request was returned from user manager",
-          "description":"Returned change of permissions request for '{{0}}'"
+          "description":"Returned change-of-roles request for '{{0}}'"
         },
         "approvedBySecurity": {
           "name": "Approval by security department",
-          "description":"Approving a change of permissions by security department for '{{0}}'"
+          "description":"Approving a change of assigned roles by security department for '{{0}}'"
         }
       }
     },
@@ -4993,16 +5109,16 @@
       "message": "Request will be processed / approved."
     },
     "ROLE_REQUEST_EXECUTED_CANNOT_DELETE": {
-      "title": "Request for change permission cannot be deleted",
-      "message": "Request for change permission in state 'Executed' cannot be delete!"
+      "title": "Request for change roles cannot be deleted",
+      "message": "Request for change roles in state 'Executed' cannot be delete!"
     },
     "ROLE_REQUEST_APPLICANTS_NOT_SAME": {
-      "title": "Request for change permission have not same applicants",
+      "title": "Request for change roles have not same applicants",
       "message": "Some concepts have not same applicant [{{applicant}}]!"
     },
     "ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
-      "title": "You do not have permission to start request for permission changes without approval.",
-      "message": "You do not have permission (EXECUTE IMMEDIATELY) to start request for permission changes without approval!"
+      "title": "You do not have permission to start request for change roles without approval.",
+      "message": "You do not have permission (EXECUTE IMMEDIATELY) to start request for change roles without approval!"
     },
     "CRYPT_DEMO_KEY_NOT_FOUND": {
       "title": "Demo key was not found",
@@ -5085,8 +5201,8 @@
       "message": "Extended attribute type 'TEXT' is not supported."
     },
     "AUTOMATIC_ROLE_REQUEST_START_WITHOUT_RULE": {
-      "title": "Request for automatic role must have at least on rule!",
-      "message": "Request for automatic role [{{request}}] must have at least on rule!"
+      "title": "Request for automatic role must have at least one rule!",
+      "message": "Request for automatic role [{{request}}] must have at least one rule!"
     },
     "EVENT_CANCELED_BY_RESTART": {
       "title": "Event was canceled",
@@ -5473,8 +5589,8 @@
       "message": "Form definition id [{{formDefinitionId}}], has not type. Correct type: [{{dtoType}}]."
     },
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
-      "title": "Username cann't be empty",
-      "message": "Username has not been filled. Please fill the username or enable the username generator."
+      "title": "Login cann't be empty",
+      "message": "Login has not been filled. Please fill the login or enable the login generator."
     },
     "DTO_CANNOT_BE_CONVERT_TO_JSON": {
       "title": "DTO cannot be convert to the JSON!",
@@ -5525,8 +5641,8 @@
       "message": "Request item [{{item}}] could not be executed, because is using DTO from terminated item [{{terminatedItem}}]!"
     },
     "REQUEST_EXECUTED_CANNOT_DELETE": {
-      "title": "Request for change permission cannot be deleted",
-      "message": "Request for change permission in state 'Executed' cannot be delete!"
+      "title": "Request for change roles cannot be deleted",
+      "message": "Request for change roles in state 'Executed' cannot be delete!"
     },
     "SYNTAX_ERROR": {
       "title": "Server communication failed",
@@ -5555,6 +5671,10 @@
     "FORM_DEFINITION_DELETE_FAILED_ROLE": {
       "title": "Form definition cannot be deleted!",
       "message": "Form definition [{{definition}}]  cannot be deleted, because is using in the role [{{role}}]!"
+    },
+    "ROLE_FORM_ATTRIBUTE_CHANGE_DEF_NOT_ALLOWED": {
+      "title": "It is not possible to change the definition of role attributes!",
+      "message": "It is not possible to change the definition of role [{{role}}] attributes, because it has at least one attribute set (for the original definition). First, you must remove all sets role attributes!"
     }
   },
   "validationError": {

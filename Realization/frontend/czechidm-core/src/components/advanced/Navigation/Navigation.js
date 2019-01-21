@@ -74,6 +74,7 @@ export class Navigation extends Basic.AbstractContent {
             title={ this.i18n(item.titleKey, { defaultValue: item.title }) }
             titlePlacement={ titlePlacement }
             icon={ item.icon }
+            iconComponent={ item.iconComponent }
             iconColor={ item.iconColor }
             active={ activeItem === item.id }
             text={ this._resolveNavigationItemText(item, userContext) }/>

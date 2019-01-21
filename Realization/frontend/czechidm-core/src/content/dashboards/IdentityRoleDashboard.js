@@ -32,7 +32,7 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
     return (
       <div>
         <Basic.ContentHeader
-          icon="fa:universal-access"
+          icon="fa:key"
           text={ this.i18n('content.identity.roles.directRoles.header') }
           buttons={
             identityManager.canRead(identity, permissions)
@@ -52,7 +52,7 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
             uiKey={ `dashboard-${ entityId }` }
             forceSearchParameters={ new Domain.SearchParameters().setFilter('identityId', entityId).setFilter('directRole', true) }
             showAddButton={ false }
-            params={ this.props.params }
+            params={{ ...this.props.params, entityId }}
             columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole', 'contractPosition']) }
             _permissions={ permissions }/>
         </Basic.Panel>

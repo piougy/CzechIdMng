@@ -90,7 +90,12 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 								"taskId", longRunningTask.getId().toString()));
 			}
 		}
-	}	
+	}
+	
+	@Override
+	public boolean requireNewTransaction() {
+		return true;
+	}
 	
 	/**
 	 * Returns superior roles, which should be processed

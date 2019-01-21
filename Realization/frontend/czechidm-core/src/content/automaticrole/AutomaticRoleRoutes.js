@@ -14,17 +14,18 @@ export default class AutomaticRoleRoutes extends Basic.AbstractContent {
     return 'content.automaticRoles';
   }
 
-  componentDidMount() {
+  getNavigationKey() {
+    return 'automatic-roles';
+  }
+
+  selectNavigationItem() {
+    // nothing
   }
 
   render() {
     return (
       <div>
-        <Basic.PageHeader>
-          <Basic.Icon value="fa:universal-access"/>
-          {' '}
-          {this.i18n('header')}
-        </Basic.PageHeader>
+        { this.renderPageHeader() }
 
         <Advanced.TabPanel position="top" parentId="automatic-roles" params={this.props.params}>
           {this.props.children}

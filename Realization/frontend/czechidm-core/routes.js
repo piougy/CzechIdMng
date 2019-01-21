@@ -314,9 +314,19 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECOMPOSITION_READ'] } ]
         },
         {
+          path: 'incompatible-roles',
+          component: require('./src/content/role/IncompatibleRoles'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['INCOMPATIBLEROLE_READ'] } ]
+        },
+        {
           path: 'guarantees',
           component: require('./src/content/role/RoleGuarantees'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
+        },
+        {
+          path: 'form-attributes',
+          component: require('./src/content/role/RoleFormAttributes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
         },
         {
           path: 'catalogues',
@@ -405,9 +415,19 @@ module.exports = {
               access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECOMPOSITION_READ'] } ]
             },
             {
+              path: 'incompatible-roles',
+              component: require('./src/content/role/IncompatibleRoles'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['INCOMPATIBLEROLE_READ'] } ]
+            },
+            {
               path: 'guarantees',
               component: require('./src/content/role/RoleGuarantees'),
               access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEGUARANTEE_READ', 'ROLEGUARANTEEROLE_READ'] } ]
+            },
+            {
+              path: 'form-attributes',
+              component: require('./src/content/role/RoleFormAttributes'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEFORMATTRIBUTE_READ'] } ]
             },
             {
               path: 'catalogues',

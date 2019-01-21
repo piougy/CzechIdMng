@@ -58,6 +58,7 @@ class IdentityContractDashboard extends Basic.AbstractContent {
             forceSearchParameters={ new Domain.SearchParameters().setFilter('identity', entityId) }
             rowClass={({rowIndex, data}) => { return data[rowIndex].state ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); }}>
             <Advanced.Column
+              width={ 15 }
               header={ this.i18n('entity.IdentityContract.main.short') }
               title={ this.i18n('entity.IdentityContract.main.help') }
               property="main"

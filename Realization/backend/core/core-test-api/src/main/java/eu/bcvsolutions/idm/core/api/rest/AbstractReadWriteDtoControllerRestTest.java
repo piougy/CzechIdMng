@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.DuplicateExternalIdException;
@@ -533,7 +534,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	}
 	
 	@Test
-	public void testDeleteIdentityNotExists() throws Exception {
+	public void testDeleteEntityNotExists() throws Exception {
 		if (!supportsDelete()) {
 			LOG.info("Controller [{}] doesn't support DELETE method. Method will not be tested.", getController().getClass());
 			return;
@@ -798,7 +799,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 * @param dtoClass
 	 * @return
 	 */
-	protected String getResourcesName(Class<? extends AbstractDto> dtoClass) {
+	protected String getResourcesName(Class<? extends BaseDto> dtoClass) {
 		Relation mapping = dtoClass.getAnnotation(Relation.class);
 		if (mapping == null) {
 			throw new CoreException("Dto class [" + dtoClass + "] not have @Relation annotation! Configure dto annotation properly.");
@@ -884,15 +885,25 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 * @return
 	 */
 	protected List<DTO> toDtos(String listResponse) {
+		return toDtos(listResponse, getController().getDtoClass());
+	}
+	
+	/**
+	 * Transform response with embedded dto list to dtos
+	 * 
+	 * @param listResponse
+	 * @return
+	 */
+	protected <T extends BaseDto> List<T> toDtos(String listResponse, Class<T> dtoClass) {
 		try {
 			JsonNode json = getMapper().readTree(listResponse);
 			JsonNode jsonEmbedded = json.get("_embedded"); // by convention
-			JsonNode jsonResources = jsonEmbedded.get(getResourcesName());
+			JsonNode jsonResources = jsonEmbedded.get(getResourcesName(dtoClass));
 			//
 			// convert embedded object to target DTO classes
-			List<DTO> results = new ArrayList<>();
+			List<T> results = new ArrayList<>();
 			jsonResources.forEach(jsonResource -> {
-				results.add(getMapper().convertValue(jsonResource, getController().getDtoClass()));
+				results.add(getMapper().convertValue(jsonResource, dtoClass));
 			});
 			//
 			return results;

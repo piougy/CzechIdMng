@@ -50,6 +50,7 @@ import LongRunningTask from './LongRunningTask/LongRunningTask';
 import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
 import CodeListSelect from './CodeListSelect/CodeListSelect';
 import CodeListValue from './CodeListValue/CodeListValue';
+import Icons from './Icon/Icons';
 
 const Components = {
   Table,
@@ -105,8 +106,9 @@ const Components = {
   LongRunningTask,
   CreatableSelectBox,
   CodeListSelect,
-  CodeListValue
+  CodeListValue,
+  Icons
 };
 
-Components.version = '0.0.1';
+Components.version = '9.4.0';
 module.exports = Components;

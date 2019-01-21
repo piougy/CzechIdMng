@@ -10,6 +10,8 @@ export const TYPE_FONT_AWESOME = 'fa'; // https://fortawesome.github.io/Font-Awe
 /**
  * Icon
  *
+ * TODO: use FontAwesomeIcon
+ *
  * @author Radek Tomiška
  */
 class Icon extends AbstractComponent {
@@ -94,7 +96,7 @@ class Icon extends AbstractComponent {
       _style.color = color;
     }
     return (
-      <span title={title} className={classNames} aria-hidden="true" style={_style} onClick={ onClick }></span>
+      <span title={ title } className={ classNames } aria-hidden="true" style={ _style } onClick={ onClick }></span>
     );
   }
 }

@@ -4,7 +4,6 @@ import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
 /**
  * DTO for keep informations about invalidate attribute

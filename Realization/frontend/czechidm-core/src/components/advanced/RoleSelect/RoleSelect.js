@@ -68,6 +68,17 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     this.refs.role.setValue(value);
   }
 
+  /**
+  * Defines if component works with complex value.
+  * That is using for correct set input value in form component.
+  * Complex value could be exist in _embedded map and we need to now if
+  * should be used value from field (UUID) or _embedded (entity).
+  *
+  */
+  isValueComplex() {
+    return true;
+  }
+
   setState(json, cb) {
     super.setState(json, () => {
       // FIXME: abstract form component everride standard state to show validations => we need to propage this state into component

@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author svandav
  */
 @Relation(collectionRelation = "roleCompositions")
-public class IdmRoleCompositionDto extends AbstractDto implements ExternalIdentifiable, Requestable{
+public class IdmRoleCompositionDto extends AbstractDto implements ExternalIdentifiable, Requestable {
 
     private static final long serialVersionUID = 1L;
     

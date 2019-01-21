@@ -370,6 +370,16 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	}
 	
 	/**
+	 * Wraps given definitions to resources
+	 * 
+	 * @param definitions
+	 * @return
+	 */
+	public ResponseEntity<?> toResources(List<IdmFormDefinitionDto> definitions) {
+		return new ResponseEntity<>(toResources(definitions, getDtoClass()), HttpStatus.OK); 
+	}
+	
+	/**
 	 * Returns definition by given ID
 	 * 
 	 * @param definitionId

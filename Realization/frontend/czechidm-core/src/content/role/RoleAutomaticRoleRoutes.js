@@ -45,7 +45,7 @@ export default class RoleAutomaticRoleRoutes extends Basic.AbstractContent {
                   style={{marginLeft: '5px'}}
                   onClick={ this._gotToRequests.bind(this) }
                   titlePlacement="bottom">
-                  <Basic.Icon type="fa" icon="universal-access"/>
+                  <Basic.Icon type="fa" icon="magic"/>
                   {' '}
                   { this.i18n('content.automaticRoles.universalRequestNotSupported.gotToRequests.label') }
                 </Basic.Button>
@@ -57,7 +57,7 @@ export default class RoleAutomaticRoleRoutes extends Basic.AbstractContent {
     return (
       <div>
         <Basic.ContentHeader>
-          <Basic.Icon value="fa:universal-access"/>
+          <Basic.Icon value="fa:magic"/>
           {' '}
           {this.i18n('header')}
         </Basic.ContentHeader>

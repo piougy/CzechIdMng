@@ -208,7 +208,7 @@ class IdentityRoles extends Basic.AbstractContent {
         <Basic.Tabs activeKey={ activeKey } onSelect={ this._onChangeSelectTabs.bind(this) }>
           <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
 
-            <Basic.ContentHeader icon="fa:universal-access" text={ this.i18n('directRoles.header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }} />
+            <Basic.ContentHeader icon="fa:key" text={ this.i18n('directRoles.header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }} />
 
             <IdentityRoleTableComponent
               uiKey={ `${uiKey}-${entityId}` }

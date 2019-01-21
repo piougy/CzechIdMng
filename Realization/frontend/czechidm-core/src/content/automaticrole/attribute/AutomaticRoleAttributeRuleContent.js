@@ -61,7 +61,7 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
           !entity
           ||
           <Basic.PageHeader>
-            <Basic.Icon value="fa:universal-access"/>
+            <Basic.Icon value="fa:magic"/>
             {' '}
             {
               this._getIsNew()

@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.generator.AbstractGeneratorTest;
 import eu.bcvsolutions.idm.core.api.service.IdmGenerateValueService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -54,6 +55,8 @@ public class IdentityRoleFormDefaultValueGeneratorTest extends AbstractGenerator
 	private IdmGenerateValueService generateValueService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmRoleFormAttributeService roleFormAttributeService;
 
 	@Test
 	public void testGreenLine() {
@@ -72,16 +75,19 @@ public class IdentityRoleFormDefaultValueGeneratorTest extends AbstractGenerator
 		String attrDefaultValue1 = "100200";
 		IdmFormAttributeDto att1 = createAttribute(attrCode1, attrDefaultValue1, PersistentType.LONG,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att1);
 
 		// prepare form attribute 2
 		String attrCode2 = getHelper().createName();
 		String attrDefaultValue2 = getHelper().createName() + getHelper().createName();
 		IdmFormAttributeDto att2 = createAttribute(attrCode2, attrDefaultValue2, PersistentType.SHORTTEXT,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att2);
 
 		// prepare form attribute 3 without default value
 		String attrCode3 = getHelper().createName();
 		IdmFormAttributeDto att3 = createAttribute(attrCode3, null, PersistentType.SHORTTEXT, formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att3);
 
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 		identityRole.setIdentityContract(primeContract.getId());
@@ -139,16 +145,19 @@ public class IdentityRoleFormDefaultValueGeneratorTest extends AbstractGenerator
 		String attrDefaultValue1 = "100200";
 		IdmFormAttributeDto att1 = createAttribute(attrCode1, attrDefaultValue1, PersistentType.LONG,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att1);
 
 		// prepare form attribute 2
 		String attrCode2 = getHelper().createName();
 		String attrDefaultValue2 = getHelper().createName() + getHelper().createName();
 		IdmFormAttributeDto att2 = createAttribute(attrCode2, attrDefaultValue2, PersistentType.SHORTTEXT,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att2);
 
 		// prepare form attribute 3 without default value
 		String attrCode3 = getHelper().createName();
 		IdmFormAttributeDto att3 = createAttribute(attrCode3, null, PersistentType.SHORTTEXT, formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att3);
 
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 		identityRole.setIdentityContract(primeContract.getId());
@@ -207,16 +216,19 @@ public class IdentityRoleFormDefaultValueGeneratorTest extends AbstractGenerator
 		String attrDefaultValue1 = "666";
 		IdmFormAttributeDto att1 = createAttribute(attrCode1, attrDefaultValue1, PersistentType.LONG,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att1);
 
 		// prepare form attribute 2
 		String attrCode2 = getHelper().createName();
 		String attrDefaultValue2 = getHelper().createName() + getHelper().createName();
 		IdmFormAttributeDto att2 = createAttribute(attrCode2, attrDefaultValue2, PersistentType.SHORTTEXT,
 				formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att2);
 
 		// prepare form attribute 3 without default value
 		String attrCode3 = getHelper().createName();
 		IdmFormAttributeDto att3 = createAttribute(attrCode3, null, PersistentType.SHORTTEXT, formDefinition.getId());
+		roleFormAttributeService.addAttributeToSubdefintion(role, att3);
 
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 		identityRole.setIdentityContract(primeContract.getId());
@@ -322,7 +334,6 @@ public class IdentityRoleFormDefaultValueGeneratorTest extends AbstractGenerator
 	 *
 	 */
 	private IdmGenerateValueDto createGenerator() {
-		this.cleanAllGenerator();
 		IdmGenerateValueDto generateValue = new IdmGenerateValueDto();
 		generateValue.setDtoType(getDtoType().getCanonicalName());
 		generateValue.setGeneratorType(getGeneratorType());

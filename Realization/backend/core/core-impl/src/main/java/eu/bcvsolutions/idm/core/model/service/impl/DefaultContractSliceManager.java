@@ -13,12 +13,15 @@ import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.config.domain.ContractSliceConfiguration;
@@ -66,6 +69,8 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired
 	private ContractSliceConfiguration contractSliceConfiguration;
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	@Override
 	@Transactional
@@ -394,4 +399,268 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		return result;
 	}
 
+	@Override
+	public void recalculateContractSlice(IdmContractSliceDto slice, IdmContractSliceDto originalSlice, Map<String, Serializable> eventProperties) {
+		
+		boolean forceRecalculateCurrentUsingSlice = false;
+		Object forceRecalculateCurrentUsingSliceAsObject = eventProperties.get(IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE);
+		if (forceRecalculateCurrentUsingSliceAsObject == null) {
+			forceRecalculateCurrentUsingSlice = false;
+		} else if (forceRecalculateCurrentUsingSliceAsObject instanceof Boolean) {
+			forceRecalculateCurrentUsingSlice = (Boolean) forceRecalculateCurrentUsingSliceAsObject;
+		} else {
+			forceRecalculateCurrentUsingSlice = false;
+		}
+
+		boolean recalculateUsingAsContract = false;
+		if (slice.getIdentity() != null) {
+			UUID parentContract = slice.getParentContract();
+
+			// Check if was contractCode changed, if yes, then set parentContract to
+			// null (will be recalculated)
+			if (originalSlice != null && !Objects.equal(originalSlice.getContractCode(), slice.getContractCode())) {
+				slice.setParentContract(null);
+				parentContract = null; // When external code changed, link or create new contract is required
+			}
+			if (originalSlice != null && !Objects.equal(originalSlice.getParentContract(), slice.getParentContract())) {
+				slice.setParentContract(null);
+				slice.setUsingAsContract(false);
+			}
+
+			if (parentContract == null) {
+				slice = linkOrCreateContract(slice, eventProperties);
+			} else {
+				// Update contract by that slice
+				if(slice.isUsingAsContract()) {
+					// Validity of slice was changed, slice cannot be using for update the contract
+					if (originalSlice != null && !Objects.equal(originalSlice.getValidFrom(), slice.getValidFrom())) {
+						recalculateUsingAsContract = true;
+					} else {
+						IdmIdentityContractDto contract = contractService.get(parentContract);
+						this.getBean().updateContractBySlice(contract, slice, eventProperties);
+					}
+				}
+			}
+		}
+
+		UUID parentContract = slice.getParentContract();
+
+		if (originalSlice == null) {
+			// Slice is new, we want to recalculate "Is using as contract" field.
+			recalculateUsingAsContract = true;
+		}
+
+		// Recalculate on change of 'parentContract' field
+		boolean parentContractChanged = false;
+		if (originalSlice != null && !Objects.equal(originalSlice.getParentContract(), slice.getParentContract())) {
+			UUID originalParentContract = originalSlice.getParentContract();
+			// Parent contract was changed ... we need recalculate parent contract for
+			// original slice
+			parentContractChanged = true;
+			if (originalParentContract != null) {
+				IdmIdentityContractDto originalContract = contractService.get(originalParentContract);
+				// Find other slices for original contract
+				IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+				sliceFilter.setParentContract(originalParentContract);
+				List<IdmContractSliceDto> originalSlices = contractSliceService.find(sliceFilter, null).getContent();
+				if (!originalSlices.isEmpty()) {
+					IdmContractSliceDto originalNextSlice = this.getBean().findNextSlice(originalSlice, originalSlices);
+					IdmContractSliceDto originalSliceToUpdate = originalNextSlice;
+					if (originalNextSlice != null) {
+						// Next slice exists, update valid-till on previous slice by that slice
+						IdmContractSliceDto originalPreviousSlice = this.getBean().findPreviousSlice(originalNextSlice,
+								originalSlices);
+						if (originalPreviousSlice != null) {
+							originalPreviousSlice.setValidTill(originalNextSlice.getValidFrom().minusDays(1));
+							originalSliceToUpdate = originalPreviousSlice;
+						}
+					} else {
+						// Next slice does not exists. I means original slice was last. Set valid-till
+						// on previous slice to null.
+						IdmContractSliceDto originalPreviousSlice = this.getBean().findPreviousSlice(originalSlice,
+								originalSlices);
+						if (originalPreviousSlice != null
+								&& this.getBean().findNextSlice(originalPreviousSlice, originalSlices) == null) {
+							originalPreviousSlice.setValidTill(null);
+							originalSliceToUpdate = originalPreviousSlice;
+						}
+					}
+					// Save with force recalculation
+					contractSliceService.publish(
+							new ContractSliceEvent(ContractSliceEventType.UPDATE, originalSliceToUpdate, ImmutableMap
+									.of(IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE, Boolean.TRUE)));
+				} else {
+					// Parent contract was changed and old contract does not have next slice, we
+					// have to delete him.
+					contractService.delete(originalContract);
+				}
+			}
+			// Parent contract was changed, want to recalculate "Is using as contract"
+			// field.
+			recalculateUsingAsContract = true;
+		}
+
+		// Recalculate the valid-till on previous slice
+		// Evaluates on change of 'validFrom' field or new slice or change the parent
+		// contract
+		if (originalSlice == null || parentContractChanged
+				|| (originalSlice != null && !Objects.equal(originalSlice.getValidFrom(), slice.getValidFrom()))) {
+			// Valid from was changed ... we have to change of validity till on previous
+			// slice
+			if (parentContract != null) {
+				// Find other slices for parent contract
+				List<IdmContractSliceDto> slices = this.getBean().findAllSlices(parentContract);
+				if (!slices.isEmpty()) {
+					// Update validity till on this slice and on previous slice
+					recalculateValidTill(slice, slices);
+					// Update validity till on this original slice and on previous slice (to
+					// original slice)
+					if (originalSlice != null) {
+						IdmContractSliceDto nextSliceForOriginalSlice = this.getBean().findNextSlice(originalSlice,
+								slices);
+						if (nextSliceForOriginalSlice == null) {
+							// Next slice not exists, it means original slice was last
+							IdmContractSliceDto previousSliceForOriginalSlice = this.getBean()
+									.findPreviousSlice(originalSlice, slices);
+							if (previousSliceForOriginalSlice != null
+									&& this.getBean().findNextSlice(previousSliceForOriginalSlice, slices) == null) {
+								previousSliceForOriginalSlice.setValidTill(null);
+								// Save with skip this processor
+								saveWithoutRecalculate(previousSliceForOriginalSlice);
+							}
+						}
+					}
+				}
+			}
+			// Validity from was changed, want to recalculate "Is using as contract" field.
+			recalculateUsingAsContract = true;
+		}
+
+		if (recalculateUsingAsContract || forceRecalculateCurrentUsingSlice) {
+			IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+			sliceFilter.setParentContract(parentContract);
+			sliceFilter.setUsingAsContract(Boolean.TRUE);
+
+			IdmContractSliceDto shouldBeSetAsUsing = this.getBean().findValidSlice(parentContract);
+
+			if (shouldBeSetAsUsing != null) {
+				shouldBeSetAsUsing = this.getBean().setSliceAsCurrentlyUsing(shouldBeSetAsUsing);
+				if (slice.equals(shouldBeSetAsUsing)) {
+					// If that slice should be using as contract, then we using returned instance
+					// (instead the reload slice from DB)
+					slice = shouldBeSetAsUsing;
+				}
+			}
+		}
+
+		// Check if is slice new or contract valid till field was changed.
+		if (originalSlice == null
+				|| (!Objects.equal(originalSlice.getContractValidTill(), slice.getContractValidTill()))) {
+			// If is slice last, then will be to slice valid till copy date of contract
+			// valid till
+			boolean isSliceLast = this.getBean().findNextSlice(slice, this.getBean().findAllSlices(parentContract)) == null
+					? true
+					: false;
+			if (isSliceLast) {
+				slice.setValidTill(null);
+				saveWithoutRecalculate(slice);
+			}
+		}
+	}
+
+	/**
+	 * Recalculate valid till on given slice and on previous slice
+	 * 
+	 * @param slice
+	 * @param slices
+	 */
+	private void recalculateValidTill(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
+		this.getBean().updateValidTillOnPreviousSlice(slice, slices);
+		IdmContractSliceDto nextSlice = this.getBean().findNextSlice(slice, slices);
+		if (nextSlice != null) {
+			LocalDate validTill = nextSlice.getValidFrom().minusDays(1);
+			slice.setValidTill(validTill);
+		} else {
+			slice.setValidTill(null);
+		}
+		// Save with skip this processor
+		saveWithoutRecalculate(slice);
+	}
+
+	/**
+	 * Save slice without recalculate ... it means with skip this processor
+	 * 
+	 * @param slice
+	 */
+	private void saveWithoutRecalculate(IdmContractSliceDto slice) {
+		contractSliceService.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, slice,
+				ImmutableMap.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
+	}
+
+	/**
+	 * Create or link contract from the slice or create relation on the exists
+	 * contract
+	 * 
+	 * @param slice
+	 * @return
+	 */
+	private IdmContractSliceDto linkOrCreateContract(IdmContractSliceDto slice,
+			Map<String, Serializable> eventProperties) {
+
+		String contractCode = slice.getContractCode();
+		if (Strings.isNullOrEmpty(contractCode)) {
+			// Create new parent contract
+			// When new contract is created, then this slice have to be sets as "Is using as
+			// contract"
+			slice.setUsingAsContract(true);
+			IdmIdentityContractDto contract = this.getBean().updateContractBySlice(new IdmIdentityContractDto(), slice, eventProperties);
+			slice.setParentContract(contract.getId());
+
+			return contractSliceService.saveInternal(slice);
+		} else {
+			// Find other slices
+			IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+			sliceFilter.setContractCode(contractCode);
+			sliceFilter.setIdentity(slice.getIdentity());
+			List<IdmContractSliceDto> slices = contractSliceService.find(sliceFilter, null).getContent();
+			// Find contract sets on others slices
+			UUID parentContractId = slices.stream()
+					.filter(s -> s.getParentContract() != null && !s.getId().equals(slice.getId()))//
+					.findFirst()//
+					.map(IdmContractSliceDto::getParentContract)//
+					.orElse(null);//
+			if (parentContractId == null) {
+				// Other slices does not have sets contract
+				// Create new parent contract
+				// When new contract is created, then this slice have to be sets as "Is using as
+				// contract"
+				slice.setUsingAsContract(true);
+				IdmIdentityContractDto contract = this.getBean().updateContractBySlice(new IdmIdentityContractDto(), slice, eventProperties);
+				slice.setParentContract(contract.getId());
+
+				return contractSliceService.saveInternal(slice);
+			} else {
+				// We found and link on existed contract. We have to do update this contract by
+				// slice.
+				slice.setParentContract(parentContractId);
+				IdmContractSliceDto sliceSaved = contractSliceService.saveInternal(slice);
+
+				// Update contract by that slice
+				if(sliceSaved.isUsingAsContract()) {
+					IdmIdentityContractDto contract = contractService.get(sliceSaved.getParentContract());
+					this.getBean().updateContractBySlice(contract, sliceSaved, eventProperties);
+				}
+
+				return sliceSaved;
+			}
+		}
+	}
+
+	/**
+	 * Return this bean for execute some method in new transaction
+	 * @return
+	 */
+	private DefaultContractSliceManager getBean() {
+		return applicationContext.getBean(this.getClass());
+	}
 }

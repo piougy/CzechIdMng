@@ -73,6 +73,8 @@ import GenerateValueService from './GenerateValueService';
 import AttachmentService from './AttachmentService';
 import CodeListService from './CodeListService';
 import CodeListItemService from './CodeListItemService';
+import IncompatibleRoleService from './IncompatibleRoleService';
+import RoleFormAttributeService from './RoleFormAttributeService';
 
 const ServiceRoot = {
   RestApiService,
@@ -142,8 +144,10 @@ const ServiceRoot = {
   GenerateValueService,
   AttachmentService,
   CodeListService,
-  CodeListItemService
+  CodeListItemService,
+  IncompatibleRoleService,
+  RoleFormAttributeService
 };
 
-ServiceRoot.version = '0.0.1';
+ServiceRoot.version = '9.4.0';
 module.exports = ServiceRoot;

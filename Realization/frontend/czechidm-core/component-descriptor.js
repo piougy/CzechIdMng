@@ -27,26 +27,32 @@ module.exports = {
       'id': 'identity-role-dashboard',
       'type': 'identity-dashboard',
       'dashboard': false,
-      'order': '100',
+      'order': 100,
       'component': require('./src/content/dashboards/IdentityRoleDashboard')
     },
     {
       'id': 'identity-contract-dashboard',
       'type': 'identity-dashboard',
       'dashboard': false,
-      'order': '200',
+      'order': 200,
       'component': require('./src/content/dashboards/IdentityContractDashboard')
     },
     {
       'id': 'assigned-task-dashboard',
       'type': 'identity-dashboard',
-      'order': '300',
+      'order': 300,
       'component': require('./src/content/dashboards/AssignedTaskDashboard')
+    },
+    {
+      'id': 'role-request-dashboard',
+      'type': 'identity-dashboard',
+      'order': 350,
+      'component': require('./src/content/dashboards/RoleRequestDashboard')
     },
     {
       'id': 'long-running-task-dashboard',
       'type': 'identity-dashboard',
-      'order': '500',
+      'order': 500,
       'component': require('./src/content/dashboards/LongRunningTaskDashboard')
     },
     {
@@ -357,6 +363,12 @@ module.exports = {
       'disabled': false,
       'order': 0,
       'col': 6
+    },
+    {
+      'id': 'business-role-icon',
+      'type': 'icon',
+      'entityType': ['business-role-icon'],
+      'component': require('./src/components/advanced/Icon/BusinessRoleIcon')
     }
   ]
 };

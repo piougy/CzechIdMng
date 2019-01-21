@@ -99,6 +99,14 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
+	INCOMPATIBLEROLE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
 	ROLETREENODE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.AUTOCOMPLETE,
@@ -177,7 +185,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE),
 	ROLEREQUEST(
-			IdmBasePermission.ADMIN, 
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
@@ -313,6 +322,14 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	ROLEFORMATTRIBUTE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),;
 	
 	// String constants could be used in pre / post authorize SpEl expressions
@@ -434,6 +451,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLECOMPOSITION_UPDATE = "ROLECOMPOSITION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLECOMPOSITION_DELETE = "ROLECOMPOSITION" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String INCOMPATIBLEROLE_COUNT = "INCOMPATIBLEROLE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String INCOMPATIBLEROLE_AUTOCOMPLETE = "INCOMPATIBLEROLE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String INCOMPATIBLEROLE_READ = "INCOMPATIBLEROLE" + BasePermission.SEPARATOR + "READ";
+	public static final String INCOMPATIBLEROLE_CREATE = "INCOMPATIBLEROLE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String INCOMPATIBLEROLE_UPDATE = "INCOMPATIBLEROLE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String INCOMPATIBLEROLE_DELETE = "INCOMPATIBLEROLE" + BasePermission.SEPARATOR + "DELETE";
+	//
 	public static final String ROLETREENODE_READ = "ROLETREENODE" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLETREENODE_CREATE = "ROLETREENODE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLETREENODE_UPDATE = "ROLETREENODE" + BasePermission.SEPARATOR + "UPDATE";
@@ -479,6 +503,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String SCHEDULER_EXECUTE = "SCHEDULER" + BasePermission.SEPARATOR + "EXECUTE";
 	//
 	public static final String ROLE_REQUEST_ADMIN = "ROLEREQUEST" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String ROLE_REQUEST_COUNT = "ROLEREQUEST" + BasePermission.SEPARATOR + "COUNT";
 	public static final String ROLE_REQUEST_READ = "ROLEREQUEST" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLE_REQUEST_CREATE = "ROLEREQUEST" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLE_REQUEST_UPDATE = "ROLEREQUEST" + BasePermission.SEPARATOR + "UPDATE";
@@ -571,6 +596,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String GENERATE_VALUE_UPDATE = "GENERATEVALUE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String GENERATE_VALUE_DELETE = "GENERATEVALUE" + BasePermission.SEPARATOR + "DELETE";
 	public static final String GENERATE_VALUE_AUTOCOMPLETE = "GENERATEVALUE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	//
+	public static final String ROLEFORMATTRIBUTE_COUNT = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String ROLEFORMATTRIBUTE_AUTOCOMPLETE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String ROLEFORMATTRIBUTE_READ = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "READ";
+	public static final String ROLEFORMATTRIBUTE_CREATE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLEFORMATTRIBUTE_UPDATE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ROLEFORMATTRIBUTE_DELETE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

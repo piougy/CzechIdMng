@@ -59,8 +59,6 @@ class FormDefinitionRoutes extends Basic.AbstractContent {
           (this._getIsNew() || !entity )
           ||
           <Basic.PageHeader>
-            <Basic.Icon value="fa:wpforms"/>
-            {' '}
             <span>{entity.name} <small>{this.i18n('edit')}</small></span>
           </Basic.PageHeader>
         }

@@ -13,7 +13,7 @@ const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
  * Role request table
  * @author Vít Švanda
  */
-class RoleRequestTable extends Advanced.AbstractTableContent {
+export class RoleRequestTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -89,7 +89,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, uiKey, startRequestFunc, createNewRequestFunc, columns, forceSearchParameters, showFilter, className, rendered } = this.props;
+    const { _showLoading, uiKey, startRequestFunc, createNewRequestFunc, columns, forceSearchParameters, showFilter, className, rendered, header } = this.props;
     const innerShowLoading = _showLoading;
     //
     if (!rendered) {
@@ -101,6 +101,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
+          header={ header }
           uiKey={uiKey}
           showLoading={innerShowLoading}
           forceSearchParameters={forceSearchParameters}

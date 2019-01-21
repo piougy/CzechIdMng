@@ -27,7 +27,16 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private DateTime createdFrom;
 	private DateTime createdTill;
 	private List<UUID> applicants;
+	private UUID creatorId;
 
+	public IdmRoleRequestFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+
+	public IdmRoleRequestFilter(MultiValueMap<String, Object> data) {
+		super(IdmRoleRequestDto.class, data);
+	}
+	
 	public List<UUID> getApplicants() {
 		if (applicants == null) {
 			applicants = new ArrayList<>();
@@ -53,14 +62,6 @@ public class IdmRoleRequestFilter extends DataFilter {
 
 	public void setCreatedTill(DateTime createdTill) {
 		this.createdTill = createdTill;
-	}
-
-	public IdmRoleRequestFilter() {
-		this(new LinkedMultiValueMap<>());
-	}
-
-	public IdmRoleRequestFilter(MultiValueMap<String, Object> data) {
-		super(IdmRoleRequestDto.class, data);
 	}
 
 	public UUID getApplicantId() {
@@ -105,5 +106,12 @@ public class IdmRoleRequestFilter extends DataFilter {
 	public void setStates(List<RoleRequestState> states) {
 		this.states = states;
 	}
-
+	
+	public void setCreatorId(UUID creatorId) {
+		this.creatorId = creatorId;
+	}
+	
+	public UUID getCreatorId() {
+		return creatorId;
+	}
 }

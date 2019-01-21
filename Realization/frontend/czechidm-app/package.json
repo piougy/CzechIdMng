@@ -1,6 +1,6 @@
 {
   "name": "czechidm-app",
-  "version": "9.4.0-rc.1",
+  "version": "9.4.0-rc.2",
   "description": "Main application module for czechidm.",
   "main": "index.html",
   "keywords": [
@@ -45,6 +45,11 @@
     "minify": true
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "5.6.3",
+    "@fortawesome/fontawesome-svg-core": "1.2.12",
+    "@fortawesome/free-regular-svg-icons": "5.6.3",
+    "@fortawesome/free-solid-svg-icons": "5.6.3",
+    "@fortawesome/react-fontawesome": "0.1.4",
     "babel-polyfill": "6.7.4",
     "babel-runtime": "5.8.38",
     "bootstrap-less": "3.3.8",
@@ -53,7 +58,7 @@
     "draft-js": "0.10.0",
     "draft-js-export-html": "0.5.2",
     "es6-promise": "3.1.2",
-    "font-awesome": "4.7.0",
+    "fast-deep-equal": "2.0.1",
     "github-markdown-css": "2.2.1",
     "gulp-concat": "2.6.0",
     "gulp-each": "0.2.0",
@@ -105,8 +110,7 @@
     "stringify": "5.1.0",
     "uuid": "2.0.1",
     "vinyl-fs": "3.0.2",
-    "zxcvbn": "4.4.1",
-    "fast-deep-equal": "2.0.1"
+    "zxcvbn": "4.4.1"
   },
   "devDependencies": {
     "babel": "5.8.38",

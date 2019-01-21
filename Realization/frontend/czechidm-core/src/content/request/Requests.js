@@ -94,13 +94,8 @@ class Requests extends Advanced.AbstractTableContent {
     const innerShowLoading = _showLoading || showLoading;
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
+        { this.renderPageHeader() }
         <Basic.Confirm ref="confirm-delete" level="danger"/>
-        <Basic.ContentHeader>
-          <Basic.Icon type="fa" icon="universal-access"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-        </Basic.ContentHeader>
         <Basic.Panel>
           <RequestTable
             ref="table"

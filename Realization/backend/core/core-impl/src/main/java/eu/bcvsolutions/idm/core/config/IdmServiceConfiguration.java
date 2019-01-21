@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmGenerateValueService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
@@ -96,6 +97,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmGenerateValueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIncompatibleRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordHistoryRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
@@ -125,6 +127,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmGenerateValueServic
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordService;
@@ -184,6 +187,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmIdentityRepository identityRepository;
 	@Autowired private IdmRoleRepository roleRepository;
 	@Autowired private IdmRoleCompositionRepository roleCompositionRepository;
+	@Autowired private IdmIncompatibleRoleRepository incompatibleRoleRepository;
 	@Autowired private IdmRoleTreeNodeRepository roleTreeNodeRepository;
 	@Autowired private IdmTreeTypeRepository treeTypeRepository;
 	@Autowired private IdmTreeNodeRepository treeNodeRepository;
@@ -479,6 +483,17 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(IdmRoleCompositionService.class)
 	public IdmRoleCompositionService roleCompositionService() {
 		return new DefaultIdmRoleCompositionService(roleCompositionRepository, entityEventManager());
+	}
+	
+	/**
+	 * Incompatible role - defines Segregation of Duties
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmIncompatibleRoleService.class)
+	public IdmIncompatibleRoleService incompatibleRoleService() {
+		return new DefaultIdmIncompatibleRoleService(incompatibleRoleRepository, entityEventManager());
 	}
 	
 	/**

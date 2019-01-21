@@ -878,7 +878,7 @@
       "DELETE": "Delete",
       "EXECUTE": "Execute",
       "PASSWORDCHANGE": "Password change",
-      "CHANGEPERMISSION": "Manage authorizations"
+      "CHANGEPERMISSION": "Change roles"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -1232,7 +1232,7 @@
         "completeTaskConfirmTitle": "Confirmation of task completion",
         "completeTaskConfirmDetail": "Do you really want to settle this task?",
         "role": {
-          "currentRoles": "Currently assigned permissions",
+          "currentRoles": "Currently assigned roles",
           "conceptIdentityRoles": "Applicant's roles"
         }
       },
@@ -1262,7 +1262,7 @@
         "oldValueNotExist": "Old value was empty",
         "create": {
           "header": "Add roles",
-          "headerByIdentity": "Add role by user"
+          "headerByIdentity": "Add roles by user"
         },
         "edit": {
           "header": "Edit roles"
@@ -2332,7 +2332,7 @@
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
-        "changePermissions": "Manage authorizations",
+        "changePermissions": "Request to change roles",
         "authorities": "Granted authorizations <small>from assigned roles</small>",
         "changeRoleProcesses": {
           "header": "Roles pending approval",
@@ -2341,10 +2341,10 @@
         },
         "changePermissionRequests": {
           "label": "Requests",
-          "header": "Requests for authorization change"
+          "header": "Requests for change roles"
         },
         "conceptPermissionRequests": {
-          "header": "Concepts of requests for authorization change"
+          "header": "Concepts of requests for change roles"
         },
         "create": {
           "header": "Assign new role",
@@ -4045,7 +4045,7 @@
       "log": "Log",
       "description": {
         "label" : "Description",
-        "placeholder": "Verbal description of a request to change the permissions"
+        "placeholder": "Verbal description of a request to change assinged roles"
       },
       "created": "Created",
       "modified": "Modified",
@@ -4321,35 +4321,35 @@
   },
   "wf": {
     "approve-identity-change-permissions" : {
-      "name": "Change of permissions for user '{{0}}'",
+      "name": "Change of assigned roles for user '{{0}}'",
       "task": {
         "approveByHelpDesk": {
           "name": "Approval by 'Helpdesk'",
-          "description":"Approving a change of permissions for '{{0}}' (Helpdesk)"
+          "description":"Approving a change of assigned roles for '{{0}}' (Helpdesk)"
         },
         "returnedRequestFromHelpdesk": {
           "name": "The request was returned from 'Helpdesk'",
-          "description":"Returned change-of-permissions request for '{{0}}'"
+          "description":"Returned change-of-roles request for '{{0}}'"
         },
         "approveByManager": {
           "name": "Approval by manager",
-          "description":"Approving a change of permissions by manager for '{{0}}'"
+          "description":"Approving a change of assigned roles by manager for '{{0}}'"
         },
         "returnedRequestFromManager": {
           "name": "The request was returned from manager",
-          "description":"Returned change-of-permissions request for '{{0}}'"
+          "description":"Returned change-of-roles request for '{{0}}'"
         },
         "approveByUserManager": {
           "name": "Approval by user manager",
-          "description":"Approving a change of permissions by user manager for '{{0}}'"
+          "description":"Approving a change of assigned roles by user manager for '{{0}}'"
         },
         "returnedRequestFromUserManager": {
           "name": "The request was returned from user manager",
-          "description":"Returned change-of-permissions request for '{{0}}'"
+          "description":"Returned change-of-roles request for '{{0}}'"
         },
         "approvedBySecurity": {
           "name": "Approval by security department",
-          "description":"Approving a change of permissions by security department for '{{0}}'"
+          "description":"Approving a change of assigned roles by security department for '{{0}}'"
         }
       }
     },
@@ -5109,16 +5109,16 @@
       "message": "Request will be processed / approved."
     },
     "ROLE_REQUEST_EXECUTED_CANNOT_DELETE": {
-      "title": "Request for change permission cannot be deleted",
-      "message": "Request for change permission in state 'Executed' cannot be delete!"
+      "title": "Request for change roles cannot be deleted",
+      "message": "Request for change roles in state 'Executed' cannot be delete!"
     },
     "ROLE_REQUEST_APPLICANTS_NOT_SAME": {
-      "title": "Request for change permission have not same applicants",
+      "title": "Request for change roles have not same applicants",
       "message": "Some concepts have not same applicant [{{applicant}}]!"
     },
     "ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
-      "title": "You do not have permission to start request for permission changes without approval.",
-      "message": "You do not have permission (EXECUTE IMMEDIATELY) to start request for permission changes without approval!"
+      "title": "You do not have permission to start request for change roles without approval.",
+      "message": "You do not have permission (EXECUTE IMMEDIATELY) to start request for change roles without approval!"
     },
     "CRYPT_DEMO_KEY_NOT_FOUND": {
       "title": "Demo key was not found",
@@ -5641,8 +5641,8 @@
       "message": "Request item [{{item}}] could not be executed, because is using DTO from terminated item [{{terminatedItem}}]!"
     },
     "REQUEST_EXECUTED_CANNOT_DELETE": {
-      "title": "Request for change permission cannot be deleted",
-      "message": "Request for change permission in state 'Executed' cannot be delete!"
+      "title": "Request for change roles cannot be deleted",
+      "message": "Request for change roles in state 'Executed' cannot be delete!"
     },
     "SYNTAX_ERROR": {
       "title": "Server communication failed",

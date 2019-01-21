@@ -909,7 +909,7 @@
       "DELETE": "Mazání",
       "EXECUTE": "Spouštění",
       "PASSWORDCHANGE": "Změna hesla",
-      "CHANGEPERMISSION": "Změna oprávnění"
+      "CHANGEPERMISSION": "Změna rolí"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -1276,8 +1276,8 @@
           "completeTaskConfirmTitle": "Potvrzení dokončení úkolu",
           "completeTaskConfirmDetail": "Opravdu chcete tento úkol dokončit?",
           "role": {
-            "currentRoles": "Aktuálně přiřazená oprávnění",
-            "conceptIdentityRoles": "Oprávnění žadatele"
+            "currentRoles": "Aktuálně přiřazené role",
+            "conceptIdentityRoles": "Role žadatele"
           }
         },
         "DefaultTaskDetail": {
@@ -1305,31 +1305,31 @@
           "oldValue": "Původní hodnota {{oldValue}}",
           "oldValueNotExist": "Původní hodnota byla prázdná",
           "create": {
-            "header": "Přidat oprávnění",
-            "headerByIdentity": "Přidat oprávnění podle uživatele"
+            "header": "Přidat role",
+            "headerByIdentity": "Přidat role podle uživatele"
           },
           "edit": {
-            "header": "Upravit oprávnění"
+            "header": "Upravit roli"
           },
           "selectRoleCatalogue": {
             "header": "Výběr rolí ze složek katalogu"
           },
           "action": {
             "deleteAdded": {
-              "header": "Odstranění oprávnění",
-              "message": "Opravdu chcete odstranit toto nové oprávnění?"
+              "header": "Odebrání role",
+              "message": "Opravdu chcete odebrat tuto novou roli?"
             },
             "deleteChanged": {
               "header": "Odstranění úprav",
-              "message": "Opravdu chcete zrušit úpravy nad tímto oprávněním?"
+              "message": "Opravdu chcete zrušit úpravy nad touto rolí?"
             },
             "deleteRemoved": {
               "header": "Odstranění úprav",
-              "message": "Opravdu chcete zrušit úpravy nad tímto oprávněním?"
+              "message": "Opravdu chcete zrušit úpravy nad touto rolí?"
             },
             "delete": {
-              "header": "Odstranění oprávnění",
-              "message": "Opravdu chcete toto oprávnění odstranit?"
+              "header": "Odebrání role",
+              "message": "Opravdu chcete tuto roli odebrat?"
             }
           },
           "identityRoleAttributes": {
@@ -1959,16 +1959,16 @@
     "roleRequestDetail": {
       "header": "Žádost o změnu rolí",
       "title": "Změny přiřazených rolí",
-      "conceptHeader": "Požadované změny oprávnění",
+      "conceptHeader": "Požadované změny rolí",
       "conceptWithCurrentRoleHeader": "Aktuálně přiřazené role (včetně požadovaných změn)",
       "save": {
-        "success": "Žádost o změnu oprávnění byla úspěšně uložena",
+        "success": "Žádost o změnu rolí byla úspěšně uložena",
         "start": "Odeslat žádost"
       },
       "button": {
         "createRequest":{
           "label": "Podat žádost",
-          "tooltip": "Zahájí žádost o změnu oprávnění. Spustí případné schvalovací procesy."
+          "tooltip": "Zahájí žádost o změnu rolí. Spustí případné schvalovací procesy."
         }
       },
       "confirm-incompatible-role": {
@@ -2387,15 +2387,15 @@
         "authorities": "Přidělená oprávnění <small>dle přiřazených rolí</small>",
         "changeRoleProcesses": {
           "header": "Role čekající na schválení",
-          "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu oprávnění?",
-          "deleteSuccess": "Žádost o změnu oprávnění byla úspěšně smazána."
+          "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu rolí?",
+          "deleteSuccess": "Žádost o změnu rolí byla úspěšně smazána."
         },
         "changePermissionRequests": {
           "label": "Žádosti",
-          "header": "Žádosti o změnu oprávnění"
+          "header": "Žádosti o změnu rolí"
         },
         "conceptPermissionRequests": {
-          "header": "Rozpracované žádosti o změnu oprávnění"
+          "header": "Rozpracované žádosti o změnu rolí"
         },
         "create": {
           "header": "Přiřazení nové role",
@@ -4371,35 +4371,35 @@
   },
   "wf": {
     "approve-identity-change-permissions" : {
-      "name": "Změna oprávnění pro uživatele '{{0}}'",
+      "name": "Změna rolí pro uživatele '{{0}}'",
       "task": {
         "approveByHelpDesk": {
           "name": "Schvalování 'Helpdesk'",
-          "description":"Schválení změny oprávnění pro '{{0}}' (Helpdesk)"
+          "description":"Schválení změny rolí pro '{{0}}' (Helpdesk)"
         },
         "returnedRequestFromHelpdesk": {
           "name": "Požadavek vrácen z 'Helpdesk'",
-          "description":"Vrácený požadavek na změnu oprávnění pro uživatele '{{0}}'"
+          "description":"Vrácený požadavek na změnu rolí pro uživatele '{{0}}'"
         },
         "approveByManager": {
           "name": "Schvalování vedoucím",
-          "description":"Schválení změny oprávnění vedoucím pro '{{0}}'"
+          "description":"Schválení změny rolí vedoucím pro '{{0}}'"
         },
         "returnedRequestFromManager": {
           "name": "Požadavek vrácen vedoucím",
-          "description":"Vrácený požadavek na změnu oprávnění pro uživatele '{{0}}'"
+          "description":"Vrácený požadavek na změnu rolí pro uživatele '{{0}}'"
         },
         "approveByUserManager": {
           "name": "Schválení vedoucím uživatele",
-          "description":"Schválení změny oprávnění vedoucím uživatele pro '{{0}}'"
+          "description":"Schválení změny rolí vedoucím uživatele pro '{{0}}'"
         },
         "returnedRequestFromUserManager": {
           "name": "Požadavek vrácen vedoucím uživatele",
-          "description":"Vrácený požadavek na změnu oprávnění pro uživatele '{{0}}'"
+          "description":"Vrácený požadavek na změnu rolí pro uživatele '{{0}}'"
         },
         "approvedBySecurity": {
           "name": "Schválení bezpečnostním oddělením",
-          "description":"Schválení změny oprávnění bezpečnostním oddělením pro '{{0}}'"
+          "description":"Schválení změny rolí bezpečnostním oddělením pro '{{0}}'"
         }
       }
     },
@@ -5159,11 +5159,11 @@
       "message": "Požadavek byl předán ke zpracování či schválení."
     },
     "ROLE_REQUEST_EXECUTED_CANNOT_DELETE": {
-      "title": "Žádost o změnu oprávnění nemohla být smazána",
+      "title": "Žádost o změnu rolí nemohla být smazána",
       "message": "Žádost ve stavu 'Provedeno' nemůže být smazána!"
     },
     "ROLE_REQUEST_APPLICANTS_NOT_SAME": {
-      "title": "Žádost o změnu oprávnění nemá stejné žadatele",
+      "title": "Žádost o změnu rolí nemá stejné žadatele",
       "message": "Některé koncepty nemají stejného žadatele [{{applicant}}]!"
     },
     "ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
@@ -5691,7 +5691,7 @@
       "message": "Položka žádosti [{{item}}] nemůže být provedena, protože používá DTO (nově vytvořené) z jiné již zrušené položky [{{terminatedItem}}]!"
     },
     "REQUEST_EXECUTED_CANNOT_DELETE": {
-      "title": "Žádost o změnu oprávnění nemohla být smazána",
+      "title": "Žádost o změnu rolí nemohla být smazána",
       "message": "Žádost ve stavu 'Provedeno' nemůže být smazána!"
     },
     "SYNTAX_ERROR": {

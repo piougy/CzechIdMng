@@ -1870,8 +1870,8 @@
       }
     },
     "roleRequests": {
-      "header": "Requests for roles",
-      "title": "Requests for change roles",
+      "header": "Requests for change roles",
+      "title": "Requests for roles",
       "applicant": "Applicant",
       "create": {
         "header": "Create new request to change assigned roles"

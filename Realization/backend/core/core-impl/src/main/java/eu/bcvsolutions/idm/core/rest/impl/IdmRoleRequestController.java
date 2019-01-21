@@ -357,8 +357,6 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		// FIXME: move to manager, add tests
-		//
 		// currently assigned roles
 		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
 		identityRoleFilter.setIdentityId(entity.getApplicant());		
@@ -419,7 +417,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 					List<InvalidFormAttributeDto> validationResults = formService.validate(formInstanceDto);
 					if (validationResults != null && !validationResults.isEmpty()) {
 						// Concept is not valid (no other metadata for validation problem is not
-						// necessary now)
+						// necessary now).
 						concept.setValid(false);
 					}
 				}
@@ -443,7 +441,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 				filter.setApplicantId(UUID.fromString(filter.getApplicant()));
 				filter.setApplicant(null);
 			} catch (IllegalArgumentException ex) {
-				// ok applicant is not UUID
+				// Ok applicant is not UUID
 			}
 		}
 		// TODO: remove redundant state field

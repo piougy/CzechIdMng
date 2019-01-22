@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -219,7 +220,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	@Override
 	@Transactional
-	public IdmContractSliceDto setSliceAsCurrentlyUsing(IdmContractSliceDto slice) {
+	public IdmContractSliceDto setSliceAsCurrentlyUsing(IdmContractSliceDto slice, Map<String, Serializable> eventProperties) {
 		// Only one slice can be marked as 'is using as contract' (for one parent
 		// contract)
 		if (slice.getParentContract() != null) {
@@ -244,7 +245,12 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		slice.setUsingAsContract(true);
 		// Copy to contract is ensures the save slice processor. We have to only set
 		// attribute 'Is using as contract' to true.
-		return contractSliceService.save(slice);
+		if (eventProperties == null) {
+			return contractSliceService.save(slice);
+		}
+		return contractSliceService.publish(
+				new ContractSliceEvent(ContractSliceEventType.UPDATE, slice, ImmutableMap.copyOf(eventProperties)))
+				.getContent();
 	}
 
 	@Override
@@ -299,7 +305,8 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	 * @param validTill
 	 *            of whole contract
 	 */
-	private void convertSliceToContract(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
+	@Override
+	public void convertSliceToContract(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
 		contract.setIdentity(slice.getIdentity());
 		contract.setMain(slice.isMain());
 		contract.setPosition(slice.getPosition());
@@ -492,7 +499,11 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 				} else {
 					// Parent contract was changed and old contract does not have next slice, we
 					// have to delete him.
-					contractService.delete(originalContract);
+					// Delete contract
+					contractService.publish(
+							new IdentityContractEvent(IdentityContractEventType.DELETE,
+									originalContract, ImmutableMap.copyOf(eventProperties)))
+							.getContent();
 				}
 			}
 			// Parent contract was changed, want to recalculate "Is using as contract"
@@ -544,7 +555,11 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 			IdmContractSliceDto shouldBeSetAsUsing = this.getBean().findValidSlice(parentContract);
 
 			if (shouldBeSetAsUsing != null) {
-				shouldBeSetAsUsing = this.getBean().setSliceAsCurrentlyUsing(shouldBeSetAsUsing);
+				Map<String, Serializable> clonedProperties = new HashMap<>(eventProperties);
+				if (clonedProperties.containsKey(IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE)){
+					clonedProperties.remove(IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE);
+				}
+				shouldBeSetAsUsing = this.getBean().setSliceAsCurrentlyUsing(shouldBeSetAsUsing, clonedProperties);
 				if (slice.equals(shouldBeSetAsUsing)) {
 					// If that slice should be using as contract, then we using returned instance
 					// (instead the reload slice from DB)

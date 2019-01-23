@@ -37,14 +37,23 @@ public class IdentityIncompatibleRoleReportXlsxRenderer extends AbstractXlsxRend
 			JsonParser jParser = getMapper().getFactory().createParser(getReportData(report));
 			XSSFWorkbook workbook = new XSSFWorkbook();
 			XSSFSheet sheet = workbook.createSheet("Report");
+			sheet.setDefaultColumnWidth(15);
 			// header
 			Row row = sheet.createRow(0);
 			Cell cell = row.createCell(0);
-			cell.setCellValue("Identity");
+			cell.setCellValue("Identity - username");
 			cell = row.createCell(1);
-			cell.setCellValue("Asigned role");
+			cell.setCellValue("Identity - personal number");
 			cell = row.createCell(2);
-			cell.setCellValue("Incompatible role definition");
+			cell.setCellValue("Identity - lastName");
+			cell = row.createCell(3);
+			cell.setCellValue("Identity - firstName");
+			cell = row.createCell(4);
+			cell.setCellValue("Assigned role");
+			cell = row.createCell(5);
+			cell.setCellValue("Incompatible role definition - role with definition");
+			cell = row.createCell(6);
+			cell.setCellValue("Incompatible role definition - target role");
 		
 			int rowNum = 1;
 			//
@@ -58,9 +67,17 @@ public class IdentityIncompatibleRoleReportXlsxRenderer extends AbstractXlsxRend
 					cell = row.createCell(0);
 					cell.setCellValue(item.getIdentity().getUsername());
 					cell = row.createCell(1);
-					cell.setCellValue(item.getDirectRole().getCode());
+					cell.setCellValue(item.getIdentity().getExternalCode());
 					cell = row.createCell(2);
-					cell.setCellValue(String.format("[%s] - [%s]", item.getSuperior().getCode(), item.getSub().getCode()));
+					cell.setCellValue(item.getIdentity().getLastName());
+					cell = row.createCell(3);
+					cell.setCellValue(item.getIdentity().getFirstName());
+					cell = row.createCell(4);
+					cell.setCellValue(item.getDirectRole().getCode());
+					cell = row.createCell(5);
+					cell.setCellValue(item.getSuperior().getCode());
+					cell = row.createCell(6);
+					cell.setCellValue(item.getSub().getCode());
 				}
 			}
 			// close json stream

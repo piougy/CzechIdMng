@@ -34,7 +34,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
-import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ClearDirtyStateForContractSliceTaskExecutor;
 
 /**
@@ -47,6 +46,9 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.ClearDirtyStateForContractSl
 @Description("Deletes contract slice.")
 public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContractSliceDto>
 		implements ContractSliceProcessor {
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
+			.getLogger(ContractSliceDeleteProcessor.class);
 
 	public static final String PROCESSOR_NAME = "contract-slice-delete-processor";
 	private final IdmContractSliceService service;
@@ -63,7 +65,7 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 
 	@Autowired
 	public ContractSliceDeleteProcessor(IdmContractSliceService service) {
-		super(IdentityContractEventType.DELETE);
+		super(ContractSliceEventType.DELETE);
 		//
 		Assert.notNull(service);
 		//
@@ -93,6 +95,10 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 			Map<String, Serializable> properties = new HashMap<>(event.getProperties());
 			// Creates new dirty states, dirty states must be process by executor
 			createDeleteDirtyState(slice, properties);
+			LOG.info(
+					"Property SET_DIRTY_STATE_CONTRACT_SLICE is true -> Slice [{}] is not deleted but only marked as DIRTY."
+					+ " Deleting will be processed in ClearDirtyStateForContractSliceTaskExecutor!",
+					slice.toString());
 			return new DefaultEventResult<>(event, this);
 		}
 
@@ -149,8 +155,7 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 		} else {
 			service.deleteInternal(slice);
 		}
-
-		//
+		
 		return new DefaultEventResult<>(event, this);
 	}
 

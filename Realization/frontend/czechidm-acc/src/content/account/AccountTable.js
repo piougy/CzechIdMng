@@ -191,6 +191,7 @@ export class AccountTable extends Advanced.AbstractTableContent {
               }
             }
             property="uid"
+            sort
             header={this.i18n('acc:entity.Account.uid')}
             rendered={_.includes(columns, 'uid')}/>
           <Advanced.Column
@@ -218,15 +219,20 @@ export class AccountTable extends Advanced.AbstractTableContent {
             property="inProtection"
             header={this.i18n('acc:entity.Account.inProtection')}
             face="bool"
+            sort
             rendered={_.includes(columns, 'inProtection')}/>
           <Advanced.Column
             property="endOfProtection"
             header={this.i18n('acc:entity.Account.endOfProtection')}
             face="datetime"
+            sort
             rendered={_.includes(columns, 'endOfProtection')}/>
-          <Advanced.Column property="_embedded.systemEntity.uid"
+          <Advanced.Column
+            property="_embedded.systemEntity.uid"
             rendered={_.includes(columns, 'systemEntity')}
             header={this.i18n('acc:entity.Account.systemEntity')}
+            sort
+            sortProperty="systemEntity.uid"
             face="text" />
         </Advanced.Table>
 

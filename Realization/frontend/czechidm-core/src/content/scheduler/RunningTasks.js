@@ -41,10 +41,15 @@ class RunningTasks extends Basic.AbstractContent {
     this._fetchRunningTasks();
   }
 
+  getManager() {
+    return this.props.manager;
+  }
+
   _fetchRunningTasks() {
-    const { creatorId } = this.props;
+    const { creatorId, uiKey } = this.props;
+    //
     const forceSearchParameters = new SearchParameters().setFilter('running', true).setFilter('stateful', true).setFilter('creatorId', creatorId).setSort('created', 'desc');
-    this.context.store.dispatch(manager.fetchEntities(forceSearchParameters, UIKEY));
+    this.context.store.dispatch(this.getManager().fetchEntities(forceSearchParameters, uiKey));
   }
 
   render() {
@@ -101,15 +106,19 @@ RunningTasks.propTypes = {
   _entities: PropTypes.arrayOf(React.PropTypes.object)
 };
 RunningTasks.defaultProps = {
+  uiKey: UIKEY,
+  manager,
   creatorId: null,
   _showLoading: true,
   _entities: []
 };
 
-function select(state) {
+function select(state, component) {
+  const uiKey = component.uiKey || UIKEY;
+  //
   return {
-    _showLoading: Utils.Ui.isShowLoading(state, UIKEY),
-    _entities: Utils.Ui.getEntities(state, UIKEY)
+    _showLoading: Utils.Ui.isShowLoading(state, uiKey),
+    _entities: Utils.Ui.getEntities(state, uiKey)
   };
 }
 

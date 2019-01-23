@@ -1,13 +1,16 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Basic, Domain, Managers } from 'czechidm-core';
 import VsRequestTable from '../vs-request/VsRequestTable';
+
+const uiKey = 'vs-request-table-dashboard';
 
 /**
  * Virtual system dashbord panel
  *
  * @author Vít Švanda
  */
-export default class VsDashboard extends Basic.AbstractContent {
+class VsDashboard extends Basic.AbstractContent {
 
   /**
    * "Shorcut" for localization
@@ -17,19 +20,21 @@ export default class VsDashboard extends Basic.AbstractContent {
   }
 
   render() {
+    const { _total } = this.props;
+    //
     if (!Managers.SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['VSREQUEST_READ']})) {
       return null;
     }
     const searchActive = new Domain.SearchParameters().setFilter('state', 'IN_PROGRESS');
     return (
-      <div>
+      <div className={ _total ? '' : 'hidden' }>
         <Basic.ContentHeader
           icon="link"
           text={ this.i18n('header') }/>
         <Basic.Panel>
           <VsRequestTable
-            uiKey="vs-request-table-dashboard"
-            columns= {['uid', 'systemId', 'operationType', 'created', 'creator', 'operations']}
+            uiKey={ uiKey }
+            columns={['uid', 'systemId', 'operationType', 'created', 'creator', 'operations']}
             showFilter={false}
             forceSearchParameters={searchActive}
             showToolbar={false}
@@ -42,3 +47,15 @@ export default class VsDashboard extends Basic.AbstractContent {
     );
   }
 }
+
+function select(state) {
+  const ui = state.data.ui[uiKey];
+  if (!ui) {
+    return {};
+  }
+  return {
+    _total: ui.total
+  };
+}
+
+export default connect(select)(VsDashboard);

@@ -4,6 +4,8 @@ import * as Basic from '../../components/basic';
 import { WorkflowTaskInstanceManager, SecurityManager } from '../../redux';
 import TaskInstanceTable from '../task/TaskInstanceTable';
 
+const uiKeyPrefix = 'task-instance-dashboard-';
+
 /**
  * Assigned workflow tasks
  *
@@ -11,13 +13,14 @@ import TaskInstanceTable from '../task/TaskInstanceTable';
  * @author Radek Tomiška
  */
 class AssignedTaskDashboard extends Basic.AbstractContent {
+
   constructor(props, context) {
     super(props, context);
     this.workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
   }
 
   render() {
-    const { identity, userContext } = this.props;
+    const { identity, userContext, _total } = this.props;
 
     if (!identity || !SecurityManager.hasAuthority('WORKFLOWTASK_READ') ) {
       return null;
@@ -27,13 +30,13 @@ class AssignedTaskDashboard extends Basic.AbstractContent {
     }
     //
     return (
-      <div>
+      <div className={ _total ? '' : 'hidden' }>
         <Basic.ContentHeader
           icon="tasks"
           text={ this.i18n('content.tasks-assigned.assigned') }/>
         <Basic.Panel>
           <TaskInstanceTable
-            uiKey={ `task-instance-dashboard-${ identity.username }-table` }
+            uiKey={ `${ uiKeyPrefix }${ identity.username }` }
             username={ identity.username }
             taskInstanceManager={ this.workflowTaskInstanceManager }
             filterOpened={ false }/>
@@ -43,9 +46,12 @@ class AssignedTaskDashboard extends Basic.AbstractContent {
   }
 }
 
-function select(state) {
+function select(state, component) {
+  const uiKey = `${ uiKeyPrefix }-${ component.identity ? component.identity.username : '' }`;
+  const ui = state.data.ui[uiKey];
   return {
-    userContext: state.security.userContext
+    userContext: state.security.userContext,
+    _total: ui ? ui.total : null
   };
 }
 

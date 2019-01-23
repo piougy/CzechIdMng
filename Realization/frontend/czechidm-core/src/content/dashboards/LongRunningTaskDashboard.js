@@ -1,13 +1,18 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import { SecurityManager } from '../../redux';
+import { SecurityManager, LongRunningTaskManager } from '../../redux';
 import RunningTasks from '../scheduler/RunningTasks';
+
+const manager = new LongRunningTaskManager();
+const uiKeyPrefix = 'long-running-taks-table-';
+
 /**
  * Identity info with link to profile
  *
  * @author Radek Tomiška
  */
-export default class LongRunningTaskDashboard extends Basic.AbstractContent {
+class LongRunningTaskDashboard extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -18,21 +23,37 @@ export default class LongRunningTaskDashboard extends Basic.AbstractContent {
   }
 
   render() {
-    const { identity } = this.props;
+    const { identity, _total } = this.props;
     //
     if (!SecurityManager.hasAnyAuthority(['SCHEDULER_READ'])) {
       return null;
     }
     //
     return (
-      <div>
+      <div className={ _total ? '' : 'hidden' }>
         <Basic.ContentHeader
           icon="fa:calendar-times-o"
           text={ this.i18n('dashboard.longRunningTaskDashboard.header') }/>
         <Basic.Panel>
-          <RunningTasks creatorId={ identity ? identity.id : null } />
+          <RunningTasks
+            manager={ manager }
+            uiKey={ `${ uiKeyPrefix }${ identity ? identity.id : 'dashboard' }` }
+            creatorId={ identity ? identity.id : null } />
         </Basic.Panel>
       </div>
     );
   }
 }
+
+function select(state, component) {
+  const uiKey = `${ uiKeyPrefix }${ component.identity ? component.identity.id : 'dashboard' }`;
+  const ui = state.data.ui[uiKey];
+  if (!ui) {
+    return {};
+  }
+  return {
+    _total: ui.total
+  };
+}
+
+export default connect(select)(LongRunningTaskDashboard);

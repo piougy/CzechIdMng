@@ -68,7 +68,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
   }
 
   getDefaultSearchParameters() {
-    return this.getManager().getDefaultSearchParameters().setFilter('disabled', 'false').setFilter('recursively', 'true');
+    return this.getManager().getDefaultSearchParameters().setFilter('recursively', 'true');
   }
 
   useFilter(event) {

@@ -266,7 +266,6 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       niceLabel: formAttributeManager.getLocalization(evaluator.formDefinition, null, 'label', Utils.Ui.getSimpleJavaType(evaluator.evaluatorType)),
       value: evaluator.evaluatorType,
       description: formAttributeManager.getLocalization(evaluator.formDefinition, null, 'help', evaluator.description),
-      parameters: evaluator.parameters,
       supportsPermissions: evaluator.supportsPermissions,
       formDefinition: evaluator.formDefinition
     };

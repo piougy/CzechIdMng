@@ -153,7 +153,12 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
                     );
                   }
                 }/>
-              <Advanced.Column property="_embedded.account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
+              <Advanced.Column
+                property="_embedded.account.uid"
+                header={this.i18n('acc:entity.Account.uid')}
+                sort
+                sortProperty="account.uid"
+                face="text" />
               <Advanced.Column
                 header={this.i18n('acc:entity.System.name')}
                 cell={

@@ -9,6 +9,7 @@ import * as Utils from '../../utils';
 import { SearchParameters } from '../../domain';
 import { SecurityManager, ConfigurationManager } from '../../redux';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
+import ConfigLoader from '../../utils/ConfigLoader';
 
 /**
  * Table of identities
@@ -68,7 +69,12 @@ export class IdentityTable extends Advanced.AbstractTableContent {
   }
 
   getDefaultSearchParameters() {
-    return this.getManager().getDefaultSearchParameters().setFilter('disabled', 'false').setFilter('recursively', 'true');
+    let searchParameters = this.getManager().getDefaultSearchParameters();
+    //
+    searchParameters = searchParameters.setFilter('disabled', ConfigLoader.getConfig('table.identity.filter.disabled', false));
+    searchParameters = searchParameters.setFilter('recursively', ConfigLoader.getConfig('table.identity.filter.disabled', true));
+    //
+    return searchParameters;
   }
 
   useFilter(event) {

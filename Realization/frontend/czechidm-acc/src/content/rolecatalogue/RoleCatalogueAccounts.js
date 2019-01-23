@@ -136,7 +136,12 @@ class RoleCatalogueAccounts extends Advanced.AbstractTableContent {
                 }
               }/>
             <Advanced.Column rendered={false} property="_embedded.account.accountType" width="75px" header={this.i18n('acc:entity.Account.accountType')} sort face="enum" enumClass={AccountTypeEnum} />
-            <Advanced.Column property="_embedded.account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
+            <Advanced.Column
+              property="_embedded.account.uid"
+              header={this.i18n('acc:entity.Account.uid')}
+              sort
+              sortProperty="account.uid"
+              face="text" />
             <Advanced.Column
               header={this.i18n('acc:entity.System.name')}
               cell={

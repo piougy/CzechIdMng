@@ -30,5 +30,13 @@
   },
   "pagination": {
     "size": 10
+  },
+  "table": {
+    "identity": {
+      "filter": {
+        "disabled": "false",
+        "recursively": "true"
+      }
+    }
   }
 }

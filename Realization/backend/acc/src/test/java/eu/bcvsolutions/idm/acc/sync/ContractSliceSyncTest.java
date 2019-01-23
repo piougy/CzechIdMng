@@ -1,6 +1,10 @@
 package eu.bcvsolutions.idm.acc.sync;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -273,7 +277,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, values.size());
 		Assert.assertEquals(slice.getPosition(), values.get(0).getValue());
 
-		// Delete log
+		// Delete log 
 		syncLogService.delete(log);
 
 	}
@@ -933,6 +937,153 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 			contractSliceService.delete(slice);
 		});
 
+	}
+	
+	@Test
+	public void addTwoNewAndDeleteFirstContractSliceTurnOffRecalc() {
+		// init system
+		SysSystemDto system = initData();
+		this.getBean().deleteAllResourceData();
+
+		IdmIdentityDto identity = helper.createIdentity();
+		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identity.getId());
+		assertEquals(1, contracts.size());
+		contractService.delete(contracts.get(0));
+
+		// first valid slice
+		this.getBean().createSlice("1", identity.getUsername(), null, null, null, null, null, LocalDate.now().minusDays(20), null, LocalDate.now().minusDays(20), "ONE");
+
+		SysSyncContractConfigDto config = (SysSyncContractConfigDto) doCreateSyncConfig(system);
+		config.setStartOfHrProcesses(true);
+		config.setMissingAccountAction(ReconciliationMissingAccountActionType.DELETE_ENTITY);
+		config = (SysSyncContractConfigDto) syncConfigService.save(config);
+		// start sync (recalculation on)
+		helper.startSynchronization(config);
+
+		IdmContractSliceFilter filter = new IdmContractSliceFilter();
+		filter.setIdentity(identity.getId());
+		List<IdmContractSliceDto> slices = contractSliceService.find(filter, null).getContent();
+		assertEquals(1, slices.size());
+
+		IdmContractSliceDto sliceDto = slices.get(0);
+		assertEquals(LocalDate.now().minusDays(20), sliceDto.getValidFrom());
+		assertEquals(null, sliceDto.getValidTill());
+
+		// create invalid slice
+		this.getBean().createSlice("2", identity.getUsername(), null, null, null, null, null, LocalDate.now().minusDays(20), LocalDate.now().minusDays(10), LocalDate.now().minusDays(10), "ONE");
+		// create valid slice
+		this.getBean().createSlice("3", identity.getUsername(), null, null, null, null, null, LocalDate.now().minusDays(10), null, LocalDate.now().minusDays(9), "ONE");
+		// delete first
+		this.getBean().deleteSlice("1");
+		// start sync (recalculation off)
+		config.setStartOfHrProcesses(false);
+		config = (SysSyncContractConfigDto) syncConfigService.save(config);
+		helper.startSynchronization(config);
+
+		slices = contractSliceService.find(filter, null).getContent();
+		assertEquals(3, slices.size());
+
+		for (IdmContractSliceDto slice : slices) {
+			if ("2".equals(slice.getDescription())) {
+				assertEquals(LocalDate.now().minusDays(10), slice.getValidFrom());
+				assertEquals(null, slice.getValidTill());
+				assertFalse(slice.isUsingAsContract());
+				assertNull(slice.getParentContract());
+			} else if ("3".equals(slice.getDescription())) {
+				assertEquals(LocalDate.now().minusDays(9), slice.getValidFrom());
+				assertEquals(null, slice.getValidTill());
+				assertFalse(slice.isUsingAsContract());
+				assertNull(slice.getParentContract());
+			} else if ("1".equals(slice.getDescription())) {
+				// Is not deleted yet
+			} else {
+				fail("Slice with bad id!");
+			}
+		}
+		
+		contracts = contractService.findAllByIdentity(identity.getId());
+		assertEquals(1, contracts.size());
+		IdmIdentityContractDto contract = contracts.get(0);
+		assertEquals(LocalDate.now().minusDays(20), contract.getValidFrom());
+		assertEquals(null, contract.getValidTill());
+
+		// some tests expect data as contract slice with id 1. Just for sure we clear test slices
+		slices = contractSliceService.find(filter, null).getContent();
+		slices.forEach(slice -> {
+			contractSliceService.delete(slice);
+		});
+		identityService.delete(identity);
+	}
+	
+	@Test
+	public void addTwoNewAndDeleteFirstContractSlice() {
+		// init system
+		SysSystemDto system = initData();
+		this.getBean().deleteAllResourceData();
+
+		IdmIdentityDto identity = helper.createIdentity();
+		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identity.getId());
+		assertEquals(1, contracts.size());
+		contractService.delete(contracts.get(0));
+
+		// first valid slice
+		this.getBean().createSlice("1", identity.getUsername(), null, null, null, null, null, LocalDate.now().minusDays(20), null, LocalDate.now().minusDays(20), "ONE");
+
+		SysSyncContractConfigDto config = (SysSyncContractConfigDto) doCreateSyncConfig(system);
+		config.setStartOfHrProcesses(true);
+		config.setMissingAccountAction(ReconciliationMissingAccountActionType.DELETE_ENTITY);
+		config = (SysSyncContractConfigDto) syncConfigService.save(config);
+		// start sync
+		helper.startSynchronization(config);
+
+		IdmContractSliceFilter filter = new IdmContractSliceFilter();
+		filter.setIdentity(identity.getId());
+		List<IdmContractSliceDto> slices = contractSliceService.find(filter, null).getContent();
+		assertEquals(1, slices.size());
+
+		IdmContractSliceDto sliceDto = slices.get(0);
+		assertEquals(LocalDate.now().minusDays(20), sliceDto.getValidFrom());
+		assertEquals(null, sliceDto.getValidTill());
+
+		// create invalid slice
+		this.getBean().createSlice("2", identity.getUsername(), null, null, null, null, null, LocalDate.now().minusDays(20), LocalDate.now().minusDays(10), LocalDate.now().minusDays(10), "ONE");
+		// create valid slice
+		this.getBean().createSlice("3", identity.getUsername(), null, null, null, null, null, LocalDate.now().minusDays(10), null, LocalDate.now().minusDays(9), "ONE");
+		// delete first
+		this.getBean().deleteSlice("1");
+		// start sync
+		helper.startSynchronization(config);
+
+		slices = contractSliceService.find(filter, null).getContent();
+		assertEquals(2, slices.size());
+
+		for (IdmContractSliceDto slice : slices) {
+			if ("2".equals(slice.getDescription())) {
+				assertEquals(LocalDate.now().minusDays(10), slice.getValidFrom());
+				assertEquals(LocalDate.now().minusDays(9).minusDays(1), slice.getValidTill());
+				assertNotNull(slice.getParentContract());
+			} else if ("3".equals(slice.getDescription())) {
+				assertEquals(LocalDate.now().minusDays(9), slice.getValidFrom());
+				assertEquals(null, slice.getValidTill());
+				assertTrue(slice.isUsingAsContract());
+				assertNotNull(slice.getParentContract());
+			} else {
+				fail("Slice with bad id!");
+			}
+		}
+		
+		contracts = contractService.findAllByIdentity(identity.getId());
+		assertEquals(1, contracts.size());
+		IdmIdentityContractDto contract = contracts.get(0);
+		assertEquals(LocalDate.now().minusDays(10), contract.getValidFrom());
+		assertEquals(null, contract.getValidTill());
+
+		// some tests expect data as contract slice with id 1. Just for sure we clear test slices
+		slices = contractSliceService.find(filter, null).getContent();
+		slices.forEach(slice -> {
+			contractSliceService.delete(slice);
+		});
+		identityService.delete(identity);
 	}
 
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType,

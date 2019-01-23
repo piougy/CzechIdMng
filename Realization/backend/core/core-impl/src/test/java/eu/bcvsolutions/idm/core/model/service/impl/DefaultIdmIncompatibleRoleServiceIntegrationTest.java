@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,7 @@ public class DefaultIdmIncompatibleRoleServiceIntegrationTest extends AbstractIn
 	public void testResolveIncompatibleRoles() {
 		Assert.assertTrue(service.resolveIncompatibleRoles(null).isEmpty());
 		Assert.assertTrue(service.resolveIncompatibleRoles(Lists.newArrayList()).isEmpty());
+		Assert.assertTrue(service.resolveIncompatibleRoles(Lists.newArrayList((Serializable) null, (Serializable) null)).isEmpty());
 		//
 		// prepare role composition
 		IdmRoleDto superior = getHelper().createRole();

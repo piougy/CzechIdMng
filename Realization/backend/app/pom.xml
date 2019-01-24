@@ -4,7 +4,11 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
+<<<<<<< HEAD
 		<version>9.4.0-rc.2</version>
+=======
+		<version>9.3.4</version>
+>>>>>>> hotfix-9.3.4
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 

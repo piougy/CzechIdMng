@@ -1286,6 +1286,15 @@
           "delete": {
             "header": "Delete roles",
             "message": "Do you really want to delete roles"
+          },
+          "legend": {
+            "header":"Legend",
+            "role-types": {
+              "role": "Directly assigned application role.",
+              "business-role": "Directly assigned business role. Defined sub roles will be assigned together with this role.",
+              "automatic-role": "Role assigned by automatic role configuration (by tree structure or attribute).",
+              "sub-role": "Role assigned by business role (sub role)."
+            }
           }
         },
         "identityRoleAttributes": {

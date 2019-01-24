@@ -1360,6 +1360,15 @@
               "addSelectedRoles": "Přidat pouze vybrané role",
               "removeSelectedRoles": "Odebrat vybrané role",
               "removeAllRoles": "Odebrat všechny role"
+            },
+            "legend": {
+              "header":"Legenda",
+              "role-types": {
+                "role": "Napřímo přidělená aplikační role.",
+                "business-role": "Napřímo přidělená business role. Přidělením této role budou přiděleny i role definované touto business rolí (sub role).",
+                "automatic-role": "Role přidělená systémem dle nastavení automatických rolí (podle struktury či atributu).",
+                "sub-role": "Role přidělená na základě přidělení business role, která tuto roli obsahuje (sub role)."
+              }
             }
           },
           "alert": {

@@ -3,9 +3,6 @@ import { Link } from 'react-router';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
-import ComponentService from '../../../services/ComponentService';
-
-const componentService = new ComponentService();
 
 /**
  * Single navigation item
@@ -19,7 +16,7 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { id, className, to, icon, iconComponent, iconColor, active, title, titlePlacement, text, rendered, showLoading } = this.props;
+    const { id, className, to, icon, iconColor, active, title, titlePlacement, text, rendered, showLoading } = this.props;
     const itemClassNames = classnames(className, { active });
     const linkClassNames = classnames({ active });
     //
@@ -33,26 +30,16 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
     }
     // icon resolving
     let iconContent = null;
-    if (iconComponent) {
-      const component = componentService.getIconComponent(iconComponent);
-      if (component) {
-        const Icon = component.component;
-        iconContent = (
-          <Icon color={ iconColor }/>
-        );
-      }
-    } else {
-      let _icon = ( icon === undefined || icon === null ? 'fa:circle-o' : icon );
-      if (showLoading) {
-        _icon = 'refresh';
-      }
-      if (_icon) {
-        iconContent = (
-          <Basic.Icon icon={ _icon } color={ iconColor } showLoading={ showLoading }/>
-        );
-      }
+    let _icon = ( icon === undefined || icon === null ? 'fa:circle-o' : icon );
+    if (showLoading) {
+      _icon = 'refresh';
     }
-
+    if (_icon) {
+      iconContent = (
+        <Basic.Icon icon={ _icon } color={ iconColor } showLoading={ showLoading }/>
+      );
+    }
+    //
     return (
       <li className={itemClassNames}>
         <Basic.Tooltip id={`${id}-tooltip`} placement={titlePlacement} value={title}>

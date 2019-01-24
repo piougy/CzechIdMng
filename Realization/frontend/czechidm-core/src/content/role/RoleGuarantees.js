@@ -36,7 +36,7 @@ export default class RoleGuarantees extends Basic.AbstractContent {
           !SecurityManager.hasAuthority('ROLEGUARANTEEROLE_READ')
           ||
           <div>
-            <Basic.ContentHeader icon="fa:key" text={ this.i18n('role.header') } style={{ marginBottom: 0 }}/>
+            <Basic.ContentHeader icon="component:roles" text={ this.i18n('role.header') } style={{ marginBottom: 0 }}/>
             <RoleGuaranteeRoleTable
               uiKey="role-guarantee-role-table"
               forceSearchParameters={ forceSearchParameters }

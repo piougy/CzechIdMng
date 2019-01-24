@@ -155,7 +155,7 @@ class IdentityDashboard extends Basic.AbstractContent {
             style={{ height: 50, marginRight: 3, minWidth: 150 }}
             rendered={ this._canPasswordChange() }/>
           <Basic.Button
-            icon="fa:key"
+            icon="component:identity-roles"
             className="btn-large"
             text={ this.i18n('content.identity.roles.changePermissions') }
             onClick={ this.onChangePermissions.bind(this) }

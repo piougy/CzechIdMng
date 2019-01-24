@@ -50,6 +50,7 @@ import LongRunningTask from './LongRunningTask/LongRunningTask';
 import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
 import CodeListSelect from './CodeListSelect/CodeListSelect';
 import CodeListValue from './CodeListValue/CodeListValue';
+import AbstractIcon from './Icon/AbstractIcon';
 import Icons from './Icon/Icons';
 
 const Components = {
@@ -107,6 +108,7 @@ const Components = {
   CreatableSelectBox,
   CodeListSelect,
   CodeListValue,
+  AbstractIcon,
   Icons
 };
 

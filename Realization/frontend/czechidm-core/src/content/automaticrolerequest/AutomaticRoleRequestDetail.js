@@ -516,7 +516,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     if (this.state.showLoading || !request) {
       return (<div>
         <Basic.ContentHeader rendered={showRequestDetail}>
-          <Basic.Icon value="compressed"/>
+          <Basic.Icon value="component:automatic-role"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
@@ -557,7 +557,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
           <Helmet title={this.i18n('title')} />
           <Basic.Confirm ref="confirm-delete" level="danger"/>
           <Basic.ContentHeader rendered={showRequestDetail}>
-            <Basic.Icon value="compressed"/>
+            <Basic.Icon value="component:automatic-role"/>
             {' '}
             <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
           </Basic.ContentHeader>

@@ -348,7 +348,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                     ||
                     <div>
                       <Basic.ContentHeader style={{ marginBottom: 0 }} className="marginable">
-                        <Basic.Icon value="arrow-down"/>
+                        <Basic.Icon value="component:sub-roles"/>
                         {' '}
                         { this.i18n('detail.directRole.subRoles.header') }
                       </Basic.ContentHeader>

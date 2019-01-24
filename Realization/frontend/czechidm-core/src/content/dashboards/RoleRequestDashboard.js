@@ -40,7 +40,7 @@ class RoleRequestDashboard extends Basic.AbstractContent {
     return (
       <div className={ !_totalCreator && !_totalApplicant ? 'hidden' : '' }>
         <Basic.ContentHeader
-          icon="fa:key"
+          icon="component:role-requests"
           text={ this.i18n('header') }/>
         <Basic.Row>
           <Basic.Col lg={ !_totalApplicant ? 12 : 6 } className={ !_totalCreator ? 'hidden' : '' }>

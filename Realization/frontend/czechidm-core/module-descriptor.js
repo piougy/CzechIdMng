@@ -114,7 +114,7 @@ module.exports = {
                 'labelKey': 'content.identity.sidebar.roles',
                 'order': 30,
                 'path': '/identity/:entityId/roles',
-                'icon': 'fa:key',
+                'icon': 'component:identity-roles',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYROLE_READ'] } ]
               },
               {
@@ -249,7 +249,7 @@ module.exports = {
                 'labelKey': 'content.identity.garanted-roles.title',
                 'order': 70,
                 'path': '/identity/:entityId/garanted-roles',
-                'icon': 'fa:key',
+                'icon': 'component:roles',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
               }
             ]
@@ -278,7 +278,7 @@ module.exports = {
         'type': 'DYNAMIC',
         'labelKey': 'content.roles.header',
         'titleKey': 'content.roles.title',
-        'icon': 'fa:key',
+        'icon': 'component:roles',
         'iconColor': '#eb9316',
         'order': 1030,
         'path': '/roles',
@@ -289,7 +289,7 @@ module.exports = {
             'type': 'DYNAMIC',
             'labelKey': 'content.roles.header',
             'titleKey': 'content.roles.title',
-            'icon': 'fa:key',
+            'icon': 'component:roles',
             'iconColor': '#eb9316',
             'order': 20,
             'path': '/roles',
@@ -324,7 +324,7 @@ module.exports = {
               {
                 'id': 'role-compositions',
                 'type': 'TAB',
-                'iconComponent': 'business-role-icon',
+                'icon': 'component:business-roles',
                 'labelKey': 'content.role.compositions.title',
                 'order': 120,
                 'path': '/role/:entityId/compositions',
@@ -371,7 +371,7 @@ module.exports = {
                 'type': 'TAB',
                 'labelKey': 'content.role.tree-nodes.label',
                 'titleKey': 'content.role.tree-nodes.title',
-                'icon': 'fa:magic',
+                'icon': 'component:automatic-roles',
                 'order': 400,
                 'path': '/role/:entityId/automatic-roles/trees',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ],
@@ -450,7 +450,7 @@ module.exports = {
             'type': 'TAB',
             'labelKey': 'content.roles.header',
             'titleKey': 'content.roles.title',
-            'icon': 'fa:key',
+            'icon': 'component:request-roles',
             'iconColor': '#eb9316',
             'order': 20,
             'path': 'requests/:requestId/roles',
@@ -467,7 +467,7 @@ module.exports = {
               {
                 'id': 'request-role-compositions',
                 'type': 'TAB',
-                'iconComponent': 'business-role-icon',
+                'icon': 'component:business-roles',
                 'labelKey': 'content.role.compositions.title',
                 'order': 120,
                 'path': 'requests/:requestId/role/:entityId/compositions',
@@ -542,7 +542,7 @@ module.exports = {
             'id': 'automatic-roles',
             'labelKey': 'content.automaticRoles.header',
             'titleKey': 'content.automaticRoles.title',
-            'icon': 'fa:magic',
+            'icon': 'component:automatic-roles',
             'order': 70,
             'iconColor': '#428BCA',
             'path': '/automatic-role/trees',
@@ -629,7 +629,7 @@ module.exports = {
             'id': 'role-requests',
             'labelKey': 'content.roleRequests.title',
             'titleKey': 'content.roleRequests.header',
-            'icon': 'fa:key',
+            'icon': 'component:role-requests',
             'order': 20,
             'path': '/role-requests',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ]
@@ -648,7 +648,7 @@ module.exports = {
             'id': 'automatic-role-requests',
             'labelKey': 'content.automaticRoles.header',
             'titleKey': 'content.automaticRoles.title',
-            'icon': 'fa:magic',
+            'icon': 'component:automatic-role-requests',
             'order': 30,
             'iconColor': '#428BCA',
             'path': '/automatic-role-requests',
@@ -1023,7 +1023,7 @@ module.exports = {
                     'labelKey': 'content.tree.node.roles.label',
                     'titleKey': 'content.tree.node.roles.title',
                     'order': 30,
-                    'icon': 'fa:key',
+                    'icon': 'component:roles',
                     'path': '/tree/nodes/:entityId/roles',
                     'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
                   },

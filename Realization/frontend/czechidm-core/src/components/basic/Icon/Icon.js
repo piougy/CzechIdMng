@@ -3,18 +3,24 @@ import classnames from 'classnames';
 import _ from 'lodash';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
+import ComponentService from '../../../services/ComponentService';
 
+const componentService = new ComponentService();
+//
 export const TYPE_GLYPHICON = 'glyph';
 export const TYPE_FONT_AWESOME = 'fa'; // https://fortawesome.github.io/Font-Awesome/examples/
+export const TYPE_COMPONENT = 'component';
 
 /**
  * Icon
+ * - it's a little advanced icon now (component usage)
  *
- * TODO: use FontAwesomeIcon
+ * TODO: use FontAwesomeIcon for the fa type
+ * TODO: fas, fab, far
  *
  * @author Radek Tomiška
  */
-class Icon extends AbstractComponent {
+export default class Icon extends AbstractComponent {
 
   constructor(props) {
     super(props);
@@ -50,11 +56,40 @@ class Icon extends AbstractComponent {
 
   render() {
     const {
+      rendered,
       type,
       icon,
       value,
+      ...other
+    } = this.props;
+    //
+    if (!rendered) {
+      return null;
+    }
+    //
+    // value could contain type definition
+    const { _type, _icon } = this.resolveParams(type, icon, value);
+    if (_type === TYPE_COMPONENT) {
+      const component = componentService.getIconComponent(_icon);
+      if (component) {
+        const IconComponent = component.component;
+        if (_.isString(IconComponent)) {
+          // recursive - basic icon
+          return (
+            <Icon value={ IconComponent } { ...other } />
+          );
+        }
+        return (
+          <IconComponent { ...other }/>
+        );
+      }
+      return (
+        <span title="Icon not found in component library"> { _icon } </span>
+      );
+    }
+    // Basic icon will be rendered
+    const {
       className,
-      rendered,
       showLoading,
       color,
       style,
@@ -63,11 +98,6 @@ class Icon extends AbstractComponent {
       onClick
     } = this.props;
     //
-    if (!rendered) {
-      return null;
-    }
-    // value could contain type definition
-    const { _type, _icon } = this.resolveParams(type, icon, value);
     // without icon defined returns null
     if (!_icon) {
       return null;
@@ -133,5 +163,3 @@ Icon.defaultProps = {
   type: TYPE_GLYPHICON,
   dibaled: false
 };
-
-export default Icon;

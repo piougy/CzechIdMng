@@ -204,14 +204,13 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     const identityRole = value.node;
     if (identityRole) {
       if (identityRole.automaticRole) {
-        return 'fa:magic';
+        return 'component:automatic-role';
       } else if (identityRole.directRole) {
-        return 'fa:arrow-down';
+        return 'component:sub-role';
       } else if (identityRole._embedded.role.childrenCount > 0) {
-        // TODO: component:business-role
-        return 'fa:key';
+        return 'component:business-role';
       }
-      return 'fa:key';
+      return 'component:role';
     }
   }
 
@@ -291,95 +290,104 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
           rendered={!(existIdentityRoles && selectedIdentity)}
           level="info"
           text={this.i18n('noIdentityRoles')}/>
-        <Basic.Row
-          rendered={ existIdentityRoles && identityRoleRoots.length > 0 }>
-          <Basic.PanelHeader text={ this.i18n('roleSelectionHeader') } style={{ borderBottom: '1px solid #91cf91' }}/>
-          <div style={{ display: 'flex' }}>
-            <Basic.Col lg={ 5 } style={{ flex: 1, borderRight: '1px solid #ddd', paddingRight: 0, overflowY: 'auto', maxHeight: `${TREE_COMPONENT_HEIGHT}px`, minHeight: `${TREE_COMPONENT_HEIGHT}px` }}>
-              <Advanced.Tree
-                showLoading={ identityRoleShowLoading }
-                ref="identityRoleSelect"
-                uiKey="roles-tree"
-                manager={ identityRoleManager }
-                roots={ identityRoleRoots }
-                multiSelect
-                traverse
-                showRefreshButton={false}
-                nodeNiceLabel={ this._identityRoleNiceLabel.bind(this) }
-                nodeIcon={ this._identityRoleIcon.bind(this)}
-                nodeIconClassName={ null }
-                header={ this.i18n('roleSelect', {'username': this.identityManger.getNiceLabel(selectedIdentity)}) }/>
-            </Basic.Col>
+        <Basic.Div rendered={ existIdentityRoles && identityRoleRoots.length > 0 }>
+          <Basic.Div style={{ marginLeft: -15, marginRight: -15 }}>
+            <Basic.ContentHeader text={ this.i18n('roleSelectionHeader') } style={{ paddingRight: 15, paddingLeft: 15, marginBottom: 0 }}/>
+            <div style={{ display: 'flex' }}>
+              <div style={{ flex: 1, borderRight: '1px solid #ddd', overflowY: 'auto', maxHeight: TREE_COMPONENT_HEIGHT, minHeight: TREE_COMPONENT_HEIGHT }}>
+                <Advanced.Tree
+                  showLoading={ identityRoleShowLoading }
+                  ref="identityRoleSelect"
+                  uiKey="roles-tree"
+                  manager={ identityRoleManager }
+                  roots={ identityRoleRoots }
+                  multiSelect
+                  traverse
+                  showRefreshButton={false}
+                  nodeNiceLabel={ this._identityRoleNiceLabel.bind(this) }
+                  nodeIcon={ this._identityRoleIcon.bind(this)}
+                  nodeIconClassName={ null }
+                  header={ this.i18n('roleSelect', {'username': this.identityManger.getNiceLabel(selectedIdentity)}) }/>
+              </div>
 
-            <Basic.Col lg={ 1 }
-              className="text-center"
-              style={{ marginTop: '100px'}}>
-              <Basic.Row>
-                <Basic.Button
-                  onClick={ this._addAllIdentityRoles.bind(this) }
-                  title={ this.i18n('buttons.addAllIdentityRoles') }
-                  titleDelayShow="0"
-                  ref="addAll"
-                  level="success"
-                  style={ buttonsStyle }>
-                  <Basic.Icon icon="fa:chevron-right"/>
-                  <Basic.Icon icon="fa:chevron-right"/>
-                </Basic.Button>
-              </Basic.Row>
-              <Basic.Row>
-                <Basic.Button
-                  style={ buttonsStyle }
-                  level="success"
-                  titleDelayShow="0"
-                  title={ this.i18n('buttons.addSelectedIdentityRoles') }
-                  onClick={ this._addSelectedIdentityRoles.bind(this) }
-                  ref="addSelected">
-                  <Basic.Icon icon="fa:chevron-right"/>
-                </Basic.Button>
-              </Basic.Row>
-              <Basic.Row>
-                <Basic.Button
-                  style={ buttonsStyle }
-                  level="danger"
-                  titleDelayShow="0"
-                  title={ this.i18n('buttons.removeSelectedIdentityRoles') }
-                  onClick={ this._removeSelectedIdentityRoles.bind(this) }
-                  ref="removeSelected">
-                  <Basic.Icon icon="fa:chevron-left"/>
-                </Basic.Button>
-              </Basic.Row>
-              <Basic.Row>
-                <Basic.Button
-                  style={ buttonsStyle }
-                  level="danger"
-                  titleDelayShow="0"
-                  title={ this.i18n('buttons.removeAllIdentityRoles') }
-                  onClick={ this._removeAllIdentityRoles.bind(this) }
-                  ref="removeAll">
-                  <Basic.Icon icon="fa:chevron-left"/>
-                  <Basic.Icon icon="fa:chevron-left"/>
-                </Basic.Button>
-              </Basic.Row>
-            </Basic.Col>
+              <div
+                className="text-center"
+                style={{ marginTop: 100, width: 50 }}>
+                <Basic.Row>
+                  <Basic.Button
+                    onClick={ this._addAllIdentityRoles.bind(this) }
+                    title={ this.i18n('buttons.addAllIdentityRoles') }
+                    titleDelayShow="0"
+                    ref="addAll"
+                    level="success"
+                    style={ buttonsStyle }>
+                    <Basic.Icon icon="fa:chevron-right"/>
+                    <Basic.Icon icon="fa:chevron-right"/>
+                  </Basic.Button>
+                </Basic.Row>
+                <Basic.Row>
+                  <Basic.Button
+                    style={ buttonsStyle }
+                    level="success"
+                    titleDelayShow="0"
+                    title={ this.i18n('buttons.addSelectedIdentityRoles') }
+                    onClick={ this._addSelectedIdentityRoles.bind(this) }
+                    ref="addSelected">
+                    <Basic.Icon icon="fa:chevron-right"/>
+                  </Basic.Button>
+                </Basic.Row>
+                <Basic.Row>
+                  <Basic.Button
+                    style={ buttonsStyle }
+                    level="danger"
+                    titleDelayShow="0"
+                    title={ this.i18n('buttons.removeSelectedIdentityRoles') }
+                    onClick={ this._removeSelectedIdentityRoles.bind(this) }
+                    ref="removeSelected">
+                    <Basic.Icon icon="fa:chevron-left"/>
+                  </Basic.Button>
+                </Basic.Row>
+                <Basic.Row>
+                  <Basic.Button
+                    style={ buttonsStyle }
+                    level="danger"
+                    titleDelayShow="0"
+                    title={ this.i18n('buttons.removeAllIdentityRoles') }
+                    onClick={ this._removeAllIdentityRoles.bind(this) }
+                    ref="removeAll">
+                    <Basic.Icon icon="fa:chevron-left"/>
+                    <Basic.Icon icon="fa:chevron-left"/>
+                  </Basic.Button>
+                </Basic.Row>
+              </div>
 
-            <Basic.Col lg={ 5 } style={{ flex: 1, borderLeft: '1px solid #ddd', paddingLeft: 0, overflowY: 'auto', minHeight: `${TREE_COMPONENT_HEIGHT}px`, maxHeight: `${TREE_COMPONENT_HEIGHT}px` }}>
-              <Advanced.Tree
-                showLoading={ identityRoleShowLoading }
-                ref="selectedIdentityRoles"
-                uiKey="selected-identity-roles-tree"
-                manager={ identityRoleManager }
-                roots={ selectedIdentityRoles }
-                multiSelect
-                traverse
-                showRefreshButton={ false }
-                noData={ this.i18n('noSelectedIdentityRoles') }
-                nodeNiceLabel={ this._identityRoleNiceLabel.bind(this) }
-                nodeIcon={ this._identityRoleIcon.bind(this) }
-                nodeIconClassName={ null }
-                header={ this.i18n('selectedIdentityRoles') }/>
-            </Basic.Col>
-          </div>
-        </Basic.Row>
+              <div style={{ flex: 1, borderLeft: '1px solid #ddd', overflowY: 'auto', minHeight: TREE_COMPONENT_HEIGHT, maxHeight: TREE_COMPONENT_HEIGHT }}>
+                <Advanced.Tree
+                  showLoading={ identityRoleShowLoading }
+                  ref="selectedIdentityRoles"
+                  uiKey="selected-identity-roles-tree"
+                  manager={ identityRoleManager }
+                  roots={ selectedIdentityRoles }
+                  multiSelect
+                  traverse
+                  showRefreshButton={ false }
+                  noData={ this.i18n('noSelectedIdentityRoles') }
+                  nodeNiceLabel={ this._identityRoleNiceLabel.bind(this) }
+                  nodeIcon={ this._identityRoleIcon.bind(this) }
+                  nodeIconClassName={ null }
+                  header={ this.i18n('selectedIdentityRoles') }/>
+              </div>
+            </div>
+          </Basic.Div>
+
+          <Basic.Alert level="info" style={{ marginTop: 15 }}>
+            <i>{ this.i18n('legend.header') }:</i>
+            <div><Basic.Icon value="component:role"/> { this.i18n('legend.role-types.role') }</div>
+            <div><Basic.Icon value="component:business-role"/> { this.i18n('legend.role-types.business-role') }</div>
+            <div><Basic.Icon value="component:automatic-role"/> { this.i18n('legend.role-types.automatic-role') }</div>
+            <div><Basic.Icon value="component:sub-role"/> { this.i18n('legend.role-types.sub-role') }</div>
+          </Basic.Alert>
+        </Basic.Div>
       </div>
     );
   }

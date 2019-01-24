@@ -49,7 +49,7 @@ class RoleAutomaticRoleAttributeRoutes extends Basic.AbstractContent {
     return (
       <div>
         <Basic.ContentHeader>
-          <Basic.Icon value="fa:magic"/> {this.i18n('content.automaticRoles.attribute.header')}
+          <Basic.Icon value="component:automatic-roles"/> {this.i18n('content.automaticRoles.attribute.header')}
         </Basic.ContentHeader>
 
         <Basic.Row>

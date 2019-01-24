@@ -2,12 +2,10 @@ package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,6 +40,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -99,6 +98,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private final SysSchemaAttributeService schemaAttributeService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final ProvisioningConfiguration provisioningConfiguration;
+	@Autowired
+	private ProvisioningService provisioningService;
 
 	@Autowired
 	private LookupService lookupService;
@@ -724,10 +725,10 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private IcAttribute updateAttributeValue(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute,
 			IcAttribute icAttribute, List<IcAttribute> icAttributes, SysSystemDto system,
 			String transformValueFromResourceScript, boolean sendAlways) {
-
+	    
 		Object icValueTransformed = transformValueFromResource(transformValueFromResourceScript, schemaAttribute,
 				icAttribute, icAttributes, system);
-		if (sendAlways || (!isAttributeValueEquals(idmValue, icValueTransformed, schemaAttribute))) {
+		if (sendAlways || (!provisioningService.isAttributeValueEquals(idmValue, icValueTransformed, schemaAttribute))) {
 			// values is not equals
 			// Or this attribute must be send every time (event if was not changed)
 			return attributeMappingService.createIcAttribute(schemaAttribute, idmValue);
@@ -735,39 +736,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		return null;
 	}
 
-	/**
-	 * Check if is value from IDM and value from System equals. If is attribute
-	 * multivalued, then is IDM value transformed to List.
-	 * 
-	 * @param idmValue
-	 * @param icValueTransformed
-	 * @param schemaAttribute
-	 * @return
-	 */
-	private boolean isAttributeValueEquals(Object idmValue, Object icValueTransformed,
-			SysSchemaAttributeDto schemaAttribute) {
-		if (schemaAttribute.isMultivalued() && idmValue != null && !(idmValue instanceof List)) {
-			List<Object> values = new ArrayList<>();
-			values.add(idmValue);
-			return Objects.equals(values, icValueTransformed);
-		}
-
-		// Multivalued values are equals, when value from system is null and value in
-		// IdM is empty list
-		if (schemaAttribute.isMultivalued() && idmValue instanceof Collection && ((Collection<?>) idmValue).isEmpty()
-				&& icValueTransformed == null) {
-			return true;
-		}
-
-		// Multivalued values are equals, when value in IdM is null and value from
-		// system is empty list
-		if (schemaAttribute.isMultivalued() && icValueTransformed instanceof Collection
-				&& ((Collection<?>) icValueTransformed).isEmpty() && idmValue == null) {
-			return true;
-		}
-
-		return Objects.equals(idmValue, icValueTransformed);
-	}
 
 	private Object transformValueFromResource(String transformValueFromResourceScript,
 			SysSchemaAttributeDto schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes,

@@ -1,9 +1,6 @@
 package eu.bcvsolutions.idm.core.model.event.processor.contract;
 
-import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +11,8 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
-import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -34,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.ClearDirtyStateForContractSliceTaskExecutor;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
  * Deletes contract slice - ensures referential integrity.
@@ -46,9 +40,6 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.ClearDirtyStateForContractSl
 @Description("Deletes contract slice.")
 public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContractSliceDto>
 		implements ContractSliceProcessor {
-	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(ContractSliceDeleteProcessor.class);
 
 	public static final String PROCESSOR_NAME = "contract-slice-delete-processor";
 	private final IdmContractSliceService service;
@@ -65,7 +56,7 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 
 	@Autowired
 	public ContractSliceDeleteProcessor(IdmContractSliceService service) {
-		super(ContractSliceEventType.DELETE);
+		super(IdentityContractEventType.DELETE);
 		//
 		Assert.notNull(service);
 		//
@@ -80,27 +71,6 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 	@Override
 	public EventResult<IdmContractSliceDto> process(EntityEvent<IdmContractSliceDto> event) {
 		IdmContractSliceDto slice = event.getContent();
-
-		// If dirty state property is presents, then will be slice only marked for
-		// delete. Deleting is provided by ClearDirtyStateForContractSliceTaskExecutor!
-		if (this.getBooleanProperty(IdmContractSliceService.SET_DIRTY_STATE_CONTRACT_SLICE, event.getProperties())) {
-
-			// If is set slice as using as contract, set this flag to false
-			if (slice.isUsingAsContract()) {
-				slice.setUsingAsContract(false);
-				service.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, slice,
-						ImmutableMap.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
-			}
-
-			Map<String, Serializable> properties = new HashMap<>(event.getProperties());
-			// Creates new dirty states, dirty states must be process by executor
-			createDeleteDirtyState(slice, properties);
-			LOG.info(
-					"Property SET_DIRTY_STATE_CONTRACT_SLICE is true -> Slice [{}] is not deleted but only marked as DIRTY."
-					+ " Deleting will be processed in ClearDirtyStateForContractSliceTaskExecutor!",
-					slice.toString());
-			return new DefaultEventResult<>(event, this);
-		}
 
 		// delete dirty states for contract slice
 		findAllDirtyStatesForSlices(slice.getId()).forEach(dirtyState -> {
@@ -150,12 +120,13 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 			IdmContractSliceDto validSlice = contractSliceManager.findValidSlice(contractId);
 			if (validSlice != null) {
 				// Set next slice as is currently using in contract
-				contractSliceManager.setSliceAsCurrentlyUsing(validSlice, event.getProperties());
+				contractSliceManager.setSliceAsCurrentlyUsing(validSlice);
 			}
 		} else {
 			service.deleteInternal(slice);
 		}
-		
+
+		//
 		return new DefaultEventResult<>(event, this);
 	}
 
@@ -171,29 +142,5 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 		filter.setOwnerType(IdmContractSlice.class.getName());
 		filter.setOwnerId(sliceId);
 		return entityStateManager.findStates(filter, null).getContent();
-	}
-	
-	/**
-	 * Create new dirty state for delete of contract slice
-	 *
-	 * @param slice
-	 * @param parameters
-	 * @return
-	 */
-	private IdmEntityStateDto createDeleteDirtyState(IdmContractSliceDto slice, Map<String, Serializable> parameters) {
-		Map<String, Object> transformedMarameters = new HashMap<String, Object>();
-		transformedMarameters.put("entityId", slice.getId());
-		// Mark state for delete the slice
-		transformedMarameters.put(ClearDirtyStateForContractSliceTaskExecutor.TO_DELETE, Boolean.TRUE);
-		transformedMarameters.putAll(parameters);
-		
-		DefaultResultModel resultModel = new DefaultResultModel(CoreResultCode.DIRTY_STATE, transformedMarameters);
-		IdmEntityStateDto dirtyState = new IdmEntityStateDto();
-		dirtyState.setResult(
-				new OperationResultDto
-					.Builder(OperationState.BLOCKED)
-					.setModel(resultModel)
-					.build());
-		return entityStateManager.saveState(slice, dirtyState);
 	}
 }

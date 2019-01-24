@@ -43,7 +43,6 @@ import eu.bcvsolutions.idm.acc.service.api.AccContractSliceAccountService;
 import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
@@ -557,54 +556,6 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 
 		return slice;
 	}
-	
-	/**
-	 * Delete entity linked with given account
-	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entity = this.getEntityByAccount(account.getId());
-		if (entity == null) {
-			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-		IdmContractSliceDto dto = getService().get(entity);
-		String entityIdentification = dto.getId().toString();
-		if (dto instanceof Codeable) {
-			entityIdentification = ((Codeable) dto).getCode();
-		}
-		logItem.setDisplayName(entityIdentification);
-		// Delete entity
-		
-		// Set dirty state during recalculation, the process of recalculation will be
-		// solved in ClearDirtyStateForContractSliceTaskExecutor
-		// ClearDirtyStateForContractSliceTaskExecutor will be started with HR
-		// processes.
-		EntityEvent<IdmContractSliceDto> event = new ContractSliceEvent(ContractSliceEventType.DELETE, dto,
-				ImmutableMap.of(IdmContractSliceService.SET_DIRTY_STATE_CONTRACT_SLICE, Boolean.TRUE));
-
-		// We do not want execute HR processes for every contract. We need start
-		// them for every identity only once.
-		// For this we skip them now. HR processes must be start after whole
-		// sync finished (by using dependent scheduled task)!
-		event.getProperties().put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
-		//
-		// We don't want recalculate automatic role by attribute recalculation for every
-		// contract.
-		// Recalculation will be started only once.
-		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
-		getService().publish(event);
-	}
-	
-	
 
 	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {

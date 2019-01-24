@@ -54,7 +54,7 @@ public interface ContractSliceManager extends ScriptEnabled  {
 	 * @param slice
 	 * @return 
 	 */
-	IdmContractSliceDto setSliceAsCurrentlyUsing(IdmContractSliceDto slice, Map<String, Serializable> eventProperties);
+	IdmContractSliceDto setSliceAsCurrentlyUsing(IdmContractSliceDto slice);
 
 	/**
 	 * Find slice that is currently valid (or first in future) for given contract. First find valid slice for now. If none exist then
@@ -117,16 +117,4 @@ public interface ContractSliceManager extends ScriptEnabled  {
 	 * @param eventProperties
 	 */
 	void recalculateContractSlice(IdmContractSliceDto slice, IdmContractSliceDto originalSlice, Map<String, Serializable> eventProperties);
-
-	/**
-	 * Convert slice to the contract (does not save changes)
-	 * 
-	 * @param slice
-	 * @param contract
-	 * @param validFrom
-	 *            of whole contract
-	 * @param validTill
-	 *            of whole contract
-	 */
-	void convertSliceToContract(IdmContractSliceDto slice, IdmIdentityContractDto contract);
 }

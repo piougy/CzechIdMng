@@ -2180,6 +2180,11 @@
         },
         "evaluator": {
           "default": "Default evaluator will be used. Agenda doesn't support other evaluator types."
+        },
+        "filter": {
+          "text": {
+            "placeholder": "Entity type, evaluator type or description"
+          }
         }
       },
       "catalogues": {

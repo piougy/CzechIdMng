@@ -2231,6 +2231,11 @@
         },
         "evaluator": {
           "default": "Bude použit výchozí typ vyhodnocení pro zvolenou agendu. Agenda nepodporuje jiné typy vyhodnocení."
+        },
+        "filter": {
+          "text": {
+            "placeholder": "Typ entity, typ vyhodnocení či popis"
+          }
         }
       },
       "catalogues": {

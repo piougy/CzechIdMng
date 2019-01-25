@@ -195,8 +195,7 @@ class RoleDetail extends Basic.AbstractContent {
           style={{ paddingTop: 15 }}>
           <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
             <form onSubmit={ this.save.bind(this, 'CONTINUE') }>
-              <Basic.Panel
-                className="no-border last">
+              <Basic.Panel className="no-border last">
                 <Basic.PanelHeader
                   text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic') }
                   style={{ paddingLeft: 15, paddingRight: 15 }}/>
@@ -323,11 +322,9 @@ class RoleDetail extends Basic.AbstractContent {
               </span>
             }
             className="bordered">
-              <Basic.ContentHeader style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}>
-                <Basic.Icon type="fa" icon="key"/>
-                {' '}
-                <span dangerouslySetInnerHTML={{ __html: this.i18n('content.requests.header') }}/>
-              </Basic.ContentHeader>
+              <Basic.ContentHeader
+                text={ this.i18n('content.requests.header', { escape: false }) }
+                style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
               <RequestTable
                 ref="table"
                 uiKey={uiKeyRoleRequest}

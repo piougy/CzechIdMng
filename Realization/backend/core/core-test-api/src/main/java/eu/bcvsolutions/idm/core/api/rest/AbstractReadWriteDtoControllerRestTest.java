@@ -521,6 +521,12 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
 		//
+		// find quick alias
+		results = findQuick(parameters);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		//
 		if (supportsAutocomplete()) {
 			results = autocomplete(parameters);
 			//
@@ -707,6 +713,10 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		throw new CoreException("Controller [" + clazz + "] doeasn't have default mapping, cannot be tested by this abstraction.");
 	}
 	
+	protected String getFindQuickUrl() {
+		return String.format("%s%s", getBaseUrl(), "/search/quick"); 
+	}
+	
 	protected String getAutocompleteUrl() {
 		return String.format("%s%s", getBaseUrl(), "/search/autocomplete"); 
 	}
@@ -816,6 +826,30 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	protected List<DTO> find(MultiValueMap<String, String> parameters) {
 		try {
 			String response = getMockMvc().perform(get(getBaseUrl())
+	        		.with(authentication(getAdminAuthentication()))
+	        		.params(parameters)
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			return toDtos(response);
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to find entities", ex);
+		}
+	}
+	
+	/**
+	 * Find dtos - "quick" is alias to standard find method. Required by all controllers
+	 * 
+	 * @param parameters
+	 * @return
+	 */
+	protected List<DTO> findQuick(MultiValueMap<String, String> parameters) {
+		try {
+			String response = getMockMvc().perform(get(getFindQuickUrl())
 	        		.with(authentication(getAdminAuthentication()))
 	        		.params(parameters)
 	                .contentType(TestHelper.HAL_CONTENT_TYPE))

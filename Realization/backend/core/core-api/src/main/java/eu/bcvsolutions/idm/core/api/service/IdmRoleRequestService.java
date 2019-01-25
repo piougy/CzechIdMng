@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.util.Set;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
@@ -8,8 +9,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -120,4 +123,13 @@ public interface IdmRoleRequestService
 	 * @param request
 	 */
 	void validate(IdmRoleRequestDto request);
+
+	/**
+	 * Incompatible roles are resolved from currently assigned identity roles and the current request concepts.
+	 * 
+	 * @param request
+	 * @param permissions
+	 * @return
+	 */
+	Set<ResolvedIncompatibleRoleDto> getIncompatibleRoles(IdmRoleRequestDto request, IdmBasePermission... permissions);
 }

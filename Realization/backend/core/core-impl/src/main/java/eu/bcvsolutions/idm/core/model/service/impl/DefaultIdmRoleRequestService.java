@@ -5,10 +5,13 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -46,6 +49,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
+import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -54,8 +60,10 @@ import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -78,6 +86,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRequestRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -98,6 +107,7 @@ public class DefaultIdmRoleRequestService
 		implements IdmRoleRequestService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
+	private IdmRoleRequestService roleRequestService;
 	private final IdmRoleRequestRepository repository;
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmIdentityRoleService identityRoleService;
@@ -112,7 +122,10 @@ public class DefaultIdmRoleRequestService
 	private IdmRoleService roleService;
 	@Autowired
 	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService; 
-	private IdmRoleRequestService roleRequestService;
+	@Autowired
+	private IdmIncompatibleRoleService incompatibleRoleService;
+	@Autowired
+	private IdmIdentityContractService identityContractService;
 
 	@Autowired
 	public DefaultIdmRoleRequestService(IdmRoleRequestRepository repository,
@@ -387,6 +400,10 @@ public class DefaultIdmRoleRequestService
 			// get contract dto from embedded map
 			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
 					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
+			if (contract == null) {
+				contract = identityContractService.get(concept.getIdentityContract());
+			}
+			Assert.notNull(contract, "Contract cannot be empty!");
 			return !identity.getId().equals(contract.getIdentity());
 		});
 
@@ -738,6 +755,56 @@ public class DefaultIdmRoleRequestService
 		}
 
 		return this.save(requestDto);
+	}
+	
+	@Override
+	public Set<ResolvedIncompatibleRoleDto> getIncompatibleRoles(IdmRoleRequestDto request, IdmBasePermission... permissions) {
+		// Currently assigned roles
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityId(request.getApplicant());		
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null, permissions).getContent();
+		// Roles from concepts
+		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
+		conceptFilter.setRoleRequestId(request.getId());
+		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService.find(conceptFilter, null, permissions).getContent();
+		Set<UUID> removedIdentityRoleIds = new HashSet<>();
+		
+		Set<UUID> roleIds = new HashSet<>(); 
+		concepts
+			.stream()
+			.filter(concept -> {
+				boolean isDelete = concept.getOperation() == ConceptRoleRequestOperation.REMOVE;
+				if (isDelete) {
+					// removed role fixes the incompatibility
+					removedIdentityRoleIds.add(concept.getIdentityRole());
+				}
+				return !isDelete;
+			})
+			.forEach(concept -> {
+				roleIds.add(concept.getRole());
+			});
+		identityRoles
+			.stream()
+			.filter(identityRole -> {
+				return !removedIdentityRoleIds.contains(identityRole.getId());
+			})
+			.forEach(identityRole -> {
+				roleIds.add(identityRole.getRole());
+			});
+		
+		// We want to returns only incompatibilities caused by new added roles
+	 	Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(Lists.newArrayList(roleIds));
+		return incompatibleRoles.stream() //
+			.filter(incompatibleRole -> {
+				return concepts.stream() //
+					.filter(concept -> concept.getOperation() == ConceptRoleRequestOperation.ADD
+						&& (concept.getRole().equals(incompatibleRole.getDirectRole().getId())
+								|| concept.getRole().equals(incompatibleRole.getIncompatibleRole().getSuperior())
+								|| concept.getRole().equals(incompatibleRole.getIncompatibleRole().getSub())
+							))
+					.findFirst() //
+					.isPresent(); //
+			}).collect(Collectors.toSet());
 	}
 
 	private void cancelWF(IdmRoleRequestDto dto) {

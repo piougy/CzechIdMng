@@ -56,22 +56,32 @@ export default class ComponentService {
       return null;
     }
     //
-    return this.getComponentDefinitions(type).find(component => {
-      if (!component.entityType) {
-        return false;
-      }
-      // multiple types
-      if (_.isArray(component.entityType)) {
-        for (const entityTypeItem of component.entityType) {
-          if (entityTypeItem.toLowerCase() === entityType.toLowerCase()) {
-            return true;
-          }
+    const components = this.getComponentDefinitions(type)
+      .filter(component => {
+        if (!component.entityType) {
+          return false;
         }
-        return false;
-      }
-      // single value
-      return component.entityType.toLowerCase() === entityType.toLowerCase();
-    });
+        // multiple types
+        if (_.isArray(component.entityType)) {
+          for (const entityTypeItem of component.entityType) {
+            if (entityTypeItem.toLowerCase() === entityType.toLowerCase()) {
+              return true;
+            }
+          }
+          return false;
+        }
+        // single value
+        return component.entityType.toLowerCase() === entityType.toLowerCase();
+      })
+      .sort((one, two) => {
+        return (one.priority || 0) < (two.priority || 0);
+      });
+    //
+    if (!components || components.size === 0) {
+      return null;
+    }
+    //
+    return components.first();
   }
 
   /**

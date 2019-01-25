@@ -93,6 +93,10 @@
         "multiSelect": {
           "label": "Multi výběr"
         }
+      },
+      "icon": {
+        "header": "Ikony pro typy entit <small>zaregistrované v components.js</small>",
+        "usage": "Příklad použití"
       }
     },
     "example-products": {

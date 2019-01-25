@@ -164,6 +164,18 @@ export default class ExampleComponents extends Basic.AbstractContent {
             </Basic.Col>
           </Basic.Row>
         </Basic.Panel>
+
+        <Basic.Panel>
+          <Basic.PanelHeader text={ this.i18n('icon.header', { escape: false }) } />
+          <Basic.PanelBody>
+            <Basic.Alert level="info" className="no-margin" title={ this.i18n('icon.usage') }>
+              <pre>
+                { '<Basic.Icon value="component:role"/>' }
+              </pre>
+            </Basic.Alert>
+            <Advanced.Icons />
+          </Basic.PanelBody>
+        </Basic.Panel>
       </div>
     );
   }

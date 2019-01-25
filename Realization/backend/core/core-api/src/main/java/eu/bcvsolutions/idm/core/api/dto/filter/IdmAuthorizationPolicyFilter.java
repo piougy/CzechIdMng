@@ -13,6 +13,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
  * @author Radek Tomiška
  */
 public class IdmAuthorizationPolicyFilter extends DataFilter {
+	
+	public static final String PARAMETER_GROUP_PERMISSION = "groupPermission";
 
     private UUID roleId;
     private Boolean disabled;
@@ -49,4 +51,12 @@ public class IdmAuthorizationPolicyFilter extends DataFilter {
     public String getAuthorizableType() {
         return authorizableType;
     }
+    
+    public void setGroupPermission(String groupPermission) {
+    	data.set(PARAMETER_GROUP_PERMISSION, groupPermission);
+	}
+    
+    public String getGroupPermission() {
+    	return (String) data.getFirst(PARAMETER_GROUP_PERMISSION);
+	}
 }

@@ -42,6 +42,8 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	        + " (?#{[0].sendOnPasswordChange} is null or e.sendOnPasswordChange = ?#{[0].sendOnPasswordChange})"
 	        + " and"
 	        + " (?#{[0].passwordAttribute} is null or e.passwordAttribute = ?#{[0].passwordAttribute})"
+	        + " and"
+	        + " (?#{[0].disabledAttribute} is null or e.disabledAttribute = ?#{[0].disabledAttribute})"
 			)
 	Page<SysSystemAttributeMapping> find(SysSystemAttributeMappingFilter filter, Pageable pageable);
 	

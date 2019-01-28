@@ -318,6 +318,9 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			}
 		});
 		//
+		// Is possible that some account has disabled password attributes
+		List<OperationResult> notExecutedPasswordChanged = new ArrayList<>();
+		//
 		List<AccAccountDto> accounts = new ArrayList<>();
 		accountIds.forEach(accountId -> {
 			AccAccountDto account = accountService.get(accountId);
@@ -340,16 +343,11 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			}
 
 			// We try find __PASSWORD__ attribute in mapped attributes
-			Optional<? extends AttributeMapping> attriubuteHandlingOptional = finalAttributes.stream()
+			AttributeMapping mappedAttribute = finalAttributes.stream()
 					.filter((attribute) -> {
 						SysSchemaAttributeDto schemaAttributeDto = getSchemaAttribute(attribute);
 						return ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME.equals(schemaAttributeDto.getName());
-					}).findFirst();
-			if (!attriubuteHandlingOptional.isPresent()) {
-				throw new ProvisioningException(AccResultCode.PROVISIONING_PASSWORD_FIELD_NOT_FOUND,
-						ImmutableMap.of("uid", uid, "system", system.getName()));
-			}
-			AttributeMapping mappedAttribute = attriubuteHandlingOptional.get();
+					}).findFirst().orElse(null);
 			//
 			// get all another passwords, list with all passwords (included primary password marked as __PASSWORD__)
 			SysSystemMappingDto systemMappingDto = getMapping(system, systemEntity.getEntityType());
@@ -360,7 +358,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			Map<ProvisioningAttributeDto, Object> accountObjectWithAnotherPassword = new HashMap<>();
 			for (AttributeMapping passwordAttribute : passwordAttributes) {
 				// all password attributes contains also main __PASSWORD__ the attribute must be skipped
-				if (mappedAttribute.equals(passwordAttribute)) {
+				if (mappedAttribute != null && mappedAttribute.equals(passwordAttribute)) {
 					continue;
 				}
 				GuardedString transformPassword = transformPassword(passwordChange.getNewPassword(), passwordAttribute,
@@ -373,8 +371,20 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				accountObjectWithAnotherPassword.put(passwordProvisiongAttributeDto, transformPassword);
 			}
 			//
+			// for this account doesn't exist mapped attribute as password
+			if (accountObjectWithAnotherPassword.isEmpty() && mappedAttribute == null) {
+				// Beware we cant use AccAccountDto from acc module, in core is checked by this
+				notExecutedPasswordChanged.add(new OperationResult.Builder(OperationState.NOT_EXECUTED)
+						.setModel(new DefaultResultModel(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED,
+								ImmutableMap.of(IdmAccountDto.PARAMETER_NAME, createResultAccount(account, system))))
+						.build());
+				// for this account is this failed password change
+				return;
+			}
+			//
 			// add all account attributes => standard provisioning
 			SysProvisioningOperationDto additionalProvisioningOperation = null;
+			// resolve another attributes that must be sent together with password
 			List<AttributeMapping> additionalPasswordChangeAttributes = resolveAdditionalPasswordChangeAttributes(
 					account, dto, system, systemEntity.getEntityType());
 			if (!additionalPasswordChangeAttributes.isEmpty()) {
@@ -403,20 +413,23 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				// all attributes including another password attributes will be sent with password one provisioning operation
 				operation = additionalProvisioningOperation;
 				//
-				// transform password value trough transformation
-				GuardedString transformPassword = transformPassword(passwordChange.getNewPassword(), mappedAttribute,
-						systemEntity.getUid(), dto);
-				//
-				// add wish for password
-				SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(mappedAttribute.getSchemaAttribute());
-				ProvisioningAttributeDto passwordAttribute = ProvisioningAttributeDto.createProvisioningAttributeKey(
-						mappedAttribute, schemaAttributeDto.getName(), schemaAttributeDto.getClassType()
-						// TODO: use previously loaded attribute
-				);
-				//
-				// newly isn't needed check if password is constant or etc.
-				//
-				operation.getProvisioningContext().getAccountObject().put(passwordAttribute, transformPassword);
+				if (mappedAttribute != null) {
+					// Main password attribute isn't mapped
+					// transform password value trough transformation
+					GuardedString transformPassword = transformPassword(passwordChange.getNewPassword(), mappedAttribute,
+							systemEntity.getUid(), dto);
+					//
+					// add wish for password
+					SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(mappedAttribute.getSchemaAttribute());
+					ProvisioningAttributeDto passwordAttribute = ProvisioningAttributeDto.createProvisioningAttributeKey(
+							mappedAttribute, schemaAttributeDto.getName(), schemaAttributeDto.getClassType()
+							// TODO: use previously loaded attribute
+							);
+					//
+					// newly isn't needed check if password is constant or etc.
+					//
+					operation.getProvisioningContext().getAccountObject().put(passwordAttribute, transformPassword);
+				}
 				//
 				// do provisioning for additional attributes and password
 				// together
@@ -426,13 +439,16 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				// TODO: refactor password change - use account wish instead
 				// filling connector object attributes directly
 				//
-				// transform password value trough transformation
-				GuardedString transformPassword = transformPassword(passwordChange.getNewPassword(), mappedAttribute,
-						systemEntity.getUid(), dto);
-				//
-				operation = prepareProvisioningForAttribute(systemEntity, mappedAttribute,
-						transformPassword, ProvisioningOperationType.UPDATE, dto);
-				preparedOperations.add(operation);
+				if (mappedAttribute != null) {
+					// Main password attribute isn't mapped
+					// transform password value trough transformation
+					GuardedString transformPassword = transformPassword(passwordChange.getNewPassword(), mappedAttribute,
+							systemEntity.getUid(), dto);
+					//
+					operation = prepareProvisioningForAttribute(systemEntity, mappedAttribute,
+							transformPassword, ProvisioningOperationType.UPDATE, dto);
+					preparedOperations.add(operation);
+				}
 				//
 				// do provisioning for additional attributes and passwords in second
 				if (additionalProvisioningOperation != null) {
@@ -442,7 +458,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		});
 		//
 		// execute prepared operations
-		return preparedOperations.stream().map(operation -> {
+		List<OperationResult> results = preparedOperations.stream().map(operation -> {
 			SysProvisioningOperationDto result = provisioningExecutor.executeSync(operation);
 			Map<String, Object> parameters = new LinkedHashMap<String, Object>();			
 			AccAccountDto account = accounts
@@ -454,13 +470,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 					.findFirst().get();				
 			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
 			//
-			IdmAccountDto resultAccountDto = new IdmAccountDto();
-			resultAccountDto.setId(account.getId());
-			resultAccountDto.setUid(account.getUid());
-			resultAccountDto.setRealUid(account.getRealUid());
-			resultAccountDto.setSystemId(system.getId());
-			resultAccountDto.setSystemName(system.getName());
-			parameters.put(IdmAccountDto.PARAMETER_NAME, resultAccountDto);
+			parameters.put(IdmAccountDto.PARAMETER_NAME, createResultAccount(account, system));
 			//
 			if (result.getResult().getState() == OperationState.EXECUTED) {
 				// Add success changed password account
@@ -475,6 +485,10 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			changeResult.setCode(result.getResult().getCode());
 			return changeResult;
 		}).collect(Collectors.toList());
+		//
+		// add not executed changed from prepare stage
+		results.addAll(notExecutedPasswordChanged);
+		return results;
 	}
 	
 	@Override
@@ -893,6 +907,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		SysSystemAttributeMappingFilter attributeFilter = new SysSystemAttributeMappingFilter();
 		attributeFilter.setSystemMappingId(mapping.getId());
 		attributeFilter.setSendOnPasswordChange(Boolean.TRUE);
+		// we want only active attributes
+		attributeFilter.setDisabledAttribute(Boolean.FALSE);
 		List<? extends AttributeMapping> additionalPasswordChangeAttributes = attributeMappingService
 				.find(attributeFilter, null).getContent();
 		//
@@ -1332,5 +1348,22 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				.setProvisioningContext(new ProvisioningContext(accountObjectWithAnotherPassword, connectorObject));
 		//
 		return operationBuilder.build();
+	}
+
+	/**
+	 * Method create result idm account. This class is used by password change, beacuse account is send back to core module.
+	 *
+	 * @param account
+	 * @param system
+	 * @return
+	 */
+	private IdmAccountDto createResultAccount(AccAccountDto account, SysSystemDto system) {
+		IdmAccountDto resultAccountDto = new IdmAccountDto();
+		resultAccountDto.setId(account.getId());
+		resultAccountDto.setUid(account.getUid());
+		resultAccountDto.setRealUid(account.getRealUid());
+		resultAccountDto.setSystemId(system.getId());
+		resultAccountDto.setSystemName(system.getName());
+		return resultAccountDto;
 	}
 }

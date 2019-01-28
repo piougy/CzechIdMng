@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -63,9 +64,11 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
@@ -73,6 +76,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -405,7 +409,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 				new GuardedString(IDENTITY_PASSWORD_TWO), system, SystemEntityType.IDENTITY);
 	}
 	
-	@Test(expected=ProvisioningException.class)
+	@Test
 	public void doIdentityProvisioningChangePasswordUnsupportSystem() {
 		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
@@ -483,12 +487,31 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		// One account supported change password expects
 		Assert.assertEquals(1, accountService.find(accountFilter, null).getContent().size());
 		
-		// Change password .. must end with exception
+		// Change password .. now this doesn't end with exception but with failed state
 		passwordChange = new PasswordChangeDto();
 		passwordChange.setNewPassword(new GuardedString("newPWDUnsupported"));
 		passwordChange.getAccounts().add(account.getId().toString());
-		idmIdentityService.passwordChange(identity, passwordChange);
-		fail();
+		List<OperationResult> results = idmIdentityService.passwordChange(identity, passwordChange);
+
+		// check results
+		// for idm will be password changed executed with success state for system doesn't
+		for (OperationResult result : results) {
+			IdmAccountDto idmAccount = (IdmAccountDto) result.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
+			String statusEnum = result.getModel().getStatusEnum();
+			assertNotNull(statusEnum);
+			assertNotNull(idmAccount);
+			if (statusEnum.equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name())) {
+				// idm
+				assertNull(idmAccount.getSystemId());
+				assertNull(idmAccount.getSystemName());
+				continue;
+			} else if (statusEnum.equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name())) {
+				assertEquals(clonedSystem.getId(), idmAccount.getSystemId());
+				assertEquals(clonedSystem.getName(), idmAccount.getSystemName());
+				continue;
+			}
+			fail("Different result!");
+		}
 	}
 	
 

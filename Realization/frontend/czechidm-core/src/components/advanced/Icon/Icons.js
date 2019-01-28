@@ -17,6 +17,16 @@ const componentService = new ComponentService();
 export default class Icons extends Basic.AbstractComponent {
 
   render() {
+    const { rendered, showLoading } = this.props;
+    if (!rendered) {
+      return null;
+    }
+    if (showLoading) {
+      return (
+        <Basic.Icon value="refresh" showLoading />
+      );
+    }
+    //
     const components = componentService.getComponentDefinitions(ComponentService.ICON_COMPONENT_TYPE);
     let entityTypes = new Immutable.OrderedSet();
     components.forEach(component => {

@@ -67,6 +67,20 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     }
   }
 
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  }
+
   showDetail(entity) {
     const { forceSearchParameters, supportedEvaluators, authorizableTypes } = this.props;
     //
@@ -357,6 +371,13 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 {this.i18n('button.add')}
               </Basic.Button>
             ]
+          }
+          filter={
+            <Filter
+              ref="filterForm"
+              onSubmit={ this.useFilter.bind(this) }
+              onCancel={ this.cancelFilter.bind(this) }
+              _authorizableTypes={ _authorizableTypes }/>
           }>
 
           <Advanced.Column
@@ -514,7 +535,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       options={ _authorizableTypes }
                       onChange={ this.onChangeAuthorizableType.bind(this) }
                       label={ this.i18n('entity.AuthorizationPolicy.authorizableType.label') }
-                      palceholder={ this.i18n('entity.AuthorizationPolicy.authorizableType.placeholder') }
+                      placeholder={ this.i18n('entity.AuthorizationPolicy.authorizableType.placeholder') }
                       helpBlock={ this.i18n('entity.AuthorizationPolicy.authorizableType.help') }
                       searchable
                       useObject/>
@@ -522,7 +543,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       ref="basePermissions"
                       options={ _basePermissions }
                       label={ this.i18n('entity.AuthorizationPolicy.basePermissions.label') }
-                      palceholder={ this.i18n('entity.AuthorizationPolicy.basePermissions.placeholder') }
+                      placeholder={ this.i18n('entity.AuthorizationPolicy.basePermissions.placeholder') }
                       helpBlock={ this.i18n('entity.AuthorizationPolicy.basePermissions.help') }
                       readOnly={ (evaluatorType && evaluatorType.supportsPermissions !== undefined) ? !evaluatorType.supportsPermissions : false }
                       searchable
@@ -627,3 +648,45 @@ function select(state, component) {
 }
 
 export default connect(select)(AuthorizationPolicyTable);
+
+/**
+ * Table filter component
+ *
+ * @author Radek Tomiška
+ * @author Patrik Stloukal
+ */
+class Filter extends Advanced.Filter {
+
+  focus() {
+    this.refs.text.focus();
+  }
+
+  render() {
+    const { onSubmit, onCancel, _authorizableTypes } = this.props;
+    //
+    return (
+      <Advanced.Filter onSubmit={ onSubmit }>
+        <Basic.AbstractForm ref="filterForm">
+          <Basic.Row>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="text"
+                placeholder={ this.i18n('content.role.authorization-policies.filter.text.placeholder') }
+                help={ Advanced.Filter.getTextHelp() }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Basic.EnumSelectBox
+                ref="groupPermission"
+                options={ _authorizableTypes }
+                placeholder={ this.i18n('entity.AuthorizationPolicy.authorizableType.label') }
+                searchable/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 } className="text-right">
+              <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>
+            </Basic.Col>
+          </Basic.Row>
+        </Basic.AbstractForm>
+      </Advanced.Filter>
+      );
+  }
+}

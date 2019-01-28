@@ -101,9 +101,14 @@ public class DefaultIdmAuthorizationPolicyService
 	protected List<Predicate> toPredicates(Root<IdmAuthorizationPolicy> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmAuthorizationPolicyFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// like in evaluator type
-		if (StringUtils.isNotEmpty(filter.getText())) {
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
 			predicates.add(builder.or(
-					builder.like(builder.lower(root.get(IdmAuthorizationPolicy_.evaluatorType)), "%" + filter.getText().toLowerCase() + "%")
+					builder.like(builder.lower(root.get(IdmAuthorizationPolicy_.authorizableType)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(IdmAuthorizationPolicy_.groupPermission)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(IdmAuthorizationPolicy_.evaluatorType)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(IdmAuthorizationPolicy_.description)), "%" + text + "%")
 					));
 		}
 		// role id
@@ -115,6 +120,7 @@ public class DefaultIdmAuthorizationPolicyService
 		}
 		if (filter.getAuthorizableType() != null) {
 			predicates.add(builder.or(
+					// wildcard policy - usagble for all authorizable types
 					builder.and(
 							builder.isNull(root.get(IdmAuthorizationPolicy_.authorizableType)),
 							builder.isNull(root.get(IdmAuthorizationPolicy_.groupPermission))
@@ -122,6 +128,11 @@ public class DefaultIdmAuthorizationPolicyService
 					builder.equal(root.get(IdmAuthorizationPolicy_.authorizableType), filter.getAuthorizableType())
 					));
 		}
+		String groupPermission = filter.getGroupPermission();
+		if (StringUtils.isNotEmpty(groupPermission)) {
+			predicates.add(builder.equal(root.get(IdmAuthorizationPolicy_.groupPermission), groupPermission));
+		}
+		
 		return predicates;
 	}
 	

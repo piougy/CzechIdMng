@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -27,21 +26,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
-import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -50,8 +45,6 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
@@ -86,10 +79,6 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	private FormService formService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptService;
-	@Autowired 
-	private IdmIdentityRoleService identityRoleService;
-	@Autowired
-	private IdmIncompatibleRoleService incompatibleRoleService;
 
 	@Autowired
 	public IdmRoleRequestController(IdmRoleRequestService service,
@@ -357,43 +346,11 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		// currently assigned roles
-		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
-		identityRoleFilter.setIdentityId(entity.getApplicant());		
-		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null, IdmBasePermission.READ).getContent();
-		// roles from concepts
-		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
-		conceptFilter.setRoleRequestId(entity.getId());
-		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestController.find(conceptFilter, null, IdmBasePermission.READ).getContent();
-		Set<UUID> removedIdentityRoleIds = new HashSet<>();
-		//
-		Set<UUID> roleIds = new HashSet<>();
-		concepts
-			.stream()
-			.filter(concept -> {
-				boolean isDelete = concept.getOperation() == ConceptRoleRequestOperation.REMOVE;
-				if (isDelete) {
-					// removed role fixes the incompatibility
-					removedIdentityRoleIds.add(concept.getIdentityRole());
-				}
-				return !isDelete;
-			})
-			.forEach(concept -> {
-				roleIds.add(concept.getRole());
-			});
-		identityRoles
-			.stream()
-			.filter(identityRole -> {
-				return !removedIdentityRoleIds.contains(identityRole.getId());
-			})
-			.forEach(identityRole -> {
-				roleIds.add(identityRole.getRole());
-			});
-		//
-		Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(Lists.newArrayList(roleIds));
+		Set<ResolvedIncompatibleRoleDto> incompatibleRoles = service.getIncompatibleRoles(entity, IdmBasePermission.READ);
 		//
 		return toResources(incompatibleRoles, ResolvedIncompatibleRoleDto.class);
 	}
+
 	
 	private void addMetadataToConcepts(ResponseEntity<?> response) {
 		if(response != null && response.getBody() instanceof Resource) {

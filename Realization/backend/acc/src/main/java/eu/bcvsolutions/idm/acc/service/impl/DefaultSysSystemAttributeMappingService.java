@@ -300,7 +300,9 @@ public class DefaultSysSystemAttributeMappingService extends
 
 	@Override
 	public List<SysSystemAttributeMappingDto> getAllPasswordAttributes(UUID systemId, UUID systemMappingId) {
+		// all password attributes, that isn't disabled
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setDisabledAttribute(false);
 		filter.setPasswordAttribute(Boolean.TRUE);
 		filter.setSystemId(systemId);
 		filter.setSystemMappingId(systemMappingId);

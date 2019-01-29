@@ -335,6 +335,63 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 
 	}
+	
+	@Test
+	public void deleteSliceTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		helper.createIdentity(CONTRACT_OWNER_ONE);
+		helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+
+		IdmContractSliceFilter contractFilter = new IdmContractSliceFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue("1");
+		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
+		contractFilter.setValue("2");
+		Assert.assertEquals(0, contractSliceService.find(contractFilter, null).getTotalElements());
+
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractFilter.setValue("1");
+		List<IdmContractSliceDto> contractSlices = contractSliceService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contractSlices.size());
+
+		// Find the account for this contract slice
+		IdmContractSliceDto slice = contractSlices.get(0);
+		AccContractSliceAccountFilter contractAccountFilter = new AccContractSliceAccountFilter();
+		contractAccountFilter.setSliceId(slice.getId());
+		contractAccountFilter.setSystemId(system.getId());
+		List<AccContractSliceAccountDto> contractAccounts = contractSliceAccountService
+				.find(contractAccountFilter, null).getContent();
+		Assert.assertEquals(1, contractAccounts.size());
+		AccContractSliceAccountDto contractAccount = contractAccounts.get(0);
+		AccAccountDto account = accountService.get(contractAccount.getAccount());
+		Assert.assertNotNull(account);
+		
+		// Delete this slice
+		contractSliceService.delete(slice);
+
+		contractAccounts = contractSliceAccountService
+				.find(contractAccountFilter, null).getContent();
+		// Contract - account must be deleted
+		Assert.assertEquals(0, contractAccounts.size());
+		account = accountService.get(contractAccount.getAccount());
+		// Account must be deleted
+		Assert.assertNull(account);
+		
+		// Delete log
+		syncLogService.delete(log);
+
+	}
 
 	@Test
 	public void updateAccountTest() {

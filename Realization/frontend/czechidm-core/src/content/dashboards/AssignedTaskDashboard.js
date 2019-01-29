@@ -47,7 +47,7 @@ class AssignedTaskDashboard extends Basic.AbstractContent {
 }
 
 function select(state, component) {
-  const uiKey = `${ uiKeyPrefix }-${ component.identity ? component.identity.username : '' }`;
+  const uiKey = `${ uiKeyPrefix }${ component.identity ? component.identity.username : '' }`;
   const ui = state.data.ui[uiKey];
   return {
     userContext: state.security.userContext,

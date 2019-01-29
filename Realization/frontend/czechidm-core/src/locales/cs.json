@@ -2231,11 +2231,6 @@
         },
         "evaluator": {
           "default": "Bude použit výchozí typ vyhodnocení pro zvolenou agendu. Agenda nepodporuje jiné typy vyhodnocení."
-        },
-        "filter": {
-          "text": {
-            "placeholder": "Typ entity, typ vyhodnocení či popis"
-          }
         }
       },
       "catalogues": {
@@ -4125,7 +4120,7 @@
       "validFrom": "Od",
       "validTill": "Do",
       "wfProcessId": "WF",
-      "state": "Stav",
+      "state": "Stav žádosti",
       "created": "Vytvořeno",
       "modified": "Upraveno"
     },
@@ -4410,6 +4405,10 @@
         "returnedRequestFromUserManager": {
           "name": "Požadavek vrácen vedoucím uživatele",
           "description":"Vrácený požadavek na změnu rolí pro uživatele '{{0}}'"
+        },
+        "approveIncompatibilities": {
+          "name": "Schválení neslučitelných rolí",
+          "description":"Schválení neslučitelných rolí pro uživatele '{{0}}'"
         },
         "approvedBySecurity": {
           "name": "Schválení bezpečnostním oddělením",

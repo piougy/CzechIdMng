@@ -10,6 +10,7 @@ import { RoleManager, RoleRequestManager, IdentityManager } from '../../redux';
 import RoleSelectByIdentity from './RoleSelectByIdentity';
 import RoleConceptDetail from './RoleConceptDetail';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
+import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -614,6 +615,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
                 }
               }
               />
+            <Basic.Column
+              header={this.i18n('entity.ConceptRoleRequest.state')}
+              rendered={request && request.state !== 'CONCEPT'}
+              cell={
+                ({rowIndex, data}) => {
+                  return <Basic.EnumValue value={ data[rowIndex].state} enum={RoleRequestStateEnum}/>;
+                }
+              }/>
             <Basic.Column
               header={this.i18n('content.task.IdentityRoleConceptTable.identityRoleAttributes.header')}
               cell={

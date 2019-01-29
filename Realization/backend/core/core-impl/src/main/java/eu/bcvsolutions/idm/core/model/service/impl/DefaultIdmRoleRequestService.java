@@ -769,8 +769,18 @@ public class DefaultIdmRoleRequestService
 		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService.find(conceptFilter, null, permissions).getContent();
 		Set<UUID> removedIdentityRoleIds = new HashSet<>();
 		
+		// We don't want calculate incompatible roles for ended or disapproved concepts
+		List<IdmConceptRoleRequestDto> conceptsForCheck = concepts //
+				.stream() //
+				.filter(concept -> //
+				RoleRequestState.CONCEPT == concept.getState() //
+						|| RoleRequestState.IN_PROGRESS == concept.getState()
+						|| RoleRequestState.APPROVED == concept.getState()
+						|| RoleRequestState.EXECUTED == concept.getState()) //
+				.collect(Collectors.toList());
+
 		Set<UUID> roleIds = new HashSet<>(); 
-		concepts
+		conceptsForCheck
 			.stream()
 			.filter(concept -> {
 				boolean isDelete = concept.getOperation() == ConceptRoleRequestOperation.REMOVE;
@@ -796,7 +806,7 @@ public class DefaultIdmRoleRequestService
 	 	Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(Lists.newArrayList(roleIds));
 		return incompatibleRoles.stream() //
 			.filter(incompatibleRole -> {
-				return concepts.stream() //
+				return conceptsForCheck.stream() //
 					.filter(concept -> concept.getOperation() == ConceptRoleRequestOperation.ADD
 						&& (concept.getRole().equals(incompatibleRole.getDirectRole().getId())
 								|| concept.getRole().equals(incompatibleRole.getIncompatibleRole().getSuperior())

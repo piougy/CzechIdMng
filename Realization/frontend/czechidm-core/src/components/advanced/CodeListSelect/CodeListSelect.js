@@ -183,7 +183,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
             value = options[0].value;
           }
         } else {
-          if (error.statusCode === 400) {
+          if (error.statusCode === 400 || error.statusCode === 403) {
             // FIXME: 204 / 404 - codelist doesn't found
             // FIXME: 403 - input only?
             this.addErrorMessage({

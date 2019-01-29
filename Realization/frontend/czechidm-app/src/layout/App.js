@@ -19,6 +19,9 @@ export class App extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      isLogout: false
+    };
   }
 
   getChildContext() {
@@ -78,9 +81,16 @@ export class App extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.context.store.dispatch(securityManager.logout(() => {
-      this.context.router.replace('/login');
-    }));
+    this.setState({
+      isLogout: true
+    }, () => {
+      this.context.store.dispatch(securityManager.logout(() => {
+        this.context.router.push('/login');
+        this.setState({
+          isLogout: false
+        });
+      }));
+    });
   }
 
   _handleRemoteAuth() {
@@ -101,6 +111,7 @@ export class App extends Basic.AbstractContent {
 
   render() {
     const { userContext, bulk, appReady, navigationCollapsed, hideFooter } = this.props;
+    const { isLogout } = this.state;
     const titleTemplate = '%s | ' + this.i18n('app.name');
     const classnames = classNames(
       { 'with-sidebar': !userContext.isExpired && Managers.SecurityManager.isAuthenticated(userContext) },
@@ -121,6 +132,8 @@ export class App extends Basic.AbstractContent {
             <div id="content-container" className={ classnames }>
               {
                 userContext.isExpired
+                ||
+                isLogout
                 ||
                 <div>
                   {/* Childrens are hiden, when token expires => all components are loaded (componentDidMount) after identity is logged again */}

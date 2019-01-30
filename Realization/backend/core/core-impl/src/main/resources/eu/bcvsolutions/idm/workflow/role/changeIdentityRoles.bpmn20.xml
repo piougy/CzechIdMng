@@ -13,7 +13,9 @@ Configuration properties:
 - idm.sec.core.wf.approval.usermanager.enabled: If is "false", then process will be not do approving by user manager
 - idm.sec.core.wf.approval.usermanager.role: Role using for find candates (approve by User manage department)
 - idm.sec.core.wf.approval.security.enabled: If is "false", then process will be not do approving by security
-- idm.sec.core.wf.approval.security.role: Role using for find candates (approve by Security department)</documentation>
+- idm.sec.core.wf.approval.security.role: Role using for find candates (approve by Security department)
+- idm.sec.core.wf.approval.incompatibility.enabled=true (by default)
+- idm.sec.core.wf.approval.incompatibility.role=Incompatibility (default role for approval of role incompatibilities)</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <userTask id="approveByHelpDesk" name="Approve by help desk" activiti:candidateUsers="#{candidatesApproveByHelpDesk}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveByHelpDesk}">
@@ -462,42 +464,6 @@ if(!skip){
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow45" sourceRef="sid-02963C54-77A0-4E79-8EBD-4FBA5CCD4501" targetRef="scripttask9"></sequenceFlow>
-    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="backToApplicant" name="backToApplicant" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":true,"level":"warning"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="createRequest" name="createRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="cancelRequest" name="cancelRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="repairedRequest" name="repairedRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":false, "level":"success"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="applicantDescription" name="applicantDescription" itemSubjectRef="xsd:string"></dataObject>
-    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>none</activiti:value>
-      </extensionElements>
-    </dataObject>
     <scriptTask id="scripttask8" name="Send notification with result (Success)" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <documentation>Send notification with template with result</documentation>
       <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -989,6 +955,42 @@ execution.setVariable("existsIncompatibilities", !incompatibilities.isEmpty());<
     <sequenceFlow id="flow59" sourceRef="exclusivegateway5" targetRef="scripttask7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!existsIncompatibilities}]]></conditionExpression>
     </sequenceFlow>
+    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="backToApplicant" name="backToApplicant" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":true,"level":"warning"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="createRequest" name="createRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="cancelRequest" name="cancelRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="repairedRequest" name="repairedRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":false, "level":"success"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="applicantDescription" name="applicantDescription" itemSubjectRef="xsd:string"></dataObject>
+    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>none</activiti:value>
+      </extensionElements>
+    </dataObject>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_approve-identity-change-permissions">
     <bpmndi:BPMNPlane bpmnElement="approve-identity-change-permissions" id="BPMNPlane_approve-identity-change-permissions">

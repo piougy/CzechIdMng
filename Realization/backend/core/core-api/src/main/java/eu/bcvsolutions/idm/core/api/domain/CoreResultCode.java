@@ -120,6 +120,7 @@ public enum CoreResultCode implements ResultCode {
 	FORM_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Form value [%s] for attribute [%s] has to be type of [%s], given [%s]"),
 	FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - some form values already using this attribute."),
 	FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - this attribute is flaged as system attribute."),
+	FORM_ATTRIBUTE_DELETE_FAILED_ROLE_ATTRIBUTE(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - is using as role-attribute for role [%s]."),
 	FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - this definition is flaged as system definition."),
 	FORM_DEFINITION_INCOMPATIBLE_CHANGE(HttpStatus.CONFLICT, "Form definition [%s][%s] cannot be updated. Attribute's [%s] property [%s] cannot be updated automatically [%s to %s]. Provide change script for updating form definition or define new form definition (~new version)."),
 	FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - some automatic rules use this attribute."),

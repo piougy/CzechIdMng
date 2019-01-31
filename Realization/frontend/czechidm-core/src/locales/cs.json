@@ -5738,6 +5738,10 @@
     "ROLE_FORM_ATTRIBUTE_CHANGE_DEF_NOT_ALLOWED": {
       "title": "Není možné provést změnu definice atributů role!",
       "message": "Není možné provést změnu definice atributů role [{{role}}], protože má nastavený alespoň jeden atribut (pro původní definici). Nejprve musíte odebrat všechny nastavené atributy role!"
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_ROLE_ATTRIBUTE": {
+      "title": "Definici atributu není možné smazat!",
+      "message": "Definici atributu [{{definition}}] není možné smazat, protože je použita na roli [{{role}}]!"
     }
   },
   "validationError": {

@@ -200,6 +200,28 @@ public class DefaultIdmRoleFormAttributeServiceIntegrationTest extends AbstractI
 		Assert.assertNotNull(ipFormAttribute);
 		Assert.assertFalse(ipFormAttribute.isRequired());
 	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testIntegrityDeleteAttributeDefinition() {
+
+		// Create role with attribute (include the sub-definition)
+		IdmRoleDto role = createRoleWithAttributes();
+		IdmRoleFormAttributeFilter filter = new IdmRoleFormAttributeFilter();
+		filter.setRole(role.getId());
+		List<IdmRoleFormAttributeDto> list = roleFormAttributeService.find(filter, null).getContent();
+		Assert.assertEquals(2, list.size());
+
+		IdmFormDefinitionDto formAttributeSubdefinition = roleService.getFormAttributeSubdefinition(role);
+		Assert.assertEquals(2, formAttributeSubdefinition.getFormAttributes().size());
+		// Find attribute definition
+		IdmFormAttributeDto formAttributeDto = DtoUtils.getEmbedded(list.get(0),
+				IdmRoleFormAttribute_.formAttribute.getName(), IdmFormAttributeDto.class);
+		Assert.assertNotNull(formAttributeDto);
+
+		// Definition of this attribute is using in the sub-definition -> exception must
+		// be throws
+		formService.deleteAttribute(formAttributeDto);
+	}
 
 	private IdmRoleDto createRoleWithAttributes() {
 		IdmRoleDto role = getHelper().createRole();

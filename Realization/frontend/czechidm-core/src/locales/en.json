@@ -1317,6 +1317,10 @@
             "removeSelectedRoles": "Remove selected roles",
             "removeAllRoles": "Remove all roles"
           },
+          "showOnlyDirectRoles": {
+            "label": "Show only roles assigned directly",
+            "help": "After checked, only directly assigned roles will be displayed."
+          },
           "legend": {
             "header":"Legend",
             "role-types": {

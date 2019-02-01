@@ -302,7 +302,7 @@ public class DefaultSysSystemAttributeMappingService extends
 	public List<SysSystemAttributeMappingDto> getAllPasswordAttributes(UUID systemId, UUID systemMappingId) {
 		// all password attributes, that isn't disabled
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
-		filter.setDisabledAttribute(false);
+		filter.setDisabledAttribute(Boolean.FALSE);
 		filter.setPasswordAttribute(Boolean.TRUE);
 		filter.setSystemId(systemId);
 		filter.setSystemMappingId(systemMappingId);

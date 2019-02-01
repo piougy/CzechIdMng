@@ -130,6 +130,7 @@ export class FormDefinitionTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="main" header={this.i18n('entity.FormDefinition.main.label')} face="bool" sort />
           <Advanced.Column property="code" sort/>
           <Advanced.Column property="name" sort/>
+          <Advanced.Column property="module" sort/>
           <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormDefinition.unmodifiable.label')} face="bool" sort />
         </Advanced.Table>
       </div>

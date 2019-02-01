@@ -28,7 +28,6 @@ import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
@@ -53,8 +52,7 @@ public class DefaultIdmFormDefinitionService
 		extends AbstractEventableDtoService<IdmFormDefinitionDto, IdmFormDefinition, IdmFormDefinitionFilter> 
 		implements IdmFormDefinitionService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(DefaultIdmFormDefinitionService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmFormDefinitionService.class);
 
 	private final IdmFormDefinitionRepository formDefinitionRepository;
 	//
@@ -112,13 +110,7 @@ public class DefaultIdmFormDefinitionService
 						formAttributeService
 						.find(filter, getPageableAll(new Sort(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
 						.getContent());
-			}
-			// set module
-			try {
-				// TODO: #1140
-				dto.setModule(EntityUtils.getModule(Class.forName(dto.getType())));
-			} catch (ClassNotFoundException e) {
-				LOG.warn("Owner type: {}, wasn't found. Form definition module will be empty", dto.getType(), e);
+				LOG.trace("Form attributes were loaded for definition [{}]", dto.getType(), dto.getCode());
 			}
 		}
 		return dto;

@@ -3340,7 +3340,11 @@
         "label": "Hlavní definice",
         "help": "Hlavní / výchozí definice"
       },
-      "description": "Popis"
+      "description": "Popis",
+      "module": {
+        "label": "Modul",
+        "help": "Definice formuláře je učena nebo pochází z daného modulu. Modul je použit například pro definici lokalizace. Pokud není zadáno, je použit 'core' modul."
+      }
     },
     "FormAttribute" : {
       "code": {
@@ -4890,6 +4894,34 @@
           }
         }
       }
+    },
+    "eu-bcvsolutions-idm-core-model-entity-idmidentity": {
+      "myform": {
+        "label": "Awesome FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION",
+        "help": "This is my new formsdsf",
+        "attributes": {
+          "boolean": {
+            "label": "booleanasdads",
+            "help": "",
+            "placeholder": ""
+          },
+          "phone": {
+            "label": "Phonsdfsdfe",
+            "help": "",
+            "placeholder": ""
+          },
+          "role": {
+            "label": "Roleasdasd",
+            "help": "Vyberte roli ...",
+            "placeholder": "Vyber roli multi"
+          },
+          "email": {
+            "label": "Email",
+            "help": "",
+            "placeholder": ""
+          }
+        }
+      }
     }
   },
   "error": {
@@ -5189,7 +5221,7 @@
     },
     "FORM_ATTRIBUTE_CHANGE_CONFIDENTIAL_FAILED_HAS_VALUES": {
       "title": "Atribut formuláře nelze změnit",
-      "message": "Pro atribut [{{attributeCode}}] nelze měnit nastavení tajného , některé formulářové hodnoty používají tento atribut."
+      "message": "Pro atribut [{{attributeCode}}] nelze měnit nastavení příznaku tajný, některé formulářové hodnoty používají tento atribut."
     },
     "FORM_INVALID": {
       "title": "Formulář není validní",

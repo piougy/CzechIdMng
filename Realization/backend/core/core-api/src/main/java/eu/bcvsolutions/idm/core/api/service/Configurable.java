@@ -265,7 +265,7 @@ public interface Configurable {
 		formDefinition.setType(getConfigurableType());
 		formDefinition.setCode(getName());
 		formDefinition.setName(getName());
-		formDefinition.setModule(getModule());
+		formDefinition.setModule(formDefinition.getModule());
 		formDefinition.setDescription(getDescription());
 		formDefinition.setFormAttributes(getFormAttributes());
 		return formDefinition;

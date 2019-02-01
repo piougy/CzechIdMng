@@ -3289,7 +3289,11 @@
         "label": "Main definition",
         "help": "Main / default definition"
       },
-      "description": "Description"
+      "description": "Description",
+      "module": {
+        "label": "Module",
+        "help": "Module is defined or used in given module. Module is used for example for resolving the localization. 'core' module is used as default."
+      }
     },
     "FormAttribute" : {
       "code": {

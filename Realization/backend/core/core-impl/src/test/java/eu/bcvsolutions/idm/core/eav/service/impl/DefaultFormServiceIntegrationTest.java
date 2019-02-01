@@ -1649,7 +1649,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		formService.saveAttribute(attribute);
 	}
 	
-	@Test(expected = ChangeConfidentialException.class)
+	@Test
 	public void testChangeAttributeSuccess() {
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
 		String attributeName = getHelper().createName();

@@ -53,6 +53,11 @@ public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEnt
 	private String name;
 	
 	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "module_id", length = DefaultFieldLengths.NAME)
+	private String module;
+	
+	@Audited
 	@NotNull
 	@Column(name = "main", nullable = false)
 	private boolean main;
@@ -127,5 +132,24 @@ public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEnt
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	/**
+	 * Form definition is from / for the module (identifier)
+	 * 
+	 * @return
+	 * @since 9.4.0
+	 */
+	public String getModule() {
+		return module;
+	}
+	
+	/**
+	 * Form definition is from / for the module (identifier)
+	 * 
+	 * @param module
+	 */
+	public void setModule(String module) {
+		this.module = module;
 	}
 }

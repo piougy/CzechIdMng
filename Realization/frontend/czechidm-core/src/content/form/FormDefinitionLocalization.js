@@ -101,7 +101,7 @@ class FormDefinitionLocalization extends Basic.AbstractContent {
 
         <Basic.PanelBody style={{ padding: 0 }}>
 
-          { this.i18n('how-to.message', { name: entity.module, escape: false } ) }
+          { this.i18n('how-to.message', { name: entity.module ? entity.module : 'core', escape: false } ) }
           {/* it's ugly, but works */}
           <pre style={{ marginTop: 15 }}>
             ...<br/>

@@ -74,6 +74,6 @@ export default class FormDefinitionManager extends EntityManager {
     const formType = Utils.Ui.spinalCase(formDefinition.type);
     const formCode = Utils.Ui.spinalCase(formDefinition.code);
     //
-    return `${withModule ? formDefinition.module + ':' : ''}eav.${formType}.${formCode}`;
+    return `${withModule && formDefinition.module ? formDefinition.module + ':' : ''}eav.${formType}.${formCode}`;
   }
 }

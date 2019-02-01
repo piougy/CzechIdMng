@@ -195,6 +195,23 @@ export default class UiUtils {
   }
 
   /**
+   * Module identifier from java type by IdM conventions (failback if no module is exactly defined).
+   *
+   * @param  {string} taskType cannonical class name
+   * @return {string}
+   */
+  static getModuleFromJavaType(javaType) {
+    if (!javaType) {
+      return null;
+    }
+    const packages = javaType.split('.'); // eu.bcvsolutions.idm.core.%
+    if (packages.length > 3) {
+      return packages[3];
+    }
+    return null;
+  }
+
+  /**
    * Do substring on given data by max length. Substring is not on char byt on word.
    * Last word will be whole. Get begining part.
    * If data is cutted then substring is extended by suffix from right.

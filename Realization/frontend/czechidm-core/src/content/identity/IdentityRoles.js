@@ -212,7 +212,10 @@ class IdentityRoles extends Basic.AbstractContent {
 
             <IdentityRoleTableComponent
               uiKey={ `${uiKey}-${entityId}` }
-              forceSearchParameters={ new SearchParameters().setFilter('identityId', entityId).setFilter('directRole', true) }
+              forceSearchParameters={ new SearchParameters()
+                .setFilter('identityId', entityId)
+                .setFilter('directRole', true)
+                .setFilter('addEavMetadata', true) }
               showAddButton={ _contracts.length > 0 }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole']) }
@@ -222,7 +225,10 @@ class IdentityRoles extends Basic.AbstractContent {
 
             <IdentityRoleTableComponent
               uiKey={ `${uiKey}-sub-${entityId}` }
-              forceSearchParameters={ new SearchParameters().setFilter('identityId', entityId).setFilter('directRole', false) }
+              forceSearchParameters={ new SearchParameters()
+                .setFilter('identityId', entityId)
+                .setFilter('directRole', false)
+                .setFilter('addEavMetadata', true) }
               showAddButton={ false }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['automaticRole']) }/>

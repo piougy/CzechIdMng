@@ -532,9 +532,10 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		}
 		//
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-		filter.setIdentityId(identity.getId());		
-		Page<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null, IdmBasePermission.READ);
-		//
+		filter.setIdentityId(identity.getId());	
+		// Add eav attributes
+		filter.setAddEavMetadata(Boolean.TRUE);
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null, IdmBasePermission.READ).getContent();
 		return toResources(identityRoles, IdmIdentityRoleDto.class);
 	}
 	

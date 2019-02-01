@@ -10,6 +10,7 @@ import SearchParameters from '../../domain/SearchParameters';
 import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager, IdentityContractManager, CodeListManager, DataManager } from '../../redux';
 import IdentityRoleEav from './IdentityRoleEav';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
+import FormInstance from '../../domain/FormInstance';
 
 const manager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
@@ -94,6 +95,31 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     }
     //
     return _incompatibleRoles.filter(ir => ir.directRole.id === entity.role);
+  }
+
+  _attributesCell({rowIndex, data}) {
+    const value = data[rowIndex];
+    const result = [];
+    if ( value
+      && value._eav
+      && value._eav.length === 1
+      && value._eav[0].formDefinition) {
+      const formInstance = value._eav[0];
+      const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values);
+      result.push(
+          <Advanced.EavForm
+            ref="eavForm"
+            formInstance={ _formInstance }
+            validationErrors={formInstance.validationErrors}
+            readOnly
+            useDefaultValue={false}/>
+        );
+    }
+    return (
+      <Basic.Div className="abstract-form" style={{minWidth: 150, padding: 0}}>
+        {result}
+      </Basic.Div>
+    );
   }
 
   render() {
@@ -201,6 +227,13 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               }
             }
             />
+          <Advanced.Column
+            header={this.i18n('content.task.IdentityRoleConceptTable.identityRoleAttributes.header')}
+            cell={
+              ({rowIndex, data}) => {
+                return this._attributesCell({ rowIndex, data });
+              }
+            }/>
           <Advanced.Column
             header={this.i18n('entity.IdentityRole.identityContract.title')}
             property="identityContract"
@@ -370,6 +403,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                   title={this.i18n('detail.tabs.attributes')}>
                     <IdentityRoleEav
                       entityId={detail.entity.id}
+                      entity={detail.entity}
                     />
                 </Basic.Tab>
               </Basic.Tabs>

@@ -195,8 +195,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
         }
       }
-      this.setState({showLoadingButtonRemove: false});
-      this.reloadComponent();
+      this.setState({showLoadingButtonRemove: false}, () => {this.reloadComponent();});
     })
     .catch(error => {
       this.addError(error);
@@ -298,29 +297,29 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     }
     this.setState({
       showLoading: true
-    });
-    const promise = roleRequestManager.getService().startRequest(idRequest);
-    promise.then((json) => {
-      this.setState({
-        showLoading: false
+    }, () => {
+      const promise = roleRequestManager.getService().startRequest(idRequest);
+      promise.then((json) => {
+        this.context.router.goBack();
+        if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
+          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
+          return;
+        }
+        if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
+          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.exception'), level: 'error' });
+          return;
+        }
+        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started') });
+        this.setState({
+          showLoading: false
+        });
+      }).catch(ex => {
+        this.addError(ex);
+        this.setState({
+          showLoading: false
+        });
       });
-      this.context.router.goBack();
-      if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
-        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
-        return;
-      }
-      if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
-        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.exception'), level: 'error' });
-        return;
-      }
-      this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started') });
-    }).catch(ex => {
-      this.setState({
-        showLoading: false
-      });
-      this.addError(ex);
     });
-    return;
   }
 
   _getWfProcessCell({ rowIndex, data}) {
@@ -457,7 +456,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           uiKey="identity-role-concept-table"
           showLoading={showLoading}
           showLoadingButtonRemove={showLoadingButtonRemove}
-          className="vertical-scroll"
+          className="lg-vertical-scroll"
           readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
           identityUsername={request && request.applicant}
           request={request}

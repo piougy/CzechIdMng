@@ -11,6 +11,7 @@ import RoleSelectByIdentity from './RoleSelectByIdentity';
 import RoleConceptDetail from './RoleConceptDetail';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
+import FormInstance from '../../domain/FormInstance';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -305,6 +306,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
         }
       }
     }
+    console.log("conceptData compiled", concepts);
     return concepts;
   }
 
@@ -435,19 +437,30 @@ export class RoleConceptTable extends Basic.AbstractContent {
     );
   }
 
-  _conceptAlertCell({rowIndex, data}) {
+  _conceptAttributesCell({rowIndex, data}) {
     const value = data[rowIndex];
-    if (value.valid === false) {
-      return (
-        <Basic.Button
-          level="danger"
-          className="btn-xs"
-          icon="fa:warning"
-          title={ this.i18n('alert.invalidConcept') }
-          onClick={ this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false) }/>
-      );
+    const result = [];
+    if ( value
+      && value._eav
+      && value._eav.length === 1
+      && value._eav[0].formDefinition) {
+      const formInstance = value._eav[0];
+      const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values);
+      result.push(
+          <Advanced.EavForm
+            key={`${rowIndex}-${value.id}`}
+            ref="eavForm"
+            formInstance={ _formInstance }
+            validationErrors={formInstance.validationErrors}
+            readOnly
+            useDefaultValue={false}/>
+        );
     }
-    return null;
+    return (
+      <Basic.Div className="abstract-form" style={{minWidth: 150, padding: 0}}>
+        {result}
+      </Basic.Div>
+    );
   }
 
   // To delete
@@ -627,7 +640,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
               header={this.i18n('content.task.IdentityRoleConceptTable.identityRoleAttributes.header')}
               cell={
                 ({rowIndex, data}) => {
-                  return this._conceptAlertCell({ rowIndex, data });
+                  return this._conceptAttributesCell({ rowIndex, data });
                 }
               }/>
             <Basic.Column

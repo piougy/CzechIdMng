@@ -372,7 +372,8 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 					concept.getEavs().add(formInstanceDto);
 					// Validate the concept
 					List<InvalidFormAttributeDto> validationResults = formService.validate(formInstanceDto);
-					if (validationResults != null && !validationResults.isEmpty()) {
+					formInstanceDto.setValidationErrors(formService.validate(formInstanceDto));
+					if (!validationResults.isEmpty()) {
 						// Concept is not valid (no other metadata for validation problem is not
 						// necessary now).
 						concept.setValid(false);

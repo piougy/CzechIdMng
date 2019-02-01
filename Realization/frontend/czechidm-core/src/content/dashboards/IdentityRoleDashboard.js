@@ -50,7 +50,10 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
         <Basic.Panel>
           <IdentityRoleTableComponent
             uiKey={ `dashboard-${ entityId }` }
-            forceSearchParameters={ new Domain.SearchParameters().setFilter('identityId', entityId).setFilter('directRole', true) }
+            forceSearchParameters={ new Domain.SearchParameters()
+              .setFilter('identityId', entityId)
+              .setFilter('directRole', true)
+              .setFilter('addEavMetadata', true) }
             showAddButton={ false }
             params={{ ...this.props.params, entityId }}
             columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole', 'contractPosition']) }

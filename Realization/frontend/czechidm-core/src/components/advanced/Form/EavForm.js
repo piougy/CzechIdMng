@@ -101,12 +101,12 @@ export default class EavForm extends Basic.AbstractContextComponent {
     return formInstance.getProperties();
   }
 
-  getInvalidFormAttributes(error, code) {
-    if (!error || !error.parameters || !error.parameters.attributes) {
+  getInvalidFormAttributes(validationErrors, code) {
+    if (!validationErrors) {
       return [];
     }
     //
-    return error.parameters.attributes.filter(attribute => {
+    return validationErrors.filter(attribute => {
       return attribute.attributeCode === code;
     });
   }
@@ -118,7 +118,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
       showLoading,
       readOnly,
       useDefaultValue,
-      error
+      validationErrors
     } = this.props;
     //
     if (!rendered || !formInstance) {
@@ -164,7 +164,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 readOnly={ readOnly }
                 useDefaultValue={ useDefaultValue }
                 manager={ ManagerType ? new ManagerType() : null }
-                validationErrors={ this.getInvalidFormAttributes(error, attribute.code) }/>
+                validationErrors={ this.getInvalidFormAttributes(validationErrors, attribute.code) }/>
             );
           })
         }

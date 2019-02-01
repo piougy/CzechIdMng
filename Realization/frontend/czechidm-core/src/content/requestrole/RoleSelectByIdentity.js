@@ -31,7 +31,9 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     this.state = {
       selectedIdentity: null,
       identityRoleRoots: [],
-      selectedIdentityRoles: []
+      selectedIdentityRoles: [],
+      showOnlyDirectRoles: true, // first initial value for show only directed roles
+      selectedIdentityContract: null
     };
   }
 
@@ -88,10 +90,14 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
   /**
    * Set change of identity or identity contract
    */
-  _changeIdentityOrContract(identity, identityContract = null) {
+  _changeIdentityOrContract(identity, identityContract = null, showOnlyDirectRoles) {
     if (identity && identity.id) {
       const identityRoleRoots = [];
-      const searchParameters = identityRoleManager.getSearchParameters().setFilter('identityId', identity.id).setFilter('identityContractId', identityContract ? identityContract.id : null).setSize(100000);
+      const searchParameters = identityRoleManager.getSearchParameters()
+            .setFilter('identityId', identity.id)
+            .setFilter('identityContractId', identityContract ? identityContract.id : null)
+            .setFilter('directRole', showOnlyDirectRoles === true ? true : null) // When is filter false we want all roles
+            .setSize(100000);
       this.context.store.dispatch(identityRoleManager.fetchEntities(searchParameters, IDENTITY_ROLE_BY_IDENTITY_UIKEY, json => {
         // Returned json and inner embbeded with identity roles must exists
         if (json && json._embedded && json._embedded.identityRoles) {
@@ -108,13 +114,17 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
         }
         this.setState({
           selectedIdentity: identity,
-          identityRoleRoots
+          identityRoleRoots,
+          selectedIdentityContract: identityContract,
+          showOnlyDirectRoles
         });
       }));
     } else {
       this.setState({
         selectedIdentity: null,
-        identityRoleRoots: []
+        identityRoleRoots: [],
+        selectedIdentityContract: identityContract,
+        showOnlyDirectRoles
       });
     }
   }
@@ -214,13 +224,28 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     }
   }
 
+  /**
+   * Method catch event from checbox that hides or shows directly roles
+   */
+  _showDirectRoles(event) {
+    if (event) {
+      event.preventDefault();
+    }
+
+    const currentTargetValue = event.currentTarget.checked;
+    const { selectedIdentity, selectedIdentityContract } = this.state;
+    this._changeIdentityOrContract(selectedIdentity, selectedIdentityContract, currentTargetValue);
+  }
+
   _selectedIdentityContract(identityContract) {
-    const { selectedIdentity } = this.state;
-    this._changeIdentityOrContract(selectedIdentity, identityContract);
+    const { selectedIdentity, showOnlyDirectRoles } = this.state;
+    this._changeIdentityOrContract(selectedIdentity, identityContract, showOnlyDirectRoles);
   }
 
   _selectIdentity(identity) {
-    this._changeIdentityOrContract(identity, null);
+    const { showOnlyDirectRoles } = this.state;
+    this.refs.selectedIdentityContract.setValue(null);
+    this._changeIdentityOrContract(identity, null, showOnlyDirectRoles);
   }
 
   /**
@@ -233,7 +258,14 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
 
   render() {
     const { identityRoles, identityRoleShowLoading, identityUsername } = this.props;
-    const { selectedIdentity, identityRoleRoots, selectedIdentityRoles } = this.state;
+    const {
+      selectedIdentity,
+      identityRoleRoots,
+      selectedIdentityRoles,
+      showOnlyDirectRoles,
+      selectedIdentityContract
+    } = this.state;
+
     const existIdentityRoles = identityRoles && identityRoles.length > 0;
     const buttonsStyle = { width: '34px', height: '34px', fontSize: '8px', marginTop: '5px' };
     return (
@@ -265,6 +297,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
             helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
             returnProperty={false}
             niceLabel={ (contract) => { return this.identityContractManager.getNiceLabel(contract, false); }}
+            value={selectedIdentityContract}
             required
             useFirst/>
           <Basic.Row>
@@ -379,6 +412,13 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
               </div>
             </div>
           </Basic.Div>
+
+          <Basic.Checkbox
+            ref="showOnlyDirectRoles"
+            value={showOnlyDirectRoles}
+            label={ this.i18n('showOnlyDirectRoles.label') }
+            helpBlock={ this.i18n('showOnlyDirectRoles.help') }
+            onChange={ this._showDirectRoles.bind(this) }/>
 
           <Basic.Alert level="info" style={{ marginTop: 15 }}>
             <i>{ this.i18n('legend.header') }:</i>

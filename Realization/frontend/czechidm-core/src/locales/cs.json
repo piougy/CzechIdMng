@@ -1361,6 +1361,10 @@
               "removeSelectedRoles": "Odebrat vybrané role",
               "removeAllRoles": "Odebrat všechny role"
             },
+            "showOnlyDirectRoles": {
+              "label": "Zobrazovat pouze role přiřazené na přímo",
+              "help": "Po zaškrtnutí budou zobrazeny pouze na přímo přiřazené role."
+            },
             "legend": {
               "header":"Legenda",
               "role-types": {

@@ -39,6 +39,7 @@ public class IdmFormInstanceDto implements Serializable {
 	@NotNull
 	private Class<? extends Identifiable> ownerType;
 	private List<IdmFormValueDto> values;
+	private List<InvalidFormAttributeDto> validationErrors;
 	
 	public IdmFormInstanceDto() {
 	}
@@ -208,5 +209,25 @@ public class IdmFormInstanceDto implements Serializable {
 	 */
 	public IdmFormAttributeDto getMappedAttributeByCode(String attributeCode) {
 		return getFormDefinition().getMappedAttributeByCode(attributeCode);
+	}
+	
+	/**
+	 * Set evaluated validations.
+	 * 
+	 * @param validationErrors
+	 * @since 9.4.0
+	 */
+	public void setValidationErrors(List<InvalidFormAttributeDto> validationErrors) {
+		this.validationErrors = validationErrors;
+	}
+	
+	/**
+	 * Evaluated validations. Returns {@code null}, when validation was not checked.
+	 * 
+	 * @return
+	 * @since 9.4.0
+	 */
+	public List<InvalidFormAttributeDto> getValidationErrors() {
+		return validationErrors;
 	}
 }

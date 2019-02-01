@@ -21,7 +21,8 @@ class EavContent extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      error: null
+      error: null,
+      validationErrors: null,
     };
   }
 
@@ -70,7 +71,7 @@ class EavContent extends Basic.AbstractContent {
       if (error) {
         if (error.statusEnum === 'FORM_INVALID') {
           this.setState({
-            error
+            validationErrors: error.parameters ? error.parameters.attributes : null
           }, () => {
             this.addError(error);
           });
@@ -79,7 +80,7 @@ class EavContent extends Basic.AbstractContent {
         }
       } else {
         this.setState({
-          error: null
+          validationErrors: null
         }, () => {
           const entity = formableManager.getEntity(this.context.store.getState(), entityId);
           this.addMessage({ message: this.i18n('save.success', { name: formableManager.getNiceLabel(entity) }) });
@@ -91,7 +92,7 @@ class EavContent extends Basic.AbstractContent {
 
   render() {
     const { _formInstances, _showLoading, showSaveButton } = this.props;
-    const { error } = this.state;
+    const { error, validationErrors } = this.state;
 
     let content = null;
     if (error && error.statusEnum !== 'FORM_INVALID') {
@@ -150,7 +151,7 @@ class EavContent extends Basic.AbstractContent {
                   ref={ this._createFormRef(_formInstance.getDefinition().code) }
                   formInstance={ _formInstance }
                   readOnly={ !showSaveButton }
-                  error={ error }/>
+                  validationErrors={ validationErrors }/>
               </Basic.PanelBody>
 
               <Basic.PanelFooter rendered={ _showSaveButton && showSaveButton && _formInstance.getAttributes().size > 0 }>

@@ -1184,16 +1184,13 @@ public class DefaultFormService implements FormService {
 	@Override
 	public List<InvalidFormAttributeDto> validate(IdmFormInstanceDto formInstance) {
 		Assert.notNull(formInstance, "Form instance cannot be null!");
-		IdmFormDefinitionDto definition = formInstance.getFormDefinition();
-		Assert.notNull(definition, "Form definition cannot be null!");
+		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
+		Assert.notNull(formDefinition, "Form definition cannot be null!");
 		//
 		List<InvalidFormAttributeDto> results = Lists.newArrayList();
-		definition
+		formDefinition
 			.getFormAttributes()
 			.stream()
-			.peek(attribute -> {
-				attribute.getEmbedded().put(IdmFormAttribute_.formDefinition.getName(), definition);
-			})
 			.forEach(formAttribute -> { //
 				List<IdmFormValueDto> formValueForAttributes = formInstance //
 						.getValues() //
@@ -1204,7 +1201,7 @@ public class DefaultFormService implements FormService {
 							formValue.setPersistentType(formAttribute.getPersistentType());
 						})
 						.collect(Collectors.toList()); //
-				InvalidFormAttributeDto result = this.validateAttribute(formAttribute, formValueForAttributes);
+				InvalidFormAttributeDto result = this.validateAttribute(formDefinition, formAttribute, formValueForAttributes);
 				if (!result.isValid()) {
 					results.add(result);
 				}
@@ -1212,7 +1209,9 @@ public class DefaultFormService implements FormService {
 		return results;
 	}
 
-	private InvalidFormAttributeDto validateAttribute(IdmFormAttributeDto formAttribute,
+	private InvalidFormAttributeDto validateAttribute(
+			IdmFormDefinitionDto formDefinition,
+			IdmFormAttributeDto formAttribute,
 			List<IdmFormValueDto> formValues) {
 		Assert.notNull(formAttribute);
 		//
@@ -1271,14 +1270,16 @@ public class DefaultFormService implements FormService {
 						result.setMaxValue(formAttribute.getMax());
 					}
 				}
-				if (StringUtils.isNotEmpty(formAttribute.getRegex())) {
-					Pattern p = Pattern.compile(formAttribute.getRegex());
-					Matcher m = p.matcher(formValue.getValue().toString()); // all persistent types are supported on BE, but string values makes the good sense.
+				String regex = formAttribute.getRegex();
+				if (StringUtils.isNotEmpty(regex)) {
+					Pattern p = Pattern.compile(regex);
+					String stringValue = formValue.getValue().toString();
+					Matcher m = p.matcher(stringValue); // all persistent types are supported on BE, but string values makes the good sense.
 					if (!m.matches()) {
 						LOG.debug("Form attribute [{}] validation failed - given value [{}] does not match regex [{}].",
-								formAttribute.getCode(), formValue.getValue(), formAttribute.getRegex());
+								formAttribute.getCode(), stringValue, regex);
 						//
-						result.setRegexValue(formAttribute.getRegex());
+						result.setRegexValue(regex);
 					}
 				}
 				if (formAttribute.isUnique()) {
@@ -1293,7 +1294,6 @@ public class DefaultFormService implements FormService {
 					valueFilter.setDateValue(formValue.getDateValue());
 					valueFilter.setUuidValue(formValue.getUuidValue());
 					//
-					IdmFormDefinitionDto formDefinition = DtoUtils.getEmbedded(formAttribute, IdmFormAttribute_.formDefinition);
 					Identifiable owner = getEmptyOwner(formDefinition);
 					Assert.notNull(owner, "Filter - attribute owner is required. Is possible to filter form values by given owner only");
 					//

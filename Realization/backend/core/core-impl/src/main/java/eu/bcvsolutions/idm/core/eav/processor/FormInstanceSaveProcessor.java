@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.event.processor.FormInstanceProcessor;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 
 /**
@@ -23,7 +24,9 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
  */
 @Component(FormInstanceSaveProcessor.PROCESSOR_NAME)
 @Description("Persists entity event.")
-public class FormInstanceSaveProcessor extends CoreEventProcessor<IdmFormInstanceDto> {
+public class FormInstanceSaveProcessor 
+		extends CoreEventProcessor<IdmFormInstanceDto>
+		implements FormInstanceProcessor {
 	
 	public static final String PROCESSOR_NAME = "core-form-instance-save-processor";
 	//

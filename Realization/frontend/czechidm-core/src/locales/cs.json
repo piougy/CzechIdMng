@@ -5179,6 +5179,10 @@
       "title": "Atribut formuláře nelze smazat",
       "message": "Atribut nelze smazat, některé formulářové hodnoty používají tento atribut."
     },
+    "FORM_ATTRIBUTE_CHANGE_PERSISTENT_TYPE_FAILED_HAS_VALUES": {
+      "title": "Atribut formuláře nelze změnit",
+      "message": "Typ atributu [{{attributeCode}}] nelze změnit, některé formulářové hodnoty používají tento atribut."
+    },
     "FORM_INVALID": {
       "title": "Formulář není validní",
       "message": "Vyplněný formulář obsahuje nevalidní hodnoty."

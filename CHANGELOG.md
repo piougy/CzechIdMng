@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 ## [9.4.0]
 - [#1372](https://redmine.czechidm.com/issues/1372) - HTTP status 206 for long running task supports download result from them.
 - Deprecated static properties ``PARAMETER_PROPERTY`` and ``PARAMETER_VALUE`` defined in ``IdmTreeNodeFilter`` were removed (deprecated @since 8.2.0). Use static properties ``PARAMETER_CORRELATION_PROPERTY`` and ``PARAMETER_CORRELATION_VALUE`` instead.
-- [#1378](https://redmine.czechidm.com/issues/1378) Dashboard content was redesigned and split into two component - dashboard (system info) and identity dashboard (identity info). ``Index.js``, ``layout`` in frontend ``czechidm-app`` module was updated - don't forget to **update this module**, if project specific app module is used. Changes are backward compatible - previously created dashboards will be rendered in new dashboard content. New dashboard components with type ``identity-dashboard`` can be registered.
+- [#1378](https://redmine.czechidm.com/issues/1378) - Dashboard content was redesigned and split into two component - dashboard (system info) and identity dashboard (identity info). ``Index.js``, ``layout`` in frontend ``czechidm-app`` module was updated - don't forget to **update this module**, if project specific app module is used. Changes are backward compatible - previously created dashboards will be rendered in new dashboard content. New dashboard components with type ``identity-dashboard`` can be registered.
 - Confidential storage agenda was hidden in menu. Confidential storage is still available in router on url ``<server>/confidential-storage`` and on rest api.
 - Font Awesome library was upgraded to version 5. Backward compatibility with the old version 4 icon names was configured, but will be removed in release CzechIdM 10.x. Use new icon names - see the [documentation](https://fontawesome.com/how-to-use/on-the-web/setup/upgrading-from-version-4#name-changes).
 - Deprecated unused field **``parameters`` was removed from ``AuthorizationEvaluatorDto``** (deprecated since CzechIdM 8.2.0). Use form definition instead (field ``formDefinition``).
+- Services for extended attributes definition ``IdmFormAttributeService`` and ``IdmFormDefinitionService`` support events now (constructors was changed).
+- [#1474](https://redmine.czechidm.com/issues/1474) - Changing persistent type of form attribute is possible only if no values are persisted.
 
 
 ## [9.3.0]

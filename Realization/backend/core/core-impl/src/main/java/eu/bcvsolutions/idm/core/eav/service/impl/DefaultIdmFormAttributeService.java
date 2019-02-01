@@ -27,12 +27,13 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilt
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
-import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
@@ -54,30 +55,27 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmFormAttributeService 
-		extends AbstractReadWriteDtoService<IdmFormAttributeDto, IdmFormAttribute, IdmFormAttributeFilter> 
+		extends AbstractEventableDtoService<IdmFormAttributeDto, IdmFormAttribute, IdmFormAttributeFilter> 
 		implements IdmFormAttributeService {
 
 	private final IdmFormAttributeRepository repository;
 	private final PluginRegistry<FormValueService<?>, Class<?>> formValueServices;
-	private final IdmAutomaticRoleAttributeRuleService automaticRoleAttributeService;
-	@Autowired
-	private IdmAutomaticRoleAttributeRuleRequestService automaticRoleAttributeRequestService;
-	@Autowired
-	private IdmRoleFormAttributeService roleFormAttributeService;
+	//
+	@Autowired private IdmAutomaticRoleAttributeRuleService automaticRoleAttributeService;
+	@Autowired private IdmAutomaticRoleAttributeRuleRequestService automaticRoleAttributeRequestService;
+	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
 	
 	@Autowired
 	public DefaultIdmFormAttributeService(
 			IdmFormAttributeRepository repository,
-			List<? extends FormValueService<?>> formValueServices,
-					IdmAutomaticRoleAttributeRuleService automaticRoleAttributeService) {
-		super(repository);
+			EntityEventManager entityEventManager,
+			List<? extends FormValueService<?>> formValueServices) {
+		super(repository, entityEventManager);
 		//
 		Assert.notNull(formValueServices);
-		Assert.notNull(automaticRoleAttributeService);
 		//
 		this.repository = repository;
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
-		this.automaticRoleAttributeService = automaticRoleAttributeService;
 	}
 	
 	@Override

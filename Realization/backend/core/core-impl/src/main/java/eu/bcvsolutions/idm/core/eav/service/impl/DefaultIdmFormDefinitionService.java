@@ -24,7 +24,8 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -49,31 +50,25 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmFormDefinitionService 
-		extends AbstractReadWriteDtoService<IdmFormDefinitionDto, IdmFormDefinition, IdmFormDefinitionFilter> 
+		extends AbstractEventableDtoService<IdmFormDefinitionDto, IdmFormDefinition, IdmFormDefinitionFilter> 
 		implements IdmFormDefinitionService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultIdmFormDefinitionService.class);
 
 	private final IdmFormDefinitionRepository formDefinitionRepository;
-	private final IdmFormAttributeService formAttributeService;
-	private final LookupService lookupService;
-	@Autowired
-	private IdmRoleService roleService;
+	//
+	@Autowired private IdmFormAttributeService formAttributeService;
+	@Autowired private LookupService lookupService;
+	@Autowired private IdmRoleService roleService;
 
 	@Autowired
 	public DefaultIdmFormDefinitionService(
 			IdmFormDefinitionRepository formDefinitionRepository,
-			IdmFormAttributeService formAttributeService,
-			LookupService lookupService) {
-		super(formDefinitionRepository);
-		//
-		Assert.notNull(formAttributeService);
-		Assert.notNull(lookupService);
+			EntityEventManager entityEventManager) {
+		super(formDefinitionRepository, entityEventManager);
 		//
 		this.formDefinitionRepository = formDefinitionRepository;
-		this.formAttributeService = formAttributeService;
-		this.lookupService = lookupService;
 	}
 	
 	@Override

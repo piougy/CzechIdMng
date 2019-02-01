@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.event.processor.FormInstanceProcessor;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 
 /**
@@ -32,7 +33,9 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
  */
 @Component(FormInstanceValidateProcessor.PROCESSOR_NAME)
 @Description("Persists entity event.")
-public class FormInstanceValidateProcessor extends CoreEventProcessor<IdmFormInstanceDto> {
+public class FormInstanceValidateProcessor 
+		extends CoreEventProcessor<IdmFormInstanceDto>
+		implements FormInstanceProcessor {
 	
 	public static final String PROCESSOR_NAME = "core-form-instance-validate-processor";
 	//

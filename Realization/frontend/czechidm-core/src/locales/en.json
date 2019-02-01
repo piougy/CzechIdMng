@@ -3348,7 +3348,7 @@
       },
       "validationMessage": {
         "label": "Validation message",
-        "help": "Custom validation message. If message is not defined, then default message by invalid validation will be shown. Can contain localization key (e.g. 'core:validationError.invalid.unique')."
+        "help": "Custom validation message. If message is not defined, then default message by invalid validation type will be shown. Can contain localization key (e.g. 'core:validationError.invalid.unique')."
       }
     },
     "FormValue": {
@@ -5128,6 +5128,14 @@
     "FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES": {
       "title": "Form attribute can not be deleted",
       "message": "Form attribute cannot be deleted - some form values already using this attribute."
+    },
+    "FORM_ATTRIBUTE_CHANGE_PERSISTENT_TYPE_FAILED_HAS_VALUES": {
+      "title": "Form attribute can not be changed",
+      "message": "Type of the form attribute [{{attributeCode}}] cannot be changed - some form values already using this attribute."
+    },
+    "FORM_ATTRIBUTE_CHANGE_CONFIDENTIAL_FAILED_HAS_VALUES": {
+      "title": "Form attribute can not be changed",
+      "message": "Confidential flag of the form attribute [{{attributeCode}}] cannot be changed - some form values already using this attribute."
     },
     "FORM_INVALID": {
       "title": "Form is not valid.",

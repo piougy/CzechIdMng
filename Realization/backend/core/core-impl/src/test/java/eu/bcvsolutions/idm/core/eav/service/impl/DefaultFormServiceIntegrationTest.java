@@ -53,11 +53,14 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
+import eu.bcvsolutions.idm.core.eav.api.exception.ChangeConfidentialException;
+import eu.bcvsolutions.idm.core.eav.api.exception.ChangePersistentTypeException;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.processor.FormAttributeValidateProcessor;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.ecm.service.DefaultAttachmentManagerIntegrationTest;
@@ -77,13 +80,13 @@ import eu.bcvsolutions.idm.core.security.evaluator.eav.IdentityFormValueEvaluato
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Target system tests
+ * Form service integration tests
  * 
  * @author Radek Tomiška
  *
  */
 @Transactional
-public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
+public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	
 	private final static String FORM_VALUE_ONE = "one";
 	private final static String FORM_VALUE_TWO = "two";
@@ -724,38 +727,43 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	 */
 	@Test
 	public void testChangeAttributePersistentType() {
-		Identifiable owner = getHelper().createIdentity((GuardedString) null);
-		//
-		// create definition with attribute
-		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
-		String attributeName = getHelper().createName();
-		attribute.setCode(attributeName);
-		attribute.setName(attribute.getCode());
-		attribute.setPersistentType(PersistentType.SHORTTEXT);
-		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmIdentity.class.getCanonicalName(), getHelper().createName(), Lists.newArrayList(attribute));
-		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
-		//
-		// fill values		
-		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
-		
-		Map<String, List<IdmFormValueDto>> m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();
-		
-		// check value and persistent type
-		assertEquals(1, m.get(attributeName).size());
-		assertEquals(FORM_VALUE_ONE, (m.get(attributeName).get(0)).getValue());
-		assertEquals(attribute.getPersistentType(), (m.get(attributeName).get(0)).getPersistentType());
-		//
-		// change attribute persistentn type
-		attribute.setPersistentType(PersistentType.TEXT);
-		attribute = formService.saveAttribute(attribute);
-		// update value
-		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_TWO));
-		m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();
-		//
-		// check value and persistent type
-		assertEquals(1, m.get(attributeName).size());
-		assertEquals(FORM_VALUE_TWO, (m.get(attributeName).get(0)).getValue());
-		assertEquals(attribute.getPersistentType(), (m.get(attributeName).get(0)).getPersistentType());
+		getHelper().disable(FormAttributeValidateProcessor.class);
+		try {
+			Identifiable owner = getHelper().createIdentity((GuardedString) null);
+			//
+			// create definition with attribute
+			IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+			String attributeName = getHelper().createName();
+			attribute.setCode(attributeName);
+			attribute.setName(attribute.getCode());
+			attribute.setPersistentType(PersistentType.SHORTTEXT);
+			IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmIdentity.class.getCanonicalName(), getHelper().createName(), Lists.newArrayList(attribute));
+			attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+			//
+			// fill values		
+			formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+			
+			Map<String, List<IdmFormValueDto>> m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();
+			
+			// check value and persistent type
+			assertEquals(1, m.get(attributeName).size());
+			assertEquals(FORM_VALUE_ONE, (m.get(attributeName).get(0)).getValue());
+			assertEquals(attribute.getPersistentType(), (m.get(attributeName).get(0)).getPersistentType());
+			//
+			// change attribute persistent type
+			attribute.setPersistentType(PersistentType.TEXT);
+			attribute = formService.saveAttribute(attribute);
+			// update value
+			formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_TWO));
+			m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();
+			//
+			// check value and persistent type
+			assertEquals(1, m.get(attributeName).size());
+			assertEquals(FORM_VALUE_TWO, (m.get(attributeName).get(0)).getValue());
+			assertEquals(attribute.getPersistentType(), (m.get(attributeName).get(0)).getPersistentType());
+		} finally {
+			getHelper().enable(FormAttributeValidateProcessor.class);
+		}
 	}
 	
 	@Test
@@ -1528,6 +1536,139 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 				Lists.newArrayList(attribute));
 	}
 	
+	@Test
+	public void testChangePersistentTypeSuccess() {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		attribute.setPersistentType(PersistentType.DATE);
+		attribute = formService.saveAttribute(attribute);
+		//
+		Assert.assertEquals(PersistentType.DATE, attribute.getPersistentType());
+	}
+	
+	@Test
+	public void testChangeConfidentialSuccess() {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		attribute.setConfidential(false);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		attribute.setConfidential(true);
+		attribute = formService.saveAttribute(attribute);
+		//
+		Assert.assertTrue(attribute.isConfidential());
+	}
+	
+	@Test(expected = ChangePersistentTypeException.class)
+	public void testChangePersistentTypeFailed() {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		formService.saveValues(getHelper().createIdentity((GuardedString) null), attribute, Lists.newArrayList("one"));
+		//
+		attribute.setPersistentType(PersistentType.DATE);
+		formService.saveAttribute(attribute);
+	}
+	
+	@Test(expected = ChangeConfidentialException.class)
+	public void testChangeConfidentialFailed() {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		attribute.setConfidential(false);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		formService.saveValues(getHelper().createIdentity((GuardedString) null), attribute, Lists.newArrayList("one"));
+		//
+		attribute.setConfidential(true);
+		formService.saveAttribute(attribute);
+	}
+	
+	@Test(expected = ChangePersistentTypeException.class)
+	public void testChangePersistentTypeFailedWhenTypeIsNotClass() {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				getHelper().createName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		attribute.setPersistentType(PersistentType.DATE);
+		formService.saveAttribute(attribute);
+	}
+	
+	@Test(expected = ChangeConfidentialException.class)
+	public void testChangeConfidentialFailedWhenTypeIsNotClass() {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		attribute.setConfidential(false);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				getHelper().createName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		attribute.setConfidential(true);
+		formService.saveAttribute(attribute);
+	}
+	
+	@Test(expected = ChangeConfidentialException.class)
+	public void testChangeAttributeSuccess() {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		attribute.setConfidential(false);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				getHelper().createName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		attribute.setRequired(true);
+		attribute = formService.saveAttribute(attribute);
+		//
+		Assert.assertTrue(attribute.isRequired());
+	}
+	
 	private long prepareDataAndFind(Class<? extends AbstractEntity> type, AbstractDto owner) {
 		//
 		//create attribute
@@ -1550,6 +1691,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		Page<IdmFormValueDto> result = formService.findValues(filter, new PageRequest(0, Integer.MAX_VALUE));
 		return result.getTotalElements();
 	}
+	
 	
 	private IdmAttachmentDto createTempAttachment() {
 		IdmAttachmentDto dto = DefaultAttachmentManagerIntegrationTest.prepareDto();

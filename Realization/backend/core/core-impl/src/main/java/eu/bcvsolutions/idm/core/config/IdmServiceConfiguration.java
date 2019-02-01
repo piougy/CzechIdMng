@@ -411,7 +411,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmFormAttributeService.class)
 	public IdmFormAttributeService formAttributeService() {
-		return new DefaultIdmFormAttributeService(formAttributeRepository, formValueServices, automaticRoleAttributeRuleService());
+		return new DefaultIdmFormAttributeService(formAttributeRepository, entityEventManager(), formValueServices);
 	}
 	
 	/**
@@ -422,7 +422,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmFormDefinitionService.class)
 	public IdmFormDefinitionService formDefinitionService() {
-		return new DefaultIdmFormDefinitionService(formDefinitionRepository, formAttributeService(), lookupService());
+		return new DefaultIdmFormDefinitionService(formDefinitionRepository, entityEventManager());
 	}
 	
 	/**

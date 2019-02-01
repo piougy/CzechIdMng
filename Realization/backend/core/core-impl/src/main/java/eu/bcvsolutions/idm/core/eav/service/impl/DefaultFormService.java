@@ -1043,23 +1043,25 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(filter);
 		//
 		// resolve owner by definition
-		IdmFormDefinitionDto formDefinition = null;
-		UUID definitionId = filter.getDefinitionId();
-		if (definitionId != null) {
-			formDefinition = formDefinitionService.get(definitionId);
-		}
-		//
-		UUID attributeId = filter.getAttributeId();
-		if (formDefinition == null && attributeId != null) {
-			IdmFormAttributeDto formAttribute = formAttributeService.get(attributeId);
-			if (formAttribute != null) {
-				formDefinition = DtoUtils.getEmbedded(formAttribute, IdmFormAttribute_.formDefinition);
+		if (filter.getOwner() == null) {
+			IdmFormDefinitionDto formDefinition = null;
+			UUID definitionId = filter.getDefinitionId();
+			if (definitionId != null) {
+				formDefinition = formDefinitionService.get(definitionId);
 			}
+			//
+			UUID attributeId = filter.getAttributeId();
+			if (formDefinition == null && attributeId != null) {
+				IdmFormAttributeDto formAttribute = formAttributeService.get(attributeId);
+				if (formAttribute != null) {
+					formDefinition = DtoUtils.getEmbedded(formAttribute, IdmFormAttribute_.formDefinition);
+				}
+			}
+			if (formDefinition == null) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", "formDefinition"));
+			}	
+			filter.setOwner(getEmptyOwner(formDefinition));
 		}
-		if (formDefinition == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", "formDefinition"));
-		}
-		filter.setOwner(getEmptyOwner(formDefinition));
 		Identifiable owner = (Identifiable) filter.getOwner();
 		Assert.notNull(owner, "Filter - attribute owner is required. Is possible to filter form values by given owner only");
 		//

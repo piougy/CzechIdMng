@@ -118,12 +118,7 @@ public class IdmRoleRequestControllerRestTest extends AbstractReadWriteDtoContro
 				.stream()
 				.map(ResolvedIncompatibleRoleDto::getIncompatibleRole)
 				.collect(Collectors.toSet());
-		Assert.assertEquals(2, incompatibleRoles.size());
-		Assert.assertTrue(incompatibleRoles
-				.stream()
-				.anyMatch(ir -> { 
-					return ir.getSuperior().equals(roleOne.getId()) && ir.getSub().equals(roleTwo.getId());
-				}));
+		Assert.assertEquals(1, incompatibleRoles.size());
 		Assert.assertTrue(incompatibleRoles
 				.stream()
 				.anyMatch(ir -> { 
@@ -179,12 +174,7 @@ public class IdmRoleRequestControllerRestTest extends AbstractReadWriteDtoContro
 				.stream()
 				.map(ResolvedIncompatibleRoleDto::getIncompatibleRole)
 				.collect(Collectors.toSet());
-		Assert.assertEquals(1, incompatibleRoles.size());
-		Assert.assertTrue(incompatibleRoles
-				.stream()
-				.anyMatch(ir -> { 
-					return ir.getSuperior().equals(roleOne.getId()) && ir.getSub().equals(roleTwo.getId());
-				}));
+		Assert.assertEquals(0, incompatibleRoles.size());
 	}
 	
 	@Test

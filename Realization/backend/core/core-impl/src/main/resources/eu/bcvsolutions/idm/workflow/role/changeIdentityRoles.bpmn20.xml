@@ -13,7 +13,9 @@ Configuration properties:
 - idm.sec.core.wf.approval.usermanager.enabled: If is "false", then process will be not do approving by user manager
 - idm.sec.core.wf.approval.usermanager.role: Role using for find candates (approve by User manage department)
 - idm.sec.core.wf.approval.security.enabled: If is "false", then process will be not do approving by security
-- idm.sec.core.wf.approval.security.role: Role using for find candates (approve by Security department)</documentation>
+- idm.sec.core.wf.approval.security.role: Role using for find candates (approve by Security department)
+- idm.sec.core.wf.approval.incompatibility.enabled=true (by default)
+- idm.sec.core.wf.approval.incompatibility.role=Incompatibility (default role for approval of role incompatibilities)</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <userTask id="approveByHelpDesk" name="Approve by help desk" activiti:candidateUsers="#{candidatesApproveByHelpDesk}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveByHelpDesk}">
@@ -462,42 +464,6 @@ if(!skip){
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow45" sourceRef="sid-02963C54-77A0-4E79-8EBD-4FBA5CCD4501" targetRef="scripttask9"></sequenceFlow>
-    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="backToApplicant" name="backToApplicant" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":true,"level":"warning"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="createRequest" name="createRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="cancelRequest" name="cancelRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="repairedRequest" name="repairedRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":false, "level":"success"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="applicantDescription" name="applicantDescription" itemSubjectRef="xsd:string"></dataObject>
-    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>none</activiti:value>
-      </extensionElements>
-    </dataObject>
     <scriptTask id="scripttask8" name="Send notification with result (Success)" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <documentation>Send notification with template with result</documentation>
       <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -915,7 +881,8 @@ if(sendNotificationToApplicant){
 </script>
     </scriptTask>
     <sequenceFlow id="flow51" sourceRef="scripttask12" targetRef="returnedRequestFromHelpdesk"></sequenceFlow>
-    <userTask id="usertask1" name="Approve a incompatibilities" activiti:candidateUsers="#{candidatesApproveIncompatibilities}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveIncompatibilities}">
+    <userTask id="approveIncompatibilities" name="Approve a incompatibilities" activiti:candidateUsers="#{candidatesApproveIncompatibilities}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveIncompatibilities}">
+      <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
@@ -961,8 +928,8 @@ if(!skip){
 }</script>
     </scriptTask>
     <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
-    <sequenceFlow id="flow52" sourceRef="scripttask13" targetRef="usertask1"></sequenceFlow>
-    <sequenceFlow id="flow53" sourceRef="usertask1" targetRef="exclusivegateway4"></sequenceFlow>
+    <sequenceFlow id="flow52" sourceRef="scripttask13" targetRef="approveIncompatibilities"></sequenceFlow>
+    <sequenceFlow id="flow53" sourceRef="approveIncompatibilities" targetRef="exclusivegateway4"></sequenceFlow>
     <sequenceFlow id="flow54" sourceRef="exclusivegateway4" targetRef="scripttask7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
@@ -988,6 +955,42 @@ execution.setVariable("existsIncompatibilities", !incompatibilities.isEmpty());<
     <sequenceFlow id="flow59" sourceRef="exclusivegateway5" targetRef="scripttask7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!existsIncompatibilities}]]></conditionExpression>
     </sequenceFlow>
+    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="backToApplicant" name="backToApplicant" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":true,"level":"warning"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="createRequest" name="createRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="cancelRequest" name="cancelRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="repairedRequest" name="repairedRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":false, "level":"success"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="applicantDescription" name="applicantDescription" itemSubjectRef="xsd:string"></dataObject>
+    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>none</activiti:value>
+      </extensionElements>
+    </dataObject>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_approve-identity-change-permissions">
     <bpmndi:BPMNPlane bpmnElement="approve-identity-change-permissions" id="BPMNPlane_approve-identity-change-permissions">
@@ -1114,7 +1117,7 @@ execution.setVariable("existsIncompatibilities", !incompatibilities.isEmpty());<
       <bpmndi:BPMNShape bpmnElement="scripttask12" id="BPMNShape_scripttask12">
         <omgdc:Bounds height="81.0" width="167.0" x="735.0" y="226.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+      <bpmndi:BPMNShape bpmnElement="approveIncompatibilities" id="BPMNShape_approveIncompatibilities">
         <omgdc:Bounds height="67.0" width="144.0" x="2852.0" y="545.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask13" id="BPMNShape_scripttask13">
@@ -1124,7 +1127,7 @@ execution.setVariable("existsIncompatibilities", !incompatibilities.isEmpty());<
         <omgdc:Bounds height="40.0" width="40.0" x="2903.0" y="635.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask14" id="BPMNShape_scripttask14">
-        <omgdc:Bounds height="68.0" width="158.0" x="2844.0" y="317.0"></omgdc:Bounds>
+        <omgdc:Bounds height="68.0" width="158.0" x="2845.0" y="318.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
         <omgdc:Bounds height="40.0" width="40.0" x="3047.0" y="332.0"></omgdc:Bounds>
@@ -1203,7 +1206,7 @@ execution.setVariable("existsIncompatibilities", !incompatibilities.isEmpty());<
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
         <omgdi:waypoint x="2783.0" y="354.0"></omgdi:waypoint>
-        <omgdi:waypoint x="2844.0" y="351.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2845.0" y="352.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
         <omgdi:waypoint x="540.0" y="348.0"></omgdi:waypoint>
@@ -1358,7 +1361,7 @@ execution.setVariable("existsIncompatibilities", !incompatibilities.isEmpty());<
         <omgdi:waypoint x="1364.0" y="611.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow57" id="BPMNEdge_flow57">
-        <omgdi:waypoint x="3002.0" y="351.0"></omgdi:waypoint>
+        <omgdi:waypoint x="3003.0" y="352.0"></omgdi:waypoint>
         <omgdi:waypoint x="3047.0" y="352.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow58" id="BPMNEdge_flow58">

@@ -1361,10 +1361,6 @@
               "removeSelectedRoles": "Odebrat vybrané role",
               "removeAllRoles": "Odebrat všechny role"
             },
-            "showOnlyDirectRoles": {
-              "label": "Zobrazovat pouze role přiřazené na přímo",
-              "help": "Po zaškrtnutí budou zobrazeny pouze na přímo přiřazené role."
-            },
             "legend": {
               "header":"Legenda",
               "role-types": {
@@ -5186,6 +5182,10 @@
     "FORM_ATTRIBUTE_CHANGE_PERSISTENT_TYPE_FAILED_HAS_VALUES": {
       "title": "Atribut formuláře nelze změnit",
       "message": "Typ atributu [{{attributeCode}}] nelze změnit, některé formulářové hodnoty používají tento atribut."
+    },
+    "FORM_ATTRIBUTE_CHANGE_CONFIDENTIAL_FAILED_HAS_VALUES": {
+      "title": "Atribut formuláře nelze změnit",
+      "message": "Pro atribut [{{attributeCode}}] nelze měnit nastavení tajného , některé formulářové hodnoty používají tento atribut."
     },
     "FORM_INVALID": {
       "title": "Formulář není validní",

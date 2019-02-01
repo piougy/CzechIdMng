@@ -3331,17 +3331,29 @@
         "label": "System attribute"
       },
       "unique": {
-        "label": "Unique value"
+        "short": "Unique",
+        "label": "Unique value",
+        "title": "Unique value"
       },
       "regex": {
+        "short": "Regex",
         "label": "Regular expression",
+        "title": "Validate a value with the regular expression.",
         "help": "Validate a value with the regular expression."
       },
       "min": {
-        "label": "Minimal value"
+        "short": "Min",
+        "label": "Minimal value",
+        "title": "Minimal value"
       },
       "max": {
-        "label": "Maximum value"
+        "short": "Max",
+        "label": "Maximum value",
+        "title": "Maximum value"
+      },
+      "validationMessage": {
+        "label": "Validation message",
+        "help": "Custom validation message. If message is not defined, then default message by invalid validation will be shown. Can contain localization key (e.g. 'core:validationError.invalid.unique')."
       }
     },
     "FormValue": {
@@ -5118,6 +5130,18 @@
       "title": "Form attribute can not be deleted",
       "message": "Form attribute cannot be deleted - some form values already using this attribute."
     },
+    "FORM_INVALID": {
+      "title": "Form is not valid.",
+      "message": "Filled form contains invalid values."
+    },
+    "FORM_VALIDATION_NOT_SUPPORTED": {
+      "title": "Validation is not supported",
+      "message": "Form validation type [{{validationType}}] is not supported for persistent type [{{persistentType}}] for attribute [{{attributeCode}}]."
+    },
+    "FORM_ATTRIBUTE_INVALID_REGEX": {
+      "title": "Regular expression is not valid",
+      "message": "Regular expression [{{regex}}] is not valid."
+    },
     "ACCEPTED": {
       "title": "Request added",
       "message": "Request will be processed / approved."
@@ -5692,6 +5716,11 @@
     }
   },
   "validationError": {
+    "invalid": {
+      "base": "Field is not valid",
+      "regex": "Field is not valid by regular expression [{{regex}}].",
+      "unique": "Field value has to be unique. Value [{{unique}}] is already used."
+    },
     "string": {
       "min" : "Enter at least one character!",
       "min_plural" : "Enter at least {{count}} characters!",

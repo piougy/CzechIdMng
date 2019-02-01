@@ -37,7 +37,7 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, values } = this.props;
+    const { attribute, values, validationErrors } = this.props;
     const showOriginalValue = originalValues ? true : false;
     //
     return (
@@ -49,7 +49,8 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
         placeholder={ this.getPlaceholder() }
         value={ this.toInputValue(showOriginalValue ? originalValues : values) }
         helpBlock={ this.getHelpBlock() }
-        readOnly={ showOriginalValue ? true : this.isReadOnly() }/>
+        readOnly={ showOriginalValue ? true : this.isReadOnly() }
+        validationErrors={ validationErrors }/>
     );
   }
 

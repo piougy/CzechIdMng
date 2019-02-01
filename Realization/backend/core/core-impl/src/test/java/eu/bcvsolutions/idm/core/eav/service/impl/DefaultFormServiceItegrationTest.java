@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
@@ -1228,6 +1230,302 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		Assert.assertTrue(saveValues.isEmpty());
 		Assert.assertNull(attachmentManager.get(newAttachmentVersion.getId()));
 		Assert.assertNull(attachmentManager.get(attachment.getId()));
+	}
+	
+	@Test
+	public void testRequiredValidation() {
+		// prepare form definition a test saving form values
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		attribute.setRequired(true);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		IdmFormValueDto valueOne = new IdmFormValueDto(attribute);
+		IdmFormValueDto valueTwo = new IdmFormValueDto(attribute);
+		valueTwo.setShortTextValue("value");
+		//
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+		formInstance.setFormDefinition(formDefinitionOne);
+		formInstance.setValues(Lists.newArrayList(valueOne));
+		//
+		List<InvalidFormAttributeDto> validationErrors = formService.validate(formInstance);
+		//
+		Assert.assertEquals(1, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().anyMatch(error -> error.isMissingValue()));
+		Assert.assertTrue(validationErrors.stream().anyMatch(error -> error.getAttributeCode().equals(attributeName)));
+		//
+		valueOne.setShortTextValue("value");
+		validationErrors = formService.validate(formInstance);
+		//
+		Assert.assertTrue(validationErrors.isEmpty());
+		
+		formService.validate(formInstance);
+		//
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		formInstance.setValues(Lists.newArrayList());
+		//
+		validationErrors = formService.validate(formInstance);
+		//
+		Assert.assertEquals(1, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().anyMatch(error -> error.isMissingValue()));
+		Assert.assertTrue(validationErrors.stream().anyMatch(error -> error.getAttributeCode().equals(attributeName)));
+		//
+		formInstance.setValues(Lists.newArrayList(new IdmFormValueDto(attribute)));
+		//
+		validationErrors = formService.validate(formInstance);
+		//
+		Assert.assertEquals(1, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().anyMatch(error -> error.isMissingValue()));
+		Assert.assertTrue(validationErrors.stream().anyMatch(error -> error.getAttributeCode().equals(attributeName)));
+	}
+	
+	@Test
+	public void testMinMaxValidation() {
+		// prepare form definition a test saving form values
+		IdmFormAttributeDto attributeDouble = new IdmFormAttributeDto();
+		String attributeDoubleName = getHelper().createName();
+		attributeDouble.setCode(attributeDoubleName);
+		attributeDouble.setName(attributeDoubleName);
+		attributeDouble.setPersistentType(PersistentType.DOUBLE);
+		attributeDouble.setMin(new BigDecimal("0.5"));
+		attributeDouble.setMax(new BigDecimal("0.7"));
+		IdmFormAttributeDto attributeLong = new IdmFormAttributeDto();
+		String attributeLongName = getHelper().createName();
+		attributeLong.setCode(attributeLongName);
+		attributeLong.setName(attributeLongName);
+		attributeLong.setPersistentType(PersistentType.LONG);
+		attributeLong.setMin(new BigDecimal("10"));
+		attributeLong.setMax(new BigDecimal("20"));
+		IdmFormAttributeDto attributeInt = new IdmFormAttributeDto();
+		String attributeIntName = getHelper().createName();
+		attributeInt.setCode(attributeIntName);
+		attributeInt.setName(attributeIntName);
+		attributeInt.setPersistentType(PersistentType.INT);
+		attributeInt.setMin(new BigDecimal("10.1"));
+		attributeInt.setMax(new BigDecimal("20"));
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attributeDouble, attributeInt, attributeLong));
+		attributeDouble = formDefinitionOne.getMappedAttributeByCode(attributeDouble.getCode());
+		attributeInt = formDefinitionOne.getMappedAttributeByCode(attributeInt.getCode());
+		attributeLong = formDefinitionOne.getMappedAttributeByCode(attributeLong.getCode());
+		//
+		IdmFormValueDto valueDouble = new IdmFormValueDto(attributeDouble);
+		IdmFormValueDto valueInt = new IdmFormValueDto(attributeInt);
+		IdmFormValueDto valueLong = new IdmFormValueDto(attributeLong);
+		//
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+		formInstance.setFormDefinition(formDefinitionOne);
+		formInstance.setValues(Lists.newArrayList(valueDouble, valueInt, valueLong));
+		//
+		List<InvalidFormAttributeDto> validationErrors = formService.validate(formInstance);
+		//
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		valueDouble.setDoubleValue(new BigDecimal("0.4"));
+		valueInt.setLongValue(4L);
+		valueLong.setLongValue(4L);
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertEquals(3, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getMinValue() != null));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMinValue().equals(new BigDecimal("0.5"))
+				&& e.getAttributeCode().equals(attributeDoubleName)));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMinValue().equals(new BigDecimal("10.1"))
+				&& e.getAttributeCode().equals(attributeIntName)));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMinValue().equals(new BigDecimal("10"))
+				&& e.getAttributeCode().equals(attributeLongName)));
+		//
+		valueDouble.setDoubleValue(new BigDecimal("0.8"));
+		valueInt.setLongValue(40L);
+		valueLong.setLongValue(40L);
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertEquals(3, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getMaxValue() != null));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMaxValue().equals(new BigDecimal("0.7"))
+				&& e.getAttributeCode().equals(attributeDoubleName)));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMaxValue().equals(new BigDecimal("20"))
+				&& e.getAttributeCode().equals(attributeIntName)));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMaxValue().equals(new BigDecimal("20"))
+				&& e.getAttributeCode().equals(attributeLongName)));
+		//
+		valueDouble.setDoubleValue(new BigDecimal("0.5"));
+		valueInt.setLongValue(11L);
+		valueLong.setLongValue(10L);
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		valueDouble.setDoubleValue(new BigDecimal("0.7"));
+		valueInt.setLongValue(20L);
+		valueLong.setLongValue(20L);
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		valueDouble.setDoubleValue(new BigDecimal("0.6"));
+		valueInt.setLongValue(15L);
+		valueLong.setLongValue(15L);
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testMinValidationWrongPersistentType() {
+		// prepare form definition a test saving form values
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.TEXT);
+		attribute.setMin(new BigDecimal("0.5"));
+		formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testMaxValidationWrongPersistentType() {
+		// prepare form definition a test saving form values
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.BOOLEAN);
+		attribute.setMax(new BigDecimal("0.5"));
+		formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+	}
+	
+	@Test
+	public void testRegexValidation() {
+		// prepare form definition a test saving form values
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		// ip address regex (copied from https://www.mkyong.com/regular-expressions/how-to-validate-ip-address-with-regular-expression/)
+		String ipRegex = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		attribute.setRegex(ipRegex);
+		String validationMessage = "invalid...";
+		attribute.setValidationMessage(validationMessage);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		IdmFormValueDto value = new IdmFormValueDto(attribute);
+		value.setValue("one");
+		//
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+		formInstance.setFormDefinition(formDefinitionOne);
+		formInstance.setValues(Lists.newArrayList(value));
+		//
+		List<InvalidFormAttributeDto> validationErrors = formService.validate(formInstance);
+		//
+		Assert.assertEquals(1, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getRegexValue().equals(ipRegex)));
+		//
+		value.setValue("125.123.255.111");
+		validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		value.setValue("1.1.1.1");
+		validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		value.setValue("1.1.1.1.");
+		validationErrors = formService.validate(formInstance);
+		Assert.assertEquals(1, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getRegexValue().equals(ipRegex)));
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getMessage().equals(validationMessage)));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testRegexValidationWrongPattern() {
+		// prepare form definition a test saving form values
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.TEXT);
+		attribute.setRegex("[");
+		formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+	}
+	
+	@Test
+	public void testUniqueValidation() {
+		// prepare form definition a test saving form values
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.TEXT);
+		attribute.setUnique(Boolean.TRUE);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null); 
+		IdmFormValueDto value = new IdmFormValueDto(attribute);
+		value.setValue("one");
+		//
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(owner, formDefinitionOne, Lists.newArrayList(value));
+		//
+		List<InvalidFormAttributeDto> validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		IdmFormInstanceDto savedFormInstance = formService.saveFormInstance(owner, formDefinitionOne, Lists.newArrayList(value));
+		IdmFormValueDto savedValue = savedFormInstance.toValueMap().get(attributeName).get(0);
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertEquals(1, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getUniqueValue().equals("one")));
+		//
+		value.setId(savedValue.getId());
+		validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		value.setId(UUID.randomUUID());
+		validationErrors = formService.validate(formInstance);
+		Assert.assertEquals(1, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getUniqueValue().equals("one")));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testUniqueValidationWrongType() {
+		// prepare form definition a test saving form values
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attributeName);
+		attribute.setPersistentType(PersistentType.BYTEARRAY);
+		attribute.setUnique(Boolean.TRUE);
+		formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attribute));
 	}
 	
 	private long prepareDataAndFind(Class<? extends AbstractEntity> type, AbstractDto owner) {

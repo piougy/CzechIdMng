@@ -283,18 +283,58 @@ class AbstractFormComponent extends AbstractContextComponent {
     return 'top';
   }
 
+  _toValidationType(validationError) {
+    if (!validationError) {
+      return this._localizationValidation('invalid.base');
+    }
+    if (validationError.message) {
+      return this.i18n(validationError.message, {
+        min: validationError.minValue,
+        max: validationError.maxValue,
+        regex: validationError.regexValue,
+        unique: validationError.uniqueValue,
+        required: validationError.missingValue
+      });
+    }
+    if (validationError.missingValue === true) {
+      return this._localizationValidation('any.allowOnly');
+    }
+    if (validationError.minValue) {
+      return this._localizationValidation('number.min', { count: validationError.minValue });
+    }
+    if (validationError.maxValue) {
+      return this._localizationValidation('number.max', { count: validationError.maxValue });
+    }
+    if (validationError.regexValue) {
+      return this._localizationValidation('invalid.regex', { regex: validationError.regexValue });
+    }
+    if (validationError.uniqueValue) {
+      return this._localizationValidation('invalid.unique', { unique: validationError.uniqueValue });
+    }
+    return this._localizationValidation('invalid.base');
+  }
+
   /**
    *  Returns title - could be shown in tooltips (validations etc)
    *
    * @return {string}
    */
   getTitle() {
-    const { label, placeholder, tooltip } = this.props;
+    const { label, placeholder, tooltip, validationErrors } = this.props;
     const propertyName = label || placeholder;
     const validationResult = this.getValidationResult();
     //
     let title = null;
-    if (validationResult && validationResult.message) {
+    if (validationErrors && validationErrors.length > 0) {
+      validationErrors.forEach(validationError => {
+        if (title) {
+          title += ', ';
+        } else {
+          title = '';
+        }
+        title += `${ propertyName ? propertyName + ': ' : '' }${ this._toValidationType(validationError) }`;
+      });
+    } else if (validationResult && validationResult.message) {
       title = `${propertyName ? propertyName + ': ' : ''}${validationResult.message}`;
     } else if (!label) {
       title = propertyName;
@@ -307,7 +347,7 @@ class AbstractFormComponent extends AbstractContextComponent {
   }
 
   render() {
-    const { hidden, className, rendered } = this.props;
+    const { hidden, className, rendered, validationErrors } = this.props;
     //
     if (!rendered) {
       return null;
@@ -327,6 +367,10 @@ class AbstractFormComponent extends AbstractContextComponent {
       if (this.state.showValidationError && this.getValidationResult().status === 'error') {
         feedback = <Icon icon="warning-sign" className="form-control-feedback" style={{zIndex: 0}} />;
       }
+    }
+    if (validationErrors && validationErrors.length > 0) {
+      feedback = <Icon icon="warning-sign" className="form-control-feedback" style={ {zIndex: 0 }} />;
+      validationClass = 'has-error has-feedback';
     }
     return (
       <div className={ _className + ' ' + validationClass } style={ this.props.style }>
@@ -354,6 +398,10 @@ AbstractFormComponent.propTypes = {
   readOnly: PropTypes.bool, // html readonly
   onChange: PropTypes.func,
   validation: PropTypes.object,
+  /**
+   * List of InvalidFormAttributeDto
+   */
+  validationErrors: PropTypes.arrayOf(PropTypes.object),
   validate: PropTypes.func, // function for custom validation (input is value and result from previous validations)
   style: PropTypes.object, // form-group element style
   notControlled: PropTypes.bool // if true, then is component not controlled by AbstractForm
@@ -367,7 +415,8 @@ AbstractFormComponent.defaultProps = {
   readOnly: false,
   disabled: false,
   rendered: true,
-  notControlled: false
+  notControlled: false,
+  validationErrors: []
 };
 
 export default AbstractFormComponent;

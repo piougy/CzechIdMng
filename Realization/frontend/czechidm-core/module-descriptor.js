@@ -1283,7 +1283,7 @@ module.exports = {
         'labelKey': 'navigation.menu.userLabel',
         'icon': 'user',
         'order': 10,
-        'path': '/identity/:entityId/dashboard'
+        'path': '/identity/:entityId/profile'
       },
       {
         'id': 'messages',

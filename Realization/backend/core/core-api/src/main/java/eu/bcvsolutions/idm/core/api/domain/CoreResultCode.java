@@ -124,6 +124,9 @@ public enum CoreResultCode implements ResultCode {
 	FORM_DEFINITION_INCOMPATIBLE_CHANGE(HttpStatus.CONFLICT, "Form definition [%s][%s] cannot be updated. Attribute's [%s] property [%s] cannot be updated automatically [%s to %s]. Provide change script for updating form definition or define new form definition (~new version)."),
 	FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - some automatic rules use this attribute."),
 	FORM_DEFINITION_DELETE_FAILED_ROLE(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - role [%s] using that defintion."),
+	FORM_INVALID(HttpStatus.BAD_REQUEST, "Form is not valid."),
+	FORM_VALIDATION_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "Form validation type [%s] is not supported for persistent type [%s] for attribute [%s]."),
+	FORM_ATTRIBUTE_INVALID_REGEX(HttpStatus.BAD_REQUEST, "Regular expression [%s] for the form attribute [%s] is not valid."),
 	// audit
 	AUDIT_REVISION_NOT_SAME(HttpStatus.BAD_REQUEST, "Audit revision are not same."),
 	AUDIT_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),

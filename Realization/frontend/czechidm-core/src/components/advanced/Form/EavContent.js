@@ -9,6 +9,7 @@ import { DataManager, FormDefinitionManager } from '../../../redux';
 import EavForm from './EavForm';
 
 const formDefinitionManager = new FormDefinitionManager();
+const dataManager = new DataManager();
 
 /**
  * Content with eav form
@@ -56,18 +57,34 @@ class EavContent extends Basic.AbstractContent {
       return;
     }
     //
-    const { entityId, formableManager, uiKey } = this.props;
+    const { entityId, formableManager, uiKey, _formInstances } = this.props;
     //
     const filledFormValues = this.refs[eavFormRef].getValues();
     this.getLogger().debug(`[EavForm]: Saving form [${definitionCode}]`);
+    //
+    // push new values int redux - prevent to lost new values after submit
+    const formInstance = _formInstances.get(definitionCode).setValues(filledFormValues);
+    this.context.store.dispatch(dataManager.receiveData(`${uiKey}-${entityId}`, _formInstances.set(definitionCode, formInstance)));
     // save values
     this.context.store.dispatch(formableManager.saveFormValues(entityId, definitionCode, filledFormValues, `${uiKey}-${entityId}`, (savedFormInstance, error) => {
       if (error) {
-        this.addError(error);
+        if (error.statusEnum === 'FORM_INVALID') {
+          this.setState({
+            error
+          }, () => {
+            this.addError(error);
+          });
+        } else {
+          this.addError(error);
+        }
       } else {
-        const entity = formableManager.getEntity(this.context.store.getState(), entityId);
-        this.addMessage({ message: this.i18n('save.success', { name: formableManager.getNiceLabel(entity) }) });
-        this.getLogger().debug(`[EavForm]: Form [${definitionCode}] saved`);
+        this.setState({
+          error: null
+        }, () => {
+          const entity = formableManager.getEntity(this.context.store.getState(), entityId);
+          this.addMessage({ message: this.i18n('save.success', { name: formableManager.getNiceLabel(entity) }) });
+          this.getLogger().debug(`[EavForm]: Form [${definitionCode}] saved`);
+        });
       }
     }));
   }
@@ -77,11 +94,11 @@ class EavContent extends Basic.AbstractContent {
     const { error } = this.state;
 
     let content = null;
-    if (error) {
+    if (error && error.statusEnum !== 'FORM_INVALID') {
       // loading eav definition failed
       content = (
         <div style={{ paddingTop: 15 }}>
-          <Basic.Alert level="info" text={this.i18n('error.notFound')} className="no-margin"/>
+          <Basic.Alert level="info" text={ this.i18n('error.notFound') } className="no-margin"/>
         </div>
       );
     } else if (!_formInstances || _showLoading) {
@@ -132,7 +149,8 @@ class EavContent extends Basic.AbstractContent {
                 <EavForm
                   ref={ this._createFormRef(_formInstance.getDefinition().code) }
                   formInstance={ _formInstance }
-                  readOnly={ !showSaveButton }/>
+                  readOnly={ !showSaveButton }
+                  error={ error }/>
               </Basic.PanelBody>
 
               <Basic.PanelFooter rendered={ _showSaveButton && showSaveButton && _formInstance.getAttributes().size > 0 }>

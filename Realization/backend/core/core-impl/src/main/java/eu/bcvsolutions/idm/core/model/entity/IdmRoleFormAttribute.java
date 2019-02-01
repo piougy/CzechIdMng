@@ -75,6 +75,10 @@ public class IdmRoleFormAttribute extends AbstractEntity {
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	@Column(name = "validation_regex", nullable = true, length = DefaultFieldLengths.DESCRIPTION)
 	private String regex;
+	
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "validation_message", nullable = true, length = DefaultFieldLengths.DESCRIPTION)
+	private String validationMessage;
 
 	public IdmFormAttribute getFormAttribute() {
 		return formAttribute;
@@ -138,5 +142,25 @@ public class IdmRoleFormAttribute extends AbstractEntity {
 
 	public void setRegex(String regex) {
 		this.regex = regex;
+	}
+	
+	/**
+	 * Custom message, when validation fails - localization key can be used.
+	 * 
+	 * @return
+	 * @since 9.4.0
+	 */
+	public String getValidationMessage() {
+		return validationMessage;
+	}
+	
+	/**
+	 * Custom message, when validation fails - localization key can be used.
+	 * 
+	 * @param validationMessage
+	 * @since 9.4.0
+	 */
+	public void setValidationMessage(String validationMessage) {
+		this.validationMessage = validationMessage;
 	}
 }

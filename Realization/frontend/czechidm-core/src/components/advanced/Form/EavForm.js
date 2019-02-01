@@ -101,8 +101,25 @@ export default class EavForm extends Basic.AbstractContextComponent {
     return formInstance.getProperties();
   }
 
+  getInvalidFormAttributes(error, code) {
+    if (!error || !error.parameters || !error.parameters.attributes) {
+      return [];
+    }
+    //
+    return error.parameters.attributes.filter(attribute => {
+      return attribute.attributeCode === code;
+    });
+  }
+
   render() {
-    const { formInstance, rendered, showLoading, readOnly, useDefaultValue } = this.props;
+    const {
+      formInstance,
+      rendered,
+      showLoading,
+      readOnly,
+      useDefaultValue,
+      error
+    } = this.props;
     //
     if (!rendered || !formInstance) {
       return null;
@@ -146,7 +163,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 values={ formInstance.getValues(attribute.code) }
                 readOnly={ readOnly }
                 useDefaultValue={ useDefaultValue }
-                manager={ ManagerType ? new ManagerType() : null }/>
+                manager={ ManagerType ? new ManagerType() : null }
+                validationErrors={ this.getInvalidFormAttributes(error, attribute.code) }/>
             );
           })
         }

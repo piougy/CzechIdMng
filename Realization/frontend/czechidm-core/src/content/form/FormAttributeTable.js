@@ -80,20 +80,15 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
-                <Basic.Row>
-                  <div className="col-lg-6">
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.text.placeholder')}/>
-                  </div>
-                  <div className="col-lg-6 text-right">
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
-                </Basic.Row>
-                <Basic.Row>
-                  <div className="col-lg-6">
-
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
@@ -160,6 +155,30 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
+          <Advanced.Column
+            property="defaultValue"
+            face="text"
+            header={ this.i18n('entity.RoleFormAttribute.defaultValue.label') }/>
+          <Advanced.Column
+            property="required"
+            face="bool"
+            header={ this.i18n('entity.FormAttribute.required') }/>
+          <Advanced.Column
+            property="unique"
+            face="bool"
+            header={ this.i18n('entity.FormAttribute.unique.short') }/>
+          <Advanced.Column
+            property="min"
+            face="text"
+            header={ this.i18n('entity.FormAttribute.min.short') }/>
+          <Advanced.Column
+            property="max"
+            face="text"
+            header={ this.i18n('entity.FormAttribute.max.short') }/>
+          <Advanced.Column
+            property="regex"
+            face="text"
+            header={ this.i18n('entity.FormAttribute.regex.short') }/>
           <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormAttribute.unmodifiable.label')} face="bool" sort />
           <Advanced.Column property="seq" header={ this.i18n('entity.FormAttribute.seq.label') } sort width="5%"/>
         </Advanced.Table>

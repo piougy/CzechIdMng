@@ -177,17 +177,18 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
   }
 
   renderSingleInput(originalValues) {
-    const { values } = this.props;
+    const { values, validationErrors } = this.props;
     const { isLoading, showValidationError } = this.state;
     const showOriginalValue = originalValues ? true : false;
     //
     const style = {};
-    if (showValidationError) {
+    const _showError = showValidationError || (validationErrors && validationErrors.length > 0);
+    if (_showError) {
       style.borderColor = '#a94442'; // FIXME: move to less, use variable
     }
     const className = classNames({
-      'has-feedback': showValidationError,
-      'has-error': showValidationError
+      'has-feedback': _showError,
+      'has-error': _showError
     });
     //
     return (

@@ -6,6 +6,7 @@ import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +17,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -1183,40 +1186,135 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(formInstance, "Form instance cannot be null!");
 		IdmFormDefinitionDto definition = formInstance.getFormDefinition();
 		Assert.notNull(definition, "Form definition cannot be null!");
-
-		List<IdmFormValueDto> formValues = formInstance.getValues();
+		//
 		List<InvalidFormAttributeDto> results = Lists.newArrayList();
-		
-		definition.getFormAttributes().forEach(formAttribute -> { //
-			List<IdmFormValueDto> formValueForAttributes = formValues.stream() //
-					.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute())) //
-					.collect(Collectors.toList()); //
-			InvalidFormAttributeDto result = this.validateAttribute(formAttribute,
-					formValueForAttributes != null ? formValueForAttributes : null);
-			if (result != null) {
-				results.add(result);
-			}
-		});
+		definition
+			.getFormAttributes()
+			.stream()
+			.peek(attribute -> {
+				attribute.getEmbedded().put(IdmFormAttribute_.formDefinition.getName(), definition);
+			})
+			.forEach(formAttribute -> { //
+				List<IdmFormValueDto> formValueForAttributes = formInstance //
+						.getValues() //
+						.stream() //
+						.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute())) //
+						.peek(formValue -> {
+							// we don't trust value persistent type - set current from attribute 
+							formValue.setPersistentType(formAttribute.getPersistentType());
+						})
+						.collect(Collectors.toList()); //
+				InvalidFormAttributeDto result = this.validateAttribute(formAttribute, formValueForAttributes);
+				if (!result.isValid()) {
+					results.add(result);
+				}
+			});
 		return results;
 	}
 
 	private InvalidFormAttributeDto validateAttribute(IdmFormAttributeDto formAttribute,
 			List<IdmFormValueDto> formValues) {
 		Assert.notNull(formAttribute);
+		//
+		InvalidFormAttributeDto result = new InvalidFormAttributeDto(formAttribute);
 		if (formAttribute.isRequired()) {
-			if (formValues != null && !formValues.isEmpty()) {
-				if (formValues.stream() //
-						.filter(formValue -> formValue.getValue() != null) //
-						.findFirst() //
-						.isPresent()) { //
-					return null;
-				}
+			if (CollectionUtils.isEmpty(formValues) || !formValues
+						.stream()
+						.filter(formValue -> !formValue.isEmpty())
+						.findFirst()
+						.isPresent()) {
+				LOG.debug("Form attribute [{}] validation failed - value is required.", formAttribute.getCode());
+				//
+				result.setMissingValue(true);
 			}
-			InvalidFormAttributeDto result = new InvalidFormAttributeDto(formAttribute);
-			result.setMissingValue(true);
+		}
+		if (CollectionUtils.isEmpty(formValues)) {
+			// values are not filled => other validations is not needed.
 			return result;
 		}
-		return null;
+		// TODO: multiple values -> the last validation error is returned. Return invalid attribute for the all values ...
+		formValues
+			.stream()
+			.filter(formValue -> !formValue.isEmpty())
+			.forEach(formValue -> {
+				// minimum value validation
+				if (formAttribute.getMin() != null) {
+					if (formValue.getLongValue() != null
+							&& formAttribute.getMin().compareTo(BigDecimal.valueOf(formValue.getLongValue())) > 0) {
+						LOG.debug("Form attribute [{}] validation failed - given value [{}] is lesser than min [{}].",
+								formAttribute.getCode(), formValue.getLongValue(), formAttribute.getMin());
+						//
+						result.setMinValue(formAttribute.getMin());
+					}
+					if (formValue.getDoubleValue() != null
+							&& formAttribute.getMin().compareTo(formValue.getDoubleValue()) > 0) {
+						LOG.debug("Form attribute [{}] validation failed - given value [{}] is lesser than min [{}].",
+								formAttribute.getCode(), formValue.getDoubleValue(), formAttribute.getMin());
+						//
+						result.setMinValue(formAttribute.getMin());
+					}
+				}
+				// maximum value validation
+				if (formAttribute.getMax() != null) {
+					if (formValue.getLongValue() != null
+							&& formAttribute.getMax().compareTo(BigDecimal.valueOf(formValue.getLongValue())) < 0) {
+						LOG.debug("Form attribute [{}] validation failed - given value [{}] is greater than max [{}].",
+								formAttribute.getCode(), formValue.getLongValue(), formAttribute.getMax());
+						//
+						result.setMaxValue(formAttribute.getMax());
+					}
+					if (formValue.getDoubleValue() != null
+							&& formAttribute.getMax().compareTo(formValue.getDoubleValue()) < 0) {
+						LOG.debug("Form attribute [{}] validation failed - given value [{}] is greater than max [{}].",
+								formAttribute.getCode(), formValue.getDoubleValue(), formAttribute.getMax());
+						//
+						result.setMaxValue(formAttribute.getMax());
+					}
+				}
+				if (StringUtils.isNotEmpty(formAttribute.getRegex())) {
+					Pattern p = Pattern.compile(formAttribute.getRegex());
+					Matcher m = p.matcher(formValue.getValue().toString()); // all persistent types are supported on BE, but string values makes the good sense.
+					if (!m.matches()) {
+						LOG.debug("Form attribute [{}] validation failed - given value [{}] does not match regex [{}].",
+								formAttribute.getCode(), formValue.getValue(), formAttribute.getRegex());
+						//
+						result.setRegexValue(formAttribute.getRegex());
+					}
+				}
+				if (formAttribute.isUnique()) {
+					IdmFormValueFilter<FormableEntity> valueFilter = new IdmFormValueFilter<>(); 
+					valueFilter.setAttributeId(formValue.getFormAttribute());
+					valueFilter.setPersistentType(formValue.getPersistentType());
+					valueFilter.setStringValue(formValue.getStringValue());
+					valueFilter.setShortTextValue(formValue.getShortTextValue());
+					valueFilter.setBooleanValue(formValue.getBooleanValue());
+					valueFilter.setLongValue(formValue.getLongValue());
+					valueFilter.setDoubleValue(formValue.getDoubleValue());
+					valueFilter.setDateValue(formValue.getDateValue());
+					valueFilter.setUuidValue(formValue.getUuidValue());
+					//
+					IdmFormDefinitionDto formDefinition = DtoUtils.getEmbedded(formAttribute, IdmFormAttribute_.formDefinition);
+					Identifiable owner = getEmptyOwner(formDefinition);
+					Assert.notNull(owner, "Filter - attribute owner is required. Is possible to filter form values by given owner only");
+					//
+					FormValueService<FormableEntity> formValueService = getFormValueService(owner.getClass());
+					//
+					List<IdmFormValueDto> existValues = formValueService.find(valueFilter, new PageRequest(0, 2)).getContent();
+					//
+					if (existValues
+							.stream()
+							.filter(v -> formValue.getId() == null || !formValue.getId().equals(v.getId()))
+							.findFirst()
+							.isPresent()) {
+						LOG.debug("Form attribute [{}] validation failed - given value [{}] is not unigue.",
+								formAttribute.getCode(), formValue.getValue());
+						//
+						result.setUniqueValue(formValue.getValue().toString());
+					}
+				}
+			});
+		//
+		return result;
 	}
 
 	private void initPersistentType(Method readMethod, IdmFormAttributeDto formAttribute) {

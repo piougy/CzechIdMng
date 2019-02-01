@@ -18,7 +18,11 @@ export default class IntFormAttributeRenderer extends LongFormAttributeRenderer 
    * @return {Joi}
    */
   getInputValidation() {
-    let validation = Joi.number().integer().min(-2147483648).max(2147483647);
+    const { attribute } = this.props;
+    const min = attribute.min || -2147483648;
+    const max = attribute.max || 2147483647;
+    //
+    let validation = Joi.number().integer().min(min).max(max);
     if (!this.isRequired()) {
       validation = validation.concat(Joi.number().allow(null));
     }

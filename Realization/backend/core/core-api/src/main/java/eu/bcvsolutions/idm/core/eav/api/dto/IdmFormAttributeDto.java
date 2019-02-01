@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.eav.api.dto;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import javax.validation.constraints.Max;
@@ -52,6 +53,11 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	private Short seq;
 	private String defaultValue;
 	private boolean unmodifiable = false;
+	private boolean unique;
+	private BigDecimal max;
+	private BigDecimal min;
+	private String regex;
+	private String validationMessage;
 	
 	public IdmFormAttributeDto() {
 	}
@@ -212,5 +218,89 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	@Override
 	public String getNiceLabel() {
 		return getCode();
+	}
+	
+	/**
+	 * @return
+	 * @since 9.4.0
+	 */
+	public boolean isUnique() {
+		return unique;
+	}
+
+	/**
+	 * @param unique
+	 * @since 9.4.0
+	 */
+	public void setUnique(boolean unique) {
+		this.unique = unique;
+	}
+
+	/**
+	 * @return
+	 * @since 9.4.0
+	 */
+	public BigDecimal getMax() {
+		return max;
+	}
+
+	/**
+	 * @param max
+	 * @since 9.4.0
+	 */
+	public void setMax(BigDecimal max) {
+		this.max = max;
+	}
+
+	/**
+	 * @return
+	 * @since 9.4.0
+	 */
+	public BigDecimal getMin() {
+		return min;
+	}
+
+	/**
+	 * @param min
+	 * @since 9.4.0
+	 */
+	public void setMin(BigDecimal min) {
+		this.min = min;
+	}
+
+	/**
+	 * @return
+	 * @since 9.4.0
+	 */
+	public String getRegex() {
+		return regex;
+	}
+
+	/**
+	 * @param regex
+	 * @since 9.4.0
+	 */
+	public void setRegex(String regex) {
+		this.regex = regex;
+	}
+	
+	/**
+	 * Custom message, when validation fails - localization key can be used.
+	 * 
+	 * @return
+	 * @since 9.4.0
+	 */
+	public String getValidationMessage() {
+		return validationMessage;
+	}
+	
+	/**
+	 * Custom message, when validation fails - localization key can be used.
+	 * 
+	 * @param validationMessage
+	 * @since 9.4.0
+	 */
+	public void setValidationMessage(String validationMessage) {
+		this.validationMessage = validationMessage;
 	}
 }

@@ -30,7 +30,7 @@ export default class RoleCatalogueSelectFormAttributeRenderer extends SelectBoxF
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, values, uiKey } = this.props;
+    const { attribute, values, uiKey, validationErrors } = this.props;
     const showOriginalValue = originalValues ? true : false;
     //
     return (
@@ -45,7 +45,8 @@ export default class RoleCatalogueSelectFormAttributeRenderer extends SelectBoxF
         value={ !attribute.multiple ? this.toInputValue(showOriginalValue ? originalValues : values) : this.toInputValues(showOriginalValue ? originalValues : values) }
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }
-        multiSelect={ attribute.multiple }/>
+        multiSelect={ attribute.multiple }
+        validationErrors={ validationErrors }/>
     );
   }
 }

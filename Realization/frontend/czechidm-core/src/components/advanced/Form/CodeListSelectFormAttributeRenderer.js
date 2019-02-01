@@ -77,7 +77,7 @@ export default class CodeListSelectFormAttributeRenderer extends SelectBoxFormAt
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, values, uiKey } = this.props;
+    const { attribute, values, uiKey, validationErrors } = this.props;
     const showOriginalValue = originalValues ? true : false;
     //
     return (
@@ -92,7 +92,8 @@ export default class CodeListSelectFormAttributeRenderer extends SelectBoxFormAt
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         validation={ this.getInputValidation() }
         required={ this.isRequired() }
-        confidential={ attribute.confidential }/>
+        confidential={ attribute.confidential }
+        validationErrors={ validationErrors }/>
     );
   }
 }

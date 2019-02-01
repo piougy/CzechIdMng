@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.GenericTypeResolver;
@@ -234,7 +236,41 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 				predicates.add(builder.equal(root.get(FormValueService.PROPERTY_OWNER).get(BaseEntity.PROPERTY_ID), ownerId));
 			}
 		}
-		
+		//
+		String stringValue = filter.getStringValue();
+		if (StringUtils.isNotEmpty(stringValue)) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.stringValue), stringValue));
+		}
+		//
+		String shortTextValue = filter.getShortTextValue();
+		if (StringUtils.isNotEmpty(shortTextValue)) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.shortTextValue), shortTextValue));
+		}
+		//
+		Boolean booleanValue = filter.getBooleanValue();
+		if (booleanValue != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.booleanValue), booleanValue));
+		}
+		//
+		Long longValue = filter.getLongValue();
+		if (longValue != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.longValue), longValue));
+		}
+		//
+		BigDecimal doubleValue = filter.getDoubleValue();
+		if (doubleValue != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.doubleValue), doubleValue));
+		}
+		//
+		DateTime dateValue = filter.getDateValue();
+		if (dateValue != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.dateValue), dateValue));
+		}
+		//
+		UUID uuidValue = filter.getUuidValue();
+		if (uuidValue != null) {
+			predicates.add(builder.equal(root.get(AbstractFormValue_.uuidValue), dateValue));
+		}
 		//
 		return predicates;
 	}

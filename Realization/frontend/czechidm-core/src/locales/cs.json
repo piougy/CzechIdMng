@@ -3381,19 +3381,31 @@
         "help": "Systémový atribut nemůže být smazán a nelze upravovat některé jeho atributy.",
         "label": "Systémový atribut"
       },
-     "unique": {
-       "label": "Unikátní hodnota"
-     },
-     "regex": {
-       "label": "Regulární výraz",
-       "help": "Validovat hodnotu pomocí regulárního výrazu."
-     },
-     "min": {
-       "label": "Minimální hodnota"
-     },
-     "max": {
-       "label": "Maximální hodnota"
-     }
+      "unique": {
+        "short": "Unikátní",
+        "label": "Unikátní hodnota",
+        "title": "Unikátní hodnota"
+      },
+      "regex": {
+        "short": "Regex",
+        "label": "Regulární výraz",
+        "title": "Validovat hodnotu pomocí regulárního výrazu.",
+        "help": "Validovat hodnotu pomocí regulárního výrazu."
+      },
+      "min": {
+        "short": "Min",
+        "label": "Minimální hodnota",
+        "title": "Minimální hodnota"
+      },
+      "max": {
+        "short": "Max",
+        "label": "Maximální hodnota",
+        "title": "Maximální hodnota"
+      },
+      "validationMessage": {
+        "label": "Validační zpráva",
+        "help": "Vlastní validační zpráva se zobrazí, pokud neprojde některá z nastavených validací. Pokud není zadáno, je zobrazena zpráva dle porušené validace. Může obsahovat klíč do lokalizace (například 'core:validationError.invalid.unique')."
+      }
     },
     "FormValue": {
       "ownerId": {
@@ -5168,6 +5180,18 @@
       "title": "Atribut formuláře nelze smazat",
       "message": "Atribut nelze smazat, některé formulářové hodnoty používají tento atribut."
     },
+    "FORM_INVALID": {
+      "title": "Formulář není validní",
+      "message": "Vyplněný formulář obsahuje nevalidní hodnoty."
+    },
+    "FORM_VALIDATION_NOT_SUPPORTED": {
+      "title": "Validace není podporována",
+      "message": "Validace pro atribut [{{attributeCode}}] typu [{{persistentType}}] nepodporuje typ validace [{{validationType}}]. Opravte definici atributu formuláře."
+    },
+    "FORM_ATTRIBUTE_INVALID_REGEX": {
+      "title": "Nevalidní regulární výraz",
+      "message": "Regulární výraz [{{regex}}] není validní."
+    },
     "ACCEPTED": {
       "title": "Požadavek přijat",
       "message": "Požadavek byl předán ke zpracování či schválení."
@@ -5742,6 +5766,11 @@
     }
   },
   "validationError": {
+    "invalid": {
+      "base": "Položka není validní",
+      "regex": "Položka není validní dle regulárního výrazu [{{regex}}].",
+      "unique": "Položka musí být unikátní. Hodnota [{{unique}}] je již použita."
+    },
     "string": {
       "min_1" : "Zadejte minimálně jeden znak!",
       "min_2" : "Zadejte minimálně dva znaky!",

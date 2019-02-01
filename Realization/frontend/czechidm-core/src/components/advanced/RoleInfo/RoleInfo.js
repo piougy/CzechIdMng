@@ -68,7 +68,10 @@ export class RoleInfo extends AbstractEntityInfo {
    *
    * @param  {object} entity
    */
-  getEntityIcon() {
+  getEntityIcon(entity) {
+    if (entity && entity.childrenCount > 0) {
+      return 'component:business-role';
+    }
     return 'component:role';
   }
 

@@ -380,7 +380,7 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   }
 
   render() {
-    const { attribute} = this.props;
+    const { attribute } = this.props;
     // check confidential support
     if (attribute.confidential && !this.supportsConfidential()) {
       return (
@@ -436,7 +436,11 @@ AbstractFormAttributeRenderer.propTypes = {
   /**
    * Use configured attribute default value as filled.
    */
-  useDefaultValue: PropTypes.bool
+  useDefaultValue: PropTypes.bool,
+  /**
+   * List of InvalidFormAttributeDto
+   */
+  validationErrors: PropTypes.arrayOf(PropTypes.object)
 };
 AbstractFormAttributeRenderer.defaultProps = {
   readOnly: false,

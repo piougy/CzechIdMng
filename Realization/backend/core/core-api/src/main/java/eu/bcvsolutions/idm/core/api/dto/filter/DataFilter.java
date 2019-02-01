@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
- * Common filter for registrable filters - contains filter parameters as map. 
+ * Common filter for registrable filter builders - contains filter parameters as map. 
  * Registered filter builders will have all values available.
  * 
  * TODO: dto lookup + default converters

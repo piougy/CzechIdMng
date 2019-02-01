@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -25,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
@@ -86,6 +89,48 @@ public class DefaultIdmFormAttributeService
 	}
 	
 	@Override
+	public IdmFormAttributeDto validateDto(IdmFormAttributeDto dto) {
+		dto = super.validateDto(dto);
+		// invalid combination of validations and persistent types
+		if (dto.getMin() != null
+				&& dto.getPersistentType() != PersistentType.DOUBLE
+				&& dto.getPersistentType() != PersistentType.LONG
+				&& dto.getPersistentType() != PersistentType.INT) {
+			throw new ResultCodeException(CoreResultCode.FORM_VALIDATION_NOT_SUPPORTED, ImmutableMap.of(
+					"validationType", "min",
+					"persistentType", dto.getPersistentType().toString(),
+					"attributeCode", dto.getCode()));
+		}
+		if (dto.getMax() != null
+				&& dto.getPersistentType() != PersistentType.DOUBLE
+				&& dto.getPersistentType() != PersistentType.LONG
+				&& dto.getPersistentType() != PersistentType.INT) {
+			throw new ResultCodeException(CoreResultCode.FORM_VALIDATION_NOT_SUPPORTED, ImmutableMap.of(
+					"validationType", "max",
+					"persistentType", dto.getPersistentType().toString(),
+					"attributeCode", dto.getCode()));
+		}
+		if (dto.isUnique() 
+				&& dto.getPersistentType() == PersistentType.BYTEARRAY) {
+			throw new ResultCodeException(CoreResultCode.FORM_VALIDATION_NOT_SUPPORTED, ImmutableMap.of(
+					"validationType", "unique",
+					"persistentType", dto.getPersistentType().toString(),
+					"attributeCode", dto.getCode()));
+		}
+		if (StringUtils.isNotEmpty(dto.getRegex())) {
+			try {
+				Pattern.compile(dto.getRegex());
+			} catch (PatternSyntaxException ex) {
+				throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_INVALID_REGEX, ImmutableMap.of(
+						"regex", dto.getRegex(),
+						"attributeCode", dto.getCode()), ex);
+			}
+		}
+		//
+		return dto;
+	}
+	
+	@Override
 	@Transactional
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void deleteInternal(IdmFormAttributeDto dto) {
@@ -99,7 +144,7 @@ public class DefaultIdmFormAttributeService
 			}
 		});
 		// delete all values
-		// TODO: add some force delete parameter => rewrite service to event usage
+		// TODO: add some force delete parameter => rewrite service to event usage - can be solved as new event processor before ... 
 		/* formValueServices.getPlugins().forEach(formValueService -> {
 			formValueService.find(filter, null).getContent().forEach(formValue -> {
 				formValueService.delete((IdmFormValueDto) formValue);

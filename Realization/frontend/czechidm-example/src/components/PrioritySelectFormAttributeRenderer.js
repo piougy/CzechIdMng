@@ -10,6 +10,7 @@ import { Advanced } from 'czechidm-core';
  * - helpBlock
  * - validation
  * - required
+ * - validationErrors
  *
  * @author Radek Tomiška
  */

@@ -1270,14 +1270,16 @@ public class DefaultFormService implements FormService {
 						result.setMaxValue(formAttribute.getMax());
 					}
 				}
-				if (StringUtils.isNotEmpty(formAttribute.getRegex())) {
-					Pattern p = Pattern.compile(formAttribute.getRegex());
-					Matcher m = p.matcher(formValue.getValue().toString()); // all persistent types are supported on BE, but string values makes the good sense.
+				String regex = formAttribute.getRegex();
+				if (StringUtils.isNotEmpty(regex)) {
+					Pattern p = Pattern.compile(regex);
+					String stringValue = formValue.getValue().toString();
+					Matcher m = p.matcher(stringValue); // all persistent types are supported on BE, but string values makes the good sense.
 					if (!m.matches()) {
 						LOG.debug("Form attribute [{}] validation failed - given value [{}] does not match regex [{}].",
-								formAttribute.getCode(), formValue.getValue(), formAttribute.getRegex());
+								formAttribute.getCode(), stringValue, regex);
 						//
-						result.setRegexValue(formAttribute.getRegex());
+						result.setRegexValue(regex);
 					}
 				}
 				if (formAttribute.isUnique()) {

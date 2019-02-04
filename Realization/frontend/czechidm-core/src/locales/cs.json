@@ -4894,34 +4894,6 @@
           }
         }
       }
-    },
-    "eu-bcvsolutions-idm-core-model-entity-idmidentity": {
-      "myform": {
-        "label": "Awesome FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION",
-        "help": "This is my new formsdsf",
-        "attributes": {
-          "boolean": {
-            "label": "booleanasdads",
-            "help": "",
-            "placeholder": ""
-          },
-          "phone": {
-            "label": "Phonsdfsdfe",
-            "help": "",
-            "placeholder": ""
-          },
-          "role": {
-            "label": "Roleasdasd",
-            "help": "Vyberte roli ...",
-            "placeholder": "Vyber roli multi"
-          },
-          "email": {
-            "label": "Email",
-            "help": "",
-            "placeholder": ""
-          }
-        }
-      }
     }
   },
   "error": {

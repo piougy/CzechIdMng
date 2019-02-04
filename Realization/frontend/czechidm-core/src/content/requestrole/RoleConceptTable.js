@@ -306,7 +306,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
         }
       }
     }
-    console.log("conceptData compiled", concepts);
     return concepts;
   }
 

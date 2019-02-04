@@ -110,7 +110,7 @@ public class DefaultIdmFormDefinitionService
 						formAttributeService
 						.find(filter, getPageableAll(new Sort(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
 						.getContent());
-				LOG.trace("Form attributes were loaded for definition [{}]", dto.getType(), dto.getCode());
+				LOG.trace("Form attributes were loaded for definition [{},{}]", dto.getType(), dto.getCode());
 			}
 		}
 		return dto;

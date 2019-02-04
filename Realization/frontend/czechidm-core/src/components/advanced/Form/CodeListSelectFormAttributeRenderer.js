@@ -77,7 +77,7 @@ export default class CodeListSelectFormAttributeRenderer extends SelectBoxFormAt
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, values, uiKey, validationErrors } = this.props;
+    const { attribute, values, uiKey, validationErrors, className, style } = this.props;
     const showOriginalValue = originalValues ? true : false;
     //
     return (
@@ -93,7 +93,9 @@ export default class CodeListSelectFormAttributeRenderer extends SelectBoxFormAt
         validation={ this.getInputValidation() }
         required={ this.isRequired() }
         confidential={ attribute.confidential }
-        validationErrors={ validationErrors }/>
+        validationErrors={ validationErrors }
+        className={ className }
+        style={ style}/>
     );
   }
 }

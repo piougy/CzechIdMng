@@ -20,7 +20,7 @@ export default class TextAreaFormAttributeRenderer extends TextFormAttributeRend
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, values, validationErrors } = this.props;
+    const { attribute, values, validationErrors, className, style } = this.props;
     const showOriginalValue = originalValues ? true : false;
     //
     if (attribute.confidential) {
@@ -36,7 +36,9 @@ export default class TextAreaFormAttributeRenderer extends TextFormAttributeRend
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         validation={ this.getInputValidation() }
         required={ this.isRequired() }
-        validationErrors={ validationErrors }/>
+        validationErrors={ validationErrors }
+        className={ className }
+        style={ style}/>
     );
   }
 

@@ -40,7 +40,7 @@ public class SingleTextFormPropertyConverter extends AbstractFormPropertyConvert
 
 	@Override
 	public PersistentType getFormPropertyType() {
-		return PersistentType.SHORTTEXT;
+		return PersistentType.TEXT;
 	}
 	
 	@Override

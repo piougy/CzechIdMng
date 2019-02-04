@@ -62,6 +62,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -455,7 +456,11 @@ public class DefaultSysSystemAttributeMappingService extends
 		attributeDefinition.setReadonly(!schemaAttribute.isUpdateable());
 		attributeDefinition.setConfidential(entity.isConfidentialAttribute());
 		attributeDefinition.setUnmodifiable(false); // attribute can be deleted
-		//
+		
+		// We want to use short text as default (but only on this place)
+		if (PersistentType.TEXT == attributeDefinition.getPersistentType()) {
+			attributeDefinition.setPersistentType(PersistentType.SHORTTEXT);
+		}
 		SysSystemDto system = getSystemFromSchemaAttribute(schemaAttribute);
 		//
 		attributeDefinition.setDescription(

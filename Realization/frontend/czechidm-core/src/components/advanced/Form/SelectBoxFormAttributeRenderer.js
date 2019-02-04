@@ -113,7 +113,7 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, values, validationErrors } = this.props;
+    const { attribute, values, validationErrors, className, style } = this.props;
     const showOriginalValue = originalValues ? true : false;
     //
     return (
@@ -127,7 +127,9 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }
         multiSelect={ attribute.multiple }
-        validationErrors={ validationErrors }/>
+        validationErrors={ validationErrors }
+        className={ className }
+        style={ style}/>
     );
   }
 

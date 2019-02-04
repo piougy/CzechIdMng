@@ -164,7 +164,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 readOnly={ readOnly }
                 useDefaultValue={ useDefaultValue }
                 manager={ ManagerType ? new ManagerType() : null }
-                validationErrors={ this.getInvalidFormAttributes(validationErrors, attribute.code) }/>
+                validationErrors={ this.getInvalidFormAttributes(validationErrors || formInstance.validationErrors, attribute.code) }
+                className={ formInstance.getAttributes().last().id === attribute.id ? 'last' : '' }/>
             );
           })
         }
@@ -186,7 +187,11 @@ EavForm.propTypes = {
   /**
    * Use default value as filled value
    */
-  useDefaultValue: PropTypes.bool
+  useDefaultValue: PropTypes.bool,
+  /**
+   * List of InvalidFormAttributeDto
+   */
+  validationErrors: PropTypes.arrayOf(PropTypes.object)
 };
 EavForm.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,

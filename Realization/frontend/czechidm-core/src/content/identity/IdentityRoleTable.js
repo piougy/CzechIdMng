@@ -105,18 +105,17 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
       && value._eav.length === 1
       && value._eav[0].formDefinition) {
       const formInstance = value._eav[0];
-      const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values);
+      const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values, formInstance.validationErrors);
       result.push(
           <Advanced.EavForm
             ref="eavForm"
             formInstance={ _formInstance }
-            validationErrors={formInstance.validationErrors}
             readOnly
             useDefaultValue={false}/>
         );
     }
     return (
-      <Basic.Div className="abstract-form" style={{minWidth: 150, padding: 0}}>
+      <Basic.Div className="abstract-form condensed" style={{minWidth: 150, padding: 0}}>
         {result}
       </Basic.Div>
     );

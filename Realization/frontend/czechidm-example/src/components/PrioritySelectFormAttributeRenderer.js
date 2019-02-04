@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 //
 import { Advanced } from 'czechidm-core';
 
@@ -73,7 +74,7 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, readOnly, values } = this.props;
+    const { attribute, readOnly, values, className, style } = this.props;
     const showOriginalValue = originalValues ? true : false;
     const singleValue = this.state.value || this.toInputValue(showOriginalValue ? originalValues : values);
     // create radio inputs
@@ -92,7 +93,7 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
     }
     // raw bootstrap styles are used in this example (Basic radio component should be created instead)
     return (
-      <div className="form-group">
+      <div className={ classNames(className, 'form-group') } style={ style }>
         <label className="control-label">{ this.getLabel(null, showOriginalValue) }</label>
         <div className="radio" onChange={this.setValue.bind(this)}>
           { inputs }

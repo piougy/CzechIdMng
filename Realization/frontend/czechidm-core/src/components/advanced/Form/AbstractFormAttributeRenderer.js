@@ -11,9 +11,9 @@ const formAttributeManager = new FormAttributeManager();
  * - supper class for all face type renderers
  * - provide basic implementation for single value Input
  * - multi value input has to be implemented in descendant
- * - Rendered should return values:
+ * - Renderer should return form values:
  * -- form value with null (even for multivalues) - for empty values (null value will be removed on BE)
- * -- undefined - value will be not controlled (preserve value on BE)
+ * -- undefined => value will be not controlled, not sent to BE (preserve value on BE)
  *
  * @author Radek Tomiška
  */

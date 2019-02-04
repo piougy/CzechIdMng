@@ -17,6 +17,7 @@ const attachmentService = new AttachmentService();
  * - TODO: download
  * - TODO: validation support (now is validation on input)
  * - TODO: clearable
+ * - TODO: className, style
  *
  * @author Radek Tomiška
  */

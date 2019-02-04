@@ -30,7 +30,7 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, values, uiKey, validationErrors } = this.props;
+    const { attribute, values, uiKey, validationErrors, className, style } = this.props;
     const showOriginalValue = originalValues ? true : false;
     //
     return (
@@ -47,7 +47,9 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }
         multiSelect={ attribute.multiple }
-        validationErrors={ validationErrors }/>
+        validationErrors={ validationErrors }
+        className={ className }
+        style={ style}/>
     );
   }
 }

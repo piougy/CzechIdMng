@@ -193,7 +193,7 @@ roleRequestService.save(requestDto);</script>
     </scriptTask>
     <scriptTask id="scripttask5" name="Find all helpdesk identities and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script> // Reset decision 
- execution.setVariable("decision", null);
+ execution.setVariable("decision", "none");
 
 boolean skip = false;
 def helpdesks = null;
@@ -263,7 +263,7 @@ if(!skip){
     </sequenceFlow>
     <scriptTask id="sid-8554081E-2846-412C-A612-0F532ADABEDA" name="Find all applicant's managers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>// Reset decision 
-execution.setVariable("decision", null);
+execution.setVariable("decision", "none");
 
 boolean skip = false;
 def managers = null;
@@ -334,7 +334,7 @@ if(!skip){
     </sequenceFlow>
     <scriptTask id="sid-3BE56C1C-CC6A-4DD2-AC41-AFCF1A6EC43E" name="Find all user managers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>// Reset decision 
-execution.setVariable("decision", null);
+execution.setVariable("decision", "none");
 
 boolean skip = false;
 def usermanagers = null;
@@ -429,7 +429,7 @@ roleRequestService.save(requestDto);</script>
     </userTask>
     <scriptTask id="scripttask7" name="Find all identities with security role and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>// Reset decision 
-execution.setVariable("decision", null);
+execution.setVariable("decision", "none");
 
 boolean skip = false;
 def securities = null;
@@ -903,7 +903,7 @@ if(sendNotificationToApplicant){
     </userTask>
     <scriptTask id="scripttask13" name="Find all identities for approving a incompatibilities and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>// Reset decision 
-execution.setVariable("decision", null);
+execution.setVariable("decision", "none");
 
 boolean skip = false;
 List approvers = null;

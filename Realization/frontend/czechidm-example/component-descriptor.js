@@ -20,9 +20,9 @@ module.exports = {
     {
       'id': 'custom-roles-icon',
       'type': 'icon',
-      'entityType': ['roles'],
+      'entityType': [ 'my-roles', 'roles'],
       'component': require('./src/components/ExampleRoleIcon'),
       'priority': 1
-    },
+    }
   ]
 };

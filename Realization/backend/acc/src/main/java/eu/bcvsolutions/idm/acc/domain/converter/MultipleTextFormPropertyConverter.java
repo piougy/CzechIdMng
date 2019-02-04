@@ -24,7 +24,7 @@ public class MultipleTextFormPropertyConverter extends AbstractFormPropertyConve
 
 	@Override
 	public PersistentType getFormPropertyType() {
-		return PersistentType.TEXT;
+		return PersistentType.SHORTTEXT;
 	}
 
 	@Override

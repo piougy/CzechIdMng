@@ -1117,10 +1117,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		// Check state after sync
 		one = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
-		Assert.assertEquals(ATTRIBUTE_VALUE_CHANGED, formService.getValues(one.getId(), IdmIdentity.class, eavAttribute.getIdmPropertyName()).get(0).getStringValue());
+		Assert.assertEquals(ATTRIBUTE_VALUE_CHANGED, formService.getValues(one.getId(), IdmIdentity.class, eavAttribute.getIdmPropertyName()).get(0).getValue());
 
 		two = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
-		Assert.assertEquals(ATTRIBUTE_EMAIL, formService.getValues(two.getId(), IdmIdentity.class, eavAttribute.getIdmPropertyName()).get(0).getStringValue());
+		Assert.assertEquals(ATTRIBUTE_EMAIL, formService.getValues(two.getId(), IdmIdentity.class, eavAttribute.getIdmPropertyName()).get(0).getValue());
 		
 		// Revert strategy
 		eavAttribute.setStrategyType(AttributeMappingStrategyType.SET);

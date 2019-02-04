@@ -86,6 +86,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -558,7 +559,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		List<IdmFormValueDto> values = new ArrayList<>();
 		IdmFormValueDto phoneValue = new IdmFormValueDto();
 		phoneValue.setFormAttribute(formDefinition.getMappedAttributeByCode(IDENTITY_EXT_PASSWORD).getId());
-		phoneValue.setStringValue(IDENTITY_PASSWORD_THREE);
+		phoneValue.setPersistentType(PersistentType.SHORTTEXT);
+		phoneValue.setValue(IDENTITY_PASSWORD_THREE);
 		values.add(phoneValue);
 		formService.saveValues(identityRepository.findOne(identity.getId()), formDefinition, values);
 

@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - Deprecated unused field **``parameters`` was removed from ``AuthorizationEvaluatorDto``** (deprecated since CzechIdM 8.2.0). Use form definition instead (field ``formDefinition``).
 - Services for extended attributes definition ``IdmFormAttributeService`` and ``IdmFormDefinitionService`` support events now (constructors was changed).
 - [#1474](https://redmine.czechidm.com/issues/1474) - Changing persistent type of form attribute is possible only if no values are persisted.
+- [#1050](https://redmine.czechidm.com/issues/1050) - **Shortext as default** - When **EAV attribute** from mapped attribute was created, then (for string schema attributes) **PersistentType.TEXT** type was used as default. TEXT type cannot be indexed, so this type is not useful for searching. For this reason will be since version 9.4.0 as default type sets **PersistentType.SHORTTEXT**.
+**Important**: Shortext is limmeted on max **2000** characters! That change was realized in converters (IDM <- IC). It means this default type will be used for **new** EAV attributes and for system configuration too. Existing values (with old type) will be not modifed.
 
 
 ## [9.3.0]

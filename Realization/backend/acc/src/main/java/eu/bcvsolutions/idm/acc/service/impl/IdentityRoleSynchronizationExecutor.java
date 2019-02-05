@@ -1,15 +1,12 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
-import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
@@ -17,7 +14,6 @@ import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -95,29 +91,8 @@ public class IdentityRoleSynchronizationExecutor extends AbstractSynchronization
 	}
 	
 	@Override
-	protected CorrelationFilter getEntityFilter() {
+	protected CorrelationFilter getEntityFilter(SynchronizationContext context) {
 		return new IdmIdentityRoleFilter();
-	}
-
-	@Override
-	protected IdmIdentityRoleDto findByAttribute(String idmAttributeName, String value) {
-		CorrelationFilter filter = getEntityFilter();
-		filter.setProperty(idmAttributeName);
-		filter.setValue(value);
-		
-		List<IdmIdentityRoleDto> entities = service.find((IdmIdentityRoleFilter) filter, null).getContent();
-		
-		if (CollectionUtils.isEmpty(entities)) {
-			return null;
-		}
-		if (entities.size() > 1) {
-			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
-					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
-		}
-		if (entities.size() == 1) {
-			return entities.get(0);
-		}
-		return null;
 	}
 
 	@Override

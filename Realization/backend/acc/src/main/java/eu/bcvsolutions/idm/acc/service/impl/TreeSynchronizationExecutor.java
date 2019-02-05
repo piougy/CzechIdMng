@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -223,7 +222,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		IdmTreeNodeDto treeNode = new IdmTreeNodeDto();
 		// Fill entity by mapped attribute
 		treeNode = fillEntity(mappedAttributes, uid, icAttributes, treeNode, true, context);
-
 		treeNode.setTreeType(this.getSystemMapping(mappedAttributes).getTreeType());
 		// Create new Entity
 		treeNode = this.save(treeNode, true, context);
@@ -667,29 +665,14 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	}
 
 	@Override
-	protected CorrelationFilter getEntityFilter() {
-		return new IdmTreeNodeFilter();
-	}
-
-	@Override
-	protected IdmTreeNodeDto findByAttribute(String idmAttributeName, String value) {
-		CorrelationFilter filter = getEntityFilter();
-		filter.setProperty(idmAttributeName);
-		filter.setValue(value);
-
-		List<IdmTreeNodeDto> entities = treeNodeService.find((IdmTreeNodeFilter) filter, null).getContent();
-
-		if (CollectionUtils.isEmpty(entities)) {
-			return null;
-		}
-		if (entities.size() > 1) {
-			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
-					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
-		}
-		if (entities.size() == 1) {
-			return entities.get(0);
-		}
-		return null;
+	protected CorrelationFilter getEntityFilter(SynchronizationContext context) {
+		SysSystemMappingDto mapping = this.getSystemMapping(context.getMappedAttributes());
+		UUID treeType = mapping.getTreeType();
+		Assert.notNull(treeType, "Tree type cannot be null!");
+		
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
+		filter.setTreeTypeId(treeType);
+		return filter;
 	}
 
 	@Override

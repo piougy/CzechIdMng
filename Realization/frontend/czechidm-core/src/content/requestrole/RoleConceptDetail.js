@@ -142,7 +142,9 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       _identityRoleFormInstance,
       style,
       isEdit,
-      multiAdd} = this.props;
+      multiAdd,
+      validationErrors
+    } = this.props;
 
     const entity = this.state && this.state.entity ? this.state.entity : this.props.entity;
     if (!entity) {
@@ -229,7 +231,8 @@ export class RoleConceptDetail extends Basic.AbstractContent {
             ref="eavForm"
             formInstance={ _formInstance }
             readOnly={!isEdit || readOnly}
-            useDefaultValue={Utils.Entity.isNew(entity)}/>
+            useDefaultValue={Utils.Entity.isNew(entity)}
+            validationErrors={ validationErrors }/>
         </Basic.Panel>
       </Basic.AbstractForm>
     );

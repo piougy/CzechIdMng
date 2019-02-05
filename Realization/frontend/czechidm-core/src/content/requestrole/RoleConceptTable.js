@@ -37,7 +37,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
         show: false,
         entity: {},
         add: false
-      }
+      },
+      validationErrors: null
     };
   }
 
@@ -83,7 +84,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
         ... this.state.detail,
         show: false,
         add: false
-      }
+      },
+      validationErrors: null
     });
   }
 
@@ -111,6 +113,22 @@ export class RoleConceptTable extends Basic.AbstractContent {
     if (eavForm) {
       eavValues = {values: eavForm.getValues()};
     }
+    // after concept is sent to BE - hide modal
+    const cb = (validatedEntity, error) => {
+      if (error) {
+        // TODO: only one modal is shown => one validationErrors in the state
+        this.setState({
+          validationErrors: error.parameters ? error.parameters.attributes : null
+        });
+      } else {
+        this.setState({
+          conceptData: this._compileConceptData(this.props)
+        }, () => {
+          this._closeDetail();
+        });
+      }
+    };
+    //
     if (entity._added) {
       if (!entity._virtualId && !entity.id && entity.role instanceof Array) {
         for (const roleId of entity.role) {
@@ -120,7 +138,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
           identityRole._embedded = {};
           identityRole._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
           identityRole._embedded.role = roleManager.getEntity(this.context.store.getState(), roleId);
-          createConceptFunc(identityRole, 'ADD', eavValues);
+          createConceptFunc(identityRole, 'ADD', eavValues, cb);
         }
       } else {
         const addedIdentityRole = this._findAddedIdentityRoleById(entity.id);
@@ -131,9 +149,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
         }
         entity._embedded.role = roleManager.getEntity(this.context.store.getState(), entity.role);
         if (addedIdentityRole) {
-          updateConceptFunc(entity, 'ADD', eavValues);
+          updateConceptFunc(entity, 'ADD', eavValues, cb);
         } else {
-          createConceptFunc(entity, 'ADD', eavValues);
+          createConceptFunc(entity, 'ADD', eavValues, cb);
         }
       }
     } else {
@@ -152,13 +170,11 @@ export class RoleConceptTable extends Basic.AbstractContent {
       }
 
       if (changed && changedIdentityRole && changedIdentityRole.id) {
-        updateConceptFunc(changedIdentityRole, 'UPDATE', eavValues);
+        updateConceptFunc(changedIdentityRole, 'UPDATE', eavValues, cb);
       } else {
-        createConceptFunc(entity, 'UPDATE', eavValues);
+        createConceptFunc(entity, 'UPDATE', eavValues, cb);
       }
     }
-    this.setState({conceptData: this._compileConceptData(this.props)});
-    this._closeDetail();
   }
 
   _findChangedIdentityRoleById(id) {
@@ -450,13 +466,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
             key={`${rowIndex}-${value.id}`}
             ref="eavForm"
             formInstance={ _formInstance }
-            validationErrors={formInstance.validationErrors}
+            validationErrors={ formInstance.validationErrors }
             readOnly
             useDefaultValue={false}/>
         );
     }
     return (
-      <Basic.Div className="abstract-form" style={{minWidth: 150, padding: 0}}>
+      <Basic.Div className="abstract-form condensed" style={{minWidth: 150, padding: 0}}>
         {result}
       </Basic.Div>
     );
@@ -547,8 +563,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
       readOnly,
       className,
       _currentIdentityRoles,
-      request } = this.props;
-    const { conceptData, detail, showRoleByIdentitySelect } = this.state;
+      request
+    } = this.props;
+    const {
+      conceptData,
+      detail,
+      showRoleByIdentitySelect,
+      validationErrors
+    } = this.state;
 
     const result = (
       <div>
@@ -763,7 +785,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                 entity={detail.entity}
                 isEdit={detail.edit}
                 multiAdd={detail.add}
-                />
+                validationErrors={ validationErrors }/>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button

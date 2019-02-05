@@ -60,19 +60,23 @@ export class IdentityTable extends Advanced.AbstractTableContent {
   * Redirect to user form
   */
   showDetail(entity) {
+    const { skipDashboard } = this.props;
+    //
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
       this.context.router.push(`/identity/new?id=${uuidId}`);
-    } else {
+    } else if (!skipDashboard) {
       this.context.router.push(`/identity/${encodeURIComponent(entity.username)}/dashboard`);
+    } else {
+      this.context.router.push(`/identity/${encodeURIComponent(entity.username)}/profile`);
     }
   }
 
   getDefaultSearchParameters() {
     let searchParameters = this.getManager().getDefaultSearchParameters();
     //
-    searchParameters = searchParameters.setFilter('disabled', ConfigLoader.getConfig('table.identity.filter.disabled', false));
-    searchParameters = searchParameters.setFilter('recursively', ConfigLoader.getConfig('table.identity.filter.recursively', true));
+    searchParameters = searchParameters.setFilter('disabled', ConfigLoader.getConfig('identity.table.filter.disabled', false));
+    searchParameters = searchParameters.setFilter('recursively', ConfigLoader.getConfig('identity.table.filter.recursively', true));
     //
     return searchParameters;
   }
@@ -108,7 +112,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       showRowSelection,
       rendered,
       treeType,
-      className
+      className,
+      skipDashboard
     } = this.props;
     const { filterOpened } = this.state;
     //
@@ -254,7 +259,13 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             }
             rendered={ _.includes(columns, 'entityInfo') }/>
           <Advanced.Column property="_links.self.href" face="text" rendered={ false }/>
-          <Advanced.ColumnLink to="identity/:username/dashboard" property="username" width="20%" sort face="text" rendered={ _.includes(columns, 'username') }/>
+          <Advanced.ColumnLink
+            to={ `identity/:username/${ !skipDashboard ? 'dashboard' : 'profile' }` }
+            property="username"
+            width="20%"
+            sort
+            face="text"
+            rendered={ _.includes(columns, 'username') }/>
           <Advanced.Column property="lastName" sort face="text" rendered={ _.includes(columns, 'lastName') }/>
           <Advanced.Column property="firstName" sort width="10%" face="text" rendered={ _.includes(columns, 'firstName') }/>
           <Advanced.Column property="externalCode" sort width="10%" face="text" rendered={ _.includes(columns, 'externalCode') }/>
@@ -333,7 +344,8 @@ IdentityTable.defaultProps = {
 function select(state, component) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    deleteEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.delete')
+    deleteEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.delete'),
+    skipDashboard: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.dashboard.skip', ConfigLoader.getConfig('identity.dashboard.skip', false))
   };
 }
 

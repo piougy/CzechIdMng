@@ -4,8 +4,9 @@ import { Link } from 'react-router';
 import classNames from 'classnames';
 //
 import * as Basic from '../../basic';
-import { IdentityManager, DataManager } from '../../../redux';
+import { IdentityManager, DataManager, ConfigurationManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import ConfigLoader from '../../../utils/ConfigLoader';
 
 const manager = new IdentityManager();
 
@@ -74,7 +75,12 @@ export class IdentityInfo extends AbstractEntityInfo {
    * @return {string}
    */
   getLink() {
-    return `/identity/${encodeURIComponent(this.getEntityId())}/dashboard`;
+    const { skipDashboard } = this.props;
+    //
+    if (!skipDashboard) {
+      return `/identity/${encodeURIComponent(this.getEntityId())}/dashboard`;
+    }
+    return `/identity/${encodeURIComponent(this.getEntityId())}/profile`;
   }
 
   /**
@@ -253,7 +259,8 @@ function select(state, component) {
     _imageLoading: DataManager.isShowLoading(state, profileUiKey),
     _imageUrl: profile ? profile.imageUrl : null,
     userContext: state.security.userContext, // is needed for refresh after login
-    _permissions: manager.getPermissions(state, null, identity)
+    _permissions: manager.getPermissions(state, null, identity),
+    skipDashboard: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.dashboard.skip', ConfigLoader.getConfig('identity.dashboard.skip', false))
   };
 }
 export default connect(select)(IdentityInfo);

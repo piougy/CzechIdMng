@@ -31,12 +31,15 @@
   "pagination": {
     "size": 10
   },
-  "table": {
-    "identity": {
+  "identity": {
+    "table": {
       "filter": {
         "disabled": "false",
         "recursively": "true"
       }
+    },
+    "dashboard": {
+      "skip": true
     }
   }
 }

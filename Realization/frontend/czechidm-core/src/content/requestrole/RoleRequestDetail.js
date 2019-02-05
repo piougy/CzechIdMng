@@ -174,7 +174,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     return false;
   }
 
-  _removeConcept(data, type) {
+  _removeConcept(data, type, cb = null) {
     const {_request} = this.props;
     this.setState({showLoadingButtonRemove: true});
 
@@ -195,11 +195,23 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
         }
       }
-      this.setState({showLoadingButtonRemove: false}, () => {this.reloadComponent();});
+      this.setState({showLoadingButtonRemove: false}, () => {
+        this.reloadComponent();
+        if (cb) {
+          cb();
+        }
+      });
     })
     .catch(error => {
-      this.addError(error);
-      this.setState({showLoadingButtonRemove: false});
+      this.setState({
+        showLoadingButtonRemove: false
+      }, () => {
+        if (cb) {
+          cb(null, error);
+        } else {
+          this.addError(error);
+        }
+      });
     });
 
     // this.context.store.dispatch(conceptRoleRequestManager.deleteEntity(concept, `${uiKeyAttributes}-deleteConcept-${_request.applicant}`, (deletedEntity, error) => {
@@ -216,7 +228,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     // }));
   }
 
-  _updateConcept(data, type, formInstance) {
+  _updateConcept(data, type, formInstance, cb = null) {
     const {_request} = this.props;
     let concept;
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)) {
@@ -253,13 +265,18 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           }
         }
         this.reloadComponent();
+        if (cb) {
+          cb();
+        }
+      } else if (cb) {
+        cb(null, error);
       } else {
         this.addError(error);
       }
     }));
   }
 
-  _createConcept(data, type, formInstance) {
+  _createConcept(data, type, formInstance, cb = null) {
     const {_request} = this.props;
     const concept = {
       'operation': type,
@@ -276,9 +293,16 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     .then(json => {
       _request.conceptRoles.push(json);
       this.reloadComponent();
+      if (cb) {
+        cb();
+      }
     })
     .catch(error => {
-      this.addError(error);
+      if (cb) {
+        cb(null, error);
+      } else {
+        this.addError(error);
+      }
     });
 
     // this.context.store.dispatch(conceptRoleRequestManager.createEntity(concept, `${uiKeyAttributes}-createConcept-${_request.applicant}`, (createdEntity, error) => {

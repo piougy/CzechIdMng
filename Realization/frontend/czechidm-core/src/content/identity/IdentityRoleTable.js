@@ -203,7 +203,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                     entityType="role"
                     entityIdentifier={ entity.role }
                     entity={ entity._embedded.role }
-                    face="popover" />
+                    face="popover"
+                    showIcon/>
                 );
                 //
                 return content;

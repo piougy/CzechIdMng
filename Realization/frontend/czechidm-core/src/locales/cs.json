@@ -3255,7 +3255,7 @@
       }
     },
     "RoleComposition": {
-      "_type": "Kompozice rolí",
+      "_type": "Business role",
       "superior": {
         "label": "Nadřazená role",
         "help": ""

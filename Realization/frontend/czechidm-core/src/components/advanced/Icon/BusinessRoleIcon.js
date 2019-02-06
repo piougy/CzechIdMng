@@ -2,6 +2,7 @@ import React from 'react';
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { i18n } from '../../../services/LocalizationService';
 //
 import AbstractIcon from './AbstractIcon';
 
@@ -20,7 +21,7 @@ export default class BusinessRoleIcon extends AbstractIcon {
 
   renderIcon() {
     return (
-      <span className="fa-layers fa-fw">
+      <span className="fa-layers fa-fw" title={ i18n('entity.RoleComposition._type') }>
         <FontAwesomeIcon icon={ faKey } transform="rotate-315 up-1 right-0.3" style={{ color: '#ccc' }} />
         <FontAwesomeIcon icon={ faKey } transform="up-3.2 right--3"/>
         <FontAwesomeIcon icon={ faCircle } transform="up-9 right-5 shrink-6"/>

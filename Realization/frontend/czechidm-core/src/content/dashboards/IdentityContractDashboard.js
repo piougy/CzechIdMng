@@ -54,7 +54,8 @@ class IdentityContractDashboard extends Basic.AbstractContent {
             ref="table"
             uiKey={ `identity-contracts-${ identity.id }` }
             columns={ columns }
-            forceSearchParameters={ forceSearchParameters }/>
+            forceSearchParameters={ forceSearchParameters }
+            showAddButton={ false }/>
         </Basic.Panel>
       </div>
     );

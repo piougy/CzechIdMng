@@ -3204,7 +3204,7 @@
       }
     },
     "RoleComposition": {
-      "_type": "Role composition",
+      "_type": "Business role",
       "superior": {
         "label": "Superior role",
         "help": ""

@@ -1356,10 +1356,10 @@
             "noIdentityRoles": "Neexistují žádné přiřazené role",
             "noSelectedIdentityRoles": "Žádné nově přiřazené role",
             "buttons": {
-              "addAllRoles": "Přidat všechny role",
-              "addSelectedRoles": "Přidat pouze vybrané role",
-              "removeSelectedRoles": "Odebrat vybrané role",
-              "removeAllRoles": "Odebrat všechny role"
+              "addAllIdentityRoles": "Přidat všechny role",
+              "addSelectedIdentityRoles": "Přidat pouze vybrané role",
+              "removeSelectedIdentityRoles": "Odebrat vybrané role",
+              "removeAllIdentityRoles": "Odebrat všechny role"
             },
             "showOnlyDirectRoles": {
               "label": "Zobrazit pouze napřímo přiřazené role",

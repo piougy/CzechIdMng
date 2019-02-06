@@ -605,7 +605,6 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		// One
 		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
 		assertEquals(sliceOne.getContractValidTill(), contract.getValidTill());
-
 	}
 
 	@Test
@@ -630,7 +629,6 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		// Protection mode is enabled
 		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
 		assertEquals(sliceTwo.getContractValidFrom(), contract.getValidTill());
-
 	}
 
 	@Test
@@ -655,11 +653,60 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		// Protection mode is enabled, but gap was too long
 		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
 		assertEquals(sliceOne.getContractValidTill(), contract.getValidTill());
+	}
+	
+	@Test
+	public void contractValidityProtectionModeEnabledWithoutGapTest() {
+		// Enable protection mode (4 days, gap is 0 days)
+		configurationService.setValue(ContractSliceConfiguration.PROPERTY_PROTECTION_INTERVAL, "4");
 
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmContractSliceDto sliceOne = helper.createContractSlice(identity, "11", null, LocalDate.now().minusDays(100),
+				LocalDate.now().minusDays(100), LocalDate.now().plusDays(5));
+		IdmContractSliceDto sliceTwo = helper.createContractSlice(identity, "11", null, LocalDate.now().plusDays(10),
+				LocalDate.now().minusDays(100), LocalDate.now().plusDays(5));
+
+		assertNotNull(sliceOne.getParentContract());
+		assertNotNull(sliceTwo.getParentContract());
+		assertEquals(sliceOne.getParentContract(), sliceTwo.getParentContract());
+		assertTrue(sliceOne.isUsingAsContract());
+		assertFalse(sliceTwo.isUsingAsContract());
+
+		IdmIdentityContractDto contract = contractService.get(sliceOne.getParentContract());
+
+		// Protection mode is enabled, but gap was too small
+		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
+		assertEquals(sliceOne.getContractValidTill(), contract.getValidTill());
+	}
+	
+	@Test
+	public void contractValidityProtectionModeEnabledNegativeGapTest() {
+		// Enable protection mode (4 days, gap is -10 days)
+		configurationService.setValue(ContractSliceConfiguration.PROPERTY_PROTECTION_INTERVAL, "4");
+
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmContractSliceDto sliceOne = helper.createContractSlice(identity, "11", null, LocalDate.now().minusDays(100),
+				LocalDate.now().minusDays(100), LocalDate.now().plusDays(5));
+		IdmContractSliceDto sliceTwo = helper.createContractSlice(identity, "11", null, LocalDate.now().plusDays(10),
+				LocalDate.now().minusDays(100).minusDays(10), LocalDate.now().plusDays(5));
+
+		assertNotNull(sliceOne.getParentContract());
+		assertNotNull(sliceTwo.getParentContract());
+		assertEquals(sliceOne.getParentContract(), sliceTwo.getParentContract());
+		assertTrue(sliceOne.isUsingAsContract());
+		assertFalse(sliceTwo.isUsingAsContract());
+
+		IdmIdentityContractDto contract = contractService.get(sliceOne.getParentContract());
+
+		// Protection mode is enabled, but gap was too small
+		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
+		assertEquals(sliceOne.getContractValidTill(), contract.getValidTill());
 	}
 
+
+
 	@Test
-	public void contractValidityProtectionModeEnabledIndependentTest() {
+	public void contractValidityProtectionModeEnabledInfinityTest() {
 		// Enable protection mode (1 days)
 		configurationService.setValue(ContractSliceConfiguration.PROPERTY_PROTECTION_INTERVAL, "1");
 
@@ -680,11 +727,10 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		// Protection mode is enabled, next slice has contract valid from sets to null
 		assertEquals(null, contract.getValidTill());
 		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
-
 	}
 
 	@Test
-	public void contractValidityProtectionModeDisableIndependentTest() {
+	public void contractValidityProtectionModeDisableInfinityTest() {
 		// Disable protection mode (0 days)
 		configurationService.setValue(ContractSliceConfiguration.PROPERTY_PROTECTION_INTERVAL, "0");
 
@@ -705,7 +751,6 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		// Protection mode is disabled, next slice has contract valid from sets to null
 		assertEquals(sliceOne.getContractValidFrom(), contract.getValidFrom());
 		assertEquals(sliceOne.getContractValidTill(), contract.getValidTill());
-
 	}
 
 	@Test

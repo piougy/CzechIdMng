@@ -112,7 +112,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	 * Protection mode is activate. Check if the next slice has valid from of
 	 * contract lover then contract valid till (plus protection interval) on given
 	 * slice, then contract will does not terminated (his valid till will be sets by
-	 * valid from form next slice)
+	 * valid from on next slice)
 	 * 
 	 * @param slice
 	 * @param contract

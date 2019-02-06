@@ -166,7 +166,8 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         required={ this.isRequired() }
         confidential={ attribute.confidential }
         validationErrors={ validationErrors }
-        className={ className }/>
+        className={ className }
+        style={ style }/>
     );
   }
 

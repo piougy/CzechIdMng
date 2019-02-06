@@ -23,6 +23,12 @@ module.exports = {
       'entityType': [ 'my-roles', 'roles'],
       'component': require('./src/components/ExampleRoleIcon'),
       'priority': 1
+    },
+    {
+      'id': 'marcel-icon',
+      'type': 'icon',
+      'entityType': [ 'marcel'],
+      'component': require('./src/components/MarcelIcon')
     }
   ]
 };

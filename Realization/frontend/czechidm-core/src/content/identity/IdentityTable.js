@@ -343,6 +343,7 @@ IdentityTable.defaultProps = {
 
 function select(state, component) {
   return {
+    i18nReady: state.config.get('i18nReady'),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     deleteEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.delete'),
     skipDashboard: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.dashboard.skip', ConfigLoader.getConfig('identity.dashboard.skip', false))

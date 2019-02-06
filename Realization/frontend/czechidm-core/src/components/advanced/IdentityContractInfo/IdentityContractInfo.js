@@ -39,8 +39,11 @@ export class IdentityContractInfo extends AbstractEntityInfo {
    *
    * @param  {object} entity
    */
-  getEntityIcon() {
-    return 'fa:building';
+  getEntityIcon(entity) {
+    if (entity && entity.main) {
+      return 'component:main-contract';
+    }
+    return 'component:contract';
   }
 
   showLink() {
@@ -74,15 +77,6 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     const _entity = this.getEntity();
     //
     return `/identity/${encodeURIComponent(_entity._embedded.identity.username)}/identity-contract/${entityIdentifier}/detail`;
-  }
-
-  /**
-   * Returns entity icon (null by default - icon will not be rendered)
-   *
-   * @param  {object} entity
-   */
-  getEntityIcon() {
-    return 'fa:building';
   }
 
   /**

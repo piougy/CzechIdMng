@@ -38,7 +38,7 @@ export class ContractPositionInfo extends AbstractEntityInfo {
    * @param  {object} entity
    */
   getEntityIcon() {
-    return 'fa:building';
+    return 'component:contract-position';
   }
 
   showLink() {
@@ -78,15 +78,6 @@ export class ContractPositionInfo extends AbstractEntityInfo {
       return null;
     }
     return `/identity/${encodeURIComponent(_entity._embedded.identityContract._embedded.identity.username)}/identity-contract/${_entity.identityContract}/positions`;
-  }
-
-  /**
-   * Returns entity icon (null by default - icon will not be rendered)
-   *
-   * @param  {object} entity
-   */
-  getEntityIcon() {
-    return 'fa:building';
   }
 
   /**

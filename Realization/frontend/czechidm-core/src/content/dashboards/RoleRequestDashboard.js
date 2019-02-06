@@ -83,7 +83,8 @@ function select(state) {
   //
   return {
     _totalCreator: !uiCreator ? null : uiCreator.total,
-    _totalApplicant: !uiApplicant ? null : uiApplicant.total
+    _totalApplicant: !uiApplicant ? null : uiApplicant.total,
+    i18nReady: state.config.get('i18nReady')
   };
 }
 

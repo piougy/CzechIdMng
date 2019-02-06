@@ -71,7 +71,7 @@ export class ContractSliceInfo extends AbstractEntityInfo {
    * @param  {object} entity
    */
   getEntityIcon() {
-    return 'fa:building';
+    return 'component:contract-slice';
   }
 
   /**

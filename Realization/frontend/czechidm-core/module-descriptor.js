@@ -132,7 +132,7 @@ module.exports = {
                 'labelKey': 'entity.IdentityContract._type',
                 'order': 50,
                 'path': '/identity/:entityId/contracts',
-                'icon': 'fa:building',
+                'icon': 'component:contracts',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
                 'items': [
                   {
@@ -164,7 +164,7 @@ module.exports = {
                     'type': 'TAB',
                     'labelKey': 'content.identity-contract.positions.label',
                     'order': 40,
-                    'icon': 'fa:building',
+                    'icon': 'component:contract-positions',
                     'path': '/identity/:identityId/identity-contract/:entityId/positions',
                     'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTPOSITION_READ'] } ],
                   },

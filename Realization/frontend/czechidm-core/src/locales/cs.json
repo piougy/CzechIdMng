@@ -3541,7 +3541,7 @@
         "label": "Automatická role",
         "title": "Automatická role",
         "placeholder": "Automatická role",
-        "help": "Role vychází z pozice v PPV"
+        "help": "Role je přidělena automaicky (dle pozice či hodnoty atributu)"
       },
       "roleCataloguePicker": "Výběr složky z katalogu",
       "directRole": {

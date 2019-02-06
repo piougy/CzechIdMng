@@ -1091,9 +1091,12 @@ function select(state, component) {
   const uiKey = component.manager.resolveUiKey(component.uiKey);
   const ui = state.data.ui[uiKey];
   if (!ui) {
-    return {};
+    return {
+      i18nReady: state.config.get('i18nReady')
+    };
   }
   return {
+    i18nReady: state.config.get('i18nReady'),
     _showLoading: ui.showLoading,
     _entities: component.manager.getEntities(state, uiKey),
     _total: ui.total,

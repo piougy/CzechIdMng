@@ -393,6 +393,18 @@ module.exports = {
       'type': 'icon',
       'entityType': ['superior-role', 'superior-roles'],
       'component': 'fa:arrow-up'
+    },
+    {
+      'id': 'contract-icon',
+      'type': 'icon',
+      'entityType': ['contract', 'contracts', 'contract-position', 'contract-positions', 'contract-slice', 'contract-slices'],
+      'component': 'fa:building'
+    },
+    {
+      'id': 'main-contract-icon',
+      'type': 'icon',
+      'entityType': ['main-contract'],
+      'component': require('./src/components/advanced/Icon/MainContractIcon')
     }
   ]
 };

@@ -51,7 +51,8 @@ function select(state, component) {
   const ui = state.data.ui[uiKey];
   return {
     userContext: state.security.userContext,
-    _total: ui ? ui.total : null
+    _total: ui ? ui.total : null,
+    i18nReady: state.config.get('i18nReady')
   };
 }
 

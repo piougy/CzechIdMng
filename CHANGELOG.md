@@ -27,7 +27,7 @@ All notable changes to this project will be documented in this file.
 - [#1361](https://redmine.czechidm.com/issues/1361) - Email notification can send attachments. Sent attachments are not persisted automatically and it's possible to send them from backend only. Attachments (``IdmAttachmentDto``) can be instanced (``inputData`` will be used, if it's not {@code null}), or persisted before - data will be loaded by ``AttachmentManager``, when email is send (see ``DefaultEmailer``).
 
 ## [9.2.2]
-- [#1322](https://redmine.czechidm.com/issues/1322) - Preferred language and collapsed navigation is persisted to identity profile now and is loaded after login. Selecting locale doesn't refresh whole page now - add listening redux property ``i18nReady: state.config.get('i18nReady')`` if you content is not refreshed automatically.
+- [#1322](https://redmine.czechidm.com/issues/1322) - Preferred language and collapsed navigation is persisted to identity profile now and is loaded after login. Selecting locale doesn't refresh whole page now - add listening redux property ``i18nReady: state.config.get('i18nReady')`` if you content is not refreshed automatically and use localization.
 - ``Index.js`` in frontend ``czechidm-app`` module was updated - don't forget to **update this module**, if project specific app module is used.
 
 ## [9.2.0]

@@ -49,10 +49,13 @@ function select(state, component) {
   const uiKey = `${ uiKeyPrefix }${ component.identity ? component.identity.id : 'dashboard' }`;
   const ui = state.data.ui[uiKey];
   if (!ui) {
-    return {};
+    return {
+      i18nReady: state.config.get('i18nReady')
+    };
   }
   return {
-    _total: ui.total
+    _total: ui.total,
+    i18nReady: state.config.get('i18nReady')
   };
 }
 

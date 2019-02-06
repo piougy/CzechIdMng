@@ -245,7 +245,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                     entityIdentifier={ data[rowIndex][property] }
                     entity={ data[rowIndex]._embedded[property] }
                     showIdentity={ false }
-                    face="popover" />
+                    face="popover"
+                    showIcon />
                 );
               }
             }
@@ -305,6 +306,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
 
           <Advanced.Column
             property="automaticRole"
+            header={ <Basic.Icon value="component:automatic-role"/> }
+            title={ this.i18n('entity.IdentityRole.automaticRole.help') }
             face="bool"
             cell={
               /* eslint-disable react/no-multi-comp */
@@ -314,7 +317,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                 );
               }
             }
-            width={ 150 }
+            width={ 15 }
             rendered={ _.includes(columns, 'automaticRole') }/>
         </Advanced.Table>
 
@@ -473,6 +476,7 @@ IdentityRoleTable.defaultProps = {
 
 function select(state, component) {
   return {
+    i18nReady: state.config.get('i18nReady'),
     _showLoading: Utils.Ui.isShowLoading(state, component.uiKey),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _incompatibleRoles: DataManager.getData(state, `${ uiKeyIncompatibleRoles }${ component.params.entityId }`)

@@ -3490,7 +3490,7 @@
         "label": "Automatic role",
         "title": "Automatic role",
         "placeholder": "Automatic role",
-        "help": "Role from contracted position"
+        "help": "Role is assigned automatically (by contracted position or attribute value)"
       },
       "roleCataloguePicker": "Select a folder from the catalog",
       "directRole": {

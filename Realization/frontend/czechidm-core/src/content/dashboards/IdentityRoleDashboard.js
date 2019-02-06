@@ -64,8 +64,9 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
   }
 }
 
-function select() {
+function select(state) {
   return {
+    i18nReady: state.config.get('i18nReady')
   };
 }
 

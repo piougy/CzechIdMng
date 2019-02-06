@@ -1312,10 +1312,10 @@
           "noIdentityRoles": "No assigned roles exist",
           "noSelectedIdentityRoles": "No newly assigned roles",
           "buttons": {
-            "addAllRoles": "Add all roles",
-            "addSelectedRoles": "Add only selected roles",
-            "removeSelectedRoles": "Remove selected roles",
-            "removeAllRoles": "Remove all roles"
+            "addAllIdentityRoles": "Add all roles",
+            "addSelectedIdentityRoles": "Add only selected roles",
+            "removeSelectedIdentityRoles": "Remove selected roles",
+            "removeAllIdentityRoles": "Remove all roles"
           },
           "showOnlyDirectRoles": {
             "label": "Show only roles assigned directly",

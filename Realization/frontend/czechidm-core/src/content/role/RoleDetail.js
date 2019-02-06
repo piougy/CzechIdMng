@@ -308,8 +308,8 @@ class RoleDetail extends Basic.AbstractContent {
           </Basic.Tab>
           <Basic.Tab
             eventKey={ 2 }
-            rendered={entity.id ? true : false}
-            disabled={roleManager.isRequestModeEnabled() || !entity.id}
+            rendered={ entity.id && SecurityManager.hasAuthority('REQUEST_READ') ? true : false }
+            disabled={ roleManager.isRequestModeEnabled() || !entity.id }
             title={
               <span>
                 { this.i18n('content.requests.header') }

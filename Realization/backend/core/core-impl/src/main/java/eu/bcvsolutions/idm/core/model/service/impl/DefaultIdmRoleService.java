@@ -155,9 +155,12 @@ public class DefaultIdmRoleService
 						// Set default value from sub-definition attribute
 						attribute.setDefaultValue(result.getDefaultValue());
 						// Set validations
-						// Required
 						attribute.setRequired(result.isRequired());
-						// TODO: Add other validations - @Ondra - here is correct place for it ;)
+						attribute.setUnique(result.isUnique());
+						attribute.setMin(result.getMin());
+						attribute.setMax(result.getMax());
+						attribute.setRegex(result.getRegex());
+						attribute.setValidationMessage(result.getValidationMessage());
 						return true;
 					}
 					return false;

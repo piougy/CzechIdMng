@@ -332,10 +332,10 @@ class AbstractFormComponent extends AbstractContextComponent {
         } else {
           title = '';
         }
-        title += `${ propertyName ? propertyName + ': ' : '' }${ this._toValidationType(validationError) }`;
+        title += `${ this._toValidationType(validationError) }`;
       });
     } else if (validationResult && validationResult.message) {
-      title = `${propertyName ? propertyName + ': ' : ''}${validationResult.message}`;
+      title = `${validationResult.message}`;
     } else if (!label) {
       title = propertyName;
     }

@@ -112,7 +112,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	 * Protection mode is activate. Check if the next slice has valid from of
 	 * contract lover then contract valid till (plus protection interval) on given
 	 * slice, then contract will does not terminated (his valid till will be sets by
-	 * valid till form next slice)
+	 * valid from form next slice)
 	 * 
 	 * @param slice
 	 * @param contract
@@ -142,6 +142,12 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 				.between( //
 						java.time.LocalDate.parse(slice.getContractValidTill().toString()), //
 						java.time.LocalDate.parse(nextSlice.getContractValidFrom().toString()));
+		
+		// Diff is not positive, it means valid from of contract in next slice is less then
+		// till of contract in current slice. We will do nothing.
+		if (diffInDays <= 0) {
+			return;
+		}
 
 		if (diffInDays <= protectionInterval) {
 			LOG.info(MessageFormat.format(

@@ -36,6 +36,26 @@ public class TestRoleResource {
 	private DateTime modified;
 	@Column(name = "STATUS", length = DefaultFieldLengths.NAME)
 	private String status;
+	@Column(name = "EAV_ATTRIBUTE", length = DefaultFieldLengths.NAME)
+	private String eavAttribute;
+	@Column(name = "MEMBER", length = DefaultFieldLengths.LOG)
+	private String member;
+
+	public String getEavAttribute() {
+		return eavAttribute;
+	}
+
+	public void setEavAttribute(String eavAttribute) {
+		this.eavAttribute = eavAttribute;
+	}
+
+	public String getMember() {
+		return member;
+	}
+
+	public void setMember(String member) {
+		this.member = member;
+	}
 
 	public String getName() {
 		return name;

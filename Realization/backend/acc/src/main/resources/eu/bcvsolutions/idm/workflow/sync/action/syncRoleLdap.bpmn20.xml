@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.sync.action">
-  <process id="syncRoleAd" name="Synchronization - Roles from LDAP" isExecutable="true">
+  <process id="syncRoleLdap" name="Synchronization - Roles from LDAP" isExecutable="true">
     <documentation>Workflow for synchronization of groups from LDAP.
 
 Input variables:
@@ -20,9 +20,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.UUID;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import java.text.MessageFormat;
 
-logItem.addToLog("distinguishedName " + distinguishedName);
-logItem.addToLog("name " + name);
+logItem.addToLog(MessageFormat.format("distinguishedName: [{0}]", distinguishedName));
+logItem.addToLog(MessageFormat.format("name: [{0}]", name));
 
 SysSyncItemLogDto variableLog;
 
@@ -30,6 +31,7 @@ SysSyncItemLogDto variableLog;
     AccAccountDto account = accAccountService.getAccount(uid, systemId);
     if (account == null) {
       logItem.addToLog("Error: Account has not been found.");
+      execution.setVariable("accountId", null);
       return;
     }
     execution.setVariable("log", variableLog);
@@ -42,9 +44,10 @@ SysSyncItemLogDto variableLog;
         import groovy.transform.Field;
         import org.slf4j.Logger;
         import org.slf4j.LoggerFactory;
+        import java.text.MessageFormat;
 
-        logItem.addToLog("Info - distinguishedName "+distinguishedName);
-        logItem.addToLog("Info - name "+name);
+        logItem.addToLog(MessageFormat.format("Info - distinguishedName: [{0}]", distinguishedName));
+        logItem.addToLog(MessageFormat.format("Info - name: [{0}]", name));
 
         SysSyncItemLogDto variableLog;
 
@@ -112,14 +115,9 @@ IdmRoleCatalogueDto createCatalogue(String code, UUID parent) {
 
     return roleCatalogueService.save(dto);
 }
-//______________________________________________
 
-UUID resolveCatalogue(String distinguishedName){ // TODO overwrite- edit creating role catalogue... this example creates role catalogue like DN with root of catalogue -- first OU from right -- ignores DC and CN, returns UUID of catalogue, which will be filled in role's list of catalogues
-  if (distinguishedName == null ) {
-    logItem.addToLog("Distinguished name was not found, skipping creating of catalog");
-    execution.setVariable("catalogueId", null);
-    return;
-  }
+// Method will create catalog e.g. lek distinguishedName of AD - structure is based on OU of DN - From string, domain and cn are discarded
+UUID createCatalogLikeDistinguishedName(String distinguishedName) {
   String dn = distinguishedName;
 	int c = dn.indexOf(",DC="); // where domain starts
 	if (c != -1){
@@ -141,11 +139,38 @@ UUID resolveCatalogue(String distinguishedName){ // TODO overwrite- edit creatin
     }
   }
   if (lastId == null){
-    execution.setVariable("catalogueId", null);
+    return null;
   } else {
-  execution.setVariable("catalogueId", lastId.getId());
-}
+    return lastId.getId();
   }
+}
+
+// Method will create catalog based on application property - string of property will be name of catalog for all roles.
+UUID createOneCatalogForAllRoles() {
+  def catalog = getCatalogueByCode(createAllRolesToOneCatalogue);
+  if (catalog != null) {
+    return catalog.getId();
+  } else {
+    return createCatalogue(createAllRolesToOneCatalogue, null).getId();
+  }
+}
+
+//______________________________________________
+
+UUID resolveCatalogue(String distinguishedName){ // TODO overwrite- edit creating role catalogue... this example creates role catalogue like DN with root of catalogue -- first OU from right -- ignores DC and CN, returns UUID of catalogue, which will be filled in role's list of catalogues
+  if (distinguishedName == null || !isResolveCatalogEnabled) {
+    logItem.addToLog("Distinguished name was not found, skipping creating of catalog");
+    execution.setVariable("catalogueId", null);
+    return;
+  }
+  if(createAllRolesToOneCatalogue == null){
+    logItem.addToLog("Catalog will be created based on role identificatior");
+    execution.setVariable("catalogueId", createCatalogLikeDistinguishedName(distinguishedName));
+  } else {
+    logItem.addToLog("Catalog will be created based on aplication property");
+    execution.setVariable("catalogueId", createOneCatalogForAllRoles());
+  }
+}
 
  def removeLastItemFromCatalogue(){ // TODO override - how to find name of catalogue, which will be erased from role
    execution.setVariable("catalogue", null);
@@ -242,8 +267,9 @@ import org.springframework.data.domain.Page;
         import org.slf4j.Logger;
         import org.slf4j.LoggerFactory;
         import org.springframework.data.domain.Page;
+        import java.text.MessageFormat;
 
-        final String roleName = "__NAME__"; // name of role
+        final String roleName = "name"; // name of role
         String nameV = null;
 
         if (icAttributes != null){
@@ -264,7 +290,7 @@ import org.springframework.data.domain.Page;
 
         if (icAttributes != null){
         	for (IcAttribute icAttribute : icAttributes) {
-        		if (DISTINGUISHEDNAME_ATTRIBUTE_NAME.equalsIgnoreCase(icAttribute.getName())) {
+        		if (attributeNameOfRoleIdentificator.equalsIgnoreCase(icAttribute.getName())) {
         			Object distinguishedNameValue = icAttribute.getValue();
         			if (distinguishedNameValue == null) {
         				logItem.addToLog("The value of distinguishedName is null!");
@@ -277,16 +303,15 @@ import org.springframework.data.domain.Page;
 
         execution.setVariable("distinguishedName", distinguishedNameV);
         execution.setVariable("name", nameV);
-        execution.setVariable("TRANSFORMATION_SCRIPT", "\""+distinguishedName+"\"");
+        execution.setVariable("transformationScript", MessageFormat.format(" \"[{0}]\"", distinguishedName));
 
         execution.setVariable("organizationTreeNode", null);
         execution.setVariable("automaticAttributes", null);
         execution.setVariable("catalogue", null);
         execution.setVariable("catalogueId", null);
-
       </script>
     </scriptTask>
-    <sequenceFlow id="flow14" sourceRef="exclusivegateway2" targetRef="scripttask7"></sequenceFlow>
+    <sequenceFlow id="flow14" sourceRef="exclusivegateway2" targetRef="scripttask13"></sequenceFlow>
     <sequenceFlow id="flow15" sourceRef="scripttask7" targetRef="scripttask6"></sequenceFlow>
     <sequenceFlow id="flow16" sourceRef="scripttask3" targetRef="scripttask12"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
@@ -297,18 +322,27 @@ import org.springframework.data.domain.Page;
         import groovy.transform.Field;
         import org.slf4j.Logger;
         import org.slf4j.LoggerFactory;
+        import java.util.UUID;
+        import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+        import java.text.MessageFormat;
 
-        logItem.addToLog("Info - distinguishedName "+distinguishedName);
-        logItem.addToLog("Info - name "+name);
+        logItem.addToLog(MessageFormat.format("Info - distinguishedName: [{0}]", distinguishedName));
+        logItem.addToLog(MessageFormat.format("Info - name: [{0}]", name));
 
         SysSyncItemLogDto variableLog;
 
         variableLog = defaultSynchronizationService.resolveUnlinkedSituation(uid, entityType, entityId, syncConfigId, actionType, icAttributes);
-
+        AccAccountDto account = accAccountService.getAccount(uid, systemId);
+        if (account == null) {
+          logItem.addToLog("Error: Account has not been found.");
+          execution.setVariable("accountId", null);
+          return;
+        }
+        execution.setVariable("accountId", account.getId());
         execution.setVariable("log", variableLog);
 </script>
     </scriptTask>
-    <scriptTask id="scripttask9" name="Create automatic roles and catalog" scriptFormat="groovy" activiti:autoStoreVariables="false">
+    <scriptTask id="scripttask9" name="Create and update automatic roles and catalog" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>
           import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType
           import eu.bcvsolutions.idm.acc.domain.SystemOperationType
@@ -396,6 +430,7 @@ import org.springframework.data.domain.Page;
           import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
           import java.util.UUID;
           import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
+          import java.text.MessageFormat;
 
           boolean roleAlreadyHasCatalogue(List&lt;IdmRoleCatalogueRoleDto&gt; actualCatalogues, IdmRoleCatalogueRoleDto catRoleDto) {
           for (def cat in actualCatalogues) {
@@ -493,7 +528,7 @@ import org.springframework.data.domain.Page;
             filter.setRoleId(role.getId());
             List&lt;IdmAutomaticRoleAttributeDto&gt; list = automaticRoleAttributeService.find(filter, null).getContent();
             if(list.size() != 1) {
-              logItem.addToLog("Warning: IdmAutomaticRoleAttributeDto was not found for " + role.getId() + " continuing with creating automatic role");
+              logItem.addToLog(MessageFormat.format("Warning: IdmAutomaticRoleAttributeDto was not found for [{0}] continuing with creating automatic role", role.getId()));
               IdmAutomaticRoleAttributeDto autoRole = createAutoRole(role);
               IdmAutomaticRoleAttributeRuleDto [] attributes = automaticAttributes;
               addAutoRoleId(autoRole, attributes);
@@ -538,10 +573,10 @@ import org.springframework.data.domain.Page;
           // transformationScript - what will be put into eav as value (return "cn=..,ou=..,dn=.."")
           // objectClassName - name of schema (__ACCOUNT__)
           def addResource(UUID roleId, String attributeName, String transformationScript, String objectClassName) {
-              if (SYSTEM_CODE_FOR_ROLE_MAPPING == null) {
+              if (systemCodeForRoleMapping == null) {
                 return;
               }
-              UUID systemId = defaultSysSystemService.getByCode(SYSTEM_CODE_FOR_ROLE_MAPPING).getId();
+              UUID systemId = defaultSysSystemService.getByCode(systemCodeForRoleMapping).getId();
                defaultSysRoleSystemAttributeService.addRoleMappingAttribute(systemId, roleId, attributeName, transformationScript, objectClassName); //sysRoleSystemAttributeService
           }
 
@@ -551,14 +586,19 @@ import org.springframework.data.domain.Page;
           logItem.addToLog("SYNC finished, now for the guarantees and catalogues");
 
           if(actionType.equals("UPDATE_ENTITY") || actionType.equals("LINK_AND_UPDATE_ENTITY") ) {
-          UUID roleId = defaultAccRoleAccountService.getRoleId(accountId);
+            if(accountId == null) {
+              execution.setVariable("roleId", null);
+              logItem.addToLog("SYNC: Role not found, additional features will not be created.");
+              return;
+            }
+          execution.setVariable("roleId", defaultAccRoleAccountService.getRoleId(accountId));
 
           IdmRoleDto role = roleService.get(roleId);
           role.setCanBeRequested(canBeRequested); // set option, if identity can request this role
           role = roleService.save(role);
 
           //
-          addResource(roleId, MEMBER_OF_ATTRIBUTE_NAME, TRANSFORMATION_SCRIPT, OBJECT_CLASS_NAME); // add to role- system, mapping and transformation to attribute 'memberOf' - Distinguished Name. | in linked situation if DN is not changed, it is not necessary change even automatic role
+          addResource(roleId, memberOfAttributeName, transformationScript, objectClassNameGlobal); // add to role- system, mapping and transformation to attribute 'memberOf' - Distinguished Name. | in linked situation if DN is not changed, it is not necessary change even automatic role
 
           addAutomaticRoleOrganization(name, role); // create automatic roles by organization structure
 
@@ -571,7 +611,7 @@ import org.springframework.data.domain.Page;
         }
       </script>
     </scriptTask>
-    <sequenceFlow id="flow18" sourceRef="scripttask9" targetRef="scripttask12"></sequenceFlow>
+    <sequenceFlow id="flow18" sourceRef="scripttask9" targetRef="scripttask14"></sequenceFlow>
     <scriptTask id="scripttask10" name="Create automatic roles and catalog" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>
         import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType
@@ -661,6 +701,9 @@ import org.springframework.data.domain.Page;
         import java.util.UUID;
         import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
         import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
+        import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+        import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+        import java.text.MessageFormat;
 
         boolean roleAlreadyHasCatalogue(List&lt;IdmRoleCatalogueRoleDto&gt; actualCatalogues, IdmRoleCatalogueRoleDto catRoleDto) {
             for (def cat in actualCatalogues) {
@@ -694,7 +737,7 @@ import org.springframework.data.domain.Page;
           }
           IdmTreeNodeDto eav = organizationTreeNode; // treeNodeDto
         	if (eav == null){
-        		logItem.addToLog("The organization was not found for role name:" + role.getCode() + " id: " + role.getId());
+            logItem.addToLog(MessageFormat.format("The organization was not found for role name: [{0}] id: [{1}]", role.getCode(), role.getId()));
         		return;
         	}
           IdmRoleTreeNodeDto treeNode = new IdmRoleTreeNodeDto();
@@ -747,105 +790,40 @@ import org.springframework.data.domain.Page;
         // transformationScript - what will be put into eav as value (return "cn=..,ou=..,dn=.."")
         // objectClassName - name of schema (__ACCOUNT__)
         def addResource(UUID roleId, String attributeName, String transformationScript, String objectClassName) {
-          if (SYSTEM_CODE_FOR_ROLE_MAPPING == null) {
+          if (systemCodeForRoleMapping == null) {
             return;
           }
-          UUID systemId = defaultSysSystemService.getByCode(SYSTEM_CODE_FOR_ROLE_MAPPING).getId();
+          UUID systemId = defaultSysSystemService.getByCode(systemCodeForRoleMapping).getId();
           defaultSysRoleSystemAttributeService.addRoleMappingAttribute(systemId, roleId, attributeName, transformationScript, objectClassName);
-        }
-
-        def resolveMembers(roleId, membersAttribute) { // resolving membership - if some identities are already part of this group
-            String formAttribute = DISTINGUISHED_NAME_FORM_ATTRIBUTE_IDENTITY_CODE;
-            if (formAttribute == null || membersAttribute == null) {
-              logItem.addToLog("RESOLVING MEMBERS FOR " + roleId + ", " + membersAttribute + "is skipped");
-              return;
-            }
-            logItem.addToLog("RESOLVING MEMBERS FOR " + roleId + ", " + membersAttribute);
-            for (member in membersAttribute.getValues()){
-                // add role to users main ppv
-                def memberId = resolveMemberId(member);
-                def contract = identityContractService.getPrimeContract(memberId);
-        				if (contract == null) { // skip if identity does not have a contract
-                  logItem.addToLog("User  " + membersAttribute + " does not have valid contract for role: " + roleId);
-        					//continue;
-        					return;
-        				}
-                if (memberId &amp;&amp; !hasUserRoleAssignedOnMainPosition(roleId, memberId)) {
-                    addRoleToUser(roleId,memberId, contract)
-                }
-            }
-        }
-
-        def resolveMemberId(member) {
-            def owners = formService.findOwners(IdmIdentityDto.class, DISTINGUISHED_NAME_FORM_ATTRIBUTE_IDENTITY_CODE, member, null)?.getContent();
-            return Optional.ofNullable(owners).orElse(Collections.&amp;emptyList()).stream()
-                    .map({o -&gt; o.getId()})
-                    .findAny()
-                    .orElse(null);
-        }
-
-        def addRoleToUser(roleId, userId, contract) {
-            def primeContract = contract;
-            def operation = ConceptRoleRequestOperation.ADD;
-            def roleRequest = new IdmRoleRequestDto();
-            roleRequest.setApplicant(userId);
-            roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
-            roleRequest.setExecuteImmediately(true);
-            roleRequest = roleRequestService.save(roleRequest);
-            IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
-            conceptRoleRequest.setRoleRequest(roleRequest.getId());
-            conceptRoleRequest.setIdentityContract(primeContract?.getId());
-            conceptRoleRequest.setValidFrom(primeContract?.getValidFrom());
-            conceptRoleRequest.setIdentityRole(null);
-            conceptRoleRequest.setValidTill(primeContract?.getValidTill());
-            conceptRoleRequest.setRole(roleId);
-            conceptRoleRequest.setAutomaticRole(null);
-            conceptRoleRequest.setOperation(operation);
-            conceptRoleRequestService.save(conceptRoleRequest);
-            roleRequestService.startRequestInternal(roleRequest.getId(), true);
-        }
-
-        def hasUserRoleAssignedOnMainPosition(roleId, memberId) {
-            def foundRoles = identityRoleService.findAllByContract(identityContractService.getPrimeContract(memberId)?.getId());
-            Optional.ofNullable(foundRoles).orElse(Collections.&amp;emptyList).stream()
-            .anyMatch({r -&gt; r.id == roleId});
         }
 
         // ------------------------------------------------------------------------------------------------------------
 
         logItem.addToLog("SYNC finished, now for the guarantees and catalogues");
-        
+
         if(actionType.equals("CREATE_ENTITY")) {
 
-        UUID roleId = defaultAccRoleAccountService.getRoleId(accountId);
+        execution.setVariable("roleId", defaultAccRoleAccountService.getRoleId(accountId));
 
         IdmRoleDto role = roleService.get(roleId);
         role.setCanBeRequested(canBeRequested) // set option, if role can be requested by identity/user
         roleService.save(role)
 
         //
-        addResource(roleId, MEMBER_OF_ATTRIBUTE_NAME, TRANSFORMATION_SCRIPT, OBJECT_CLASS_NAME); // add to role- system, mapping and transformation to attribute 'memberOf' - Distinguished Name.
+        addResource(roleId, memberOfAttributeName, transformationScript, objectClassNameGlobal); // add to role- system, mapping and transformation to attribute 'memberOf' - Distinguished Name.
 
         addAutomaticRoleOrganization(name, role); // create automatic role by organization structure
 
         addAutomaticRoles(name, role);// reate automatic role  by attribute
 
         addCtg(role); // add role to catalog
-
-        IcAttribute membersAttribute = null;
-        for (attr in icAttributes) {
-            if (attr.getName().equals("member")) {
-                membersAttribute = attr
-            }
-        }
-        resolveMembers(roleId, membersAttribute);
         //
 
         logItem.addToLog("SYNC ${roleId} DONE");
         }
       </script>
     </scriptTask>
-    <sequenceFlow id="flow19" sourceRef="scripttask10" targetRef="scripttask12"></sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="scripttask10" targetRef="scripttask14"></sequenceFlow>
     <scriptTask id="scripttask11" name="Create item log" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 
@@ -859,42 +837,12 @@ execution.setVariable("logItem", logItem);
       <script>execution.setVariable("logItem", logItem.getLog());</script>
     </scriptTask>
     <sequenceFlow id="flow21" sourceRef="scripttask12" targetRef="endevent1"></sequenceFlow>
-    <dataObject id="canBeRequested" name="canBeRequested" itemSubjectRef="xsd:boolean">
-      <extensionElements>
-        <activiti:value>false</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="OBJECT_CLASS_NAME" name="OBJECT_CLASS_NAME" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>__ACCOUNT__</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="MEMBER_OF_ATTRIBUTE_NAME" name="MEMBER_OF_ATTRIBUTE_NAME" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>memberOf</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="DISTINGUISHEDNAME_ATTRIBUTE_NAME" name="DISTINGUISHEDNAME_ATTRIBUTE_NAME" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>EAV_ATTRIBUTE</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="STRUCTURE_FORM_ATTRIBUTE" name="STRUCTURE_FORM_ATTRIBUTE" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value></activiti:value>
-      </extensionElements>
-    </dataObject>
+    <dataObject id="STRUCTURE_FORM_ATTRIBUTE" name="STRUCTURE_FORM_ATTRIBUTE" itemSubjectRef="xsd:string"></dataObject>
     <dataObject id="CODE_OF_TYPE_STRUCTURE" name="CODE_OF_TYPE_STRUCTURE" itemSubjectRef="xsd:string">
       <extensionElements>
         <activiti:value>ORGANIZATIONS</activiti:value>
       </extensionElements>
     </dataObject>
-    <dataObject id="SYSTEM_CODE_FOR_ROLE_MAPPING" name="SYSTEM_CODE_FOR_ROLE_MAPPING" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value></activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="DISTINGUISHED_NAME_FORM_ATTRIBUTE_IDENTITY_CODE" name="DISTINGUISHED_NAME_FORM_ATTRIBUTE_IDENTITY_CODE" itemSubjectRef="xsd:string"></dataObject>
     <dataObject id="AUTO_ROLE_ORG_STRUCTURE_ENABLED" name="AUTO_ROLE_ORG_STRUCTURE_ENABLED" itemSubjectRef="xsd:boolean">
       <extensionElements>
         <activiti:value>false</activiti:value>
@@ -905,132 +853,305 @@ execution.setVariable("logItem", logItem);
         <activiti:value>false</activiti:value>
       </extensionElements>
     </dataObject>
+    <scriptTask id="scripttask13" name="Get attributes from properties" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>
+        execution.setVariable("canBeRequested", configurationService.getBooleanValue("idm.pub.acc.syncRole.role.canBeRequested", false));
+        execution.setVariable("objectClassNameGlobal", configurationService.getValue("idm.pub.acc.syncRole.system.mapping.objectClassName", "__ACCOUNT__"));
+        execution.setVariable("memberOfAttributeName", configurationService.getValue("idm.pub.acc.syncRole.system.mapping.attributeMemberOf", "ldapGroups"));
+        execution.setVariable("attributeNameOfRoleIdentificator", configurationService.getValue("idm.pub.acc.syncRole.system.mapping.attributeRoleIdentificator", "distinguishedName"));
+        execution.setVariable("systemCodeForRoleMapping", configurationService.getValue("idm.pub.acc.syncRole.provisioningOfIdentities.system.code", null));
+        execution.setVariable("identityIdentificatorFormAttributeCode", configurationService.getValue("idm.pub.acc.syncRole.identity.eav.externalIdentifier.code", null));
+        execution.setVariable("isResolveCatalogEnabled", configurationService.getBooleanValue("idm.pub.acc.syncRole.roleCatalog.ResolveCatalog", true));
+        execution.setVariable("resolveMembershipInSituationUpdateRole", configurationService.getBooleanValue("idm.pub.acc.syncRole.update.resolveMembership", false));
+        execution.setVariable("createAllRolesToOneCatalogue", configurationService.getValue("idm.pub.acc.syncRole.roles.allToOneCatalog", null));
+        execution.setVariable("attributeNameOfMembership", configurationService.getValue("idm.pub.acc.syncRole.roles.attributeNameOfMembership", "member"));
+      </script>
+    </scriptTask>
+    <sequenceFlow id="flow22" sourceRef="scripttask13" targetRef="scripttask7"></sequenceFlow>
+    <scriptTask id="scripttask14" name="Resolve membership" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>
+              import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType
+              import eu.bcvsolutions.idm.acc.domain.SystemOperationType
+              import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto
+              import eu.bcvsolutions.idm.acc.service.api.AccAccountService
+              import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService
+              import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService
+              import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService
+              import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService
+              import eu.bcvsolutions.idm.acc.service.api.SysSystemService
+              import eu.bcvsolutions.idm.acc.service.impl.DefaultSysRoleSystemAttributeService
+              import eu.bcvsolutions.idm.acc.service.impl.DefaultSysSystemService
+              import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto
+              import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto
+              import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto
+              import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter
+              import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter
+              import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter
+              import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+              import eu.bcvsolutions.idm.core.model.entity.IdmRole
+              import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue
+              import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee
+              import eu.bcvsolutions.idm.core.api.service.IdmIdentityService
+              import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService
+              import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService
+              import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+              import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleCatalogueRoleService
+              import eu.bcvsolutions.idm.ic.api.IcAttribute
+              import groovy.transform.Field
+              import groovy.transform.TypeChecked
+              import org.apache.commons.mail.Email
+              import org.slf4j.Logger
+              import org.slf4j.LoggerFactory
+              import org.springframework.data.domain.Page
+              import org.springframework.data.domain.PageRequest
+              import eu.bcvsolutions.idm.acc.dto.*
+              import eu.bcvsolutions.idm.acc.dto.filter.*
+              import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation
+              import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType
+              import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto
+              import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto
+              import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter
+              import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService
+              import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService
+              import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService
+              import eu.bcvsolutions.idm.core.api.service.IdmRoleService
+              import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService
+              import java.util.stream.Collectors
+              import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+              import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
+              import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+              import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+              import java.util.UUID;
+              import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+              import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+              import java.text.MessageFormat;
+
+                def resolveMembers(roleId, membersAttribute) { // resolving membership - if some identities are already part of this group
+                    String formAttribute = identityIdentificatorFormAttributeCode;
+                    if (formAttribute == null || membersAttribute == null) {
+                      logItem.addToLog(MessageFormat.format("Resolving members for [{0}], [{1}] is skipped", roleId, membersAttribute));
+                      return;
+                    }
+                    logItem.addToLog(MessageFormat.format("Resolving members for [{0}], [{1}]", roleId, membersAttribute));
+                    for (member in membersAttribute.getValues()){
+                        // add role to users main ppv
+                        def memberId = resolveMemberId(member);
+                        if (memberId == null) {
+                          logItem.addToLog(MessageFormat.format("To user [{0}] role will not be assigned (user does not have existing or valid identity)", member));// some users in AD does not have to be in IdM
+                          continue;
+                        }
+                        // filter all valid or valid in future contracts
+                        IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+                        filter.setValidNowOrInFuture(true);
+                        filter.setIdentity(memberId);
+                        List&lt;IdmIdentityContractDto&gt; contractsValidNowOrInFuture = identityContractService.find(filter, null).getContent();
+
+                        if (contractsValidNowOrInFuture.isEmpty()) { // skip if identity does not have a contract
+                          logItem.addToLog(MessageFormat.format("To user [{0}] role will not be assigned (user does not have valid contract)", member));
+                          continue; // if one user does not have contract, at least to other users we add role
+                          //return;
+                        }
+                          for(IdmIdentityContractDto contract : contractsValidNowOrInFuture) {
+                            if (!hasUserRoleAssignedOnContract(roleId, contract.getId())) {
+                            addRoleToUser(roleId,memberId, contract);
+                          }
+                        }
+                    }
+                }
+
+                def resolveMemberId(member) {
+                    def owners = formService.findOwners(IdmIdentityDto.class, identityIdentificatorFormAttributeCode, member, null)?.getContent();
+                    return Optional.ofNullable(owners).orElse(Collections.&amp;emptyList()).stream()
+                            .map({o -&gt; o.getId()})
+                            .findAny()
+                            .orElse(null);
+                }
+
+                def addRoleToUser(roleId, userId, contract) {
+                    def operation = ConceptRoleRequestOperation.ADD;
+                    def roleRequest = new IdmRoleRequestDto();
+                    roleRequest.setApplicant(userId);
+                    roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
+                    roleRequest.setExecuteImmediately(true);
+                    roleRequest = roleRequestService.save(roleRequest);
+                    IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+                    conceptRoleRequest.setRoleRequest(roleRequest.getId());
+                    conceptRoleRequest.setIdentityContract(contract?.getId());
+                    conceptRoleRequest.setIdentityRole(null);
+                    conceptRoleRequest.setRole(roleId);
+                    conceptRoleRequest.setAutomaticRole(null);
+                    conceptRoleRequest.setOperation(operation);
+                    conceptRoleRequestService.save(conceptRoleRequest);
+                    roleRequestService.startRequestInternal(roleRequest.getId(), true);
+                }
+
+                def hasUserRoleAssignedOnContract(roleId, contractId) {
+                    def foundRoles = identityRoleService.findAllByContract(contractId);
+                    Optional.ofNullable(foundRoles).orElse(Collections.&amp;emptyList).stream()
+                    .anyMatch({r -&gt; r.id == roleId});
+                }
+                //_____________________________________________________________________
+
+                if(actionType.equals("CREATE_ENTITY") || resolveMembershipInSituationUpdateRole) {
+                  if(roleId != null) {
+                    logItem.addToLog("Info - membership of role will be resolved");
+                    IcAttribute membersAttribute = null;
+                    for (attr in icAttributes) {
+                      if (attr.getName().equals(attributeNameOfMembership)) {
+                          membersAttribute = attr
+                        }
+                      }
+                      resolveMembers(roleId, membersAttribute);
+                  } else {
+                    logItem.addToLog("Info - membership of role is canceled, role not found");
+                  }
+              } else {
+                logItem.addToLog("Info - membership of role is skipped");
+              }
+
+      </script>
+    </scriptTask>
+    <sequenceFlow id="flow23" sourceRef="scripttask14" targetRef="scripttask12"></sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_syncRoleAd">
-    <bpmndi:BPMNPlane bpmnElement="syncRoleAd" id="BPMNPlane_syncRoleAd">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_syncRoleLdap">
+    <bpmndi:BPMNPlane bpmnElement="syncRoleLdap" id="BPMNPlane_syncRoleLdap">
       <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
-        <omgdc:Bounds height="77.0" width="161.0" x="900.0" y="120.0"></omgdc:Bounds>
+        <omgdc:Bounds height="77.0" width="161.0" x="1048.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
-        <omgdc:Bounds height="77.0" width="161.0" x="900.0" y="252.0"></omgdc:Bounds>
+        <omgdc:Bounds height="77.0" width="161.0" x="1048.0" y="252.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask3" id="BPMNShape_scripttask3">
-        <omgdc:Bounds height="77.0" width="161.0" x="900.0" y="458.0"></omgdc:Bounds>
+        <omgdc:Bounds height="77.0" width="161.0" x="1048.0" y="458.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="1295.0" y="479.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="1585.0" y="110.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="83.0" y="60.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="36.0" y="60.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
-        <omgdc:Bounds height="40.0" width="40.0" x="770.0" y="271.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="918.0" y="271.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask4" id="BPMNShape_scripttask4">
-        <omgdc:Bounds height="63.0" width="125.0" x="620.0" y="260.0"></omgdc:Bounds>
+        <omgdc:Bounds height="63.0" width="125.0" x="768.0" y="260.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask5" id="BPMNShape_scripttask5">
-        <omgdc:Bounds height="71.0" width="138.0" x="460.0" y="256.0"></omgdc:Bounds>
+        <omgdc:Bounds height="71.0" width="138.0" x="608.0" y="256.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask6" id="BPMNShape_scripttask6">
-        <omgdc:Bounds height="73.0" width="147.0" x="280.0" y="251.0"></omgdc:Bounds>
+        <omgdc:Bounds height="73.0" width="147.0" x="428.0" y="251.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask7" id="BPMNShape_scripttask7">
-        <omgdc:Bounds height="55.0" width="105.0" x="150.0" y="260.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="298.0" y="260.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
-        <omgdc:Bounds height="40.0" width="40.0" x="80.0" y="267.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="33.0" y="267.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask8" id="BPMNShape_scripttask8">
-        <omgdc:Bounds height="71.0" width="162.0" x="900.0" y="350.0"></omgdc:Bounds>
+        <omgdc:Bounds height="71.0" width="162.0" x="1048.0" y="350.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask9" id="BPMNShape_scripttask9">
-        <omgdc:Bounds height="66.0" width="105.0" x="1130.0" y="280.0"></omgdc:Bounds>
+        <omgdc:Bounds height="84.0" width="121.0" x="1270.0" y="267.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask10" id="BPMNShape_scripttask10">
-        <omgdc:Bounds height="77.0" width="105.0" x="1130.0" y="120.0"></omgdc:Bounds>
+        <omgdc:Bounds height="77.0" width="105.0" x="1278.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask11" id="BPMNShape_scripttask11">
-        <omgdc:Bounds height="55.0" width="105.0" x="48.0" y="157.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="1.0" y="180.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask12" id="BPMNShape_scripttask12">
-        <omgdc:Bounds height="55.0" width="105.0" x="1260.0" y="285.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="1550.0" y="285.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask13" id="BPMNShape_scripttask13">
+        <omgdc:Bounds height="63.0" width="138.0" x="118.0" y="256.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask14" id="BPMNShape_scripttask14">
+        <omgdc:Bounds height="68.0" width="105.0" x="1430.0" y="196.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
-        <omgdi:waypoint x="1061.0" y="290.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1130.0" y="313.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1209.0" y="290.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1270.0" y="309.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
-        <omgdi:waypoint x="1061.0" y="158.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1130.0" y="158.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1209.0" y="158.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1278.0" y="158.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
-        <omgdi:waypoint x="1062.0" y="385.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1182.0" y="346.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1210.0" y="385.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1330.0" y="351.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
-        <omgdi:waypoint x="790.0" y="271.0"></omgdi:waypoint>
-        <omgdi:waypoint x="790.0" y="158.0"></omgdi:waypoint>
-        <omgdi:waypoint x="900.0" y="158.0"></omgdi:waypoint>
+        <omgdi:waypoint x="938.0" y="271.0"></omgdi:waypoint>
+        <omgdi:waypoint x="938.0" y="158.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1048.0" y="158.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
-        <omgdi:waypoint x="810.0" y="291.0"></omgdi:waypoint>
-        <omgdi:waypoint x="900.0" y="290.0"></omgdi:waypoint>
+        <omgdi:waypoint x="958.0" y="291.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1048.0" y="290.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
-        <omgdi:waypoint x="790.0" y="311.0"></omgdi:waypoint>
-        <omgdi:waypoint x="789.0" y="385.0"></omgdi:waypoint>
-        <omgdi:waypoint x="900.0" y="385.0"></omgdi:waypoint>
+        <omgdi:waypoint x="938.0" y="311.0"></omgdi:waypoint>
+        <omgdi:waypoint x="937.0" y="385.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1048.0" y="385.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
-        <omgdi:waypoint x="100.0" y="307.0"></omgdi:waypoint>
-        <omgdi:waypoint x="99.0" y="496.0"></omgdi:waypoint>
-        <omgdi:waypoint x="749.0" y="496.0"></omgdi:waypoint>
-        <omgdi:waypoint x="900.0" y="496.0"></omgdi:waypoint>
+        <omgdi:waypoint x="53.0" y="307.0"></omgdi:waypoint>
+        <omgdi:waypoint x="53.0" y="496.0"></omgdi:waypoint>
+        <omgdi:waypoint x="897.0" y="496.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1048.0" y="496.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
-        <omgdi:waypoint x="745.0" y="291.0"></omgdi:waypoint>
-        <omgdi:waypoint x="770.0" y="291.0"></omgdi:waypoint>
+        <omgdi:waypoint x="893.0" y="291.0"></omgdi:waypoint>
+        <omgdi:waypoint x="918.0" y="291.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
-        <omgdi:waypoint x="427.0" y="287.0"></omgdi:waypoint>
-        <omgdi:waypoint x="460.0" y="291.0"></omgdi:waypoint>
+        <omgdi:waypoint x="575.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="608.0" y="291.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
-        <omgdi:waypoint x="598.0" y="291.0"></omgdi:waypoint>
-        <omgdi:waypoint x="620.0" y="291.0"></omgdi:waypoint>
+        <omgdi:waypoint x="746.0" y="291.0"></omgdi:waypoint>
+        <omgdi:waypoint x="768.0" y="291.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
-        <omgdi:waypoint x="120.0" y="287.0"></omgdi:waypoint>
-        <omgdi:waypoint x="150.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="73.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="118.0" y="287.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
-        <omgdi:waypoint x="255.0" y="287.0"></omgdi:waypoint>
-        <omgdi:waypoint x="280.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="403.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="428.0" y="287.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
-        <omgdi:waypoint x="980.0" y="458.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1312.0" y="340.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1128.0" y="458.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1602.0" y="340.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
-        <omgdi:waypoint x="100.0" y="95.0"></omgdi:waypoint>
-        <omgdi:waypoint x="100.0" y="157.0"></omgdi:waypoint>
+        <omgdi:waypoint x="53.0" y="95.0"></omgdi:waypoint>
+        <omgdi:waypoint x="53.0" y="180.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
-        <omgdi:waypoint x="1235.0" y="313.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1260.0" y="312.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1391.0" y="309.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1482.0" y="264.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
-        <omgdi:waypoint x="1182.0" y="197.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1312.0" y="285.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1383.0" y="158.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1482.0" y="196.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
-        <omgdi:waypoint x="100.0" y="212.0"></omgdi:waypoint>
-        <omgdi:waypoint x="100.0" y="267.0"></omgdi:waypoint>
+        <omgdi:waypoint x="53.0" y="235.0"></omgdi:waypoint>
+        <omgdi:waypoint x="53.0" y="267.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
-        <omgdi:waypoint x="1312.0" y="340.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1312.0" y="479.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1602.0" y="285.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1602.0" y="145.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="256.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="298.0" y="287.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
+        <omgdi:waypoint x="1482.0" y="264.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1602.0" y="285.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

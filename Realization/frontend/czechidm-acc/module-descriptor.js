@@ -86,7 +86,7 @@ module.exports = {
           {
             'id': 'system-roles',
             'type': 'TAB',
-            'icon': 'fa:universal-access',
+            'icon': 'component:roles',
             'labelKey': 'acc:content.systemRoles.title',
             'titleKey': 'acc:content.systemRoles.header',
             'order': 55,

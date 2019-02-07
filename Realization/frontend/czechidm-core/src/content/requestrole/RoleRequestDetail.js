@@ -12,6 +12,7 @@ import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import RoleConceptTable from './RoleConceptTable';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
+import SearchParameters from '../../domain/SearchParameters';
 //
 const uiKey = 'role-request';
 const uiKeyAttributes = 'concept-role-requests';
@@ -551,6 +552,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         }
       }
     }
+    const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
 
     return (
       <div>
@@ -569,9 +571,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           <Basic.Panel rendered={ showRequestDetail }>
             <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
               <Basic.Row>
-                <div className="col-lg-6">
-                  {this._getApplicantAndImplementer(request)}
-                </div>
+                <Basic.Col lg={ 6 }>
+                  { this._getApplicantAndImplementer(request) }
+                </Basic.Col>
               </Basic.Row>
               <Basic.EnumLabel
                 ref="state"
@@ -581,21 +583,21 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 ref="executeImmediately"
                 hidden={!_adminMode}
                 label={this.i18n('entity.RoleRequest.executeImmediately')}/>
-              <Basic.TextField
-                ref="wfProcessId"
-                hidden={!_adminMode}
-                readOnly
-                label={this.i18n('entity.RoleRequest.wfProcessId')}/>
+              <Basic.LabelWrapper
+                rendered={ _adminMode && request.wfProcessId }
+                label={this.i18n('entity.RoleRequest.wfProcessId')}>
+                <Advanced.WorkflowProcessInfo entityIdentifier={ request.wfProcessId } entity={ request._embedded ? request._embedded.wfProcessId : null }/>
+              </Basic.LabelWrapper>
               <Basic.TextField
                 ref="currentActivity"
                 hidden={!_adminMode}
                 readOnly
                 label={this.i18n('entity.RoleRequest.currentActivity')}/>
-              <Basic.TextField
-                ref="candicateUsers"
-                hidden={!_adminMode}
-                readOnly
-                label={this.i18n('entity.RoleRequest.candicateUsers')}/>
+              <Basic.LabelWrapper
+                label={ this.i18n('entity.RoleRequest.candicateUsers') }
+                rendered={ _adminMode && request.candicateUsers }>
+                <Advanced.IdentitiesInfo identities={ request.candicateUsers } maxEntry={ 5 } />
+              </Basic.LabelWrapper>
               <Basic.TextArea
                 ref="log"
                 rows={ 8 }
@@ -611,6 +613,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             <div style={{ padding: '15px 15px 0 15px' }}>
               {
                 this._renderRoleConceptTable(request, true, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles, showLoadingButtonRemove)
+              }
+              {
+                this._renderRoleConceptChangesTable(request, forceSearchParameters, _adminMode)
               }
             </div>
             <Basic.PanelFooter>

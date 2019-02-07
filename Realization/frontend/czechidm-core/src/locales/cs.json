@@ -891,7 +891,7 @@
     "role-request": {
       "header": "Žádosti o změnu rolí",
       "creator": {
-        "header": "Žádosti, které jsem vytvořil(a)"
+        "header": "Mnou vytvořené žádosti"
       },
       "applicant": {
         "header": "Žádosti vytvořené pro mě"

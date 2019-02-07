@@ -444,7 +444,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           ref="applicant"
           label={this.i18n('entity.RoleRequest.applicant')}>
           <Advanced.IdentityInfo
-            username={request && request.applicant}
+            entityIdentifier={ request && request.applicant }
             showLoading={!request}/>
         </Basic.LabelWrapper>
 

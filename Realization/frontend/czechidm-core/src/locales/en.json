@@ -2591,8 +2591,7 @@
         },
         "action": {
           "save": {
-            "success_0": "N/A",
-            "success_1": "For contracted position was successfully saved authorizer [{{record}}]"
+            "success": "For contracted position was successfully saved authorizer [{{record}}]"
           }
         }
       },
@@ -4224,7 +4223,7 @@
         "help": "$t(entity.LongRunningTask.instanceId.help)"
       },
       "processedOrder": {
-        "label": "Zpracované pořadí"
+        "label": "Processed order"
       },
       "executeDate": {
         "label": "Execute date",

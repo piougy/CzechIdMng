@@ -2642,8 +2642,7 @@
         },
         "action": {
           "save": {
-            "success_0": "N/A",
-            "success_1": "Pro pracovní pozici byl úspěšně uložen vedoucí (odpovědná osoba) [{{record}}]"
+            "success": "Pro pracovní pozici byl úspěšně uložen vedoucí (odpovědná osoba) [{{record}}]"
           }
         }
       },

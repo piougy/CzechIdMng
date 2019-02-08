@@ -595,13 +595,13 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.RoleRequest.currentActivity')}/>
               <Basic.LabelWrapper
                 label={ this.i18n('entity.RoleRequest.candicateUsers') }
-                rendered={ _adminMode && request.candicateUsers }>
+                rendered={ (_adminMode && request.candicateUsers && request.candicateUsers.length > 0) === true ? true : false }>
                 <Advanced.IdentitiesInfo identities={ request.candicateUsers } maxEntry={ 5 } />
               </Basic.LabelWrapper>
               <Basic.TextArea
                 ref="log"
                 rows={ 8 }
-                hidden={!_adminMode}
+                hidden
                 readOnly
                 label={this.i18n('entity.RoleRequest.log')}/>
               <Basic.TextArea

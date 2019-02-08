@@ -840,7 +840,7 @@
         "tooltip": "Hodnota tohoto atributu, bude na koncový systém poslána vždy a to i když nebyla změněna."
       },
       "disabledAttribute": {
-        "label": "Je deaktivován",
+        "label": "Neaktivní",
         "tooltip": "Pokud je atribut deaktivován nebude se ve výchozím stavu využívat pro provisioning. Deaktivovaný atribut je ovšem možné přetížit a aktivovat v rámci konkrétní role."
       },
       "cached": {
@@ -864,7 +864,7 @@
       "systemAttributeMapping": "Atribut v systému",
       "roleSystem": "Patří k roli a systému",
       "strategyType": "Strategie",
-      "disabledDefaultAttribute": "Vynechat",
+      "disabledDefaultAttribute": "Neaktivní",
       "disabledDefaultAttributeTooltip": "Pokud je zatrženo, tak nebude tento atribut propagován do koncového systému (a to i když k tomuto atributu existuje výchozí mapování).",
       "transformScriptTable": "Transformace",
       "transformScript": {

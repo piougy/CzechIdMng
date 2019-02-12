@@ -75,7 +75,7 @@
     "joi": "6.10.0",
     "jquery": "3.3.1",
     "jwt-decode": "2.1.0",
-    "lodash": "4.17.5",
+    "lodash": "4.17.11",
     "log4js": "0.6.36",
     "moment": "2.21.0",
     "normalize.less": "1.0.0",

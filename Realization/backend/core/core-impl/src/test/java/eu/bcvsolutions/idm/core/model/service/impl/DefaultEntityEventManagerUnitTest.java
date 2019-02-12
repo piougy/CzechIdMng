@@ -18,12 +18,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
@@ -66,6 +69,8 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	@Mock private IdmEntityStateService entityStateService;
 	@Mock private EventConfiguration eventConfiguration;
 	@Mock private IdmEntityEventRepository entityEventRepository;
+	@Spy private ModelMapper modelMapper = new ModelMapper();
+	@Spy private ObjectMapper mapper = new ObjectMapper();
 	//
 	@InjectMocks private DefaultEntityEventManager eventManager;
 	
@@ -396,6 +401,115 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		Assert.assertTrue(eventManager.isDuplicate(highEventOne, highEventTwo));
 		Assert.assertFalse(eventManager.isDuplicate(highEventOne, highEventThree));
 		Assert.assertFalse(eventManager.isDuplicate(highEventTwo, highEventThree));
+	}
+	
+	@Test
+	public void testIsDuplicate() {
+		DateTime created = new DateTime();
+		UUID ownerId = UUID.randomUUID();
+		//
+		IdmEntityEventDto eventOne = new IdmEntityEventDto(UUID.randomUUID());
+		eventOne.setCreated(created.minusMillis(11));
+		eventOne.setPriority(PriorityType.HIGH);
+		eventOne.setOwnerId(ownerId);	
+		eventOne.setParentEventType("one");
+		eventOne.setEventType("type");
+		//
+		IdmEntityEventDto eventTwo = new IdmEntityEventDto(UUID.randomUUID());
+		eventTwo.setCreated(created.minusMillis(21));
+		eventTwo.setPriority(PriorityType.HIGH);
+		eventTwo.setOwnerId(ownerId);
+		eventTwo.setEventType("type");
+		eventTwo.setParentEventType("one");
+		//
+		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventTwo.setParentEventType("two");
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventTwo.setParentEventType("one");
+		eventTwo.setEventType("type2");
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventTwo.setEventType("type");
+		eventOne.getProperties().put("one", "one");
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventTwo.getProperties().put("one", "one");
+		//
+		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventTwo.getProperties().put("one", "one2");
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventTwo.getProperties().put("one", "one");
+		//
+		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		IdmIdentityDto originalSourceOne = new IdmIdentityDto(UUID.randomUUID());
+		eventOne.setOriginalSource(originalSourceOne);
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventOne.setOriginalSource(null);
+		eventTwo.setOriginalSource(originalSourceOne);
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(eventManager.isDuplicate(eventTwo, eventOne));
+		//
+		eventOne.setOriginalSource(new IdmIdentity(originalSourceOne.getId()));
+		eventTwo.setOriginalSource(originalSourceOne);
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventOne.setOriginalSource(new IdmIdentity(originalSourceOne.getId()));
+		eventTwo.setOriginalSource(new IdmIdentity(UUID.randomUUID()));
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventOne.setOriginalSource(new IdmIdentity(originalSourceOne.getId()));
+		eventTwo.setOriginalSource(new IdmIdentity(originalSourceOne.getId()));
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventOne.setOriginalSource(originalSourceOne);
+		eventTwo.setOriginalSource(new IdmIdentity(originalSourceOne.getId()));
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		eventOne.setOriginalSource(originalSourceOne);
+		eventTwo.setOriginalSource(originalSourceOne);
+		//
+		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		IdmIdentityDto originalSourceTwo = new IdmIdentityDto(originalSourceOne.getId());
+		eventTwo.setOriginalSource(originalSourceTwo);
+		//
+		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		IdmIdentityDto embedded =  new IdmIdentityDto(UUID.randomUUID());
+		originalSourceOne.getEmbedded().put("embedded", embedded);
+		//
+		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertEquals(embedded, originalSourceOne.getEmbedded().get("embedded"));
+		//
+		originalSourceTwo.setFirstName("hoho");
+		//
+		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		originalSourceOne.setFirstName("hoho");
+		//
+		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		//
+		// audit fields are ignored
+		originalSourceOne.setModified(new DateTime());
+		//
+		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		
 	}
 	
 	@Test

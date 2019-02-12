@@ -230,8 +230,8 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 		return embedded;
 	}
 
-	public void setEmbedded(Map<String, BaseDto> emmbedded) {
-		this.embedded = emmbedded;
+	public void setEmbedded(Map<String, BaseDto> embedded) {
+		this.embedded = embedded;
 	}
 
 	@Override

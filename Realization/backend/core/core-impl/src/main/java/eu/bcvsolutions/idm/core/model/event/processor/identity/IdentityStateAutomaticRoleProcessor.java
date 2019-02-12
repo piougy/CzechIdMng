@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -87,7 +88,7 @@ public class IdentityStateAutomaticRoleProcessor extends CoreEventProcessor<IdmI
 	 * @param originalDto
 	 * @return
 	 */
-	private boolean changeStateToValid(IdmIdentityDto newIdentity, IdmIdentityDto originalDto) {
+	private boolean changeStateToValid(Disableable newIdentity, Disableable originalDto) {
 		if (originalDto == null) {
 			return true;
 		}

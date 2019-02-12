@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -162,7 +163,12 @@ public class DefaultProvisioningService implements ProvisioningService {
 			 return CollectionUtils.isEqualCollection((Collection<?>) idmValue,
 					(Collection<?>) icValueTransformed);
 		}
-
+		
+		// For array of bytes we need to use equals on Arrays
+		if (byte[].class.getName().equals(schemaAttribute.getClassType())) {
+			return Arrays.equals((byte[]) idmValue, (byte[]) icValueTransformed);
+		}
+		
 		return Objects.equals(idmValue, icValueTransformed);
 	}
 

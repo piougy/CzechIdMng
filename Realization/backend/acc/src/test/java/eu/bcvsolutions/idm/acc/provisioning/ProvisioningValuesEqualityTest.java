@@ -125,4 +125,28 @@ public class ProvisioningValuesEqualityTest extends AbstractIntegrationTest {
 		assertFalse(provisioningService.isAttributeValueEquals(idmValue, systemValue, schemaAttribute));
 	}
 	
+	@Test
+	public void testEqualsArrays( ) {
+		SysSchemaAttributeDto schemaAttribute = new SysSchemaAttributeDto();
+		schemaAttribute.setClassType(byte[].class.getName());
+		
+		Object idmValue = "ABC".getBytes();
+		Object systemValue ="ABC".getBytes();
+		
+		// Same arrays -> true
+		assertTrue(provisioningService.isAttributeValueEquals(idmValue, systemValue, schemaAttribute));
+	}
+	
+	@Test
+	public void testNoEqualsArrays( ) {
+		SysSchemaAttributeDto schemaAttribute = new SysSchemaAttributeDto();
+		schemaAttribute.setClassType(byte[].class.getName());
+		
+		Object idmValue = "ABCD".getBytes();
+		Object systemValue ="ABC".getBytes();
+		
+		// Not same arrays -> false
+		assertFalse(provisioningService.isAttributeValueEquals(idmValue, systemValue, schemaAttribute));
+	}
+	
 }

@@ -1143,7 +1143,7 @@
       "save": {
         "success": "Politika [{{name}}] byla úspěšně uložena."
       },
-      "rulesHelp": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním počtu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
+      "rulesHelp": "Pravidla označená jako nepovinná budou kontrolována v závislosti na minimálním počtu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
       "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné.",
       "prefixAndSuffixGeneratedHelp": "Prefix ani suffix není započítáván do celkové délky hesla a do dalších validací při generování. Při použití prefixu a suffixu může například dojít k vygenerování hesla delšího než maximální délka."
     },
@@ -3041,7 +3041,7 @@
           "processDefinitionKey": "$t(entity.WorkflowHistoricProcessInstance.processDefinitionKey)",
           "id": "$t(entity.WorkflowHistoricProcessInstance.id)",
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
-          "tasks": "Úživatelské úkoly procesu",
+          "tasks": "Uživatelské úkoly procesu",
           "subprocesses": "Podřízené procesy",
           "filter": {
             "processDefinition":{
@@ -3786,7 +3786,7 @@
       },
       "recipients": {
         "label": "Příjemci",
-        "help": "Notifikace bude zaslána i na tyto příjemce. Vylnění příjemců je povinné, pokud je zapnuto přesměrování."
+        "help": "Notifikace bude zaslána i na tyto příjemce. Vyplnění příjemců je povinné, pokud je zapnuto přesměrování."
       }
     },
     "Email": {
@@ -3971,11 +3971,11 @@
       },
       "enchancedControl": {
         "label": "Rozšířená kontrola",
-        "help": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla."
+        "help": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulá hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla."
       },
       "minRulesToFulfill": {
         "label": "Minimum pravidel pro splnění politiky",
-        "help": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní."
+        "help": "Minimální počet pravidel pro splnění politiky; pokud heslo splní minimální počet, je označeno jako validní."
       },
       "maxHistorySimilar": {
         "label": "Počet zpětně kontrolovaných hesel na shodu",
@@ -3983,7 +3983,7 @@
       },
       "blockLoginTime": {
         "label": "Doba blokace přihlášení (vteřiny)",
-        "help": "Po zadaní X neúspěšných pokusů bude uživateli blokováno přihlášení."
+        "help": "Při překročení limitu neúspěšných pokusů o přihlášení bude uživateli na tuto dobu blokováno přihlášení."
       },
       "maxUnsuccessfulAttempts": {
         "label": "Maximální počet neúspěšných pokusů o přihlášení",
@@ -4007,11 +4007,11 @@
       },
       "prefix": {
         "label": "Prefix",
-        "help": "Prefix bude automaticky doplněn na začátek vygenerované části. Pro vynechání prefixu, nechte pole prázdné."
+        "help": "Prefix bude automaticky doplněn na začátek vygenerované části. Pro vynechání prefixu nechte pole prázdné."
       },
       "suffix": {
         "label": "Suffix",
-        "help": "Suffix bude automaticky doplněn na konec vygenerované části. Pro vynechání suffixu, nechte pole prázdné."
+        "help": "Suffix bude automaticky doplněn na konec vygenerované části. Pro vynechání suffixu nechte pole prázdné."
       }
     },
     "Module": {

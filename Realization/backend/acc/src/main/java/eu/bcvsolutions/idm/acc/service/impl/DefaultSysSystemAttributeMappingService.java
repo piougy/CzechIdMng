@@ -631,8 +631,7 @@ public class DefaultSysSystemAttributeMappingService extends
 				icValue = icAttribute.getValue();
 			}
 		}
-		Object transformedValue = this.transformValueFromResource(icValue, attribute, icAttributes);
-		return transformedValue;
+		return this.transformValueFromResource(icValue, attribute, icAttributes);
 	}
 
 	@Override

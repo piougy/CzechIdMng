@@ -26,10 +26,17 @@ public class IdmAttachmentWithDataDto extends IdmAttachmentDto {
 	private byte[] data;
 
 	public byte[] getData() {
-		return data;
+		if (data != null) {
+			return data.clone();
+		}
+		return null;
 	}
 
 	public void setData(byte[] data) {
-		this.data = data;
+		if (data != null) {
+			this.data = data.clone();
+		} else {
+			this.data = null;
+		}
 	}
 }

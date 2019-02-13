@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.beans.IntrospectionException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
@@ -12,6 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +31,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.IdmAttachmentWithDataDto;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
@@ -56,6 +60,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -66,6 +71,8 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -103,6 +110,9 @@ public class DefaultSysSystemAttributeMappingService extends
 	private SysAttributeControlledValueService attributeControlledValueService;
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
+	@Autowired
+	private AttachmentManager attachmentManager;
+	
 
 	@Autowired
 	public DefaultSysSystemAttributeMappingService(SysSystemAttributeMappingRepository repository,
@@ -187,6 +197,13 @@ public class DefaultSysSystemAttributeMappingService extends
 			extraClass.add(AbstractScriptEvaluator.Builder.class);
 			//
 			return groovyScriptService.evaluate(script, variables, extraClass);
+		}
+		
+		// If script is empty and value is instance of IdmAttachmentWithDataDto, then
+		// attachment's data (array of bytes) will be returned.
+		if (value instanceof IdmAttachmentWithDataDto) {
+			IdmAttachmentWithDataDto attachmentWithDataDto = (IdmAttachmentWithDataDto) value;
+			return attachmentWithDataDto.getData();
 		}
 
 		return value;
@@ -517,7 +534,7 @@ public class DefaultSysSystemAttributeMappingService extends
 				// Multiple value extended attribute
 				List<Object> values = new ArrayList<>();
 				formValues.stream().forEachOrdered(formValue -> {
-					values.add(formValue.getValue());
+					values.add(this.resolveFormValue(formValue));
 				});
 				idmValue = values;
 			} else {
@@ -534,7 +551,7 @@ public class DefaultSysSystemAttributeMappingService extends
 						idmValue = confidentialValue;
 					}
 				} else {
-					idmValue = formValue.getValue();
+					idmValue = this.resolveFormValue(formValue);
 				}
 			}
 		}
@@ -614,8 +631,7 @@ public class DefaultSysSystemAttributeMappingService extends
 				icValue = icAttribute.getValue();
 			}
 		}
-		Object transformedValue = this.transformValueFromResource(icValue, attribute, icAttributes);
-		return transformedValue;
+		return this.transformValueFromResource(icValue, attribute, icAttributes);
 	}
 
 	@Override
@@ -752,6 +768,72 @@ public class DefaultSysSystemAttributeMappingService extends
 		// Save results
 		attributeControlledValueService.setControlledValues(attributeMapping, controlledAttributeValues);
 		return controlledAttributeValues;
+	}
+	
+	/**
+	 * Resolve form value
+	 * 
+	 * @param formValue
+	 * @return
+	 */
+	private Object resolveFormValue(IdmFormValueDto formValue) {
+		if(formValue == null) {
+			return null;
+		}
+		Serializable value = formValue.getValue();
+		
+		// If EAV attribute is Attachment and value is UUID, then attachment will be
+		// loaded and transformed to IdmAttachmentWithDataDto. Value will be replaced by
+		// IdmAttachmentWithDataDto.
+		if (PersistentType.ATTACHMENT == formValue.getPersistentType() && value instanceof UUID) {
+			IdmAttachmentDto attachmentDto = attachmentManager.get((UUID) value);
+			
+			// Convert attachment to attachment with data
+			IdmAttachmentWithDataDto attachmentWithDataDto = this.convertAttachment(attachmentDto);
+			InputStream inputStream = attachmentManager.getAttachmentData((UUID) value);
+			if (inputStream != null) {
+				try {
+					byte[] bytes = IOUtils.toByteArray(inputStream);
+					attachmentWithDataDto.setData(bytes);
+				} catch (IOException e) {
+					throw new CoreException(e);
+				}
+			}
+			return attachmentWithDataDto;
+		}
+		
+		return value;
+	}
+
+	/**
+	 * Convert attachment to {@link IdmAttachmentWithDataDto}
+	 * 
+	 * @param attachmentDto
+	 * @return
+	 */
+	private IdmAttachmentWithDataDto convertAttachment(IdmAttachmentDto attachmentDto) {
+		if(attachmentDto == null) {
+			return null;
+		}
+		
+		IdmAttachmentWithDataDto data = new IdmAttachmentWithDataDto(attachmentDto);
+		data.setAttachmentType(attachmentDto.getAttachmentType());
+		data.setContentId(attachmentDto.getContentId());
+		data.setContentPath(attachmentDto.getContentPath());
+		data.setDescription(attachmentDto.getDescription());
+		data.setEncoding(attachmentDto.getEncoding());
+		data.setFilesize(attachmentDto.getFilesize());
+		data.setId(attachmentDto.getId());
+		data.setMimetype(attachmentDto.getMimetype());
+		data.setName(attachmentDto.getName());
+		data.setNextVersion(attachmentDto.getNextVersion());
+		data.setOwnerId(attachmentDto.getOwnerId());
+		data.setOwnerState(attachmentDto.getOwnerState());
+		data.setParent(attachmentDto.getParent());
+		data.setVersionLabel(attachmentDto.getVersionLabel());
+		data.setVersionNumber(attachmentDto.getVersionNumber());
+		
+		return data;
 	}
 
 	/**

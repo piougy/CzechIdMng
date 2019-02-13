@@ -9,6 +9,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -53,6 +54,13 @@ public class IdmAttachmentDto extends AbstractDto {
 	private UUID nextVersion;
 	//
 	private transient InputStream inputData; // transient binary data for saving
+	
+	public IdmAttachmentDto() {
+	}
+	
+	public IdmAttachmentDto(Auditable auditable) {
+		super(auditable);
+	}
 
 	public String getOwnerType() {
 		return ownerType;

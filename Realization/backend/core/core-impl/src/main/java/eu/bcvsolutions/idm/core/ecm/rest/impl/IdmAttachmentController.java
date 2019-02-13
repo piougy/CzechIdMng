@@ -275,8 +275,8 @@ public class IdmAttachmentController extends AbstractReadWriteDtoController<IdmA
 	@ResponseBody
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	@ApiOperation(
-			value = "Upload CSR file for given request", 
-			nickname = "uploadCertificateRequestCsr", 
+			value = "Upload file", 
+			nickname = "uploadFile", 
 			response = IdmAttachmentDto.class, 
 			tags = { IdmAttachmentController.TAG }, 
 			notes=  "Upload file and save them as attachment.")

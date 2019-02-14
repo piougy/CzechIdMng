@@ -3,8 +3,11 @@ package eu.bcvsolutions.idm.acc.provisioning;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AssignedRoleDto;
@@ -29,8 +34,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -50,6 +61,10 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 	private SysSystemAttributeMappingService schemaAttributeMappingService;
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
+	@Autowired
+	private FormService formService;
+	@Autowired
+	private AttachmentManager attachmentManager;
 
 	@Before
 	public void init() {
@@ -188,4 +203,72 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 
 	}
 
+	@Test
+	public void testAttachment() {
+		SysSystemDto systemDto = helper.createTestResourceSystem(true);
+		SysSystemMappingDto defaultMapping = helper.getDefaultMapping(systemDto);
+
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(systemDto.getId());
+
+		List<SysSchemaAttributeDto> schemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null)
+				.getContent();
+		SysSchemaAttributeDto descriptionSchemaAttribute = schemaAttributes.stream()
+				.filter(attribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equals(attribute.getName())).findFirst()
+				.get();
+
+		SysSystemAttributeMappingDto attributeByte = new SysSystemAttributeMappingDto();
+		attributeByte.setUid(false);
+		attributeByte.setEntityAttribute(false);
+		attributeByte.setExtendedAttribute(true);
+		attributeByte.setIdmPropertyName(getHelper().createName());
+		attributeByte.setName(descriptionSchemaAttribute.getName());
+		attributeByte.setSchemaAttribute(descriptionSchemaAttribute.getId());
+		attributeByte.setSystemMapping(defaultMapping.getId());
+		// Transformation data to string
+		attributeByte.setTransformToResourceScript("if(attributeValue == null) " + System.lineSeparator()
+				+ "{return null;}" + System.lineSeparator() + " return new String(attributeValue.getData());");
+		schemaAttributeMappingService.save(attributeByte);
+		IdmRoleDto roleWithSystem = helper.createRole();
+		helper.createRoleSystem(roleWithSystem, systemDto);
+
+		// Set type of attribute to attachment
+		IdmFormAttributeDto eavAttributeByte = formService.getAttribute(IdmIdentityDto.class,
+				attributeByte.getIdmPropertyName());
+		eavAttributeByte.setPersistentType(PersistentType.ATTACHMENT);
+		eavAttributeByte = formService.saveAttribute(eavAttributeByte);
+
+		// Create attachment with content
+		String originalContent = getHelper().createName();
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
+		attachment.setName("test.txt");
+		attachment.setMimetype("text/plain");
+		attachment.setInputData(IOUtils.toInputStream(originalContent));
+		attachment.setOwnerType(AttachmentManager.TEMPORARY_ATTACHMENT_OWNER_TYPE);
+
+		attachment = attachmentManager.saveAttachment(null, attachment);
+		InputStream inputStream = attachmentManager.getAttachmentData(attachment.getId());
+		try {
+			String content = IOUtils.toString(inputStream);
+			assertEquals(originalContent, content);
+
+			// Create form value with attachment
+			IdmIdentityDto identity = helper.createIdentity();
+			formService.saveValues(identity, eavAttributeByte, Lists.newArrayList(attachment.getId()));
+
+			// Assign the system
+			helper.createIdentityRole(identity, roleWithSystem, null, null);
+			IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+			identityRoleFilter.setIdentityId(identity.getId());
+
+			TestResource resource = helper.findResource(identity.getUsername());
+			assertNotNull(resource);
+			String valueOnResource = resource.getDescrip();
+
+			String data = new String(IOUtils.toByteArray(attachmentManager.getAttachmentData(attachment.getId())));
+			assertEquals(data, valueOnResource);
+		} catch (IOException e) {
+			throw new CoreException(e);
+		}
+	}
 }

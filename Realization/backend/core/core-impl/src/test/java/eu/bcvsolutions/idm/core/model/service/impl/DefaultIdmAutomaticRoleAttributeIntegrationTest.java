@@ -53,7 +53,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 /**
  * Test for automatic roles by attribute and their rules
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractIntegrationTest {
@@ -1551,6 +1551,253 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identityContractService.save(primeContract);
 		
 		identityService.save(identity);
+	}
+
+	@Test
+	public void testChangeIndetityStateToInvalid() {
+		String testValue = "test-value-" + System.currentTimeMillis();
+		
+		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
+
+		IdmFormAttributeDto createEavAttributeIdentity = testHelper.createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.SHORTTEXT);
+		testHelper.setEavValue(identity, createEavAttributeIdentity, IdmIdentity.class, testValue + "123", PersistentType.SHORTTEXT);
+
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRoleIdentityEav = testHelper.createAutomaticRole(role.getId());
+		testHelper.createAutomaticRoleRule(automaticRoleIdentityEav.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY_EAV, null, createEavAttributeIdentity.getId(), testValue);
+		
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		
+		testHelper.setEavValue(identity, createEavAttributeIdentity, IdmIdentity.class, testValue, PersistentType.SHORTTEXT);
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
+		assertEquals(role.getId(), identityRoleDto.getRole());
+
+		primeContract.setValidTill(LocalDate.now().minusDays(5));
+		primeContract = identityContractService.save(primeContract);
+
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+	}
+
+	@Test
+	public void testChangeIndetityStateToValidSetValueBefore() {
+		String testValue = "test-value-" + System.currentTimeMillis();
+		
+		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
+		primeContract.setValidTill(LocalDate.now().minusDays(5));
+		primeContract = identityContractService.save(primeContract);
+
+		// set value before create automatic role
+		IdmFormAttributeDto createEavAttributeIdentity = testHelper.createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.SHORTTEXT);
+		testHelper.setEavValue(identity, createEavAttributeIdentity, IdmIdentity.class, testValue, PersistentType.SHORTTEXT);
+
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRoleIdentityEav = testHelper.createAutomaticRole(role.getId());
+		testHelper.createAutomaticRoleRule(automaticRoleIdentityEav.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY_EAV, null, createEavAttributeIdentity.getId(), testValue);
+		
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		
+		primeContract.setValidTill(null);
+		primeContract = identityContractService.save(primeContract);
+
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
+		assertEquals(role.getId(), identityRoleDto.getRole());
+	}
+
+	/**
+	 * Diference between method testChangeIndetityStateToValidSetValueBefore and
+	 * testChangeIndetityStateToValidSetValueAfter is with set eav value for identity before and after create automatic role
+	 */
+	@Test
+	public void testChangeIndetityStateToValidSetValueAfter() {
+		String testValue = "test-value-" + System.currentTimeMillis();
+		
+		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
+		primeContract.setValidTill(LocalDate.now().minusDays(5));
+		primeContract = identityContractService.save(primeContract);
+
+		IdmFormAttributeDto createEavAttributeIdentity = testHelper.createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.SHORTTEXT);
+
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRoleIdentityEav = testHelper.createAutomaticRole(role.getId());
+		testHelper.createAutomaticRoleRule(automaticRoleIdentityEav.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY_EAV, null, createEavAttributeIdentity.getId(), testValue);
+		
+		// set value after create automatic role
+		testHelper.setEavValue(identity, createEavAttributeIdentity, IdmIdentity.class, testValue, PersistentType.SHORTTEXT);
+
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		
+		primeContract.setValidTill(null);
+		primeContract = identityContractService.save(primeContract);
+
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
+		assertEquals(role.getId(), identityRoleDto.getRole());
+	}
+
+	@Test
+	public void testChangeIndetityStateMoreRoles() {
+		String testValueIdentityEav = "test-value-identityEav-" + System.currentTimeMillis();
+		String testValueIdentityContractEav = "test-value-identityContractEav-" + System.currentTimeMillis();
+		String testValueIdentityDescription = "test-value-identityDescription-" + System.currentTimeMillis();
+		String testValueIdentityContractDescription = "test-value-identityContractDescription-" + System.currentTimeMillis();
+		
+		IdmIdentityDto identity = testHelper.createIdentity();
+		identity.setDescription(testValueIdentityDescription);
+		identity = identityService.save(identity);
+		IdmIdentityContractDto primeContract = testHelper.getPrimeContract(identity.getId());
+		primeContract.setValidTill(LocalDate.now().minusDays(5));
+		primeContract.setDescription(testValueIdentityContractDescription);
+		primeContract = identityContractService.save(primeContract);
+
+		// set value for identity
+		IdmFormAttributeDto createEavAttributeIdentity = testHelper.createEavAttribute("testingEavIdentity" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.SHORTTEXT);
+		testHelper.setEavValue(identity, createEavAttributeIdentity, IdmIdentity.class, testValueIdentityEav, PersistentType.SHORTTEXT);
+
+		// set value for contract
+		IdmFormAttributeDto createEavAttributeIdentityContract = testHelper.createEavAttribute("testingEavContract" + System.currentTimeMillis(), IdmIdentityContract.class, PersistentType.SHORTTEXT);
+		testHelper.setEavValue(primeContract, createEavAttributeIdentityContract, IdmIdentityContract.class, testValueIdentityContractEav, PersistentType.SHORTTEXT);
+
+		IdmRoleDto roleIdentityEav = testHelper.createRole();
+		IdmRoleDto roleIdentityContractEav = testHelper.createRole();
+		IdmRoleDto roleIdentityContractDescription = testHelper.createRole();
+		IdmRoleDto roleIdentityDescription = testHelper.createRole();
+
+		IdmAutomaticRoleAttributeDto automaticRoleIdentityEav = testHelper.createAutomaticRole(roleIdentityEav.getId());
+		testHelper.createAutomaticRoleRule(automaticRoleIdentityEav.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY_EAV, null, createEavAttributeIdentity.getId(), testValueIdentityEav);
+
+		IdmAutomaticRoleAttributeDto automaticRoleIdentityContractEav = testHelper.createAutomaticRole(roleIdentityContractEav.getId());
+		testHelper.createAutomaticRoleRule(automaticRoleIdentityContractEav.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.CONTRACT_EAV, null, createEavAttributeIdentityContract.getId(), testValueIdentityContractEav);
+		
+		IdmAutomaticRoleAttributeDto automaticRoleIdentityContractDescription = testHelper.createAutomaticRole(roleIdentityContractDescription.getId());
+		testHelper.createAutomaticRoleRule(automaticRoleIdentityContractDescription.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.CONTRACT, IdmIdentityContract_.description.getName(), null, testValueIdentityContractDescription);
+		
+		IdmAutomaticRoleAttributeDto automaticRoleIdentityDescription = testHelper.createAutomaticRole(roleIdentityDescription.getId());
+		testHelper.createAutomaticRoleRule(automaticRoleIdentityDescription.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, testValueIdentityDescription);
+
+		this.recalculateSync(automaticRoleIdentityEav.getId());
+		this.recalculateSync(automaticRoleIdentityContractEav.getId());
+		this.recalculateSync(automaticRoleIdentityContractDescription.getId());
+		this.recalculateSync(automaticRoleIdentityDescription.getId());
+
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		
+		primeContract.setValidTill(null);
+		primeContract = identityContractService.save(primeContract);
+
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(4, identityRoles.size());
+
+		boolean isRoleFromIdentityEav = false;
+		boolean isRoleFromIdentityContractEav = false;
+		boolean isRoleFromIdentityDescription = false;
+		boolean isRoleFromIdentityContractDescription = false;
+		for (IdmIdentityRoleDto identityRole : identityRoles) {
+			if (identityRole.getRole().equals(roleIdentityEav.getId())) {
+				isRoleFromIdentityEav = true;
+			} else if (identityRole.getRole().equals(roleIdentityContractEav.getId())) {
+				isRoleFromIdentityContractEav = true;
+			} else if (identityRole.getRole().equals(roleIdentityContractDescription.getId())) {
+				isRoleFromIdentityDescription = true;
+			} else if (identityRole.getRole().equals(roleIdentityDescription.getId())) {
+				isRoleFromIdentityContractDescription = true;
+			} else {
+				fail();
+			}
+		}
+
+		assertTrue(isRoleFromIdentityEav);
+		assertTrue(isRoleFromIdentityContractEav);
+		assertTrue(isRoleFromIdentityDescription);
+		assertTrue(isRoleFromIdentityContractDescription);
+
+		primeContract.setDescription("newValue");
+		primeContract = identityContractService.save(primeContract);
+
+		this.recalculateSync(automaticRoleIdentityEav.getId());
+		this.recalculateSync(automaticRoleIdentityContractEav.getId());
+		this.recalculateSync(automaticRoleIdentityContractDescription.getId());
+		this.recalculateSync(automaticRoleIdentityDescription.getId());
+
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(3, identityRoles.size());
+
+		isRoleFromIdentityEav = false;
+		isRoleFromIdentityContractEav = false;
+		isRoleFromIdentityDescription = false;
+		isRoleFromIdentityContractDescription = false;
+		for (IdmIdentityRoleDto identityRole : identityRoles) {
+			if (identityRole.getRole().equals(roleIdentityEav.getId())) {
+				isRoleFromIdentityEav = true;
+			} else if (identityRole.getRole().equals(roleIdentityContractEav.getId())) {
+				isRoleFromIdentityContractEav = true;
+			} else if (identityRole.getRole().equals(roleIdentityContractDescription.getId())) {
+				isRoleFromIdentityContractDescription = true;
+			} else if (identityRole.getRole().equals(roleIdentityDescription.getId())) {
+				isRoleFromIdentityDescription = true;
+			} else {
+				fail();
+			}
+		}
+
+		assertTrue(isRoleFromIdentityEav);
+		assertTrue(isRoleFromIdentityContractEav);
+		assertTrue(isRoleFromIdentityDescription);
+		assertFalse(isRoleFromIdentityContractDescription);
+
+		primeContract.setValidTill(LocalDate.now().minusDays(5));
+		primeContract = identityContractService.save(primeContract);
+
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+
+		primeContract.setValidTill(LocalDate.now().plusDays(10));
+		primeContract = identityContractService.save(primeContract);
+
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(3, identityRoles.size());
+
+		isRoleFromIdentityEav = false;
+		isRoleFromIdentityContractEav = false;
+		isRoleFromIdentityDescription = false;
+		isRoleFromIdentityContractDescription = false;
+		for (IdmIdentityRoleDto identityRole : identityRoles) {
+			if (identityRole.getRole().equals(roleIdentityEav.getId())) {
+				isRoleFromIdentityEav = true;
+			} else if (identityRole.getRole().equals(roleIdentityContractEav.getId())) {
+				isRoleFromIdentityContractEav = true;
+			} else if (identityRole.getRole().equals(roleIdentityContractDescription.getId())) {
+				isRoleFromIdentityContractDescription = true;
+			} else if (identityRole.getRole().equals(roleIdentityDescription.getId())) {
+				isRoleFromIdentityDescription = true;
+			} else {
+				fail();
+			}
+		}
+
+		assertTrue(isRoleFromIdentityEav);
+		assertTrue(isRoleFromIdentityContractEav);
+		assertTrue(isRoleFromIdentityDescription);
+		assertFalse(isRoleFromIdentityContractDescription);
 	}
 
 	/**

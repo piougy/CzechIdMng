@@ -753,6 +753,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			icValueTransformed = attributeMappingService.transformValueFromResource(icValue,
 					transformValueFromResourceScript, icAttributes, system);
 		}
+
 		return icValueTransformed;
 	}
 

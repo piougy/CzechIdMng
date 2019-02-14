@@ -102,8 +102,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Autowired private SecurityService securityService;
 	@Autowired private EventConfiguration eventConfiguration;
 	@Autowired private ModelMapper modelMapper;
-	@Autowired 
-	@Qualifier("objectMapper") 
+	@Autowired
+	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
 
 	@Autowired
@@ -922,35 +922,35 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		if (olderEvent.getOriginalSource() == null && event.getOriginalSource() == null) {
 			return true;
 		}
-		// if all event properties match, we need to check original sources => some processors can use 
-		// previous content to processing (e.g. contract processors)
+		// If all event properties match, we need to check original sources => some processors can use 
+		// previous content to processing (e.g. contract processors).
 		if (!Objects.equal(olderEvent.getOriginalSource(), event.getOriginalSource())) {
 			return false;
 		}
 		if (!(olderEvent.getOriginalSource() instanceof AbstractDto)) {
-			// evaluated already by 'equal' method above. 
+			// Evaluated already by 'equal' method above.
 			return false;
 		}
-		// if both original sources are dtos, then we are comparing original sources (dtos) as json without embedded
+		// If both original sources are DTOs, then we are comparing original sources (DTOs) as JSON without embedded.
 		AbstractDto olderOriginalSource = (AbstractDto) olderEvent.getOriginalSource();
 		AbstractDto originalSource = (AbstractDto) event.getOriginalSource();
 		try {
-			// prevent to change event setting => defensive copy by mapper
+			// Prevent to change event setting => defensive copy by mapper.
 			AbstractDto olderOriginalSourceCopy = olderOriginalSource.getClass().newInstance();
 			modelMapper.map(olderOriginalSource, olderOriginalSourceCopy);
 			AbstractDto originalSourceCopy = originalSource.getClass().newInstance();
 			modelMapper.map(originalSource, originalSourceCopy);
-			// embedded is ignored
+			// Embedded is ignored.
 			olderOriginalSourceCopy.setEmbedded(null);
 			originalSourceCopy.setEmbedded(null);
-			// audit field is ignored
+			// Audit fields are ignored.
 			DtoUtils.clearAuditFields(olderOriginalSourceCopy);
 			DtoUtils.clearAuditFields(originalSourceCopy);
 			//
 			return mapper.writeValueAsString(olderOriginalSourceCopy)
 					.equals(mapper.writeValueAsString(originalSourceCopy));
 		} catch (JsonProcessingException | IllegalAccessException | InstantiationException ex) {
-			LOG.warn("Comparing json for checking duplicate events failed - both events [{}]-[{}] will be executed", 
+			LOG.warn("Comparing json for checking duplicate events failed - both events [{}]-[{}] will be executed!", 
 					olderEvent, event, ex);
 			//
 			return false;

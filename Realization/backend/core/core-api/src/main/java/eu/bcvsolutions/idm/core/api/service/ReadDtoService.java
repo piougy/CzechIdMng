@@ -40,6 +40,16 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	 * @return
 	 */
 	Class<F> getFilterClass();
+
+	/**
+	 * Method controls behavior of methods that convert entities to DTOs.
+	 * Beware this method can affect the transformation entities to DTO.
+	 *
+	 * @return If method return true convert to DTO will be used with filter. If return false method without
+	 * will be used for convert entities to DTOs.
+	 * @since 9.4.0
+	 */
+	boolean supportsToDtoWithFilter();
 	
 	/**
 	 * Returns DTO by given id. Returns null, if dto is not exists. Authorization policies are evaluated.

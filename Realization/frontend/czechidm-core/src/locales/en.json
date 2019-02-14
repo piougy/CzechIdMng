@@ -3928,7 +3928,7 @@
         "help": "Minimum number of days for password validity."
       },
       "enchancedControl": {
-        "label": "Enabled",
+        "label": "Enhanced control",
         "help": "Enhanced control makes passwords more secure by comparing new passwords with previous ones and user attributes. It is possible to select which rules are required."
       },
       "minRulesToFulfill": {
@@ -3941,7 +3941,7 @@
       },
       "blockLoginTime": {
         "label": "Login blocking time (seconds)",
-        "help": "After entering X failed attempts, the user will be blocked from signing in."
+        "help": "After exceeding the limit of unsuccessful login attempts, the user will be blocked from signing in for this period of time."
       },
       "maxUnsuccessfulAttempts": {
         "label": "Maximum number of unsuccessful login attempts",
@@ -4737,11 +4737,11 @@
         "attributes": {
           "connectioncharacter": {
             "label": "Connection character",
-            "help": "The character(s) to be used to connects the first name and surname. The value does not need to be filled in. In this case, the first name and surname will be connected without any coupling character."
+            "help": "The character(s) to be used to connect the first name and surname. The value does not need to be filled in. In this case, the first name and surname will be connected without any coupling character."
           },
           "firstnamecharactercount": {
             "label": "Count of characters from the first name",
-            "help": "The maximum count of characters to use from the fisrt name."
+            "help": "The maximum count of characters to use from the first name."
           },
           "lastnamecharactercount": {
             "label": "Count of characters from the surname",
@@ -4749,15 +4749,15 @@
           },
           "searchuniqueusername": {
             "label": "Verify unique username",
-            "help": "The newly generated username will be searched. If username will be exists, numeric suffix will be added. Suffix may be incremented."
+            "help": "The newly generated username will be searched. If such username already exists, numeric suffix will be added. Suffix may be incremented."
           },
           "firstnamefirst": {
             "label": "As first value use first name",
-            "help": "When generating, the first name of the user will be added first. If you unchecked, the order will be the opposite."
+            "help": "When generating, the first name of the user will be added first. If you uncheck this, the order will be the opposite."
           },
           "replacewhitespacescharacter": {
             "label": "Character/s for filling white spaces",
-            "help": "Character/s will be used to replace white spaces, even outside the username. If you leave blank, all spaces will be removed."
+            "help": "Character/s will be used to replace white spaces, even outside the username. If you leave this blank, all spaces will be removed."
           }
         }
       },
@@ -4771,11 +4771,11 @@
           },
           "connectioncharacter": {
             "label": "Connection character",
-            "help": "The character(s) to be used to connects the first name and surname. The value does not need to be filled in. In this case, the first name and surname will be connected without any coupling character."
+            "help": "The character(s) to be used to connect the first name and surname. The value does not need to be filled in. In this case, the first name and surname will be connected without any coupling character."
           },
           "firstnamecharactercount": {
             "label": "Count of characters from the first name",
-            "help": "The maximum count of characters to use from the fisrt name."
+            "help": "The maximum count of characters to use from the first name."
           },
           "lastnamecharactercount": {
             "label": "Count of characters from the surname",
@@ -4787,11 +4787,11 @@
           },
           "firstnamefirst": {
             "label": "As first value use first name",
-            "help": "When generating, the first name of the user will be added first. If you unchecked, the order will be the opposite."
+            "help": "When generating, the first name of the user will be added first. If you uncheck this, the order will be the opposite."
           },
           "replacewhitespacescharacter": {
             "label": "Character/s for filling white spaces",
-            "help": "Character/s will be used to replace white spaces, outside the username and email suffix. If you leave blank, all spaces will be removed."
+            "help": "Character/s will be used to replace white spaces, outside the username and email suffix. If you leave this blank, all spaces will be removed."
           }
         }
       },

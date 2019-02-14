@@ -99,6 +99,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return dtoClass.isAssignableFrom(delimiter);
 	}
 
+	@Override
+	public boolean supportsToDtoWithFilter() {
+		return false;
+	}
+
 	/**
 	 * Returns underlying repository
 	 * 
@@ -181,7 +186,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Override
 	@Transactional(readOnly = true)
 	public Page<DTO> find(final F filter, Pageable pageable, BasePermission... permission) {
-		return toDtoPage(findEntities(filter, pageable, permission));
+		return toDtoPage(findEntities(filter, pageable, permission), filter);
 	}
 	
 	@Override
@@ -368,7 +373,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	/**
-	 * Converts entity to DTO
+	 * Converts entity to DTO. When service support transform DTO with filter
+	 * this method will not be called.
 	 * 
 	 * @see Embedded
 	 * @param entity
@@ -377,6 +383,22 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * @return
 	 */
 	protected DTO toDto(E entity, DTO dto) {
+		return toDto(entity, dto, null);
+	}
+
+	/**
+	 * Convert entity to DTO. This method can receive {@link F} if method
+	 * {@link AbstractReadDtoService#supportsToDtoWithFilter()} return true this
+	 * method will be called from method {@link AbstractReadDtoService#toDtoPage(Page, BaseFilter)}
+	 * instead {@link AbstractReadDtoService#toDto(BaseEntity, BaseDto)}.
+	 *
+	 * @since 9.4.0
+	 * @param entity
+	 * @param dto
+	 * @param filter
+	 * @return
+	 */
+	protected DTO toDto(E entity, DTO dto, F filter) {
 		if (entity == null) {
 			return null;
 		}
@@ -395,7 +417,28 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * @return
 	 */
 	protected Page<DTO> toDtoPage(Page<E> entityPage) {
-		List<DTO> dtos = this.toDtos(entityPage.getContent(), true);
+		return toDtoPage(entityPage, null);
+	}
+
+	/**
+	 * Converts list of entities and wrap to Page object to list wrapped list of DTOs.
+	 * Method check returned value from method {@link AbstractReadDtoService#supportsToDtoWithFilter()}.
+	 * If the method {@link AbstractReadDtoService#supportsToDtoWithFilter()} return true
+	 * the method {@link AbstractReadDtoService#toDto(BaseEntity, BaseDto, BaseFilter)} will be called.
+	 * Otherwise will be called method {@link AbstractReadDtoService#toDto(BaseEntity, BaseDto)}.
+	 * 
+	 * @param entityPage
+	 * @param filter
+	 * @return
+	 */
+	protected Page<DTO> toDtoPage(Page<E> entityPage, F filter) {
+		List<DTO> dtos = null;
+		// Check if service supports filter mapping and use correct method
+		if (supportsToDtoWithFilter()) {
+			dtos = this.toDtos(entityPage.getContent(), true, filter);
+		} else {
+			dtos = this.toDtos(entityPage.getContent(), true);
+		}
 		PageRequest pageRequest = null;
 		if (entityPage.getSize() > 0) {
 			pageRequest = new PageRequest(entityPage.getNumber(), entityPage.getSize(), entityPage.getSort());
@@ -412,6 +455,22 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * @return
 	 */
 	protected List<DTO> toDtos(List<E> entities, boolean trimmed) {
+		return toDtos(entities, trimmed, null);
+	}
+
+	/**
+	 * Converts list of entities to list of DTOs.
+	 * Method check returned value from method {@link AbstractReadDtoService#supportsToDtoWithFilter()}.
+	 * If the method {@link AbstractReadDtoService#supportsToDtoWithFilter()} return true
+	 * the method {@link AbstractReadDtoService#toDto(BaseEntity, BaseDto, BaseFilter)} will be called.
+	 * Otherwise will be called method {@link AbstractReadDtoService#toDto(BaseEntity, BaseDto)}.
+	 *
+	 * @param entities
+	 * @param trimmed
+	 * @param filter
+	 * @return
+	 */
+	protected List<DTO> toDtos(List<E> entities, boolean trimmed, F filter) {
 		if (entities == null) {
 			return null;
 		}
@@ -422,14 +481,23 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				if (newDto instanceof AbstractDto) {
 					((AbstractDto) newDto).setTrimmed(trimmed);
 				}
-				dtos.add(this.toDto(entity, newDto));
+
+				DTO dto = null;
+				// Check if service support filter mapping and use it for transform entity to DTO
+				if (supportsToDtoWithFilter()) {
+					dto = this.toDto(entity, newDto, filter);
+				} else {
+					dto = this.toDto(entity, newDto);
+				}
+				dtos.add(dto);
+
 			} catch (InstantiationException | IllegalAccessException e) {
 				throw new CoreException(e);
 			}
 		});
 		return dtos;
 	}
-	
+
 	/**
 	 * Converts given DTO to entity
 	 *

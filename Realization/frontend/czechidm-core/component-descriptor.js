@@ -367,8 +367,44 @@ module.exports = {
     {
       'id': 'business-role-icon',
       'type': 'icon',
-      'entityType': ['business-role-icon'],
+      'entityType': ['business-role', 'business-roles'],
       'component': require('./src/components/advanced/Icon/BusinessRoleIcon')
+    },
+    {
+      'id': 'role-icon',
+      'type': 'icon',
+      'entityType': ['role', 'roles', 'identity-role', 'identity-roles', 'role-request', 'role-requests', 'request-roles', 'request-role'],
+      'component': 'fa:key'
+    },
+    {
+      'id': 'automatic-role-icon',
+      'type': 'icon',
+      'entityType': ['automatic-role', 'automatic-roles', 'automatic-role-request', 'automatic-role-requests'],
+      'component': 'fa:magic'
+    },
+    {
+      'id': 'sub-role-icon',
+      'type': 'icon',
+      'entityType': ['sub-role', 'sub-roles'],
+      'component': 'fa:arrow-down'
+    },
+    {
+      'id': 'superior-role-icon',
+      'type': 'icon',
+      'entityType': ['superior-role', 'superior-roles'],
+      'component': 'fa:arrow-up'
+    },
+    {
+      'id': 'contract-icon',
+      'type': 'icon',
+      'entityType': ['contract', 'contracts', 'contract-position', 'contract-positions', 'contract-slice', 'contract-slices'],
+      'component': 'fa:building'
+    },
+    {
+      'id': 'main-contract-icon',
+      'type': 'icon',
+      'entityType': ['main-contract'],
+      'component': require('./src/components/advanced/Icon/MainContractIcon')
     }
   ]
 };

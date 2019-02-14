@@ -20,6 +20,7 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 	private Boolean isUid;
 	private Boolean sendOnPasswordChange;
 	private Boolean passwordAttribute;
+	private Boolean disabledAttribute;
 
 	public Boolean getIsUid() {
 		return isUid;
@@ -83,5 +84,13 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 
 	public void setPasswordAttribute(Boolean passwordAttribute) {
 		this.passwordAttribute = passwordAttribute;
+	}
+
+	public Boolean getDisabledAttribute() {
+		return disabledAttribute;
+	}
+
+	public void setDisabledAttribute(Boolean disabledAttribute) {
+		this.disabledAttribute = disabledAttribute;
 	}
 }

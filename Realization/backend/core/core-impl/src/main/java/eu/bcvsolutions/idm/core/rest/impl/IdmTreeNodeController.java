@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -47,6 +48,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -85,6 +87,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	@Autowired private TreeConfiguration treeConfiguration;
 	@Autowired private IdmAuditService auditService;
 	@Autowired private IdmFormDefinitionController formDefinitionController;
+	@Autowired private FormService formService;
 	
 	@Autowired
 	public IdmTreeNodeController(
@@ -370,7 +373,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	@ApiOperation(
 			value = "Search root tree nodes", 
 			nickname = "searchRootTreeNodes", 
-			tags = { IdmRoleCatalogueController.TAG },
+			tags = { IdmTreeNodeController.TAG },
 			notes = "Tree type parameter can be used. If no tree type ios given, then configured default tree type is used."
 					+ " If no default tree type is configured, then all roots are returnde")
 	@ApiImplicitParams({
@@ -413,7 +416,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	@ApiOperation(
 			value = "Search sub tree nodes", 
 			nickname = "searchChildrenTreeNodes", 
-			tags = { IdmRoleCatalogueController.TAG },
+			tags = { IdmTreeNodeController.TAG },
 			notes = "Finds direct chilren by given parent node uuid identifier. Set 'parent' parameter.")
 	@ApiImplicitParams({
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
@@ -514,6 +517,116 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmTreeNode.class, definitionCode);
 		//
 		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
+	}
+	
+	/**
+	 * Save entity's form value
+	 * 
+	 * @param backendId
+	 * @param formValues
+	 * @return
+	 * @since 9.4.0
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
+	@RequestMapping(value = "/{backendId}/form-value", method = { RequestMethod.POST } )
+	@ApiOperation(
+			value = "TreeNode form definition - save value", 
+			nickname = "postTreeNodeFormValue", 
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_UPDATE, description = "") })
+				})
+	public Resource<?> saveFormValue(
+			@ApiParam(value = "Node's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			@RequestBody @Valid IdmFormValueDto formValue) {		
+		IdmTreeNodeDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		checkAccess(dto, IdmBasePermission.UPDATE);
+		//
+		return formDefinitionController.saveFormValue(dto, formValue);
+	}
+	
+	/**
+	 * Returns input stream to attachment saved in given form value.
+	 * 
+	 * @param backendId
+	 * @param formValueId
+	 * @return
+	 * @since 9.4.0
+	 */
+	@RequestMapping(value = "/{backendId}/form-values/{formValueId}/download", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "Download form value attachment", 
+			nickname = "downloadFormValue",
+			tags = { IdmTreeNodeController.TAG },
+			notes = "Returns input stream to attachment saved in given form value.",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+					})
+	public ResponseEntity<InputStreamResource> downloadFormValue(
+			@ApiParam(value = "Node's uuid identifier.", required = true)
+			@PathVariable String backendId,
+			@ApiParam(value = "Form value identifier.", required = true)
+			@PathVariable String formValueId) {
+		IdmTreeNodeDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId));
+		if (value == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
+		}
+		return formDefinitionController.downloadAttachment(value);
+	}
+	
+	/**
+	 * Returns input stream to attachment saved in given form value.
+	 * 
+	 * @param backendId
+	 * @param formValueId
+	 * @return
+	 * @since 9.4.0
+	 */
+	@RequestMapping(value = "/{backendId}/form-values/{formValueId}/preview", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "Download form value attachment preview", 
+			nickname = "downloadFormValue",
+			tags = { IdmTreeNodeController.TAG },
+			notes = "Returns input stream to attachment preview saved in given form value. Preview is supported for the png, jpg and jpeg mime types only",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+					})
+	public ResponseEntity<InputStreamResource> previewFormValue(
+			@ApiParam(value = "TreeNode's uuid identifier.", required = true)
+			@PathVariable String backendId,
+			@ApiParam(value = "Form value identifier.", required = true)
+			@PathVariable String formValueId) {
+		IdmTreeNodeDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId));
+		if (value == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
+		}
+		return formDefinitionController.previewAttachment(value);
 	}
 	
 	/**

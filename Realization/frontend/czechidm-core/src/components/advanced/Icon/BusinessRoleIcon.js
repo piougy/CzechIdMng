@@ -2,9 +2,9 @@ import React from 'react';
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { i18n } from '../../../services/LocalizationService';
 //
-import * as Basic from '../../../components/basic';
-
+import AbstractIcon from './AbstractIcon';
 
 /**
  * Icon for the business role. It's combined from different icons - layers are used.
@@ -13,45 +13,19 @@ import * as Basic from '../../../components/basic';
  * @author Radek Tomiška
  * @since 9.4.0
  */
-export default class BusinessRoleIcon extends Basic.AbstractComponent {
+export default class BusinessRoleIcon extends AbstractIcon {
 
   constructor(props) {
     super(props);
   }
-  render() {
-    const {
-      rendered,
-      showLoading,
-      color
-    } = this.props;
-    //
-    if (!rendered) {
-      return null;
-    }
-    if (showLoading) {
-      return (
-        <Basic.Icon value="fa:refresh" showLoading color={ color } />
-      );
-    }
-    const _style = {};
-    if (color) {
-      _style.color = color;
-    }
-    //
+
+  renderIcon() {
     return (
-      <span className="fa-layers fa-fw">
+      <span className="fa-layers fa-fw" title={ i18n('entity.RoleComposition._type') }>
         <FontAwesomeIcon icon={ faKey } transform="rotate-315 up-1 right-0.3" style={{ color: '#ccc' }} />
-        <FontAwesomeIcon icon={ faKey } transform="up-3.2 right--3" style={ _style }/>
-        <FontAwesomeIcon icon={ faCircle } transform="up-9 right-5 shrink-6" style={ _style }/>
+        <FontAwesomeIcon icon={ faKey } transform="up-3.2 right--3"/>
+        <FontAwesomeIcon icon={ faCircle } transform="up-9 right-5 shrink-6"/>
       </span>
     );
   }
 }
-
-BusinessRoleIcon.propTypes = {
-  ...Basic.AbstractComponent.propTypes
-};
-
-BusinessRoleIcon.defaultProps = {
-  ...Basic.AbstractComponent.defaultProps
-};

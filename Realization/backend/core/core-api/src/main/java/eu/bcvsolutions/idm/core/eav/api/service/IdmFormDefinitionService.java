@@ -6,7 +6,7 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormDefinitionFilter;
@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmFormDefinitionService extends 
-		ReadWriteDtoService<IdmFormDefinitionDto, IdmFormDefinitionFilter>,
+		EventableDtoService<IdmFormDefinitionDto, IdmFormDefinitionFilter>,
 		AuthorizableService<IdmFormDefinitionDto>,
 		ScriptEnabled {
 

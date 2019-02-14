@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
-public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentifiable, CorrelationFilter {
+public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentifiable, CorrelationFilter, FormableFilter {
 	
 	public static final String PARAMETER_DIRECT_ROLE = "directRole"; //if its direct role (true) or not (false - depends on some filled direct role)
 	public static final String PARAMETER_DIRECT_ROLE_ID = "directRoleId";
@@ -167,5 +167,19 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	@Override
 	public void setValue(String value) {
 		data.set(PARAMETER_CORRELATION_VALUE, value);
+	}
+
+	@Override
+	public Boolean getAddEavMetadata() {
+		Object first = data.getFirst(PARAMETER_ADD_EAV_METADATA);
+    	if (first == null) {
+    		return null;
+    	}
+    	return BooleanUtils.toBoolean(first.toString());
+	}
+
+	@Override
+	public void setAddEavMetadata(Boolean value) {
+		data.set(PARAMETER_ADD_EAV_METADATA, value);
 	}
 }

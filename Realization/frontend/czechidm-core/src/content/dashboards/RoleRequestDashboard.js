@@ -27,7 +27,7 @@ class RoleRequestDashboard extends Basic.AbstractContent {
   }
 
   render() {
-    const { identity } = this.props;
+    const { identity, _totalCreator, _totalApplicant } = this.props;
     //
     if (!identity || !SecurityManager.hasAuthority('ROLEREQUEST_READ') ) {
       return null;
@@ -38,12 +38,12 @@ class RoleRequestDashboard extends Basic.AbstractContent {
     const applicantForceSearch = new Domain.SearchParameters().setFilter('applicant', identity.id).setFilter('states', ['IN_PROGRESS', 'APPROVED']);
     //
     return (
-      <div>
+      <div className={ !_totalCreator && !_totalApplicant ? 'hidden' : '' }>
         <Basic.ContentHeader
-          icon="fa:key"
+          icon="component:role-requests"
           text={ this.i18n('header') }/>
         <Basic.Row>
-          <Basic.Col lg={ 6 }>
+          <Basic.Col lg={ !_totalApplicant ? 12 : 6 } className={ !_totalCreator ? 'hidden' : '' }>
             <Basic.Panel>
               <RoleRequestTableComponent
                 ref="table"
@@ -57,7 +57,7 @@ class RoleRequestDashboard extends Basic.AbstractContent {
                 columns={ columns }/>
             </Basic.Panel>
           </Basic.Col>
-          <Basic.Col lg={ 6 }>
+          <Basic.Col lg={ !_totalCreator ? 12 : 6 } className={ !_totalApplicant ? 'hidden' : '' }>
             <Basic.Panel>
               <RoleRequestTableComponent
                 ref="table"
@@ -77,8 +77,14 @@ class RoleRequestDashboard extends Basic.AbstractContent {
   }
 }
 
-function select() {
+function select(state) {
+  const uiCreator = state.data.ui[uiKeyCreator];
+  const uiApplicant = state.data.ui[uiKeyApplicant];
+  //
   return {
+    _totalCreator: !uiCreator ? null : uiCreator.total,
+    _totalApplicant: !uiApplicant ? null : uiApplicant.total,
+    i18nReady: state.config.get('i18nReady')
   };
 }
 

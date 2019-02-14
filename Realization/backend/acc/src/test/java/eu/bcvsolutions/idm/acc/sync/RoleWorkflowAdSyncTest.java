@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.sync;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -9,7 +11,9 @@ import javax.transaction.Transactional;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
@@ -26,6 +30,8 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
@@ -35,6 +41,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
@@ -42,7 +50,9 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.entity.TestRoleResource;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -51,27 +61,43 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Service
 public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 
 	private static final String ROLE_NAME = "nameOfRole";
 	private static final String SYNC_CONFIG_NAME = "syncConfigNameContract";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
-	private static final String ATTRIBUTE_DN = "EAV_ATTRIBUTE";	
+	private static final String ATTRIBUTE_DN = "EAV_ATTRIBUTE";
+	private static final String ATTRIBUTE_MEMBER = "MEMBER";	
 	private static final String ATTRIBUTE_DN_VALUE = "CN=" + ROLE_NAME + ",OU=Office,OU=Prague,DC=bcvsolutions,DC=eu";
 	private static final String CATALOGUE_CODE_FIRST = "Office";
 	private static final String CATALOGUE_CODE_SECOND = "Prague";
 	private static final String SYSTEM_NAME = "TestSystem" + System.currentTimeMillis();
+	private final String wfExampleKey =  "syncRoleLdap";
+	private static final String CATALOG_FOLDER = "TestCatalog" + System.currentTimeMillis();
 	
 	@Autowired
 	private TestHelper helper;
@@ -101,10 +127,24 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 	private FormService formService;
 	@Autowired
 	private IdmRoleCatalogueService roleCatalogueService;
+	@Autowired
+	private ConfigurationService configurationService;
+	@Autowired
+	private SysRoleSystemAttributeService roleSystemAttributeService;
+	@Autowired
+	private SysRoleSystemService roleSystemService;
+	@Autowired
+	private IdmRoleCatalogueRoleService roleCatalogueRoleService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmFormAttributeService formAttributeService;
+	
 	
 	@Before
 	public void init() {
 		loginAsAdmin(InitApplicationData.ADMIN_USERNAME);
+		configurationService.setValue("idm.pub.acc.syncRole.system.mapping.attributeRoleIdentificator", ATTRIBUTE_DN);
 	}
 
 	@After
@@ -115,11 +155,12 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		if (systemService.getByCode(SYSTEM_NAME) != null) {
 			systemService.delete(systemService.getByCode(SYSTEM_NAME));
 		}
+		configurationService.deleteValue("idm.pub.acc.syncRole.system.mapping.attributeRoleIdentificator");
 		super.logout();
 	}
 	
 	@Test
-	public void testSyncWithWfSituationMissingEntity() {
+	public void n5_testSyncWithWfSituationMissingEntity() {
 		SysSystemDto system = initData();
 		
 		IdmRoleFilter roleFilter = new IdmRoleFilter();
@@ -127,7 +168,6 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		List<IdmRoleDto> roles = roleService.find(roleFilter, null).getContent();
 		Assert.assertEquals(0, roles.size());
 		
-		final String wfExampleKey =  "syncRoleAd";
 		Assert.assertNotNull(system);
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
 		config.setLinkedActionWfKey(wfExampleKey);
@@ -161,7 +201,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	public void testSyncWithWfSituationLinked() {
+	public void n5_testSyncWithWfSituationLinked() {
 		createRolesInSystem();
 		final String newDN = "CN=" + ROLE_NAME + ",OU=Flat,OU=Pardubice,DC=bcvsolutions,DC=eu";
 		this.getBean().initIdentityData(ROLE_NAME, newDN);
@@ -205,7 +245,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	public void testSyncWithWfSituationUnlinked() {
+	public void n5_testSyncWithWfSituationUnlinked() {
 		SysSystemDto system = initData();
 		
 		IdmRoleFilter roleFilter = new IdmRoleFilter();
@@ -217,7 +257,6 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		role.setCode(ROLE_NAME);
 		roleService.save(role);
 		
-		final String wfExampleKey =  "syncRoleAd";
 		Assert.assertNotNull(system);
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
 		config.setLinkedActionWfKey(wfExampleKey);
@@ -251,7 +290,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	public void testSyncWithWfSituationMissingAccount() {
+	public void n5_testSyncWithWfSituationMissingAccount() {
 		createRolesInSystem();
 		this.getBean().deleteAllResourceData();
 		
@@ -282,6 +321,271 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 
 		// Delete log
 		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void n1_testSyncWithWfSituationMissingEntityDoNotCreateCatalog() {
+		configurationService.setBooleanValue("idm.pub.acc.syncRole.roleCatalog.ResolveCatalog", false);
+		
+		SysSystemDto system = initData();
+		
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
+		roleFilter.setText(ROLE_NAME);
+		List<IdmRoleDto> roles = roleService.find(roleFilter, null).getContent();
+		Assert.assertEquals(0, roles.size());
+		
+		
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setLinkedActionWfKey(wfExampleKey);
+		config.setMissingAccountActionWfKey(wfExampleKey);
+		config.setMissingEntityActionWfKey(wfExampleKey);
+		config.setUnlinkedActionWfKey(wfExampleKey);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// Start sync
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.MISSING_ENTITY, 1,
+				OperationResultType.WF);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		roles = roleService.find(roleFilter, null).getContent();
+		Assert.assertEquals(1, roles.size());
+		IdmRoleDto role = roles.get(0);
+		List<IdmFormValueDto> dnValues = formService.getValues(role, ATTRIBUTE_DN);
+		Assert.assertEquals(1, dnValues.size());
+		Assert.assertEquals(ATTRIBUTE_DN_VALUE, dnValues.get(0).getValue());
+		IdmRoleCatalogueDto catalogueFirst = getCatalogueByCode(CATALOGUE_CODE_FIRST);
+		IdmRoleCatalogueDto catalogueSecond = getCatalogueByCode(CATALOGUE_CODE_SECOND);
+		Assert.assertNull(catalogueFirst);
+		Assert.assertNull(catalogueSecond);
+
+		// Delete log
+		syncLogService.delete(log);
+		configurationService.setBooleanValue("idm.pub.acc.syncRole.roleCatalog.ResolveCatalog", true);
+	}
+	
+	@Test
+	public void n8_testSyncWithWfSituationMissingEntityOneFolderCatalog() {
+		configurationService.setValue("idm.pub.acc.syncRole.roles.allToOneCatalog", CATALOG_FOLDER);
+		
+		SysSystemDto system = initData();
+		
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
+		roleFilter.setText(ROLE_NAME);
+		List<IdmRoleDto> roles = roleService.find(roleFilter, null).getContent();
+		Assert.assertEquals(0, roles.size());
+		
+		
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setLinkedActionWfKey(wfExampleKey);
+		config.setMissingAccountActionWfKey(wfExampleKey);
+		config.setMissingEntityActionWfKey(wfExampleKey);
+		config.setUnlinkedActionWfKey(wfExampleKey);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// Start sync
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.MISSING_ENTITY, 1,
+				OperationResultType.WF);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		roles = roleService.find(roleFilter, null).getContent();
+		Assert.assertEquals(1, roles.size());
+		IdmRoleDto role = roles.get(0);
+		List<IdmFormValueDto> dnValues = formService.getValues(role, ATTRIBUTE_DN);
+		Assert.assertEquals(1, dnValues.size());
+		Assert.assertEquals(ATTRIBUTE_DN_VALUE, dnValues.get(0).getValue());
+		IdmRoleCatalogueDto catalogueFirst = getCatalogueByCode(CATALOG_FOLDER);
+		Assert.assertNotNull(catalogueFirst);
+		Assert.assertFalse(!isRoleInCatalogue(role.getId(), CATALOG_FOLDER));
+		
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void n9_testSyncWithWfSituationMissingEntityAddResource() {
+		String USER_SYSTEM_NAME = "TestName001";
+		String overridedAttributeName = "EAV_ATTRIBUTE";
+		configurationService.setValue("idm.pub.acc.syncRole.provisioningOfIdentities.system.code", USER_SYSTEM_NAME);
+		configurationService.setValue("idm.pub.acc.syncRole.system.mapping.attributeMemberOf", overridedAttributeName);
+		SysSystemDto userSystem = initData(USER_SYSTEM_NAME, true);
+		
+		
+		SysSystemDto system = initData();
+		
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
+		roleFilter.setText(ROLE_NAME);
+		List<IdmRoleDto> roles = roleService.find(roleFilter, null).getContent();
+		Assert.assertEquals(0, roles.size());
+		
+		
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setLinkedActionWfKey(wfExampleKey);
+		config.setMissingAccountActionWfKey(wfExampleKey);
+		config.setMissingEntityActionWfKey(wfExampleKey);
+		config.setUnlinkedActionWfKey(wfExampleKey);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// Start sync
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.MISSING_ENTITY, 1,
+				OperationResultType.WF);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		roles = roleService.find(roleFilter, null).getContent();
+		Assert.assertEquals(1, roles.size());
+		IdmRoleDto role = roles.get(0);
+		List<IdmFormValueDto> dnValues = formService.getValues(role, ATTRIBUTE_DN);
+		Assert.assertEquals(1, dnValues.size());
+		Assert.assertEquals(ATTRIBUTE_DN_VALUE, dnValues.get(0).getValue());
+		// resource existing
+		Assert.assertNotNull(getSystemAttribute(userSystem.getId(), overridedAttributeName, role.getId()));
+
+		// Delete log
+		syncLogService.delete(log);
+		
+		configurationService.deleteValue("idm.pub.acc.syncRole.provisioningOfIdentities.system.code");
+		configurationService.deleteValue("idm.pub.acc.syncRole.system.mapping.attributeMemberOf");
+	}
+	
+	@Test
+	public void n91_testSyncWithWfSituationMissingResolveMember() {
+		
+		String valueOfMemberAtt = "" + System.currentTimeMillis();
+		String nameOfEav = "externalIdentifier";
+		configurationService.setValue("idm.pub.acc.syncRole.identity.eav.externalIdentifier.code", nameOfEav);
+		configurationService.setValue("idm.pub.acc.syncRole.roles.attributeNameOfMembership", ATTRIBUTE_MEMBER);
+		
+		
+		IdmIdentityDto identity = this.getHelper().createIdentity();
+		IdmFormAttributeDto attribute = helper.createEavAttribute(nameOfEav, IdmIdentity.class, PersistentType.SHORTTEXT);
+		helper.setEavValue(identity, attribute, IdmIdentity.class, valueOfMemberAtt, PersistentType.SHORTTEXT);
+		
+		SysSystemDto system = initData();
+		
+		this.getBean().deleteAllResourceData();
+		this.getBean().addRoleToResource(ROLE_NAME, ATTRIBUTE_DN, valueOfMemberAtt);
+		
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
+		roleFilter.setText(ROLE_NAME);
+		List<IdmRoleDto> roles = roleService.find(roleFilter, null).getContent();
+		Assert.assertEquals(0, roles.size());
+		
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(identity.getId());
+		List<IdmIdentityRoleDto> content = identityRoleService.find(filter , null).getContent();
+		Assert.assertEquals(0, content.size());
+		
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setLinkedActionWfKey(wfExampleKey);
+		config.setMissingAccountActionWfKey(wfExampleKey);
+		config.setMissingEntityActionWfKey(wfExampleKey);
+		config.setUnlinkedActionWfKey(wfExampleKey);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// Start sync
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.MISSING_ENTITY, 1,
+				OperationResultType.WF);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		roles = roleService.find(roleFilter, null).getContent();
+		Assert.assertEquals(1, roles.size());
+
+		content = identityRoleService.find(filter , null).getContent();
+		Assert.assertEquals(1, content.size());
+		
+		identityRoleService.delete(content.get(0));
+
+		// Delete log
+		syncLogService.delete(log);
+		
+		configurationService.deleteValue("idm.pub.acc.syncRole.provisioningOfIdentities.system.code");
+		configurationService.deleteValue("idm.pub.acc.syncRole.system.mapping.attributeMemberOf");
+	}
+	
+	@Test
+	public void n92_testSyncWithWfSituationLinkedResolveMember() {
+		createRolesInSystem();
+		final String newDN = "CN=" + ROLE_NAME + ",OU=Flat,OU=Pardubice,DC=bcvsolutions,DC=eu";
+		this.getBean().initIdentityData(ROLE_NAME, newDN);
+		
+		String valueOfMemberAtt = "" + System.currentTimeMillis();
+		String nameOfEav = "externalIdentifier";
+		configurationService.setValue("idm.pub.acc.syncRole.identity.eav.externalIdentifier.code", nameOfEav);
+		configurationService.setValue("idm.pub.acc.syncRole.roles.attributeNameOfMembership", ATTRIBUTE_MEMBER);
+		configurationService.setBooleanValue("idm.pub.acc.syncRole.update.resolveMembership", true);
+		
+		IdmIdentityDto identity = this.getHelper().createIdentity();
+
+		IdmFormAttributeFilter attributeFilter = new IdmFormAttributeFilter();
+		attributeFilter.setCode(nameOfEav);
+		IdmFormAttributeDto formAttribute = formAttributeService.find(attributeFilter, null).getContent().stream().findFirst().orElse(null);
+		Assert.assertNotNull(formAttribute);
+		
+		helper.setEavValue(identity, formAttribute, IdmIdentity.class, valueOfMemberAtt, PersistentType.SHORTTEXT);
+		
+		this.getBean().deleteAllResourceData();
+		this.getBean().addRoleToResource(ROLE_NAME, ATTRIBUTE_DN, valueOfMemberAtt);
+		
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
+		roleFilter.setText(ROLE_NAME);
+		List<IdmRoleDto> roles = roleService.find(roleFilter, null).getContent();
+		Assert.assertEquals(1, roles.size()); // role is in already synced ind idm
+		
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(identity.getId());
+		List<IdmIdentityRoleDto> content = identityRoleService.find(filter , null).getContent();
+		Assert.assertEquals(0, content.size()); // identity does not have assigned this role
+		
+		SysSystemDto systemDto = systemService.getByCode(SYSTEM_NAME);
+		Assert.assertNotNull(systemDto);
+		
+		SysSyncConfigFilter syncFilter = new SysSyncConfigFilter();
+		syncFilter.setSystemId(systemDto.getId());
+		List<AbstractSysSyncConfigDto> syncConfig = syncConfigService.find(syncFilter, null).getContent();
+		Assert.assertEquals(1, syncConfig.size()); // find synchronization config to start sync
+
+		// Start sync
+		helper.startSynchronization(syncConfig.get(0));
+
+		SysSyncLogDto log = checkSyncLog(syncConfig.get(0), SynchronizationActionType.LINKED, 1,
+				OperationResultType.WF);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		roles = roleService.find(roleFilter, null).getContent();
+		Assert.assertEquals(1, roles.size());
+
+		content = identityRoleService.find(filter , null).getContent();
+		Assert.assertEquals(1, content.size());
+		
+		identityRoleService.delete(content.get(0));
+
+		// Delete log
+		syncLogService.delete(log);
+		
+		configurationService.deleteValue("idm.pub.acc.syncRole.provisioningOfIdentities.system.code");
+		configurationService.deleteValue("idm.pub.acc.syncRole.system.mapping.attributeMemberOf");
+		configurationService.setBooleanValue("idm.pub.acc.syncRole.update.resolveMembership", false);
 	}
 	
 	private SysSyncIdentityConfigDto doCreateSyncConfig(SysSystemDto system) {
@@ -339,8 +643,9 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 
 		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return actionType == action.getSyncAction();
-		}).findFirst().get();
+		}).findFirst().orElse(null);
 
+		Assert.assertNotNull(actionLog);
 		Assert.assertEquals(resultType, actionLog.getOperationResult());
 		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
@@ -351,9 +656,13 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 	}
 	
 	private SysSystemDto initData() {
+		return initData(SYSTEM_NAME, false);
+	}
+	
+	private SysSystemDto initData(String systemName, boolean isProvisioning) {
 
 		// create test system
-		SysSystemDto system = helper.createSystem(TestResource.TABLE_NAME, SYSTEM_NAME);
+		SysSystemDto system = helper.createSystem(TestRoleResource.TABLE_NAME, systemName);
 		Assert.assertNotNull(system);
 
 		// generate schema for system
@@ -365,9 +674,15 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		syncSystemMapping.setEntityType(SystemEntityType.ROLE);
 		syncSystemMapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		syncSystemMapping.setObjectClass(objectClasses.get(0).getId());
+		if (isProvisioning) {
+			syncSystemMapping.setEntityType(SystemEntityType.IDENTITY);
+			syncSystemMapping.setOperationType(SystemOperationType.PROVISIONING);
+		}
 		final SysSystemMappingDto syncMapping = systemMappingService.save(syncSystemMapping);
 		createMapping(system, syncMapping);
-		this.getBean().initIdentityData(ROLE_NAME, ATTRIBUTE_DN_VALUE);
+		if (!isProvisioning) {
+			this.getBean().initIdentityData(ROLE_NAME, ATTRIBUTE_DN_VALUE);
+		}
 		return system;
 
 	}
@@ -398,15 +713,25 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 				attributeMappingTwo.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMappingTwo);
 
+			} else if (ATTRIBUTE_MEMBER.equalsIgnoreCase(schemaAttr.getName())) {
+				SysSystemAttributeMappingDto attributeMappingTwo = new SysSystemAttributeMappingDto();
+				attributeMappingTwo.setIdmPropertyName(ATTRIBUTE_MEMBER);
+				attributeMappingTwo.setEntityAttribute(false);
+				attributeMappingTwo.setExtendedAttribute(true);
+				attributeMappingTwo.setName("MEMBER");
+				attributeMappingTwo.setSchemaAttribute(schemaAttr.getId());
+				attributeMappingTwo.setSystemMapping(entityHandlingResult.getId());
+				schemaAttributeMappingService.save(attributeMappingTwo);
+
 			}
 		});
 	}
-	
+
 	@Transactional
 	public void initIdentityData(String roleName, String eavAttribute) {
 		deleteAllResourceData();
 
-		TestResource resourceUserOne = new TestResource();
+		TestRoleResource resourceUserOne = new TestRoleResource();
 		resourceUserOne.setName(roleName);
 		resourceUserOne.setEavAttribute(eavAttribute);
 		entityManager.persist(resourceUserOne);
@@ -414,9 +739,20 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 	}
 	
 	@Transactional
+	public void addRoleToResource(String roleName, String eavAttribute, String member) {
+
+		TestRoleResource resourceUserOne = new TestRoleResource();
+		resourceUserOne.setName(roleName);
+		resourceUserOne.setEavAttribute(eavAttribute);
+		resourceUserOne.setMember(member);
+		entityManager.persist(resourceUserOne);
+
+	}
+	
+	@Transactional
 	public void deleteAllResourceData() {
 		// Delete all
-		Query q = entityManager.createNativeQuery("DELETE FROM " + TestResource.TABLE_NAME);
+		Query q = entityManager.createNativeQuery("DELETE FROM " + TestRoleResource.TABLE_NAME);
 		q.executeUpdate();
 	}
 	
@@ -442,7 +778,6 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		List<IdmRoleDto> roles = roleService.find(roleFilter, null).getContent();
 		Assert.assertEquals(0, roles.size());
 		
-		final String wfExampleKey =  "syncRoleAd";
 		Assert.assertNotNull(system);
 		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
 		config.setLinkedActionWfKey(wfExampleKey);
@@ -473,5 +808,48 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 
 		// Delete log
 		syncLogService.delete(log);
+	}
+	
+	/**
+	 * Returns existing system attribute or null
+	 * 
+	 * @param attr
+	 * @return
+	 */
+	private SysRoleSystemAttributeDto getSystemAttribute(UUID roleSystem, String attributeName, UUID roleId) {
+		SysRoleSystemAttributeFilter filter = new SysRoleSystemAttributeFilter();
+		filter.setRoleSystemId(getSysRoleSystem(roleSystem, roleId));
+		List<SysRoleSystemAttributeDto> content = roleSystemAttributeService.find(filter, null).getContent();
+		for (SysRoleSystemAttributeDto attribute : content) {
+			if (attribute.getName().equals(attributeName)) {
+				return attribute;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns existing role's system or returns newly created one.
+	 * 
+	 * @param systemId
+	 * @param roleId
+	 * @param objectClassName
+	 * @return
+	 */
+	private UUID getSysRoleSystem(UUID systemId, UUID roleId) {
+		SysRoleSystemFilter filter = new SysRoleSystemFilter();
+		filter.setRoleId(roleId);
+		filter.setSystemId(systemId);
+		List<SysRoleSystemDto> roleSystem = roleSystemService.find(filter, null).getContent();
+		SysRoleSystemDto attribute = roleSystem.stream().findFirst().orElse(null);
+		Assert.assertNotNull(attribute);
+		return attribute.getId();
+	}
+	
+	private boolean isRoleInCatalogue(UUID roleId, String inCatalog) {
+		List<IdmRoleCatalogueRoleDto> allCatalogsByRole = roleCatalogueRoleService.findAllByRole(roleId);
+		IdmRoleCatalogueDto catalogue = getCatalogueByCode(inCatalog);
+		List<IdmRoleCatalogueRoleDto> collect = allCatalogsByRole.stream().filter(catInList -> catInList.getRoleCatalogue().equals(catalogue.getId())).collect(Collectors.toList());
+		return !collect.isEmpty();
 	}
 }

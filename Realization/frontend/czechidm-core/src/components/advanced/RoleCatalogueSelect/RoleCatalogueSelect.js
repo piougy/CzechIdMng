@@ -231,7 +231,13 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { rendered, required, value, multiSelect } = this.props;
+    const {
+      rendered,
+      required,
+      validationErrors,
+      value,
+      multiSelect
+    } = this.props;
     const { showTree, selected, readOnly } = this.state;
     //
     if (!rendered) {
@@ -251,6 +257,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               helpBlock={ this.getHelpBlock() }
               readOnly={ readOnly }
               required={ required }
+              validationErrors={ validationErrors }
               value={ value }
               multiSelect={ multiSelect }/>
           </div>

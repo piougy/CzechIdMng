@@ -15,7 +15,7 @@ const codeListManager = new CodeListManager();
 /**
  * Form attribute detail
  *
- * FIXME: Persistent type has to be change double timi - the first onChange is consumed ... i don't know why (rt).
+ * FIXME: joi validation for precision does not work (see min 4.44444444 - schould fail)
  *
  * @author Ondřej Kopr
  * @author Radek Tomiška
@@ -72,7 +72,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
    */
   save(event) {
     const { uiKey, formDefinition } = this.props;
-
+    const { persistentType } = this.state;
+    //
     if (event) {
       event.preventDefault();
     }
@@ -88,7 +89,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
       //
       const saveEntity = {
         ...entity,
-        faceType: entity.persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) ? entity.codeList : entity.faceType
+        persistentType,
+        faceType: persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) ? entity.codeList : entity.faceType
       };
 
       if (entity.id === undefined) {
@@ -136,7 +138,38 @@ class FormAttributeDetail extends Basic.AbstractContent {
     }, () => {
       // clear selected face type
       this.refs.faceType.setValue(null);
+      if (!this._supportsUniqueValidation(persistentType.value)) {
+        this.refs.unique.setValue(false);
+      }
+      if (!this._supportsRegexValidation(persistentType.value)) {
+        this.refs.regex.setValue(null);
+      }
+      if (!this._supportsMinMaxValidation(persistentType.value)) {
+        this.refs.max.setValue(null);
+        this.refs.min.setValue(null);
+      }
     });
+  }
+
+  _supportsUniqueValidation(persistentType) {
+    return this._supportsRegexValidation(persistentType);
+  }
+
+  _supportsRegexValidation(persistentType) {
+    if (!persistentType) {
+      return false;
+    }
+    return persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.BYTEARRAY)
+        && persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.ATTACHMENT);
+  }
+
+  _supportsMinMaxValidation(persistentType) {
+    if (!persistentType) {
+      return false;
+    }
+    return persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DOUBLE)
+        || persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.INT)
+        || persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.LONG);
   }
 
   /**
@@ -208,29 +241,28 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   <Basic.Col lg={ 8 } className="col-lg-offset-4">
                     <Basic.TextField
                       ref="placeholder"
-                      label={this.i18n('entity.FormAttribute.placeholder.label')}
+                      label={ this.i18n('entity.FormAttribute.placeholder.label') }
                       helpBlock={ this.i18n('entity.FormAttribute.placeholder.help') }
-                      max={255}/>
+                      max={ 255 }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ 4 } rendered={ persistentType !== null }>
                     <Basic.EnumSelectBox
-                      ref="persistentType"
                       enum={ PersistentTypeEnum }
                       readOnly={ this._isUnmodifiable() }
                       label={ this.i18n('entity.FormAttribute.persistentType') }
                       onChange={ this.onChangePersistentType.bind(this) }
-                      max={ 255 }
                       useSymbol={ false }
                       required
-                      clearable={ false }/>
+                      clearable={ false }
+                      value={{ value: persistentType, niceLabel: PersistentTypeEnum.getNiceLabel(persistentType) }}/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
                     <Basic.TextField
                       ref="defaultValue"
-                      label={this.i18n('entity.FormAttribute.defaultValue')}
-                      max={255}/>
+                      label={ this.i18n('entity.FormAttribute.defaultValue') }
+                      max={ 255 }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
@@ -273,6 +305,31 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   ref="required"
                   readOnly={this._isUnmodifiable()}
                   label={this.i18n('entity.FormAttribute.required')}/>
+                <Basic.Checkbox
+                  ref="unique"
+                  label={ this.i18n('entity.FormAttribute.unique.label') }
+                  readOnly={ !this._supportsUniqueValidation(persistentType) }/>
+                <Basic.TextField
+                  ref="min"
+                  label={ this.i18n('entity.FormAttribute.min.label') }
+                  validation={ Joi.number().precision(4).min(-Math.pow(10, 33)).max(Math.pow(10, 33)).allow(null) }
+                  readOnly={ !this._supportsMinMaxValidation(persistentType) }/>
+                <Basic.TextField
+                  ref="max"
+                  label={ this.i18n('entity.FormAttribute.max.label') }
+                  validation={ Joi.number().precision(4).min(-Math.pow(10, 33)).max(Math.pow(10, 33)).allow(null) }
+                  readOnly={ !this._supportsMinMaxValidation(persistentType) }/>
+                <Basic.TextField
+                  ref="regex"
+                  label={ this.i18n('entity.FormAttribute.regex.label') }
+                  helpBlock={ this.i18n('entity.FormAttribute.regex.help') }
+                  max={ 2000 }
+                  readOnly={ !this._supportsRegexValidation(persistentType) }/>
+                <Basic.TextField
+                  ref="validationMessage"
+                  label={ this.i18n('entity.FormAttribute.validationMessage.label') }
+                  helpBlock={ this.i18n('entity.FormAttribute.validationMessage.help') }
+                  max={ 2000 } />
                 <Basic.Checkbox
                   ref="readonly"
                   readOnly={this._isUnmodifiable()}

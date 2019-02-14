@@ -111,6 +111,8 @@ public class DefaultEmailer implements Emailer {
 							"contentPath", attachment.getContentPath()));
 				} else {
 					// TODO: check attachment with same names?
+					LOG.warn("Sending attachment [{}] for email [{}]", attachment.getName(), emailLog.getId());
+					//
 					in.addAttachment(attachment.getName(), new DataHandler(dataSource));
 				}
 			}

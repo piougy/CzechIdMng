@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -33,7 +32,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig_;
-import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -402,28 +400,8 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	@Override
-	protected CorrelationFilter getEntityFilter() {
+	protected CorrelationFilter getEntityFilter(SynchronizationContext context) {
 		return new IdmIdentityFilter();
-	}
-
-	@Override
-	protected IdmIdentityDto findByAttribute(String idmAttributeName, String value) {
-		CorrelationFilter filter = getEntityFilter();
-		filter.setProperty(idmAttributeName);
-		filter.setValue(value);
-		List<IdmIdentityDto> entities = identityService.find((IdmIdentityFilter) filter, null).getContent();
-
-		if (CollectionUtils.isEmpty(entities)) {
-			return null;
-		}
-		if (entities.size() > 1) {
-			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
-					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
-		}
-		if (entities.size() == 1) {
-			return entities.get(0);
-		}
-		return null;
 	}
 
 	@Override

@@ -32,14 +32,14 @@ export default class RoleCompositions extends Basic.AbstractContent {
       <div>
         <Helmet title={this.i18n('title')} />
 
-        <Basic.ContentHeader icon="arrow-up" text={ this.i18n('superior.header') } style={{ marginBottom: 0 }}/>
+        <Basic.ContentHeader icon="component:superior-roles" text={ this.i18n('superior.header') } style={{ marginBottom: 0 }}/>
         <RoleCompositionTable
           uiKey="role-composition-superior-table"
           forceSearchParameters={ forceSuperiorSearchParameters }
           className="no-margin"
           params={ this.props.params }/>
 
-        <Basic.ContentHeader icon="arrow-down" text={ this.i18n('sub.header') } style={{ marginBottom: 0 }}/>
+        <Basic.ContentHeader icon="component:sub-roles" text={ this.i18n('sub.header') } style={{ marginBottom: 0 }}/>
         <RoleCompositionTable
           uiKey="role-composition-sub-table"
           forceSearchParameters={ forceSubSearchParameters }

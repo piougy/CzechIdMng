@@ -158,4 +158,25 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 	public void testSaveFormDefinition() throws Exception {
 		// We don't want testing form definition - IdentityRole has extra behavior (role attributes) for Form (definition is changing by role)
 	}
+	
+	@Test
+	@Ignore
+	@Override
+	public void testSaveFormValue() throws Exception {
+		// We don't want testing form definition - IdentityRole has extra behavior (role attributes) for Form (definition is changing by role)
+	}
+	
+	@Test
+	@Ignore
+	@Override
+	public void testDownloadFormValue() throws Exception {
+		// We don't want testing form definition - IdentityRole has extra behavior (role attributes) for Form (definition is changing by role)
+	}
+	
+	@Test
+	@Ignore
+	@Override
+	public void testPreviewFormValue() throws Exception {
+		// We don't want testing form definition - IdentityRole has extra behavior (role attributes) for Form (definition is changing by role)
+	}
 }

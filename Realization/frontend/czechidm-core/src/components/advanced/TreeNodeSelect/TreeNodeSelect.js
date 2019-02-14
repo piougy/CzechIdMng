@@ -346,7 +346,8 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
       required,
       value,
       hidden,
-      multiSelect
+      multiSelect,
+      validationErrors
     } = this.props;
     const {
       treeTypeId,
@@ -408,6 +409,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
                 onChange={ this.onChangeTreeType.bind(this) }
                 useFirst={ useFirstType && !selectedTreeType }
                 required={ required }
+                validationErrors={ validationErrors }
                 readOnly={ readOnly }/>
             </div>
             { this._renderShowTreeIcon() }
@@ -426,6 +428,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               forceSearchParameters={ formForceSearchParameters }
               readOnly={ readOnly || (treeTypeId === null && showTreeType) }
               required={ required }
+              validationErrors={ validationErrors }
               value={ value }
               multiSelect={ multiSelect }/>
           </div>

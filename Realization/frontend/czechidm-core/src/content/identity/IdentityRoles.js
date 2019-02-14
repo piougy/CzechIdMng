@@ -208,21 +208,27 @@ class IdentityRoles extends Basic.AbstractContent {
         <Basic.Tabs activeKey={ activeKey } onSelect={ this._onChangeSelectTabs.bind(this) }>
           <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
 
-            <Basic.ContentHeader icon="fa:key" text={ this.i18n('directRoles.header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }} />
+            <Basic.ContentHeader icon="component:identity-roles" text={ this.i18n('directRoles.header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }} />
 
             <IdentityRoleTableComponent
               uiKey={ `${uiKey}-${entityId}` }
-              forceSearchParameters={ new SearchParameters().setFilter('identityId', entityId).setFilter('directRole', true) }
+              forceSearchParameters={ new SearchParameters()
+                .setFilter('identityId', entityId)
+                .setFilter('directRole', true)
+                .setFilter('addEavMetadata', true) }
               showAddButton={ _contracts.length > 0 }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole']) }
               _permissions={ _permissions }/>
 
-            <Basic.ContentHeader icon="arrow-down" text={ this.i18n('subRoles.header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15 }}/>
+            <Basic.ContentHeader icon="component:sub-roles" text={ this.i18n('subRoles.header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15 }}/>
 
             <IdentityRoleTableComponent
               uiKey={ `${uiKey}-sub-${entityId}` }
-              forceSearchParameters={ new SearchParameters().setFilter('identityId', entityId).setFilter('directRole', false) }
+              forceSearchParameters={ new SearchParameters()
+                .setFilter('identityId', entityId)
+                .setFilter('directRole', false)
+                .setFilter('addEavMetadata', true) }
               showAddButton={ false }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['automaticRole']) }/>

@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
@@ -8,7 +7,6 @@ import * as Utils from '../../utils';
 import { IdentityManager, DataManager, ConfigurationManager } from '../../redux';
 import ComponentService from '../../services/ComponentService';
 import OrganizationPosition from './OrganizationPosition';
-import IdentityStateEnum from '../../enums/IdentityStateEnum';
 
 const identityManager = new IdentityManager();
 const componentService = new ComponentService();
@@ -51,7 +49,7 @@ class IdentityDashboard extends Basic.AbstractContent {
     if (!this.isDashboard()) {
       return 'identities';
     }
-    return undefined;
+    return 'dashboard';
   }
 
   isDashboard() {
@@ -155,7 +153,7 @@ class IdentityDashboard extends Basic.AbstractContent {
             style={{ height: 50, marginRight: 3, minWidth: 150 }}
             rendered={ this._canPasswordChange() }/>
           <Basic.Button
-            icon="fa:key"
+            icon="component:identity-roles"
             className="btn-large"
             text={ this.i18n('content.identity.roles.changePermissions') }
             onClick={ this.onChangePermissions.bind(this) }

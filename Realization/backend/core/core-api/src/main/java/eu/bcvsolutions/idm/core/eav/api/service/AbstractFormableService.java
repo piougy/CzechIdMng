@@ -1,6 +1,10 @@
 package eu.bcvsolutions.idm.core.eav.api.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -10,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.FormableFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -17,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -82,6 +88,35 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 		return savedDto;
 	}
 	
+	@Override
+	public Page<DTO> find(F filter, Pageable pageable, BasePermission... permission) {
+		
+		Page<DTO> results = super.find(filter, pageable, permission);
+		
+		// If has filter sets field "Add EAV metadata" to True, then we will load the
+		// form instance for every result
+		if (filter instanceof FormableFilter && Boolean.TRUE.equals(((FormableFilter) filter).getAddEavMetadata())) {
+			results.getContent().forEach(result -> {
+				List<IdmFormInstanceDto> formInstances = this.getFormInstances(result);
+				if (formInstances != null) {
+					result.getEavs().clear();
+					result.getEavs().addAll(formInstances);
+				}
+			});
+		}
+		return results;
+	}
+	
+	/**
+	 * Returns form instances for given DTO
+	 * 
+	 * @param result
+	 * @return
+	 */
+	protected List<IdmFormInstanceDto> getFormInstances(DTO result) {
+		return null;
+	}
+
 	/**
 	 * Deletes a given entity with all extended attributes
 	 * 

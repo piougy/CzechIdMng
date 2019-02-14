@@ -2,6 +2,7 @@ import FormableEntityService from './FormableEntityService';
 import RequestService from './RequestService';
 
 class AbstractRequestFormableService extends FormableEntityService {
+
   constructor() {
     super();
     this.requestService = new RequestService();

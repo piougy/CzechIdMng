@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -164,7 +165,19 @@ public interface ProvisioningService {
 	 * @param dto
 	 * @return true if is provisioning required
 	 */
-
 	boolean accountManagement(AbstractDto entity);
+
+	/**
+	 * Check if is value from IDM and value from System equals.
+	 * Good method for override in project for make comparing of list depending on value order.
+	 * 
+	 * @since 9.4.0
+	 * 
+	 * @param idmValue
+	 * @param icValueTransformed
+	 * @param schemaAttribute
+	 * @return
+	 */
+	boolean isAttributeValueEquals(Object idmValue, Object icValueTransformed, SysSchemaAttributeDto schemaAttribute);
 	
 }

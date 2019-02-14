@@ -9,7 +9,7 @@ import Immutable from 'immutable';
  */
 export default class FormInstance {
 
-  constructor(formDefinition, formValues = null) {
+  constructor(formDefinition, formValues = null, validationErrors = null) {
     this.definition = formDefinition;
     //
     // prepare attributes from given definition
@@ -27,6 +27,9 @@ export default class FormInstance {
     //
     // prepare values
     this._setValues(formValues);
+    //
+    //  set validation errors
+    this.validationErrors = validationErrors;
   }
 
   _clone() {
@@ -49,6 +52,10 @@ export default class FormInstance {
    */
   getAttributes() {
     return this.attributes;
+  }
+
+  getValidationErrors() {
+    return this.validationErrors;
   }
 
   /**

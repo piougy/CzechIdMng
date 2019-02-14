@@ -1,9 +1,14 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
@@ -15,6 +20,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningEntityExecutor;
@@ -128,6 +134,44 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(entity);
 		return this.getExecutor(SystemEntityType.getByClass(entity.getClass())).accountManagement(entity);
 	}
+	
+	@Override
+	public boolean isAttributeValueEquals(Object idmValue, Object icValueTransformed,
+			SysSchemaAttributeDto schemaAttribute) {
+		if (schemaAttribute.isMultivalued() && idmValue != null && !(idmValue instanceof List)) {
+			List<Object> values = new ArrayList<>();
+			values.add(idmValue);
+			return Objects.equals(values, icValueTransformed);
+		}
+
+		// Multivalued values are equals, when value from system is null and value in
+		// IdM is empty list
+		if (schemaAttribute.isMultivalued() && idmValue instanceof Collection && ((Collection<?>) idmValue).isEmpty()
+				&& icValueTransformed == null) {
+			return true;
+		}
+
+		// Multivalued values are equals, when value in IdM is null and value from
+		// system is empty list
+		if (schemaAttribute.isMultivalued() && icValueTransformed instanceof Collection
+				&& ((Collection<?>) icValueTransformed).isEmpty() && idmValue == null) {
+			return true;
+		}
+		
+		// If IdM and system value are lists, then will be compared without order the values.
+		if (schemaAttribute.isMultivalued() && idmValue instanceof List && icValueTransformed instanceof List) {
+			 return CollectionUtils.isEqualCollection((Collection<?>) idmValue,
+					(Collection<?>) icValueTransformed);
+		}
+		
+		// For array of bytes we need to use equals on Arrays
+		if (byte[].class.getName().equals(schemaAttribute.getClassType())) {
+			return Arrays.equals((byte[]) idmValue, (byte[]) icValueTransformed);
+		}
+		
+		return Objects.equals(idmValue, icValueTransformed);
+	}
+
 
 
 	/**

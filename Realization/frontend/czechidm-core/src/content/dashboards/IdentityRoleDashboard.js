@@ -32,7 +32,7 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
     return (
       <div>
         <Basic.ContentHeader
-          icon="fa:key"
+          icon="component:identity-role"
           text={ this.i18n('content.identity.roles.directRoles.header') }
           buttons={
             identityManager.canRead(identity, permissions)
@@ -50,7 +50,10 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
         <Basic.Panel>
           <IdentityRoleTableComponent
             uiKey={ `dashboard-${ entityId }` }
-            forceSearchParameters={ new Domain.SearchParameters().setFilter('identityId', entityId).setFilter('directRole', true) }
+            forceSearchParameters={ new Domain.SearchParameters()
+              .setFilter('identityId', entityId)
+              .setFilter('directRole', true)
+              .setFilter('addEavMetadata', true) }
             showAddButton={ false }
             params={{ ...this.props.params, entityId }}
             columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole', 'contractPosition']) }
@@ -61,8 +64,9 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
   }
 }
 
-function select() {
+function select(state) {
   return {
+    i18nReady: state.config.get('i18nReady')
   };
 }
 

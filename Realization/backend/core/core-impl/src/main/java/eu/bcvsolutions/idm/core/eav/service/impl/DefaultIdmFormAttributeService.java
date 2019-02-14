@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -19,12 +21,19 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
@@ -35,6 +44,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleFormAttribute_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -45,28 +55,27 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmFormAttributeService 
-		extends AbstractReadWriteDtoService<IdmFormAttributeDto, IdmFormAttribute, IdmFormAttributeFilter> 
+		extends AbstractEventableDtoService<IdmFormAttributeDto, IdmFormAttribute, IdmFormAttributeFilter> 
 		implements IdmFormAttributeService {
 
 	private final IdmFormAttributeRepository repository;
 	private final PluginRegistry<FormValueService<?>, Class<?>> formValueServices;
-	private final IdmAutomaticRoleAttributeRuleService automaticRoleAttributeService;
-	@Autowired
-	private IdmAutomaticRoleAttributeRuleRequestService automaticRoleAttributeRequestService;
+	//
+	@Autowired private IdmAutomaticRoleAttributeRuleService automaticRoleAttributeService;
+	@Autowired private IdmAutomaticRoleAttributeRuleRequestService automaticRoleAttributeRequestService;
+	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
 	
 	@Autowired
 	public DefaultIdmFormAttributeService(
 			IdmFormAttributeRepository repository,
-			List<? extends FormValueService<?>> formValueServices,
-					IdmAutomaticRoleAttributeRuleService automaticRoleAttributeService) {
-		super(repository);
+			EntityEventManager entityEventManager,
+			List<? extends FormValueService<?>> formValueServices) {
+		super(repository, entityEventManager);
 		//
 		Assert.notNull(formValueServices);
-		Assert.notNull(automaticRoleAttributeService);
 		//
 		this.repository = repository;
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
-		this.automaticRoleAttributeService = automaticRoleAttributeService;
 	}
 	
 	@Override
@@ -86,6 +95,48 @@ public class DefaultIdmFormAttributeService
 	}
 	
 	@Override
+	public IdmFormAttributeDto validateDto(IdmFormAttributeDto dto) {
+		dto = super.validateDto(dto);
+		// invalid combination of validations and persistent types
+		if (dto.getMin() != null
+				&& dto.getPersistentType() != PersistentType.DOUBLE
+				&& dto.getPersistentType() != PersistentType.LONG
+				&& dto.getPersistentType() != PersistentType.INT) {
+			throw new ResultCodeException(CoreResultCode.FORM_VALIDATION_NOT_SUPPORTED, ImmutableMap.of(
+					"validationType", "min",
+					"persistentType", dto.getPersistentType().toString(),
+					"attributeCode", dto.getCode()));
+		}
+		if (dto.getMax() != null
+				&& dto.getPersistentType() != PersistentType.DOUBLE
+				&& dto.getPersistentType() != PersistentType.LONG
+				&& dto.getPersistentType() != PersistentType.INT) {
+			throw new ResultCodeException(CoreResultCode.FORM_VALIDATION_NOT_SUPPORTED, ImmutableMap.of(
+					"validationType", "max",
+					"persistentType", dto.getPersistentType().toString(),
+					"attributeCode", dto.getCode()));
+		}
+		if (dto.isUnique() 
+				&& dto.getPersistentType() == PersistentType.BYTEARRAY) {
+			throw new ResultCodeException(CoreResultCode.FORM_VALIDATION_NOT_SUPPORTED, ImmutableMap.of(
+					"validationType", "unique",
+					"persistentType", dto.getPersistentType().toString(),
+					"attributeCode", dto.getCode()));
+		}
+		if (StringUtils.isNotEmpty(dto.getRegex())) {
+			try {
+				Pattern.compile(dto.getRegex());
+			} catch (PatternSyntaxException ex) {
+				throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_INVALID_REGEX, ImmutableMap.of(
+						"regex", dto.getRegex(),
+						"attributeCode", dto.getCode()), ex);
+			}
+		}
+		//
+		return dto;
+	}
+	
+	@Override
 	@Transactional
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void deleteInternal(IdmFormAttributeDto dto) {
@@ -99,7 +150,7 @@ public class DefaultIdmFormAttributeService
 			}
 		});
 		// delete all values
-		// TODO: add some force delete parameter => rewrite service to event usage
+		// TODO: add some force delete parameter => rewrite service to event usage - can be solved as new event processor before ... 
 		/* formValueServices.getPlugins().forEach(formValueService -> {
 			formValueService.find(filter, null).getContent().forEach(formValue -> {
 				formValueService.delete((IdmFormValueDto) formValue);
@@ -114,6 +165,17 @@ public class DefaultIdmFormAttributeService
 		if (totalElements > 0) {
 			// some automatic roles use this attribute
 			throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED, ImmutableMap.of("formAttribute", dto.getId()));
+		}
+		
+		// Check on using this attribute on role (sub-definition)
+		if(dto.getId() != null) {
+			IdmRoleFormAttributeFilter roleFormAttributeFilter = new IdmRoleFormAttributeFilter();
+			roleFormAttributeFilter.setFormAttribute(dto.getId());
+			List<IdmRoleFormAttributeDto> attributes = roleFormAttributeService.find(roleFormAttributeFilter, new PageRequest(0, 1)).getContent();
+			if(attributes.size() > 0) {
+				IdmRoleDto roleDto = DtoUtils.getEmbedded(attributes.get(0), IdmRoleFormAttribute_.role.getName(), IdmRoleDto.class);
+				throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_ROLE_ATTRIBUTE, ImmutableMap.of("definition", dto.getCode(), "role", roleDto.getCode()));
+			}
 		}
 		//
 		// Check rules requests for automatic role attributes. Deletes relation on this form attribute.

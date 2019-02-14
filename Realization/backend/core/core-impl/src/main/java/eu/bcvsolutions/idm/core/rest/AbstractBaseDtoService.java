@@ -40,6 +40,11 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 	}
 
 	@Override
+	public boolean supportsToDtoWithFilter() {
+		return false;
+	}
+
+	@Override
 	public Class<F> getFilterClass() {
 		return filterClass;
 	}

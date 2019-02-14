@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.After;
@@ -29,8 +30,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
@@ -38,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -71,6 +75,9 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	private static final String APPROVE_BY_USERMANAGER_ENABLE = "idm.sec.core.wf.approval.usermanager.enabled";
 	private static final String APPROVE_BY_HELPDESK_ENABLE = "idm.sec.core.wf.approval.helpdesk.enabled";
 	private static final String APPROVE_BY_SECURITY_ROLE = "idm.sec.core.wf.approval.security.role";
+	private static final String APPROVE_INCOMPATIBLE_ENABLE = "idm.sec.core.wf.approval.incompatibility.enabled";
+	private static final String APPROVE_INCOMPATIBLE_ROLE = "idm.sec.core.wf.approval.incompatibility.role";
+	private static final String INCOMPATIBILITY_ROLE_TEST = "IncompatibilityRoleTest";
 	//
 	@Autowired
 	private TestHelper helper;
@@ -94,6 +101,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	private IdmConfigurationService configurationService;
 	@Autowired
 	private SecurityService securityService;
+	@Autowired
+	private IdmIncompatibleRoleService incompatibleRoleService;
 
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
@@ -343,6 +352,136 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertNotNull(request.getWfProcessId());
 		concept = conceptRoleRequestService.get(concept.getId());
 		assertNotNull(concept.getWfProcessId());
+	}
+	
+	@Test
+	@Transactional
+	public void approveIncompatibleRolesTest() {
+		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_INCOMPATIBLE_ENABLE, "true");
+		// Set incompatibility role test
+		configurationService.setValue(APPROVE_INCOMPATIBLE_ROLE, INCOMPATIBILITY_ROLE_TEST);
+		// Create test role for load candidates on approval incompatibility (TEST_USER_1)
+		IdmRoleDto role = getHelper().createRole(INCOMPATIBILITY_ROLE_TEST);
+		helper.createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
+		
+		IdmIdentityDto applicant = getHelper().createIdentity();
+		
+		// Create definition of incompatible roles
+		IdmRoleDto incompatibleRoleOne = getHelper().createRole();
+		IdmRoleDto incompatibleRoleTwo = getHelper().createRole();
+		IdmIncompatibleRoleDto incompatibleRole = new IdmIncompatibleRoleDto();
+		incompatibleRole.setSub(incompatibleRoleOne.getId());
+		incompatibleRole.setSuperior(incompatibleRoleTwo.getId());
+		incompatibleRole = incompatibleRoleService.save(incompatibleRole);
+		
+		// Assign first incompatible role
+		getHelper().createIdentityRole(applicant, incompatibleRoleOne);
+		loginAsAdmin();
+		
+		// Create request
+		IdmRoleRequestDto request = createRoleRequest(applicant);
+		request = roleRequestService.save(request);
+		IdmIdentityContractDto applicantContract = identityContractService.getPrimeContract(applicant.getId());
+		IdmConceptRoleRequestDto concept = createRoleConcept(incompatibleRoleTwo, applicantContract, request);
+		concept = conceptRoleRequestService.save(concept);
+		// Check on incompatible role in the request
+		Set<ResolvedIncompatibleRoleDto> incompatibleRoles = roleRequestService.getIncompatibleRoles(request);
+		assertEquals(2, incompatibleRoles.size());
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		// HELPDESK turn off
+		// MANAGER turn off
+		// USER MANAGER turn off
+		// SECURITY turn off
+		// ROLE INCOMPATIBILITY turn on
+		loginAsAdmin(InitTestData.TEST_USER_1);
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_1);
+		checkAndCompleteOneTask(taskFilter, applicant.getUsername(), "approve", "approveIncompatibilities");
+
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assertNotNull(request.getWfProcessId());
+		concept = conceptRoleRequestService.get(concept.getId());
+		assertNotNull(concept.getWfProcessId());
+		// Find all identity roles for applicant
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(applicant.getId());
+		boolean exists = identityRoles.stream()
+			.filter(identityRole -> incompatibleRoleTwo.getId().equals(identityRole.getRole()))
+			.findFirst()
+			.isPresent();
+		// Incompatible role two must be assigned for applicant
+		assertTrue(exists);
+		
+		// Create next request
+		IdmRoleRequestDto requestNext = createRoleRequest(applicant);
+		requestNext = roleRequestService.save(requestNext);
+		// Check on incompatible role in the request
+		// Incompatibilities exist for this user, but not in this request (none concept
+		// added new role is presents)
+		incompatibleRoles = roleRequestService.getIncompatibleRoles(requestNext);
+		assertEquals(0, incompatibleRoles.size());
+		
+	}
+	
+	@Test
+	@Transactional
+	public void defaultWithoutApproveTest() {
+		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_INCOMPATIBLE_ENABLE, "false");
+		// Set incompatibility role test
+		configurationService.setValue(APPROVE_INCOMPATIBLE_ROLE, INCOMPATIBILITY_ROLE_TEST);
+		// Create test role for load candidates on approval incompatibility (TEST_USER_1)
+		IdmRoleDto role = getHelper().createRole(INCOMPATIBILITY_ROLE_TEST);
+		helper.createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
+		
+		IdmIdentityDto applicant = getHelper().createIdentity();
+		
+		// Create definition of incompatible roles
+		IdmRoleDto incompatibleRoleOne = getHelper().createRole();
+		IdmRoleDto incompatibleRoleTwo = getHelper().createRole();
+		IdmIncompatibleRoleDto incompatibleRole = new IdmIncompatibleRoleDto();
+		incompatibleRole.setSub(incompatibleRoleOne.getId());
+		incompatibleRole.setSuperior(incompatibleRoleTwo.getId());
+		incompatibleRole = incompatibleRoleService.save(incompatibleRole);
+		
+		// Assign first incompatible role
+		getHelper().createIdentityRole(applicant, incompatibleRoleOne);
+		loginAsAdmin();
+		
+		// Create request
+		IdmRoleRequestDto request = createRoleRequest(applicant);
+		request = roleRequestService.save(request);
+		IdmIdentityContractDto applicantContract = identityContractService.getPrimeContract(applicant.getId());
+		IdmConceptRoleRequestDto concept = createRoleConcept(incompatibleRoleTwo, applicantContract, request);
+		concept = conceptRoleRequestService.save(concept);
+		// Check on incompatible role in the request
+		Set<ResolvedIncompatibleRoleDto> incompatibleRoles = roleRequestService.getIncompatibleRoles(request);
+		assertEquals(2, incompatibleRoles.size());
+
+		// HELPDESK turn off
+		// MANAGER turn off
+		// USER MANAGER turn off
+		// SECURITY turn off
+		// ROLE INCOMPATIBILITY turn off
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assertNotNull(request.getWfProcessId());
 	}
 
 	@Test
@@ -1261,12 +1400,19 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		request.setRequestedByType(RoleRequestedByType.MANUALLY);
 		return request;
 	}
-
+	
 	private void checkAndCompleteOneTask(WorkflowFilterDto taskFilter, String user, String decision) {
+		this.checkAndCompleteOneTask(taskFilter, user, decision, null);
+	}
+
+	private void checkAndCompleteOneTask(WorkflowFilterDto taskFilter, String user, String decision, String userTaskId) {
 		IdmIdentityDto identity = identityService.getByUsername(user);
 		List<WorkflowTaskInstanceDto> tasks;
 		tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(1, tasks.size());
+		if (userTaskId != null) {
+			assertEquals(userTaskId,  tasks.get(0).getDefinition().getId());
+		}
 		assertEquals(identity.getId().toString(), tasks.get(0).getApplicant());
 
 		workflowTaskInstanceService.completeTask(tasks.get(0).getId(), decision);

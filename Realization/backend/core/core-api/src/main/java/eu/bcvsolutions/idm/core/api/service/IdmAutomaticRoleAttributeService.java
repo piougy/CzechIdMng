@@ -130,7 +130,15 @@ public interface IdmAutomaticRoleAttributeService
 	 */
 	void processAutomaticRolesForContract(UUID contractId, Set<AbstractIdmAutomaticRoleDto> passedAutomaticRoles, Set<AbstractIdmAutomaticRoleDto> notPassedAutomaticRoles);
 
-	
+	/**
+	 * Process new automatic role for contract. The method made same behavior as method {@link IdmAutomaticRoleAttributeService#processAutomaticRolesForContract(UUID, Set, Set)},
+	 * but without new transaction. For more information see javadoc in these method.
+	 *
+	 * @param contractId
+	 * @param passedAutomaticRoles
+	 * @param notPassedAutomaticRoles
+	 */
+	void processAutomaticRolesForContractInternal(UUID contractId, Set<AbstractIdmAutomaticRoleDto> passedAutomaticRoles, Set<AbstractIdmAutomaticRoleDto> notPassedAutomaticRoles);
 	/**
 	 * Recalculate this automatic role and rules and assign new role to identity or remove.
 	 * 

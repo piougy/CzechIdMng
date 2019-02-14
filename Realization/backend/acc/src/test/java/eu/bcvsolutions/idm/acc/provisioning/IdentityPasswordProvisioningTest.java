@@ -39,6 +39,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -51,8 +52,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.IdentityProvisioningExecutor;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
@@ -73,7 +76,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 /**
  * Test for password transformation, passwords provisoning and etc.
  *
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
@@ -423,6 +426,264 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	public void disabledPasswordAttribute() {
+		SysSystemDto system = initSystem();
+		IdmRoleDto role = initRole(system);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		checkIdentityAccount(identity, identityRole, 1);
+		
+		TestResource findResource = helper.findResource(identity.getUsername());
+		assertNotNull(findResource);
+		assertEquals(DEFAULT_PASSWORD, findResource.getPassword());
+
+		// disable password attribute
+		SysSystemAttributeMappingDto passwordAttribute = getMainPasswordAttribute(system);
+		passwordAttribute.setDisabledAttribute(true);
+		passwordAttribute = systemAttributeMappingService.save(passwordAttribute);
+
+		// change password, but only for idm
+		List<OperationResult> results = changePassword(identity, null, "password");
+		assertEquals(2, results.size());
+
+		// check for results
+		for (OperationResult result : results) {
+			IdmAccountDto account = (IdmAccountDto) result.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
+			String statusEnum = result.getModel().getStatusEnum();
+			assertNotNull(statusEnum);
+			assertNotNull(account);
+			if (statusEnum.equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name())) {
+				assertNull(account.getSystemId());
+				assertNull(account.getSystemName());
+				continue;
+			} else if (statusEnum.equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name())) {
+				assertEquals(system.getId(), account.getSystemId());
+				assertEquals(system.getName(), account.getSystemName());
+				continue;
+			}
+			fail("Different result!");
+		}
+
+		// password must be same as before
+		findResource = helper.findResource(identity.getUsername());
+		assertNotNull(findResource);
+		assertEquals(DEFAULT_PASSWORD, findResource.getPassword());
+		assertNull(findResource.getDescrip());
+	}
+
+	@Test
+	public void twoAttributesBothEnabled() {
+		SysSystemDto system = initSystem();
+		IdmRoleDto role = initRole(system);
+		
+		SysSystemAttributeMappingDto descriptionAttribute = initDescriptionAttribute(system);
+		changeAttributeToPasswordMapping(descriptionAttribute, null);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		checkIdentityAccount(identity, identityRole, 1);
+		
+		TestResource findResource = helper.findResource(identity.getUsername());
+		assertNotNull(findResource);
+		assertEquals(DEFAULT_PASSWORD, findResource.getPassword());
+		assertEquals(DEFAULT_PASSWORD, findResource.getDescrip());
+
+		String newPassword = "password" + System.currentTimeMillis();
+		// change password, but only for idm
+		List<OperationResult> results = changePassword(identity, null, newPassword);
+		assertEquals(2, results.size());
+
+		// check for results
+		for (OperationResult result : results) {
+			IdmAccountDto account = (IdmAccountDto) result.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
+			String statusEnum = result.getModel().getStatusEnum();
+			assertNotNull(statusEnum);
+			assertNotNull(account);
+			if (statusEnum.equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name())) {
+				if (account.getSystemId() == null) {
+					// idm
+					assertNull(account.getSystemId());
+					assertNull(account.getSystemName());
+				} else {
+					assertEquals(system.getId(), account.getSystemId());
+					assertEquals(system.getName(), account.getSystemName());
+				}
+				continue;
+			} 
+			fail("Different result!");
+		}
+
+		// password must be same as before
+		findResource = helper.findResource(identity.getUsername());
+		assertNotNull(findResource);
+		assertEquals(newPassword, findResource.getPassword());
+		assertEquals(newPassword, findResource.getDescrip());
+	}
+
+	@Test
+	public void twoAttributeMainPasswordDisabled() {
+		SysSystemDto system = initSystem();
+		IdmRoleDto role = initRole(system);
+		
+		SysSystemAttributeMappingDto descriptionAttribute = initDescriptionAttribute(system);
+		changeAttributeToPasswordMapping(descriptionAttribute, null);
+		
+		SysSystemAttributeMappingDto mainPasswordAttribute = getMainPasswordAttribute(system);
+		mainPasswordAttribute.setDisabledAttribute(true);
+		mainPasswordAttribute = systemAttributeMappingService.save(mainPasswordAttribute);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		checkIdentityAccount(identity, identityRole, 1);
+		
+		TestResource findResource = helper.findResource(identity.getUsername());
+		assertNotNull(findResource);
+		assertNull(findResource.getPassword());
+		assertEquals(DEFAULT_PASSWORD, findResource.getDescrip());
+
+		String newPassword = "password" + System.currentTimeMillis();
+		// change password, but only for idm
+		List<OperationResult> results = changePassword(identity, null, newPassword);
+		assertEquals(2, results.size());
+
+		// check for results
+		for (OperationResult result : results) {
+			IdmAccountDto account = (IdmAccountDto) result.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
+			String statusEnum = result.getModel().getStatusEnum();
+			assertNotNull(statusEnum);
+			assertNotNull(account);
+			if (statusEnum.equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name())) {
+				if (account.getSystemId() == null) {
+					// idm
+					assertNull(account.getSystemId());
+					assertNull(account.getSystemName());
+				} else {
+					assertEquals(system.getId(), account.getSystemId());
+					assertEquals(system.getName(), account.getSystemName());
+				}
+				continue;
+			} 
+			fail("Different result!");
+		}
+
+		// password must be same as before
+		findResource = helper.findResource(identity.getUsername());
+		assertNotNull(findResource);
+		assertNull(findResource.getPassword()); // main password are disabled
+		assertEquals(newPassword, findResource.getDescrip());
+	}
+
+	@Test
+	public void twoAttributeDescriptionDisabled() {
+		SysSystemDto system = initSystem();
+		IdmRoleDto role = initRole(system);
+		
+		SysSystemAttributeMappingDto descriptionAttribute = initDescriptionAttribute(system);
+		changeAttributeToPasswordMapping(descriptionAttribute, null);
+		descriptionAttribute.setDisabledAttribute(true);
+		descriptionAttribute = systemAttributeMappingService.save(descriptionAttribute);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		checkIdentityAccount(identity, identityRole, 1);
+
+		TestResource findResource = helper.findResource(identity.getUsername());
+		assertNotNull(findResource);
+		assertEquals(DEFAULT_PASSWORD, findResource.getPassword());
+		assertNull(findResource.getDescrip());
+
+		String newPassword = "password" + System.currentTimeMillis();
+		// change password, but only for idm
+		List<OperationResult> results = changePassword(identity, null, newPassword);
+		assertEquals(2, results.size());
+
+		// check for results
+		for (OperationResult result : results) {
+			IdmAccountDto account = (IdmAccountDto) result.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
+			String statusEnum = result.getModel().getStatusEnum();
+			assertNotNull(statusEnum);
+			assertNotNull(account);
+			if (statusEnum.equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name())) {
+				if (account.getSystemId() == null) {
+					// idm
+					assertNull(account.getSystemId());
+					assertNull(account.getSystemName());
+				} else {
+					assertEquals(system.getId(), account.getSystemId());
+					assertEquals(system.getName(), account.getSystemName());
+				}
+				continue;
+			} 
+			fail("Different result!");
+		}
+
+		// password must be same as before
+		findResource = helper.findResource(identity.getUsername());
+		assertNotNull(findResource);
+		assertEquals(newPassword, findResource.getPassword());
+		assertNull(findResource.getDescrip()); // description is disabled
+	}
+
+	@Test
+	public void twoAttributeBothDisabled() {
+		SysSystemDto system = initSystem();
+		IdmRoleDto role = initRole(system);
+		
+		SysSystemAttributeMappingDto descriptionAttribute = initDescriptionAttribute(system);
+		changeAttributeToPasswordMapping(descriptionAttribute, null);
+		descriptionAttribute.setDisabledAttribute(true);
+		descriptionAttribute = systemAttributeMappingService.save(descriptionAttribute);
+	
+		SysSystemAttributeMappingDto mainPasswordAttribute = getMainPasswordAttribute(system);
+		mainPasswordAttribute.setDisabledAttribute(true);
+		mainPasswordAttribute = systemAttributeMappingService.save(mainPasswordAttribute);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		checkIdentityAccount(identity, identityRole, 1);
+
+		TestResource findResource = helper.findResource(identity.getUsername());
+		assertNotNull(findResource);
+		assertNull(DEFAULT_PASSWORD, findResource.getPassword());
+		assertNull(DEFAULT_PASSWORD, findResource.getDescrip());
+
+		String newPassword = "password" + System.currentTimeMillis();
+		// change password, but only for idm
+		List<OperationResult> results = changePassword(identity, null, newPassword);
+		assertEquals(2, results.size());
+
+		// check for results
+		for (OperationResult result : results) {
+			IdmAccountDto account = (IdmAccountDto) result.getModel().getParameters().get(IdmAccountDto.PARAMETER_NAME);
+			String statusEnum = result.getModel().getStatusEnum();
+			assertNotNull(statusEnum);
+			assertNotNull(account);
+			if (statusEnum.equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_SUCCESS.name())) {
+				assertNull(account.getSystemId());
+				assertNull(account.getSystemName());
+				continue;
+			} else if (statusEnum.equals(CoreResultCode.PASSWORD_CHANGE_ACCOUNT_FAILED.name())) {
+				assertEquals(system.getId(), account.getSystemId());
+				assertEquals(system.getName(), account.getSystemName());
+				continue;
+			}
+			fail("Different result!");
+		}
+
+		// password must be same as before
+		findResource = helper.findResource(identity.getUsername());
+		assertNotNull(findResource);
+		assertNull(findResource.getPassword()); // main password is disabled
+		assertNull(findResource.getDescrip()); // description is disabled
+	}
+
+	@Test
 	public void testReadOnlySystem() {
 		String suffixForPassword = "-" + System.currentTimeMillis();
 		SysSystemDto system = initSystem();
@@ -643,6 +904,30 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 	}
 
 	/**
+	 * Return password field mapped in system mapping
+	 *
+	 * @param system
+	 * @return
+	 */
+	private SysSystemAttributeMappingDto getMainPasswordAttribute(SysSystemDto system) {
+		SysSystemMappingDto mapping = helper.getDefaultMapping(system);
+
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setSystemId(system.getId());
+		filter.setSystemMappingId(mapping.getId());
+		List<SysSystemAttributeMappingDto> attributes = systemAttributeMappingService.find(filter, null).getContent();
+		for (SysSystemAttributeMappingDto attribute : attributes) {
+			if (attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_PASSWORD)) {
+				return attribute;
+			}
+		}
+
+		fail("System hasnt mapped password field");
+		// this is probably o_O state
+		return null;
+	}
+
+	/**
 	 * Init description attribute. The attribute will be mapped to entity attribute
 	 * description.
 	 *
@@ -680,8 +965,9 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 	 * @param identity
 	 * @param oldPassword
 	 * @param newPassword
+	 * @return 
 	 */
-	private void changePassword(IdmIdentityDto identity, String oldPassword, String newPassword) {
+	private List<OperationResult> changePassword(IdmIdentityDto identity, String oldPassword, String newPassword) {
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setAll(true);
 		passwordChange.setIdm(true);
@@ -691,7 +977,7 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 			passwordChange.setOldPassword(new GuardedString(oldPassword));
 		}
 		passwordChange.setNewPassword(new GuardedString(newPassword));
-		identityService.passwordChange(identity, passwordChange);
+		return identityService.passwordChange(identity, passwordChange);
 	}
 
 	/**

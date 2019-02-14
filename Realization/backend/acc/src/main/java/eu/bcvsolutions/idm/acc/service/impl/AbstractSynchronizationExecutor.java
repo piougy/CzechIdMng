@@ -91,6 +91,7 @@ import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -1406,7 +1407,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			return null;
 		}
 		if (attribute.isEntityAttribute()) {
-			return findByAttribute(attribute.getIdmPropertyName(), value.toString());
+			return findByAttribute(attribute.getIdmPropertyName(), value.toString(), context);
 		} else if (attribute.isExtendedAttribute()) {
 			try {
 				Serializable serializableValue = Serializable.class.cast(value);
@@ -1438,7 +1439,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * 
 	 * @return
 	 */
-	protected abstract CorrelationFilter getEntityFilter();
+	protected abstract CorrelationFilter getEntityFilter(SynchronizationContext context);
 
 	/**
 	 * Find all records
@@ -1464,9 +1465,31 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * 
 	 * @param idmAttributeName
 	 * @param value
+	 * @param context 
 	 * @return
 	 */
-	protected abstract DTO findByAttribute(String idmAttributeName, String value);
+	protected DTO findByAttribute(String idmAttributeName, String value, SynchronizationContext context) {
+		CorrelationFilter filter = this.getEntityFilter(context);
+		filter.setProperty(idmAttributeName);
+		filter.setValue(value);
+		
+		@SuppressWarnings("unchecked")
+		ReadWriteDtoService<DTO, BaseFilter> service = (ReadWriteDtoService<DTO, BaseFilter>) getService();
+		
+		List<DTO> entities = service.find((BaseFilter)filter, (Pageable)null).getContent();
+		
+		if (CollectionUtils.isEmpty(entities)) {
+			return null;
+		}
+		if (entities.size() > 1) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
+					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
+		}
+		if (entities.size() == 1) {
+			return entities.get(0);
+		}
+		return null;
+	}
 
 	protected abstract EntityAccountFilter createEntityAccountFilter();
 

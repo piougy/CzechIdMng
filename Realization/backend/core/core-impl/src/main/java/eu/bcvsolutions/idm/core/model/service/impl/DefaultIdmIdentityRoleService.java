@@ -19,6 +19,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -110,6 +112,17 @@ public class DefaultIdmIdentityRoleService
 		IdmFormInstanceDto formInstanceDto = this.getRoleAttributeValues(identityRole);
 		if (formInstanceDto != null) {
 			return this.getFormService().validate(formInstanceDto);
+		}
+		return null;
+	}
+	
+	@Override
+	protected List<IdmFormInstanceDto> getFormInstances(IdmIdentityRoleDto result) {
+		IdmFormInstanceDto formInstanceDto = getRoleAttributeValues(result);
+		if (formInstanceDto != null) {
+			// Validate the form instance
+			formInstanceDto.setValidationErrors(getFormService().validate(formInstanceDto));
+			return Lists.newArrayList(formInstanceDto);
 		}
 		return null;
 	}

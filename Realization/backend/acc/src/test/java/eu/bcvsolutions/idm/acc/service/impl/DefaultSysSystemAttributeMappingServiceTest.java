@@ -23,11 +23,19 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -48,11 +56,13 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 	@Autowired
 	private SysSystemService systemService;
 	@Autowired
-	private DefaultSysSystemAttributeMappingService attributeMappingService;
+	private SysSystemAttributeMappingService attributeMappingService;
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
 	private DefaultSysSystemMappingService mappingService;
+	@Autowired
+	private FormService formService;
 
 	@Before
 	public void init() {
@@ -322,6 +332,49 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		assertEquals(1, result.getTotalElements());
 		assertTrue(result.getContent().contains(attributeMapping2));
 		assertFalse(result.getContent().contains(attributeMapping1));
+	}
+	
+	@Test
+	public void createExtendedAttributeTest() {
+		SysSystemDto system = testHelper.createSystem(TestResource.TABLE_NAME);
+		SysSystemMappingDto mapping = testHelper.createMapping(system);
+
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(system.getId());
+
+		SysSchemaAttributeDto descriptionSchemaAttribute = attributeService.find(schemaAttributeFilter, null)
+				.getContent() //
+				.stream() //
+				.filter(schemaAttribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equals(schemaAttribute.getName())) //
+				.findFirst() //
+				.get(); //
+
+		// create EAV attribute
+		String propertyName = testHelper.createName();
+		SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
+		attributeMapping.setExtendedAttribute(true);
+		attributeMapping.setName(descriptionSchemaAttribute.getName());
+		attributeMapping.setIdmPropertyName(propertyName);
+		attributeMapping.setSchemaAttribute(descriptionSchemaAttribute.getId());
+		attributeMapping.setSystemMapping(mapping.getId());
+		attributeMapping = attributeMappingService.save(attributeMapping);
+		
+		IdmFormDefinitionDto definition = formService.getDefinition(IdmIdentityDto.class);
+		IdmFormAttributeDto formAttributeDto = definition.getFormAttributes() //
+				.stream() //
+				.filter(formAttribute -> propertyName.equals(formAttribute.getCode())) //
+				.findFirst() //
+				.get(); //
+		
+		assertEquals(propertyName, formAttributeDto.getCode());
+		assertEquals(TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION,  formAttributeDto.getName());
+		assertEquals(false, formAttributeDto.isMultiple());
+		assertEquals(false, formAttributeDto.isConfidential());
+		assertEquals(false, formAttributeDto.isRequired());
+		assertEquals(false, formAttributeDto.isReadonly());
+		assertEquals(false, formAttributeDto.isUnique());
+		assertEquals(PersistentType.SHORTTEXT, formAttributeDto.getPersistentType());
+
 	}
 
 	private SysSystemDto createSystem() {

@@ -77,7 +77,7 @@ export class IdentityRoleInfo extends AbstractEntityInfo {
    * @param  {object} entity
    */
   getEntityIcon() {
-    return 'fa:key';
+    return 'component:identity-role';
   }
 
   /**

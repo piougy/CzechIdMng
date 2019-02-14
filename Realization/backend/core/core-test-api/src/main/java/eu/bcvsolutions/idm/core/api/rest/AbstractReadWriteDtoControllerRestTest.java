@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.core.Relation;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -48,12 +50,15 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.DuplicateExternalIdException;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
@@ -85,6 +90,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadWriteDtoControllerRestTest.class);
 	//
 	@Autowired private FormService formService;
+	@Autowired private AttachmentManager attachmentManager;
 	
 	@Before
 	public void setup() throws Exception {
@@ -521,6 +527,12 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
 		//
+		// find quick alias
+		results = findQuick(parameters);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		//
 		if (supportsAutocomplete()) {
 			results = autocomplete(parameters);
 			//
@@ -630,6 +642,198 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		Assert.assertEquals(formValue.getShortTextValue(), formInstance.getValues().get(0).getShortTextValue());
 	}
 	
+	@Test
+	public void testSaveFormValue() throws Exception {
+		if(!supportsFormValues()) {
+			LOG.info("Controller [{}] doesn't support extended attributes. Method will not be tested.", getController().getClass());
+			return;
+		}
+		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(getHelper().createName());
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(getFormOwnerType(), getHelper().createName(), Lists.newArrayList(formAttribute));
+		formAttribute = formDefinition.getFormAttributes().get(0);
+		//
+		DTO owner = createDto();
+		//
+		// test get values - empty
+		IdmFormInstanceDto formInstance = getFormInstance(owner.getId(), TestHelper.ADMIN_USERNAME, formDefinition.getCode());
+		Assert.assertEquals(owner.getId().toString(), formInstance.getOwnerId());
+		Assert.assertEquals(formDefinition.getId().toString(), formInstance.getFormDefinition().getId().toString());
+		Assert.assertEquals(formDefinition.getFormAttributes().get(0).getId().toString(), formInstance.getFormDefinition().getFormAttributes().get(0).getId().toString());
+		Assert.assertTrue(formInstance.getValues().isEmpty());
+		//
+		// save value
+		IdmFormValueDto formValue = new IdmFormValueDto(formAttribute);
+		formValue.setValue(getHelper().createName());
+		saveFormValue(owner.getId(), TestHelper.ADMIN_USERNAME, formValue);
+		
+		// get saved values
+		formInstance = getFormInstance(owner.getId(), TestHelper.ADMIN_USERNAME, formDefinition.getCode());
+		Assert.assertEquals(owner.getId().toString(), formInstance.getOwnerId());
+		Assert.assertEquals(formDefinition.getId().toString(), formInstance.getFormDefinition().getId().toString());
+		Assert.assertEquals(formDefinition.getFormAttributes().get(0).getId().toString(), formInstance.getFormDefinition().getFormAttributes().get(0).getId().toString());
+		Assert.assertEquals(1, formInstance.getValues().size());
+		Assert.assertEquals(formValue.getShortTextValue(), formInstance.getValues().get(0).getShortTextValue());
+		//
+		getMockMvc().perform(post(getFormValueUrl(UUID.randomUUID()))
+        		.with(authentication(getAuthentication(TestHelper.ADMIN_USERNAME)))
+        		.content(getMapper().writeValueAsString(formValue))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isNotFound());
+	}
+	
+	@Test
+	public void testDownloadFormValue() throws Exception {
+		if(!supportsFormValues()) {
+			LOG.info("Controller [{}] doesn't support extended attributes. Method will not be tested.", getController().getClass());
+			return;
+		}
+		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(getHelper().createName());
+		formAttribute.setPersistentType(PersistentType.ATTACHMENT);
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(getFormOwnerType(), getHelper().createName(), Lists.newArrayList(formAttribute));
+		formAttribute = formDefinition.getFormAttributes().get(0);
+		//
+		DTO owner = createDto();
+		//
+		// save value
+		String content = "text";
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
+		UUID owwnerId = UUID.randomUUID();
+		attachment.setOwnerId(owwnerId);
+		attachment.setOwnerType(attachmentManager.getOwnerType(IdmFormValueDto.class));
+		attachment.setName("test.txt");
+		attachment.setMimetype("text/plain");
+		attachment.setInputData(IOUtils.toInputStream(content));
+		attachment = attachmentManager.saveAttachment(owner, attachment);
+		
+		IdmFormValueDto formValue = new IdmFormValueDto(formAttribute);
+		formValue.setId(owwnerId);
+		formValue.setValue(attachment.getId());
+		IdmFormInstanceDto formInstance = saveFormValue(owner.getId(), TestHelper.ADMIN_USERNAME, formValue);
+		Assert.assertEquals(owner.getId().toString(), formInstance.getOwnerId());
+		Assert.assertEquals(formDefinition.getId().toString(), formInstance.getFormDefinition().getId().toString());
+		Assert.assertEquals(formDefinition.getFormAttributes().get(0).getId().toString(), formInstance.getFormDefinition().getFormAttributes().get(0).getId().toString());
+		Assert.assertEquals(1, formInstance.getValues().size());
+		formValue = formInstance.getValues().get(0);
+		//
+		// download saved value
+		String response = getMockMvc().perform(MockMvcRequestBuilders.get(getDownloadFormValuesUrl(owner.getId(), formValue.getId()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("text/plain"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		// preview for the text files is not available
+		getMockMvc().perform(MockMvcRequestBuilders.get(getPreviewFormValuesUrl(owner.getId(), formValue.getId()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isNoContent());
+		//
+		// download is available for the attachment persistent type only
+		IdmFormAttributeDto formAttributeWrong = new IdmFormAttributeDto(getHelper().createName());
+		formAttributeWrong.setPersistentType(PersistentType.TEXT);
+		IdmFormDefinitionDto formDefinitionWrong = formService.createDefinition(getFormOwnerType(), getHelper().createName(), Lists.newArrayList(formAttributeWrong));
+		formAttributeWrong = formDefinitionWrong.getFormAttributes().get(0);
+		IdmFormValueDto formValueWrong = new IdmFormValueDto(formAttributeWrong);
+		formValueWrong.setValue(getHelper().createName());
+		formInstance = saveFormValue(owner.getId(), TestHelper.ADMIN_USERNAME, formValueWrong);
+		formValueWrong = formInstance.getValues().get(0);
+		getMockMvc().perform(MockMvcRequestBuilders.get(getDownloadFormValuesUrl(owner.getId(), formValueWrong.getId()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isBadRequest());
+		//
+		// download is available for the filled attachments
+		formValue.setValue(null);
+		saveFormValue(owner.getId(), TestHelper.ADMIN_USERNAME, formValue);
+		getMockMvc().perform(MockMvcRequestBuilders.get(getDownloadFormValuesUrl(owner.getId(), formValue.getId()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isNotFound());
+		//
+		// entity not found
+		getMockMvc().perform(MockMvcRequestBuilders.get(getDownloadFormValuesUrl(owner.getId(), UUID.randomUUID()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isNotFound());
+		getMockMvc().perform(MockMvcRequestBuilders.get(getDownloadFormValuesUrl(UUID.randomUUID(), formValue.getId()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isNotFound());
+		//
+		Assert.assertEquals(content, response);
+	}
+	
+	@Test
+	public void testPreviewFormValue() throws Exception {
+		if(!supportsFormValues()) {
+			LOG.info("Controller [{}] doesn't support extended attributes. Method will not be tested.", getController().getClass());
+			return;
+		}
+		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(getHelper().createName());
+		formAttribute.setPersistentType(PersistentType.ATTACHMENT);
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(getFormOwnerType(), getHelper().createName(), Lists.newArrayList(formAttribute));
+		formAttribute = formDefinition.getFormAttributes().get(0);
+		//
+		DTO owner = createDto();
+		//
+		// save value
+		String content = "wrong ... but image :)";
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
+		UUID owwnerId = UUID.randomUUID();
+		attachment.setOwnerId(owwnerId);
+		attachment.setOwnerType(attachmentManager.getOwnerType(IdmFormValueDto.class));
+		attachment.setName("test.jpg");
+		attachment.setMimetype("image/jpeg");
+		attachment.setInputData(IOUtils.toInputStream(content));
+		attachment = attachmentManager.saveAttachment(owner, attachment);
+		
+		IdmFormValueDto formValue = new IdmFormValueDto(formAttribute);
+		formValue.setId(owwnerId);
+		formValue.setValue(attachment.getId());
+		IdmFormInstanceDto formInstance = saveFormValue(owner.getId(), TestHelper.ADMIN_USERNAME, formValue);
+		Assert.assertEquals(owner.getId().toString(), formInstance.getOwnerId());
+		Assert.assertEquals(formDefinition.getId().toString(), formInstance.getFormDefinition().getId().toString());
+		Assert.assertEquals(formDefinition.getFormAttributes().get(0).getId().toString(), formInstance.getFormDefinition().getFormAttributes().get(0).getId().toString());
+		Assert.assertEquals(1, formInstance.getValues().size());
+		formValue = formInstance.getValues().get(0);
+		//
+		// preview saved value
+		String response = getMockMvc().perform(MockMvcRequestBuilders.get(getPreviewFormValuesUrl(owner.getId(), formValue.getId()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("image/jpeg"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		// preview is available for the attachment persistent type only
+		IdmFormAttributeDto formAttributeWrong = new IdmFormAttributeDto(getHelper().createName());
+		formAttributeWrong.setPersistentType(PersistentType.TEXT);
+		IdmFormDefinitionDto formDefinitionWrong = formService.createDefinition(getFormOwnerType(), getHelper().createName(), Lists.newArrayList(formAttributeWrong));
+		formAttributeWrong = formDefinitionWrong.getFormAttributes().get(0);
+		IdmFormValueDto formValueWrong = new IdmFormValueDto(formAttributeWrong);
+		formValueWrong.setValue(getHelper().createName());
+		formInstance = saveFormValue(owner.getId(), TestHelper.ADMIN_USERNAME, formValueWrong);
+		formValueWrong = formInstance.getValues().get(0);
+		getMockMvc().perform(MockMvcRequestBuilders.get(getPreviewFormValuesUrl(owner.getId(), formValueWrong.getId()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isBadRequest());
+		//
+		// download is available for the filled attachments
+		formValue.setValue(null);
+		saveFormValue(owner.getId(), TestHelper.ADMIN_USERNAME, formValue);
+		getMockMvc().perform(MockMvcRequestBuilders.get(getPreviewFormValuesUrl(owner.getId(), formValue.getId()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isNotFound());
+		//
+		// entity not found
+		getMockMvc().perform(MockMvcRequestBuilders.get(getPreviewFormValuesUrl(owner.getId(), UUID.randomUUID()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isNotFound());
+		getMockMvc().perform(MockMvcRequestBuilders.get(getPreviewFormValuesUrl(UUID.randomUUID(), formValue.getId()))
+        		.with(authentication(getAdminAuthentication())))
+				.andExpect(status().isNotFound());
+		//
+		Assert.assertEquals(content, response);
+	}
+	
 	/**
 	 * Find dtos by given filter. DataFilter should be fully implemented - only properties mapped in DATA will be used.
 	 * 
@@ -707,6 +911,10 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		throw new CoreException("Controller [" + clazz + "] doeasn't have default mapping, cannot be tested by this abstraction.");
 	}
 	
+	protected String getFindQuickUrl() {
+		return String.format("%s%s", getBaseUrl(), "/search/quick"); 
+	}
+	
 	protected String getAutocompleteUrl() {
 		return String.format("%s%s", getBaseUrl(), "/search/autocomplete"); 
 	}
@@ -735,15 +943,27 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		return String.format("%s/%s/form-definitions", getBaseUrl(), backendId);
 	}
 	
-	protected String getFormValuesUrl(Serializable backendId) {
-		String id = null;
+	protected String getBackendId(Serializable backendId) {
 		if (backendId instanceof Identifiable) {
-			id = ((Identifiable) backendId).getId().toString();
-		} else {
-			id = backendId.toString();
+			return ((Identifiable) backendId).getId().toString();
 		}
-		//
-		return String.format("%s/%s/form-values", getBaseUrl(), id);
+		return backendId.toString();
+	}
+	
+	protected String getFormValuesUrl(Serializable backendId) {
+		return String.format("%s/%s/form-values", getBaseUrl(), getBackendId(backendId));
+	}
+	
+	protected String getFormValueUrl(Serializable backendId) {
+		return String.format("%s/%s/form-value", getBaseUrl(), getBackendId(backendId));
+	}
+	
+	protected String getDownloadFormValuesUrl(Serializable backendId, UUID valueId) {
+		return String.format("%s/%s/form-values/%s/download", getBaseUrl(), getBackendId(backendId), valueId);
+	}
+	
+	protected String getPreviewFormValuesUrl(Serializable backendId, UUID valueId) {
+		return String.format("%s/%s/form-values/%s/preview", getBaseUrl(), getBackendId(backendId), valueId);
 	}
 	
 	/**
@@ -816,6 +1036,30 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	protected List<DTO> find(MultiValueMap<String, String> parameters) {
 		try {
 			String response = getMockMvc().perform(get(getBaseUrl())
+	        		.with(authentication(getAdminAuthentication()))
+	        		.params(parameters)
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			return toDtos(response);
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to find entities", ex);
+		}
+	}
+	
+	/**
+	 * Find dtos - "quick" is alias to standard find method. Required by all controllers
+	 * 
+	 * @param parameters
+	 * @return
+	 */
+	protected List<DTO> findQuick(MultiValueMap<String, String> parameters) {
+		try {
+			String response = getMockMvc().perform(get(getFindQuickUrl())
 	        		.with(authentication(getAdminAuthentication()))
 	        		.params(parameters)
 	                .contentType(TestHelper.HAL_CONTENT_TYPE))
@@ -1050,13 +1294,38 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 * @param formValues
 	 * @throws Exception
 	 */
-	protected void saveFormValues(UUID forOwner, String loginAs, String definitionCode, List<IdmFormValueDto> formValues) throws Exception {
-		getMockMvc().perform(patch(getFormValuesUrl(forOwner))
+	protected IdmFormInstanceDto saveFormValues(UUID forOwner, String loginAs, String definitionCode, List<IdmFormValueDto> formValues) throws Exception {
+		String response = getMockMvc().perform(patch(getFormValuesUrl(forOwner))
         		.with(authentication(getAuthentication(loginAs)))
         		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, definitionCode)
         		.content(getMapper().writeValueAsString(formValues))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		return toFormInstance(response);
+	}
+	
+	/**
+	 * Save form values
+	 * 
+	 * @param forOwner
+	 * @param loginAs
+	 * @param definitionCode
+	 * @param formValues
+	 * @throws Exception
+	 */
+	protected IdmFormInstanceDto saveFormValue(UUID forOwner, String loginAs, IdmFormValueDto formValue) throws Exception {
+		String response = getMockMvc().perform(post(getFormValueUrl(forOwner))
+        		.with(authentication(getAuthentication(loginAs)))
+        		.content(getMapper().writeValueAsString(formValue))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		return toFormInstance(response);
 	}
 	
 	/**

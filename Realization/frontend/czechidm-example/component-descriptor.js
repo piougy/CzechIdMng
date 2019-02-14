@@ -16,6 +16,19 @@ module.exports = {
       'faceType': 'PRIORITY-SELECT',
       'component': require('./src/components/PrioritySelectFormAttributeRenderer'),
       'labelKey': 'Priority radio select'
+    },
+    {
+      'id': 'custom-roles-icon',
+      'type': 'icon',
+      'entityType': [ 'my-roles', 'roles'],
+      'component': require('./src/components/ExampleRoleIcon'),
+      'priority': 1
+    },
+    {
+      'id': 'marcel-icon',
+      'type': 'icon',
+      'entityType': [ 'marcel'],
+      'component': require('./src/components/MarcelIcon')
     }
   ]
 };

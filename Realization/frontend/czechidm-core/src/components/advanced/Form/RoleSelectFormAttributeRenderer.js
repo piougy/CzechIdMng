@@ -38,7 +38,7 @@ export default class RoleSelectFormAttributeRenderer extends SelectBoxFormAttrib
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, values, uiKey } = this.props;
+    const { attribute, values, uiKey, validationErrors, className, style } = this.props;
     const showOriginalValue = originalValues ? true : false;
     //
     return (
@@ -53,7 +53,10 @@ export default class RoleSelectFormAttributeRenderer extends SelectBoxFormAttrib
         value={ !attribute.multiple ? this.toInputValue(showOriginalValue ? originalValues : values) : this.toInputValues(showOriginalValue ? originalValues : values) }
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }
-        multiSelect={ attribute.multiple }/>
+        multiSelect={ attribute.multiple }
+        validationErrors={ validationErrors }
+        className={ className }
+        style={ style}/>
     );
   }
 

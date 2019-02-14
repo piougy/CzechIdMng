@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -55,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -96,6 +98,7 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 	//
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
+	@Autowired private FormService formService;
 	
 	@Autowired
 	public IdmRoleController(
@@ -508,6 +511,116 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmRole.class, definitionCode);
 		//
 		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
+	}
+	
+	/**
+	 * Save entity's form value
+	 * 
+	 * @param backendId
+	 * @param formValues
+	 * @return
+	 * @since 9.4.0
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
+	@RequestMapping(value = "/{backendId}/form-value", method = { RequestMethod.POST } )
+	@ApiOperation(
+			value = "Role form definition - save value", 
+			nickname = "postRoleFormValue", 
+			tags = { IdmRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") })
+				})
+	public Resource<?> saveFormValue(
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId,
+			@RequestBody @Valid IdmFormValueDto formValue) {		
+		IdmRoleDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		checkAccess(dto, IdmBasePermission.UPDATE);
+		//
+		return formDefinitionController.saveFormValue(dto, formValue);
+	}
+	
+	/**
+	 * Returns input stream to attachment saved in given form value.
+	 * 
+	 * @param backendId
+	 * @param formValueId
+	 * @return
+	 * @since 9.4.0
+	 */
+	@RequestMapping(value = "/{backendId}/form-values/{formValueId}/download", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@ApiOperation(
+			value = "Download form value attachment", 
+			nickname = "downloadFormValue",
+			tags = { IdmRoleController.TAG },
+			notes = "Returns input stream to attachment saved in given form value.",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
+					})
+	public ResponseEntity<InputStreamResource> downloadFormValue(
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable String backendId,
+			@ApiParam(value = "Form value identifier.", required = true)
+			@PathVariable String formValueId) {
+		IdmRoleDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId));
+		if (value == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
+		}
+		return formDefinitionController.downloadAttachment(value);
+	}
+	
+	/**
+	 * Returns input stream to attachment saved in given form value.
+	 * 
+	 * @param backendId
+	 * @param formValueId
+	 * @return
+	 * @since 9.4.0
+	 */
+	@RequestMapping(value = "/{backendId}/form-values/{formValueId}/preview", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@ApiOperation(
+			value = "Download form value attachment preview", 
+			nickname = "downloadFormValue",
+			tags = { IdmRoleController.TAG },
+			notes = "Returns input stream to attachment preview saved in given form value. Preview is supported for the png, jpg and jpeg mime types only",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
+					})
+	public ResponseEntity<InputStreamResource> previewFormValue(
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable String backendId,
+			@ApiParam(value = "Form value identifier.", required = true)
+			@PathVariable String formValueId) {
+		IdmRoleDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId));
+		if (value == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
+		}
+		return formDefinitionController.previewAttachment(value);
 	}
 	
 	/**

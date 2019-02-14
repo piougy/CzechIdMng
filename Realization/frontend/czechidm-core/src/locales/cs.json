@@ -96,7 +96,14 @@
     "saving": "Ukládám ...",
     "yes": "Ano",
     "set": "Nastavit",
-    "crop": "Ořezat a uložit"
+    "crop": "Ořezat a uložit",
+    "preview": {
+      "title": "Zobrazit náhled",
+      "disabled": "Náhled není dostupný"
+    },
+    "clear": {
+      "title": "Zrušit výběr"
+    }
   },
   "filter": {
     "dateFrom": {
@@ -378,6 +385,7 @@
       },
       "Dropzone": {
         "infoText": "Přetáhněte soubory na tuto plochu a nebo na ní klikněte pro výběr souborů.",
+        "infoTextSingle": "Přetáhněte soubor na tuto plochu a nebo na ní klikněte pro výběr souboru.",
         "readOnly": "Náhled není k dispozici."
       },
       "TextField": {
@@ -891,7 +899,7 @@
     "role-request": {
       "header": "Žádosti o změnu rolí",
       "creator": {
-        "header": "Žádosti, které jsem vytvořil"
+        "header": "Mnou vytvořené žádosti"
       },
       "applicant": {
         "header": "Žádosti vytvořené pro mě"
@@ -1143,7 +1151,7 @@
       "save": {
         "success": "Politika [{{name}}] byla úspěšně uložena."
       },
-      "rulesHelp": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním počtu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
+      "rulesHelp": "Pravidla označená jako nepovinná budou kontrolována v závislosti na minimálním počtu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
       "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné.",
       "prefixAndSuffixGeneratedHelp": "Prefix ani suffix není započítáván do celkové délky hesla a do dalších validací při generování. Při použití prefixu a suffixu může například dojít k vygenerování hesla delšího než maximální délka."
     },
@@ -1356,10 +1364,23 @@
             "noIdentityRoles": "Neexistují žádné přiřazené role",
             "noSelectedIdentityRoles": "Žádné nově přiřazené role",
             "buttons": {
-              "addAllRoles": "Přidat všechny role",
-              "addSelectedRoles": "Přidat pouze vybrané role",
-              "removeSelectedRoles": "Odebrat vybrané role",
-              "removeAllRoles": "Odebrat všechny role"
+              "addAllIdentityRoles": "Přidat všechny role",
+              "addSelectedIdentityRoles": "Přidat pouze vybrané role",
+              "removeSelectedIdentityRoles": "Odebrat vybrané role",
+              "removeAllIdentityRoles": "Odebrat všechny role"
+            },
+            "showOnlyDirectRoles": {
+              "label": "Zobrazit pouze napřímo přiřazené role",
+              "help": "Po zaškrtnutí zobrazí pouze napřímo přiřazené role."
+            },
+            "legend": {
+              "header":"Legenda",
+              "role-types": {
+                "role": "Napřímo přidělená aplikační role.",
+                "business-role": "Napřímo přidělená business role. Přidělením této role budou přiděleny i role definované touto business rolí (sub role).",
+                "automatic-role": "Role přidělená systémem dle nastavení automatických rolí (podle struktury či atributu).",
+                "sub-role": "Role přidělená na základě přidělení business role, která tuto roli obsahuje (sub role)."
+              }
             }
           },
           "alert": {
@@ -2629,8 +2650,7 @@
         },
         "action": {
           "save": {
-            "success_0": "N/A",
-            "success_1": "Pro pracovní pozici byl úspěšně uložen vedoucí (odpovědná osoba) [{{record}}]"
+            "success": "Pro pracovní pozici byl úspěšně uložen vedoucí (odpovědná osoba) [{{record}}]"
           }
         }
       },
@@ -3029,7 +3049,7 @@
           "processDefinitionKey": "$t(entity.WorkflowHistoricProcessInstance.processDefinitionKey)",
           "id": "$t(entity.WorkflowHistoricProcessInstance.id)",
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
-          "tasks": "Úživatelské úkoly procesu",
+          "tasks": "Uživatelské úkoly procesu",
           "subprocesses": "Podřízené procesy",
           "filter": {
             "processDefinition":{
@@ -3242,7 +3262,7 @@
       }
     },
     "RoleComposition": {
-      "_type": "Kompozice rolí",
+      "_type": "Business role",
       "superior": {
         "label": "Nadřazená role",
         "help": ""
@@ -3327,7 +3347,11 @@
         "label": "Hlavní definice",
         "help": "Hlavní / výchozí definice"
       },
-      "description": "Popis"
+      "description": "Popis",
+      "module": {
+        "label": "Modul",
+        "help": "Definice formuláře je učena nebo pochází z daného modulu. Modul je použit například pro definici lokalizace. Pokud není zadáno, je použit 'core' modul."
+      }
     },
     "FormAttribute" : {
       "code": {
@@ -3367,19 +3391,31 @@
         "help": "Systémový atribut nemůže být smazán a nelze upravovat některé jeho atributy.",
         "label": "Systémový atribut"
       },
-     "unique": {
-       "label": "Unikátní hodnota"
-     },
-     "regex": {
-       "label": "Regulární výraz",
-       "help": "Validovat hodnotu pomocí regulárního výrazu."
-     },
-     "min": {
-       "label": "Minimální hodnota"
-     },
-     "max": {
-       "label": "Maximální hodnota"
-     }
+      "unique": {
+        "short": "Unikátní",
+        "label": "Unikátní hodnota",
+        "title": "Unikátní hodnota"
+      },
+      "regex": {
+        "short": "Regex",
+        "label": "Regulární výraz",
+        "title": "Validovat hodnotu pomocí regulárního výrazu.",
+        "help": "Validovat hodnotu pomocí regulárního výrazu."
+      },
+      "min": {
+        "short": "Min",
+        "label": "Minimální hodnota",
+        "title": "Minimální hodnota"
+      },
+      "max": {
+        "short": "Max",
+        "label": "Maximální hodnota",
+        "title": "Maximální hodnota"
+      },
+      "validationMessage": {
+        "label": "Validační zpráva",
+        "help": "Vlastní validační zpráva se zobrazí, pokud neprojde některá z nastavených validací. Pokud není zadáno, je zobrazena zpráva dle porušené validace. Může obsahovat klíč do lokalizace (například 'core:validationError.invalid.unique')."
+      }
     },
     "FormValue": {
       "ownerId": {
@@ -3512,7 +3548,7 @@
         "label": "Automatická role",
         "title": "Automatická role",
         "placeholder": "Automatická role",
-        "help": "Role vychází z pozice v PPV"
+        "help": "Role je přidělena automaicky (dle pozice či hodnoty atributu)"
       },
       "roleCataloguePicker": "Výběr složky z katalogu",
       "directRole": {
@@ -3758,7 +3794,7 @@
       },
       "recipients": {
         "label": "Příjemci",
-        "help": "Notifikace bude zaslána i na tyto příjemce. Vylnění příjemců je povinné, pokud je zapnuto přesměrování."
+        "help": "Notifikace bude zaslána i na tyto příjemce. Vyplnění příjemců je povinné, pokud je zapnuto přesměrování."
       }
     },
     "Email": {
@@ -3943,11 +3979,11 @@
       },
       "enchancedControl": {
         "label": "Rozšířená kontrola",
-        "help": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla."
+        "help": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulá hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla."
       },
       "minRulesToFulfill": {
         "label": "Minimum pravidel pro splnění politiky",
-        "help": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní."
+        "help": "Minimální počet pravidel pro splnění politiky; pokud heslo splní minimální počet, je označeno jako validní."
       },
       "maxHistorySimilar": {
         "label": "Počet zpětně kontrolovaných hesel na shodu",
@@ -3955,7 +3991,7 @@
       },
       "blockLoginTime": {
         "label": "Doba blokace přihlášení (vteřiny)",
-        "help": "Po zadaní X neúspěšných pokusů bude uživateli blokováno přihlášení."
+        "help": "Při překročení limitu neúspěšných pokusů o přihlášení bude uživateli na tuto dobu blokováno přihlášení."
       },
       "maxUnsuccessfulAttempts": {
         "label": "Maximální počet neúspěšných pokusů o přihlášení",
@@ -3979,11 +4015,11 @@
       },
       "prefix": {
         "label": "Prefix",
-        "help": "Prefix bude automaticky doplněn na začátek vygenerované části. Pro vynechání prefixu, nechte pole prázdné."
+        "help": "Prefix bude automaticky doplněn na začátek vygenerované části. Pro vynechání prefixu nechte pole prázdné."
       },
       "suffix": {
         "label": "Suffix",
-        "help": "Suffix bude automaticky doplněn na konec vygenerované části. Pro vynechání suffixu, nechte pole prázdné."
+        "help": "Suffix bude automaticky doplněn na konec vygenerované části. Pro vynechání suffixu nechte pole prázdné."
       }
     },
     "Module": {
@@ -4111,7 +4147,7 @@
       "validFrom": "Od",
       "validTill": "Do",
       "wfProcessId": "WF",
-      "state": "Stav",
+      "state": "Stav žádosti",
       "created": "Vytvořeno",
       "modified": "Upraveno"
     },
@@ -4396,6 +4432,10 @@
         "returnedRequestFromUserManager": {
           "name": "Požadavek vrácen vedoucím uživatele",
           "description":"Vrácený požadavek na změnu rolí pro uživatele '{{0}}'"
+        },
+        "approveIncompatibilities": {
+          "name": "Schválení neslučitelných rolí",
+          "description":"Schválení neslučitelných rolí pro uživatele '{{0}}'"
         },
         "approvedBySecurity": {
           "name": "Schválení bezpečnostním oddělením",
@@ -4886,7 +4926,7 @@
     },
     "PASSWORD_CHANGE_CURRENT_FAILED_IDM": {
       "title": "Změna hesla neproběhla",
-      "message": "Zadáno chybné původní heslo."
+      "message": "Zadány chybné přihlašovací údaje (jméno či původní heslo)."
     },
     "LOG_IN": {
       "title": "Přihlášení vypršelo",
@@ -5153,6 +5193,26 @@
     "FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES": {
       "title": "Atribut formuláře nelze smazat",
       "message": "Atribut nelze smazat, některé formulářové hodnoty používají tento atribut."
+    },
+    "FORM_ATTRIBUTE_CHANGE_PERSISTENT_TYPE_FAILED_HAS_VALUES": {
+      "title": "Atribut formuláře nelze změnit",
+      "message": "Typ atributu [{{attributeCode}}] nelze změnit, některé formulářové hodnoty používají tento atribut."
+    },
+    "FORM_ATTRIBUTE_CHANGE_CONFIDENTIAL_FAILED_HAS_VALUES": {
+      "title": "Atribut formuláře nelze změnit",
+      "message": "Pro atribut [{{attributeCode}}] nelze měnit nastavení příznaku tajný, některé formulářové hodnoty používají tento atribut."
+    },
+    "FORM_INVALID": {
+      "title": "Formulář není validní",
+      "message": "Vyplněný formulář obsahuje nevalidní hodnoty."
+    },
+    "FORM_VALIDATION_NOT_SUPPORTED": {
+      "title": "Validace není podporována",
+      "message": "Validace pro atribut [{{attributeCode}}] typu [{{persistentType}}] nepodporuje typ validace [{{validationType}}]. Opravte definici atributu formuláře."
+    },
+    "FORM_ATTRIBUTE_INVALID_REGEX": {
+      "title": "Nevalidní regulární výraz",
+      "message": "Regulární výraz [{{regex}}] není validní."
     },
     "ACCEPTED": {
       "title": "Požadavek přijat",
@@ -5454,6 +5514,10 @@
       "title": "Nenalezena data pro přílohu",
       "message": "Binární data pro přílohu: [{{one}}:{{two}}] - [{{three}}] nebyla nalezena."
     },
+    "ATTACHMENT_SIZE_LIMIT_EXCEEDED": {
+      "title": "Velikost přílohy překročila limit",
+      "message": "Limit pro velikost přílohy je [{{actualSize}}] bytů."
+    },
     "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
       "title": "Šablona nebyla nalezena",
       "message": "XML soubor pro šablonu [{{template}}] nebyl nalezen."
@@ -5725,9 +5789,18 @@
     "ROLE_FORM_ATTRIBUTE_CHANGE_DEF_NOT_ALLOWED": {
       "title": "Není možné provést změnu definice atributů role!",
       "message": "Není možné provést změnu definice atributů role [{{role}}], protože má nastavený alespoň jeden atribut (pro původní definici). Nejprve musíte odebrat všechny nastavené atributy role!"
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_ROLE_ATTRIBUTE": {
+      "title": "Definici atributu není možné smazat!",
+      "message": "Definici atributu [{{definition}}] není možné smazat, protože je použita na roli [{{role}}]!"
     }
   },
   "validationError": {
+    "invalid": {
+      "base": "Položka není validní",
+      "regex": "Položka není validní dle regulárního výrazu [{{regex}}].",
+      "unique": "Položka musí být unikátní. Hodnota [{{unique}}] je již použita."
+    },
     "string": {
       "min_1" : "Zadejte minimálně jeden znak!",
       "min_2" : "Zadejte minimálně dva znaky!",

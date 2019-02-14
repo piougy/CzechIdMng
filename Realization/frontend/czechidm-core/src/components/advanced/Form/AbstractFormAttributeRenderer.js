@@ -11,9 +11,9 @@ const formAttributeManager = new FormAttributeManager();
  * - supper class for all face type renderers
  * - provide basic implementation for single value Input
  * - multi value input has to be implemented in descendant
- * - Rendered should return values:
+ * - Renderer should return form values:
  * -- form value with null (even for multivalues) - for empty values (null value will be removed on BE)
- * -- undefined - value will be not controlled (preserve value on BE)
+ * -- undefined => value will be not controlled, not sent to BE (preserve value on BE)
  *
  * @author Radek Tomiška
  */
@@ -380,7 +380,7 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   }
 
   render() {
-    const { attribute} = this.props;
+    const { attribute } = this.props;
     // check confidential support
     if (attribute.confidential && !this.supportsConfidential()) {
       return (
@@ -426,6 +426,12 @@ AbstractFormAttributeRenderer.propTypes = {
    */
   formDefinition: PropTypes.object,
   /**
+   * Manager controlls owners extended attributes, e.g. identityManager, roleManager.
+   * Enable additional features, which depends on concrete manager (e.g. download attachment).
+   * When manager is not given, features are disabled.
+   */
+  formableManager: PropTypes.object,
+  /**
    * Filled form values
    */
   values: PropTypes.arrayOf(PropTypes.object),
@@ -436,7 +442,11 @@ AbstractFormAttributeRenderer.propTypes = {
   /**
    * Use configured attribute default value as filled.
    */
-  useDefaultValue: PropTypes.bool
+  useDefaultValue: PropTypes.bool,
+  /**
+   * List of InvalidFormAttributeDto
+   */
+  validationErrors: PropTypes.arrayOf(PropTypes.object)
 };
 AbstractFormAttributeRenderer.defaultProps = {
   readOnly: false,

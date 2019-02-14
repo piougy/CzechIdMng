@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -29,6 +33,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
@@ -38,6 +43,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
@@ -46,8 +52,10 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.entity.TestTreeResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -66,6 +74,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -93,7 +102,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Autowired
 	private SysSystemMappingService systemMappingService;
 	@Autowired
-	private SysSystemAttributeMappingService schemaAttributeMappingService;
+	private SysSystemAttributeMappingService attributeMappingService;
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
@@ -116,6 +125,8 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	private FormService formService;
 	@Autowired
 	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
+	private AccTreeAccountService treeAccountService;
 
 	private SysSystemDto system;
 
@@ -144,7 +155,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
 		attributeMappingFilter.setSystemMappingId(mapping.getId());
 
-		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+		List<SysSystemAttributeMappingDto> attributes = attributeMappingService.find(attributeMappingFilter, null)
 				.getContent();
 		SysSystemAttributeMappingDto uidAttribute = attributes.stream().filter(attribute -> {
 			return attribute.isUid();
@@ -536,12 +547,132 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 		Assert.assertTrue(treeNodeService.find(filter, null).getContent().isEmpty());
 	}
+	
+	@Test
+	public void syncCorellationAttribute() {
+		this.getBean().deleteAllResourceData();
+		this.getBean().initTreeData();
 
-	@Transactional
-	public void deleteAllResourceData() {
-		// Delete all
-		Query q = entityManager.createNativeQuery("DELETE FROM test_tree_resource");
-		q.executeUpdate();
+		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
+		configFilter.setName(SYNC_CONFIG_NAME);
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+
+		Assert.assertEquals(1, syncConfigs.size());
+		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
+		
+		IdmTreeTypeDto treeTypeOne = getHelper().createTreeType();
+		IdmTreeTypeDto treeTypeTwo = getHelper().createTreeType();
+		// Set tree type to the mapping
+		SysSystemMappingDto mappingDto = DtoUtils.getEmbedded(syncConfigCustom, SysSyncConfig_.systemMapping.getName(), SysSystemMappingDto.class);
+		mappingDto.setTreeType(treeTypeOne.getId());
+		systemMappingService.save(mappingDto);
+		// Set sync config
+		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
+		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK);
+		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.IGNORE);
+		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
+		syncConfigCustom.setRootsFilterScript(null);
+		
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(syncConfigCustom.getSystemMapping());
+		attributeMappingFilter.setIdmPropertyName(IdmTreeNode_.code.getName());
+		
+		// Set correlation attribute
+		List<SysSystemAttributeMappingDto> attributes = attributeMappingService.find(attributeMappingFilter, null).getContent();
+		Assert.assertEquals(1, attributes.size());
+		SysSystemAttributeMappingDto correlationAttribute = attributes.get(0);
+		syncConfigCustom.setCorrelationAttribute(correlationAttribute.getId());
+		syncConfigService.save(syncConfigCustom);
+		
+		// Check state before sync
+		
+		// For first tree type
+		IdmTreeNodeFilter nodeFilter = new IdmTreeNodeFilter();
+		nodeFilter.setProperty(IdmTreeNode_.code.getName());
+		nodeFilter.setValue("111");
+		nodeFilter.setTreeTypeId(treeTypeOne.getId());
+		List<IdmTreeNodeDto> nodes = treeNodeService.find(nodeFilter, null).getContent();
+		Assert.assertEquals(0, nodes.size());
+		
+		// For second tree type
+		nodeFilter.setTreeTypeId(treeTypeTwo.getId());
+		nodes = treeNodeService.find(nodeFilter, null).getContent();
+		Assert.assertEquals(0, nodes.size());
+
+		IdmTreeNodeDto node = new IdmTreeNodeDto();
+		node.setTreeType(treeTypeTwo.getId());
+		node.setName("111");
+		node.setCode(node.getName());
+		node = treeNodeService.save(node);
+		nodes = treeNodeService.find(nodeFilter, null).getContent();
+		Assert.assertEquals(1, nodes.size());
+		
+		// Start sync
+		helper.startSynchronization(syncConfigCustom);
+	
+		SysSyncLogFilter logFilter = new SysSyncLogFilter();
+		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, logs.size());
+		SysSyncLogDto log = logs.get(0);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		boolean linkActionLogExists = actions.stream().filter(action -> {
+			return SynchronizationActionType.LINK == action.getSyncAction();
+		}).findFirst().isPresent();
+		// Must be false, because node is in the different tree type!
+		assertFalse(linkActionLogExists);
+		
+		// Delete log
+		syncLogService.delete(log);
+
+		treeNodeService.delete(node);
+		
+		// Create node for tree type One
+		node = new IdmTreeNodeDto();
+		node.setTreeType(treeTypeOne.getId());
+		node.setName("111");
+		node.setCode(node.getName());
+		node = treeNodeService.save(node);
+		nodeFilter.setTreeTypeId(treeTypeOne.getId());
+		nodes = treeNodeService.find(nodeFilter, null).getContent();
+		Assert.assertEquals(1, nodes.size());
+
+		// Start sync again
+		helper.startSynchronization(syncConfigCustom);
+
+		logFilter = new SysSyncLogFilter();
+		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
+		logs = syncLogService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, logs.size());
+		log = logs.get(0);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		actionLogFilter = new SysSyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		SysSyncActionLogDto linkActionLog = actions.stream().filter(action -> {
+			return SynchronizationActionType.LINK == action.getSyncAction();
+		}).findFirst().get();
+		// Must exists, because node is in the tree type One!
+		assertNotNull(linkActionLog);
+		assertEquals(1, linkActionLog.getOperationCount().intValue());
+		
+		SysSchemaObjectClassDto schemaObjectDto = DtoUtils.getEmbedded(mappingDto, SysSystemMapping_.objectClass.getName(), SysSchemaObjectClassDto.class);
+		AccTreeAccountFilter treeAccountFilter = new AccTreeAccountFilter();
+		treeAccountFilter.setSystemId(schemaObjectDto.getSystem());
+		treeAccountFilter.setTreeNodeId(node.getId());
+		List<AccTreeAccountDto> treeAccounts = treeAccountService.find(treeAccountFilter, null).getContent();
+		assertEquals(1, treeAccounts.size());
+
+		// Delete log
+		syncLogService.delete(log);
 	}
 
 	private void createProvisionigMapping() {
@@ -597,6 +728,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		final SysSystemMappingDto syncMapping = systemMappingService.save(syncSystemMapping);
 
 		createMapping(system, syncMapping);
+		deleteAllResourceData();
 		initTreeData();
 
 		syncConfigService.find(null).getContent().forEach(config -> {
@@ -605,8 +737,8 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 	}
 
-	private void initTreeData() {
-		deleteAllResourceData();
+	@Transactional
+	public void initTreeData() {
 
 		entityManager.persist(this.createNode("1", null));
 		entityManager.persist(this.createNode("2", "2"));
@@ -622,6 +754,13 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		entityManager.persist(this.createNode("211", "21"));
 		entityManager.persist(this.createNode("212", "21"));
 		entityManager.persist(this.createNode("2111", "211"));
+	}
+	
+	@Transactional
+	public void deleteAllResourceData() {
+		// Delete all
+		Query q = entityManager.createNativeQuery("DELETE FROM test_tree_resource");
+		q.executeUpdate();
 	}
 
 	private TestTreeResource createNode(String code, String parent) {
@@ -661,16 +800,16 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 				// For provisioning .. we need create UID
 				attributeHandlingName.setTransformToResourceScript("if(uid){return uid;}\nreturn entity.getCode();");
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
-				schemaAttributeMappingService.save(attributeHandlingName);
+				attributeMappingService.save(attributeHandlingName);
 
 			} else if ("CODE".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
-				attributeHandlingName.setIdmPropertyName("code");
+				attributeHandlingName.setIdmPropertyName(IdmTreeNode_.code.getName());
 				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
-				schemaAttributeMappingService.save(attributeHandlingName);
+				attributeMappingService.save(attributeHandlingName);
 
 			} else if ("PARENT".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
@@ -679,7 +818,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
-				schemaAttributeMappingService.save(attributeHandlingName);
+				attributeMappingService.save(attributeHandlingName);
 
 			} else if ("NAME".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
@@ -688,7 +827,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
-				schemaAttributeMappingService.save(attributeHandlingName);
+				attributeMappingService.save(attributeHandlingName);
 
 			}
 		});

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tomcat.util.http.fileupload.FileUploadBase.FileSizeLimitExceededException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
@@ -18,9 +19,11 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MultipartException;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -169,10 +172,25 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
+	@ExceptionHandler(MultipartException.class)
+	ResponseEntity<ResultModels> handle(MultipartException ex) {
+		if (ex.getCause() != null 
+				&& ex.getCause().getCause() != null
+				&& ex.getCause().getCause() instanceof FileSizeLimitExceededException) {
+			FileSizeLimitExceededException sizeLimitException = (FileSizeLimitExceededException) ex.getCause().getCause();
+			ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.ATTACHMENT_SIZE_LIMIT_EXCEEDED, ex.getMessage(),
+					ImmutableMap.of("actualSize", String.valueOf(sizeLimitException.getActualSize())));
+			LOG.warn("[" + errorModel.getId() + "] ", ex);
+	        return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
+		}
+		//
+		return handle((Exception) ex);
+    }
+	
 	@ExceptionHandler(Exception.class)
 	ResponseEntity<ResultModels> handle(Exception ex) {
 		Throwable cause = Throwables.getRootCause(ex);
-		// If is cause instance of ResultCodeException, then we will log catched exception and throw only ResultCodeException (for better show on frontend)
+		// If is cause instance of ResultCodeException, then we will log exception and throw only ResultCodeException (for better show on frontend)
 		if (cause instanceof ResultCodeException){
 			LOG.error(ex.getLocalizedMessage(), ex);
 			return handle((ResultCodeException)cause);

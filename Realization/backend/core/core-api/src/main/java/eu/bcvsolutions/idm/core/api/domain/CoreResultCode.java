@@ -119,11 +119,17 @@ public enum CoreResultCode implements ResultCode {
 	// eav
 	FORM_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Form value [%s] for attribute [%s] has to be type of [%s], given [%s]"),
 	FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - some form values already using this attribute."),
+	FORM_ATTRIBUTE_CHANGE_PERSISTENT_TYPE_FAILED_HAS_VALUES(HttpStatus.CONFLICT, "Persistent type for form attribute [%s] cannot be changed - some form values already using this attribute. Data migrations are not implemented."),
+	FORM_ATTRIBUTE_CHANGE_CONFIDENTIAL_FAILED_HAS_VALUES(HttpStatus.CONFLICT, "Confidential flag for form attribute [%s] cannot be changed - some form values already using this attribute. Data migrations are not implemented."),
 	FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - this attribute is flaged as system attribute."),
+	FORM_ATTRIBUTE_DELETE_FAILED_ROLE_ATTRIBUTE(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - is using as role-attribute for role [%s]."),
 	FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - this definition is flaged as system definition."),
 	FORM_DEFINITION_INCOMPATIBLE_CHANGE(HttpStatus.CONFLICT, "Form definition [%s][%s] cannot be updated. Attribute's [%s] property [%s] cannot be updated automatically [%s to %s]. Provide change script for updating form definition or define new form definition (~new version)."),
 	FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED(HttpStatus.CONFLICT, "Form attribute [%s] cannot be deleted - some automatic rules use this attribute."),
 	FORM_DEFINITION_DELETE_FAILED_ROLE(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - role [%s] using that defintion."),
+	FORM_INVALID(HttpStatus.BAD_REQUEST, "Form is not valid."),
+	FORM_VALIDATION_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "Form validation type [%s] is not supported for persistent type [%s] for attribute [%s]."),
+	FORM_ATTRIBUTE_INVALID_REGEX(HttpStatus.BAD_REQUEST, "Regular expression [%s] for the form attribute [%s] is not valid."),
 	// audit
 	AUDIT_REVISION_NOT_SAME(HttpStatus.BAD_REQUEST, "Audit revision are not same."),
 	AUDIT_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),
@@ -242,6 +248,7 @@ public enum CoreResultCode implements ResultCode {
 	ATTACHMENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Uprdate attachment [%s] with owner [%s][%s] failed."),
 	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed."),
 	ATTACHMENT_DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "Binary data for attachment [%s:%s] - [%s] not found."),
+	ATTACHMENT_SIZE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "The attachment data exceeds its maximum permitted size of [%s] bytes."),
 	//
 	// Events
 	EVENT_CANCELED_BY_RESTART(HttpStatus.GONE, "Event [%s] type [%s] on instance [%s] was canceled during restart."),

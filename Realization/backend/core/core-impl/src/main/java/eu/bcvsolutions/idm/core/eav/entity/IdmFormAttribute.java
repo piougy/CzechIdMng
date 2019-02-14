@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.eav.entity;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
@@ -109,6 +111,24 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	@NotNull
 	@Column(name = "unmodifiable", nullable = false)
 	private boolean unmodifiable = false;
+	
+	@NotNull
+	@Column(name = "validation_unique", nullable = false)
+	private boolean unique;
+	
+	@Column(name = "validation_max", nullable = true, precision = 38, scale = 4)
+	private BigDecimal max;
+	
+	@Column(name = "validation_min", nullable = true, precision = 38, scale = 4)
+	private BigDecimal min;
+	
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "validation_regex", nullable = true, length = DefaultFieldLengths.DESCRIPTION)
+	private String regex;
+	
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "validation_message", nullable = true, length = DefaultFieldLengths.DESCRIPTION)
+	private String validationMessage;
 
 	public IdmFormAttribute() {
 	}
@@ -280,5 +300,89 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	
 	public String getFaceType() {
 		return faceType;
+	}
+	
+	/**
+	 * @return
+	 * @since 9.4.0
+	 */
+	public boolean isUnique() {
+		return unique;
+	}
+
+	/**
+	 * @param unique
+	 * @since 9.4.0
+	 */
+	public void setUnique(boolean unique) {
+		this.unique = unique;
+	}
+
+	/**
+	 * @return
+	 * @since 9.4.0
+	 */
+	public BigDecimal getMax() {
+		return max;
+	}
+
+	/**
+	 * @param max
+	 * @since 9.4.0
+	 */
+	public void setMax(BigDecimal max) {
+		this.max = max;
+	}
+
+	/**
+	 * @return
+	 * @since 9.4.0
+	 */
+	public BigDecimal getMin() {
+		return min;
+	}
+
+	/**
+	 * @param min
+	 * @since 9.4.0
+	 */
+	public void setMin(BigDecimal min) {
+		this.min = min;
+	}
+
+	/**
+	 * @return
+	 * @since 9.4.0
+	 */
+	public String getRegex() {
+		return regex;
+	}
+
+	/**
+	 * @param regex
+	 * @since 9.4.0
+	 */
+	public void setRegex(String regex) {
+		this.regex = regex;
+	}
+	
+	/**
+	 * Custom message, when validation fails - localization key can be used.
+	 * 
+	 * @return
+	 * @since 9.4.0
+	 */
+	public String getValidationMessage() {
+		return validationMessage;
+	}
+	
+	/**
+	 * Custom message, when validation fails - localization key can be used.
+	 * 
+	 * @param validationMessage
+	 * @since 9.4.0
+	 */
+	public void setValidationMessage(String validationMessage) {
+		this.validationMessage = validationMessage;
 	}
 }

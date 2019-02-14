@@ -8,6 +8,7 @@ import Tooltip from '../Tooltip/Tooltip';
 /**
  * TODO: Improvent:
  * - add button size (className is abused now)
+ * - to link
  *
  * @author Radek Tomiška
  */

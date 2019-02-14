@@ -10,6 +10,8 @@ import { RoleManager, RoleRequestManager, IdentityManager } from '../../redux';
 import RoleSelectByIdentity from './RoleSelectByIdentity';
 import RoleConceptDetail from './RoleConceptDetail';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
+import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
+import FormInstance from '../../domain/FormInstance';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -35,7 +37,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
         show: false,
         entity: {},
         add: false
-      }
+      },
+      validationErrors: null
     };
   }
 
@@ -81,7 +84,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
         ... this.state.detail,
         show: false,
         add: false
-      }
+      },
+      validationErrors: null
     });
   }
 
@@ -109,6 +113,22 @@ export class RoleConceptTable extends Basic.AbstractContent {
     if (eavForm) {
       eavValues = {values: eavForm.getValues()};
     }
+    // after concept is sent to BE - hide modal
+    const cb = (validatedEntity, error) => {
+      if (error) {
+        // TODO: only one modal is shown => one validationErrors in the state
+        this.setState({
+          validationErrors: error.parameters ? error.parameters.attributes : null
+        });
+      } else {
+        this.setState({
+          conceptData: this._compileConceptData(this.props)
+        }, () => {
+          this._closeDetail();
+        });
+      }
+    };
+    //
     if (entity._added) {
       if (!entity._virtualId && !entity.id && entity.role instanceof Array) {
         for (const roleId of entity.role) {
@@ -118,7 +138,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
           identityRole._embedded = {};
           identityRole._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
           identityRole._embedded.role = roleManager.getEntity(this.context.store.getState(), roleId);
-          createConceptFunc(identityRole, 'ADD', eavValues);
+          createConceptFunc(identityRole, 'ADD', eavValues, cb);
         }
       } else {
         const addedIdentityRole = this._findAddedIdentityRoleById(entity.id);
@@ -129,9 +149,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
         }
         entity._embedded.role = roleManager.getEntity(this.context.store.getState(), entity.role);
         if (addedIdentityRole) {
-          updateConceptFunc(entity, 'ADD', eavValues);
+          updateConceptFunc(entity, 'ADD', eavValues, cb);
         } else {
-          createConceptFunc(entity, 'ADD', eavValues);
+          createConceptFunc(entity, 'ADD', eavValues, cb);
         }
       }
     } else {
@@ -150,13 +170,11 @@ export class RoleConceptTable extends Basic.AbstractContent {
       }
 
       if (changed && changedIdentityRole && changedIdentityRole.id) {
-        updateConceptFunc(changedIdentityRole, 'UPDATE', eavValues);
+        updateConceptFunc(changedIdentityRole, 'UPDATE', eavValues, cb);
       } else {
-        createConceptFunc(entity, 'UPDATE', eavValues);
+        createConceptFunc(entity, 'UPDATE', eavValues, cb);
       }
     }
-    this.setState({conceptData: this._compileConceptData(this.props)});
-    this._closeDetail();
   }
 
   _findChangedIdentityRoleById(id) {
@@ -434,19 +452,30 @@ export class RoleConceptTable extends Basic.AbstractContent {
     );
   }
 
-  _conceptAlertCell({rowIndex, data}) {
+  _conceptAttributesCell({rowIndex, data}) {
     const value = data[rowIndex];
-    if (value.valid === false) {
-      return (
-        <Basic.Button
-          level="danger"
-          className="btn-xs"
-          icon="fa:warning"
-          title={ this.i18n('alert.invalidConcept') }
-          onClick={ this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false) }/>
-      );
+    const result = [];
+    if ( value
+      && value._eav
+      && value._eav.length === 1
+      && value._eav[0].formDefinition) {
+      const formInstance = value._eav[0];
+      const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values);
+      result.push(
+          <Advanced.EavForm
+            key={`${rowIndex}-${value.id}`}
+            ref="eavForm"
+            formInstance={ _formInstance }
+            validationErrors={ formInstance.validationErrors }
+            readOnly
+            useDefaultValue={false}/>
+        );
     }
-    return null;
+    return (
+      <Basic.Div className="abstract-form condensed" style={{minWidth: 150, padding: 0}}>
+        {result}
+      </Basic.Div>
+    );
   }
 
   // To delete
@@ -534,8 +563,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
       readOnly,
       className,
       _currentIdentityRoles,
-      request } = this.props;
-    const { conceptData, detail, showRoleByIdentitySelect } = this.state;
+      request
+    } = this.props;
+    const {
+      conceptData,
+      detail,
+      showRoleByIdentitySelect,
+      validationErrors
+    } = this.state;
 
     const result = (
       <div>
@@ -615,10 +650,18 @@ export class RoleConceptTable extends Basic.AbstractContent {
               }
               />
             <Basic.Column
+              header={this.i18n('entity.ConceptRoleRequest.state')}
+              rendered={request && request.state !== 'CONCEPT'}
+              cell={
+                ({rowIndex, data}) => {
+                  return <Basic.EnumValue value={ data[rowIndex].state} enum={RoleRequestStateEnum}/>;
+                }
+              }/>
+            <Basic.Column
               header={this.i18n('content.task.IdentityRoleConceptTable.identityRoleAttributes.header')}
               cell={
                 ({rowIndex, data}) => {
-                  return this._conceptAlertCell({ rowIndex, data });
+                  return this._conceptAttributesCell({ rowIndex, data });
                 }
               }/>
             <Basic.Column
@@ -742,7 +785,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                 entity={detail.entity}
                 isEdit={detail.edit}
                 multiAdd={detail.add}
-                />
+                validationErrors={ validationErrors }/>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button

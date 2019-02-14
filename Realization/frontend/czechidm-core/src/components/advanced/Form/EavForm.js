@@ -101,8 +101,26 @@ export default class EavForm extends Basic.AbstractContextComponent {
     return formInstance.getProperties();
   }
 
+  getInvalidFormAttributes(validationErrors, code) {
+    if (!validationErrors) {
+      return [];
+    }
+    //
+    return validationErrors.filter(attribute => {
+      return attribute.attributeCode === code;
+    });
+  }
+
   render() {
-    const { formInstance, rendered, showLoading, readOnly, useDefaultValue } = this.props;
+    const {
+      formInstance,
+      rendered,
+      showLoading,
+      readOnly,
+      useDefaultValue,
+      validationErrors,
+      formableManager
+    } = this.props;
     //
     if (!rendered || !formInstance) {
       return null;
@@ -146,7 +164,10 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 values={ formInstance.getValues(attribute.code) }
                 readOnly={ readOnly }
                 useDefaultValue={ useDefaultValue }
-                manager={ ManagerType ? new ManagerType() : null }/>
+                manager={ ManagerType ? new ManagerType() : null }
+                validationErrors={ this.getInvalidFormAttributes(validationErrors || formInstance.validationErrors, attribute.code) }
+                className={ formInstance.getAttributes().last().id === attribute.id ? 'last' : '' }
+                formableManager={ formableManager }/>
             );
           })
         }
@@ -162,13 +183,23 @@ EavForm.propTypes = {
    */
   formInstance: PropTypes.object,
   /**
+   * Manager controlls owners extended attributes, e.g. identityManager, roleManager.
+   * Enable additional features, which depends on concrete manager (e.g. download attachment).
+   * When manager is not given, features are disabled.
+   */
+  formableManager: PropTypes.object,
+  /**
    * ReadOnly form
    */
   readOnly: PropTypes.bool,
   /**
    * Use default value as filled value
    */
-  useDefaultValue: PropTypes.bool
+  useDefaultValue: PropTypes.bool,
+  /**
+   * List of InvalidFormAttributeDto
+   */
+  validationErrors: PropTypes.arrayOf(PropTypes.object)
 };
 EavForm.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,

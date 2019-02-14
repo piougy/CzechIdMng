@@ -39,6 +39,10 @@ class TreeNodeService extends FormableEntityService {
     return 'TREENODE';
   }
 
+  supportsAttachment() {
+    return true;
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

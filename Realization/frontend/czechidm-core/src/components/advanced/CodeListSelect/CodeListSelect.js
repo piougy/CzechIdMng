@@ -183,7 +183,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
             value = options[0].value;
           }
         } else {
-          if (error.statusCode === 400) {
+          if (error.statusCode === 400 || error.statusCode === 403) {
             // FIXME: 204 / 404 - codelist doesn't found
             // FIXME: 403 - input only?
             this.addErrorMessage({
@@ -211,7 +211,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { hidden, required, rendered } = this.props;
+    const { hidden, required, rendered, validationErrors } = this.props;
     const { options, value, disabled, readOnly } = this.state;
     const showLoading = this.props.showLoading || this.state.showLoading;
     //
@@ -229,6 +229,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           helpBlock={ this.getHelpBlock() }
           readOnly={ readOnly || disabled }
           required={ required }
+          validationErrors={ validationErrors }
           hidden={ hidden || (options.length === 0 && !showLoading) }
           showLoading={ showLoading }
           options={ options }/>
@@ -240,6 +241,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           helpBlock={ this.getHelpBlock() }
           readOnly={ readOnly || disabled }
           required={ required }
+          validationErrors={ validationErrors }
           hidden={ showLoading || hidden || options.length > 0 }/>
       </span>
     );

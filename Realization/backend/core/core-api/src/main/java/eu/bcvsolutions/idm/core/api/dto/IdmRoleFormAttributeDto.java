@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.api.dto;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -21,6 +23,7 @@ public class IdmRoleFormAttributeDto extends AbstractDto implements Requestable 
 
 	private static final long serialVersionUID = 1L;
 	//
+	@NotNull
 	@Embedded(dtoClass = IdmFormAttributeDto.class)
 	private UUID formAttribute;
 	@Embedded(dtoClass = IdmRoleDto.class)
@@ -33,6 +36,7 @@ public class IdmRoleFormAttributeDto extends AbstractDto implements Requestable 
 	private boolean required;
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
+	private String validationMessage;
 
 	public IdmRoleFormAttributeDto() {
 	}
@@ -113,5 +117,25 @@ public class IdmRoleFormAttributeDto extends AbstractDto implements Requestable 
 	@Override
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
+	}
+	
+	/**
+	 * Custom message, when validation fails - localization key can be used.
+	 * 
+	 * @return
+	 * @since 9.4.0
+	 */
+	public String getValidationMessage() {
+		return validationMessage;
+	}
+	
+	/**
+	 * Custom message, when validation fails - localization key can be used.
+	 * 
+	 * @param validationMessage
+	 * @since 9.4.0
+	 */
+	public void setValidationMessage(String validationMessage) {
+		this.validationMessage = validationMessage;
 	}
 }

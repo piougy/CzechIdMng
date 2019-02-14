@@ -49,6 +49,16 @@ public class ContractSliceDeleteProcessor
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
+<<<<<<< HEAD
+=======
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmContractSliceDto> event) {
+		// If dirty state property is presents, then will be slice only marked for
+		// delete (in core delete processor). Deleting is provided by ClearDirtyStateForContractSliceTaskExecutor!
+		return super.conditional(event) && !this.getBooleanProperty(IdmContractSliceService.SET_DIRTY_STATE_CONTRACT_SLICE, event.getProperties());
+	}
+>>>>>>> develop
 
 	@Override
 	public EventResult<IdmContractSliceDto> process(EntityEvent<IdmContractSliceDto> event) {

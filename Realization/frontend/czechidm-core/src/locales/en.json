@@ -96,7 +96,14 @@
     "saving": "Saving",
     "yes": "Yes",
     "set": "Set",
-    "crop": "Crop & save"
+    "crop": "Crop & save",
+    "preview": {
+      "title": "Show preview",
+      "disabled": "Preview is not available"
+    },
+    "clear": {
+      "title": "Clear"
+    }
   },
   "filter": {
     "dateFrom": {
@@ -348,6 +355,7 @@
       },
       "Dropzone": {
         "infoText": "Drag files here, or click to select files.",
+        "infoTextSingle": "Drag file here, or click to select file.",
         "readOnly": "Preview is not available."
       },
       "TextField": {
@@ -1312,10 +1320,23 @@
           "noIdentityRoles": "No assigned roles exist",
           "noSelectedIdentityRoles": "No newly assigned roles",
           "buttons": {
-            "addAllRoles": "Add all roles",
-            "addSelectedRoles": "Add only selected roles",
-            "removeSelectedRoles": "Remove selected roles",
-            "removeAllRoles": "Remove all roles"
+            "addAllIdentityRoles": "Add all roles",
+            "addSelectedIdentityRoles": "Add only selected roles",
+            "removeSelectedIdentityRoles": "Remove selected roles",
+            "removeAllIdentityRoles": "Remove all roles"
+          },
+          "showOnlyDirectRoles": {
+            "label": "Show only roles assigned directly",
+            "help": "After checked, only directly assigned roles will be displayed."
+          },
+          "legend": {
+            "header":"Legend",
+            "role-types": {
+              "role": "Directly assigned application role.",
+              "business-role": "Directly assigned business role. Defined sub roles will be assigned together with this role.",
+              "automatic-role": "Role assigned by automatic role configuration (by tree structure or attribute).",
+              "sub-role": "Role assigned by business role (sub role)."
+            }
           }
         },
         "alert": {
@@ -2578,8 +2599,7 @@
         },
         "action": {
           "save": {
-            "success_0": "N/A",
-            "success_1": "For contracted position was successfully saved authorizer [{{record}}]"
+            "success": "For contracted position was successfully saved authorizer [{{record}}]"
           }
         }
       },
@@ -3191,7 +3211,7 @@
       }
     },
     "RoleComposition": {
-      "_type": "Role composition",
+      "_type": "Business role",
       "superior": {
         "label": "Superior role",
         "help": ""
@@ -3276,7 +3296,11 @@
         "label": "Main definition",
         "help": "Main / default definition"
       },
-      "description": "Description"
+      "description": "Description",
+      "module": {
+        "label": "Module",
+        "help": "Module is defined or used in given module. Module is used for example for resolving the localization. 'core' module is used as default."
+      }
     },
     "FormAttribute" : {
       "code": {
@@ -3317,17 +3341,29 @@
         "label": "System attribute"
       },
       "unique": {
-        "label": "Unique value"
+        "short": "Unique",
+        "label": "Unique value",
+        "title": "Unique value"
       },
       "regex": {
+        "short": "Regex",
         "label": "Regular expression",
+        "title": "Validate a value with the regular expression.",
         "help": "Validate a value with the regular expression."
       },
       "min": {
-        "label": "Minimal value"
+        "short": "Min",
+        "label": "Minimal value",
+        "title": "Minimal value"
       },
       "max": {
-        "label": "Maximum value"
+        "short": "Max",
+        "label": "Maximum value",
+        "title": "Maximum value"
+      },
+      "validationMessage": {
+        "label": "Validation message",
+        "help": "Custom validation message. If message is not defined, then default message by invalid validation type will be shown. Can contain localization key (e.g. 'core:validationError.invalid.unique')."
       }
     },
     "FormValue": {
@@ -3461,7 +3497,7 @@
         "label": "Automatic role",
         "title": "Automatic role",
         "placeholder": "Automatic role",
-        "help": "Role from contracted position"
+        "help": "Role is assigned automatically (by contracted position or attribute value)"
       },
       "roleCataloguePicker": "Select a folder from the catalog",
       "directRole": {
@@ -3892,7 +3928,7 @@
         "help": "Minimum number of days for password validity."
       },
       "enchancedControl": {
-        "label": "Enabled",
+        "label": "Enhanced control",
         "help": "Enhanced control makes passwords more secure by comparing new passwords with previous ones and user attributes. It is possible to select which rules are required."
       },
       "minRulesToFulfill": {
@@ -3905,7 +3941,7 @@
       },
       "blockLoginTime": {
         "label": "Login blocking time (seconds)",
-        "help": "After entering X failed attempts, the user will be blocked from signing in."
+        "help": "After exceeding the limit of unsuccessful login attempts, the user will be blocked from signing in for this period of time."
       },
       "maxUnsuccessfulAttempts": {
         "label": "Maximum number of unsuccessful login attempts",
@@ -4061,7 +4097,7 @@
       "validFrom": "From",
       "validTill": "Till",
       "wfProcessId": "Id WF process",
-      "state": "State",
+      "state": "State of request",
       "created": "Created",
       "modified": "Modified"
     },
@@ -4195,7 +4231,7 @@
         "help": "$t(entity.LongRunningTask.instanceId.help)"
       },
       "processedOrder": {
-        "label": "Zpracované pořadí"
+        "label": "Processed order"
       },
       "executeDate": {
         "label": "Execute date",
@@ -4346,6 +4382,10 @@
         "returnedRequestFromUserManager": {
           "name": "The request was returned from user manager",
           "description":"Returned change-of-roles request for '{{0}}'"
+        },
+        "approveIncompatibilities": {
+          "name": "Approval of incompatible roles",
+          "description":"Approval of incompatible roles for user '{{0}}'"
         },
         "approvedBySecurity": {
           "name": "Approval by security department",
@@ -4697,11 +4737,11 @@
         "attributes": {
           "connectioncharacter": {
             "label": "Connection character",
-            "help": "The character(s) to be used to connects the first name and surname. The value does not need to be filled in. In this case, the first name and surname will be connected without any coupling character."
+            "help": "The character(s) to be used to connect the first name and surname. The value does not need to be filled in. In this case, the first name and surname will be connected without any coupling character."
           },
           "firstnamecharactercount": {
             "label": "Count of characters from the first name",
-            "help": "The maximum count of characters to use from the fisrt name."
+            "help": "The maximum count of characters to use from the first name."
           },
           "lastnamecharactercount": {
             "label": "Count of characters from the surname",
@@ -4709,15 +4749,15 @@
           },
           "searchuniqueusername": {
             "label": "Verify unique username",
-            "help": "The newly generated username will be searched. If username will be exists, numeric suffix will be added. Suffix may be incremented."
+            "help": "The newly generated username will be searched. If such username already exists, numeric suffix will be added. Suffix may be incremented."
           },
           "firstnamefirst": {
             "label": "As first value use first name",
-            "help": "When generating, the first name of the user will be added first. If you unchecked, the order will be the opposite."
+            "help": "When generating, the first name of the user will be added first. If you uncheck this, the order will be the opposite."
           },
           "replacewhitespacescharacter": {
             "label": "Character/s for filling white spaces",
-            "help": "Character/s will be used to replace white spaces, even outside the username. If you leave blank, all spaces will be removed."
+            "help": "Character/s will be used to replace white spaces, even outside the username. If you leave this blank, all spaces will be removed."
           }
         }
       },
@@ -4731,11 +4771,11 @@
           },
           "connectioncharacter": {
             "label": "Connection character",
-            "help": "The character(s) to be used to connects the first name and surname. The value does not need to be filled in. In this case, the first name and surname will be connected without any coupling character."
+            "help": "The character(s) to be used to connect the first name and surname. The value does not need to be filled in. In this case, the first name and surname will be connected without any coupling character."
           },
           "firstnamecharactercount": {
             "label": "Count of characters from the first name",
-            "help": "The maximum count of characters to use from the fisrt name."
+            "help": "The maximum count of characters to use from the first name."
           },
           "lastnamecharactercount": {
             "label": "Count of characters from the surname",
@@ -4747,11 +4787,11 @@
           },
           "firstnamefirst": {
             "label": "As first value use first name",
-            "help": "When generating, the first name of the user will be added first. If you unchecked, the order will be the opposite."
+            "help": "When generating, the first name of the user will be added first. If you uncheck this, the order will be the opposite."
           },
           "replacewhitespacescharacter": {
             "label": "Character/s for filling white spaces",
-            "help": "Character/s will be used to replace white spaces, outside the username and email suffix. If you leave blank, all spaces will be removed."
+            "help": "Character/s will be used to replace white spaces, outside the username and email suffix. If you leave this blank, all spaces will be removed."
           }
         }
       },
@@ -4836,7 +4876,7 @@
     },
     "PASSWORD_CHANGE_CURRENT_FAILED_IDM": {
       "title": "Password change failed",
-      "message": "Original password is not correct."
+      "message": "Invalid login or original password."
     },
     "LOG_IN": {
       "title": "Session timeout",
@@ -5103,6 +5143,26 @@
     "FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES": {
       "title": "Form attribute can not be deleted",
       "message": "Form attribute cannot be deleted - some form values already using this attribute."
+    },
+    "FORM_ATTRIBUTE_CHANGE_PERSISTENT_TYPE_FAILED_HAS_VALUES": {
+      "title": "Form attribute can not be changed",
+      "message": "Type of the form attribute [{{attributeCode}}] cannot be changed - some form values already using this attribute."
+    },
+    "FORM_ATTRIBUTE_CHANGE_CONFIDENTIAL_FAILED_HAS_VALUES": {
+      "title": "Form attribute can not be changed",
+      "message": "Confidential flag of the form attribute [{{attributeCode}}] cannot be changed - some form values already using this attribute."
+    },
+    "FORM_INVALID": {
+      "title": "Form is not valid.",
+      "message": "Filled form contains invalid values."
+    },
+    "FORM_VALIDATION_NOT_SUPPORTED": {
+      "title": "Validation is not supported",
+      "message": "Form validation type [{{validationType}}] is not supported for persistent type [{{persistentType}}] for attribute [{{attributeCode}}]."
+    },
+    "FORM_ATTRIBUTE_INVALID_REGEX": {
+      "title": "Regular expression is not valid",
+      "message": "Regular expression [{{regex}}] is not valid."
     },
     "ACCEPTED": {
       "title": "Request added",
@@ -5404,6 +5464,10 @@
       "title": "Data for attachment not found",
       "message": "Binary data for attachment: [{{one}}:{{two}}] - [{{three}}] not found."
     },
+    "ATTACHMENT_SIZE_LIMIT_EXCEEDED": {
+      "title": "Attachment size limit exceeded",
+      "message": "Attachment size limit is [{{actualSize}}] bytes."
+    },
     "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
       "title": "Template not found",
       "message": "XML file for template [{{template}}] not found."
@@ -5675,9 +5739,18 @@
     "ROLE_FORM_ATTRIBUTE_CHANGE_DEF_NOT_ALLOWED": {
       "title": "It is not possible to change the definition of role attributes!",
       "message": "It is not possible to change the definition of role [{{role}}] attributes, because it has at least one attribute set (for the original definition). First, you must remove all sets role attributes!"
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_ROLE_ATTRIBUTE": {
+      "title": "Attribute definition cannot be deleted!",
+      "message": "Attribute definition [{{definition}}]  cannot be deleted, because is using in the role [{{role}}]!"
     }
   },
   "validationError": {
+    "invalid": {
+      "base": "Field is not valid",
+      "regex": "Field is not valid by regular expression [{{regex}}].",
+      "unique": "Field value has to be unique. Value [{{unique}}] is already used."
+    },
     "string": {
       "min" : "Enter at least one character!",
       "min_plural" : "Enter at least {{count}} characters!",

@@ -96,6 +96,14 @@ class FormDefinitionDetail extends Basic.AbstractContent {
     }
   }
 
+  onChangeType(definitionType) {
+    if (definitionType) {
+      this.refs.module.setValue(Utils.Ui.getModuleFromJavaType(definitionType.value));
+    } else {
+      this.refs.module.setValue(null);
+    }
+  }
+
   render() {
     const { uiKey, entity, showLoading, types, _permissions } = this.props;
     //
@@ -117,7 +125,9 @@ class FormDefinitionDetail extends Basic.AbstractContent {
                 required
                 readOnly={!entity || entity.unmodifiable || !Utils.Entity.isNew(entity)}
                 options={types}
-                searchable/>
+                searchable
+                clearable={ false }
+                onChange={ this.onChangeType.bind(this) }/>
               <Basic.TextField
                 ref="code"
                 label={this.i18n('entity.FormDefinition.code')}
@@ -129,6 +139,11 @@ class FormDefinitionDetail extends Basic.AbstractContent {
                 label={this.i18n('entity.FormDefinition.name')}
                 max={255}
                 required/>
+              <Basic.TextField
+                ref="module"
+                label={ this.i18n('entity.FormDefinition.module.label') }
+                max={ 255 }
+                helpBlock={ this.i18n('entity.FormDefinition.module.help') }/>
               <Basic.Checkbox
                 ref="main"
                 label={this.i18n('entity.FormDefinition.main.label')}

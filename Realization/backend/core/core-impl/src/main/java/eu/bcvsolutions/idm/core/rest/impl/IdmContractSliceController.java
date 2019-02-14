@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resource;
@@ -36,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -65,6 +67,8 @@ public class IdmContractSliceController
 
 	protected static final String TAG = "Contract slice";
 	private final IdmFormDefinitionController formDefinitionController;
+	@Autowired
+	private FormService formService;
 
 	@Autowired
 	public IdmContractSliceController(LookupService entityLookupService,
@@ -297,6 +301,116 @@ public class IdmContractSliceController
 				definitionCode);
 		//
 		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
+	}
+	
+	/**
+	 * Save entity's form value
+	 * 
+	 * @param backendId
+	 * @param formValues
+	 * @return
+	 * @since 9.4.0
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONTRACTSLICE_UPDATE + "')")
+	@RequestMapping(value = "/{backendId}/form-value", method = { RequestMethod.POST } )
+	@ApiOperation(
+			value = "Role form definition - save value", 
+			nickname = "postRoleFormValue", 
+			tags = { IdmContractSliceController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONTRACTSLICE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONTRACTSLICE_UPDATE, description = "") })
+				})
+	public Resource<?> saveFormValue(
+			@ApiParam(value = "Slice's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			@RequestBody @Valid IdmFormValueDto formValue) {		
+		IdmContractSliceDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		checkAccess(dto, IdmBasePermission.UPDATE);
+		//
+		return formDefinitionController.saveFormValue(dto, formValue);
+	}
+	
+	/**
+	 * Returns input stream to attachment saved in given form value.
+	 * 
+	 * @param backendId
+	 * @param formValueId
+	 * @return
+	 * @since 9.4.0
+	 */
+	@RequestMapping(value = "/{backendId}/form-values/{formValueId}/download", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONTRACTSLICE_READ + "')")
+	@ApiOperation(
+			value = "Download form value attachment", 
+			nickname = "downloadFormValue",
+			tags = { IdmContractSliceController.TAG },
+			notes = "Returns input stream to attachment saved in given form value.",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.CONTRACTSLICE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.CONTRACTSLICE_READ, description = "") })
+					})
+	public ResponseEntity<InputStreamResource> downloadFormValue(
+			@ApiParam(value = "Slice's uuid identifier.", required = true)
+			@PathVariable String backendId,
+			@ApiParam(value = "Form value identifier.", required = true)
+			@PathVariable String formValueId) {
+		IdmContractSliceDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId));
+		if (value == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
+		}
+		return formDefinitionController.downloadAttachment(value);
+	}
+	
+	/**
+	 * Returns input stream to attachment saved in given form value.
+	 * 
+	 * @param backendId
+	 * @param formValueId
+	 * @return
+	 * @since 9.4.0
+	 */
+	@RequestMapping(value = "/{backendId}/form-values/{formValueId}/preview", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONTRACTSLICE_READ + "')")
+	@ApiOperation(
+			value = "Download form value attachment preview", 
+			nickname = "downloadFormValue",
+			tags = { IdmContractSliceController.TAG },
+			notes = "Returns input stream to attachment preview saved in given form value. Preview is supported for the png, jpg and jpeg mime types only",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.CONTRACTSLICE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.CONTRACTSLICE_READ, description = "") })
+					})
+	public ResponseEntity<InputStreamResource> previewFormValue(
+			@ApiParam(value = "Slice's uuid identifier.", required = true)
+			@PathVariable String backendId,
+			@ApiParam(value = "Form value identifier.", required = true)
+			@PathVariable String formValueId) {
+		IdmContractSliceDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId));
+		if (value == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
+		}
+		return formDefinitionController.previewAttachment(value);
 	}
 
 	@Override

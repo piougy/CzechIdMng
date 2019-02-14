@@ -372,6 +372,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       selectRowClass,
       hidden,
       required,
+      validationErrors,
       value,
       rendered
     } = this.props;
@@ -410,6 +411,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               readOnly={ readOnly }
               entityType="role"
               required={ required }
+              validationErrors={ validationErrors }
               value={ value }/>
           </div>
           { this._renderShowTreeIcon() }

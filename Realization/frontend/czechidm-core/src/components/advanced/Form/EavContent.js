@@ -9,6 +9,7 @@ import { DataManager, FormDefinitionManager } from '../../../redux';
 import EavForm from './EavForm';
 
 const formDefinitionManager = new FormDefinitionManager();
+const dataManager = new DataManager();
 
 /**
  * Content with eav form
@@ -20,7 +21,8 @@ class EavContent extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      error: null
+      error: null,
+      validationErrors: null,
     };
   }
 
@@ -28,12 +30,21 @@ class EavContent extends Basic.AbstractContent {
     return this.props.contentKey;
   }
 
+  getUiKey() {
+    const { entityId, uiKey, formableManager } = this.props;
+    //
+    if (uiKey) {
+      return `${uiKey}-${entityId}`;
+    }
+    return formableManager.getFormableUiKey(null, entityId);
+  }
+
   componentDidMount() {
     super.componentDidMount();
     // load definition and values
-    const { entityId, formableManager, uiKey } = this.props;
+    const { entityId, formableManager } = this.props;
     //
-    this.context.store.dispatch(formableManager.fetchFormInstances(entityId, `${uiKey}-${entityId}`, (formInstances, error) => {
+    this.context.store.dispatch(formableManager.fetchFormInstances(entityId, this.getUiKey(), (formInstances, error) => {
       if (error) {
         this.addErrorMessage({ hidden: true, level: 'info' }, error);
         this.setState({ error });
@@ -56,32 +67,48 @@ class EavContent extends Basic.AbstractContent {
       return;
     }
     //
-    const { entityId, formableManager, uiKey } = this.props;
+    const { entityId, formableManager, _formInstances } = this.props;
     //
     const filledFormValues = this.refs[eavFormRef].getValues();
     this.getLogger().debug(`[EavForm]: Saving form [${definitionCode}]`);
+    //
+    // push new values int redux - prevent to lost new values after submit
+    const formInstance = _formInstances.get(definitionCode).setValues(filledFormValues);
+    this.context.store.dispatch(dataManager.receiveData(this.getUiKey(), _formInstances.set(definitionCode, formInstance)));
     // save values
-    this.context.store.dispatch(formableManager.saveFormValues(entityId, definitionCode, filledFormValues, `${uiKey}-${entityId}`, (savedFormInstance, error) => {
+    this.context.store.dispatch(formableManager.saveFormValues(entityId, definitionCode, filledFormValues, this.getUiKey(), (savedFormInstance, error) => {
       if (error) {
-        this.addError(error);
+        if (error.statusEnum === 'FORM_INVALID') {
+          this.setState({
+            validationErrors: error.parameters ? error.parameters.attributes : null
+          }, () => {
+            this.addError(error);
+          });
+        } else {
+          this.addError(error);
+        }
       } else {
-        const entity = formableManager.getEntity(this.context.store.getState(), entityId);
-        this.addMessage({ message: this.i18n('save.success', { name: formableManager.getNiceLabel(entity) }) });
-        this.getLogger().debug(`[EavForm]: Form [${definitionCode}] saved`);
+        this.setState({
+          validationErrors: null
+        }, () => {
+          const entity = formableManager.getEntity(this.context.store.getState(), entityId);
+          this.addMessage({ message: this.i18n('save.success', { name: formableManager.getNiceLabel(entity) }) });
+          this.getLogger().debug(`[EavForm]: Form [${definitionCode}] saved`);
+        });
       }
     }));
   }
 
   render() {
-    const { _formInstances, _showLoading, showSaveButton } = this.props;
-    const { error } = this.state;
-
+    const { formableManager, showSaveButton, _formInstances, _showLoading } = this.props;
+    const { error, validationErrors } = this.state;
+    //
     let content = null;
-    if (error) {
+    if (error && error.statusEnum !== 'FORM_INVALID') {
       // loading eav definition failed
       content = (
         <div style={{ paddingTop: 15 }}>
-          <Basic.Alert level="info" text={this.i18n('error.notFound')} className="no-margin"/>
+          <Basic.Alert level="info" text={ this.i18n('error.notFound') } className="no-margin"/>
         </div>
       );
     } else if (!_formInstances || _showLoading) {
@@ -128,11 +155,13 @@ class EavContent extends Basic.AbstractContent {
                 text={ formDefinitionManager.getLocalization(_formInstance.getDefinition(), 'help', _formInstance.getDefinition().description) }
                 style={{ marginBottom: 0 }}/>
 
-              <Basic.PanelBody style={{ paddingTop: 15, paddingBottom: 0 }}>
+              <Basic.PanelBody>
                 <EavForm
                   ref={ this._createFormRef(_formInstance.getDefinition().code) }
                   formInstance={ _formInstance }
-                  readOnly={ !showSaveButton }/>
+                  readOnly={ !showSaveButton }
+                  validationErrors={ validationErrors }
+                  formableManager={ formableManager }/>
               </Basic.PanelBody>
 
               <Basic.PanelFooter rendered={ _showSaveButton && showSaveButton && _formInstance.getAttributes().size > 0 }>
@@ -164,13 +193,21 @@ class EavContent extends Basic.AbstractContent {
 EavContent.propTypes = {
   /**
    * UI identifier - it's used as key in store (saving, loading ...)
+   * Manager's formable uiKey is used as default.
    */
-  uiKey: PropTypes.string.isRequired,
+  uiKey: PropTypes.string,
   /**
    * Parent entity identifier
    */
   entityId: PropTypes.string.isRequired,
+  /**
+   * Manager controlls owners extended attributes, e.g. identityManager, roleManager.
+   * Enable additional features, which depends on concrete manager (e.g. download attachment).
+   */
   formableManager: PropTypes.object.isRequired,
+  /**
+   * Show / hide save button
+   */
   showSaveButton: PropTypes.bool,
   /**
    * Internal properties (loaded by redux)
@@ -186,11 +223,11 @@ EavContent.defaultProps = {
 
 function select(state, component) {
   const entityId = component.entityId;
-  const uiKey = component.uiKey;
+  const uiKey = component.uiKey ? `${component.uiKey}-${entityId}` : component.formableManager.getFormableUiKey(null, entityId);
   //
   return {
-    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),
-    _formInstances: DataManager.getData(state, `${uiKey}-${entityId}`)
+    _showLoading: Utils.Ui.isShowLoading(state, uiKey),
+    _formInstances: DataManager.getData(state, uiKey)
   };
 }
 

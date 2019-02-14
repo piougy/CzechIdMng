@@ -66,12 +66,10 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmIdentityRoleController extends AbstractReadWriteDtoController<IdmIdentityRoleDto, IdmIdentityRoleFilter> {
 	
 	protected static final String TAG = "Identity roles ~ assigned roles";
-	@Autowired
-	private IdmFormDefinitionController formDefinitionController;
-	@Autowired
-	private IdmRoleService roleService;
-	@Autowired
-	private FormService formService;
+	//
+	@Autowired private IdmFormDefinitionController formDefinitionController;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private FormService formService;
 	
 	@Autowired
 	public IdmIdentityRoleController(IdmIdentityRoleService service) {

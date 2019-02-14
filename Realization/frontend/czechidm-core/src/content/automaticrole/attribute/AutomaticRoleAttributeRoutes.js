@@ -50,7 +50,7 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
     return (
       <div>
         <Basic.PageHeader>
-          <Basic.Icon value="fa:magic"/> {this.i18n('content.automaticRoles.attribute.header')}
+          <Basic.Icon value="component:automatic-roles"/> {this.i18n('content.automaticRoles.attribute.header')}
         </Basic.PageHeader>
 
         <Basic.Row rendered={ SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_CREATE') }>

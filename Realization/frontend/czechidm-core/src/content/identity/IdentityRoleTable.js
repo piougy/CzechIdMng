@@ -10,6 +10,7 @@ import SearchParameters from '../../domain/SearchParameters';
 import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager, IdentityContractManager, CodeListManager, DataManager } from '../../redux';
 import IdentityRoleEav from './IdentityRoleEav';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
+import FormInstance from '../../domain/FormInstance';
 
 const manager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
@@ -96,6 +97,30 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     return _incompatibleRoles.filter(ir => ir.directRole.id === entity.role);
   }
 
+  _attributesCell({rowIndex, data}) {
+    const value = data[rowIndex];
+    const result = [];
+    if ( value
+      && value._eav
+      && value._eav.length === 1
+      && value._eav[0].formDefinition) {
+      const formInstance = value._eav[0];
+      const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values, formInstance.validationErrors);
+      result.push(
+          <Advanced.EavForm
+            ref="eavForm"
+            formInstance={ _formInstance }
+            readOnly
+            useDefaultValue={false}/>
+        );
+    }
+    return (
+      <Basic.Div className="abstract-form condensed" style={{minWidth: 150, padding: 0}}>
+        {result}
+      </Basic.Div>
+    );
+  }
+
   render() {
     const {
       forceSearchParameters,
@@ -178,7 +203,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                     entityType="role"
                     entityIdentifier={ entity.role }
                     entity={ entity._embedded.role }
-                    face="popover" />
+                    face="popover"
+                    showIcon/>
                 );
                 //
                 return content;
@@ -202,6 +228,13 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             }
             />
           <Advanced.Column
+            header={this.i18n('content.task.IdentityRoleConceptTable.identityRoleAttributes.header')}
+            cell={
+              ({rowIndex, data}) => {
+                return this._attributesCell({ rowIndex, data });
+              }
+            }/>
+          <Advanced.Column
             header={this.i18n('entity.IdentityRole.identityContract.title')}
             property="identityContract"
             cell={
@@ -213,7 +246,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                     entityIdentifier={ data[rowIndex][property] }
                     entity={ data[rowIndex]._embedded[property] }
                     showIdentity={ false }
-                    face="popover" />
+                    face="popover"
+                    showIcon />
                 );
               }
             }
@@ -273,6 +307,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
 
           <Advanced.Column
             property="automaticRole"
+            header={ <Basic.Icon value="component:automatic-role"/> }
+            title={ this.i18n('entity.IdentityRole.automaticRole.help') }
             face="bool"
             cell={
               /* eslint-disable react/no-multi-comp */
@@ -282,7 +318,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                 );
               }
             }
-            width={ 150 }
+            width={ 15 }
             rendered={ _.includes(columns, 'automaticRole') }/>
         </Advanced.Table>
 
@@ -348,7 +384,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                     ||
                     <div>
                       <Basic.ContentHeader style={{ marginBottom: 0 }} className="marginable">
-                        <Basic.Icon value="arrow-down"/>
+                        <Basic.Icon value="component:sub-roles"/>
                         {' '}
                         { this.i18n('detail.directRole.subRoles.header') }
                       </Basic.ContentHeader>
@@ -370,6 +406,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                   title={this.i18n('detail.tabs.attributes')}>
                     <IdentityRoleEav
                       entityId={detail.entity.id}
+                      entity={detail.entity}
                     />
                 </Basic.Tab>
               </Basic.Tabs>
@@ -440,6 +477,7 @@ IdentityRoleTable.defaultProps = {
 
 function select(state, component) {
   return {
+    i18nReady: state.config.get('i18nReady'),
     _showLoading: Utils.Ui.isShowLoading(state, component.uiKey),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _incompatibleRoles: DataManager.getData(state, `${ uiKeyIncompatibleRoles }${ component.params.entityId }`)

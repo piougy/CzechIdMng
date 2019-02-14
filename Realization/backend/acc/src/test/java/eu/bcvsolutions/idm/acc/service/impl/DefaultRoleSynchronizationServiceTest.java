@@ -372,7 +372,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigCustom.setCustomFilter(true);
 		syncConfigCustom.setFilterOperation(IcFilterOperationType.GREATER_THAN);
 		syncConfigCustom.setFilterAttribute(syncConfigCustom.getTokenAttribute());
-		syncConfigCustom.setToken(changedRole.getStringValue());
+		syncConfigCustom.setToken((String)changedRole.getValue());
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
 		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
 		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.IGNORE);

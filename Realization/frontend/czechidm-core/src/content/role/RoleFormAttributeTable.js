@@ -1,12 +1,13 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import Joi from 'joi';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { RoleFormAttributeManager, FormAttributeManager, RoleManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
-import Joi from 'joi';
+import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 
 let manager = new RoleFormAttributeManager();
 let roleManager = new RoleManager();
@@ -21,6 +22,10 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      ...this.state,
+      persistentType: null
+    };
   }
 
   getContentKey() {
@@ -40,8 +45,12 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
       this.context.store.dispatch(this.getManager().fetchPermissions(entity.id, `${this.getUiKey()}-detail`));
     }
     //
-    super.showDetail(entity, () => {
-      this.refs.formAttribute.focus();
+    this.setState({
+      persistentType: entity._embedded && entity._embedded.formAttribute ? entity._embedded.formAttribute.persistentType : null
+    }, () => {
+      super.showDetail(entity, () => {
+        this.refs.formAttribute.focus();
+      });
     });
   }
 
@@ -63,12 +72,46 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
     if (value) {
       this.refs.defaultValue.setValue(value.defaultValue);
       this.refs.required.setValue(value.required);
+      this.refs.unique.setValue(value.unique);
+      this.refs.min.setValue(value.min);
+      this.refs.max.setValue(value.max);
+      this.refs.regex.setValue(value.regex);
+      this.refs.validationMessage.setValue(value.validationMessage);
+      //
+      this.setState({
+        persistentType: value.persistentType
+      });
+    } else {
+      this.setState({
+        persistentType: null
+      });
     }
+  }
+
+  _supportsUniqueValidation(persistentType) {
+    return this._supportsRegexValidation(persistentType);
+  }
+
+  _supportsRegexValidation(persistentType) {
+    if (!persistentType) {
+      return false;
+    }
+    return persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.BYTEARRAY)
+        && persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.ATTACHMENT);
+  }
+
+  _supportsMinMaxValidation(persistentType) {
+    if (!persistentType) {
+      return false;
+    }
+    return persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.DOUBLE)
+        || persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.INT)
+        || persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.LONG);
   }
 
   render() {
     const { forceSearchParameters, _showLoading, _permissions, className, formDefinition } = this.props;
-    const { detail } = this.state;
+    const { detail, persistentType } = this.state;
     const role = forceSearchParameters.getFilters().get('role');
     const formAttributeForceSearch = new SearchParameters()
         .setFilter('definitionId', formDefinition);
@@ -136,10 +179,6 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
             face="bool"
             header={ this.i18n('entity.FormAttribute.unique.label') }/>
           <Advanced.Column
-            property="regex"
-            face="text"
-            header={ this.i18n('entity.FormAttribute.regex.label') }/>
-          <Advanced.Column
             property="min"
             face="text"
             header={ this.i18n('entity.FormAttribute.min.label') }/>
@@ -147,6 +186,10 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
             property="max"
             face="text"
             header={ this.i18n('entity.FormAttribute.max.label') }/>
+          <Advanced.Column
+            property="regex"
+            face="text"
+            header={ this.i18n('entity.FormAttribute.regex.label') }/>
         </Advanced.Table>
 
         <Basic.Modal
@@ -187,20 +230,29 @@ export class RoleFormAttributeTable extends Advanced.AbstractTableContent {
                   label={this.i18n('entity.FormAttribute.required')}/>
                 <Basic.Checkbox
                   ref="unique"
-                  label={this.i18n('entity.FormAttribute.unique.label')}/>
-                <Basic.TextField
-                  ref="regex"
-                  label={this.i18n('entity.FormAttribute.regex.label')}
-                  helpBlock={this.i18n('entity.FormAttribute.regex.help')}
-                  />
+                  label={ this.i18n('entity.FormAttribute.unique.label') }
+                  readOnly={ !this._supportsUniqueValidation(persistentType) }/>
                 <Basic.TextField
                   ref="min"
-                  label={this.i18n('entity.FormAttribute.min.label')}
-                  validation={Joi.number().precision(2).allow(null)}/>
+                  label={ this.i18n('entity.FormAttribute.min.label') }
+                  validation={ Joi.number().precision(4).min(-Math.pow(10, 33)).max(Math.pow(10, 33)).allow(null) }
+                  readOnly={ !this._supportsMinMaxValidation(persistentType) }/>
                 <Basic.TextField
                   ref="max"
-                  label={this.i18n('entity.FormAttribute.max.label')}
-                  validation={Joi.number().precision(2).allow(null)}/>
+                  label={ this.i18n('entity.FormAttribute.max.label') }
+                  validation={ Joi.number().precision(4).min(-Math.pow(10, 33)).max(Math.pow(10, 33)).allow(null) }
+                  readOnly={ !this._supportsMinMaxValidation(persistentType) }/>
+                <Basic.TextField
+                  ref="regex"
+                  label={ this.i18n('entity.FormAttribute.regex.label') }
+                  helpBlock={ this.i18n('entity.FormAttribute.regex.help') }
+                  max={ 2000 }
+                  readOnly={ !this._supportsRegexValidation(persistentType) }/>
+                <Basic.TextField
+                  ref="validationMessage"
+                  label={ this.i18n('entity.FormAttribute.validationMessage.label') }
+                  helpBlock={ this.i18n('entity.FormAttribute.validationMessage.help') }
+                  max={ 2000 } />
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

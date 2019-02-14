@@ -13,7 +13,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
@@ -26,6 +28,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -69,6 +73,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -96,6 +101,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private SecurityService securityService;
 	@Autowired private EventConfiguration eventConfiguration;
+	@Autowired private ModelMapper modelMapper;
+	@Autowired
+	@Qualifier("objectMapper")
+	private ObjectMapper mapper;
 
 	@Autowired
 	public DefaultEntityEventManager(
@@ -893,15 +902,59 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	/**
 	 * Returns true, when events are duplicates
+	 * - event type, parent event type, properties and original source is compared => all properties, which can be used in processors. 
 	 * 
 	 * @param olderEvent
 	 * @param event
 	 * @return
 	 */
 	protected boolean isDuplicate(IdmEntityEventDto olderEvent, IdmEntityEventDto event) {
-		return Objects.equal(olderEvent.getEventType(), event.getEventType())
+		Assert.notNull(olderEvent);
+		Assert.notNull(event);
+		//
+		boolean result = Objects.equal(olderEvent.getEventType(), event.getEventType())
 				&& Objects.equal(olderEvent.getParentEventType(), event.getParentEventType())
 				&& Objects.equal(getProperties(olderEvent), getProperties(event));
+		if (!result) {
+			// we can end - events are different
+			return false;
+		}
+		if (olderEvent.getOriginalSource() == null && event.getOriginalSource() == null) {
+			return true;
+		}
+		// If all event properties match, we need to check original sources => some processors can use 
+		// previous content to processing (e.g. contract processors).
+		if (!Objects.equal(olderEvent.getOriginalSource(), event.getOriginalSource())) {
+			return false;
+		}
+		if (!(olderEvent.getOriginalSource() instanceof AbstractDto)) {
+			// Evaluated already by 'equal' method above.
+			return false;
+		}
+		// If both original sources are DTOs, then we are comparing original sources (DTOs) as JSON without embedded.
+		AbstractDto olderOriginalSource = (AbstractDto) olderEvent.getOriginalSource();
+		AbstractDto originalSource = (AbstractDto) event.getOriginalSource();
+		try {
+			// Prevent to change event setting => defensive copy by mapper.
+			AbstractDto olderOriginalSourceCopy = olderOriginalSource.getClass().newInstance();
+			modelMapper.map(olderOriginalSource, olderOriginalSourceCopy);
+			AbstractDto originalSourceCopy = originalSource.getClass().newInstance();
+			modelMapper.map(originalSource, originalSourceCopy);
+			// Embedded is ignored.
+			olderOriginalSourceCopy.setEmbedded(null);
+			originalSourceCopy.setEmbedded(null);
+			// Audit fields are ignored.
+			DtoUtils.clearAuditFields(olderOriginalSourceCopy);
+			DtoUtils.clearAuditFields(originalSourceCopy);
+			//
+			return mapper.writeValueAsString(olderOriginalSourceCopy)
+					.equals(mapper.writeValueAsString(originalSourceCopy));
+		} catch (JsonProcessingException | IllegalAccessException | InstantiationException ex) {
+			LOG.warn("Comparing json for checking duplicate events failed - both events [{}]-[{}] will be executed!", 
+					olderEvent, event, ex);
+			//
+			return false;
+		}
 	}
 	
 	/**

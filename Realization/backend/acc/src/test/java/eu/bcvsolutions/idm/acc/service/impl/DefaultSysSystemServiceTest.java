@@ -300,8 +300,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		formService.saveValues(system, formDefinitionOne, Lists.newArrayList(value1));
 		formService.saveValues(system, formDefinitionTwo, Lists.newArrayList(value2));
 		
-		assertEquals("test1", formService.getValues(system, formDefinitionOne).get(0).getStringValue());
-		assertEquals("test2", formService.getValues(system, formDefinitionTwo).get(0).getStringValue());
+		assertEquals("test1", formService.getValues(system, formDefinitionOne).get(0).getValue());
+		assertEquals("test2", formService.getValues(system, formDefinitionTwo).get(0).getValue());
 		assertEquals("test2", formService.getValues(system, formDefinitionTwo, attributeDefinitionTwo.getName()).get(0).getValue());
 		//
 		// create second owner
@@ -321,7 +321,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		
 		formService.deleteValues(system, formDefinitionOne);		
 		assertEquals(0, formService.getValues(system, formDefinitionOne).size());
-		assertEquals("test2", formService.getValues(system, formDefinitionTwo).get(0).getStringValue());
+		assertEquals("test2", formService.getValues(system, formDefinitionTwo).get(0).getValue());
 		
 		systemService.delete(system);
 	}

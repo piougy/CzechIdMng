@@ -265,6 +265,15 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void processAutomaticRolesForContract(UUID contractId, Set<AbstractIdmAutomaticRoleDto> passedAutomaticRoles, Set<AbstractIdmAutomaticRoleDto> notPassedAutomaticRoles) {
+		// Just call internal method, transaction is wrapped by this method.
+		processAutomaticRolesForContractInternal(contractId, passedAutomaticRoles, notPassedAutomaticRoles);
+	}
+
+	@Override
+	@Transactional
+	public void processAutomaticRolesForContractInternal(UUID contractId,
+			Set<AbstractIdmAutomaticRoleDto> passedAutomaticRoles,
+			Set<AbstractIdmAutomaticRoleDto> notPassedAutomaticRoles) {
 		// Assign new passed automatic roles (assign to default contract)
 		IdmIdentityContractDto contract = identityContractService.get(contractId);
 		//
@@ -279,11 +288,6 @@ public class DefaultIdmAutomaticRoleAttributeService
 			passedAutomaticRoles = null;
 		}
 		//
-		// find all automatic roles for identity
-		IdmIdentityRoleFilter roleIdentityFilter = new IdmIdentityRoleFilter();
-		roleIdentityFilter.setIdentityContractId(contractId);
-		roleIdentityFilter.setAutomaticRole(Boolean.TRUE);
-		//
 		if (passedAutomaticRoles != null && !passedAutomaticRoles.isEmpty()) {
 			this.addAutomaticRoles(contract, passedAutomaticRoles);
 		}
@@ -292,7 +296,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			this.removeAutomaticRoles(contract.getId(), notPassedAutomaticRoles);
 		}
 	}
-	
+
 	@Override
 	public Page<IdmAutomaticRoleAttributeDto> findAllToProcess(AutomaticRoleAttributeRuleType type, Pageable page) {
 		IdmAutomaticRoleFilter filter = new IdmAutomaticRoleFilter();

@@ -90,7 +90,7 @@ public class GenerateSchemaWithEavTest extends AbstractIntegrationTest {
 				assertEquals(PersistentType.BYTEARRAY, attribute.getPersistentType());
 			} else if (attribute.getCode().toLowerCase().equals("date_value")) {
 				// TODO: date value is saved as text
-				assertEquals(PersistentType.TEXT, attribute.getPersistentType());
+				assertEquals(PersistentType.SHORTTEXT, attribute.getPersistentType());
 			} else if (attribute.getCode().toLowerCase().equals("double_value")) {
 				assertEquals(PersistentType.DOUBLE, attribute.getPersistentType());
 			} else if (attribute.getCode().toLowerCase().equals("int_value")) {
@@ -99,9 +99,9 @@ public class GenerateSchemaWithEavTest extends AbstractIntegrationTest {
 				assertEquals(PersistentType.LONG, attribute.getPersistentType());
 			} else if (attribute.getCode().toLowerCase().equals("short_text_value")) {
 				// TODO: now is short text saved as TEXT
-				assertEquals(PersistentType.TEXT, attribute.getPersistentType());
+				assertEquals(PersistentType.SHORTTEXT, attribute.getPersistentType());
 			} else if (attribute.getCode().toLowerCase().equals("string_value")) {
-				assertEquals(PersistentType.TEXT, attribute.getPersistentType());
+				assertEquals(PersistentType.SHORTTEXT, attribute.getPersistentType());
 			} else if (attribute.getCode().toLowerCase().equals("uuid_value")) {
 				assertEquals(PersistentType.BYTEARRAY, attribute.getPersistentType());
 			} else {

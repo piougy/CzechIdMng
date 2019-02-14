@@ -5,12 +5,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -26,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -39,6 +43,7 @@ public class IdmRoleRequestControllerRestTest extends AbstractReadWriteDtoContro
 
 	@Autowired private IdmRoleRequestController controller;
 	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
 	
 	@Override
@@ -113,12 +118,7 @@ public class IdmRoleRequestControllerRestTest extends AbstractReadWriteDtoContro
 				.stream()
 				.map(ResolvedIncompatibleRoleDto::getIncompatibleRole)
 				.collect(Collectors.toSet());
-		Assert.assertEquals(2, incompatibleRoles.size());
-		Assert.assertTrue(incompatibleRoles
-				.stream()
-				.anyMatch(ir -> { 
-					return ir.getSuperior().equals(roleOne.getId()) && ir.getSub().equals(roleTwo.getId());
-				}));
+		Assert.assertEquals(1, incompatibleRoles.size());
 		Assert.assertTrue(incompatibleRoles
 				.stream()
 				.anyMatch(ir -> { 
@@ -174,11 +174,55 @@ public class IdmRoleRequestControllerRestTest extends AbstractReadWriteDtoContro
 				.stream()
 				.map(ResolvedIncompatibleRoleDto::getIncompatibleRole)
 				.collect(Collectors.toSet());
-		Assert.assertEquals(1, incompatibleRoles.size());
-		Assert.assertTrue(incompatibleRoles
-				.stream()
-				.anyMatch(ir -> { 
-					return ir.getSuperior().equals(roleOne.getId()) && ir.getSub().equals(roleTwo.getId());
-				}));
+		Assert.assertEquals(0, incompatibleRoles.size());
+	}
+	
+	@Test
+	public void testFilterByCreatorId() {
+		IdmIdentityDto creatorOne = getHelper().createIdentity();
+		IdmIdentityDto creatorTwo = getHelper().createIdentity();
+		
+		IdmRoleRequestDto roleRequestOne = null;
+		IdmRoleRequestDto roleRequesttwo = null;
+		try {
+			getHelper().login(creatorOne);
+			roleRequestOne = roleRequestService.save(prepareDto());
+		} finally {
+			getHelper().logout();
+		}
+		try {
+			getHelper().login(creatorTwo);
+			roleRequesttwo = roleRequestService.save(prepareDto());
+		} finally {
+			getHelper().logout();
+		}
+		//
+		MultiValueMap<String, String> filter = new LinkedMultiValueMap<>();
+		filter.set("creator", creatorOne.getId().toString());
+		List<IdmRoleRequestDto> requests = find(filter);
+		Assert.assertEquals(1, requests.size());
+		Assert.assertEquals(roleRequestOne.getId(), requests.get(0).getId());
+		//
+		filter.set("creator", creatorTwo.getId().toString());
+		requests = find(filter);
+		Assert.assertEquals(1, requests.size());
+		Assert.assertEquals(roleRequesttwo.getId(), requests.get(0).getId());
+	}
+	
+	@Test
+	public void testFilterByApplicantId() {
+		IdmRoleRequestDto roleRequestOne = createDto();
+		IdmRoleRequestDto roleRequesttwo = createDto();
+		//
+		MultiValueMap<String, String> filter = new LinkedMultiValueMap<>();
+		filter.set("applicantId", roleRequestOne.getApplicant().toString());
+		List<IdmRoleRequestDto> requests = find(filter);
+		Assert.assertEquals(1, requests.size());
+		Assert.assertEquals(roleRequestOne.getId(), requests.get(0).getId());
+		//
+		filter.set("applicantId", roleRequesttwo.getApplicant().toString());
+		requests = find(filter);
+		Assert.assertEquals(1, requests.size());
+		Assert.assertEquals(roleRequesttwo.getId(), requests.get(0).getId());
 	}
 }

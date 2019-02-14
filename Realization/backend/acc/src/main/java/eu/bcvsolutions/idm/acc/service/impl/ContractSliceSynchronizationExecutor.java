@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -585,31 +584,9 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	}
 
 	@Override
-	protected CorrelationFilter getEntityFilter() {
+	protected CorrelationFilter getEntityFilter(SynchronizationContext context) {
 		return new IdmContractSliceFilter();
 	}
-
-	@Override
-	protected IdmContractSliceDto findByAttribute(String idmAttributeName, String value) {
-		CorrelationFilter filter = getEntityFilter();
-		filter.setProperty(idmAttributeName);
-		filter.setValue(value);
-
-		List<IdmContractSliceDto> entities = sliceService.find((IdmContractSliceFilter) filter, null).getContent();
-
-		if (CollectionUtils.isEmpty(entities)) {
-			return null;
-		}
-		if (entities.size() > 1) {
-			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
-					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
-		}
-		if (entities.size() == 1) {
-			return entities.get(0);
-		}
-		return null;
-	}
-	
 	
 	/**
 	 * Check if is supported provisioning for given entity type.

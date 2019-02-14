@@ -47,7 +47,7 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
   }
 
   renderSingleInput(originalValues) {
-    const { values } = this.props;
+    const { values, validationErrors, className, style } = this.props;
     const showOriginalValue = originalValues ? true : false;
     //
     return (
@@ -57,7 +57,10 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
         value={ this.toInputValue(showOriginalValue ? originalValues : values) }
         helpBlock={ this.getHelpBlock() }
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
-        required={ this.isRequired() }/>
+        required={ this.isRequired() }
+        validationErrors={ validationErrors }
+        className={ className }
+        style={ style}/>
     );
   }
 

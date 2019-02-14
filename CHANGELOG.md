@@ -4,9 +4,14 @@ All notable changes to this project will be documented in this file.
 ## [9.4.0]
 - [#1372](https://redmine.czechidm.com/issues/1372) - HTTP status 206 for long running task supports download result from them.
 - Deprecated static properties ``PARAMETER_PROPERTY`` and ``PARAMETER_VALUE`` defined in ``IdmTreeNodeFilter`` were removed (deprecated @since 8.2.0). Use static properties ``PARAMETER_CORRELATION_PROPERTY`` and ``PARAMETER_CORRELATION_VALUE`` instead.
-- [#1378](https://redmine.czechidm.com/issues/1378) Dashboard content was redesigned and split into two component - dashboard (system info) and identity dashboard (identity info). ``Index.js``, ``layout`` in frontend ``czechidm-app`` module was updated - don't forget to **update this module**, if project specific app module is used. Changes are backward compatible - previously created dashboards will be rendered in new dashboard content. New dashboard components with type ``identity-dashboard`` can be registered.
+- [#1378](https://redmine.czechidm.com/issues/1378) - Dashboard content was redesigned and split into two component - dashboard (system info) and identity dashboard (identity info). ``Index.js``, ``layout`` in frontend ``czechidm-app`` module was updated - don't forget to **update this module**, if project specific app module is used. Changes are backward compatible - previously created dashboards will be rendered in new dashboard content. New dashboard components with type ``identity-dashboard`` can be registered.
 - Confidential storage agenda was hidden in menu. Confidential storage is still available in router on url ``<server>/confidential-storage`` and on rest api.
 - Font Awesome library was upgraded to version 5. Backward compatibility with the old version 4 icon names was configured, but will be removed in release CzechIdM 10.x. Use new icon names - see the [documentation](https://fontawesome.com/how-to-use/on-the-web/setup/upgrading-from-version-4#name-changes).
+- Deprecated unused field **``parameters`` was removed from ``AuthorizationEvaluatorDto``** (deprecated since CzechIdM 8.2.0). Use form definition instead (field ``formDefinition``).
+- Services for extended attributes definition ``IdmFormAttributeService`` and ``IdmFormDefinitionService`` support events now (constructors was changed).
+- [#1474](https://redmine.czechidm.com/issues/1474) - Changing persistent type of form attribute is possible only if no values are persisted.
+- [#1050](https://redmine.czechidm.com/issues/1050) - **Shortext as default** - When **EAV attribute** from mapped attribute was created, then (for string schema attributes) **PersistentType.TEXT** type was used as default. TEXT type cannot be indexed, so this type is not useful for searching. For this reason will be since version 9.4.0 as default type sets **PersistentType.SHORTTEXT**.
+**Important**: Shortext is limmeted on max **2000** characters! Existing values (with old type) will be not modifed.
 
 
 ## [9.3.0]
@@ -22,7 +27,7 @@ All notable changes to this project will be documented in this file.
 - [#1361](https://redmine.czechidm.com/issues/1361) - Email notification can send attachments. Sent attachments are not persisted automatically and it's possible to send them from backend only. Attachments (``IdmAttachmentDto``) can be instanced (``inputData`` will be used, if it's not {@code null}), or persisted before - data will be loaded by ``AttachmentManager``, when email is send (see ``DefaultEmailer``).
 
 ## [9.2.2]
-- [#1322](https://redmine.czechidm.com/issues/1322) - Preferred language and collapsed navigation is persisted to identity profile now and is loaded after login. Selecting locale doesn't refresh whole page now - add listening redux property ``i18nReady: state.config.get('i18nReady')`` if you content is not refreshed automatically.
+- [#1322](https://redmine.czechidm.com/issues/1322) - Preferred language and collapsed navigation is persisted to identity profile now and is loaded after login. Selecting locale doesn't refresh whole page now - add listening redux property ``i18nReady: state.config.get('i18nReady')`` if you content is not refreshed automatically and use localization.
 - ``Index.js`` in frontend ``czechidm-app`` module was updated - don't forget to **update this module**, if project specific app module is used.
 
 ## [9.2.0]

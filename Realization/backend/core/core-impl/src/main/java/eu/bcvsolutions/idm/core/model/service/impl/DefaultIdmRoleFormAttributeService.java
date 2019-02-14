@@ -9,6 +9,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -19,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -40,6 +42,9 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 public class DefaultIdmRoleFormAttributeService
 		extends AbstractEventableDtoService<IdmRoleFormAttributeDto, IdmRoleFormAttribute, IdmRoleFormAttributeFilter>
 		implements IdmRoleFormAttributeService {
+	
+	@Autowired @Lazy
+	private IdmFormAttributeService formAttributeService;
 
 	@Autowired
 	public DefaultIdmRoleFormAttributeService(IdmRoleFormAttributeRepository repository,
@@ -50,6 +55,21 @@ public class DefaultIdmRoleFormAttributeService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.ROLEFORMATTRIBUTE, getEntityClass());
+	}
+	
+	@Override
+	public IdmRoleFormAttributeDto validateDto(IdmRoleFormAttributeDto dto) {
+		dto = super.validateDto(dto);
+		// validate overridable attribute setting
+		IdmFormAttributeDto formAttribute = formAttributeService.get(dto.getFormAttribute());
+		formAttribute.setRequired(dto.isRequired());
+		formAttribute.setUnique(dto.isUnique());
+		formAttribute.setMax(dto.getMax());
+		formAttribute.setMin(dto.getMin());
+		formAttribute.setRegex(dto.getRegex());
+		formAttributeService.validateDto(formAttribute);
+
+		return dto;
 	}
 
 	@Override

@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.core.eav.rest.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,12 +13,16 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
@@ -29,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -38,6 +46,8 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -45,6 +55,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormDefinitionFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import io.swagger.annotations.Api;
@@ -70,6 +82,8 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 
 	protected static final String TAG = "Form definitions";
 	private final FormService formService;
+	//
+	@Autowired private AttachmentManager attachmentManager;
 	
 	@Autowired
 	public IdmFormDefinitionController(IdmFormDefinitionService service, FormService formService) {
@@ -469,5 +483,140 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 		formDefinition = getDefinition(owner.getClass(), formDefinition); 
 		//
 		return new Resource<>(formService.saveFormInstance(owner, formDefinition, formValues, permission));
-	}	
+	}
+	
+	/**
+	 * Saves owner's form value (single)
+	 * 
+	 * @param owner
+	 * @param formValue
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 9.4.0
+	 */
+	public Resource<?> saveFormValue(Identifiable owner, IdmFormValueDto formValue, BasePermission... permission) {		
+		Assert.notNull(owner);
+		Assert.notNull(formValue);
+		//
+		IdmFormAttributeDto attribute = formService.getAttribute(formValue.getFormAttribute());
+		if (attribute == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", formValue.getFormAttribute()));
+		}
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(attribute.getFormDefinition());
+		//
+		return new Resource<>(formService.saveFormInstance(owner, formDefinition, Lists.newArrayList(formValue), permission));
+	}
+	
+	
+	/**
+	 * Returns input stream to attachment saved in given form value.
+	 * 
+	 * @param value
+	 * @return
+	 * @since 9.4.0
+	 */
+	public ResponseEntity<InputStreamResource> downloadAttachment(IdmFormValueDto value) {
+		Assert.notNull(value);
+		//
+		if (value.getPersistentType() != PersistentType.ATTACHMENT) {
+			throw new ResultCodeException(
+					CoreResultCode.FORM_VALUE_WRONG_TYPE, 
+					"Download attachment of form value [%s], attribute [%s] with type [%s] is not supported. Download supports [%] persistent type only.", 
+					ImmutableMap.of(
+						"value", Objects.toString(value.getId()), 
+						"formAttribute", value.getFormAttribute().toString(), 
+						"persistentType", value.getPersistentType().toString(), 
+						"requiredPersistentType", PersistentType.ATTACHMENT.toString()
+					));
+		}
+		if (value.getUuidValue() == null) {
+			throw new ResultCodeException(
+					CoreResultCode.BAD_VALUE, 
+					"Attachment of form value [%s], attribute [%s] is empty, cannot be dowloaded.", 
+					ImmutableMap.of(
+						"value", Objects.toString(value.getId()), 
+						"formAttribute", value.getFormAttribute().toString()
+					));
+		}
+		//
+		IdmAttachmentDto attachment = attachmentManager.get(value.getUuidValue());
+		if (attachment == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", value.getUuidValue()));
+		}
+		String mimetype = attachment.getMimetype();
+		InputStream is = attachmentManager.getAttachmentData(attachment.getId());
+		try {
+			BodyBuilder response = ResponseEntity
+					.ok()
+					.contentLength(is.available())
+					.header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"%s\"", attachment.getName()));
+			// append media type, if it's filled
+			if (StringUtils.isNotBlank(mimetype)) {
+				response = response.contentType(MediaType.valueOf(attachment.getMimetype()));
+			}
+			//
+			return response.body(new InputStreamResource(is));
+		} catch (IOException e) {
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
+		}
+	}
+	
+	/**
+	 * Returns input stream to attachment saved in given form value.
+	 * 
+	 * @param value
+	 * @return
+	 * @since 9.4.0
+	 */
+	public ResponseEntity<InputStreamResource> previewAttachment(IdmFormValueDto value) {
+		Assert.notNull(value);
+		//
+		if (value.getPersistentType() != PersistentType.ATTACHMENT) {
+			throw new ResultCodeException(
+					CoreResultCode.FORM_VALUE_WRONG_TYPE, 
+					"Download attachment of form value [%s], attribute [%s] with type [%s] is not supported. Download supports [%] persistent type only.", 
+					ImmutableMap.of(
+						"value", Objects.toString(value.getId()), 
+						"formAttribute", value.getFormAttribute().toString(), 
+						"persistentType", value.getPersistentType().toString(), 
+						"requiredPersistentType", PersistentType.ATTACHMENT.toString()
+					));
+		}
+		if (value.getUuidValue() == null) {
+			throw new ResultCodeException(
+					CoreResultCode.BAD_VALUE, 
+					"Attachment of form value [%s], attribute [%s] is empty, cannot be dowloaded.", 
+					ImmutableMap.of(
+						"value", Objects.toString(value.getId()), 
+						"formAttribute", value.getFormAttribute().toString()
+					));
+		}
+		//
+		IdmAttachmentDto attachment = attachmentManager.get(value.getUuidValue());
+		if (attachment == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", value.getUuidValue()));
+		}
+		String mimetype = attachment.getMimetype();
+		// TODO: naive check => implement better + image resize (thumbnail)
+		if (!mimetype.startsWith("image/")) {
+			return new ResponseEntity<InputStreamResource>(HttpStatus.NO_CONTENT); 
+		}
+		//
+		InputStream is = attachmentManager.getAttachmentData(attachment.getId());
+		try {
+			BodyBuilder response = ResponseEntity
+					.ok()
+					.contentLength(is.available())
+					.header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"%s\"", attachment.getName()));
+			// append media type, if it's filled
+			if (StringUtils.isNotBlank(mimetype)) {
+				response = response.contentType(MediaType.valueOf(attachment.getMimetype()));
+			}
+			//
+			return response.body(new InputStreamResource(is));
+		} catch (IOException e) {
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
+		}
+	}
 }

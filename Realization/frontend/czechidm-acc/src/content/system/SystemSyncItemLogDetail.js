@@ -74,9 +74,10 @@ class SystemSyncItemLogDetail extends Advanced.AbstractTableContent {
               <Basic.TextField
                 ref="identification"
                 label={this.i18n('acc:entity.SyncItemLog.identification')}/>
-              <Basic.TextArea
+              <Basic.ScriptArea
                 ref="log"
-                rows="15"
+                mode="sqlserver"
+                height="35em"
                 label={this.i18n('acc:entity.SyncItemLog.log')}/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>

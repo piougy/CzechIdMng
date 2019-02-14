@@ -29,6 +29,10 @@ class IdentityService extends FormableEntityService {
     return 'IDENTITY';
   }
 
+  supportsAttachment() {
+    return true;
+  }
+
   getNiceLabel(entity) {
     let toString = '';
     if (entity) {

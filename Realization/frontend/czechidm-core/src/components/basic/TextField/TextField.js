@@ -225,14 +225,16 @@ class TextField extends AbstractFormComponent {
             { this.renderHelpIcon() }
           </label>
         }
-        <div className={componentSpan} style={{ whiteSpace: 'nowrap' }}>
+        <div className={ componentSpan } style={{ whiteSpace: 'nowrap' }}>
           <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <span>
-              {confidentialWrapper}
+              { confidentialWrapper }
               {
-                (feedback || !showAsterix)
+                feedback
                 ||
-                <span className="form-control-feedback" style={{color: 'red', zIndex: 0}}>*</span>
+                !showAsterix
+                ||
+                <span className="form-control-feedback" style={ {color: 'red', zIndex: 0 }}>*</span>
               }
             </span>
           </Tooltip>

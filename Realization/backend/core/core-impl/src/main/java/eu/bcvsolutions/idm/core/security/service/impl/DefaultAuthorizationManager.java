@@ -242,7 +242,6 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			evaluatorDto.setEntityType(evaluator.getEntityClass().getCanonicalName());
 			evaluatorDto.setEvaluatorType(evaluator.getClass().getCanonicalName());
 			evaluatorDto.setModule(evaluator.getModule());
-			evaluatorDto.setParameters(evaluator.getPropertyNames());
 			evaluatorDto.setSupportsPermissions(evaluator.supportsPermissions());
 			evaluatorDto.setDescription(evaluator.getDescription());
 			evaluatorDto.setFormDefinition(evaluator.getFormDefinition());

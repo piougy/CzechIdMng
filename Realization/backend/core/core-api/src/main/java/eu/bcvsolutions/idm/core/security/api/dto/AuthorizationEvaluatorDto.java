@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.core.security.api.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
@@ -26,11 +23,6 @@ public class AuthorizationEvaluatorDto extends AbstractComponentDto {
 	private String entityType;
 	@NotEmpty
 	private String evaluatorType;
-	/**
-	 * @deprecated @since 8.2.0 use form definition instead
-	 */
-	@Deprecated
-	private List<String> parameters;
 	private boolean supportsPermissions;
 	private IdmFormDefinitionDto formDefinition;
 	
@@ -48,25 +40,6 @@ public class AuthorizationEvaluatorDto extends AbstractComponentDto {
 	
 	public void setEvaluatorType(String evaluatorType) {
 		this.evaluatorType = evaluatorType;
-	}
-	
-	/**
-	 * @deprecated @since 8.2.0 use form definition instead
-	 */
-	@Deprecated
-	public List<String> getParameters() {
-		if (parameters == null) {
-			parameters = new ArrayList<>();
-		}
-		return parameters;
-	}
-	
-	/**
-	 * @deprecated @since 8.2.0 use form definition instead
-	 */
-	@Deprecated
-	public void setParameters(List<String> parameters) {
-		this.parameters = parameters;
 	}
 	
 	public void setSupportsPermissions(boolean supportsPermissions) {

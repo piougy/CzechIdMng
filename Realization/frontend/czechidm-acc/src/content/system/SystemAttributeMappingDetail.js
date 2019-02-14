@@ -200,7 +200,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
     const entityTypeEnum = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY');
     const _idmPropertyNameKey = _idmPropertyName !== undefined ? _idmPropertyName : attribute.idmPropertyName;
-    const propertyHelpBlockLabel = _idmPropertyNameKey ?
+    const propertyHelpBlockLabel = _idmPropertyNameKey && entityTypeEnum.getEnum(_idmPropertyNameKey) ?
       entityTypeEnum.getHelpBlockLabel(
         entityTypeEnum.findKeyBySymbol(
           entityTypeEnum.getEnum(_idmPropertyNameKey)

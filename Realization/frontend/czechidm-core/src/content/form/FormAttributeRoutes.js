@@ -65,7 +65,7 @@ class FormAttributeRoutes extends Basic.AbstractContent {
           (this._getIsNew() || !entity)
           ||
           <Basic.PageHeader>
-            <span>{entity.name} <small>{this.i18n('edit')}</small></span>
+            <span>{entity.name} <small>{this.i18n('edit.title')}</small></span>
           </Basic.PageHeader>
         }
         {

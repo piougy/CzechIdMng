@@ -304,6 +304,7 @@ public class DefaultIdmConceptRoleRequestService extends
 
 	@Override
 	public IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto, boolean checkChanges) {
+		Assert.notNull(dto);
 		UUID roleId = dto.getRole();
 		if (roleId != null) {
 			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.role, IdmRoleDto.class, null);

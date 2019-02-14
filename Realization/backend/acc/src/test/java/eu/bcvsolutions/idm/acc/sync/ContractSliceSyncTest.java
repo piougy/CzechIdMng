@@ -91,7 +91,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Contract slice synchronization tests
- * 
+ *
  * @author Svanda
  *
  */
@@ -331,7 +331,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 
 	}
-	
+
 	@Test
 	public void deleteSliceTest() {
 		SysSystemDto system = initData();
@@ -372,7 +372,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		AccContractSliceAccountDto contractAccount = contractAccounts.get(0);
 		AccAccountDto account = accountService.get(contractAccount.getAccount());
 		Assert.assertNotNull(account);
-		
+
 		// Delete this slice
 		contractSliceService.delete(slice);
 
@@ -383,7 +383,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		account = accountService.get(contractAccount.getAccount());
 		// Account must be deleted
 		Assert.assertNull(account);
-		
+
 		// Delete log
 		syncLogService.delete(log);
 
@@ -831,7 +831,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		contractSliceFilter.setIdentity(identity.getId());
 		List<IdmContractSliceDto> slices = contractSliceService.find(contractSliceFilter, null).getContent();
 		assertEquals(0, slices.size());
-		
+
 		// check current contracts
 		List<IdmIdentityContractDto> allByIdentity = contractService.findAllByIdentity(identity.getId());
 		assertEquals(0, allByIdentity.size());
@@ -990,8 +990,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		});
 		identityService.delete(identity);
 	}
-<<<<<<< HEAD
-=======
 
 	@Test
 	public void addTwoNewAndDeleteFirstContractSliceTurnOffRecalc() {
@@ -1054,7 +1052,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 				fail("Slice with bad id!");
 			}
 		}
-		
+
 		contracts = contractService.findAllByIdentity(identity.getId());
 		assertEquals(1, contracts.size());
 		IdmIdentityContractDto contract = contracts.get(0);
@@ -1068,7 +1066,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		});
 		identityService.delete(identity);
 	}
-	
+
 	@Test
 	public void addTwoNewAndDeleteFirstContractSlice() {
 		// init system
@@ -1125,7 +1123,7 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 				fail("Slice with bad id!");
 			}
 		}
-		
+
 		contracts = contractService.findAllByIdentity(identity.getId());
 		assertEquals(1, contracts.size());
 		IdmIdentityContractDto contract = contracts.get(0);
@@ -1139,7 +1137,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		});
 		identityService.delete(identity);
 	}
->>>>>>> develop
 
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType,
 			int count) {

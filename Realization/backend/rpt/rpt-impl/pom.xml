@@ -5,11 +5,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-rpt</artifactId>
-<<<<<<< HEAD
-		<version>9.4.0-rc.2</version>
-=======
 		<version>9.4.0</version>
->>>>>>> develop
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -59,7 +55,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.apache.directory.server</groupId>
 			<artifactId>apacheds-server-integ</artifactId>
@@ -72,7 +68,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.apache.directory.server</groupId>
 			<artifactId>apacheds-core-integ</artifactId>

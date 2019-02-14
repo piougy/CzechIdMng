@@ -4,11 +4,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
-<<<<<<< HEAD
-		<version>9.4.0-rc.2</version>
-=======
 		<version>9.4.0</version>
->>>>>>> develop
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -22,7 +18,7 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>idm-core-impl</artifactId>
 			<version>${project.version}</version>
-		</dependency>	
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -184,7 +180,7 @@
 							</execution>
 						</executions>
 					</plugin>
-					<!-- plugin sequentionaly runs commands which are needed for build of 
+					<!-- plugin sequentionaly runs commands which are needed for build of
 						frontend -->
 					<plugin>
 						<groupId>com.github.eirslett</groupId>
@@ -206,9 +202,9 @@
 									<npmVersion>3.6.0</npmVersion>
 								</configuration>
 							</execution>
-							<!-- script within package.json checks whether node_modules directory 
+							<!-- script within package.json checks whether node_modules directory
 								and its symlink exist and creates them if they do not exist -->
-							<!-- It is better use npm install and gulp install in two different 
+							<!-- It is better use npm install and gulp install in two different
 								executions othwerwise exists way with npm run install-product -->
 							<execution>
 								<id>app npm install</id>
@@ -306,7 +302,7 @@
 			</dependencies>
 		</profile>
 
-		<!-- Due portability of maven build among different OSs we need to distinguish 
+		<!-- Due portability of maven build among different OSs we need to distinguish
 			scripts for windows/unix. Profiles are activated automaticaly based on OS -->
 		<profile>
 			<id>Windows</id>

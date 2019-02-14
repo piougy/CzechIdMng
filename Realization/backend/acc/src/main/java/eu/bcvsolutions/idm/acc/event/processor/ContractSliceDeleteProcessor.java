@@ -20,21 +20,21 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
 
 /**
  * Before contract slice delete - deletes all contract-slice-account relations
- * 
+ *
  * @author svandav
  *
  */
 @Component("accContractSliceDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
 public class ContractSliceDeleteProcessor
-		extends CoreEventProcessor<IdmContractSliceDto> 
+		extends CoreEventProcessor<IdmContractSliceDto>
 		implements ContractSliceProcessor {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(ContractSliceDeleteProcessor.class);
-	
+
 	public static final String PROCESSOR_NAME = "contract-slice-delete-processor";
 	private final AccContractSliceAccountService entityAccountService;
-	
+
 	@Autowired
 	public ContractSliceDeleteProcessor(
 			AccContractSliceAccountService entityAccountService) {
@@ -44,21 +44,18 @@ public class ContractSliceDeleteProcessor
 		//
 		this.entityAccountService = entityAccountService;
 	}
-	
+
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
-<<<<<<< HEAD
-=======
-	
+
 	@Override
 	public boolean conditional(EntityEvent<IdmContractSliceDto> event) {
 		// If dirty state property is presents, then will be slice only marked for
 		// delete (in core delete processor). Deleting is provided by ClearDirtyStateForContractSliceTaskExecutor!
 		return super.conditional(event) && !this.getBooleanProperty(IdmContractSliceService.SET_DIRTY_STATE_CONTRACT_SLICE, event.getProperties());
 	}
->>>>>>> develop
 
 	@Override
 	public EventResult<IdmContractSliceDto> process(EntityEvent<IdmContractSliceDto> event) {
@@ -70,7 +67,7 @@ public class ContractSliceDeleteProcessor
 			LOG.debug("Remove contract-account for account [{}]", entityAccount.getId());
 			entityAccountService.delete(entityAccount);
 		});
-		
+
 		return new DefaultEventResult<>(event, this);
 	}
 
@@ -79,7 +76,7 @@ public class ContractSliceDeleteProcessor
 		// right now before role delete
 		return CoreEvent.DEFAULT_ORDER - 1;
 	}
-	
+
 	@Override
 	public boolean isDisableable() {
 		return false;

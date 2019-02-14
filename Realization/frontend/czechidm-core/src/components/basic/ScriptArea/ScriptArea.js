@@ -67,6 +67,7 @@ class ScriptArea extends AbstractFormComponent {
       readOnly={this.state.readOnly}
       enableBasicAutocompletion
       enableLiveAutocompletion
+      wrapEnabled={false}
       theme="github"
       onChange={this.onChange}
       value={this.state.value || ''}
@@ -116,6 +117,7 @@ class ScriptArea extends AbstractFormComponent {
     AceEditor = require('react-ace').default;
     require('brace/mode/groovy');
     require('brace/mode/json');
+    require('brace/mode/sqlserver');
     require('brace/theme/github');
     const AceEditorInstance = this._getAceEditor(AceEditor, mode, className, height, showModalEditor);
     return (

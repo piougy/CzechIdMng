@@ -599,16 +599,17 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 <Advanced.IdentitiesInfo identities={ request.candicateUsers } maxEntry={ 5 } />
               </Basic.LabelWrapper>
               <Basic.TextArea
-                ref="log"
-                rows={ 8 }
-                hidden
-                readOnly
-                label={this.i18n('entity.RoleRequest.log')}/>
-              <Basic.TextArea
                 ref="description"
                 rows={ 3 }
                 placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
                 label={this.i18n('entity.RoleRequest.description.label')}/>
+              <Basic.ScriptArea
+                ref="log"
+                hidden={!_adminMode}
+                mode="sqlserver"
+                height="30em"
+                readOnly
+                label={this.i18n('entity.RoleRequest.log')}/>
             </Basic.AbstractForm>
             <div style={{ padding: '15px 15px 0 15px' }}>
               {

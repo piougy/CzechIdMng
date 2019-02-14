@@ -248,6 +248,7 @@ public enum CoreResultCode implements ResultCode {
 	ATTACHMENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Uprdate attachment [%s] with owner [%s][%s] failed."),
 	ATTACHMENT_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Create attachment [%s] with owner [%s][%s] failed."),
 	ATTACHMENT_DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "Binary data for attachment [%s:%s] - [%s] not found."),
+	ATTACHMENT_SIZE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "The attachment data exceeds its maximum permitted size of [%s] bytes."),
 	//
 	// Events
 	EVENT_CANCELED_BY_RESTART(HttpStatus.GONE, "Event [%s] type [%s] on instance [%s] was canceled during restart."),

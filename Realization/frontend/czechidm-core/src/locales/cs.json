@@ -5514,6 +5514,10 @@
       "title": "Nenalezena data pro přílohu",
       "message": "Binární data pro přílohu: [{{one}}:{{two}}] - [{{three}}] nebyla nalezena."
     },
+    "ATTACHMENT_SIZE_LIMIT_EXCEEDED": {
+      "title": "Velikost přílohy překročila limit",
+      "message": "Limit pro velikost přílohy je [{{actualSize}}] bytů."
+    },
     "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
       "title": "Šablona nebyla nalezena",
       "message": "XML soubor pro šablonu [{{template}}] nebyl nalezen."

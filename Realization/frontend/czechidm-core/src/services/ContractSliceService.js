@@ -33,6 +33,10 @@ class ContractSliceService extends FormableEntityService {
     return 'IDENTITYCONTRACT';
   }
 
+  supportsAttachment() {
+    return true;
+  }
+
   /**
    * Extended nice label
    *

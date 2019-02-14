@@ -5464,6 +5464,10 @@
       "title": "Data for attachment not found",
       "message": "Binary data for attachment: [{{one}}:{{two}}] - [{{three}}] not found."
     },
+    "ATTACHMENT_SIZE_LIMIT_EXCEEDED": {
+      "title": "Attachment size limit exceeded",
+      "message": "Attachment size limit is [{{actualSize}}] bytes."
+    },
     "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
       "title": "Template not found",
       "message": "XML file for template [{{template}}] not found."

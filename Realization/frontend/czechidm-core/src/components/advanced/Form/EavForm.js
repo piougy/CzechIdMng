@@ -118,7 +118,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
       showLoading,
       readOnly,
       useDefaultValue,
-      validationErrors
+      validationErrors,
+      formableManager
     } = this.props;
     //
     if (!rendered || !formInstance) {
@@ -165,7 +166,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 useDefaultValue={ useDefaultValue }
                 manager={ ManagerType ? new ManagerType() : null }
                 validationErrors={ this.getInvalidFormAttributes(validationErrors || formInstance.validationErrors, attribute.code) }
-                className={ formInstance.getAttributes().last().id === attribute.id ? 'last' : '' }/>
+                className={ formInstance.getAttributes().last().id === attribute.id ? 'last' : '' }
+                formableManager={ formableManager }/>
             );
           })
         }
@@ -180,6 +182,12 @@ EavForm.propTypes = {
    * FormInstance (definition + values)
    */
   formInstance: PropTypes.object,
+  /**
+   * Manager controlls owners extended attributes, e.g. identityManager, roleManager.
+   * Enable additional features, which depends on concrete manager (e.g. download attachment).
+   * When manager is not given, features are disabled.
+   */
+  formableManager: PropTypes.object,
   /**
    * ReadOnly form
    */

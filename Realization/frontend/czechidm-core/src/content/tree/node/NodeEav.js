@@ -4,7 +4,6 @@ import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import { TreeNodeManager, SecurityManager } from '../../../redux';
 
-const uiKey = 'eav-tree-node';
 const manager = new TreeNodeManager();
 
 /**
@@ -31,7 +30,6 @@ export default class NodeEav extends Basic.AbstractContent {
     //
     return (
       <Advanced.EavContent
-        uiKey={uiKey}
         formableManager={manager}
         entityId={entityId}
         contentKey={this.getContentKey()}

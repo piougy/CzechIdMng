@@ -70,6 +70,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -121,6 +122,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	//
 	@Autowired private IdmFormDefinitionController formDefinitionController;
 	@Autowired private IdmProfileController profileController;
+	@Autowired private FormService formService;
 	//
 	private final IdmIdentityService identityService;
 
@@ -789,13 +791,13 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			@RequestParam(name = IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, required = false) String definitionCode,
 			@ApiParam(value = "Filled form data.", required = true)
 			@RequestBody @Valid List<IdmFormValueDto> formValues) {		
-		IdmIdentityDto entity = getDto(backendId);
-		if (entity == null) {
+		IdmIdentityDto dto = getDto(backendId);
+		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		if (!identityConfiguration.isFormAttributesSecured()) {
 			// if eav form value are not secured by authorization policies => check security by identity
-			checkAccess(entity, IdmBasePermission.UPDATE);
+			checkAccess(dto, IdmBasePermission.UPDATE);
 		}
 		//
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(
@@ -804,10 +806,135 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.AUTOCOMPLETE : null);
 		//
 		return formDefinitionController.saveFormValues(
-				entity, 
+				dto, 
 				formDefinition, 
 				formValues, 
 				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.UPDATE : null);
+	}
+	
+	/**
+	 * Save entity's form value
+	 * 
+	 * @param backendId
+	 * @param formValues
+	 * @return
+	 * @since 9.4.0
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')"
+			+ "or hasAuthority('" + CoreGroupPermission.FORM_VALUE_UPDATE + "')")
+	@RequestMapping(value = "/{backendId}/form-value", method = { RequestMethod.POST } )
+	@ApiOperation(
+			value = "Identity form definition - save value", 
+			nickname = "postRoleFormValue", 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.FORM_VALUE_UPDATE, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.FORM_VALUE_UPDATE, description = "")})
+					})
+	public Resource<?> saveFormValue(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId,
+			@RequestBody @Valid IdmFormValueDto formValue) {		
+		IdmIdentityDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		if (!identityConfiguration.isFormAttributesSecured()) {
+			// if eav form value are not secured by authorization policies => check security by identity
+			checkAccess(dto, IdmBasePermission.UPDATE);
+		}
+		//
+		return formDefinitionController.saveFormValue(
+				dto,
+				formValue,
+				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.UPDATE : null);
+	}
+	
+	/**
+	 * Returns input stream to attachment saved in given form value.
+	 * 
+	 * @param backendId
+	 * @param formValueId
+	 * @return
+	 * @since 9.4.0
+	 */
+	@RequestMapping(value = "/{backendId}/form-values/{formValueId}/download", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@ApiOperation(
+			value = "Download form value attachment", 
+			nickname = "downloadFormValue",
+			tags = { IdmIdentityController.TAG },
+			notes = "Returns input stream to attachment saved in given form value.",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
+					})
+	public ResponseEntity<InputStreamResource> downloadFormValue(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable String backendId,
+			@ApiParam(value = "Form value identifier.", required = true)
+			@PathVariable String formValueId) {
+		IdmIdentityDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormValueDto value = formService.getValue(
+				dto, 
+				DtoUtils.toUuid(formValueId), 
+				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.READ : null);
+		if (value == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
+		}
+		return formDefinitionController.downloadAttachment(value);
+	}
+	
+	/**
+	 * Returns input stream to attachment saved in given form value.
+	 * 
+	 * @param backendId
+	 * @param formValueId
+	 * @return
+	 * @since 9.4.0
+	 */
+	@RequestMapping(value = "/{backendId}/form-values/{formValueId}/preview", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@ApiOperation(
+			value = "Download form value attachment preview", 
+			nickname = "downloadFormValue",
+			tags = { IdmIdentityController.TAG },
+			notes = "Returns input stream to attachment preview saved in given form value. Preview is supported for the png, jpg and jpeg mime types only",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
+					})
+	public ResponseEntity<InputStreamResource> previewFormValue(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable String backendId,
+			@ApiParam(value = "Form value identifier.", required = true)
+			@PathVariable String formValueId) {
+		IdmIdentityDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormValueDto value = formService.getValue(
+				dto, 
+				DtoUtils.toUuid(formValueId), 
+				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.READ : null);
+		if (value == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
+		}
+		return formDefinitionController.previewAttachment(value);
 	}
 	
 	/**

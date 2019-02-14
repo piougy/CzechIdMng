@@ -702,13 +702,15 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		List<IdmFormValueDto> attributeValues = formService.saveValues(
 				(UUID) owner.getId(), owner.getClass(), attribute, Lists.newArrayList(FORM_VALUE_ONE));
 		
-		assertEquals(1, attributeValues.size());
-		assertEquals(FORM_VALUE_ONE, attributeValues.get(0).getValue());
+		Assert.assertEquals(1, attributeValues.size());
+		Assert.assertEquals(FORM_VALUE_ONE, attributeValues.get(0).getValue());
 		
 		List<IdmFormValueDto> getValues = formService.getValues((UUID) owner.getId(), owner.getClass(), attribute);
 		
-		assertEquals(1, getValues.size());
-		assertEquals(FORM_VALUE_ONE, ((IdmFormValueDto) getValues.get(0)).getValue());
+		Assert.assertEquals(1, getValues.size());
+		Assert.assertEquals(FORM_VALUE_ONE, ((IdmFormValueDto) getValues.get(0)).getValue());
+		Assert.assertEquals(FORM_VALUE_ONE, formService.getValue(owner, getValues.get(0).getId()).getValue());
+		
 		//
 		identityService.deleteById(owner.getId());
 	}

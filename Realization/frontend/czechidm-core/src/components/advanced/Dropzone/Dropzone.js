@@ -60,6 +60,15 @@ class Dropzone extends Basic.AbstractContextComponent {
     return files[0];
   }
 
+  /**
+   * Clear selected files
+   */
+  clearFiles() {
+    this.setState({
+      files: []
+    });
+  }
+
   render() {
     const { rendered, onDrop, children, ...others } = this.props;
     const { files } = this.state;

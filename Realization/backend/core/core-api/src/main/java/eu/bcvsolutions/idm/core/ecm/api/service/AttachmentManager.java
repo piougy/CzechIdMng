@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.dto.filter.IdmAttachmentFilter;
@@ -30,12 +31,26 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface AttachmentManager extends 
 		ReadWriteDtoService<IdmAttachmentDto, IdmAttachmentFilter>,
-		AuthorizableService<IdmAttachmentDto> {
+		AuthorizableService<IdmAttachmentDto>,
+		ScriptEnabled {
 	
 	/**
 	 * Temporary attachments - they are uploaded without owner.
 	 */
 	String TEMPORARY_ATTACHMENT_OWNER_TYPE = "TEMP";
+	
+	/**
+	 * {@inheritDoc}.
+	 * <br/>
+	 * <b>Lookout</b>: saves attachment's metadata only. For saving attachment with data (filled input stream) 
+	 * use {@link #saveAttachment(Identifiable, IdmAttachmentDto, BasePermission...)} method.
+	 * 
+	 * @see #saveAttachment(Identifiable, IdmAttachmentDto, BasePermission...)
+	 * @see #saveAttachmentVersion(Identifiable, IdmAttachmentDto, IdmAttachmentDto, BasePermission...)
+	 * @see #saveAttachmentVersion(Identifiable, IdmAttachmentDto, UUID, BasePermission...)
+	 */
+	@Override
+	IdmAttachmentDto save(IdmAttachmentDto dto, BasePermission... permission);
 
 	/**
 	 * Save attachment. Closes given data input stream automatically.

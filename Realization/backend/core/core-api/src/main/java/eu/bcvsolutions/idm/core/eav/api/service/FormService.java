@@ -154,6 +154,17 @@ public interface FormService extends ScriptEnabled {
 	String getDefaultDefinitionType(Class<? extends Identifiable> ownerType);
 	
 	/**
+	 * Finds attribute by given id
+	 * 
+	 * @param attributeId
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 9.4.0
+	 */
+	IdmFormAttributeDto getAttribute(UUID attributeId, BasePermission... permission);
+	
+	/**
 	 * Returns attribute by given code from main form definition
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
@@ -266,8 +277,9 @@ public interface FormService extends ScriptEnabled {
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	IdmFormAttributeDto saveAttribute(Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, BasePermission... permission);
-		
+	
 	/**
+	 * Saves form values to given owner and form definition. Only given form attributes by the given values will be saved ("PATCH").
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
@@ -450,6 +462,17 @@ public interface FormService extends ScriptEnabled {
 			String attributeCode,
 			List<Serializable> persistentValues,
 			BasePermission... permission);
+	
+	/**
+	 * Reads form value by given owner and form value identifier
+	 * 
+	 * @param owner
+	 * @param formValueId form value identifier
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 * @since 9.4.0
+	 */
+	IdmFormValueDto getValue(Identifiable owner, UUID formValueId, BasePermission... permission);
 	
 	/**
 	 * Reads form values by given owner. Return values from main form definition.

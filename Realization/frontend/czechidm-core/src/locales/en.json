@@ -96,7 +96,14 @@
     "saving": "Saving",
     "yes": "Yes",
     "set": "Set",
-    "crop": "Crop & save"
+    "crop": "Crop & save",
+    "preview": {
+      "title": "Show preview",
+      "disabled": "Preview is not available"
+    },
+    "clear": {
+      "title": "Clear"
+    }
   },
   "filter": {
     "dateFrom": {
@@ -348,6 +355,7 @@
       },
       "Dropzone": {
         "infoText": "Drag files here, or click to select files.",
+        "infoTextSingle": "Drag file here, or click to select file.",
         "readOnly": "Preview is not available."
       },
       "TextField": {
@@ -4868,7 +4876,7 @@
     },
     "PASSWORD_CHANGE_CURRENT_FAILED_IDM": {
       "title": "Password change failed",
-      "message": "Original password is not correct."
+      "message": "Invalid login or original password."
     },
     "LOG_IN": {
       "title": "Session timeout",

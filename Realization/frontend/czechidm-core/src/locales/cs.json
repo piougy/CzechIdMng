@@ -96,7 +96,14 @@
     "saving": "Ukládám ...",
     "yes": "Ano",
     "set": "Nastavit",
-    "crop": "Ořezat a uložit"
+    "crop": "Ořezat a uložit",
+    "preview": {
+      "title": "Zobrazit náhled",
+      "disabled": "Náhled není dostupný"
+    },
+    "clear": {
+      "title": "Zrušit výběr"
+    }
   },
   "filter": {
     "dateFrom": {
@@ -378,6 +385,7 @@
       },
       "Dropzone": {
         "infoText": "Přetáhněte soubory na tuto plochu a nebo na ní klikněte pro výběr souborů.",
+        "infoTextSingle": "Přetáhněte soubor na tuto plochu a nebo na ní klikněte pro výběr souboru.",
         "readOnly": "Náhled není k dispozici."
       },
       "TextField": {
@@ -4918,7 +4926,7 @@
     },
     "PASSWORD_CHANGE_CURRENT_FAILED_IDM": {
       "title": "Změna hesla neproběhla",
-      "message": "Zadáno chybné původní heslo."
+      "message": "Zadány chybné přihlašovací údaje (jméno či původní heslo)."
     },
     "LOG_IN": {
       "title": "Přihlášení vypršelo",

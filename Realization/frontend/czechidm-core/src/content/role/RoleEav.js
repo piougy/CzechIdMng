@@ -5,7 +5,6 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { RoleManager } from '../../redux';
 
-const uiKey = 'eav-role';
 let manager = null;
 
 /**
@@ -36,7 +35,6 @@ class RoleEav extends Basic.AbstractContent {
     //
     return (
       <Advanced.EavContent
-        uiKey={ uiKey }
         formableManager={ manager }
         entityId={ entityId }
         contentKey={ this.getContentKey() }

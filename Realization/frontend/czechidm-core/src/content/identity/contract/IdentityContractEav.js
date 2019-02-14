@@ -5,7 +5,6 @@ import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import { IdentityContractManager } from '../../../redux';
 
-const uiKey = 'eav-identity-contract';
 const manager = new IdentityContractManager();
 
 /**
@@ -33,7 +32,6 @@ class IdentityContractEav extends Basic.AbstractContent {
     //
     return (
       <Advanced.EavContent
-        uiKey={uiKey}
         formableManager={manager}
         entityId={entityId}
         contentKey={this.getContentKey()}

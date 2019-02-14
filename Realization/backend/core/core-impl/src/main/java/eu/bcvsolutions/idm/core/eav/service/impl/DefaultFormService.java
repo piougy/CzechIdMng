@@ -225,6 +225,12 @@ public class DefaultFormService implements FormService {
 	public boolean isFormable(Class<? extends Identifiable> ownerType) {
 		return formDefinitionService.isFormable(ownerType);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormAttributeDto getAttribute(UUID attributeId, BasePermission... permission) {
+		return formAttributeService.get(attributeId, permission);
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -775,6 +781,14 @@ public class DefaultFormService implements FormService {
 			List<Serializable> persistentValues,
 			BasePermission... permission) {
 		return saveValues(getOwnerEntity(ownerId, ownerType), attributeName, persistentValues, permission);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormValueDto getValue(Identifiable owner, UUID formValueId, BasePermission... permission) {
+		FormValueService<FormableEntity> formValueService = getFormValueService(owner);
+		//
+		return formValueService.get(formValueId, permission);
 	}
 
 	@Override

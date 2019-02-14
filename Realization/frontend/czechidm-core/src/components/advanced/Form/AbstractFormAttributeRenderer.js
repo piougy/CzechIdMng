@@ -426,6 +426,12 @@ AbstractFormAttributeRenderer.propTypes = {
    */
   formDefinition: PropTypes.object,
   /**
+   * Manager controlls owners extended attributes, e.g. identityManager, roleManager.
+   * Enable additional features, which depends on concrete manager (e.g. download attachment).
+   * When manager is not given, features are disabled.
+   */
+  formableManager: PropTypes.object,
+  /**
    * Filled form values
    */
   values: PropTypes.arrayOf(PropTypes.object),

@@ -50,6 +50,10 @@ export default class RoleService extends AbstractRequestFormableService {
     return 'ROLE';
   }
 
+  supportsAttachment() {
+    return true;
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

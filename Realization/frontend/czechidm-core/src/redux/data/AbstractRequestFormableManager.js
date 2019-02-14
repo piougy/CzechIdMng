@@ -11,6 +11,19 @@ export default class AbstractRequestFormableManager extends FormableEntityManage
   }
 
   /**
+   * Supports attachment value (usable for attributes with persistent type 'ATTACHMENT') - enable download, preview etc.
+   * If request mode is enabled, then attachmnents are not supported
+   *
+   * @since 9.4.0
+   */
+  supportsAttachment() {
+    if (this.isRequestModeEnabled()) {
+      return false;
+    }
+    return super.supportsAttachment();
+  }
+
+  /**
    * Returns key of configuration by which is requests for that manager enabled/disabled.
    * Should be overrided in the child.
    */

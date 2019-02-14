@@ -238,7 +238,7 @@ public class ParameterConverter {
 	 */
 	public UUID toUuid(Map<String, Object> parameters, String parameterName) {
 		// supports UUID and String representation
-		return EntityUtils.toUuid(parameters.get(parameterName));
+		return DtoUtils.toUuid(parameters.get(parameterName));
 	}
 	
 	/**

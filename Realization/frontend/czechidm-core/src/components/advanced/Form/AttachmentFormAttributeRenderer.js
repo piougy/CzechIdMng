@@ -45,7 +45,7 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
     const { formableManager, values } = this.props;
     const formValue = this._getSingleValue(values);
     //
-    if (!formableManager.supportsAttachment()) {
+    if (!formableManager || !formableManager.supportsAttachment()) {
       return;
     }
     if (!formValue || !formValue.id || !formValue.ownerId || formValue.persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.ATTACHMENT)) {

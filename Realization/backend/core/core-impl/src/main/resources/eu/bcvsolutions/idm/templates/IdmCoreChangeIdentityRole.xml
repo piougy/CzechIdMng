@@ -15,7 +15,7 @@ parameters:
 		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>changeIdentityRole</code>
 	<name>Send result WF - Change identity roles</name>
-	<subject>CzechIdM - změna opravnění pro účet $identity.Username</subject>
+	<subject>CzechIdM - změna oprávnění pro účet $identity.Username</subject>
 	<bodyHtml>
 <![CDATA[
 
@@ -73,7 +73,7 @@ parameters:
 		#end
 		
 		Dobrý den,<br />
-		žádnost ze dne $from byla vyřízena.<br />
+		žádost ze dne $from byla vyřízena.<br />
 		<br />
 
 

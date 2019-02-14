@@ -20,7 +20,7 @@ parameters:
 		<body>
 			Dobrý den,<br />
 			<br />
-			Vámi podaná žádnost ze dne $from byla vrácena k přepracování.
+			Vámi podaná žádost ze dne $from byla vrácena k přepracování.
 			#if( $applicantIdentity)
 			Žádost byla podaná pro uživatele <b>$applicantIdentity.Username</b>.
 			#else

@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.model.event.processor.identity;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -92,6 +91,6 @@ public class IdentityStateAutomaticRoleProcessor extends CoreEventProcessor<IdmI
 		if (originalDto == null) {
 			return true;
 		}
-		return ObjectUtils.notEqual(newIdentity.isDisabled(), originalDto.isDisabled());
+		return newIdentity.isDisabled() != originalDto.isDisabled();
 	}
 }

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
@@ -22,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.ContractSliceProcessor;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
+import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ClearDirtyStateForContractSliceTaskExecutor;
 
@@ -61,6 +64,14 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 
 		// There is conditional for executing this processor
 		if (this.getBooleanProperty(IdmContractSliceService.SET_DIRTY_STATE_CONTRACT_SLICE, event.getProperties())) {
+			
+			// If is set slice as using as contract, set this flag to false
+			if (slice.isUsingAsContract()) {
+				slice.setUsingAsContract(false);
+				service.publish(new ContractSliceEvent(ContractSliceEventType.UPDATE, slice,
+						ImmutableMap.of(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE)));
+			}
+
 			Map<String, Serializable> properties = new HashMap<>(event.getProperties());
 			// save original slice into parameters, executor ClearDirtyFlagForContractSliceTaskExecutor need him for recalculation
 			properties.put(ClearDirtyStateForContractSliceTaskExecutor.ORIGINAL_SLICE, originalSlice);

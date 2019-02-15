@@ -12,8 +12,10 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
@@ -21,6 +23,7 @@ import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -44,6 +47,8 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 	private final IdmRoleService roleService;
 	@Autowired
 	private RequestManager requestManager;
+	@Autowired
+	private SysSystemMappingService systemMappingService;
 	
 	@Autowired
 	public DefaultSysRoleSystemService(
@@ -93,6 +98,14 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 		Assert.notNull(dto, "RoleSystem cannot be null!");
 		Assert.notNull(dto.getRole(), "Role cannot be null!");
 		Assert.notNull(dto.getSystem(), "System cannot be null!");
+		Assert.notNull(dto.getSystemMapping(), "System mapping cannot be null!");
+		
+		// Only Identity supports ACM by role
+		SysSystemMappingDto systemMappingDto = systemMappingService.get(dto.getSystemMapping());
+		if(systemMappingDto != null && SystemEntityType.IDENTITY != systemMappingDto.getEntityType()) {
+			throw new ResultCodeException(AccResultCode.ROLE_SYSTEM_SUPPORTS_ONLY_IDENTITY,
+					ImmutableMap.of("entityType", systemMappingDto.getEntityType().name()));
+		}
 		
 		SysRoleSystemFilter filter = new SysRoleSystemFilter();
 	    filter.setRoleId(dto.getRole());

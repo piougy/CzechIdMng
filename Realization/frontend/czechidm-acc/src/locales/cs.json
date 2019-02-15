@@ -1844,6 +1844,10 @@
     "CONNECTOR_SCHEMA_GENERATION_EXCEPTION": {
       "message": "Během generování schématu pro systém [{{system}}] nastala výjimka [{{exception}}]!",
       "title": "Generování schématu selhalo"
+    },
+    "ROLE_SYSTEM_SUPPORTS_ONLY_IDENTITY": {
+      "message": "Správa účtů dle přiřazených rolí, je podporována pouze pro 'Identity' (nikoli pro [{{entityType}}])!",
+      "title": "Nepodporovaný typ mapování systému"
     }
   },
   "processor": {

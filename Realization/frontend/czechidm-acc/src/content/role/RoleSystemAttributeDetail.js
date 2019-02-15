@@ -154,9 +154,25 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
   }
 
   _schemaAttributeChange(value) {
-    if (!this.refs.name.getValue()) {
-      this.refs.name.setValue(value.name);
+    // Copy values from parent attribute
+    this.refs.name.setValue(value.name);
+    this.refs.disabledDefaultAttribute.setValue(value.disabledAttribute);
+    this.refs.strategyType.setValue(value.strategyType);
+    this.refs.uid.setValue(value.uid);
+    this.refs.sendAlways.setValue(value.sendAlways);
+    this.refs.sendOnlyIfNotNull.setValue(value.sendOnlyIfNotNull);
+    this.refs.extendedAttribute.setValue(value.extendedAttribute);
+    this.refs.entityAttribute.setValue(value.entityAttribute);
+    this.refs.confidentialAttribute.setValue(value.confidentialAttribute);
+    const idmPropertyName = value.idmPropertyName;
+    if (idmPropertyName) {
+      this.refs.idmPropertyEnum.setValue(
+        SystemEntityTypeEnum.getEntityEnum('IDENTITY').getEnum(idmPropertyName)
+      );
     }
+    this.refs.idmPropertyName.setValue(value.idmPropertyName);
+    this.refs.disabledDefaultAttribute.setValue(value.disabled);
+    this.refs.transformScript.setValue(value.transformToResourceScript);
   }
 
   _onChangeEntityEnum(item) {

@@ -376,6 +376,10 @@
               "helpBlock": "<strong>Seznam hodnot, které byly v minulosti pro tento atribut spravované v IdM</strong>. Tyto hodnoty jsou stále využívány při vyhodnocování sloučování. Pokud jste si jistí, že konkrétní hodnota již nemá být vyhodnocována jako spravovaná, pak jí zde můžete odstraňit."
             },
             "label": "Kontrolované hodnoty (slučování)"
+          },
+          "attributeOverridden": {
+            "header": "Atribut je použit (přetížen) na těchto rolích",
+            "label": "Kde je atribut použit?"
           }
         }
       },

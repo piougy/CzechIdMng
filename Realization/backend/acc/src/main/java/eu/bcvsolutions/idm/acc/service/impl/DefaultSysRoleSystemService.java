@@ -2,9 +2,13 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -18,18 +22,24 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
+import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -41,7 +51,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 @Service
 public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<SysRoleSystemDto, SysRoleSystem, SysRoleSystemFilter> implements SysRoleSystemService {
 
-	private final SysRoleSystemRepository repository;
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final AccIdentityAccountRepository identityAccountRepository;
 	private final IdmRoleService roleService;
@@ -62,18 +71,9 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 		Assert.notNull(identityAccountRepository);
 		Assert.notNull(roleService);
 		//
-		this.repository = repository;
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
 		this.identityAccountRepository = identityAccountRepository;
 		this.roleService = roleService;
-	}
-	
-	@Override
-	protected Page<SysRoleSystem> findEntities(SysRoleSystemFilter filter, Pageable pageable, BasePermission... permission) {
-		if (filter == null) {
-			return repository.findAll(pageable);
-		}
-		return repository.find(filter, pageable);
 	}
 	
 	@Override
@@ -124,6 +124,38 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 		}
 	    
 		return super.save(dto, permission);
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<SysRoleSystem> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			SysRoleSystemFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+
+		if (filter.getRoleId() != null) {
+			predicates.add(builder.equal(root.get(SysRoleSystem_.role).get(IdmRole_.id), filter.getRoleId()));
+		}
+		
+		if (filter.getSystemId() != null) {
+			predicates.add(builder.equal(root.get(SysRoleSystem_.system).get(SysSystem_.id), filter.getSystemId()));
+		}
+		
+		if (filter.getSystemMappingId() != null) {
+			predicates.add(builder.equal(root.get(SysRoleSystem_.systemMapping).get(SysSystemMapping_.id), filter.getSystemMappingId()));
+		}
+		
+		// Return role-system where is uses given attribute mapping
+		if (filter.getAttributeMappingId() != null) {
+			Subquery<SysRoleSystemAttribute> subquery = query.subquery(SysRoleSystemAttribute.class);
+			Root<SysRoleSystemAttribute> subRoot = subquery.from(SysRoleSystemAttribute.class);
+			subquery.select(subRoot);
+
+			subquery.where(builder.and( //
+					builder.equal(subRoot.get(SysRoleSystemAttribute_.roleSystem),root), // Correlation attribute
+					builder.equal(subRoot.get(SysRoleSystemAttribute_.systemAttributeMapping).get(AbstractEntity_.id), filter.getAttributeMappingId())));
+
+			predicates.add(builder.exists(subquery));
+		}
+		return predicates;
 	}
 	
 }

@@ -7,6 +7,7 @@ import { SystemMappingManager, SystemAttributeMappingManager, SchemaAttributeMan
 import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import AttributeControlledValueTable from './AttributeControlledValueTable';
+import { RoleSystemTable } from '../role/RoleSystemTable';
 
 const uiKey = 'system-attribute-mapping';
 const manager = new SystemAttributeMappingManager();
@@ -193,6 +194,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
      attribute && attribute.objectClassId ? attribute.objectClassId : Domain.SearchParameters.BLANK_UUID);
     const controlledValuesForceSearchParameters = new Domain.SearchParameters().setFilter('attributeMappingId', attribute.id).setFilter('historicValue', false);
     const historicValuesForceSearchParameters = new Domain.SearchParameters().setFilter('attributeMappingId', attribute.id).setFilter('historicValue', true);
+    const overriddenForceSearchParameters = new Domain.SearchParameters().setFilter('attributeMappingId', attribute.id);
     const _isDisabled = disabledAttribute;
     const _isEntityAttribute = entityAttribute;
     const _isExtendedAttribute = extendedAttribute;
@@ -421,6 +423,18 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
             manager={controlledValueManager}
             forceSearchParameters={historicValuesForceSearchParameters}
             />
+        </Basic.Tab>
+        <Basic.Tab eventKey={3} rendered={!isNew} title={this.i18n('tabs.attributeOverridden.label')} className="bordered">
+          <Basic.ContentHeader text={ this.i18n('tabs.attributeOverridden.header') }
+            style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
+          <RoleSystemTable
+            columns={ ['role'] }
+            showAddButton={false}
+            showFilter={false}
+            showRowSelection={false}
+            uiKey={ `attribute-mapping-overridden-${attribute.id}`}
+            forceSearchParameters={ overriddenForceSearchParameters }
+            params={ this.props.params }/>
         </Basic.Tab>
       </Basic.Tabs>
       </div>

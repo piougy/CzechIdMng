@@ -122,6 +122,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
       forceSearchParameters,
       showAddButton,
       showDetailButton,
+      showRowSelection,
       rendered,
       filterOpened,
       showFilter,
@@ -145,7 +146,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={uiKey}
           manager={ this.getManager() }
-          showRowSelection={roleManager.canSave()}
+          showRowSelection={showRowSelection && roleManager.canSave()}
           forceSearchParameters={_forceSearchParameters}
           filterOpened={ filterOpened }
           showFilter={ showFilter }

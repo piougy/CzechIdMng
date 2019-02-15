@@ -13,10 +13,9 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 public class SysRoleSystemFilter implements BaseFilter {
 	
 	private UUID roleId;
-	
 	private UUID systemId;
-	
 	private UUID systemMappingId;
+	private UUID attributeMappingId;
 
 	public UUID getRoleId() {
 		return roleId;
@@ -40,5 +39,13 @@ public class SysRoleSystemFilter implements BaseFilter {
 	
 	public void setSystemMappingId(UUID systemMappingId) {
 		this.systemMappingId = systemMappingId;
-	}	
+	}
+
+	public UUID getAttributeMappingId() {
+		return attributeMappingId;
+	}
+
+	public void setAttributeMappingId(UUID attributeMappingId) {
+		this.attributeMappingId = attributeMappingId;
+	}
 }

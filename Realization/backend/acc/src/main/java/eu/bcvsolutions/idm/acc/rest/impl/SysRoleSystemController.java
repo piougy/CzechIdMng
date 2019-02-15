@@ -211,6 +211,7 @@ public class SysRoleSystemController extends AbstractReadWriteDtoController<SysR
 		SysRoleSystemFilter filter = new SysRoleSystemFilter();
 		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
+		filter.setAttributeMappingId(getParameterConverter().toUuid(parameters, "attributeMappingId"));
 		return filter;
 	}
 }

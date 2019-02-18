@@ -16,6 +16,7 @@ import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -82,7 +83,9 @@ import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
@@ -537,7 +540,12 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		filter.setIdentityId(identity.getId());	
 		// Add eav attributes
 		filter.setAddEavMetadata(Boolean.TRUE);
-		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null, IdmBasePermission.READ).getContent();
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService
+				.find(
+					filter, 
+					new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmIdentityRole_.role.getName() + "." + IdmRole_.name.getName())), 
+					IdmBasePermission.READ)
+				.getContent();
 		return toResources(identityRoles, IdmIdentityRoleDto.class);
 	}
 	

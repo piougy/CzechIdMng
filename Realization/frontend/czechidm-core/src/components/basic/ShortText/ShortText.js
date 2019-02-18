@@ -17,7 +17,7 @@ class ShortText extends AbstractComponent {
   }
 
   render() {
-    const { text, value, maxLength, cutPointEnd, cutChar, className, rendered } = this.props;
+    const { text, value, maxLength, cutPointEnd, cutChar, className, rendered, style } = this.props;
     const _text = text || value;
     //
     if (!rendered || !_text) {
@@ -35,7 +35,7 @@ class ShortText extends AbstractComponent {
     }
     return (
       <Tooltip value={ _text }>
-        <span className={ className }>
+        <span className={ className } style={ style }>
           { shortText }
         </span>
       </Tooltip>

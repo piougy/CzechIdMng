@@ -263,7 +263,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     if (!one._embedded.role || !two._embedded.role) {
       return false;
     }
-    return one._embedded.role.name > two._embedded.role.name;
+    return one._embedded.role.name.toLowerCase() > two._embedded.role.name.toLowerCase();
   }
 
   /**
@@ -673,7 +673,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                     return '';
                   }
                   return (
-                    <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" />
+                    <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } showIcon face="popover" />
                   );
                 }
               }/>

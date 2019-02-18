@@ -11,6 +11,8 @@ import Table from '../Table/Table';
 import Column from '../Table/Column';
 import Tree from '../Tree/Tree';
 import SearchParameters from '../../../domain/SearchParameters';
+import RoleOptionDecorator from './RoleOptionDecorator';
+import RoleValueDecorator from './RoleValueDecorator';
 
 const manager = new RoleManager();
 const roleCatalogueManager = new RoleCatalogueManager();
@@ -412,7 +414,9 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               entityType="role"
               required={ required }
               validationErrors={ validationErrors }
-              value={ value }/>
+              value={ value }
+              optionComponent={ RoleOptionDecorator }
+              valueComponent={ RoleValueDecorator }/>
           </div>
           { this._renderShowTreeIcon() }
         </div>

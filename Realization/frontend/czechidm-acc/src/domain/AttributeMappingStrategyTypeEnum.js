@@ -26,7 +26,7 @@ export default class AttributeMappingStrategyTypeEnum extends Enums.AbstractEnum
 
     switch (sym) {
       case this.MERGE: {
-        return 'success';
+        return 'primary';
       }
       case this.AUTHORITATIVE_MERGE: {
         return 'warning';

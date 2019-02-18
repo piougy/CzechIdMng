@@ -7,6 +7,8 @@ import Waypoint from 'react-waypoint';
 //
 import Icon from '../Icon/Icon';
 import Tooltip from '../Tooltip/Tooltip';
+import OptionDecorator from './OptionDecorator';
+import ValueDecorator from './ValueDecorator';
 import FlashMessage from '../FlashMessages/FlashMessage';
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import EntityManager from '../../../redux/data/EntityManager';
@@ -532,7 +534,15 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getSelectComponent() {
-    const { placeholder, fieldLabel, multiSelect, clearable, showLoading } = this.props;
+    const {
+      placeholder,
+      fieldLabel,
+      multiSelect,
+      clearable,
+      showLoading,
+      optionComponent,
+      valueComponent
+    } = this.props;
     const { isLoading, options, readOnly, disabled, value } = this.state;
     //
     // from new version react-select is necessary turn off onBlurResetsInput and closeOnSelect
@@ -559,7 +569,9 @@ class SelectBox extends AbstractFormComponent {
         clearable={clearable}
         onInputChange={this.onInputChange.bind(this)}
         options={options}
-        onOpen={ this.onOpen.bind(this) }/>
+        onOpen={ this.onOpen.bind(this) }
+        optionComponent={ optionComponent }
+        valueComponent={ valueComponent }/>
     );
   }
 }
@@ -611,9 +623,16 @@ SelectBox.propTypes = {
   pageSize: PropTypes.number,
   /**
    * Boolean flag that call load automaticaly more content after reach last item in options
-   * @type {[type]}
    */
-  loadMoreContent: PropTypes.bool
+  loadMoreContent: PropTypes.bool,
+  /**
+   * Option decorator - generalize OptionDecorator
+   */
+  optionComponent: PropTypes.func,
+  /**
+   * Value decorator - generalize ValueDecorator
+   */
+  valueComponent: PropTypes.func
 };
 
 SelectBox.defaultProps = {
@@ -625,12 +644,17 @@ SelectBox.defaultProps = {
   clearable: true,
   useFirst: false,
   pageSize: SearchParameters.getDefaultSize(),
-  loadMoreContent: true
+  loadMoreContent: true,
+  optionComponent: OptionDecorator,
+  valueComponent: ValueDecorator,
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;
 SelectBox.ITEM_FULL_KEY = ITEM_FULL_KEY;
 SelectBox.ITEM_VALUE = ITEM_VALUE;
+//
+SelectBox.OptionDecorator = OptionDecorator;
+SelectBox.ValueDecorator = ValueDecorator;
 
 
 export default SelectBox;

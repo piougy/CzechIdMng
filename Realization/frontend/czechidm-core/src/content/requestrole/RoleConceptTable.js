@@ -673,7 +673,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                     return '';
                   }
                   return (
-                    <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" />
+                    <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } showIcon face="popover" />
                   );
                 }
               }/>

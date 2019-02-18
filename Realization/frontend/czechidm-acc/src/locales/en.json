@@ -376,6 +376,10 @@
               "helpBlock": "A list of past values for this attribute is managed in IdM. These values are still used in the merger evaluation. If you are certain that a specific value is no longer to be evaluated as managed, then you can delete it here."
             },
             "label": "Controlled values (merge)"
+          },
+          "attributeOverridden": {
+            "header": "Attribute is used in these roles",
+            "label": "Where is attribute used?"
           }
         }
       },
@@ -1836,6 +1840,10 @@
     "CONNECTOR_SCHEMA_GENERATION_EXCEPTION": {
       "message": "Durring generation of schema for system [{{system}}] occurred exception [{{exception}}]!",
       "title": "Generation of schema failed"
+    },
+    "ROLE_SYSTEM_SUPPORTS_ONLY_IDENTITY": {
+      "message": "Account management by roles supports 'Identity' type only (no [{{entityType}}])!",
+      "title": "Unsupported system mapping type"
     }
   },
   "processor": {

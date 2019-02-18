@@ -201,10 +201,10 @@ public class DefaultSysRoleSystemAttributeService extends
 							// Old attribute changed, so we need evict the cache
 							oldSystemAttributeMapping.setEvictControlledValuesCache(true);
 							systemAttributeMappingService.save(oldSystemAttributeMapping);
+							// Set old value as historic
+							attributeControlledValueService.addHistoricValue(oldSystemAttributeMapping,
+									(Serializable) oldControlledValue);
 						}
-						// Set old value as historic
-						attributeControlledValueService.addHistoricValue(oldSystemAttributeMapping,
-								(Serializable) oldControlledValue);
 					}
 					// Check if old and new controlled values are same. If not then we save old
 					// value to the history on parent attribute

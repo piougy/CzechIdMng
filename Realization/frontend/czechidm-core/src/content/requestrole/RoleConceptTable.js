@@ -263,7 +263,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     if (!one._embedded.role || !two._embedded.role) {
       return false;
     }
-    return one._embedded.role.name > two._embedded.role.name;
+    return one._embedded.role.name.toLowerCase() > two._embedded.role.name.toLowerCase();
   }
 
   /**

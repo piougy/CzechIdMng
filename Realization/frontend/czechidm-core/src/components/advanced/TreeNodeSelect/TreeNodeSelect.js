@@ -65,15 +65,23 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
   }
 
   getValue() {
-    return this.refs.treeNode.getValue();
+    if (this.refs.treeNode) {
+      return this.refs.treeNode.getValue();
+    }
+    return undefined;
   }
 
   setValue(value, cb) {
-    this.refs.treeNode.setValue(value, cb);
+    if (this.refs.treeNode) {
+      this.refs.treeNode.setValue(value, cb);
+    }
   }
 
   isValid() {
-    return this.refs.treeNode.isValid();
+    if (this.refs.treeNode) {
+      return this.refs.treeNode.isValid();
+    }
+    return undefined;
   }
 
   validate(showValidationError, cb) {

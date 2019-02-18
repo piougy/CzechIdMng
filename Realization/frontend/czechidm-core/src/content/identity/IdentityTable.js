@@ -42,7 +42,9 @@ export class IdentityTable extends Advanced.AbstractTableContent {
   }
 
   setTreeNodeId(treeNodeId, cb) {
-    this.refs.treeNodeId.setValue(treeNodeId, cb);
+    if (this.refs.treeNodeId) {
+      this.refs.treeNodeId.setValue(treeNodeId, cb);
+    }
   }
 
   /**

@@ -1237,6 +1237,9 @@
     },
     "tasks-assigned": {
       "assigned": "Přiřazené úkoly",
+      "empty": {
+        "message": "Nemáte přiřazen žádný úkol k řešení, vše je vyřešeno."
+      },
       "action": {
         "approve": {
           "action": "Schválit",

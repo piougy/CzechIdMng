@@ -1199,6 +1199,9 @@
     },
     "tasks-assigned": {
       "assigned": "Assigned tasks",
+      "empty": {
+        "message": "All assigned tasks are resolved."
+      },
       "action": {
         "approve": {
           "action": "Approve task",

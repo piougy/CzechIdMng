@@ -20,7 +20,7 @@ class AssignedTaskDashboard extends Basic.AbstractContent {
   }
 
   render() {
-    const { identity, userContext, _total } = this.props;
+    const { identity, userContext, _total, _showLoading } = this.props;
 
     if (!identity || !SecurityManager.hasAuthority('WORKFLOWTASK_READ') ) {
       return null;
@@ -30,18 +30,29 @@ class AssignedTaskDashboard extends Basic.AbstractContent {
     }
     //
     return (
-      <div className={ _total ? '' : 'hidden' }>
+      <Basic.Div>
         <Basic.ContentHeader
           icon="tasks"
           text={ this.i18n('content.tasks-assigned.assigned') }/>
-        <Basic.Panel>
+        {
+          _total || !_showLoading
+          ||
+          <Basic.Loading isStatic show />
+        }
+        <Basic.Alert rendered={ !_total && !_showLoading } level="success" style={{ paddingTop: 15, paddingBottom: 15 }}>
+          <Basic.Div style={{ display: 'flex', alignItems: 'center', justifyContent: 'left' }}>
+            <Basic.Icon value="fa:check" style={{ marginRight: 10 }} className="fa-2x"/>
+            <span>{ this.i18n('content.tasks-assigned.empty.message') }</span>
+          </Basic.Div>
+        </Basic.Alert>
+        <Basic.Panel className={ _total ? '' : 'hidden' }>
           <TaskInstanceTable
             uiKey={ `${ uiKeyPrefix }${ identity.username }` }
             username={ identity.username }
             taskInstanceManager={ this.workflowTaskInstanceManager }
             filterOpened={ false }/>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -52,6 +63,7 @@ function select(state, component) {
   return {
     userContext: state.security.userContext,
     _total: ui ? ui.total : null,
+    _showLoading: ui ? ui.showLoading : null,
     i18nReady: state.config.get('i18nReady')
   };
 }

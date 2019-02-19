@@ -45,7 +45,8 @@ export default class IdentitySubordinates extends Basic.AbstractContent {
           filterOpened={ false }
           forceSearchParameters={ forceSearchParameters }
           columns={ columns }
-          className="no-margin"/>
+          className="no-margin"
+          showAddButton={ false }/>
       </div>
     );
   }

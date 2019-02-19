@@ -35,8 +35,10 @@ class AssignedTaskDashboard extends Basic.AbstractContent {
           icon="tasks"
           text={ this.i18n('content.tasks-assigned.assigned') }/>
         {
-          _total || !_showLoading
-          ||
+          (_total || !_showLoading)
+          ?
+          null
+          :
           <Basic.Loading isStatic show />
         }
         <Basic.Alert rendered={ !_total && !_showLoading } level="success" style={{ paddingTop: 15, paddingBottom: 15 }}>

@@ -34,6 +34,11 @@ export default class AbstractEnum {
    * finds key to given symbol
    */
   static findKeyBySymbol(enumeration, sym) {
+    if (!_.isSymbol(sym)) {
+      // key is already given
+      return sym;
+    }
+    //
     if (sym) {
       for (const enumItem in enumeration) {
         if (enumeration[enumItem] === sym) {
@@ -47,6 +52,11 @@ export default class AbstractEnum {
    * find symbol by key
    */
   static findSymbolByKey(enumeration, key) {
+    if (_.isSymbol(key)) {
+      // symbol is already given
+      return key;
+    }
+    //
     if (key) {
       for (const enumItem in enumeration) {
         if (enumItem === key) {

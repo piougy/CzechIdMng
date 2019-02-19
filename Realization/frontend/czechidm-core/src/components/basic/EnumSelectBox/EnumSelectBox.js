@@ -18,7 +18,6 @@ class EnumSelectBox extends SelectBox {
     this.useSymbol = props.useSymbol;
   }
 
-
   // Did mount only call initComponent method
   componentDidMount() {
     super.componentDidMount();
@@ -176,6 +175,9 @@ class EnumSelectBox extends SelectBox {
         for (const item of value) {
           if (_.isSymbol(value)) {
             // value is symbol
+            if (this.useSymbol === null) {
+              this.useSymbol = true;
+            }
             // add item to array
             valueArray.push(this.itemRenderer(item, this._findKeyBySymbol(item)));
           }
@@ -183,14 +185,22 @@ class EnumSelectBox extends SelectBox {
         return valueArray;
       } else if (_.isSymbol(value)) {
         // value is symbol
+        // value is string any selectBox
+        if (this.useSymbol === null) {
+          this.useSymbol = true;
+        }
         return this.itemRenderer(value, this._findKeyBySymbol(value));
       } else if (typeof value === 'string') {
         // value is string any selectBox
-        this.useSymbol = false;
+        if (this.useSymbol === null) {
+          this.useSymbol = false;
+        }
         return this.itemRenderer({ value });
       } else if (value instanceof Array && this.props.multiSelect === true && typeof value[0] === 'string') {
         // value is string array ... any multiselect
-        this.useSymbol = false;
+        if (this.useSymbol === null) {
+          this.useSymbol = false;
+        }
         const valueArray = [];
         for (const item of value) {
           if (typeof item === 'string') {
@@ -253,7 +263,7 @@ class EnumSelectBox extends SelectBox {
     const value = item.value;
     //
     let convertedValue = value;
-    if (this.useSymbol) {
+    if (this.useSymbol === null || this.useSymbol) {
       if (!_.isSymbol(value)) {
         convertedValue = this.props.enum.findSymbolByKey(value);
       }
@@ -334,7 +344,7 @@ EnumSelectBox.propTypes = {
 EnumSelectBox.defaultProps = {
   ...SelectBox.defaultProps,
   searchable: false,
-  useSymbol: true,
+  useSymbol: null,
   useObject: false,
   clearable: true
 };

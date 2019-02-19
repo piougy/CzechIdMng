@@ -354,7 +354,7 @@ export default class SearchParameters {
       // if filterComponent uses multiSelect
       if (filterComponent.props.multiSelect === true) {
         // if filterEnumSelectBox uses Symbol
-        if (filterComponent.props.enum && filterComponent.props.useSymbol && filterValues[property] !== null) {
+        if (filterComponent.props.enum && filterComponent.props.useSymbol !== false && filterValues[property] !== null) {
           const filledValues = [];
           //
           filterValues[property].forEach(item => {
@@ -370,7 +370,7 @@ export default class SearchParameters {
       } else {
         // filterComponent does not use multiSelect
         let filledValue = filterValues[property];
-        if (filterComponent.props.enum) { // enumeration
+        if (filterComponent.props.enum && filterComponent.props.useSymbol !== false) { // enumeration
           filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
         }
         filters[field] = filledValue;
@@ -383,7 +383,7 @@ export default class SearchParameters {
    * Returns search parameters filled from given filter form data
    *
    * @param  {object} formData
-   * @return {SearchParameters} previosly used search parameters
+   * @return {SearchParameters} previously used search parameters
    */
   static getSearchParameters(formData, searchParameters = null) {
     if (!searchParameters) {

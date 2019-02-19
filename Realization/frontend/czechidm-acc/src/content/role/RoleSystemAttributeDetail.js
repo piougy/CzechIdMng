@@ -10,6 +10,7 @@ import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 const uiKey = 'role-system-attribute';
 let roleSystemAttributeManager = null;
 let roleSystemManager = null;
+let roleManager = null;
 const systemAttributeMappingManager = new SystemAttributeMappingManager();
 const scriptManager = new Managers.ScriptManager();
 
@@ -79,6 +80,7 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
     // universal request manager (depends on existing of 'requestId' param)
     roleSystemAttributeManager = this.getRequestManager(props.params, new RoleSystemAttributeManager());
     roleSystemManager = this.getRequestManager(props.params, new RoleSystemManager());
+    roleManager = this.getRequestManager(props.params, new Managers.RoleManager());
 
     const {roleSystemId, attributeId} = props.params;
     if (this._getIsNew(props)) {
@@ -232,7 +234,11 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
         </Basic.ContentHeader>
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
-            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading}>
+            <Basic.AbstractForm
+              ref="form"
+              data={attribute}
+              readOnly={!roleManager.canSave()}
+              showLoading={_showLoading}>
               <Basic.Checkbox
                 ref="disabledDefaultAttribute"
                 onChange={this._disabledChanged.bind(this, 'disabledDefaultAttribute')}
@@ -348,6 +354,7 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
               </Basic.Button>
               <Basic.Button
                 onClick={this.save.bind(this)}
+                rendered={roleManager.canSave()}
                 level="success"
                 type="submit"
                 showLoading={_showLoading}>

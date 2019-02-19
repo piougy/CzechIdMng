@@ -6,6 +6,7 @@ import { Managers, Basic, Domain, Utils, Advanced } from 'czechidm-core';
 import { RoleSystemManager, SystemManager, RoleSystemAttributeManager, SystemMappingManager } from '../../redux';
 import uuid from 'uuid';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
+import RoleSystemAttributeTable from './RoleSystemAttributeTable';
 
 const uiKey = 'role-system';
 const uiKeyAttributes = 'role-system-attributes';
@@ -270,59 +271,18 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('roleSystemAttributesHeader') }}/>
         </Basic.ContentHeader>
         <Basic.Panel rendered={ roleSystem && !isNew } className="no-border last">
-          <Advanced.Table
-            ref="table"
-            uiKey={ `${uiKeyAttributes}-${entityId}` }
-            manager={ roleSystemAttributeManager }
-            forceSearchParameters={ forceSearchParameters }
-            showRowSelection={ roleManager.canSave() }
-            className="no-margin"
-            actions={
-              roleManager.canSave()
-              ?
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-              :
-              null
-            }
-            buttons={
-              [
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, roleSystem, true)}
-                  rendered={roleManager.canSave()}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
-              ]
-            }>
-            <Advanced.Column
-              property=""
-              header=""
-              className="detail-button"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                  );
-                }
-              }/>
-              <Advanced.ColumnLink
-                to={`${linkMenu}/:id/detail`}
-                property="name"
-                header={this.i18n('acc:entity.RoleSystemAttribute.name.label')}
-                sort />
-              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')} sort/>
-              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
-              <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')} sort/>
-              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')} sort/>
-              <Advanced.Column property="disabledDefaultAttribute" face="boolean" header={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttribute')} sort/>
-              <Advanced.Column property="transformScript" face="boolean" header={this.i18n('acc:entity.RoleSystemAttribute.transformScriptTable')}/>
-            </Advanced.Table>
+            <RoleSystemAttributeTable
+              linkMenu={linkMenu}
+              className="no-margin"
+              roleSystem={roleSystem}
+              readOnly={!roleManager.canSave()}
+              isSystemMenu={this._isSystemMenu()}
+              showAddButton
+              showFilter={false}
+              showRowSelection={false}
+              uiKey={ `${uiKeyAttributes}-${entityId}` }
+              forceSearchParameters={ forceSearchParameters }
+              params={ this.props.params }/>
           </Basic.Panel>
         </div>
     );

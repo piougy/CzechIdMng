@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { ScriptManager } from '../../redux';
 import ScriptTable from './ScriptTable';
@@ -8,8 +7,10 @@ const SCRIPT_TABLE_UIKEY = 'scriptTableUikey';
 
 /**
 * Content with all scripts
+*
+* @author Ondřej Kopr
 */
-class Scripts extends Basic.AbstractContent {
+export default class Scripts extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -31,19 +32,15 @@ class Scripts extends Basic.AbstractContent {
   render() {
     return (
       <div>
-        {this.renderPageHeader()}
+        { this.renderPageHeader() }
 
         <Basic.Panel>
-          <ScriptTable scriptManager={this.scriptManager} uiKey={SCRIPT_TABLE_UIKEY} filterOpened/>
+          <ScriptTable
+            scriptManager={ this.getManager() }
+            uiKey={ SCRIPT_TABLE_UIKEY }
+            filterOpened/>
         </Basic.Panel>
       </div>
     );
   }
 }
-
-Scripts.propTypes = {
-};
-Scripts.defaultProps = {
-};
-
-export default connect()(Scripts);

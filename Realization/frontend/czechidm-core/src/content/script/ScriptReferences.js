@@ -25,9 +25,9 @@ class ScriptReferences extends Basic.AbstractContent {
     return 'content.scripts.references';
   }
 
-    getNavigationKey() {
-      return 'script-references';
-    }
+  getNavigationKey() {
+    return 'script-references';
+  }
 
   useFilter(event) {
     if (event) {
@@ -67,17 +67,15 @@ class ScriptReferences extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={ this.i18n('title') } />
-        <Basic.Panel className={ 'no-border last' }>
-          <Basic.PanelHeader text={ this.i18n('header') } />
+        <Basic.ContentHeader icon="component:script" text={ this.i18n('header', { escape: false }) } style={{ marginBottom: 0 }}/>
 
-          <ScriptTable
-            uiKey={uiKey}
-            scriptManager={scriptManager}
-            forceSearchParameters={scriptManager.getDefaultSearchParameters().setFilter('usedIn', _entity.code)}
-            disableAdd
-            filterOpened={ false }/>
-
-        </Basic.Panel>
+        <ScriptTable
+          uiKey={uiKey}
+          scriptManager={scriptManager}
+          forceSearchParameters={scriptManager.getDefaultSearchParameters().setFilter('usedIn', _entity.code)}
+          disableAdd
+          filterOpened={ false }
+          className="no-margin"/>
       </div>
     );
   }

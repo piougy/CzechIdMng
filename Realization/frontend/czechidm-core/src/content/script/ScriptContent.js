@@ -9,6 +9,8 @@ const scriptManager = new ScriptManager();
 /**
  * Script detail content, there is difference between create new script and edit.
  * If set params new is new :-).
+ *
+ * @author Ondřej Kopr
  */
 class ScriptContent extends Basic.AbstractContent {
 
@@ -20,10 +22,14 @@ class ScriptContent extends Basic.AbstractContent {
     return 'content.scripts';
   }
 
-  componentDidMount() {
-    const { entityId } = this.props.params;
-    this.selectNavigationItems(['system', 'scripts', 'script-detail']);
+  getNavigationKey() {
+    return 'script-detail';
+  }
 
+  componentDidMount() {
+    super.componentDidMount();
+    const { entityId } = this.props.params;
+    //
     if (this._getIsNew()) {
       this.context.store.dispatch(scriptManager.receiveEntity(entityId, { }));
     } else {

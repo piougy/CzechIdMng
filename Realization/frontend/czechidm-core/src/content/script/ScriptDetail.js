@@ -8,6 +8,7 @@ import { ScriptManager, SecurityManager, ScriptAuthorityManager } from '../../re
 import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
 import EntityUtils from '../../utils/EntityUtils';
 import AbstractEnum from '../../enums/AbstractEnum';
+
 /**
  * Detail for sript
  * * name
@@ -16,6 +17,7 @@ import AbstractEnum from '../../enums/AbstractEnum';
  * * category
  * * script authorities (table)
  *
+ * @author Ondřej Kopr
  */
 export default class ScriptDetail extends Basic.AbstractContent {
 

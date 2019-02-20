@@ -27,6 +27,8 @@ class Script extends Basic.AbstractContent {
     return (
       <div>
         <Basic.PageHeader showLoading={!entity && showLoading}>
+          <Basic.Icon value="component:script"/>
+          {' '}
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.scripts.edit.header') }</small>
         </Basic.PageHeader>
 

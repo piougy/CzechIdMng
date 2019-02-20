@@ -1114,7 +1114,7 @@ module.exports = {
             'id': 'scripts',
             'labelKey': 'content.scripts.header',
             'titleKey': 'content.scripts.title',
-            'icon': 'fa:clone',
+            'icon': 'component:scripts',
             'iconColor': '#272fd8',
             'order': 30,
             'path': '/scripts',

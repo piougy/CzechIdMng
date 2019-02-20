@@ -1,13 +1,13 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import * as Basic from '../../components/basic';
 import { ScriptManager } from '../../redux';
 import Helmet from 'react-helmet';
 //
-import { SecurityManager, ScriptAuthorityManager, DataManager } from '../../redux';
-import ScriptAuthorityTypeEnum from '../../enums/ScriptAuthorityTypeEnum';
+import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
+import { SecurityManager, ScriptAuthorityManager, DataManager } from '../../redux';
+import ScriptAuthorityTypeEnum from '../../enums/ScriptAuthorityTypeEnum';
 
 // const uiKey = 'script-authorities';
 const scriptManager = new ScriptManager();
@@ -18,6 +18,8 @@ const manager = new ScriptAuthorityManager();
  * Authority tab for script
  *
  * @author Patrik Stloukal
+ *
+ * TODO: RT: refactor this content - use Advanced.AbstractTableContent
  */
 class ScriptAuthorities extends Basic.AbstractContent {
 
@@ -156,26 +158,18 @@ class ScriptAuthorities extends Basic.AbstractContent {
    * Change type, show dynamical text field with class name or service type
    */
   onChangeType(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
     const { detail } = this.state;
-    if (event) {
-      event.preventDefault();
-    }
-    let isService = false;
-    if (entity.value === ScriptAuthorityTypeEnum.findKeyBySymbol(ScriptAuthorityTypeEnum.SERVICE)) {
-      isService = true;
-    } else {
-      this.refs.service.setValue('');
-    }
-    detail.isService = isService;
     this.setState({
-      ...detail
+      detail: {
+        ...detail,
+        isService: entity.value === ScriptAuthorityTypeEnum.findKeyBySymbol(ScriptAuthorityTypeEnum.SERVICE)
+      }
+    }, () => {
+      this.refs.service.setValue(null);
     });
-  }
-
-  onChangeService(entity, event) {
-    if (event) {
-      event.preventDefault();
-    }
   }
 
   closeDetail(entity, event) {
@@ -208,11 +202,10 @@ class ScriptAuthorities extends Basic.AbstractContent {
     if (entity.type === ScriptAuthorityTypeEnum.findKeyBySymbol(ScriptAuthorityTypeEnum.SERVICE)) {
       isService = true;
     }
-    detail.isService = isService;
     detail = {
-      ...detail,
       entity,
-      show: true
+      show: true,
+      isService
     };
     // set detail for modal window
     this.setState({
@@ -221,150 +214,144 @@ class ScriptAuthorities extends Basic.AbstractContent {
     });
   }
 
-render() {
-  const { uiKey, rendered, availableServices, _entity } = this.props;
-  const { filterOpened, detail, _showLoading } = this.state;
-  const script = _entity;
+  render() {
+    const { uiKey, rendered, availableServices, _entity } = this.props;
+    const { filterOpened, detail, _showLoading } = this.state;
+    const script = _entity;
 
-  if (!rendered || this.props._entity == null) {
-    return null;
-  }
+    if (!rendered || this.props._entity == null) {
+      return null;
+    }
 
-  return (
-    <div>
+    return (
+      <div>
+        <Helmet title={ this.i18n('title') } />
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.ContentHeader text={ this.i18n('header') } style={{ marginBottom: 0 }}/>
 
-      <Helmet title={ this.i18n('title') } />
-
-      <Basic.Confirm ref="confirm-delete" level="danger"/>
-      <Basic.Panel className={ 'no-border last' }>
-      <Basic.PanelHeader text={ this.i18n('header') } />
-      <Basic.PanelBody style={ { padding: 0 } }>
-      <Advanced.Table
-        ref="table"
-        uiKey={uiKey}
-        manager={manager}
-        forceSearchParameters={manager.getDefaultSearchParameters().setFilter('scriptId', script.id)}
-        showRowSelection={SecurityManager.hasAuthority('SCRIPT_DELETE')}
-        rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-        _showLoading={_showLoading}
-        filterOpened={!filterOpened}
-        actions={
-          [
-            { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-          ]
-        }
-        buttons={
-          [
-            <Basic.Button level="success" key="add_button" className="btn-xs"
-                    onClick={this.showDetail.bind(this, {})}
-                    rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
-              <Basic.Icon type="fa" icon="plus"/>
-              {' '}
-              {this.i18n('button.add')}
-            </Basic.Button>
-          ]
-        }>
-        <Advanced.Column
-          header=""
-          className="detail-button"
-          cell={
-            ({ rowIndex, data }) => {
-              return (
-                <Advanced.DetailButton
-                  title={this.i18n('button.detail')}
-                  onClick={this.showDetail.bind(this, data[rowIndex])}/>
-              );
-            }
+        <Advanced.Table
+          ref="table"
+          uiKey={uiKey}
+          manager={manager}
+          forceSearchParameters={manager.getDefaultSearchParameters().setFilter('scriptId', script.id)}
+          showRowSelection={SecurityManager.hasAuthority('SCRIPT_DELETE')}
+          rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+          filterOpened={!filterOpened}
+          actions={
+            [
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+            ]
           }
-          sort={false}/>
-        <Advanced.Column property="type"
-          header={ this.i18n('entity.ScriptAuthority.type.label') }
-          sort face="enum" enumClass={ScriptAuthorityTypeEnum}/>
-        <Advanced.Column
-          property="name"
-          sort
-          cell={
-            ({ rowIndex, data }) => {
-              if (ScriptAuthorityTypeEnum.findSymbolByKey(data[rowIndex].type) === ScriptAuthorityTypeEnum.SERVICE) {
-                return data[rowIndex].service;
+          buttons={
+            [
+              <Basic.Button level="success" key="add_button" className="btn-xs"
+                      onClick={this.showDetail.bind(this, {})}
+                      rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
+                <Basic.Icon type="fa" icon="plus"/>
+                {' '}
+                {this.i18n('button.add')}
+              </Basic.Button>
+            ]
+          }
+          className="no-margin">
+          <Advanced.Column
+            header=""
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                );
               }
-              return data[rowIndex].className;
             }
-          }
-          />
-      </Advanced.Table>
-    </Basic.PanelBody>
+            sort={false}/>
+          <Advanced.Column property="type"
+            header={ this.i18n('entity.ScriptAuthority.type.label') }
+            sort face="enum" enumClass={ScriptAuthorityTypeEnum}/>
+          <Advanced.Column
+            property="name"
+            sort
+            cell={
+              ({ rowIndex, data }) => {
+                if (ScriptAuthorityTypeEnum.findSymbolByKey(data[rowIndex].type) === ScriptAuthorityTypeEnum.SERVICE) {
+                  return data[rowIndex].service;
+                }
+                return data[rowIndex].className;
+              }
+            }
+            />
+        </Advanced.Table>
 
-      <Basic.Modal
-        bsSize="medium"
-        show={ detail.show }
-        onHide={this.closeDetail.bind(this)}
-        backdrop="static"
-        keyboard={!_showLoading}>
+        <Basic.Modal
+          bsSize="medium"
+          show={ detail.show }
+          onHide={this.closeDetail.bind(this)}
+          backdrop="static"
+          keyboard={!_showLoading}>
 
-        <form onSubmit={this.save.bind(this, {})}>
-          <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header', { name: script.name })} rendered={Utils.Entity.isNew(detail.entity)}/>
-          <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: script.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
-          <Basic.Modal.Body>
-            <Basic.AbstractForm
-              ref="form"
-              data={detail.entity}
-              _showLoading={_showLoading}>
-              <Basic.Row>
-                <div className="col-lg-12">
-                  <Basic.EnumSelectBox
-                    ref="type"
-                    clearable={false}
-                    enum={ScriptAuthorityTypeEnum}
-                    onChange={ this.onChangeType.bind(this) }
-                    label={ this.i18n('entity.ScriptAuthority.type.label') }
-                    palceholder={ this.i18n('entity.ScriptAuthority.type.placeholder') }
-                    helpBlock={ this.i18n('entity.ScriptAuthority.type.help') }/>
-                  <Basic.EnumSelectBox
-                    required={detail.isService}
-                    searchable
-                    ref="service"
-                    hidden={!detail.isService}
-                    onChange={ this.onChangeService.bind(this) }
-                    options={this.getOptions(availableServices)}
-                    label={ this.i18n('entity.ScriptAuthority.type.label') }
-                    palceholder={ this.i18n('entity.ScriptAuthority.type.placeholder') }
-                    helpBlock={ this.i18n('entity.ScriptAuthority.type.help') }/>
-                  <Basic.TextField
-                    required={!detail.isService}
-                    hidden={detail.isService}
-                    ref="className"
-                    label={this.i18n('entity.ScriptAuthority.className')}
-                    max={2000}/>
-                </div>
-              </Basic.Row>
+          <form onSubmit={this.save.bind(this, {})}>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header', { name: script.name })} rendered={Utils.Entity.isNew(detail.entity)}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: script.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
+            <Basic.Modal.Body>
+              <Basic.AbstractForm
+                ref="form"
+                data={detail.entity}
+                _showLoading={_showLoading}>
+                <Basic.Row>
+                  <div className="col-lg-12">
+                    <Basic.EnumSelectBox
+                      ref="type"
+                      clearable={false}
+                      enum={ScriptAuthorityTypeEnum}
+                      onChange={ this.onChangeType.bind(this) }
+                      label={ this.i18n('entity.ScriptAuthority.type.label') }
+                      palceholder={ this.i18n('entity.ScriptAuthority.type.placeholder') }
+                      helpBlock={ this.i18n('entity.ScriptAuthority.type.help') }/>
+                    <Basic.EnumSelectBox
+                      required={detail.isService}
+                      searchable
+                      ref="service"
+                      hidden={!detail.isService}
+                      options={this.getOptions(availableServices)}
+                      label={ this.i18n('entity.ScriptAuthority.type.label') }
+                      palceholder={ this.i18n('entity.ScriptAuthority.type.placeholder') }
+                      helpBlock={ this.i18n('entity.ScriptAuthority.type.help') }/>
+                    <Basic.TextField
+                      required={!detail.isService}
+                      hidden={detail.isService}
+                      ref="className"
+                      label={this.i18n('entity.ScriptAuthority.className')}
+                      max={2000}/>
+                  </div>
+                </Basic.Row>
 
-            </Basic.AbstractForm>
-          </Basic.Modal.Body>
+              </Basic.AbstractForm>
+            </Basic.Modal.Body>
 
-          <Basic.Modal.Footer>
-            <Basic.Button
-              level="link"
-              onClick={this.closeDetail.bind(this)}
-              _showLoading={_showLoading}>
-              {this.i18n('button.close')}
-            </Basic.Button>
-            <Basic.Button
-              type="submit"
-              level="success"
-              _showLoading={_showLoading}
-              _showLoadingIcon
-              _showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
-              {this.i18n('button.save')}
-            </Basic.Button>
-          </Basic.Modal.Footer>
-        </form>
-      </Basic.Modal>
-    </Basic.Panel>
-    </div>
-  );
-}
+            <Basic.Modal.Footer>
+              <Basic.Button
+                level="link"
+                onClick={this.closeDetail.bind(this)}
+                _showLoading={_showLoading}>
+                {this.i18n('button.close')}
+              </Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                _showLoading={_showLoading}
+                _showLoadingIcon
+                _showLoadingText={this.i18n('button.saving')}
+                rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
+                {this.i18n('button.save')}
+              </Basic.Button>
+            </Basic.Modal.Footer>
+          </form>
+        </Basic.Modal>
+      </div>
+    );
+  }
 }
 
 ScriptAuthorities.propTypes = {

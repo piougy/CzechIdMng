@@ -405,6 +405,12 @@ module.exports = {
       'type': 'icon',
       'entityType': ['main-contract'],
       'component': require('./src/components/advanced/Icon/MainContractIcon')
+    },
+    {
+      'id': 'script-icon',
+      'type': 'icon',
+      'entityType': ['script', 'scripts'],
+      'component': 'fa:clone'
     }
   ]
 };

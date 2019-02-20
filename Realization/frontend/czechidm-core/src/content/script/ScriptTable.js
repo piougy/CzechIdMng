@@ -96,7 +96,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, scriptManager, disableAdd, forceSearchParameters } = this.props;
+    const { uiKey, scriptManager, disableAdd, forceSearchParameters, className } = this.props;
     const { filterOpened } = this.state;
     //
     return (
@@ -165,6 +165,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
             ]
           }
           _searchParameters={ this.getSearchParameters() }
+          className={ className }
           >
           <Advanced.Column
             header=""

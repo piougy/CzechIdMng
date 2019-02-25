@@ -103,7 +103,7 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 	/**
 	 * Script on the mapping "Can be account created?" returns true (if priority is 1000).
 	 */
-	public void accountCanBeCreatedTest() {
+	public void testAccountCanBeCreated() {
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
 		
@@ -138,7 +138,7 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 	/**
 	 * Script on the mapping "Can be account created?" returns false.
 	 */
-	public void accountCannotBeCreatedTest() {
+	public void testAccountCannotBeCreated() {
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
 		
@@ -164,7 +164,7 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 	/**
 	 * Script on the mapping "Can be account created?" returns true.
 	 */
-	public void identityAccountCanBeCreatedTest() {
+	public void testIdentityAccountCanBeCreated() {
 		SysSystemDto system = initIdentityData();
 		Assert.assertNotNull(system);
 		

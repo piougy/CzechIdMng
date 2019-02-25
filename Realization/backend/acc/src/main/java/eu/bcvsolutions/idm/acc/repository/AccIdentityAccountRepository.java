@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.repository;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,7 @@ import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 
 /**
  * Identity accounts
@@ -48,4 +50,6 @@ public interface AccIdentityAccountRepository extends AbstractEntityRepository<A
 	@Modifying
 	@Query("update AccIdentityAccount e set e.roleSystem = null where e.roleSystem = :roleSystem")
 	int clearRoleSystem(@Param("roleSystem") SysRoleSystem roleSystem);
+
+	List<AccIdentityAccount> findAllByIdentity_Id(@Param("identityId") UUID identityId, Sort sort);
 }

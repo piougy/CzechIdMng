@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -11,11 +11,13 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
@@ -27,7 +29,6 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
-import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -36,7 +37,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -53,45 +53,43 @@ public class DefaultAccIdentityAccountService extends
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAccIdentityAccountService.class);
 	
-	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final EntityEventManager entityEventManager;
-	private final AccAccountRepository accountRepository;
+	private AccIdentityAccountRepository repository;
 
 	@Autowired
 	public DefaultAccIdentityAccountService(
 			AccIdentityAccountRepository identityAccountRepository,
-			IdmIdentityRoleRepository identityRoleRepository,
-			EntityEventManager entityEventManager,
-			AccAccountRepository accountRepository) {
+			EntityEventManager entityEventManager) {
 		super(identityAccountRepository);
 		//
-		Assert.notNull(identityRoleRepository);
 		Assert.notNull(entityEventManager);
-		Assert.notNull(accountRepository);
+		Assert.notNull(identityAccountRepository);
 		//
-		this.identityRoleRepository = identityRoleRepository;
 		this.entityEventManager = entityEventManager;
-		this.accountRepository = accountRepository;
+		this.repository = identityAccountRepository;
 	}
 	
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(AccGroupPermission.IDENTITYACCOUNT, getEntityClass());
 	}
-
+	
 	@Override
 	@Transactional(readOnly = true)
-	public AccIdentityAccount getEntity(Serializable id, BasePermission... permission) {
-		// I don't want use excerpt, so I have to do manual load account and
-		// identityRole
-		AccIdentityAccount ia = super.getEntity(id, permission);
-		if (ia != null && ia.getAccount() != null) {
-			ia.setAccount(accountRepository.findOne(ia.getAccount().getId()));
-		}
-		if (ia != null && ia.getIdentityRole() != null) {
-			ia.setIdentityRole(identityRoleRepository.findOne(ia.getIdentityRole().getId()));
-		}
-		return ia;
+	public List<AccIdentityAccountDto> findAllByIdentity(UUID identityId) {
+		
+		List<AccIdentityAccountDto> results = Lists.newArrayList();
+		repository.findAllByIdentity_Id(identityId, new Sort(AccIdentityAccount_.modified.getName()))
+			.forEach(identityAccount -> {
+			AccIdentityAccountDto identityAccountDto = new AccIdentityAccountDto();
+			identityAccountDto.setId(identityAccount.getId());
+			identityAccountDto.setAccount(identityAccount.getAccount() != null ? identityAccount.getAccount().getId() : null);
+			identityAccountDto.setIdentity(identityAccount.getIdentity() != null ? identityAccount.getIdentity().getId() : null);
+			identityAccountDto.setIdentityRole(identityAccount.getIdentityRole() != null ? identityAccount.getIdentityRole().getId() : null);
+			identityAccountDto.setRoleSystem(identityAccount.getRoleSystem() != null ? identityAccount.getRoleSystem().getId() : null);
+			results.add(identityAccountDto);
+		});
+		return results;
 	}
 	
 	@Override

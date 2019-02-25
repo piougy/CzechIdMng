@@ -25,6 +25,8 @@ public interface SysRoleSystemAttributeRepository extends AbstractEntityReposito
 		    + " (?#{[0].systemMappingId} is null or e.roleSystem.systemMapping.id = ?#{[0].systemMappingId})"
 		    + " and"
 		    + " (?#{[0].schemaAttributeName} is null or e.systemAttributeMapping.schemaAttribute.name = ?#{[0].schemaAttributeName})"
+		    + " and"   
+		    + " (?#{[0].isUid} is null or e.uid = ?#{[0].isUid})"
 		    + " and"
 		    + " (?#{[0].systemAttributeMappingId} is null or e.systemAttributeMapping.id = ?#{[0].systemAttributeMappingId})")
 	Page<SysRoleSystemAttribute> find(SysRoleSystemAttributeFilter filter, Pageable pageable);

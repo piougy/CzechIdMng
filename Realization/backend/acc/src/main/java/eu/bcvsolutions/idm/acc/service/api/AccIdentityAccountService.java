@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.google.common.annotations.Beta;
 
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
@@ -46,7 +43,5 @@ public interface AccIdentityAccountService extends
 	 */
 	@Beta
 	void forceDelete(AccIdentityAccountDto dto, BasePermission... permission);
-
-	List<AccIdentityAccountDto> findAllByIdentity(UUID identityId);
 }
 	

@@ -1,13 +1,13 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -84,11 +84,13 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 
 		// We check if exists another (ownership) identity-accounts, if not
 		// then we will delete account
-		List<AccIdentityAccountDto> identityAccounts = findIdentityAccounts(account);
-		boolean moreIdentityAccounts = identityAccounts.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership() && !identityAccount.equals(entity);
-		}).findAny().isPresent();
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setAccountId(account);
+		identityAccountFilter.setOwnership(Boolean.TRUE);
+		identityAccountFilter.setNotIdentityAccount(entity.getId());
 
+		boolean moreIdentityAccounts = service.find(identityAccountFilter, new PageRequest(0, 1))
+				.getTotalElements() > 0;
 		boolean deleteTargetAccount = (boolean) event.getProperties()
 				.get(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY);
 		boolean deleteAccAccount = true;
@@ -101,7 +103,6 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 		// for integrity ... for example during delete of whole
 		// identity).
 		boolean forceDeleteIdentityAccount = isForceDeleteAttributePresent(event.getProperties());
-
 		if (!moreIdentityAccounts && entity.isOwnership()) {
 			if (accountDto.isAccountProtectedAndValid()) {
 				if (forceDeleteIdentityAccount) {
@@ -133,12 +134,15 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 				}
 			}
 		}
-
 		service.deleteInternal(entity);
 		// Finally we can delete AccAccount
 		if (!moreIdentityAccounts && entity.isOwnership() && deleteAccAccount) {
 			// We delete all NOT ownership identity accounts first
-			identityAccounts.stream()
+			AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+			filter.setAccountId(account);
+			filter.setOwnership(Boolean.FALSE);
+			// Find NOT ownership identity accounts
+			service.find(filter, null).getContent().stream()
 					.filter(identityAccount -> !identityAccount.isOwnership() && !identityAccount.equals(entity))
 					.forEach(identityAccount -> {
 						service.delete(identityAccount);
@@ -148,7 +152,6 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 							AccAccountService.ENTITY_ID_PROPERTY, entity.getEntity())));
 
 		}
-
 		return new DefaultEventResult<>(event, this);
 	}
 
@@ -163,14 +166,6 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 				ImmutableMap.of(ProvisioningService.DTO_PROPERTY_NAME, identityService.get(entity),
 						ProvisioningService.CANCEL_PROVISIONING_BREAK_IN_PROTECTION, Boolean.TRUE)));
 
-	}
-
-	private List<AccIdentityAccountDto> findIdentityAccounts(UUID account) {
-		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
-		filter.setAccountId(account);
-		filter.setOwnership(Boolean.TRUE);
-
-		return service.find(filter, null).getContent();
 	}
 
 	private void activateProtection(AccAccountDto accountEntity) {

@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -480,6 +481,131 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
 		Assert.assertEquals(800, identityAccounts.size());
 	}
+	
+	@Ignore
+	@Test
+	@Transactional
+	public void testDeletePerformance100() {
+		SysSystemDto system = initIdentityData();
+		Assert.assertNotNull(system);
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
+				SystemEntityType.IDENTITY);
+		Assert.assertNotNull(mapping);
+		mapping = systemMappingService.save(mapping);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
+		roleAccountFilter.setEntityId(identity.getId());
+		roleAccountFilter.setOwnership(Boolean.TRUE);
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
+				.getContent();
+
+		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 100);
+
+		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
+
+		Date startAcm = new Date();
+
+		roles.forEach(role -> {
+			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+			identityRole.setIdentityContract(primeContract);
+			identityRole.setRole(role.getId());
+			identityRole = identityRoleService.save(identityRole);
+			if (getHibernateSession().isOpen()) {
+				getHibernateSession().flush();
+				getHibernateSession().clear();
+			}
+		});
+
+		Date endAcm = new Date();
+
+		System.out.println("testDeletePerformance100 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+
+		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		Assert.assertEquals(100, identityAccounts.size());
+		
+		// Delete
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityContractId(primeContract);
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		
+		Date startAcmDelete = new Date();
+		identityRoles.forEach(identityRole -> {
+			identityRoleService.delete(identityRole);
+			if (getHibernateSession().isOpen()) {
+				getHibernateSession().flush();
+				getHibernateSession().clear();
+			}
+		});
+		
+		Date endAcmDelete = new Date();
+		System.out.println("testDeletePerformance100 - Delete duration: " + (endAcmDelete.getTime() - startAcmDelete.getTime()));
+	}
+	
+	@Ignore
+	@Test
+	@Transactional
+	public void testDeletePerformance200() {
+		SysSystemDto system = initIdentityData();
+		Assert.assertNotNull(system);
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
+				SystemEntityType.IDENTITY);
+		Assert.assertNotNull(mapping);
+		mapping = systemMappingService.save(mapping);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
+		roleAccountFilter.setEntityId(identity.getId());
+		roleAccountFilter.setOwnership(Boolean.TRUE);
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
+				.getContent();
+
+		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 200);
+
+		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
+
+		Date startAcm = new Date();
+
+		roles.forEach(role -> {
+			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+			identityRole.setIdentityContract(primeContract);
+			identityRole.setRole(role.getId());
+			identityRole = identityRoleService.save(identityRole);
+			if (getHibernateSession().isOpen()) {
+				getHibernateSession().flush();
+				getHibernateSession().clear();
+			}
+		});
+
+		Date endAcm = new Date();
+
+		System.out.println("testDeletePerformance200 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+
+		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		Assert.assertEquals(200, identityAccounts.size());
+		
+		// Delete
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityContractId(primeContract);
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		
+		Date startAcmDelete = new Date();
+		identityRoles.forEach(identityRole -> {
+			identityRoleService.delete(identityRole);
+			if (getHibernateSession().isOpen()) {
+				getHibernateSession().flush();
+				getHibernateSession().clear();
+			}
+		});
+		
+		Date endAcmDelete = new Date();
+		System.out.println("testDeletePerformance200 - Delete duration: " + (endAcmDelete.getTime() - startAcmDelete.getTime()));
+	}
+
 
 
 

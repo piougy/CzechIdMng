@@ -330,8 +330,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			}
 			//
 			accounts.add(account);
-			// find uid from system entity or from account
-			String uid = account.getUid();
+			// find UID from system entity or from account
 			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
 			SysSystemEntityDto systemEntity = systemEntityService.get(account.getSystemEntity());
 			//
@@ -1102,7 +1101,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	protected abstract List<SysRoleSystemAttributeDto> findOverloadingAttributes(DTO dto, SysSystemDto system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType);
 
-	private SysSystemMappingDto getMapping(SysSystemDto system, SystemEntityType entityType) {
+	protected SysSystemMappingDto getMapping(SysSystemDto system, SystemEntityType entityType) {
 		List<SysSystemMappingDto> systemMappings = systemMappingService.findBySystem(system,
 				SystemOperationType.PROVISIONING, entityType);
 		if (systemMappings == null || systemMappings.isEmpty()) {

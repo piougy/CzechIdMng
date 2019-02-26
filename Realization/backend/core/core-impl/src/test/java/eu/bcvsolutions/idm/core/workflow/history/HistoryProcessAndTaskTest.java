@@ -4,28 +4,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
 import org.activiti.engine.runtime.ProcessInstance;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
@@ -45,7 +38,6 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTest {
 
 	private static final String PROCESS_KEY = "testHistoryProcessAndTask";
-	private static final String PROCESS_KEY_HISTORY = "testHistoryComponent";
 
 	@Autowired
 	private WorkflowHistoricProcessInstanceService historicProcessService;
@@ -162,53 +154,6 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		assertEquals("completed", taskHistory.getDeleteReason());
 		assertEquals(assigneeIdentity.getId().toString(), taskHistory.getAssignee());
 		assertEquals(taskId, taskHistory.getId());
-	}
-
-	@Test
-	public void getHistoryForWf() {
-		ProcessInstance instance = processInstanceService.startProcess(PROCESS_KEY_HISTORY, null, InitTestData.TEST_USER_1, null,
-				null);
-		Assert.assertNotNull(instance);
-
-		checkHistory(instance, 0);
-		approveTask(instance);
-		checkHistory(instance, 1);
-	}
-
-	private void checkHistory(ProcessInstance instance, int size) {
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setProcessInstanceId(instance.getProcessInstanceId());
-		List<WorkflowTaskInstanceDto> history = taskInstanceService.find(filter, null).getContent();
-		Assert.assertEquals(1, history.size());
-		Assert.assertFalse(history.get(0).getFormData().isEmpty());
-
-		FormDataDto historyData = null;
-		for (FormDataDto data : history.get(0).getFormData()) {
-			if (data.getId().equals("history")) {
-				historyData = data;
-			}
-		}
-		Assert.assertNotNull(historyData);
-
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.getDeserializationConfig().addMixInAnnotations(WorkflowHistoricTaskInstanceDto.class, IgnoreSetIdMixIn.class);
-		List<WorkflowHistoricTaskInstanceDto> values = null;
-		try {
-			values = objectMapper.readValue(historyData.getValue(), new TypeReference<List<WorkflowHistoricTaskInstanceDto>>(){});
-		} catch (IOException e) {
-			throw new CoreException(e);
-		}
-		Assert.assertNotNull(values);
-		Assert.assertEquals(size, values.size());
-	}
-
-	private void approveTask(ProcessInstance instance) {
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setProcessInstanceId(instance.getProcessInstanceId());
-		List<WorkflowTaskInstanceDto> tasks = taskInstanceService.find(filter, null).getContent();
-		assertEquals(1, tasks.size());
-		String taskId = tasks.get(0).getId();
-		taskInstanceService.completeTask(taskId, "approve");
 	}
 
 	/**

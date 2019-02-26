@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -11,13 +10,11 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
@@ -54,7 +51,6 @@ public class DefaultAccIdentityAccountService extends
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAccIdentityAccountService.class);
 	
 	private final EntityEventManager entityEventManager;
-	private AccIdentityAccountRepository repository;
 
 	@Autowired
 	public DefaultAccIdentityAccountService(
@@ -66,30 +62,11 @@ public class DefaultAccIdentityAccountService extends
 		Assert.notNull(identityAccountRepository);
 		//
 		this.entityEventManager = entityEventManager;
-		this.repository = identityAccountRepository;
 	}
 	
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(AccGroupPermission.IDENTITYACCOUNT, getEntityClass());
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<AccIdentityAccountDto> findAllByIdentity(UUID identityId) {
-		
-		List<AccIdentityAccountDto> results = Lists.newArrayList();
-		repository.findAllByIdentity_Id(identityId, new Sort(AccIdentityAccount_.modified.getName()))
-			.forEach(identityAccount -> {
-			AccIdentityAccountDto identityAccountDto = new AccIdentityAccountDto();
-			identityAccountDto.setId(identityAccount.getId());
-			identityAccountDto.setAccount(identityAccount.getAccount() != null ? identityAccount.getAccount().getId() : null);
-			identityAccountDto.setIdentity(identityAccount.getIdentity() != null ? identityAccount.getIdentity().getId() : null);
-			identityAccountDto.setIdentityRole(identityAccount.getIdentityRole() != null ? identityAccount.getIdentityRole().getId() : null);
-			identityAccountDto.setRoleSystem(identityAccount.getRoleSystem() != null ? identityAccount.getRoleSystem().getId() : null);
-			results.add(identityAccountDto);
-		});
-		return results;
 	}
 	
 	@Override
@@ -160,6 +137,9 @@ public class DefaultAccIdentityAccountService extends
 		}
 		if (filter.isOwnership() != null) {
 			predicates.add(builder.equal(root.get(AccIdentityAccount_.ownership), filter.isOwnership()));
+		}
+		if (filter.getNotIdentityAccount() != null) {
+			predicates.add(builder.notEqual(root.get(AccIdentityAccount_.id), filter.getNotIdentityAccount()));
 		}
 		//
 		return predicates;

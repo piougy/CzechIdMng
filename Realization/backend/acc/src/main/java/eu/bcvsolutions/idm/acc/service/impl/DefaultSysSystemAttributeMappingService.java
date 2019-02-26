@@ -846,8 +846,11 @@ public class DefaultSysSystemAttributeMappingService extends
 	private SysSchemaAttributeDto getSchemaAttribute(AttributeMapping attributeMapping) {
 		if (attributeMapping.getSchemaAttribute() != null) {
 			if (attributeMapping instanceof SysSystemAttributeMappingDto) {
-				return DtoUtils.getEmbedded((SysSystemAttributeMappingDto) attributeMapping,
-						SysSystemAttributeMapping_.schemaAttribute, SysSchemaAttributeDto.class);
+				 SysSchemaAttributeDto schemaAttributeDto = DtoUtils.getEmbedded((SysSystemAttributeMappingDto) attributeMapping,
+						SysSystemAttributeMapping_.schemaAttribute, SysSchemaAttributeDto.class, null);
+				 if (schemaAttributeDto != null) {
+					 return schemaAttributeDto;
+				 }
 			}
 			return schemaAttributeService.get(attributeMapping.getSchemaAttribute());
 		} else {

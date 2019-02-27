@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -47,6 +48,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
+import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -178,15 +180,18 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 		EntityAccountFilter filter = createEntityAccountFilter();
 		filter.setAccountId(account.getId());
-		List<? extends EntityAccountDto> entityAccoutnList = getEntityAccountService().find(filter, null).getContent();
-		if (entityAccoutnList == null) {
+		filter.setOwnership(Boolean.TRUE);
+		
+		// Find first entity-account relation (we need Id of entity)
+		List<? extends EntityAccountDto> entityAccoutnList = getEntityAccountService()
+				.find(filter, new PageRequest(0, 1)).getContent();
+		if (entityAccoutnList.isEmpty()) {
 			return;
 		}
-		entityAccoutnList.stream().filter(entityAccount -> {
-			return entityAccount.isOwnership();
-		}).forEach((entityAccount) -> {
-			doProvisioning(account, getService().get(entityAccount.getEntity()));
-		});
+		EntityAccountDto entityAccountDto = entityAccoutnList.get(0);
+		
+		// Start provisioning
+		doProvisioning(account, getService().get(entityAccountDto.getEntity()));
 	}
 
 	@Override
@@ -207,7 +212,14 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		});
 
 		accounts.stream().forEach(account -> {
-			this.doProvisioning(accountService.get(account), dto);
+			EntityAccountDto entityAccountDto = entityAccoutnList.stream()
+					.filter(entityAccount -> account.equals(entityAccount.getAccount())).findFirst().get();
+			AccAccountDto accountDto = DtoUtils.getEmbedded((AbstractDto) entityAccountDto,
+					AccIdentityAccount_.account.getName(), AccAccountDto.class, null);
+			if (accountDto == null) {
+				accountDto = accountService.get(account);
+			}
+			this.doProvisioning(accountDto, dto);
 		});
 	}
 
@@ -553,7 +565,12 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		// TODO: we can find system entity on target system, if no one exists
 		// etc.
 		//
-		return systemEntityService.get(account.getSystemEntity());
+		SysSystemEntityDto systemEntityDto = DtoUtils.getEmbedded(account, AccAccount_.systemEntity.getName(),
+				SysSystemEntityDto.class, null);
+		if (systemEntityDto == null) {
+			return systemEntityService.get(account.getSystemEntity());
+		}
+		return systemEntityDto;
 	}
 
 	/**
@@ -846,7 +863,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	}
 
 	/**
-	 * Return all mapped attributes for this account (include overloaded
+	 * Return all mapped attributes for this account (include overridden
 	 * attributes)
 	 * 
 	 * @param uid

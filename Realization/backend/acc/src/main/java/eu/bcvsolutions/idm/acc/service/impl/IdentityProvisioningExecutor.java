@@ -142,17 +142,29 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 */
 	@Override
 	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmIdentityDto entity, SysSystemDto system,
-			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
+			AccAccountDto account, SystemEntityType entityType) {
 		
 		SysSystemMappingDto mapping = getMapping(system, entityType);
 		
 		List<SysRoleSystemAttributeDto> roleSystemAttributesAll = new ArrayList<>();
+
 		if(mapping == null) {
 			return roleSystemAttributesAll;
 		}
+		// Search overridden attributes for this account (searching via
+		// identity-accounts -> identity-roles -> role-systems ->
+		// role-system-attributes)
 		
+		// !Strange behavior - attributes are searching via assigned identity-accounts,
+		// it means in some case aren't returns all overridden attributes for this
+		// system and assigned roles! For example, when UID is changed, then exists old
+		// and new accounts in same time and we cannot return overridden UID attribute
+		// for original account. 
+		// TODO: Investigate and prevent situation when exists two accounts in same time (change the UID).
 		SysRoleSystemAttributeFilter roleSystemAttributeFilter = new SysRoleSystemAttributeFilter();
 		roleSystemAttributeFilter.setSystemMappingId(mapping.getId());
+		roleSystemAttributeFilter.setIdentityId(entity.getId());
+		roleSystemAttributeFilter.setAccountId(account.getId());
 		List<SysRoleSystemAttributeDto> roleAttributes = roleSystemAttributeService
 				.find(roleSystemAttributeFilter, null).getContent();
 

@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleCatalogueAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
@@ -113,7 +114,7 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 	
 	@Override
 	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmRoleCatalogueDto entity, SysSystemDto system,
-			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
+			AccAccountDto account, SystemEntityType entityType) {
 		// Overloading attributes is not implemented for RoleCatalogue
 		return new ArrayList<>();
 	}

@@ -95,7 +95,7 @@ public class IdentityRoleProvisioningExecutor extends AbstractProvisioningExecut
 	
 	@Override
 	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmIdentityRoleDto dto, SysSystemDto system,
-			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
+			AccAccountDto account, SystemEntityType entityType) {
 		// Overrider of identity-role attributes are not supported
 		return Lists.newArrayList();
 	}

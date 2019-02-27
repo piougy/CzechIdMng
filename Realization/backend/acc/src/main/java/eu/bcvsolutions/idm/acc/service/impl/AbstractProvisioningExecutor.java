@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
@@ -858,22 +859,10 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	@Override
 	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, DTO dto, SysSystemDto system,
 			SystemEntityType entityType) {
-		EntityAccountFilter filter = this.createEntityAccountFilter();
-		filter.setEntityId(dto.getId());
-		filter.setSystemId(system.getId());
-		filter.setOwnership(Boolean.TRUE);
-		filter.setAccountId(account.getId());
-
-		List<? extends EntityAccountDto> entityAccoutnList = this.getEntityAccountService().find(filter, null)
-				.getContent();
-		if (entityAccoutnList == null) {
-			return null;
-		}
-		// All identity account with flag ownership on true
 
 		// All role system attributes (overloading) for this uid and same system
 		List<SysRoleSystemAttributeDto> roleSystemAttributesAll = findOverloadingAttributes(dto, system,
-				entityAccoutnList, entityType);
+				account, entityType);
 
 		// All default mapped attributes from system
 		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
@@ -884,18 +873,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 	private List<AttributeMapping> resolveAdditionalPasswordChangeAttributes(AccAccountDto account, DTO dto,
 			SysSystemDto system, SystemEntityType entityType) {
-		EntityAccountFilter filter = this.createEntityAccountFilter();
-		filter.setEntityId(dto.getId());
-		filter.setSystemId(system.getId());
-		filter.setOwnership(Boolean.TRUE);
-		filter.setAccountId(account.getId());
 
-		List<? extends EntityAccountDto> entityAccoutnList = this.getEntityAccountService().find(filter, null)
-				.getContent();
-		if (entityAccoutnList == null) {
-			return Collections.<AttributeMapping>emptyList();
-		}
-		//
 		SysSystemMappingDto mapping = getMapping(system, entityType);
 		if (mapping == null) {
 			return Collections.<AttributeMapping>emptyList();
@@ -913,7 +891,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		//
 		// All role system attributes (overloading) for this uid and same system
 		List<SysRoleSystemAttributeDto> roleSystemAttributesAll = findOverloadingAttributes(dto, system,
-				entityAccoutnList, entityType);
+				account, entityType);
 		//
 		// Final list of attributes use for provisioning
 		List<AttributeMapping> results = compileAttributes(additionalPasswordChangeAttributes, roleSystemAttributesAll,
@@ -967,8 +945,9 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		List<SysRoleSystemAttributeDto> attributesOrdered = overloadingAttributes.stream()
 				.filter(roleSystemAttribute -> {
 					// Search attribute override same schema attribute
-					SysSystemAttributeMappingDto attributeMapping = systemAttributeMappingService
-							.get(roleSystemAttribute.getSystemAttributeMapping());
+					SysSystemAttributeMappingDto attributeMapping = DtoUtils.getEmbedded(roleSystemAttribute,
+							SysRoleSystemAttribute_.systemAttributeMapping.getName(),
+							SysSystemAttributeMappingDto.class);
 					return attributeMapping.equals(defaultAttribute);
 				}).sorted((att1, att2) -> {
 					// Sort attributes by role priority
@@ -1099,7 +1078,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 * @return
 	 */
 	protected abstract List<SysRoleSystemAttributeDto> findOverloadingAttributes(DTO dto, SysSystemDto system,
-			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType);
+			AccAccountDto account, SystemEntityType entityType);
 
 	protected SysSystemMappingDto getMapping(SysSystemDto system, SystemEntityType entityType) {
 		List<SysSystemMappingDto> systemMappings = systemMappingService.findBySystem(system,

@@ -10,7 +10,7 @@ import Icon from '../Icon/Icon';
  *
  * @see https://github.com/JedWatson/react-select/blob/v1.2.1/src/Value.js
  * @author Radek Tomiška
- * @since 9.4.1
+ * @since 9.5.0
  */
 export default class ValueDecorator extends AbstractComponent {
 

@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -30,15 +34,19 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
+import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.AttributeControlledValuesRecalculationTaskExecutor;
-import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -47,6 +55,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
@@ -55,6 +64,8 @@ import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -70,7 +81,6 @@ public class DefaultSysRoleSystemAttributeService extends
 		AbstractReadWriteDtoService<SysRoleSystemAttributeDto, SysRoleSystemAttribute, SysRoleSystemAttributeFilter>
 		implements SysRoleSystemAttributeService {
 
-	private final SysRoleSystemAttributeRepository repository;
 	@Autowired
 	private GroovyScriptService groovyScriptService;
 	@Autowired
@@ -97,17 +107,6 @@ public class DefaultSysRoleSystemAttributeService extends
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
 		super(repository);
-		//
-		this.repository = repository;
-	}
-
-	@Override
-	protected Page<SysRoleSystemAttribute> findEntities(SysRoleSystemAttributeFilter filter, Pageable pageable,
-			BasePermission... permission) {
-		if (filter == null) {
-			return repository.findAll(pageable);
-		}
-		return repository.find(filter, pageable);
 	}
 
 	@Override
@@ -143,97 +142,97 @@ public class DefaultSysRoleSystemAttributeService extends
 	@Override
 	public SysRoleSystemAttributeDto saveInternal(SysRoleSystemAttributeDto dto) {
 		// Check if exist some else attribute which is defined like unique
-				// identifier
-				if (dto.isUid()) {
-					SysRoleSystemAttributeFilter filter = new SysRoleSystemAttributeFilter();
-					filter.setIsUid(Boolean.TRUE);
-					filter.setRoleSystemId(dto.getRoleSystem());
+		// identifier
+		if (dto.isUid()) {
+			SysRoleSystemAttributeFilter filter = new SysRoleSystemAttributeFilter();
+			filter.setIsUid(Boolean.TRUE);
+			filter.setRoleSystemId(dto.getRoleSystem());
 
-					List<SysRoleSystemAttributeDto> list = this.find(filter, null).getContent();
+			List<SysRoleSystemAttributeDto> list = this.find(filter, null).getContent();
 
-					if (list.size() > 0 && !list.get(0).getId().equals(dto.getId())) {
-						SysRoleSystemDto roleSystem = roleSystemService.get(dto.getRoleSystem());
-						IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
-						SysSystemDto systemDto = DtoUtils.getEmbedded(dto, SysRoleSystem_.system);
-						throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID,
-								ImmutableMap.of("role", roleDto.getCode(), "system", systemDto.getName()));
-					}
+			if (list.size() > 0 && !list.get(0).getId().equals(dto.getId())) {
+				SysRoleSystemDto roleSystem = roleSystemService.get(dto.getRoleSystem());
+				IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
+				SysSystemDto systemDto = DtoUtils.getEmbedded(dto, SysRoleSystem_.system);
+				throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID,
+						ImmutableMap.of("role", roleDto.getCode(), "system", systemDto.getName()));
+			}
+		}
+
+		// We will check exists definition for extended attribute
+		SysSystemAttributeMappingDto systemAttributeMapping = systemAttributeMappingService
+				.get(dto.getSystemAttributeMapping());
+
+		// Password can't be overridden
+		SysSchemaAttributeDto schemaAttributeDto = DtoUtils.getEmbedded(systemAttributeMapping,
+				SysSystemAttributeMapping_.schemaAttribute, SysSchemaAttributeDto.class);
+		if (systemAttributeMapping.isPasswordAttribute()
+				|| schemaAttributeDto.getName().equals(ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)) {
+			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_PASSWORD_OVERRIDE);
+		}
+
+		SysSystemMappingDto systemMapping = systemMappingService.get(systemAttributeMapping.getSystemMapping());
+		Class<? extends Identifiable> entityType = systemMapping.getEntityType().getEntityType();
+		if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
+			systemAttributeMappingService.createExtendedAttributeDefinition(dto, entityType);
+		}
+
+		// We will do script validation (on compilation errors), before save
+		if (dto.getTransformScript() != null) {
+			groovyScriptService.validateScript(dto.getTransformScript());
+		}
+
+		// Save history of controlled value (if definition changed)
+		if (!this.isNew(dto)) {
+
+			SysRoleSystemAttributeDto oldRoleAttribute = this.get(dto.getId());
+			// We predicate only static script (none input variables, only system)!
+			Object oldControlledValue = systemAttributeMappingService.transformValueToResource(null, null,
+					oldRoleAttribute, null);
+			Object newControlledValue = systemAttributeMappingService.transformValueToResource(null, null, dto, null);
+
+			// Check if parent attribute changed, if yes then old value is added to history
+			// and new parent attribute is evicted
+			if (!oldRoleAttribute.getSystemAttributeMapping().equals(dto.getSystemAttributeMapping())) {
+				SysSystemAttributeMappingDto oldSystemAttributeMapping = systemAttributeMappingService
+						.get(oldRoleAttribute.getSystemAttributeMapping());
+				if (AttributeMappingStrategyType.MERGE == oldSystemAttributeMapping.getStrategyType()) {
+					// Old attribute changed, so we need evict the cache
+					oldSystemAttributeMapping.setEvictControlledValuesCache(true);
+					systemAttributeMappingService.save(oldSystemAttributeMapping);
+					// Set old value as historic
+					attributeControlledValueService.addHistoricValue(oldSystemAttributeMapping,
+							(Serializable) oldControlledValue);
 				}
-
-				// We will check exists definition for extended attribute
-				SysSystemAttributeMappingDto systemAttributeMapping = systemAttributeMappingService
-						.get(dto.getSystemAttributeMapping());
-
-				// Password can't be overridden
-				SysSchemaAttributeDto schemaAttributeDto = DtoUtils.getEmbedded(systemAttributeMapping,
-						SysSystemAttributeMapping_.schemaAttribute, SysSchemaAttributeDto.class);
-				if (systemAttributeMapping.isPasswordAttribute()
-						|| schemaAttributeDto.getName().equals(ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)) {
-					throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_PASSWORD_OVERRIDE);
-				}
-
-				SysSystemMappingDto systemMapping = systemMappingService.get(systemAttributeMapping.getSystemMapping());
-				Class<? extends Identifiable> entityType = systemMapping.getEntityType().getEntityType();
-				if (dto.isExtendedAttribute() && formService.isFormable(entityType)) {
-					systemAttributeMappingService.createExtendedAttributeDefinition(dto, entityType);
-				}
-
-				// We will do script validation (on compilation errors), before save
-				if (dto.getTransformScript() != null) {
-					groovyScriptService.validateScript(dto.getTransformScript());
-				}
-
-				// Save history of controlled value (if definition changed)
-				if (!this.isNew(dto)) {
-
-					SysRoleSystemAttributeDto oldRoleAttribute = this.get(dto.getId());
-					// We predicate only static script (none input variables, only system)!
-					Object oldControlledValue = systemAttributeMappingService.transformValueToResource(null, null,
-							oldRoleAttribute, null);
-					Object newControlledValue = systemAttributeMappingService.transformValueToResource(null, null, dto, null);
-
-					// Check if parent attribute changed, if yes then old value is added to history
-					// and new parent attribute is evicted
-					if (!oldRoleAttribute.getSystemAttributeMapping().equals(dto.getSystemAttributeMapping())) {
-						SysSystemAttributeMappingDto oldSystemAttributeMapping = systemAttributeMappingService
-								.get(oldRoleAttribute.getSystemAttributeMapping());
-						if (AttributeMappingStrategyType.MERGE == oldSystemAttributeMapping.getStrategyType()) {
-							// Old attribute changed, so we need evict the cache
-							oldSystemAttributeMapping.setEvictControlledValuesCache(true);
-							systemAttributeMappingService.save(oldSystemAttributeMapping);
-							// Set old value as historic
-							attributeControlledValueService.addHistoricValue(oldSystemAttributeMapping,
-									(Serializable) oldControlledValue);
-						}
-					}
-					// Check if old and new controlled values are same. If not then we save old
-					// value to the history on parent attribute
-					else if (!Objects.equals(oldControlledValue, newControlledValue)
-							&& AttributeMappingStrategyType.MERGE == oldRoleAttribute.getStrategyType()) {
-						// Set old value as historic
-						attributeControlledValueService.addHistoricValue(systemAttributeMapping,
-								(Serializable) oldControlledValue);
-					}
-					// Check if disable of that attribute is changed and new value is disabled, then
-					// we need add old value to history
-					else if (oldRoleAttribute.isDisabledAttribute() != dto.isDisabledAttribute() && dto.isDisabledAttribute()
-							&& AttributeMappingStrategyType.MERGE == oldRoleAttribute.getStrategyType()) {
-						// Set old value as historic
-						attributeControlledValueService.addHistoricValue(systemAttributeMapping,
-								(Serializable) oldControlledValue);
-					}
-					// Check if strategy type changed, if yes and previous strategy was MERGE, then
-					// old value will be added to history
-					else if (oldRoleAttribute.getStrategyType() != dto.getStrategyType()
-							&& AttributeMappingStrategyType.MERGE == oldRoleAttribute.getStrategyType()) {
-						// Set old value as historic
-						attributeControlledValueService.addHistoricValue(systemAttributeMapping,
-								(Serializable) oldControlledValue);
-					}
-				}
-				// Attribute created/updated, so we need evict the cache
-				systemAttributeMapping.setEvictControlledValuesCache(true);
-				systemAttributeMappingService.save(systemAttributeMapping);
+			}
+			// Check if old and new controlled values are same. If not then we save old
+			// value to the history on parent attribute
+			else if (!Objects.equals(oldControlledValue, newControlledValue)
+					&& AttributeMappingStrategyType.MERGE == oldRoleAttribute.getStrategyType()) {
+				// Set old value as historic
+				attributeControlledValueService.addHistoricValue(systemAttributeMapping,
+						(Serializable) oldControlledValue);
+			}
+			// Check if disable of that attribute is changed and new value is disabled, then
+			// we need add old value to history
+			else if (oldRoleAttribute.isDisabledAttribute() != dto.isDisabledAttribute() && dto.isDisabledAttribute()
+					&& AttributeMappingStrategyType.MERGE == oldRoleAttribute.getStrategyType()) {
+				// Set old value as historic
+				attributeControlledValueService.addHistoricValue(systemAttributeMapping,
+						(Serializable) oldControlledValue);
+			}
+			// Check if strategy type changed, if yes and previous strategy was MERGE, then
+			// old value will be added to history
+			else if (oldRoleAttribute.getStrategyType() != dto.getStrategyType()
+					&& AttributeMappingStrategyType.MERGE == oldRoleAttribute.getStrategyType()) {
+				// Set old value as historic
+				attributeControlledValueService.addHistoricValue(systemAttributeMapping,
+						(Serializable) oldControlledValue);
+			}
+		}
+		// Attribute created/updated, so we need evict the cache
+		systemAttributeMapping.setEvictControlledValuesCache(true);
+		systemAttributeMappingService.save(systemAttributeMapping);
 		return super.saveInternal(dto);
 	}
 
@@ -311,6 +310,69 @@ public class DefaultSysRoleSystemAttributeService extends
 					ImmutableMap.of("systemId", systemId, "objectClassName", objectClassName));
 		}
 		return systemMappings.get(0);
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<SysRoleSystemAttribute> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			SysRoleSystemAttributeFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		
+		if (filter.getRoleSystemId() != null) {
+			predicates.add(builder.equal(root.get(SysRoleSystemAttribute_.roleSystem).get(AbstractEntity_.id),
+					filter.getRoleSystemId()));
+		}
+
+		if (filter.getSystemMappingId() != null) {
+			predicates.add(builder.equal(root.get(SysRoleSystemAttribute_.roleSystem).get(SysRoleSystem_.systemMapping)
+					.get(AbstractEntity_.id), filter.getSystemMappingId()));
+		}
+
+		if (filter.getSchemaAttributeName() != null) {
+			predicates.add(builder.equal(
+					root.get(SysRoleSystemAttribute_.systemAttributeMapping)
+							.get(SysSystemAttributeMapping_.schemaAttribute).get(SysSchemaAttribute_.name),
+					filter.getSchemaAttributeName()));
+		}
+		if (filter.getIsUid() != null) {
+			predicates.add(builder.equal(root.get(SysRoleSystemAttribute_.uid), filter.getIsUid()));
+		}
+		
+		if (filter.getSystemAttributeMappingId() != null) {
+			predicates
+					.add(builder.equal(root.get(SysRoleSystemAttribute_.systemAttributeMapping).get(AbstractEntity_.id),
+							filter.getSystemAttributeMappingId()));
+		}
+		
+		// Search overridden attributes for this account (searching via
+		// identity-accounts -> identity-roles -> role-systems ->
+		// role-system-attributes)
+		if (filter.getIdentityId() != null) {
+			Subquery<AccIdentityAccount> subquery = query.subquery(AccIdentityAccount.class);
+			Root<AccIdentityAccount> subRoot = subquery.from(AccIdentityAccount.class);
+			subquery.select(subRoot);
+
+			// Correlation attribute predicate
+			Predicate correlationPredicate = builder.equal(
+					subRoot.get(AccIdentityAccount_.identityRole).get(IdmIdentityRole_.role),
+					root.get(SysRoleSystemAttribute_.roleSystem).get(SysRoleSystem_.role)); // Correlation attribute
+			// Identity predicate
+			Predicate identityPredicate = builder.equal(subRoot.get(AccIdentityAccount_.identityRole)
+					.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(AbstractEntity_.id),
+					filter.getIdentityId());
+			// Account predicate
+			Predicate accountPredicate = builder.equal(subRoot.get(AccIdentityAccount_.account).get(AbstractEntity_.id),
+					filter.getAccountId());
+
+			if (filter.getAccountId() != null) {
+				subquery.where(builder.and(correlationPredicate, identityPredicate, accountPredicate));
+			} else {
+				subquery.where(builder.and(correlationPredicate, identityPredicate));
+			}
+
+			predicates.add(builder.exists(subquery));
+		}
+		
+		return predicates;
 	}
 
 	/**

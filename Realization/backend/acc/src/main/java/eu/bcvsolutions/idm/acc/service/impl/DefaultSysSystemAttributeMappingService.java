@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
@@ -567,12 +568,12 @@ public class DefaultSysSystemAttributeMappingService extends
 					// We will search value directly in entity by property name
 					idmValue = EntityUtils.getEntityValue(entity, attributeHandling.getIdmPropertyName());
 				} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | ProvisioningException o_O) {
+						| InvocationTargetException | ProvisioningException ex) {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
 							ImmutableMap.of("property", attributeHandling.getIdmPropertyName(), "entityType",
 									entity.getClass(), "schemaAtribute",
 									attributeHandling.getSchemaAttribute().toString()),
-							o_O);
+							ex);
 				}
 			}
 		} else {
@@ -844,6 +845,13 @@ public class DefaultSysSystemAttributeMappingService extends
 	 */
 	private SysSchemaAttributeDto getSchemaAttribute(AttributeMapping attributeMapping) {
 		if (attributeMapping.getSchemaAttribute() != null) {
+			if (attributeMapping instanceof SysSystemAttributeMappingDto) {
+				 SysSchemaAttributeDto schemaAttributeDto = DtoUtils.getEmbedded((SysSystemAttributeMappingDto) attributeMapping,
+						SysSystemAttributeMapping_.schemaAttribute, SysSchemaAttributeDto.class, null);
+				 if (schemaAttributeDto != null) {
+					 return schemaAttributeDto;
+				 }
+			}
 			return schemaAttributeService.get(attributeMapping.getSchemaAttribute());
 		} else {
 			// schema attribute is null = roleSystemAttribute

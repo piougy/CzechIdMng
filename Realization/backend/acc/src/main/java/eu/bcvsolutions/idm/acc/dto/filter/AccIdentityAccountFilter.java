@@ -19,6 +19,8 @@ public class AccIdentityAccountFilter implements BaseFilter, EntityAccountFilter
 	private UUID identityRoleId;
 	private UUID roleSystemId;
 	private Boolean ownership;
+	// Results will be without identity-account with given ID
+	private UUID notIdentityAccount;
 
 	public Boolean isOwnership() {
 		return ownership;
@@ -83,6 +85,14 @@ public class AccIdentityAccountFilter implements BaseFilter, EntityAccountFilter
 	@Override
 	public void setEntityId(UUID entityId) {
 		this.identityId = entityId;
+	}
+
+	public UUID getNotIdentityAccount() {
+		return notIdentityAccount;
+	}
+
+	public void setNotIdentityAccount(UUID notIdentityAccount) {
+		this.notIdentityAccount = notIdentityAccount;
 	}
 
 }

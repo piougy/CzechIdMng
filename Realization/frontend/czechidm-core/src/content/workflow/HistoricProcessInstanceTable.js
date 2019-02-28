@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import {WorkflowProcessDefinitionManager} from '../../redux';
 
@@ -13,7 +14,7 @@ const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 *
 * @author Vít Švanda
 */
-export class HistoricProcessInstanceTable extends Basic.AbstractContent {
+export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -32,6 +33,8 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._initComponent(this.props);
   }
 
@@ -71,34 +74,25 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
     this.context.router.push('workflow/history/processes/' + entity.id);
   }
 
-  closeDetail() {
-    this.setState({
-      detail: {
-        show: false,
-        entity: {}
-      }
-    });
-  }
-
   _filter() {
     return (<Advanced.Filter onSubmit={this._useFilter.bind(this)}>
       <Basic.AbstractForm ref="filterForm">
         <Basic.Row className="last">
-          <div className="col-lg-4">
+          <Basic.Col lg={ 4 }>
             <Advanced.Filter.TextField
               ref="name"
               placeholder={this.i18n('name')}/>
-          </div>
-          <div className="col-lg-5">
+          </Basic.Col>
+          <Basic.Col lg={ 5 }>
             <Advanced.Filter.SelectBox
-              ref="processDefinition"
+              ref="processDefinitionKey"
               placeholder={this.i18n('filter.processDefinition.placeholder')}
               multiSelect={false}
               manager={workflowProcessDefinitionManager}/>
-          </div>
-          <div className="col-lg-3 text-right">
+          </Basic.Col>
+          <Basic.Col lg={ 3 } className="text-right">
             <Advanced.Filter.FilterButtons cancelFilter={this._cancelFilter.bind(this)}/>
-          </div>
+          </Basic.Col>
         </Basic.Row>
       </Basic.AbstractForm>
     </Advanced.Filter>);
@@ -142,7 +136,8 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
           showRowSelection={false}
           showId
           filter={this._filter()}
-          filterOpened={filterOpened}>
+          filterOpened={filterOpened}
+          _searchParameters={ this.getSearchParameters() }>
 
           <Advanced.Column
             header=""
@@ -191,7 +186,7 @@ HistoricProcessInstanceTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _showLoading: component.workflowHistoricProcessInstanceManager.isShowLoading(state, `${component.uiKey}-detail`)
   };
 }

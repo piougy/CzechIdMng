@@ -79,7 +79,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
@@ -850,7 +849,7 @@ public class DefaultIdmRoleRequestService
 		
 		IdmRoleDto roleDto = DtoUtils.getEmbedded(conceptRole, IdmConceptRoleRequest_.role, IdmRoleDto.class);
 		if (roleDto != null && roleDto.getIdentityRoleAttributeDefinition() != null) {
-			IdmFormDefinitionDto formDefinitionDto = DtoUtils.getEmbedded(roleDto, IdmRole_.identityRoleAttributeDefinition, IdmFormDefinitionDto.class);
+			IdmFormDefinitionDto formDefinitionDto = roleService.getFormAttributeSubdefinition(roleDto);
 			IdmFormInstanceDto formInstance = formService.getFormInstance(conceptRole, formDefinitionDto);
 			identityRole.getEavs().clear();
 			identityRole.getEavs().add(formInstance);

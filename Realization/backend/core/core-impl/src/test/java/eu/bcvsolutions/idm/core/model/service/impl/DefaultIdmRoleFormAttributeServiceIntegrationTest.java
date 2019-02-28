@@ -1,21 +1,33 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -40,6 +52,10 @@ public class DefaultIdmRoleFormAttributeServiceIntegrationTest extends AbstractI
 	private FormService formService;
 	@Autowired
 	private IdmRoleFormAttributeService roleFormAttributeService;
+	@Autowired
+	private IdmConceptRoleRequestService conceptRoleRequestService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
 
 	private final static String IP = "IP";
 	private final static String NUMBER_OF_FINGERS = "NUMBER_OF_FINGERS";
@@ -127,6 +143,62 @@ public class DefaultIdmRoleFormAttributeServiceIntegrationTest extends AbstractI
 		formAttributeSubdefinition = roleService.getFormAttributeSubdefinition(role);
 		Assert.assertEquals(1, formAttributeSubdefinition.getFormAttributes().size());
 		Assert.assertEquals(IP, formAttributeSubdefinition.getFormAttributes().get(0).getCode());
+
+	}
+	
+	@Test
+	public void testChangeValidityViaRoleRequest() {
+
+		// Create role with attribute (include the sub-definition)
+		IdmRoleDto role = createRoleWithAttributes();
+		IdmRoleFormAttributeFilter filter = new IdmRoleFormAttributeFilter();
+		filter.setRole(role.getId());
+		List<IdmRoleFormAttributeDto> list = roleFormAttributeService.find(filter, null).getContent();
+		Assert.assertEquals(2, list.size());
+
+		IdmFormDefinitionDto formAttributeSubdefinition = roleService.getFormAttributeSubdefinition(role);
+		Assert.assertEquals(2, formAttributeSubdefinition.getFormAttributes().size());
+
+		// Delete IP attribute from the sub-definition
+		list.stream().filter(roleFormAttributeDto -> {
+			IdmFormAttributeDto formAttributeDto = DtoUtils.getEmbedded(roleFormAttributeDto,
+					IdmRoleFormAttribute_.formAttribute.getName(), IdmFormAttributeDto.class);
+			return formAttributeDto.getCode().equals(IP);
+		}).forEach(roleFormAttributeDto -> roleFormAttributeService.delete(roleFormAttributeDto));
+
+		formAttributeSubdefinition = roleService.getFormAttributeSubdefinition(role);
+		Assert.assertEquals(1, formAttributeSubdefinition.getFormAttributes().size());
+		Assert.assertEquals(NUMBER_OF_FINGERS, formAttributeSubdefinition.getFormAttributes().get(0).getCode());
+		
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+		getHelper().assignRoles(contract, role);
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityContractId(contract.getId());
+		
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		assertEquals(1, identityRoles.size());
+		IdmIdentityRoleDto identityRole = identityRoles.get(0);
+		
+		// Create request
+		IdmRoleRequestDto request = getHelper().createRoleRequest(identity);
+		// Create change role-concept
+		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+		conceptRoleRequest.setRoleRequest(request.getId());
+		conceptRoleRequest.setIdentityContract(contract.getId());
+		// Change the valid from
+		conceptRoleRequest.setValidFrom(LocalDate.now());
+		conceptRoleRequest.setRole(role.getId());
+		conceptRoleRequest.setIdentityRole(identityRole.getId());
+		conceptRoleRequest.setOperation(ConceptRoleRequestOperation.UPDATE);
+		conceptRoleRequest = conceptRoleRequestService.save(conceptRoleRequest);
+		
+		request = getHelper().executeRequest(request, false, true);
+		// Check request
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		// Check identity-role
+		identityRole = identityRoleService.get(identityRole.getId());
+		assertEquals(conceptRoleRequest.getValidFrom(), identityRole.getValidFrom());
 
 	}
 

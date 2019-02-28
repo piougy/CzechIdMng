@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,11 +9,15 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -40,6 +46,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	@Autowired private ProvisioningService provisioningService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private SysRoleSystemService roleSystemService;
 
 	public IdentityRoleDeleteProvisioningProcessor() {
 		super(IdentityRoleEventType.DELETE);
@@ -52,6 +59,8 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	@Override
 	public boolean conditional(EntityEvent<IdmIdentityRoleDto> event) {
 		return super.conditional(event)
+				// Skip provisioning
+				&& 	(!this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties()))
 				&& (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) ;
 	}
 
@@ -62,13 +71,25 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
-		// TODO: contract is loaded to early ... 
 		IdmIdentityRoleDto identityRole = event.getContent();
+		
+		// If for this role doesn't exists any mapped system, then is provisioning useless!
+		UUID roleId = identityRole.getRole();
+		SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
+		roleSystemFilter.setRoleId(roleId);
+		long numberOfMappedSystem = roleSystemService.count(roleSystemFilter);
+		if(numberOfMappedSystem == 0) {
+			return new DefaultEventResult<>(event, this);
+		}
+		
+		// TODO: Optimalization - load identity by identity-role with filter
 		IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
 		IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
 		
-		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
+//		AccAccountFilter accountFilter = new AccAccountFilter();
+//		accountFilter.setIdentityRoleId(identityRole.getId());
 		
+		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 		provisioningService.doProvisioning(identity);
 		
 		return new DefaultEventResult<>(event, this);

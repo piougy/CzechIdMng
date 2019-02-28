@@ -43,9 +43,7 @@ class About extends Basic.AbstractContent {
                   <big>
                     { this.i18n('content.about.sourceCodeOn') }
                     {' '}
-                    <a href="https://github.com/bcvsolutions/CzechIdMng" target="_blank">
-                      <img src="https://assets-cdn.github.com/images/modules/logos_page/GitHub-Logo.png" style={{ height: 15, marginBottom: 5 }} />
-                    </a>
+                    <Basic.Link href="https://github.com/bcvsolutions/CzechIdMng" isExternal text="GitHub"/>
                   </big>
                 </div>
               </Basic.PanelBody>
@@ -63,6 +61,7 @@ About.propTypes = {
 
 function select(state) {
   return {
+    i18nReady: state.config.get('i18nReady'),
     version: ConfigurationManager.getPublicValue(state, 'idm.pub.core.build.version'),
     buildNumber: ConfigurationManager.getPublicValue(state, 'idm.pub.core.build.buildNumber'),
     buildTimestamp: parseInt(ConfigurationManager.getPublicValue(state, 'idm.pub.core.build.buildTimestamp'), 10)

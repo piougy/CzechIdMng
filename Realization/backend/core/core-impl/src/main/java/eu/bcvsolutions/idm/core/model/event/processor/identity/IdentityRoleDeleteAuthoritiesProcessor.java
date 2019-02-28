@@ -13,11 +13,13 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityRoleProcessor;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -46,6 +48,7 @@ public class IdentityRoleDeleteAuthoritiesProcessor
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private GrantedAuthoritiesFactory authoritiesFactory;
 	@Autowired private IdmAuthorityHierarchy authorityHierarchy;
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	
 	public IdentityRoleDeleteAuthoritiesProcessor() {
 		super(IdentityRoleEventType.DELETE);
@@ -71,6 +74,16 @@ public class IdentityRoleDeleteAuthoritiesProcessor
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
 		IdmIdentityRoleDto identityRole = event.getContent();
+		UUID roleId = identityRole.getRole();
+		
+		// If removed roles hasn't any authorization policy, then will be this processor skipped.
+		IdmAuthorizationPolicyFilter authorizationPolicyFilter = new IdmAuthorizationPolicyFilter();
+		authorizationPolicyFilter.setRoleId(roleId);
+		long countOfAuthorizationPolicies = authorizationPolicyService.count(authorizationPolicyFilter);
+		if(countOfAuthorizationPolicies == 0) {
+			return new DefaultEventResult<>(event, this);
+		}
+		
 		//
 		IdmIdentityContractDto contract = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract);
 		UUID identityId = contract.getIdentity(); 

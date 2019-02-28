@@ -515,7 +515,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
     // We want show audit fields only for Admin, but not in concept state.
-    const _adminMode = Utils.Permission.hasPermission(_permissions, 'ADMIN') && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
+    const hasAdminRights = Utils.Permission.hasPermission(_permissions, 'ADMIN');
+    const _adminMode = hasAdminRights && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
     const showLoading = !request || _showLoading || this.state.showLoading || this.props.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
     const showLoadingButtonRemove = this.state.showLoadingButtonRemove;
@@ -553,7 +554,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       }
     }
     const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
-
     return (
       <div>
         <Basic.Confirm ref="confirm-incompatible-role" level="warning">
@@ -581,7 +581,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.RoleRequest.state')}/>
               <Basic.Checkbox
                 ref="executeImmediately"
-                hidden={!_adminMode}
+                hidden={!hasAdminRights}
                 label={this.i18n('entity.RoleRequest.executeImmediately')}/>
               <Basic.LabelWrapper
                 rendered={ _adminMode && request.wfProcessId }
@@ -628,7 +628,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               <Basic.Button
                 onClick={this.save.bind(this, false)}
                 disabled={!isEditable}
-                rendered={_adminMode}
+                rendered={ request && roleRequestManager.canSave(request, _permissions)}
                 level="success"
                 type="submit"
                 showLoading={ showLoading || _incompatibleRolesLoading }

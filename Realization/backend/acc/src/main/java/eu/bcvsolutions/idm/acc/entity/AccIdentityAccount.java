@@ -56,7 +56,7 @@ public class AccIdentityAccount extends AbstractEntity implements EntityAccount,
 	@JoinColumn(name = "identity_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmIdentityRole identityRole; // identity account is based on identity role asing and  system mapping
+	private IdmIdentityRole identityRole;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)

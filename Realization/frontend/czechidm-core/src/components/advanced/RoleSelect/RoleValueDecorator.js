@@ -4,7 +4,7 @@ import * as Basic from '../../basic';
  * Role select value decorator.
  *
  * @author Radek Tomiška
- * @since 9.4.1
+ * @since 9.5.0
  */
 export default class RoleValueDecorator extends Basic.SelectBox.ValueDecorator {
 

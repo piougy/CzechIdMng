@@ -96,85 +96,90 @@ export class RoleConceptTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-
-    const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
-    const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
-    if (!form.isFormValid()) {
-      return;
-    }
-    if (eavForm && !eavForm.isValid()) {
-      return;
-    }
-
-    const { identityUsername, createConceptFunc, updateConceptFunc } = this.props;
-
-    const entity = form.getData();
-    let eavValues = null;
-    if (eavForm) {
-      eavValues = {values: eavForm.getValues()};
-    }
-    // after concept is sent to BE - hide modal
-    const cb = (validatedEntity, error) => {
-      if (error) {
-        // TODO: only one modal is shown => one validationErrors in the state
-        this.setState({
-          validationErrors: error.parameters ? error.parameters.attributes : null
-        });
-      } else {
-        this.setState({
-          conceptData: this._compileConceptData(this.props)
-        }, () => {
-          this._closeDetail();
-        });
+    this.setState({
+      showLoading: true
+    }, () => {
+      const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
+      const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
+      if (!form.isFormValid()) {
+        return;
       }
-    };
-    //
-    if (entity._added) {
-      if (!entity._virtualId && !entity.id && entity.role instanceof Array) {
-        for (const roleId of entity.role) {
-          const uuidId = uuid.v1();
-          const identityRole = _.merge({}, entity, {_virtualId: uuidId, _added: true});
-          identityRole._virtualId = uuidId;
-          identityRole._embedded = {};
-          identityRole._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
-          identityRole._embedded.role = roleManager.getEntity(this.context.store.getState(), roleId);
-          createConceptFunc(identityRole, 'ADD', eavValues, cb);
-        }
-      } else {
-        const addedIdentityRole = this._findAddedIdentityRoleById(entity.id);
-        entity._embedded = {};
-        entity._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
-        if (entity.role instanceof Array) {
-          entity.role = entity.role[0];
-        }
-        entity._embedded.role = roleManager.getEntity(this.context.store.getState(), entity.role);
-        if (addedIdentityRole) {
-          updateConceptFunc(entity, 'ADD', eavValues, cb);
+      if (eavForm && !eavForm.isValid()) {
+        return;
+      }
+
+      const { identityUsername, createConceptFunc, updateConceptFunc } = this.props;
+
+      const entity = form.getData();
+      let eavValues = null;
+      if (eavForm) {
+        eavValues = {values: eavForm.getValues()};
+      }
+      // after concept is sent to BE - hide modal
+      const cb = (validatedEntity, error) => {
+        if (error) {
+          // TODO: only one modal is shown => one validationErrors in the state
+          this.setState({
+            validationErrors: error.parameters ? error.parameters.attributes : null,
+            showLoading: false
+          });
         } else {
-          createConceptFunc(entity, 'ADD', eavValues, cb);
+          this.setState({
+            conceptData: this._compileConceptData(this.props),
+            showLoading: false
+          }, () => {
+            this._closeDetail();
+          });
+        }
+      };
+      //
+      if (entity._added) {
+        if (!entity._virtualId && !entity.id && entity.role instanceof Array) {
+          for (const roleId of entity.role) {
+            const uuidId = uuid.v1();
+            const identityRole = _.merge({}, entity, {_virtualId: uuidId, _added: true});
+            identityRole._virtualId = uuidId;
+            identityRole._embedded = {};
+            identityRole._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
+            identityRole._embedded.role = roleManager.getEntity(this.context.store.getState(), roleId);
+            createConceptFunc(identityRole, 'ADD', eavValues, cb);
+          }
+        } else {
+          const addedIdentityRole = this._findAddedIdentityRoleById(entity.id);
+          entity._embedded = {};
+          entity._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
+          if (entity.role instanceof Array) {
+            entity.role = entity.role[0];
+          }
+          entity._embedded.role = roleManager.getEntity(this.context.store.getState(), entity.role);
+          if (addedIdentityRole) {
+            updateConceptFunc(entity, 'ADD', eavValues, cb);
+          } else {
+            createConceptFunc(entity, 'ADD', eavValues, cb);
+          }
+        }
+      } else {
+        const changedIdentityRole = _.merge({}, this._findChangedIdentityRoleById(entity.id));
+        let changed = false;
+        const resultValidFrom = this._findChange('validFrom', entity);
+        const resultValidTill = this._findChange('validTill', entity);
+
+        if (resultValidFrom.changed) {
+          changedIdentityRole.validFrom = resultValidFrom.value;
+          changed = true;
+        }
+        if (resultValidTill.changed) {
+          changedIdentityRole.validTill = resultValidTill.value;
+          changed = true;
+        }
+
+        if (changed && changedIdentityRole && changedIdentityRole.id) {
+          updateConceptFunc(changedIdentityRole, 'UPDATE', eavValues, cb);
+        } else {
+          createConceptFunc(entity, 'UPDATE', eavValues, cb);
         }
       }
-    } else {
-      const changedIdentityRole = _.merge({}, this._findChangedIdentityRoleById(entity.id));
-      let changed = false;
-      const resultValidFrom = this._findChange('validFrom', entity);
-      const resultValidTill = this._findChange('validTill', entity);
-
-      if (resultValidFrom.changed) {
-        changedIdentityRole.validFrom = resultValidFrom.value;
-        changed = true;
-      }
-      if (resultValidTill.changed) {
-        changedIdentityRole.validTill = resultValidTill.value;
-        changed = true;
-      }
-
-      if (changed && changedIdentityRole && changedIdentityRole.id) {
-        updateConceptFunc(changedIdentityRole, 'UPDATE', eavValues, cb);
-      } else {
-        createConceptFunc(entity, 'UPDATE', eavValues, cb);
-      }
-    }
+    });
   }
 
   _findChangedIdentityRoleById(id) {
@@ -399,13 +404,19 @@ export class RoleConceptTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-
-    const roleRequestByIdentity = this.refs.roleSelectByIdentity.getWrappedInstance().createRoleRequestByIdentity();
-    this.context.store.dispatch(roleRequestManager.copyRolesByIdentity(roleRequestByIdentity, null, () => {
-      // We also need fetch request for new form attributes
-      this._hideRoleByIdentitySelect();
-      reloadComponent();
-    }));
+    this.setState({
+      showLoading: true
+    }, () => {
+      const roleRequestByIdentity = this.refs.roleSelectByIdentity.getWrappedInstance().createRoleRequestByIdentity();
+      this.context.store.dispatch(roleRequestManager.copyRolesByIdentity(roleRequestByIdentity, null, () => {
+        // We also need fetch request for new form attributes
+        this._hideRoleByIdentitySelect();
+        reloadComponent();
+        this.setState({
+          showLoading: false
+        });
+      }));
+    });
   }
 
   /**
@@ -558,7 +569,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
 
   render() {
     const {
-      showLoading,
       identityUsername,
       readOnly,
       className,
@@ -571,6 +581,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
       showRoleByIdentitySelect,
       validationErrors
     } = this.state;
+
+    const showLoading = this.props.showLoading || this.state.showLoading;
 
     const result = (
       <div>
@@ -741,18 +753,21 @@ export class RoleConceptTable extends Basic.AbstractContent {
           <Basic.Modal.Body>
             <RoleSelectByIdentity
               ref="roleSelectByIdentity"
+              showLoading={ showLoading }
               identityUsername={identityUsername}
               request={request}/>
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
             <Basic.Button
               level="link"
+              showLoading={ showLoading }
               onClick={ this._hideRoleByIdentitySelect.bind(this) }>
               { this.i18n('button.close') }
             </Basic.Button>
             <Basic.Button
               type="submit"
               level="success"
+              showLoading={ showLoading }
               onClick={ this._executeRoleRequestByIdentity.bind(this) }
               showLoadingIcon>
               { this.i18n('button.set') }

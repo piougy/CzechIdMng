@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -27,7 +26,6 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
-import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -36,7 +34,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -53,45 +50,23 @@ public class DefaultAccIdentityAccountService extends
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAccIdentityAccountService.class);
 	
-	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final EntityEventManager entityEventManager;
-	private final AccAccountRepository accountRepository;
 
 	@Autowired
 	public DefaultAccIdentityAccountService(
 			AccIdentityAccountRepository identityAccountRepository,
-			IdmIdentityRoleRepository identityRoleRepository,
-			EntityEventManager entityEventManager,
-			AccAccountRepository accountRepository) {
+			EntityEventManager entityEventManager) {
 		super(identityAccountRepository);
 		//
-		Assert.notNull(identityRoleRepository);
 		Assert.notNull(entityEventManager);
-		Assert.notNull(accountRepository);
+		Assert.notNull(identityAccountRepository);
 		//
-		this.identityRoleRepository = identityRoleRepository;
 		this.entityEventManager = entityEventManager;
-		this.accountRepository = accountRepository;
 	}
 	
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(AccGroupPermission.IDENTITYACCOUNT, getEntityClass());
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public AccIdentityAccount getEntity(Serializable id, BasePermission... permission) {
-		// I don't want use excerpt, so I have to do manual load account and
-		// identityRole
-		AccIdentityAccount ia = super.getEntity(id, permission);
-		if (ia != null && ia.getAccount() != null) {
-			ia.setAccount(accountRepository.findOne(ia.getAccount().getId()));
-		}
-		if (ia != null && ia.getIdentityRole() != null) {
-			ia.setIdentityRole(identityRoleRepository.findOne(ia.getIdentityRole().getId()));
-		}
-		return ia;
 	}
 	
 	@Override
@@ -162,6 +137,9 @@ public class DefaultAccIdentityAccountService extends
 		}
 		if (filter.isOwnership() != null) {
 			predicates.add(builder.equal(root.get(AccIdentityAccount_.ownership), filter.isOwnership()));
+		}
+		if (filter.getNotIdentityAccount() != null) {
+			predicates.add(builder.notEqual(root.get(AccIdentityAccount_.id), filter.getNotIdentityAccount()));
 		}
 		//
 		return predicates;

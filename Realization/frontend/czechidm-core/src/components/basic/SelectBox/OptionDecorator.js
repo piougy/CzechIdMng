@@ -13,7 +13,7 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
  *
  * @see https://github.com/JedWatson/react-select/blob/v1.2.1/src/Option.js
  * @author Radek Tomiška
- * @since 9.4.1
+ * @since 9.5.0
  */
 export default class OptionDecorator extends AbstractComponent {
 

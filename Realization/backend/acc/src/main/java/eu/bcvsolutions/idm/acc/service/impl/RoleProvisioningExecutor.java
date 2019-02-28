@@ -96,7 +96,7 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 	
 	@Override
 	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmRoleDto entity, SysSystemDto system,
-			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
+			AccAccountDto account, SystemEntityType entityType) {
 		// Overloading attributes is not implemented for RoleNode
 		return new ArrayList<>();
 	}

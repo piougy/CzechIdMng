@@ -2,14 +2,11 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,7 +14,6 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.envers.RevisionType;
 import org.junit.After;
 import org.junit.Before;
@@ -399,14 +395,19 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testLoginAuditWithPaginationAndFailed() {
+		this.logout();
+
 		String password = "password-" + System.currentTimeMillis();
 		GuardedString passwordAsGuardedString = new GuardedString(password);
 		IdmIdentityDto identity = getHelper().createIdentity(passwordAsGuardedString);
 		
 		LoginDto loginDto = new LoginDto(identity.getUsername(), passwordAsGuardedString);
 		authenticationManager.authenticate(loginDto);
+		this.logout();
 		authenticationManager.authenticate(loginDto);
+		this.logout();
 		authenticationManager.authenticate(loginDto);
+		this.logout();
 		loginDto = new LoginDto(identity.getUsername(), new GuardedString("test-" + System.currentTimeMillis()));
 		
 		try {
@@ -417,7 +418,9 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		} catch (Exception e) {
 			fail();
 		}
-		
+
+		this.logout();
+
 		try {
 			authenticationManager.authenticate(loginDto);
 			fail();
@@ -426,6 +429,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		} catch (Exception e) {
 			fail();
 		}
+
+		this.logout();
 
 		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setOwnerId(identity.getId().toString());

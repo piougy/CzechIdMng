@@ -75,6 +75,7 @@ import CodeListService from './CodeListService';
 import CodeListItemService from './CodeListItemService';
 import IncompatibleRoleService from './IncompatibleRoleService';
 import RoleFormAttributeService from './RoleFormAttributeService';
+import PasswordHistoryService from './PasswordHistoryService';
 
 const ServiceRoot = {
   RestApiService,
@@ -146,7 +147,8 @@ const ServiceRoot = {
   CodeListService,
   CodeListItemService,
   IncompatibleRoleService,
-  RoleFormAttributeService
+  RoleFormAttributeService,
+  PasswordHistoryService
 };
 
 ServiceRoot.version = '9.4.0';

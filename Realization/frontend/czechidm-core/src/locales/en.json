@@ -3028,8 +3028,12 @@
     "audit": {
       "header": "Audit",
       "title": "Audit",
+      "label": "$t(content.audit.title)",
       "title-entities": "Entities",
       "title-identities": "Users",
+      "title-identity-roles": "Audit for added roles",
+      "title-identity-login": "Login audit",
+      "title-identity-password-change": "Password change audit",
       "modifier": "Action executor",
       "date": "Date of change",
       "empty": "Without records",
@@ -3039,6 +3043,35 @@
       "noPreviousRevision": "No previous revision",
       "profile": {
         "userDetail": "{{revision}}. revision, {{name}}, {{date}}"
+      },
+      "identityRoles": {
+        "label": "Audit of roles",
+        "role": "Role",
+        "modification": {
+          "ADD": "Add",
+          "MOD": "Update",
+          "DEL": "$t(content.audit.revision.modificationType.DEL)"
+        }
+      },
+      "identityLogin": {
+        "label": "Audit of login",
+        "loginType": "Login type",
+        "unsuccessfulAttempts": "Number of unsuccessful attempts",
+        "mustChange": "Required password change",
+        "validTill": "Valid password to",
+        "validFrom": "Valid password from",
+        "blockLoginDate": "Password blocked to",
+        "modification": {
+          "ADD": "Password create",
+          "MODFAILED": "Failed",
+          "MODSUCCESS": "Success"
+        }
+      },
+      "identityPasswordChange": {
+        "label": "Audit of password cahnge",
+        "created": "Password change date",
+        "creator": "Password change made",
+        "idmOnlyInfo": "Audit records for password change are shown here only when password change is made against the CzechIdM application. If the change of password against the CzechIdM system is disabled or the CzechIdM system is not selected during password change. Isn't possible audit the password change."
       },
       "logging-event": {
         "title": "Logging events",
@@ -3814,7 +3847,11 @@
       "modification": "Actions",
       "modifier": "Executed by",
       "revisionDate": "Date of revision",
-      "changedAttributes": "Changed attributes",
+      "changedAttributes": {
+        "label": "Changed attributes",
+        "placeholder": "Own group search by changed attributes. $t(entity.Audit.changedAttributes.tooltip)",
+        "tooltip": "Enter individual values of your group changed attributes."
+      },
       "type": "Entity type",
       "key": "Attribute",
       "value": "Value",

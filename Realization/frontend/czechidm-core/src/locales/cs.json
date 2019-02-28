@@ -3079,8 +3079,12 @@
     "audit": {
       "header": "Audit",
       "title": "Audit",
+      "label": "$t(content.audit.title)",
       "title-entities": "Audit pro entity",
       "title-identities": "Audit pro uživatele",
+      "title-identity-roles": "Audit přidělení rolí",
+      "title-identity-login": "Audit přihlášení",
+      "title-identity-password-change": "Audit změn hesla",
       "modifier": "Akci provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
@@ -3090,6 +3094,35 @@
       "noPreviousRevision": "Neexistují žádné předchozí revize",
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
+      },
+      "identityRoles": {
+        "label": "Audit rolí",
+        "role": "Role",
+        "modification": {
+          "ADD": "Přidání",
+          "MOD": "Úprava",
+          "DEL": "$t(content.audit.revision.modificationType.DEL)"
+        }
+      },
+      "identityLogin": {
+        "label": "Audit přihlášení",
+        "loginType": "Typ přihlášení",
+        "unsuccessfulAttempts": "Počet neúspešných pokusů",
+        "mustChange": "Povinná změna hesla",
+        "validTill": "Platnost hesla do",
+        "validFrom": "Platnost hesla od",
+        "blockLoginDate": "Heslo blokováno do",
+        "modification": {
+          "ADD": "Vytvoření hesla",
+          "MODFAILED": "Neúspěšné",
+          "MODSUCCESS": "Úspešné"
+        }
+      },
+      "identityPasswordChange": {
+        "label": "Audit změn hesla",
+        "created": "Datum změny hesla",
+        "creator": "Změnu hesla provedl",
+        "idmOnlyInfo": "Auditní záznamy pro změnu hesla jsou zde zobrazeny pouze proti změnám provedených proti aplikaci CzechIdM. Pokud je změna hesla proti systému CzechIdM vypnutá, nebo není systém CzechIdM vybrán. Není možné auditovat změnu hesla."
       },
       "logging-event": {
         "title": "Logované události",
@@ -3864,7 +3897,11 @@
       "modification": "Typ modifikace",
       "modifier": "Akci provedl",
       "revisionDate": "Datum revize",
-      "changedAttributes": "Změněné atributy",
+      "changedAttributes": {
+        "label": "Změněné atributy",
+        "placeholder": "Vyhledávání po skupinkách změněných atributů. $t(entity.Audit.changedAttributes.tooltip)",
+        "tooltip": "Vkládejte jednotlivé hodnoty své skupiny změněných atributů."
+      },
       "type": "Typ entity",
       "key": "Atribut",
       "value": "Hodnota",

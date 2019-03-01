@@ -33,6 +33,12 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    this.context.store.dispatch(auditManager.fetchAuditedEntitiesNames());
+  }
+
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
@@ -54,7 +60,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
     return null;
   }
 
-  _getAdvancedFilter() {
+  _getAdvancedFilter(auditedEntities) {
     const { singleUserMod } = this.props;
     return (
       <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -71,39 +77,37 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
             <div className="col-lg-4">
               <Advanced.Filter.TextField
                 className="pull-right"
-                rendered={!singleUserMod}
-                ref="username"
-                placeholder={this.i18n('content.audit.identities.username')}
-                returnProperty="username"/>
+                ref="ownerCode"
+                placeholder={this.i18n('content.audit.identities.username')}/>
             </div>
             <div className="col-lg-4">
               <Advanced.Filter.TextField
-                className="pull-right"
-                ref="modifier"
-                placeholder={this.i18n('content.audit.identities.modifier')}
-                returnProperty="modifier"/>
-            </div>
-            <div className="col-lg-4">
-              <Advanced.Filter.TextField
-                rendered={!singleUserMod}
                 ref="id"
                 placeholder={this.i18n('content.audit.identities.identityId')}/>
             </div>
           </Basic.Row>
-          <Basic.Row className="last">
+          <Basic.Row>
             <div className="col-lg-4">
-              <Advanced.Filter.TextField
-                ref="changedAttributes"
-                placeholder={this.i18n('entity.Audit.changedAttributes')}/>
+              <Advanced.Filter.EnumSelectBox
+                ref="type"
+                searchable
+                placeholder={this.i18n('entity.Audit.type')}
+                options={ auditedEntities }/>
             </div>
             <div className="col-lg-4">
               <Advanced.Filter.TextField
-                rendered={singleUserMod}
                 className="pull-right"
                 ref="modifier"
-                placeholder={this.i18n('content.audit.identities.modifier')}
-                returnProperty="modifier"/>
+                placeholder={this.i18n('content.audit.identities.modifier')}/>
             </div>
+          </Basic.Row>
+          <Basic.Row className="last">
+            <Basic.Col lg={ 12 } >
+              <Advanced.Filter.CreatableSelectBox
+                ref="changedAttributesList"
+                placeholder={this.i18n('entity.Audit.changedAttributes.placeholder')}
+                tooltip={this.i18n('entity.Audit.changedAttributes.tooltip')}/>
+            </Basic.Col>
           </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>
@@ -121,12 +125,12 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
 
   _getForceSearchParameters() {
     const { username, id } = this.props;
-    let forceSearchParameters = new SearchParameters('entity').setFilter('entityClass', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity'); // TODO: this isn't best way, hard writen class
+    let forceSearchParameters = new SearchParameters('entity').setFilter('withVersion', true).setFilter('ownerType', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity'); // TODO: this isn't best way, hard writen class
     if (username) {
-      forceSearchParameters = forceSearchParameters.setFilter('username', username);
+      forceSearchParameters = forceSearchParameters.setFilter('ownerCode', username);
     }
     if (id) {
-      forceSearchParameters = forceSearchParameters.setFilter('id', id);
+      forceSearchParameters = forceSearchParameters.setFilter('ownerId', id);
     }
     return forceSearchParameters;
   }
@@ -139,7 +143,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, singleUserMod } = this.props;
+    const { uiKey, singleUserMod, auditedEntities } = this.props;
     //
     return (
       <div>
@@ -151,7 +155,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
           forceSearchParameters={this._getForceSearchParameters()}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           showId
-          filter={ this._getAdvancedFilter() }
+          filter={ this._getAdvancedFilter(auditedEntities) }
           _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             header=""
@@ -254,7 +258,8 @@ AuditIdentityTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    auditedEntities: auditManager.prepareOptionsFromAuditedEntitiesNames(auditManager.getAuditedEntitiesNames(state))
   };
 }
 

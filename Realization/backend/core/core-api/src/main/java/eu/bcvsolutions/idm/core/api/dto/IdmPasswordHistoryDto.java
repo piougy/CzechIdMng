@@ -6,13 +6,15 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 
 /**
  * DTO with password history, that determines the number of unique new
  * passwords.
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 
@@ -22,6 +24,7 @@ public class IdmPasswordHistoryDto extends AbstractDto {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
+	@JsonIgnore
 	private String password;
 	@NotNull
 	@Embedded(dtoClass = IdmIdentityDto.class)

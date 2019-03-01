@@ -19,28 +19,12 @@ export class AuditTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      showLoading: true
-    };
   }
 
   componentDidMount() {
     super.componentDidMount();
     //
-    // TODO: use redux and load it just one time
-    this.context.store.dispatch(auditManager.fetchEntities(auditManager.getAuditedEntitiesNames(), null, (entities) => {
-      if (entities !== null) {
-        const auditedEntities = entities._embedded.strings.map(item => { return {value: item.content, niceLabel: item.content }; });
-        this.setState({
-          auditedEntities,
-          showLoading: false
-        });
-      } else {
-        this.setState({
-          showLoading: false
-        });
-      }
-    }));
+    this.context.store.dispatch(auditManager.fetchAuditedEntitiesNames());
   }
 
   getContentKey() {
@@ -84,10 +68,10 @@ export class AuditTable extends Advanced.AbstractTableContent {
     return _.join(arrayOfName, ', ');
   }
 
-  _getAdvancedFilter(auditedEntities, showLoading, columns) {
+  _getAdvancedFilter(auditedEntities, columns) {
     return (
       <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-        <Basic.AbstractForm ref="filterForm" showLoading={showLoading}>
+        <Basic.AbstractForm ref="filterForm">
           <Basic.Row>
             <Basic.Col lg={ 8 } rendered={ _.includes(columns, 'revisionDate') }>
               <Advanced.Filter.FilterDate ref="fromTill"/>
@@ -124,10 +108,11 @@ export class AuditTable extends Advanced.AbstractTableContent {
                 ref="entityId"
                 placeholder={this.i18n('entity.Audit.entityId')}/>
             </Basic.Col>
-            <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'changedAttributes') }>
-              <Advanced.Filter.TextField
-                ref="changedAttributes"
-                placeholder={this.i18n('entity.Audit.changedAttributes')}/>
+            <Basic.Col lg={ 8 } rendered={ _.includes(columns, 'changedAttributes') }>
+              <Advanced.Filter.CreatableSelectBox
+                ref="changedAttributesList"
+                placeholder={this.i18n('entity.Audit.changedAttributes.placeholder')}
+                tooltip={this.i18n('entity.Audit.changedAttributes.tooltip')}/>
             </Basic.Col>
           </Basic.Row>
         </Basic.AbstractForm>
@@ -154,8 +139,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { columns, uiKey } = this.props;
-    const { showLoading, auditedEntities } = this.state;
+    const { columns, uiKey, auditedEntities } = this.props;
     return (
       <div>
         <Advanced.Table
@@ -166,7 +150,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
           forceSearchParameters={this._getForceSearchParameters()}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           showId
-          filter={ this._getAdvancedFilter(auditedEntities, showLoading, columns) }
+          filter={ this._getAdvancedFilter(auditedEntities, columns) }
           _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             header=""
@@ -273,7 +257,8 @@ AuditTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    auditedEntities: auditManager.prepareOptionsFromAuditedEntitiesNames(auditManager.getAuditedEntitiesNames(state))
   };
 }
 

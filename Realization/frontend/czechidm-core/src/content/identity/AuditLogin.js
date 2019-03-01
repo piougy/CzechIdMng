@@ -2,12 +2,12 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
-import AuditIdentityTable from '../audit/identity/AuditIdentityTable';
+import AuditIdentityLoginTable from '../audit/identity/AuditIdentityLoginTable';
 import { IdentityManager } from '../../redux/data';
 
 const identityManager = new IdentityManager();
 
-class Audit extends Basic.AbstractContent {
+class AuditLogin extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -17,16 +17,9 @@ class Audit extends Basic.AbstractContent {
     return 'content.audit';
   }
 
-  showDetail(revId, entityIde) {
-    // TODO: this.context.router.push set only rev id, fetchEntity isn't necessary. this.props.params not working.
-    this.context.store.dispatch(identityManager.fetchEntity(entityIde, null, (identity) => {
-      this.context.router.push('/identity/' + identity.username + '/revision/' + revId);
-    }));
-  }
-
   componentDidMount() {
     const { entityId } = this.props.params;
-    this.selectNavigationItems(['identities', 'profile-audit', 'profile-audit-profile']);
+    this.selectNavigationItems(['identities', 'profile-audit', 'profile-audit-login']);
     this.context.store.dispatch(identityManager.fetchEntity(entityId));
   }
 
@@ -35,16 +28,15 @@ class Audit extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.Panel className="no-border last">
           {
             !identity
             ||
-            <AuditIdentityTable
+            <AuditIdentityLoginTable
               singleUserMod
               id={identity.id}
-              uiKey="identity-audit-table"/>
+              uiKey={`identity-login-audit-table-${identity.id}`}/>
           }
         </Basic.Panel>
       </div>
@@ -52,10 +44,10 @@ class Audit extends Basic.AbstractContent {
   }
 }
 
-Audit.propTypes = {
+AuditLogin.propTypes = {
 };
 
-Audit.defaultProps = {
+AuditLogin.defaultProps = {
 };
 
 function select(state, component) {
@@ -65,4 +57,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(Audit);
+export default connect(select)(AuditLogin);

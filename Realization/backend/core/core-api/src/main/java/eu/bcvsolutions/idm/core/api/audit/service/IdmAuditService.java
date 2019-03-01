@@ -11,6 +11,7 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
@@ -22,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * - revision - return object type of {@link IdmAuditDto}
  * - version - return object from audit tables
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  * 
  */
 
@@ -185,8 +186,27 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, IdmAud
 	 * @return
 	 */
 	IdmAuditDto findPreviousRevision(Long revisionId);
-	
+
+	/**
+	 * Find entity with relation. This method is deprecated, please use
+	 * {@link #findEntityWithRelation(IdmAuditFilter, Pageable)}
+	 *
+	 * @deprecated {@link #findEntityWithRelation(IdmAuditFilter, Pageable)}
+	 * @param clazz
+	 * @param parameters
+	 * @param pageable
+	 * @return
+	 */
 	Page<IdmAuditDto> findEntityWithRelation(Class<? extends AbstractEntity> clazz, MultiValueMap<String, Object> parameters, Pageable pageable);
+
+	/**
+	 * Find entities with relation. This method is used for get audit entities with some owner.
+	 *
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
+	Page<IdmAuditDto> findEntityWithRelation(IdmAuditFilter filter, Pageable pageable);
 	
 	/**
 	 * Method return entity that is now deleted in actual 
@@ -195,4 +215,13 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, IdmAud
 	 * @return
 	 */
 	AbstractEntity getActualRemovedEntity(Class<AbstractEntity> entityClass, Object primaryKey);
+
+	/**
+	 * Because entity {@link IdmPasswordDto} hasn't own rest is audit for this entity solved by audit service {@link IdmAuditService} and audit controller.
+	 *
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
+	Page<IdmAuditDto> findLogin(IdmAuditFilter filter, Pageable pageable);
 }

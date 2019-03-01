@@ -207,21 +207,46 @@ module.exports = {
               },
               {
                 'id': 'profile-audit',
-                'type': 'TAB',
-                'labelKey': 'entity.Audit.label',
+                'labelKey': 'content.audit.label',
                 'order': 500,
-                'path': '/identity/:entityId/revision',
+                'path': '/identity/:entityId/audit/identity',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
                 'icon': 'fa:history',
                 'items': [
                   {
-                    'id': 'profile-audit-profile-personal',
+                    'id': 'profile-audit-profile',
+                    'icon': '',
                     'type': 'TAB',
-                    'label': 'Osobní údaje',
-                    'labelKey': 'content.identity.sidebar.profile',
-                    'order': 10,
-                    'path': '/identity/:entityId/revision/:revID',
-                    'icon': 'user',
+                    'labelKey': 'content.audit.label',
+                    'order': 100,
+                    'path': '/identity/:entityId/audit/identity',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+                  },
+                  {
+                    'id': 'profile-audit-roles',
+                    'icon': '',
+                    'type': 'TAB',
+                    'labelKey': 'content.audit.identityRoles.label',
+                    'order': 200,
+                    'path': '/identity/:entityId/audit/roles',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+                  },
+                  {
+                    'id': 'profile-audit-login',
+                    'icon': '',
+                    'type': 'TAB',
+                    'labelKey': 'content.audit.identityLogin.label',
+                    'order': 300,
+                    'path': '/identity/:entityId/audit/login',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+                  },
+                  {
+                    'id': 'profile-audit-password-change',
+                    'icon': '',
+                    'type': 'TAB',
+                    'labelKey': 'content.audit.identityPasswordChange.label',
+                    'order': 400,
+                    'path': '/identity/:entityId/audit/password-change',
                     'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
                   }
                 ]
@@ -686,6 +711,48 @@ module.exports = {
                 'labelKey': 'content.audit.title-entities',
                 'order': 40,
                 'path': '/audit/entities',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['AUDIT_READ']
+                  }
+                ]
+              },
+              {
+                'id': 'audit-identity-roles',
+                'labelKey': 'content.audit.title-identity-roles',
+                'order': 45,
+                'path': '/audit/identity-roles',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['AUDIT_READ']
+                  }
+                ]
+              },
+              {
+                'id': 'audit-identity-login',
+                'labelKey': 'content.audit.title-identity-login',
+                'order': 50,
+                'path': '/audit/identity-login',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['AUDIT_READ']
+                  }
+                ]
+              },
+              {
+                'id': 'audit-identity-password-change',
+                'labelKey': 'content.audit.title-identity-password-change',
+                'order': 55,
+                'path': '/audit/identity-password-change',
                 'icon': '',
                 'type': 'TAB',
                 'access': [

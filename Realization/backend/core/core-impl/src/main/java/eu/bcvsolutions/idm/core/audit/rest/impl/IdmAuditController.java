@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.core.audit.rest.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
@@ -37,12 +39,13 @@ import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.audit.entity.IdmAudit_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -114,7 +117,6 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		return dtos;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@RequestMapping(value= "/search/entity", method = RequestMethod.GET)
@@ -145,21 +147,47 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		//
-		if (entityClass == null) {
+		// Because backward compatibility there must be set entity class and other useless parameters
+		IdmAuditFilter filter = toFilter(parameters);
+		if (StringUtils.isEmpty(filter.getOwnerType())) {
 			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_IS_NOT_FILLED);
 		}
-		//
-		try {
-			Page<IdmAuditDto> dtos = auditService.findEntityWithRelation((Class<? extends AbstractEntity>) Class.forName(entityClass), parameters, pageable);
-			Map<UUID, BaseDto> loadedDtos = new HashMap<>();
-			dtos.forEach(dto -> {
-				loadEmbeddedEntity(loadedDtos, dto);
-			});
-			return toResources(dtos, getDtoClass());
-		} catch (ClassNotFoundException e) {
-			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_NOT_FOUND, ImmutableMap.of("class", entityClass), e);
-		}
 
+		// Backward compatibility
+		if (StringUtils.isEmpty(filter.getOwnerCode()) && parameters.containsKey(IdmIdentity_.username.getName())) {
+			Object identityUsername = parameters.getFirst(IdmIdentity_.username.getName());
+			if (identityUsername != null) {
+				filter.setOwnerCode(identityUsername.toString());
+			}
+		}
+		//
+		Page<IdmAuditDto> dtos = auditService.find(filter, pageable);
+		Map<UUID, BaseDto> loadedDtos = new HashMap<>();
+		dtos.forEach(dto -> {
+			loadEmbeddedEntity(loadedDtos, dto);
+		});
+		return toResources(dtos, getDtoClass());
+
+	}
+
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
+	@RequestMapping(value= "/search/login", method = RequestMethod.GET)
+	@ApiOperation(
+			value = "Search audit logs for login identities", 
+			nickname = "searchLoginAudits", 
+			tags = { IdmAuditController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") })
+				})
+	public Resources<?> findLogin(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		// Password hasn't own rest controller -> audit is solved by audit controller.
+		return this.toResources(this.auditService.findLogin(toFilter(parameters), pageable), getDtoClass());
 	}
 	
 	@ResponseBody
@@ -317,6 +345,47 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 			} catch (IllegalArgumentException ex) {
 				LOG.debug("Class [{}] not found on classpath (e.g. module was uninstalled)", dto.getType(), ex);
 			}
+
 		}
+
+		// For subowner, some entities doesn't support owner and subowner
+		if (dto.getSubOwnerId() != null) {
+			try {
+				UUID subOwnerId = UUID.fromString(dto.getSubOwnerId());
+				if (!loadedDtos.containsKey(subOwnerId)) {
+					loadedDtos.put(subOwnerId, getLookupService().lookupDto(dto.getSubOwnerType(), subOwnerId));
+				}
+				dto.getEmbedded().put(IdmAudit_.subOwnerId.getName(), loadedDtos.get(subOwnerId));
+			} catch (IllegalArgumentException ex) {
+				LOG.debug("Class [{}] not found on classpath (e.g. module was uninstalled)", dto.getSubOwnerType(), ex);
+			}
+		}
+
+		// For owner, some entities doesn't support owner and subowner
+		if (dto.getOwnerId() != null) {
+			try {
+				UUID ownerId = UUID.fromString(dto.getOwnerId());
+				if (!loadedDtos.containsKey(ownerId)) {
+					loadedDtos.put(ownerId, getLookupService().lookupDto(dto.getOwnerType(), ownerId));
+				}
+				dto.getEmbedded().put(IdmAudit_.ownerId.getName(), loadedDtos.get(ownerId));
+			} catch (IllegalArgumentException ex) {
+				LOG.debug("Class [{}] not found on classpath (e.g. module was uninstalled)", dto.getSubOwnerType(), ex);
+			}
+		}
+	}
+
+	@Override
+	protected IdmAuditFilter toFilter(MultiValueMap<String, Object> parameters) {
+		// We must check if map contains list of chnged attributes, because mapped doesnt works with list and zero values
+		List<String> changedAttributesList = null;
+		if (parameters.containsKey("changedAttributesList")) {
+			List<Object> remove = parameters.remove("changedAttributesList");
+			changedAttributesList = remove.stream().map(o -> Objects.toString(o.toString())).collect(Collectors.toList());
+		}
+
+		IdmAuditFilter filter = super.toFilter(parameters);
+		filter.setChangedAttributesList(changedAttributesList);
+		return filter;
 	}
 }

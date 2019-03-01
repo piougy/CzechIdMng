@@ -20,36 +20,50 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.EntityType;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.AuditQuery;
+import org.hibernate.envers.query.criteria.AuditConjunction;
+import org.hibernate.envers.query.criteria.AuditDisjunction;
+import org.hibernate.envers.query.criteria.AuditProperty;
+import org.hibernate.envers.query.projection.AuditProjection;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.plugin.core.OrderAwarePluginRegistry;
-import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditEntityDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -57,55 +71,172 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
-import eu.bcvsolutions.idm.core.audit.entity.service.AbstractAuditEntityService;
+import eu.bcvsolutions.idm.core.audit.entity.IdmAudit_;
 import eu.bcvsolutions.idm.core.audit.repository.IdmAuditRepository;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword_;
 import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Implementation of service for auditing
  * 
  * @see {@link IdmAuditListener}
  * @see {@link IdmAudit}
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 @Service
-public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto, IdmAudit, IdmAuditFilter> implements IdmAuditService {
+public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto, IdmAudit, IdmAuditFilter>
+		implements IdmAuditService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAuditService.class);
 	
 	@PersistenceContext
 	private EntityManager entityManager;
-	
 	private final IdmAuditRepository auditRepository;
-	
 	@LazyCollection(LazyCollectionOption.TRUE)
 	private List<String> allAuditedEntititesNames;
-	
-	private final PluginRegistry<AbstractAuditEntityService, Class<? extends AbstractEntity>> pluginExecutors; 
+	private FilterConverter filterConverter;
+	@Autowired(required = false)
+	@Qualifier("objectMapper")
+	private ObjectMapper mapper;
+	@Autowired
+	private LookupService lookupService;
 	
 	@Autowired
-	public DefaultAuditService(IdmAuditRepository auditRepository,
-			List<AbstractAuditEntityService> evaluators) {
+	public DefaultAuditService(IdmAuditRepository auditRepository) {
 		super(auditRepository);
 		//
 		Assert.notNull(auditRepository);
-		Assert.notNull(evaluators);
 		//
 		this.auditRepository = auditRepository;
-		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
 	}
-	
+
 	@Override
-	protected Page<IdmAudit> findEntities(IdmAuditFilter filter, Pageable pageable, BasePermission... permission) {
-		if (filter == null) {
-			return getRepository().findAll(pageable);
-		}
-		return auditRepository.find(filter, pageable);
+	public boolean supportsToDtoWithFilter() {
+		return true;
 	}
-	
+
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmAudit> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			IdmAuditFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+
+		// Id in audit is long
+		if (filter.getId() != null) {
+			predicates.add(builder.equal(root.get(IdmAudit_.id), filter.getId()));
+		}
+
+		// Text filtering is by id, is this really mandatory?
+		// TODO: thing about it
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.like(root.get(IdmAudit_.id).as(String.class), "%" + filter.getText().toLowerCase() + "%"));
+		}
+
+		if (StringUtils.isNotEmpty(filter.getModification())) {
+			predicates.add(builder.equal(root.get(IdmAudit_.modification), filter.getModification()));
+		}
+
+		/*
+		 * Changed attribute is deprecated and it will be removed
+		 */
+		if (StringUtils.isNotEmpty(filter.getChangedAttributes())) {
+			predicates.add(builder.like(builder.lower(root.get(IdmAudit_.changedAttributes)), "%" + filter.getChangedAttributes().toLowerCase() + "%"));
+		}
+
+		List<String> changedAttributes = filter.getChangedAttributesList();
+		if (changedAttributes != null && !changedAttributes.isEmpty()) {
+			List<Predicate> orPredicates = new ArrayList<>();
+			for (String attribute : changedAttributes) {
+				orPredicates.add(builder.like(builder.lower(root.get(IdmAudit_.changedAttributes)), "%" + attribute.toLowerCase() + "%"));
+			}
+			predicates.add(builder.or(orPredicates.toArray(new Predicate[orPredicates.size()])));
+		}
+
+		if (StringUtils.isNotEmpty(filter.getModifier())) {
+			predicates.add(builder.equal(root.get(IdmAudit_.modifier), filter.getModifier()));
+		}
+
+		if (filter.getEntityId() != null) {
+			predicates.add(builder.equal(root.get(IdmAudit_.entityId), filter.getEntityId()));
+		}
+
+		if (filter.getFrom() != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmAudit_.timestamp), filter.getFrom().getMillis()));
+		}
+		
+		if (filter.getTill() != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmAudit_.timestamp), filter.getTill().getMillis()));
+		}
+
+		if (StringUtils.isNotEmpty(filter.getType())) {
+			predicates.add(builder.equal(root.get(IdmAudit_.type), filter.getType()));
+		}
+
+		if (StringUtils.isNotEmpty(filter.getOwnerCode())) {
+			predicates.add(builder.equal(root.get(IdmAudit_.ownerCode), filter.getOwnerCode()));
+		}
+
+		if (StringUtils.isNotEmpty(filter.getOwnerType())) {
+			predicates.add(builder.equal(root.get(IdmAudit_.ownerType), filter.getOwnerType()));
+		}
+
+		if (StringUtils.isNotEmpty(filter.getOwnerId())) {
+			predicates.add(builder.equal(root.get(IdmAudit_.ownerId), filter.getOwnerId()));
+		}
+
+		if (filter.getOwnerIds() != null && !filter.getOwnerIds().isEmpty()) {
+			predicates.add(root.get(IdmAudit_.ownerId).in(filter.getOwnerIds()));
+		}
+		
+		if (StringUtils.isNotEmpty(filter.getSubOwnerCode())) {
+			predicates.add(builder.equal(root.get(IdmAudit_.subOwnerCode), filter.getSubOwnerCode()));
+		}
+
+		if (StringUtils.isNotEmpty(filter.getSubOwnerId())) {
+			predicates.add(builder.equal(root.get(IdmAudit_.subOwnerId), filter.getSubOwnerId()));
+		}
+
+		if (StringUtils.isNotEmpty(filter.getSubOwnerType())) {
+			predicates.add(builder.equal(root.get(IdmAudit_.subOwnerType), filter.getSubOwnerType()));
+		}
+		return predicates;
+	}
+
+	@Override
+	protected IdmAuditDto toDto(IdmAudit entity, IdmAuditDto dto, IdmAuditFilter filter) {
+		if (filter != null && BooleanUtils.isTrue(filter.isWithVersion())) {
+
+			Class<?> forName;
+			try {
+				forName = Class.forName(entity.getType());
+			} catch (ClassNotFoundException e) {
+				LOG.warn("Class for type [{}], doesn't exists.", entity.getType(), e);
+				return super.toDto(entity, dto, filter);
+			}
+
+			Object findVersion = findVersion(forName, entity.getEntityId(), Long.valueOf(entity.getId().toString()));
+
+			// For delete operation is current version null, we must find the last one
+			if (findVersion == null) {
+				findVersion = this.findPreviousVersion(Long.valueOf(entity.getId().toString()));
+			}
+			if (findVersion != null) {
+				IdmAuditEntityDto newDto = (IdmAuditEntityDto) super.toDto(entity, new IdmAuditEntityDto(), filter);
+				newDto.setEntity(getValuesFromVersion(findVersion));
+				return newDto;
+			}
+		}
+
+		return super.toDto(entity, dto, filter);
+	}
+
 	@Override
 	public <T> T findRevision(Class<T> classType, UUID entityId, Long revisionNumber) throws RevisionDoesNotExistException  {
 		return this.find(classType, entityId, revisionNumber);
@@ -476,7 +607,99 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		Assert.notNull(revisionId, MessageFormat.format("DefaultAuditService: method getPreviousRevision - current revision id [{0}] can't be null.", revisionId));
 		return this.findPreviousRevision(this.get(revisionId));
 	}
-	
+
+	@Override
+	public Page<IdmAuditDto> findLogin(IdmAuditFilter filter, Pageable pageable) {
+		// TODO: this behavior is much faster than search audit and then get request for version
+		// it will be nice if this will be used in eq identity role audit
+
+		// Create audit query for specific login audit
+		// Conjunction solve connection between successful and failed query
+		AuditConjunction conjunction = AuditEntity.conjunction();
+		// Disjunctions solves connection between each query condition, there are two conditions for successful and failed logins
+		AuditConjunction conjunctionForSuccessful = AuditEntity.conjunction();
+		AuditConjunction conjunctionForFailed = AuditEntity.conjunction();
+
+		AuditDisjunction disjunction = AuditEntity.disjunction();
+		
+		conjunctionForFailed.add(AuditEntity.revisionProperty(IdmAudit_.changedAttributes.getName()).ilike(IdmPassword_.unsuccessfulAttempts.getName(), MatchMode.ANYWHERE));
+		conjunctionForFailed.add(AuditEntity.property(IdmPassword_.modifier.getName()).eq(SecurityService.GUEST_NAME));
+		
+		conjunctionForSuccessful.add(AuditEntity.revisionProperty(IdmAudit_.changedAttributes.getName()).ilike(IdmPassword_.lastSuccessfulLogin.getName(), MatchMode.ANYWHERE));
+		
+		disjunction.add(conjunctionForSuccessful);
+		disjunction.add(conjunctionForFailed);
+		conjunction.add(disjunction);
+
+		if (StringUtils.isNotEmpty(filter.getOwnerId())) {
+			// 'coleration' attribute for connection with IdmAudit entity - ownerId
+			conjunction.add(AuditEntity.revisionProperty(IdmAudit_.ownerId.getName()).eq(filter.getOwnerId()));
+		}
+
+		if (StringUtils.isNotEmpty(filter.getOwnerCode())) {
+			// 'coleration' attribute for connection with IdmAudit entity - ownerCode
+			conjunction.add(AuditEntity.revisionProperty(IdmAudit_.ownerCode.getName()).eq(filter.getOwnerCode()));
+		}
+
+		if (filter.getFrom() != null) {
+			conjunction.add(AuditEntity.revisionProperty(IdmAudit_.timestamp.getName()).ge(filter.getFrom().getMillis()));
+		}
+
+		if (filter.getTill() != null) {
+			conjunction.add(AuditEntity.revisionProperty(IdmAudit_.timestamp.getName()).le(filter.getTill().getMillis()));
+		}
+
+		// Count is for pageable and check if is required made query
+		Object count = this.getAuditReader().createQuery().forRevisionsOfEntity(IdmPassword.class, false, true).add(conjunction).addProjection(AuditEntity.id().count()).getSingleResult();
+		Long countAsLong = null;
+		if (count != null && count instanceof Long) {
+			countAsLong =  (Long) count;
+		}
+
+		// Count is zero. Count is for queries better than real query
+		if (countAsLong == null || countAsLong == 0) {
+			return new PageImpl<IdmAuditDto>(Collections.emptyList() ,pageable, countAsLong);
+		}
+
+		// Create final query and solve pagination and order
+		AuditQuery query = this.getAuditReader().createQuery().forRevisionsOfEntity(IdmPassword.class, false, true).add(conjunction);
+		if (pageable != null) {
+			int maxResults = pageable.getPageSize();
+			int firstResult = pageable.getPageSize() * pageable.getPageNumber();
+			query.setMaxResults(maxResults).setFirstResult(firstResult);
+			
+			Sort sort = pageable.getSort();
+			if (sort != null) {
+				sort.forEach(order -> {
+					AuditProperty<Object> property = AuditEntity.revisionProperty(order.getProperty());
+					if (order.isAscending()) {
+						query.addOrder(property.asc());
+					} else {
+						query.addOrder(property.desc());
+					}
+				});
+			}
+		}
+
+		// Returned list contains three object IdmAudit, Version (IdmPassword) and type of modification
+		List<Object[]> resultList = query.getResultList();
+
+		// We doesn't need made again get for version, because version is in result form audit query
+		filter.setWithVersion(Boolean.FALSE);
+
+		// Iterate over all result and transform it into dtos
+		List<IdmAuditDto> result = new ArrayList<>();
+		for (Object[] object : resultList) {
+			Object version = object[0];
+			IdmAudit entity = (IdmAudit) object[1];
+			IdmAuditEntityDto newDto = (IdmAuditEntityDto) super.toDto(entity, new IdmAuditEntityDto(), filter);
+			newDto.setEntity(getValuesFromVersion(version));
+			result.add(newDto);
+		}
+		
+		return new PageImpl<IdmAuditDto>(result, pageable, Long.valueOf(count.toString()));
+	}
+
 	/**
 	 * Method get version for @param revisionId
 	 * 
@@ -541,13 +764,57 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 
 	@Override
 	public Page<IdmAuditDto> findEntityWithRelation(Class<? extends AbstractEntity> clazz, MultiValueMap<String, Object> parameters, Pageable pageable) {
-		AbstractAuditEntityService service = pluginExecutors.getPluginFor(clazz);
-		return this.toDtoPage(service.findRevisionBy(service.getFilter(parameters), pageable));
+		
+		IdmAuditFilter filter = this.getFilter(parameters);
+
+		// Backward compatibility
+		if (parameters.containsKey(IdmIdentity_.username.getName())) {
+			Object first = parameters.getFirst(IdmIdentity_.username.getName());
+			filter.setOwnerCode(String.valueOf(first));
+		}
+
+		filter.setOwnerType(clazz.getName());
+		return findEntityWithRelation(filter, pageable);
 	}
 
+	@Override
+	public Page<IdmAuditDto> findEntityWithRelation(IdmAuditFilter filter, Pageable pageable) {
+		// in entities can be more UUID, we search for all
+		List<String> entitiesIds = auditRepository.findDistinctOwnerIdByOwnerTypeAndOwnerCode(filter.getOwnerType(), filter.getOwnerCode());
+		// remove null values
+		entitiesIds.removeAll(Collections.singleton(null));
+		// no entity found for this code return empty list
+		if (entitiesIds.isEmpty()) {
+			return new PageImpl<>(Collections.emptyList());
+		}
+
+		if (!entitiesIds.isEmpty()) {
+			filter.setOwnerIds(entitiesIds);
+		}
+		return find(filter, pageable);
+	}
+	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public AbstractEntity getActualRemovedEntity(Class<AbstractEntity> entityClass, Object primaryKey) {
 		return (AbstractEntity) entityManager.find(entityClass, primaryKey);
+	}
+
+	public IdmAuditFilter getFilter(MultiValueMap<String, Object> parameters) {
+		IdmAuditFilter filter = getFilterConverter().toFilter(parameters, IdmAuditFilter.class);
+		//
+		return filter;
+	}
+
+	/**
+	 * Method used for backward compatibility with method {@link #findEntityWithRelation(Class, MultiValueMap, Pageable)}.
+	 *
+	 * @return
+	 */
+	private FilterConverter getFilterConverter() {
+		if (filterConverter == null) {
+			filterConverter = new FilterConverter(lookupService, mapper);
+		}
+		return filterConverter;
 	}
 }

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -18,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.TransactionStatus;
@@ -27,32 +29,46 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
- * Audit
+ * Audit tests
  * 
  * @author Ondrej Kopr
  */
 public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
-	@Autowired private TestHelper helper;
-	@Autowired private IdmAuditService auditService;
-	@Autowired private IdmRoleService roleService;
-	@Autowired private IdmIdentityService identityService;
-	@PersistenceContext private EntityManager entityManager;
+	@Autowired
+	private TestHelper helper;
+	@Autowired
+	private IdmAuditService auditService;
+	@Autowired
+	private IdmRoleService roleService;
+	@Autowired
+	private IdmIdentityService identityService;
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	@PersistenceContext
+	private EntityManager entityManager;
 
 	@Before
 	public void before() {
@@ -352,6 +368,250 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		assertEquals(4, audits.size());
 	}
 
+	@Test
+	public void testLoginAuditWithPagination() {
+		String password = "password-" + System.currentTimeMillis();
+		GuardedString passwordAsGuardedString = new GuardedString(password);
+		IdmIdentityDto identity = getHelper().createIdentity(passwordAsGuardedString);
+		
+		LoginDto loginDto = new LoginDto(identity.getUsername(), passwordAsGuardedString);
+		authenticationManager.authenticate(loginDto);
+		authenticationManager.authenticate(loginDto);
+		authenticationManager.authenticate(loginDto);
+		
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setOwnerId(identity.getId().toString());
+		PageRequest pageable = new PageRequest(0, 1);
+		Page<IdmAuditDto> findLogin = getTransactionTemplate().execute(new TransactionCallback<Page<IdmAuditDto>>() {
+			@Override
+			public Page<IdmAuditDto> doInTransaction(TransactionStatus status) {
+				return auditService.findLogin(filter, pageable);
+			}
+		});
+		
+		assertEquals(3, findLogin.getTotalElements());
+		assertEquals(1, findLogin.getContent().size());
+	}
+
+	@Test
+	public void testLoginAuditWithPaginationAndFailed() {
+		this.logout();
+
+		String password = "password-" + System.currentTimeMillis();
+		GuardedString passwordAsGuardedString = new GuardedString(password);
+		IdmIdentityDto identity = getHelper().createIdentity(passwordAsGuardedString);
+		
+		LoginDto loginDto = new LoginDto(identity.getUsername(), passwordAsGuardedString);
+		authenticationManager.authenticate(loginDto);
+		this.logout();
+		authenticationManager.authenticate(loginDto);
+		this.logout();
+		authenticationManager.authenticate(loginDto);
+		this.logout();
+		loginDto = new LoginDto(identity.getUsername(), new GuardedString("test-" + System.currentTimeMillis()));
+		
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (IdmAuthenticationException e) {
+			// Success
+		} catch (Exception e) {
+			fail();
+		}
+
+		this.logout();
+
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (IdmAuthenticationException e) {
+			// Success
+		} catch (Exception e) {
+			fail();
+		}
+
+		this.logout();
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setOwnerId(identity.getId().toString());
+		PageRequest pageable = new PageRequest(0, 1);
+
+		Page<IdmAuditDto> findLogin = getTransactionTemplate().execute(new TransactionCallback<Page<IdmAuditDto>>() {
+			@Override
+			public Page<IdmAuditDto> doInTransaction(TransactionStatus status) {
+				return auditService.findLogin(filter, pageable);
+			}
+		});
+		
+
+		assertEquals(5, findLogin.getTotalElements());
+		assertEquals(1, findLogin.getContent().size());
+	}
+
+	@Test
+	public void testLoginAuditWithoutPagination() {
+		String password = "password-" + System.currentTimeMillis();
+		GuardedString passwordAsGuardedString = new GuardedString(password);
+		IdmIdentityDto identity = helper.createIdentity(passwordAsGuardedString);
+		LoginDto loginDto = new LoginDto(identity.getUsername(), passwordAsGuardedString);
+		authenticationManager.authenticate(loginDto);
+		authenticationManager.authenticate(loginDto);
+		authenticationManager.authenticate(loginDto);
+		authenticationManager.authenticate(loginDto);
+		authenticationManager.authenticate(loginDto);
+
+		getTransactionTemplate().execute(new TransactionCallback<Object>() {
+			@Override
+			public Object doInTransaction(TransactionStatus status) {
+				IdmAuditFilter filter = new IdmAuditFilter();
+				filter.setOwnerId(identity.getId().toString());
+				Page<IdmAuditDto> findLogin = auditService.findLogin(filter, null);
+				assertEquals(5, findLogin.getTotalElements());
+				assertEquals(5, findLogin.getContent().size());
+				
+				return null;
+			}
+		});
+		
+	}
+
+	@Test
+	public void testLoginAuditWithPasswordChange() {
+		String password = "password-" + System.currentTimeMillis();
+		GuardedString passwordAsGuardedString = new GuardedString(password);
+		IdmIdentityDto identity = getHelper().createIdentity(passwordAsGuardedString);
+
+		LoginDto loginDto = new LoginDto(identity.getUsername(), passwordAsGuardedString);
+		authenticationManager.authenticate(loginDto);
+
+		String newPassword = "new-password-" + System.currentTimeMillis();
+		this.loginAsAdmin();
+		getTransactionTemplate().execute(new TransactionCallback<Object>() {
+
+			@Override
+			public Object doInTransaction(TransactionStatus status) {
+				PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
+				passwordChangeDto.setAll(true);
+				passwordChangeDto.setNewPassword(new GuardedString(newPassword));
+				identityService.passwordChange(identity, passwordChangeDto);
+				return null;
+			}
+		});
+		this.logout();
+
+		loginDto = new LoginDto(identity.getUsername(), passwordAsGuardedString);
+		authenticationManager.authenticate(loginDto);
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setOwnerId(identity.getId().toString());
+		List<IdmAuditDto> logins = getTransactionTemplate().execute(new TransactionCallback<List<IdmAuditDto>>() {
+			@Override
+			public List<IdmAuditDto> doInTransaction(TransactionStatus status) {
+				return auditService.findLogin(filter, null).getContent();
+			}
+		});
+
+		assertEquals(2, logins.size());
+	}
+
+	@Test
+	public void testFilteringByChangedAttributes() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		
+		identity.setFirstName(getHelper().createName());
+		identity.setLastName(getHelper().createName());
+		
+		identity = identityService.save(identity);
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setModification("MOD");
+		filter.setEntityId(identity.getId());
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.description.getName()));
+		
+		List<IdmAuditDto> content = auditService.find(filter, null).getContent();
+		assertEquals(0, content.size());
+
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.firstName.getName()));
+		content = auditService.find(filter, null).getContent();
+		IdmAuditDto auditDto = content.get(0);
+		assertEquals(1, content.size());
+		assertTrue(auditDto.getChangedAttributes().contains(IdmIdentity_.firstName.getName()));
+
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.firstName.getName(), IdmIdentity_.lastName.getName()));
+		content = auditService.find(filter, null).getContent();
+		IdmAuditDto nextAuditDto = content.get(0);
+		assertEquals(1, content.size());
+		assertEquals(auditDto.getId(), content.get(0).getId());	
+		assertTrue(nextAuditDto.getChangedAttributes().contains(IdmIdentity_.firstName.getName()));
+		assertTrue(nextAuditDto.getChangedAttributes().contains(IdmIdentity_.lastName.getName()));
+
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.firstName.getName(), IdmIdentity_.lastName.getName(), IdmIdentity_.description.getName()));
+		content = auditService.find(filter, null).getContent();
+		nextAuditDto = content.get(0);
+		assertEquals(1, content.size());
+		assertEquals(auditDto.getId(), content.get(0).getId());	
+		assertTrue(nextAuditDto.getChangedAttributes().contains(IdmIdentity_.firstName.getName()));
+		assertTrue(nextAuditDto.getChangedAttributes().contains(IdmIdentity_.lastName.getName()));
+		assertFalse(nextAuditDto.getChangedAttributes().contains(IdmIdentity_.description.getName()));
+	}
+
+	@Test
+	public void testFilteringByChangedAttributesMoreRecords() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		
+		identity.setFirstName(getHelper().createName());
+		identity.setLastName(getHelper().createName());
+		
+		identity = identityService.save(identity);
+	
+		identity.setEmail("email@example.tld");
+		
+		identity = identityService.save(identity);
+		
+		identity.setEmail("emailChanged@example.tld");
+		identity.setLastName(getHelper().createName());
+		
+		identity = identityService.save(identity);
+		
+		identity.setPhone("123456789");
+		
+		identity = identityService.save(identity);
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setModification("MOD");
+		filter.setEntityId(identity.getId());
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.description.getName()));
+		
+		List<IdmAuditDto> content = auditService.find(filter, null).getContent();
+		assertEquals(0, content.size());
+
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.firstName.getName()));
+		content = auditService.find(filter, null).getContent();
+		IdmAuditDto auditDto = content.get(0);
+		assertEquals(1, content.size());
+		assertTrue(auditDto.getChangedAttributes().contains(IdmIdentity_.firstName.getName()));
+
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.lastName.getName()));
+		content = auditService.find(filter, null).getContent();
+		assertEquals(2, content.size());
+		
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.firstName.getName(), IdmIdentity_.lastName.getName()));
+		content = auditService.find(filter, null).getContent();
+		assertEquals(2, content.size());
+		
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.email.getName(), IdmIdentity_.description.getName()));
+		content = auditService.find(filter, null).getContent();
+		assertEquals(2, content.size());
+
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.email.getName()));
+		content = auditService.find(filter, null).getContent();
+		assertEquals(2, content.size());
+
+		filter.setChangedAttributesList(Lists.newArrayList(IdmIdentity_.lastName.getName()));
+		content = auditService.find(filter, null).getContent();
+		assertEquals(2, content.size());
+	}
+	
 	private IdmRoleDto constructRole(String name) {
 		IdmRoleDto role = new IdmRoleDto();
 		role.setCode(name);

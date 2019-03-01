@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +29,14 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  */
 
 public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, IdmAuditFilter> {
-	
+
+	/**
+	 * From {@link AuditReader} is returned array with audit entity, audit version and modification.
+	 * These constat is used for access to elemen in array.
+	 */
+	int PROPERTY_AUDIT_VERSION = 0;
+	int PROPERTY_AUDIT_ENTITY = 1;
+
 	/**
 	 * Method find one revision by class type of entity, id revision and id identity.
 	 * Id of revision may be found by method {@link #findRevisions(Class, Long)}

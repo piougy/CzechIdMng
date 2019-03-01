@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -15,6 +16,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.hibernate.envers.RevisionType;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,9 +34,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditEntityDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -611,7 +615,236 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		content = auditService.find(filter, null).getContent();
 		assertEquals(2, content.size());
 	}
-	
+
+	@Test
+	public void testToDtoWithoutVersion() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		identity.setDescription("description-" + System.currentTimeMillis());
+		identity = identityService.save(identity);
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setEntityId(identity.getId());
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+
+		assertEquals(2, audits.size());
+
+		for (IdmAuditDto audit : audits) {
+			assertFalse(audit instanceof IdmAuditEntityDto);
+		}
+
+		filter = new IdmAuditFilter();
+		filter.setEntityId(identity.getId());
+		filter.setWithVersion(Boolean.FALSE);
+		audits = auditService.find(filter, null).getContent();
+
+		assertEquals(2, audits.size());
+
+		for (IdmAuditDto audit : audits) {
+			assertFalse(audit instanceof IdmAuditEntityDto);
+		}
+	}
+
+	@Test
+	public void testToDtoWithVersion() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		String newDescription = "description-" + System.currentTimeMillis();
+		identity.setDescription(newDescription);
+		identity = identityService.save(identity);
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setEntityId(identity.getId());
+		filter.setWithVersion(Boolean.TRUE);
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+
+		assertEquals(2, audits.size());
+
+		for (IdmAuditDto audit : audits) {
+			assertTrue(audit instanceof IdmAuditEntityDto);
+			IdmAuditEntityDto auditEntity = (IdmAuditEntityDto) audit;
+			assertNotNull(auditEntity.getEntity());
+
+			// Check attribute for MOD
+			if (auditEntity.getModification().equals("MOD")) {
+				assertTrue(auditEntity.getEntity().containsKey(IdmIdentity_.description.getName()));
+				Object description = auditEntity.getEntity().get(IdmIdentity_.description.getName());
+				assertNotNull(description);
+				assertEquals(newDescription, description);
+			}
+		}
+	}
+
+	@Test
+	public void testFilterById() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setEntityId(identity.getId());
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+		assertEquals(1, audits.size());
+		IdmAuditDto auditDto = audits.get(0);
+
+		filter = new IdmAuditFilter();
+		filter.setId(auditDto.getId());
+		audits = auditService.find(filter, null).getContent();
+
+		assertEquals(1, audits.size());
+		assertEquals(auditDto.getId(), audits.get(0).getId());
+	}
+
+	@Test
+	public void testFilterByText() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setEntityId(identity.getId());
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+		assertEquals(1, audits.size());
+		IdmAuditDto auditDto = audits.get(0);
+
+		// This is little bit dangerous because is possible found by text another audit logs.
+		filter = new IdmAuditFilter();
+		filter.setText(auditDto.getId().toString());
+		audits = auditService.find(filter, null).getContent();
+
+		assertEquals(1, audits.size());
+		assertEquals(auditDto.getId(), audits.get(0).getId());
+	}
+
+	@Test
+	public void testFilterByFrom() {
+		long from = System.currentTimeMillis();
+		IdmIdentityDto identity = getHelper().createIdentity();
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setEntityId(identity.getId());
+		filter.setFrom(new DateTime(from));
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+		assertEquals(1, audits.size());
+		IdmAuditDto auditDto = audits.get(0);
+		assertEquals(identity.getId(), auditDto.getEntityId());
+	}
+
+	@Test
+	public void testFilterByFromAndTill() {
+		long from = System.currentTimeMillis();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		long tillOne = System.currentTimeMillis();
+		identity.setDescription("description-" + System.currentTimeMillis());
+		identity = identityService.save(identity);
+		long tillTwo = System.currentTimeMillis();
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setEntityId(identity.getId());
+		filter.setFrom(new DateTime(from));
+		filter.setTill(new DateTime(tillOne));
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+		assertEquals(1, audits.size());
+		IdmAuditDto auditDto = audits.get(0);
+		assertEquals(identity.getId(), auditDto.getEntityId());
+
+		filter = new IdmAuditFilter();
+		filter.setEntityId(identity.getId());
+		filter.setFrom(new DateTime(from));
+		filter.setTill(new DateTime(tillTwo));
+		audits = auditService.find(filter, null).getContent();
+		assertEquals(2, audits.size());
+
+		for (IdmAuditDto aud : audits) {
+			assertEquals(identity.getId(), aud.getEntityId());
+		}
+	}
+
+	@Test
+	public void testFilterByOwnerId() {
+		IdmIdentityDto identity = this.getHelper().createIdentity();
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setOwnerId(identity.getId().toString());
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+
+		for (IdmAuditDto audit : audits) {
+			assertEquals(identity.getId().toString(), audit.getOwnerId());
+			assertEquals(identity.getUsername(), audit.getOwnerCode());
+			assertEquals(IdmIdentity.class.getName(), audit.getOwnerType());
+		}
+	}
+
+	@Test
+	public void testFilterByOwnerCode() {
+		IdmIdentityDto identity = this.getHelper().createIdentity();
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setOwnerCode(identity.getUsername());
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+
+		for (IdmAuditDto audit : audits) {
+			assertEquals(identity.getId().toString(), audit.getOwnerId());
+			assertEquals(identity.getUsername(), audit.getOwnerCode());
+			assertEquals(IdmIdentity.class.getName(), audit.getOwnerType());
+		}
+	}
+
+	@Test
+	public void testFilterBySubownerId() {
+		IdmIdentityDto identity = this.getHelper().createIdentity();
+		IdmRoleDto role = this.getHelper().createRole();
+		IdmIdentityRoleDto identityRole = this.getHelper().createIdentityRole(identity, role);
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setSubOwnerId(role.getId().toString());
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+		assertEquals(1, audits.size());
+
+		IdmAuditDto auditDto = audits.get(0);
+
+		assertEquals(identity.getId().toString(), auditDto.getOwnerId());
+
+		assertEquals(role.getId().toString(), auditDto.getSubOwnerId());
+
+		assertEquals(identityRole.getId(), auditDto.getEntityId());
+	}
+
+	@Test
+	public void testFilterBySubownerCode() {
+		IdmIdentityDto identity = this.getHelper().createIdentity();
+		IdmRoleDto role = this.getHelper().createRole();
+		IdmIdentityRoleDto identityRole = this.getHelper().createIdentityRole(identity, role);
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setSubOwnerCode(role.getCode());
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+		assertEquals(1, audits.size());
+
+		IdmAuditDto auditDto = audits.get(0);
+
+		assertEquals(identity.getUsername(), auditDto.getOwnerCode());
+
+		assertEquals(role.getCode(), auditDto.getSubOwnerCode());
+
+		assertEquals(identityRole.getId(), auditDto.getEntityId());
+	}
+
+	@Test
+	public void testFilterBySubownerType() {
+		IdmIdentityDto identity = this.getHelper().createIdentity();
+		IdmRoleDto role = this.getHelper().createRole();
+		IdmIdentityRoleDto identityRole = this.getHelper().createIdentityRole(identity, role);
+
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setSubOwnerId(role.getId().toString());
+		filter.setSubOwnerType(IdmRole.class.getName());
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+		assertEquals(1, audits.size());
+
+		IdmAuditDto auditDto = audits.get(0);
+
+		assertEquals(IdmIdentity.class.getName(), auditDto.getOwnerType());
+
+		assertEquals(IdmRole.class.getName(), auditDto.getSubOwnerType());
+
+		assertEquals(identityRole.getId(), auditDto.getEntityId());
+	}
+
 	private IdmRoleDto constructRole(String name) {
 		IdmRoleDto role = new IdmRoleDto();
 		role.setCode(name);

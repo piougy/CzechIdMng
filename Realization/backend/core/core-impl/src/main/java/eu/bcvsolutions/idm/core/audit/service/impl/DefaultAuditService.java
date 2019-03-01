@@ -652,13 +652,13 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		// Count is for pageable and check if is required made query
 		Object count = this.getAuditReader().createQuery().forRevisionsOfEntity(IdmPassword.class, false, true).add(conjunction).addProjection(AuditEntity.id().count()).getSingleResult();
 		Long countAsLong = null;
-		if (count != null && count instanceof Long) {
+		if (count instanceof Long) {
 			countAsLong =  (Long) count;
 		}
 
 		// Count is zero. Count is for queries better than real query
 		if (countAsLong == null || countAsLong == 0) {
-			return new PageImpl<IdmAuditDto>(Collections.emptyList() ,pageable, countAsLong);
+			return new PageImpl<IdmAuditDto>(Collections.emptyList(), pageable, 0);
 		}
 
 		// Create final query and solve pagination and order
@@ -690,14 +690,14 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		// Iterate over all result and transform it into dtos
 		List<IdmAuditDto> result = new ArrayList<>();
 		for (Object[] object : resultList) {
-			Object version = object[0];
-			IdmAudit entity = (IdmAudit) object[1];
+			Object version = object[PROPERTY_AUDIT_VERSION];
+			IdmAudit entity = (IdmAudit) object[PROPERTY_AUDIT_ENTITY];
 			IdmAuditEntityDto newDto = (IdmAuditEntityDto) super.toDto(entity, new IdmAuditEntityDto(), filter);
 			newDto.setEntity(getValuesFromVersion(version));
 			result.add(newDto);
 		}
 		
-		return new PageImpl<IdmAuditDto>(result, pageable, Long.valueOf(count.toString()));
+		return new PageImpl<IdmAuditDto>(result, pageable, countAsLong);
 	}
 
 	/**

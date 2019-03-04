@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import java.util.List;
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -7,6 +10,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 
 public interface AccAccountManagementService {
+	
+	/**
+	 * We needs accounts (IDs) which were connected to deleted identity-role in next processors (we want to execute provisioning only for that accounts).
+	 */
+	public static final String ACCOUNT_IDS_FOR_DELETED_IDENTITY_ROLE = "account-ids-for-deleted-identity-role";
 
 	/**
 	 * Create or delete accounts for this identity according their roles
@@ -19,8 +27,9 @@ public interface AccAccountManagementService {
 	 * Identity role is deleting, we have to delete linked identity accounts
 	 * 
 	 * @param entity
+	 * @return list of accounts IDs (used this identity-role)
 	 */
-	void deleteIdentityAccount(IdmIdentityRoleDto identityRole);
+	List<UUID> deleteIdentityAccount(IdmIdentityRoleDto identityRole);
 	
 	/**
 	 * Identity role is deleting, we have to delete linked identity accounts, or mark them for delete
@@ -40,4 +49,22 @@ public interface AccAccountManagementService {
 	 * @return
 	 */
 	String generateUID(AbstractDto dto, SysRoleSystemDto roleSystem);
+
+	/**
+	 * Create new identity-accounts and accounts for given identity-roles
+	 * 
+	 * @param identity
+	 * @param identityRoles
+	 * @return List account's IDs for modified by this action (for this accounts provisioning should be executed).
+	 */
+	List<UUID> resolveNewIdentityRoles(IdmIdentityDto identity, IdmIdentityRoleDto... identityRoles);
+
+	/**
+	 * Create or delete identity-accounts and accounts for given identity-roles
+	 * 
+	 * @param identity
+	 * @param identityRoles
+	 * @return List account's IDs for modified by this action (for this accounts provisioning should be executed).
+	 */
+	List<UUID> resolveUpdatedIdentityRoles(IdmIdentityDto identity, IdmIdentityRoleDto... identityRoles);
 }

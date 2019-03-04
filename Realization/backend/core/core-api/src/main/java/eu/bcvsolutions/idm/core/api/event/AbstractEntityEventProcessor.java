@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -337,7 +338,6 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 	 * Return true if event properties contains given property and this property is true.
 	 * If event does not contains this property, then return false.
 	 * 
-	 * TODO: Move to utils
 	 * @param property
 	 * @param properties
 	 * @return
@@ -348,6 +348,29 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 			return false;
 		}
 		return properties.getBooleanValue(property);
+	}
+	
+	
+	
+	@SuppressWarnings("unchecked")
+	/**
+	 * Return list of values from event properties. Returns null, if value doesn't
+	 * exists for given property or if value is not instance of List.
+	 * 
+	 * @param property
+	 * @param event
+	 * @param type
+	 * @return
+	 */
+	protected <T> List<T> getListProperty(String property, EntityEvent<IdmRoleRequestDto> event, Class<T> type) {
+		Assert.notNull(property, "Name of event property cannot be null!");
+		Serializable value = event.getProperties().get(property);
+		if (value instanceof List) {
+			List<?> list = (List<?>) value;
+			return (List<T>) Lists.newArrayList(list);
+		}
+
+		return Lists.newArrayList();
 	}
 	
 	/**

@@ -42,6 +42,7 @@ public interface ProvisioningService {
 	 * Property in event. If the value is TRUE, then the provisioning is skipped. Skipping must be implemented in every processor for now!
 	 */
 	static final String SKIP_PROVISIONING = "skip_provisioning";
+	static final String SKIP_ACM = "skip_acm";
 
 	/**
 	 * Do provisioning for given content (dto) on all connected systems

@@ -25,7 +25,7 @@ public class AccAccountFilter extends DataFilter {
 	private AccountType accountType;
 	private Boolean ownership;
 	private Boolean supportChangePassword;
-	private SystemEntityType entityType;  
+	private SystemEntityType entityType;
 	
 	public AccAccountFilter() {
 		this(new LinkedMultiValueMap<>());

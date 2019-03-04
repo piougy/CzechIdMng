@@ -15,6 +15,16 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 public class IdmAccountDto implements BaseDto {
 
 	public static final String PARAMETER_NAME = "account"; // account in parameters (eg. operation result, event paramaeters)
+	/**
+	 * Ugly place for this, but we need to have this in core module.
+	 * Property in event. If the value is TRUE, then the provisioning is skipped. Skipping must be implemented in every processor for now!
+	 */
+	public static final String SKIP_PROVISIONING = "skip_provisioning";
+	public static final String SKIP_ACM = "skip_acm";
+	/**
+	 * We needs accounts (IDs) which were connected to deleted identity-role in next processors (we want to execute provisioning only for that accounts).
+	 */
+	public static final String ACCOUNT_IDS_FOR_DELETED_IDENTITY_ROLE = "account-ids-for-deleted-identity-role";
 	//
 	private static final long serialVersionUID = 1L;
 	//

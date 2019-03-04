@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.dto.filter;
 
+import java.util.List;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -21,6 +22,7 @@ public class AccIdentityAccountFilter implements BaseFilter, EntityAccountFilter
 	private Boolean ownership;
 	// Results will be without identity-account with given ID
 	private UUID notIdentityAccount;
+	private List<UUID> identityRoleIds;
 
 	public Boolean isOwnership() {
 		return ownership;
@@ -93,6 +95,14 @@ public class AccIdentityAccountFilter implements BaseFilter, EntityAccountFilter
 
 	public void setNotIdentityAccount(UUID notIdentityAccount) {
 		this.notIdentityAccount = notIdentityAccount;
+	}
+
+	public List<UUID> getIdentityRoleIds() {
+		return identityRoleIds;
+	}
+
+	public void setIdentityRoleIds(List<UUID> identityRoleIds) {
+		this.identityRoleIds = identityRoleIds;
 	}
 
 }

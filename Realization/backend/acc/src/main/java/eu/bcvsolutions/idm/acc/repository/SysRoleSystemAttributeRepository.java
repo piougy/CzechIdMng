@@ -36,7 +36,10 @@ public interface SysRoleSystemAttributeRepository extends AbstractEntityReposito
 	 * 
 	 * @param roleSystem
 	 * @return
+	 * @deprecated Method doesn't put merge values in historical controled values.
+	 * @since 9.5.0
 	 */
+	@Deprecated
 	int deleteByRoleSystem(@Param("roleSystem") SysRoleSystem roleSystem);
 	
 	/**

@@ -3,7 +3,6 @@ import React, { PropTypes } from 'react';
 import * as Basic from '../../basic';
 //
 import AbstractComponent from '../../basic/AbstractComponent/AbstractComponent';
-import CronTabUi from 'crontab-ui';
 // import Datetime from 'react-datetime';
 
 class CronTab extends AbstractComponent {
@@ -23,15 +22,9 @@ class CronTab extends AbstractComponent {
         );
       }
       return (
-        <CronTabUi/>
+        <div/>
       );
     }
 }
-
-// CronTabUi.PropTypes {
-// }
-// CronTabUi.defaultProps {
-// }
-
 
 export default CronTab;

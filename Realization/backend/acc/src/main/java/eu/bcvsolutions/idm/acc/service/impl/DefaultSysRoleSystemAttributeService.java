@@ -241,10 +241,14 @@ public class DefaultSysRoleSystemAttributeService extends
 			systemAttributeMapping.setEvictControlledValuesCache(true);
 			systemAttributeMapping = systemAttributeMappingService.save(systemAttributeMapping);
 			
+			super.delete(roleSystemAttribute, permission);
+			
 			// If is mapped attribute marks as evicted, then we will start LRT for recalculation controlled values
-			if (!systemAttributeMappingService.isNew(systemAttributeMapping) && systemAttributeMapping.isEvictControlledValuesCache() == true) {
+			if (!systemAttributeMappingService.isNew(systemAttributeMapping) && systemAttributeMapping.isEvictControlledValuesCache()) {
+				// Recalculate controlled values
 				recalculationOfControlledValues(systemAttributeMapping);
 			}
+			return;
 		}
 		
 

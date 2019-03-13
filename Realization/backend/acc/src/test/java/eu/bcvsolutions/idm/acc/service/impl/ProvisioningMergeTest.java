@@ -670,9 +670,6 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		// Remove whole mapping (this is different between another tests)
 		roleSystemService.delete(roleSystemOne);
 		
-		attributeMappingService.recalculateAttributeControlledValues(system.getId(), mapping.getEntityType(),
-				RIGHTS_ATTRIBUTE, rightsAttribute);
-		
 		controlledAttributeValues = attributeMappingService
 				.getControlledAttributeValues(system.getId(), mapping.getEntityType(), RIGHTS_ATTRIBUTE);
 
@@ -692,9 +689,6 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 
 		// Remove second whole mapping (this is different between another tests)
 		roleSystemService.delete(roleSystemTwo);
-
-		attributeMappingService.recalculateAttributeControlledValues(system.getId(), mapping.getEntityType(),
-				RIGHTS_ATTRIBUTE, rightsAttribute);
 		
 		controlledAttributeValues = attributeMappingService
 				.getControlledAttributeValues(system.getId(), mapping.getEntityType(), RIGHTS_ATTRIBUTE);

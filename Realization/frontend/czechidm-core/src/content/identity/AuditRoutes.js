@@ -2,6 +2,13 @@ import React from 'react';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 
+/**
+ * Audit routes
+ *
+ * @author Ondrej Kopr
+ * @since 9.5.0
+ */
+
 export default class AuditRoutes extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -25,9 +32,3 @@ export default class AuditRoutes extends Basic.AbstractContent {
     );
   }
 }
-
-AuditRoutes.propTypes = {
-};
-
-AuditRoutes.defaultProps = {
-};

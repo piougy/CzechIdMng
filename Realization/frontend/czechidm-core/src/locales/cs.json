@@ -3122,7 +3122,7 @@
         "label": "Audit změn hesla",
         "created": "Datum změny hesla",
         "creator": "Změnu hesla provedl",
-        "idmOnlyInfo": "Auditní záznamy pro změnu hesla jsou zde zobrazeny pouze proti změnám provedených proti aplikaci CzechIdM. Pokud je změna hesla proti systému CzechIdM vypnutá, nebo není systém CzechIdM vybrán. Není možné auditovat změnu hesla."
+        "idmOnlyInfo": "<strong>Jsou zobrazeny auditní záznamy pro změnu hesla</strong> pouze pro změny, které byly provedeny proti  <strong>aplikaci CzechIdM </strong>. Pokud je změna hesla v systému CzechIdM vypnutá, nebo není systém CzechIdM vybrán, není možné auditovat změnu hesla."
       },
       "logging-event": {
         "title": "Logované události",
@@ -3588,7 +3588,7 @@
       },
       "roleCataloguePicker": "Výběr složky z katalogu",
       "directRole": {
-        "label": "Role napřímo",
+        "label": "Přiděleno díky roli",
         "title": "Napřímo přidělená role, díky které je přidělena i tato role. Napřímo přidělená role zahrnuje tuto roli.",
         "help": "$t(entity.IdentityRole.directRole.title)"
       }

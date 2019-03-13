@@ -85,12 +85,12 @@ module.exports = {
             },
             {
               path: 'login',
-              component: require('./src/content/identity/AuditLogin'),
+              component: require('./src/content/identity/AuditLogins'),
               access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
             },
             {
               path: 'password-change',
-              component: require('./src/content/identity/AuditPasswordChange'),
+              component: require('./src/content/identity/AuditPasswordChanges'),
               access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
             }
           ]

@@ -3071,7 +3071,7 @@
         "label": "Audit of password cahnge",
         "created": "Password change date",
         "creator": "Password change made",
-        "idmOnlyInfo": "Audit records for password change are shown here only when password change is made against the CzechIdM application. If the change of password against the CzechIdM system is disabled or the CzechIdM system is not selected during password change. Isn't possible audit the password change."
+        "idmOnlyInfo": "<strong>Audit records for password change</strong> are shown here only when password change is made against the  <strong>CzechIdM application</strong>. If the change of password against the CzechIdM system is disabled or the CzechIdM system is not selected during password change. Isn't possible audit the password change."
       },
       "logging-event": {
         "title": "Logging events",
@@ -3537,7 +3537,7 @@
       },
       "roleCataloguePicker": "Select a folder from the catalog",
       "directRole": {
-        "label": "Direct role",
+        "label": "Assigned by role",
         "title": "Directly assigned role, which assigned this role as well (business role).",
         "help": "$t(entity.IdentityRole.directRole.title)"
       }

@@ -7,7 +7,13 @@ import { IdentityManager } from '../../redux/data';
 
 const identityManager = new IdentityManager();
 
-class AuditLogin extends Basic.AbstractContent {
+/**
+ * Audit of logines
+ *
+ * @author Ondrej Kopr
+ * @since 9.5.0
+ */
+class AuditLogins extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -25,30 +31,24 @@ class AuditLogin extends Basic.AbstractContent {
 
   render() {
     const { identity } = this.props;
+    if (!identity) {
+      return (
+        <Basic.Div showLoading>
+          <Helmet title={this.i18n('title')} />
+        </Basic.Div>
+      );
+    }
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-
-        <Basic.Panel className="no-border last">
-          {
-            !identity
-            ||
-            <AuditIdentityLoginTable
-              singleUserMod
-              id={identity.id}
-              uiKey={`identity-login-audit-table-${identity.id}`}/>
-          }
-        </Basic.Panel>
+          <AuditIdentityLoginTable
+            singleUserMod
+            id={identity.id}
+            uiKey={`identity-login-audit-table-${identity.id}`}/>
       </div>
     );
   }
 }
-
-AuditLogin.propTypes = {
-};
-
-AuditLogin.defaultProps = {
-};
 
 function select(state, component) {
   const { entityId } = component.params;
@@ -57,4 +57,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(AuditLogin);
+export default connect(select)(AuditLogins);

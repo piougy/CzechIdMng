@@ -7,7 +7,13 @@ import { IdentityManager } from '../../redux/data';
 
 const identityManager = new IdentityManager();
 
-class AuditPasswordChange extends Basic.AbstractContent {
+/**
+ * Audit of password changes
+ *
+ * @author Ondrej Kopr
+ * @since 9.5.0
+ */
+class AuditPasswordChanges extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -25,29 +31,24 @@ class AuditPasswordChange extends Basic.AbstractContent {
 
   render() {
     const { identity } = this.props;
+    if (!identity) {
+      return (
+        <Basic.Div showLoading>
+          <Helmet title={this.i18n('title')} />
+        </Basic.Div>
+      );
+    }
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <Basic.Panel className="no-border last">
-          {
-            !identity
-            ||
-            <AuditIdentityPasswordChangeTable
-              singleUserMod
-              id={identity.id}
-              uiKey={`identity-password-change-audit-table-${identity.id}`}/>
-          }
-        </Basic.Panel>
+          <AuditIdentityPasswordChangeTable
+            singleUserMod
+            id={identity.id}
+            uiKey={`identity-password-change-audit-table-${identity.id}`}/>
       </div>
     );
   }
 }
-
-AuditPasswordChange.propTypes = {
-};
-
-AuditPasswordChange.defaultProps = {
-};
 
 function select(state, component) {
   const { entityId } = component.params;
@@ -56,4 +57,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(AuditPasswordChange);
+export default connect(select)(AuditPasswordChanges);

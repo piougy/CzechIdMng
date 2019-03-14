@@ -16,10 +16,9 @@ public interface IdmContractSliceService extends
 		AuthorizableService<IdmContractSliceDto>,
 		ScriptEnabled {
 	
-
-	public final String SKIP_RECALCULATE_CONTRACT_SLICE = "skip-recalculate-contract-slice";
-	public final String FORCE_RECALCULATE_CURRENT_USING_SLICE = "force-recalculate-current-using-slice";
-	public final String SKIP_CONTRACT_SLICE_SAVE = "skip-contract-slice-save"; // skip all slice recalculation (ContractSliceSaveRecalculateProcessor)
-	public final String SET_DIRTY_STATE_CONTRACT_SLICE = "set-dirty-state-contract-slice"; // during recalculation set dirty state, the dirty state must fix ClearDirtyStateForContractSliceTaskExecutor 
+	String SKIP_RECALCULATE_CONTRACT_SLICE = "skip-recalculate-contract-slice";
+	String FORCE_RECALCULATE_CURRENT_USING_SLICE = "force-recalculate-current-using-slice";
+	String SKIP_CONTRACT_SLICE_SAVE = "skip-contract-slice-save"; // skip all slice recalculation (ContractSliceSaveRecalculateProcessor)
+	String SET_DIRTY_STATE_CONTRACT_SLICE = "set-dirty-state-contract-slice"; // during recalculation set dirty state, the dirty state must fix ClearDirtyStateForContractSliceTaskExecutor 
 
 }

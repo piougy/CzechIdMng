@@ -4770,6 +4770,29 @@
         "label": "Odebrat",
         "help": "Odstraní vybrané položky číselníku.",
         "icon": "fa:trash"
+      },
+      "core-duplicate-role-bulk-action": {
+        "label": "Duplikovat roli",
+        "help": "Vytvoření nové (či aktualizace) role se stejným kódem ve vybraném prostředí. Akce aktualizuje nastavení automatických rolí a stukturu sub rolí.",
+        "icon": "fa:clone",
+        "attributes": {
+          "environment": {
+            "label": "Prostředí",
+            "help": "Cílové prostředí. Pokud není zadáno, je role duplikována v rámci jednoho prostředí - je vytvořena role se stejným názvem a kódem se suffixem."
+          },
+          "include-automatic-role": {
+            "label": "Duplikovat automatické role",
+            "help": "Vytvoří (či aktualizuje) nakonfigurované automatické role."
+          },
+          "include-role-composition": {
+            "label": "Duplikovat podřazené role",
+            "help": "Vytvoří (či aktializuje) podřazené role dle definice business role (rekurzivně)."
+          },
+          "include-role-form-attribute": {
+            "label": "Duplikovat attributy role",
+            "help": "Vytvoří (či aktializuje) nakonfigurované attributy role."
+          }
+        }
       }
     },
     "authorization-evaluator": {

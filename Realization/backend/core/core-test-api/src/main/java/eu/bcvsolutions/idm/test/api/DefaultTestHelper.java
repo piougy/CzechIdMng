@@ -288,11 +288,18 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmRoleDto createRole(UUID id, String code) {
+		return createRole(id, code, null);
+	}
+	
+	@Override
+	public IdmRoleDto createRole(UUID id, String baseCode, String environment) {
 		IdmRoleDto role = new IdmRoleDto();
 		if (id != null) {
 			role.setId(id);
 		}
-		role.setCode(code == null ? createName() : code);
+		role.setBaseCode(baseCode == null ? createName() : baseCode);
+		role.setEnvironment(environment);
+		//
 		return roleService.save(role);
 	}
 	
@@ -645,10 +652,20 @@ public class DefaultTestHelper implements TestHelper {
 	public void enable(Class<? extends EntityEventProcessor<?>> processorType) {
 		enableProcessor(processorType, true);
 	}
+	
+	@Override
+	public void enableProcessor(String processorId) {
+		entityEventManager.setEnabled(processorId, true);
+	}
 
 	@Override
 	public void disable(Class<? extends EntityEventProcessor<?>> processorType) {
 		enableProcessor(processorType, false);
+	}
+	
+	@Override
+	public void disableProcessor(String processorId) {
+		entityEventManager.setEnabled(processorId, false);
 	}
 	
 	@Override
@@ -707,7 +724,11 @@ public class DefaultTestHelper implements TestHelper {
 	}
 
 	private void enableProcessor(Class<? extends EntityEventProcessor<?>> processorType, boolean enabled) {
-		entityEventManager.setEnabled(context.getBean(processorType).getId(), enabled);
+		enableProcessor(context.getBean(processorType).getId(), enabled);
+	}
+	
+	private void enableProcessor(String processorId, boolean enabled) {
+		entityEventManager.setEnabled(processorId, enabled);
 	}
 	
 	private void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType, boolean enabled) {

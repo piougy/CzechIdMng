@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.bulk.action.impl;
+package eu.bcvsolutions.idm.core.bulk.action.impl.role;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
  * @author svandav
  *
  */
-@Component("roleDeleteBulkAction")
+@Component(RoleDeleteBulkAction.NAME)
 @Description("Delete given roles.")
 public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, IdmRoleFilter> {
 

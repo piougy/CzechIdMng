@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -44,16 +45,21 @@ public class RoleCompositionDeleteProcessor
 	public EventResult<IdmRoleCompositionDto> process(EntityEvent<IdmRoleCompositionDto> event) {
 		IdmRoleCompositionDto roleComposition = event.getContent();
 		//
-		if (roleComposition.getId() != null) {
-			//
-			// delete all assigned roles gained by this automatic role by long running task
-			RemoveRoleCompositionTaskExecutor roleCompositionTask = AutowireHelper.createBean(RemoveRoleCompositionTaskExecutor.class);
-			roleCompositionTask.setRoleCompositionId(roleComposition.getId());
-			longRunningTaskManager.execute(roleCompositionTask);
-			// TODO: new flag asynchronous?
-			return new DefaultEventResult.Builder<>(event, this).setSuspended(true).build();
+		if (roleComposition.getId() == null) {
+			return new DefaultEventResult<>(event, this);
 		}
 		//
-		return new DefaultEventResult<>(event, this);
+		// delete all assigned roles gained by this automatic role by long running task
+		RemoveRoleCompositionTaskExecutor roleCompositionTask = AutowireHelper.createBean(RemoveRoleCompositionTaskExecutor.class);
+		roleCompositionTask.setRoleCompositionId(roleComposition.getId());
+		if (event.getPriority() == PriorityType.IMMEDIATE) {
+			longRunningTaskManager.executeSync(roleCompositionTask);
+			return new DefaultEventResult<>(event, this);
+		}
+		//
+		roleCompositionTask.setRequireNewTransaction(true);
+		longRunningTaskManager.execute(roleCompositionTask);
+		// TODO: new flag asynchronous?
+		return new DefaultEventResult.Builder<>(event, this).setSuspended(true).build();
 	}
 }

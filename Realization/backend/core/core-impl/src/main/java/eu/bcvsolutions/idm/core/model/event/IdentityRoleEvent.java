@@ -17,7 +17,7 @@ public class IdentityRoleEvent extends CoreEvent<IdmIdentityRoleDto> {
 
 	private static final long serialVersionUID = 1L;
 	//
-	public static final String PROPERTY_PROCESSED_ROLES = "idm:processed-roles"; // event property, contains Set<UUID>
+	public static final String PROPERTY_PROCESSED_ROLES = RoleEvent.PROPERTY_PROCESSED_ROLES; // event property, contains Set<UUID> of processed roles (used for crole composition processing for the prevent cycles)
 
 	/**
 	 * Supported identity events

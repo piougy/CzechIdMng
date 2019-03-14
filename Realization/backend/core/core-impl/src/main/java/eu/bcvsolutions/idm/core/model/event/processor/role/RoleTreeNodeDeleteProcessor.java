@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -47,6 +48,15 @@ public class RoleTreeNodeDeleteProcessor extends CoreEventProcessor<IdmRoleTreeN
 			// delete all assigned roles gained by this automatic role by long running task
 			RemoveAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
 			automaticRoleTask.setAutomaticRoleId(roleTreeNode.getId());
+			if (event.getPriority() == PriorityType.IMMEDIATE) {
+				longRunningTaskManager.executeSync(automaticRoleTask);
+				return new DefaultEventResult.Builder<>(event, this).build();
+			}
+			//
+			automaticRoleTask.setContinueOnException(true);
+			if (longRunningTaskManager.isAsynchronous()) {
+				automaticRoleTask.setRequireNewTransaction(true);
+			}
 			longRunningTaskManager.execute(automaticRoleTask);
 			// TODO: new flag asynchronous?
 			return new DefaultEventResult.Builder<>(event, this).setSuspended(true).build();

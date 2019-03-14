@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
@@ -50,6 +51,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -224,6 +226,12 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void removeAutomaticRoles(UUID contractId, Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
+		removeAutomaticRolesInternal(contractId, automaticRoles);
+	}
+	
+	@Override
+	@Transactional
+	public void removeAutomaticRolesInternal(UUID contractId, Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
 		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
 			IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
 			identityRoleFilter.setIdentityContractId(contractId);
@@ -252,6 +260,13 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void addAutomaticRoles(IdmIdentityContractDto contract, Set<AbstractIdmAutomaticRoleDto> automaticRoles) {		
+		addAutomaticRolesInternal(contract, automaticRoles);
+	}
+	
+	@Override
+	@Transactional
+	public void addAutomaticRolesInternal(IdmIdentityContractDto contract,
+			Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
 		createIdentityRoles(contract, null, automaticRoles);
 	}
 	
@@ -384,15 +399,34 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Transactional
 	public IdmAutomaticRoleAttributeDto recalculate(UUID automaticRoleId) {
 		Assert.notNull(automaticRoleId);
+		IdmAutomaticRoleAttributeDto automaticRole = get(automaticRoleId);
+		Assert.notNull(automaticRole);
+		//
+		EntityEvent<IdmAutomaticRoleAttributeDto> event = new AutomaticRoleAttributeEvent(AutomaticRoleAttributeEventType.UPDATE, automaticRole);
+		event.setPriority(PriorityType.NORMAL);
+		//
+		return recalculate(event);
+	}
+	
+	@Override
+	@Transactional
+	public IdmAutomaticRoleAttributeDto recalculate(EntityEvent<IdmAutomaticRoleAttributeDto> event) {
+		Assert.notNull(event);
+		IdmAutomaticRoleAttributeDto automaticRolAttributeDto = event.getContent();
+		Assert.notNull(automaticRolAttributeDto.getId());
 		//
 		// set concept to false before recalculation
-		IdmAutomaticRoleAttributeDto automaticRolAttributeDto = this.get(automaticRoleId);
 		automaticRolAttributeDto.setConcept(false);
 		automaticRolAttributeDto = this.save(automaticRolAttributeDto);
 		//
 		ProcessAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByAttributeTaskExecutor.class);
-		automaticRoleTask.setAutomaticRoleId(automaticRoleId);
-		longRunningTaskManager.execute(automaticRoleTask);
+		automaticRoleTask.setAutomaticRoleId(automaticRolAttributeDto.getId());
+		if (event.getPriority() == PriorityType.IMMEDIATE) {
+			automaticRoleTask.setAsync(false);
+			longRunningTaskManager.executeSync(automaticRoleTask);
+		} else {
+			longRunningTaskManager.execute(automaticRoleTask);
+		}
 		//
 		return automaticRolAttributeDto;
 	}

@@ -90,12 +90,13 @@ export default class FormAttributeManager extends EntityManager {
       return undefined;
     }
     //
-    const definitionPrefix = FormDefinitionManager.getLocalizationPrefix(_formDefinition, withModule);
     if (!formAttribute) {
       // definition prefix only
-      return definitionPrefix;
+      return FormDefinitionManager.getLocalizationPrefix(_formDefinition, withModule);
     }
+    const definitionPrefix = FormDefinitionManager.getLocalizationPrefix(_formDefinition, false);
+    const resolvedModule = formAttribute.module || _formDefinition.module; // attribute module has higher priority
     //
-    return `${definitionPrefix}.attributes.${Utils.Ui.spinalCase(formAttribute.code)}`;
+    return `${withModule && resolvedModule ? resolvedModule + ':' : ''}${definitionPrefix}.attributes.${Utils.Ui.spinalCase(formAttribute.code)}`;
   }
 }

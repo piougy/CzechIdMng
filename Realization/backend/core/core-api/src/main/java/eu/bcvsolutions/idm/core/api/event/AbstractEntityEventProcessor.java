@@ -328,7 +328,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 			return false;
 		}
 		if (propertyValue instanceof String) {
-			return Boolean.valueOf((String) propertyValue);
+			return Boolean.parseBoolean((String) propertyValue);
         }
 		//
 		Assert.isInstanceOf(Boolean.class, propertyValue, MessageFormat

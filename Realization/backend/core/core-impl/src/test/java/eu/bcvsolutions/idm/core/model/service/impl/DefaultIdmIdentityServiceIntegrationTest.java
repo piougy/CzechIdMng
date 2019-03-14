@@ -5,15 +5,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.validation.ConstraintViolationException;
 
 import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableMap;
@@ -371,5 +374,18 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		//
 		Assert.assertEquals(1, identities.size());
 		Assert.assertEquals(validIdentity.getId(), identities.get(0).getId());
+	}
+	
+	@Test
+	@Ignore // FIXME: why it's not working ?
+	public void testFindIdsWithPageRequest() {
+		// just for sure some two identity exists
+		getHelper().createIdentity((GuardedString) null);
+		getHelper().createIdentity((GuardedString) null);
+		//
+		UUID firstIdentity = identityService.findIds(null, new PageRequest(0, 1)).getContent().get(0);
+		UUID secondIdentity = identityService.findIds(null, new PageRequest(1, 1)).getContent().get(0);
+		//
+		Assert.assertNotEquals(firstIdentity, secondIdentity);
 	}
 }

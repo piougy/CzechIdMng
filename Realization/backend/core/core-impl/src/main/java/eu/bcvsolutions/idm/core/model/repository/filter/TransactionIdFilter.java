@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.repository.filter.BaseFilterBuilder;
  * Common filter on transaction id
  * 
  * @author Radek Tomiška
+ * @since 9.5.0
  */
 @Component
 public class TransactionIdFilter<E extends AbstractEntity> extends BaseFilterBuilder<E, DataFilter> {

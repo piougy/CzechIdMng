@@ -55,7 +55,7 @@ public class FormInstanceValidateProcessor
 		IdmFormInstanceDto formInstance = event.getContent();
 		Assert.notNull(formInstance.getFormDefinition());
 		//
-		IdmFormDefinitionDto formDefinition = formService.getDefinition(formInstance.getFormDefinition().getId());
+		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
 		Assert.notNull(formDefinition);
 		//
 		// get distinct attributes from the sent values

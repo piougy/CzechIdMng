@@ -88,7 +88,7 @@ export class AuditIdentityPasswordChangeTable extends Advanced.AbstractTableCont
     return (
       <div>
         <Advanced.Table
-          header={<Basic.Alert level="warning" showHtmlText text={this.i18n('idmOnlyInfo')} className="no-margin" style={{fontSize: 14}}/>}
+          header={<Basic.Alert level="warning" showHtmlText text={this.i18n('idmOnlyInfo')} style={{ fontSize: 14, margin: 0 }}/>}
           ref="table"
           filterOpened
           uiKey={ uiKey }

@@ -41,10 +41,10 @@ class AuditLogins extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-          <AuditIdentityLoginTable
-            singleUserMod
-            id={identity.id}
-            uiKey={`identity-login-audit-table-${identity.id}`}/>
+        <AuditIdentityLoginTable
+          singleUserMod
+          id={identity.id}
+          uiKey={`identity-login-audit-table-${identity.id}`}/>
       </div>
     );
   }

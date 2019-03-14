@@ -646,7 +646,7 @@
       "APPROVED": "Approved"
     },
     "NotificationStateEnum": {
-      "ALL": "Send",
+      "ALL": "Sent",
       "PARTLY": "Partly",
       "NOT": "Not sent"
     },

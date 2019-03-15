@@ -269,12 +269,14 @@ public class DefaultIdmConceptRoleRequestService extends
 					
 			// Load sub definition by role
 			IdmFormDefinitionDto formDefinitionDto = roleService.getFormAttributeSubdefinition(roleDto);
-			// Save form values for sub-definition
-			List<IdmFormValueDto> savedValues = formService.saveValues(savedDto, formDefinitionDto, attributeValues);
-			IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
-			formInstance.setValues(savedValues);
-			savedDto.getEavs().clear();
-			savedDto.getEavs().add(formInstance);
+			if (formDefinitionDto != null) {
+				// Save form values for sub-definition
+				List<IdmFormValueDto> savedValues = formService.saveValues(savedDto, formDefinitionDto, attributeValues);
+				IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+				formInstance.setValues(savedValues);
+				savedDto.getEavs().clear();
+				savedDto.getEavs().add(formInstance);
+			}
 		}
 
 		return savedDto;

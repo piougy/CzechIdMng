@@ -14,6 +14,7 @@ let manager = null;
  * Table component to display overridden attributes
  *
  * @author Vít Švanda
+ * @since 9.5.0
  */
 export class RoleSystemAttributeTable extends Advanced.AbstractTableContent {
 
@@ -68,10 +69,10 @@ export class RoleSystemAttributeTable extends Advanced.AbstractTableContent {
     }
   }
 
-  getDefaultSearchParameters() {
+/*  getDefaultSearchParameters() {
     // TODO make this work!!!
     return this.getManager().getDefaultSearchParameters();
-  }
+  }*/
 
   render() {
     const {
@@ -97,7 +98,7 @@ export class RoleSystemAttributeTable extends Advanced.AbstractTableContent {
     //
     return (
       <div>
-      <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
@@ -125,7 +126,8 @@ export class RoleSystemAttributeTable extends Advanced.AbstractTableContent {
                 {this.i18n('button.add')}
               </Basic.Button>
             ]
-          }>
+          }
+          _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             property=""
             header=""

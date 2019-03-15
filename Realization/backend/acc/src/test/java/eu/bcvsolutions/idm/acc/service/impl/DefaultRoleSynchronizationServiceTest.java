@@ -117,6 +117,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	private FormService formService;
 
 	private SysSystemDto system;
+	
 	@Before
 	public void init() {
 		loginAsAdmin();
@@ -451,7 +452,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		Assert.assertNull(ten);
 
 		// Create mapping for provisioning
-		this.createProvisionigMapping();
+		SysSystemMappingDto mapping = this.createProvisionigMapping();
 
 		// Save IDM role (must invoke provisioning)
 		roleService.save(roleTen);
@@ -459,10 +460,15 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		// Check state before provisioning
 		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
 		Assert.assertNotNull(ten);
+		// Delete role mapping
+		systemMappingService.delete(mapping);
 	}
 	
 	@Test
 	public void provisioningD_UpdateAccount() {
+		
+		// Create mapping for provisioning
+		SysSystemMappingDto mapping = this.createProvisionigMapping();
 		
 		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.code.getName());
@@ -485,10 +491,16 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
 		Assert.assertNotNull(ten);
 		Assert.assertEquals(10, ten.getPriority());
+		
+		// Delete role mapping
+		systemMappingService.delete(mapping);
 	}
 	
 	@Test
 	public void provisioningD_UpdateAccount_Extended_Attribute() {
+		
+		// Create mapping for provisioning
+		SysSystemMappingDto mapping = this.createProvisionigMapping();
 		
 		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.code.getName());
@@ -513,10 +525,16 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
 		Assert.assertNotNull(ten);
 		Assert.assertEquals(now.toString(DATE_TABLE_CONNECTOR_FORMAT), ten.getModified().toString(DATE_TABLE_CONNECTOR_FORMAT));
+		
+		// Delete role mapping
+		systemMappingService.delete(mapping);
 	}
 	
 	@Test
 	public void provisioningF_DeleteAccount() {
+		
+		// Create mapping for provisioning
+		SysSystemMappingDto mapping = this.createProvisionigMapping();
 		
 		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.code.getName());
@@ -533,6 +551,9 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		
 		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
 		Assert.assertNull(ten);
+		
+		// Delete role mapping
+		systemMappingService.delete(mapping);
 	}
 
 	@Transactional
@@ -542,7 +563,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		q.executeUpdate();
 	}
 
-	private void createProvisionigMapping() {
+	private SysSystemMappingDto createProvisionigMapping() {
 
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
@@ -563,7 +584,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 		createMapping(systemService.get(schemaObjectClassService.get(systemMappingSync.getObjectClass()).getSystem()),
 				syncMapping);
-
+		return syncMapping;
 	}
 	
 	private void initData() {

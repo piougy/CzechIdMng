@@ -132,6 +132,8 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 		
 		// Delete role
 		roleService.delete(defaultRole);
+		// Delete role mapping
+		systemMappingService.delete(mapping);
 	}
 	
 	@Test
@@ -157,6 +159,8 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 		
 		// Delete role
 		roleService.delete(defaultRole);
+		// Delete role mapping
+		systemMappingService.delete(mapping);
 	}
 	
 	

@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -66,10 +66,7 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 
 	public static final String NAME = "core-identity-role-by-identity-deduplication-bulk-action";
 
-	public static final String PRIMARY_CONTRACT_CODE = "mainContract";
 	public static final String CHECK_SUBDEFINITION_CODE = "checkSubdefinition";
-	public static final String CHECK_VALIDITY_FROM_CODE = "checkValidityFrom";
-	public static final String CHECK_VALIDITY_TILL_CODE = "checkValidityTill";
 	public static final String APPROVE_CODE = "approve";
 
 	@Autowired
@@ -199,7 +196,7 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 		Boolean skipSubdefinition = !isCheckSubdefinition();
 
 		// Identity roles must be sorted by create, for duplicities with manually will be removed always the newer.
-		Pageable page = new PageRequest(0, Integer.MAX_VALUE, new Sort(Direction.DESC, IdmIdentity_.created.getName()));
+		Pageable page = new PageRequest(0, Integer.MAX_VALUE, new Sort(Direction.DESC, IdmIdentityRole_.created.getName()));
 		
 		List<IdmIdentityRoleDto> duplicities = new ArrayList<>();
 
@@ -233,7 +230,12 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 		for (Entry<UUID, List<IdmIdentityRoleDto>> entry : duplictRoles.entrySet()) {
 			List<IdmIdentityRoleDto> duplicitIdentityRoles = entry.getValue();
 
-			List<IdmIdentityRoleDto> manuallyAddedRoles = duplicitIdentityRoles.stream().filter(idenityRole -> { return idenityRole.getAutomaticRole() == null && idenityRole.getDirectRole() == null; }).collect(Collectors.toList());
+			List<IdmIdentityRoleDto> manuallyAddedRoles = duplicitIdentityRoles //
+					.stream() //
+					.filter(idenityRole -> { //
+						return idenityRole.getAutomaticRole() == null && idenityRole.getDirectRole() == null;
+					}) //
+					.collect(Collectors.toList());
 			// Copy of manually added roles is for prevent comparing with already removed role
 			List<IdmIdentityRoleDto> manuallyAddedRolesCopy = new ArrayList<>(manuallyAddedRoles);
 

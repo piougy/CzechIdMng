@@ -3068,7 +3068,7 @@
         }
       },
       "identityPasswordChange": {
-        "label": "Audit of password cahnge",
+        "label": "Audit of password change",
         "created": "Password change date",
         "creator": "Password change made",
         "idmOnlyInfo": "<strong>Audit records for password change</strong> are shown here only when password change is made against the  <strong>CzechIdM application</strong>. If the change of password against the CzechIdM system is disabled or the CzechIdM system is not selected during password change. Isn't possible audit the password change."
@@ -4727,8 +4727,8 @@
         "icon": "fa:clone",
         "attributes": {
           "checksubdefinition": {
-            "label": "Check subdefinition",
-            "help": "Check subdefinitions and their values. The role will be removed if subdefinition except values is equals as another another role."
+            "label": "Check role attributes",
+            "help": "Check role attributes and their values. The role will be removed if attributes except values is equals as another another role."
           },
           "approve": {
             "label": "Approve",

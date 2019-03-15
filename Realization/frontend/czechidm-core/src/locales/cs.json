@@ -4777,8 +4777,8 @@
         "icon": "fa:clone",
         "attributes": {
           "checksubdefinition": {
-            "label": "Kontrolovat subdefinice",
-            "help": "Kontrolovat subdefinice a jejich hodnoty. ROle bude odebrána pouze pokud její subdefinice včetně všech hodnot je stejná jako jiná."
+            "label": "Kontrolovat atributy rolí",
+            "help": "Kontrolovat atributy rolí a jejich hodnoty. Role bude odebrána pouze pokud její atributy včetně všech hodnot je stejná jako jiná."
           },
           "approve": {
             "label": "Schvalovat",

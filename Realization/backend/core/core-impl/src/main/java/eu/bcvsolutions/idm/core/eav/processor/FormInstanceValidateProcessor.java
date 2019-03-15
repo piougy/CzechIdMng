@@ -55,7 +55,7 @@ public class FormInstanceValidateProcessor
 		IdmFormInstanceDto formInstance = event.getContent();
 		Assert.notNull(formInstance.getFormDefinition());
 		//
-		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(formInstance.getFormDefinition().getId());
 		Assert.notNull(formDefinition);
 		//
 		// get distinct attributes from the sent values
@@ -65,6 +65,10 @@ public class FormInstanceValidateProcessor
 				.stream()
 				.map(IdmFormValueDto::getFormAttribute)
 				.map(attributeId -> {
+					IdmFormAttributeDto mappedAttribute = formInstance.getFormDefinition().getMappedAttribute(attributeId);
+					if (mappedAttribute != null) {
+						return mappedAttribute;
+					}
 					return formDefinition.getMappedAttribute(attributeId);
 				})
 				.collect(Collectors.toSet());

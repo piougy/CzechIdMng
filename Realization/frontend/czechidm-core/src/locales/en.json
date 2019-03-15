@@ -3068,7 +3068,7 @@
         }
       },
       "identityPasswordChange": {
-        "label": "Audit of password cahnge",
+        "label": "Audit of password change",
         "created": "Password change date",
         "creator": "Password change made",
         "idmOnlyInfo": "<strong>Audit records for password change</strong> are shown here only when password change is made against the  <strong>CzechIdM application</strong>. If the change of password against the CzechIdM system is disabled or the CzechIdM system is not selected during password change. Isn't possible audit the password change."
@@ -4720,6 +4720,21 @@
         "label": "Remove",
         "help": "Remove selected code list items.",
         "icon": "fa:trash"
+      },
+      "core-identity-role-by-identity-deduplication-bulk-action": {
+        "label": "Role deduplication",
+        "help": "Removes duplicate assigned roles. Removes only manually assigned roles, duplicates with business, automatic, or other manually assigned role.",
+        "icon": "fa:clone",
+        "attributes": {
+          "checksubdefinition": {
+            "label": "Check role attributes",
+            "help": "Check role attributes and their values. The role will be removed if attributes except values is equals as another another role."
+          },
+          "approve": {
+            "label": "Approve",
+            "help": "After check, the role remove will be approved."
+          }
+        }
       },
       "core-duplicate-role-bulk-action": {
         "label": "Duplicate role",

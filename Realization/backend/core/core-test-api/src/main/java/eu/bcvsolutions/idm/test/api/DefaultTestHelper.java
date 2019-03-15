@@ -855,4 +855,9 @@ public class DefaultTestHelper implements TestHelper {
 	public IdmProfileDto createProfile(IdmIdentityDto identity) {
 		return profileService.findOrCreateByIdentity(identity.getId());
 	}
+	
+	@Override
+	public void recalculateAutomaticRoleByAttribute(UUID automaticRoleId) {
+		automaticRoleAttributeService.recalculate(automaticRoleId);
+	}
 }

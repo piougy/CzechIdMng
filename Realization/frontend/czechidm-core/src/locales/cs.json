@@ -4771,6 +4771,21 @@
         "help": "Odstraní vybrané položky číselníku.",
         "icon": "fa:trash"
       },
+      "core-identity-role-by-identity-deduplication-bulk-action": {
+        "label": "Deduplikace rolí",
+        "help": "Odstraní duplicitně přidělené role. Odstraňuje pouze ručně přidělené role, při nalezení duplicity s byznys, automatickou, nebo jinou ručně přidělenou rolí.",
+        "icon": "fa:clone",
+        "attributes": {
+          "checksubdefinition": {
+            "label": "Kontrolovat atributy rolí",
+            "help": "Kontrolovat atributy rolí a jejich hodnoty. Role bude odebrána pouze pokud její atributy včetně všech hodnot je stejná jako jiná."
+          },
+          "approve": {
+            "label": "Schvalovat",
+            "help": "Po zaškrtnutí bude odebrání role/rolí schvalováno."
+          }
+        }
+      },
       "core-duplicate-role-bulk-action": {
         "label": "Duplikovat roli",
         "help": "Vytvoření nové (či aktualizace) role se stejným kódem ve vybraném prostředí. Akce aktualizuje nastavení automatických rolí a stukturu sub rolí.",

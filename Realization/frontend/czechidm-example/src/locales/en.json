@@ -161,6 +161,14 @@
             "help": "The character that will be used to separate the columns"
           }
         }
+      },
+      "core-duplicate-role-bulk-action": {
+        "attributes": {
+          "include-log": {
+            "label": "Log duplicate",
+            "help": "Info log about role duplicate is created (by example module)."
+          }
+        }
       }
     },
     "value-generator": {

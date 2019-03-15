@@ -161,6 +161,14 @@
             "help": "Znak který bude použitý pro oddělení sloupců"
           }
         }
+      },
+      "core-duplicate-role-bulk-action": {
+        "attributes": {
+          "include-log": {
+            "label": "Zaloguj duplikaci role",
+            "help": "Vytvoří info log při vytvoření duplikátu (by example module)."
+          }
+        }
       }
     },
     "value-generator": {

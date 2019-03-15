@@ -72,7 +72,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	@Spy private ModelMapper modelMapper = new ModelMapper();
 	@Spy private ObjectMapper mapper = new ObjectMapper();
 	//
-	@InjectMocks private DefaultEntityEventManager eventManager;
+	@InjectMocks private DefaultEntityEventManager manager;
 	
 	@Test
 	public void testCreatedEventsEmpty() {
@@ -94,7 +94,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any()))
 				.thenReturn(new PageImpl<>(events));
 		//
-		Assert.assertTrue(eventManager.getCreatedEvents("instance").isEmpty());
+		Assert.assertTrue(manager.getCreatedEvents("instance").isEmpty());
 	}
 	
 	@Test
@@ -116,7 +116,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 0));
 		
-		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
+		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
 		Assert.assertEquals(100, events.size());
 		Assert.assertTrue(events.stream().allMatch(e -> e.getPriority() == PriorityType.HIGH));
@@ -141,7 +141,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 100));
 		
-		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
+		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
 		Assert.assertEquals(100, events.size());
 		Assert.assertTrue(events.stream().allMatch(e -> e.getPriority() == PriorityType.NORMAL));
@@ -166,7 +166,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 30));
 		
-		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
+		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
 		Assert.assertEquals(70, events.stream().filter(e -> e.getPriority() == PriorityType.HIGH).collect(Collectors.toList()).size());
 		Assert.assertEquals(30, events.stream().filter(e -> e.getPriority() == PriorityType.NORMAL).collect(Collectors.toList()).size());
@@ -191,7 +191,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 50));
 		
-		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
+		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
 		Assert.assertEquals(65, events.stream().filter(e -> e.getPriority() == PriorityType.HIGH).collect(Collectors.toList()).size());
 		Assert.assertEquals(35, events.stream().filter(e -> e.getPriority() == PriorityType.NORMAL).collect(Collectors.toList()).size());
@@ -240,7 +240,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any()))
 				.thenReturn(new PageImpl<>(normalEvents));
 		//
-		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
+		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
 		// highEventTwo - highEventOne - normalEventTwo - normalEventOne
 		Assert.assertEquals(4, events.size());
@@ -298,7 +298,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
 				.thenReturn(new PageImpl<>(new ArrayList<>()));
 		//
-		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
+		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
 		// normalEventTwo (high now) - highEventOne - normalEventOne
 		Assert.assertEquals(3, events.size());
@@ -365,7 +365,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
 				.thenReturn(new PageImpl<>(new ArrayList<>()));
 		//
-		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
+		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
 		// normalEventTwo (high now) - highEventOne - normalEventOne
 		Assert.assertEquals(3, events.size());
@@ -397,10 +397,10 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		highEventThree.setOwnerId(ownerId);	
 		highEventThree.setParentEventType("two");
 		//
-		Assert.assertTrue(eventManager.isDuplicate(highEventOne, highEventOne));
-		Assert.assertTrue(eventManager.isDuplicate(highEventOne, highEventTwo));
-		Assert.assertFalse(eventManager.isDuplicate(highEventOne, highEventThree));
-		Assert.assertFalse(eventManager.isDuplicate(highEventTwo, highEventThree));
+		Assert.assertTrue(manager.isDuplicate(highEventOne, highEventOne));
+		Assert.assertTrue(manager.isDuplicate(highEventOne, highEventTwo));
+		Assert.assertFalse(manager.isDuplicate(highEventOne, highEventThree));
+		Assert.assertFalse(manager.isDuplicate(highEventTwo, highEventThree));
 	}
 	
 	@Test
@@ -422,93 +422,93 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		eventTwo.setEventType("type");
 		eventTwo.setParentEventType("one");
 		//
-		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertTrue(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventTwo.setParentEventType("two");
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventTwo.setParentEventType("one");
 		eventTwo.setEventType("type2");
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventTwo.setEventType("type");
 		eventOne.getProperties().put("one", "one");
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventTwo.getProperties().put("one", "one");
 		//
-		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertTrue(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventTwo.getProperties().put("one", "one2");
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventTwo.getProperties().put("one", "one");
 		//
-		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertTrue(manager.isDuplicate(eventOne, eventTwo));
 		//
 		IdmIdentityDto originalSourceOne = new IdmIdentityDto(UUID.randomUUID());
 		eventOne.setOriginalSource(originalSourceOne);
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventOne.setOriginalSource(null);
 		eventTwo.setOriginalSource(originalSourceOne);
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
-		Assert.assertFalse(eventManager.isDuplicate(eventTwo, eventOne));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventTwo, eventOne));
 		//
 		eventOne.setOriginalSource(new IdmIdentity(originalSourceOne.getId()));
 		eventTwo.setOriginalSource(originalSourceOne);
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventOne.setOriginalSource(new IdmIdentity(originalSourceOne.getId()));
 		eventTwo.setOriginalSource(new IdmIdentity(UUID.randomUUID()));
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventOne.setOriginalSource(new IdmIdentity(originalSourceOne.getId()));
 		eventTwo.setOriginalSource(new IdmIdentity(originalSourceOne.getId()));
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventOne.setOriginalSource(originalSourceOne);
 		eventTwo.setOriginalSource(new IdmIdentity(originalSourceOne.getId()));
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
 		//
 		eventOne.setOriginalSource(originalSourceOne);
 		eventTwo.setOriginalSource(originalSourceOne);
 		//
-		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertTrue(manager.isDuplicate(eventOne, eventTwo));
 		//
 		IdmIdentityDto originalSourceTwo = new IdmIdentityDto(originalSourceOne.getId());
 		eventTwo.setOriginalSource(originalSourceTwo);
 		//
-		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertTrue(manager.isDuplicate(eventOne, eventTwo));
 		//
 		IdmIdentityDto embedded =  new IdmIdentityDto(UUID.randomUUID());
 		originalSourceOne.getEmbedded().put("embedded", embedded);
 		//
-		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertTrue(manager.isDuplicate(eventOne, eventTwo));
 		Assert.assertEquals(embedded, originalSourceOne.getEmbedded().get("embedded"));
 		//
 		originalSourceTwo.setFirstName("hoho");
 		//
-		Assert.assertFalse(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertFalse(manager.isDuplicate(eventOne, eventTwo));
 		//
 		originalSourceOne.setFirstName("hoho");
 		//
-		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertTrue(manager.isDuplicate(eventOne, eventTwo));
 		//
 		// audit fields are ignored
 		originalSourceOne.setModified(new DateTime());
 		//
-		Assert.assertTrue(eventManager.isDuplicate(eventOne, eventTwo));
+		Assert.assertTrue(manager.isDuplicate(eventOne, eventTwo));
 		
 	}
 	
@@ -557,7 +557,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
 				.thenReturn(new PageImpl<>(new ArrayList<>()));
 		//
-		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
+		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		Assert.assertEquals(1, events.size());
 		Assert.assertTrue(events.stream().anyMatch(e -> e.getId().equals(highEventTwo.getId())));
 		verify(entityEventService).delete(highEventOne);
@@ -621,7 +621,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
 				.thenReturn(new PageImpl<>(new ArrayList<>()));
 		//
-		List<IdmEntityEventDto> events = eventManager.getCreatedEvents("instance");
+		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
 		// normalEventTwo (high now)
 		Assert.assertEquals(1, events.size());
@@ -635,17 +635,17 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		MockAsyncProcessor two = new MockAsyncProcessor(null);
 		MockAsyncProcessor three = new MockAsyncProcessor(null);
 		//
-		Assert.assertNull(eventManager.evaluatePriority(null, Lists.newArrayList()));
-		Assert.assertNull(eventManager.evaluatePriority(null, Lists.newArrayList(one, two, three)));
+		Assert.assertNull(manager.evaluatePriority(null, Lists.newArrayList()));
+		Assert.assertNull(manager.evaluatePriority(null, Lists.newArrayList(one, two, three)));
 		//
 		two.priority = PriorityType.NORMAL;
-		Assert.assertEquals(PriorityType.NORMAL, eventManager.evaluatePriority(null, Lists.newArrayList(one, two, three)));
+		Assert.assertEquals(PriorityType.NORMAL, manager.evaluatePriority(null, Lists.newArrayList(one, two, three)));
 		//
 		one.priority = PriorityType.HIGH;
-		Assert.assertEquals(PriorityType.HIGH, eventManager.evaluatePriority(null, Lists.newArrayList(one, two, three)));
+		Assert.assertEquals(PriorityType.HIGH, manager.evaluatePriority(null, Lists.newArrayList(one, two, three)));
 		//
 		three.priority = PriorityType.IMMEDIATE;
-		Assert.assertEquals(PriorityType.IMMEDIATE, eventManager.evaluatePriority(null, Lists.newArrayList(one, two, three)));
+		Assert.assertEquals(PriorityType.IMMEDIATE, manager.evaluatePriority(null, Lists.newArrayList(one, two, three)));
 	}
 	
 	@Test
@@ -656,7 +656,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		//
 		IdmEntityEventDto entityEvent = new IdmEntityEventDto(UUID.randomUUID());
 		MockOwner mockOwner =  new MockOwner();
-		entityEvent.setOwnerType(eventManager.getOwnerType(mockOwner.getClass()));
+		entityEvent.setOwnerType(manager.getOwnerType(mockOwner.getClass()));
 		entityEvent.setOwnerId((UUID) mockOwner.getId());
 		entityEvent.setContent(mockOwner);
 		entityEvent.setPriority(PriorityType.NORMAL);
@@ -665,7 +665,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		entityEvent.getProperties().put("one", "one");
 		entityEvent.setParentEventType(CoreEventType.UPDATE.name());
 		//
-		EntityEvent<?> event = eventManager.toEvent(entityEvent);
+		EntityEvent<?> event = manager.toEvent(entityEvent);
 		//
 		Assert.assertEquals(mockOwner, event.getContent());
 		Assert.assertEquals(CoreEventType.NOTIFY.name(), event.getType().name());
@@ -686,7 +686,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		//
 		when(lookupService.lookupDto(IdmIdentity.class, mockOwner.getId())).thenReturn(mockOwner);
 		//
-		EntityEvent<?> event = eventManager.toEvent(entityEvent);
+		EntityEvent<?> event = manager.toEvent(entityEvent);
 		//
 		Assert.assertEquals(mockOwner, event.getContent());
 		Assert.assertEquals(CoreEventType.NOTIFY.name(), event.getType().name());
@@ -701,7 +701,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		//
 		when(lookupService.lookupDto(IdmIdentity.class, entityEvent.getOwnerId())).thenReturn(null);
 		//
-		eventManager.toEvent(entityEvent);
+		manager.toEvent(entityEvent);
 	}
 	
 	@Test
@@ -717,11 +717,29 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		props.put(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE, executeDate);
 		props.put(EntityEvent.EVENT_PROPERTY_PRIORITY, PriorityType.HIGH);
 		//
-		IdmEntityEventDto entityEvent = eventManager.prepareEvent(identity, new CoreEvent<>(CoreEventType.CREATE, identity, props));
+		IdmEntityEventDto entityEvent = manager.prepareEvent(identity, new CoreEvent<>(CoreEventType.CREATE, identity, props));
 		//
 		Assert.assertEquals("mockInstance", entityEvent.getInstanceId());
 		Assert.assertEquals(executeDate, entityEvent.getExecuteDate());
 		Assert.assertEquals(PriorityType.HIGH, entityEvent.getPriority());
+	}
+	
+	@Test
+	public void testPropagatePropertiesFromParentEvent() {
+		UUID eventId = UUID.randomUUID();
+		EntityEvent<?> event = new CoreEvent<>(CoreEventType.CREATE, new IdmIdentityDto());
+		event.setId(eventId);
+		//
+		EntityEvent<?> parentEvent = new CoreEvent<>(CoreEventType.CREATE, new IdmIdentityDto());
+		parentEvent.setId(UUID.randomUUID());
+		parentEvent.getProperties().put("one", "one");
+		parentEvent.getProperties().put(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE, new DateTime());
+		//
+		manager.propagateProperties(event, parentEvent);
+		//
+		Assert.assertEquals(eventId, event.getId());
+		Assert.assertEquals("one", event.getProperties().get("one"));
+		Assert.assertNull(event.getProperties().get(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE));
 	}
 	
 	private Page<IdmEntityEventDto> createEvents(PriorityType priority, int count) {

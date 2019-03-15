@@ -149,6 +149,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	private void deleteAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
 		RemoveAutomaticRoleTaskExecutor task = new RemoveAutomaticRoleTaskExecutor();
 		task.setAutomaticRoleId(automaticRole.getId());
+		task.setContinueOnException(true);
+		task.setRequireNewTransaction(true);
 		taskManager.executeSync(task);
 	}
 	

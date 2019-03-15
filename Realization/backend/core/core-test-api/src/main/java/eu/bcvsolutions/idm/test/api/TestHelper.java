@@ -247,7 +247,7 @@ public interface TestHelper {
 	/**
 	 * Creates role with given code (name will be the same as code)
 	 *
-	 * @param code
+	 * @param code [optional] will be generated, if not given
 	 * @return
 	 */
 	IdmRoleDto createRole(String code);
@@ -256,10 +256,20 @@ public interface TestHelper {
 	 * Creates role with given id and code (name will be the same as code)
 	 *
 	 * @param id [optional] if no id is given, then new id is generated
-	 * @param code
+	 * @param code [optional] will be generated, if not given
 	 * @return
 	 */
 	IdmRoleDto createRole(UUID id, String code);
+	
+	/**
+	 * Creates role with given id, base code and environment (name will be the same as code)
+	 *
+	 * @param id [optional] if no id is given, then new id is generated
+	 * @param baseCode [optional] will be generated, if not given
+	 * @param environment [optional]
+	 * @return
+	 */
+	IdmRoleDto createRole(UUID id, String baseCode, String environment);
 	
 	/**
 	 * Creates role composition
@@ -702,6 +712,13 @@ public interface TestHelper {
 	 * @param processorType
 	 */
 	void enable(Class<? extends EntityEventProcessor<?>> processorType);
+	
+	/**
+	 * Enables given processor
+	 *
+	 * @param processorId - processor bean name
+	 */
+	void enableProcessor(String processorId);
 
 	/**
 	 * Disables given processor
@@ -709,6 +726,13 @@ public interface TestHelper {
 	 * @param processorType
 	 */
 	void disable(Class<? extends EntityEventProcessor<?>> processorType);
+
+	/**
+	 * Disables given processor
+	 *
+	 * @param processorId - processor bean name
+	 */
+	void disableProcessor(String processorId);
 	
 	/**
 	 * Enables given filter

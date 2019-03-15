@@ -96,18 +96,19 @@ export class RoleConceptTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
+
+    const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
+    const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
+    if (!form.isFormValid()) {
+      return;
+    }
+    if (eavForm && !eavForm.isValid()) {
+      return;
+    }
+    //
     this.setState({
       showLoading: true
     }, () => {
-      const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
-      const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
-      if (!form.isFormValid()) {
-        return;
-      }
-      if (eavForm && !eavForm.isValid()) {
-        return;
-      }
-
       const { identityUsername, createConceptFunc, updateConceptFunc } = this.props;
 
       const entity = form.getData();

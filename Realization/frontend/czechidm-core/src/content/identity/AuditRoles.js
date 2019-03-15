@@ -7,6 +7,12 @@ import { IdentityManager } from '../../redux/data';
 
 const identityManager = new IdentityManager();
 
+/**
+ * Audit of roles
+ *
+ * @author Ondrej Kopr
+ * @since 9.5.0
+ */
 class AuditRoles extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -25,30 +31,25 @@ class AuditRoles extends Basic.AbstractContent {
 
   render() {
     const { identity } = this.props;
+
+    if (!identity) {
+      return (
+        <Basic.Div showLoading>
+          <Helmet title={this.i18n('title')} />
+        </Basic.Div>
+      );
+    }
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-
-        <Basic.Panel className="no-border last">
-          {
-            !identity
-            ||
-            <AuditIdentityRolesTable
-              singleUserMod
-              id={identity.id}
-              uiKey={`identity-roles-audit-table-${identity.id}`}/>
-          }
-        </Basic.Panel>
+          <AuditIdentityRolesTable
+            singleUserMod
+            id={identity.id}
+            uiKey={`identity-roles-audit-table-${identity.id}`}/>
       </div>
     );
   }
 }
-
-AuditRoles.propTypes = {
-};
-
-AuditRoles.defaultProps = {
-};
 
 function select(state, component) {
   const { entityId } = component.params;

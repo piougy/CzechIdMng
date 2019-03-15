@@ -82,6 +82,8 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 	@Transactional
 	public void delete(SysRoleSystemDto roleSystem, BasePermission... permission) {
 		Assert.notNull(roleSystem);
+		Assert.notNull(roleSystem.getId());
+
 		SysRoleSystem roleSystemEntity = this.getEntity(roleSystem.getId());
 		//
 		// delete attributes

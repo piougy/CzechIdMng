@@ -44,6 +44,8 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	
+	private boolean async = true; // FIXME: make AbstractAutomaticRoleTaskExecutor stateful - use requires new + continue on exception
+	
 	@Override
 	public void init(Map<String, Object> properties) {
 		this.setAutomaticRoleId(getParameterConverter().toUuid(properties, PARAMETER_ROLE_TREE_NODE));
@@ -84,7 +86,11 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     			}
     			//
     			try {
-    				automaticRoleAttributeService.addAutomaticRoles(contract, setWithAutomaticRole);
+    				if (async) {
+    					automaticRoleAttributeService.addAutomaticRoles(contract, setWithAutomaticRole);
+    				} else {
+    					automaticRoleAttributeService.addAutomaticRolesInternal(contract, setWithAutomaticRole);
+    				}
     				counter++;
     			} catch (Exception ex) {
     				LOG.error("Error while add new automatic role id [{}] to contract id [{}] and identity id [{}]", 
@@ -107,7 +113,11 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     	while (canContinue) {
     		for(UUID contractId : newNotPassedContracts) {
     			try { 
-    				automaticRoleAttributeService.removeAutomaticRoles(contractId, setWithAutomaticRole);
+    				if (async) {
+    					automaticRoleAttributeService.removeAutomaticRoles(contractId, setWithAutomaticRole);
+    				} else {
+    					automaticRoleAttributeService.removeAutomaticRolesInternal(contractId, setWithAutomaticRole);
+    				}
     				counter++;
     			} catch (Exception ex) {
     				LOG.error("Error while remove automatic role id [{}] from contract id [{}].",
@@ -136,6 +146,10 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     	}
 		//
 		return Boolean.TRUE;
+	}
+	
+	public void setAsync(boolean async) {
+		this.async = async;
 	}
 
 }

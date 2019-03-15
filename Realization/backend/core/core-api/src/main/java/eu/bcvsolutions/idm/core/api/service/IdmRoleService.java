@@ -139,4 +139,13 @@ public interface IdmRoleService extends
 	 * @return
 	 */
 	IdmFormDefinitionDto getFormAttributeSubdefinition(IdmRoleDto role);
+	
+	/**
+	 * Finds role with given base code and environment
+	 * 
+	 * @param baseCode
+	 * @param environment [optional]
+	 * @return
+	 */
+	IdmRoleDto getByBaseCodeAndEnvironment(String baseCode, String environment);
 }

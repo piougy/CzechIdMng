@@ -31,9 +31,3 @@ export default class AuditIdentityLoginContent extends Basic.AbstractContent {
     );
   }
 }
-
-AuditIdentityLoginContent.propTypes = {
-};
-
-AuditIdentityLoginContent.defaultProps = {
-};

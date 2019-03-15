@@ -52,18 +52,18 @@ export class AuditIdentityLoginTable extends Advanced.AbstractTableContent {
             <Basic.Col lg={ 8 }>
               <Advanced.Filter.FilterDate ref="fromTill"/>
             </Basic.Col>
-            <div className="col-lg-4 text-right">
+            <Basic.Col lg={ 4 } className="text-right">
               <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-            </div>
+            </Basic.Col>
           </Basic.Row>
-          <Basic.Row>
-            <div className="col-lg-4">
+          <Basic.Row className="last">
+            <Basic.Col lg={ 4 }>
               <Advanced.Filter.TextField
                 className="pull-right"
                 rendered={!singleUserMod}
                 ref="ownerCode"
                 placeholder={this.i18n('content.audit.identities.username')}/>
-            </div>
+            </Basic.Col>
           </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>

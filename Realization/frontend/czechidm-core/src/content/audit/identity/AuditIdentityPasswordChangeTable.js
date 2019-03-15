@@ -52,14 +52,14 @@ export class AuditIdentityPasswordChangeTable extends Advanced.AbstractTableCont
               <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
             </div>
           </Basic.Row>
-          <Basic.Row>
-            <div className="col-lg-6">
+          <Basic.Row className="last">
+            <div className="col-lg-4">
               <Advanced.Filter.TextField
                 className="pull-right"
                 ref="creator"
                 placeholder={this.i18n('content.audit.identities.modifier')}/>
             </div>
-            <div className="col-lg-6">
+            <div className="col-lg-4">
               <Advanced.Filter.TextField
                 className="pull-right"
                 rendered={!singleUserMod}
@@ -67,7 +67,6 @@ export class AuditIdentityPasswordChangeTable extends Advanced.AbstractTableCont
                 placeholder={this.i18n('content.audit.identities.username')}/>
             </div>
           </Basic.Row>
-          <Basic.Alert level="warning" text={this.i18n('idmOnlyInfo')} style={{ margin: 0 }}/>
         </Basic.AbstractForm>
       </Advanced.Filter>
     );
@@ -89,6 +88,7 @@ export class AuditIdentityPasswordChangeTable extends Advanced.AbstractTableCont
     return (
       <div>
         <Advanced.Table
+          header={<Basic.Alert level="warning" showHtmlText text={this.i18n('idmOnlyInfo')} style={{ fontSize: 14, margin: 0 }}/>}
           ref="table"
           filterOpened
           uiKey={ uiKey }

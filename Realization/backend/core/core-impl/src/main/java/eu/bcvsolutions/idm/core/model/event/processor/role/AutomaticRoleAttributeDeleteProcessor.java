@@ -47,6 +47,9 @@ public class AutomaticRoleAttributeDeleteProcessor extends CoreEventProcessor<Id
 		// delete all assigned roles gained by this automatic role by long running task
 		RemoveAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
 		automaticRoleTask.setAutomaticRoleId(content.getId());
+		automaticRoleTask.setRequireNewTransaction(true);
+		automaticRoleTask.setContinueOnException(true);
+		// FIXME: event immediate - sync / otherwise async
 		longRunningTaskManager.executeSync(automaticRoleTask);
 		//
 		return new DefaultEventResult<>(event, this);

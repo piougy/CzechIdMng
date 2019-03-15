@@ -59,6 +59,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractSchedulableStatefulExecutor.class);
 	private static final int PAGE_SIZE = 100;
+	private boolean continueOnException = false; 
+	private boolean requireNewTransaction = false;
 	//
 	@Autowired private IdmProcessedTaskItemService itemService;
 	@Autowired private PlatformTransactionManager platformTransactionManager;
@@ -135,7 +137,12 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	 */
 	@Override
 	public boolean continueOnException() {
-		return false;
+		return continueOnException;
+	}
+	
+	@Override
+	public void setContinueOnException(boolean continueOnException) {
+		this.continueOnException = continueOnException;
 	}
 	
 	/**
@@ -146,7 +153,12 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	 */
 	@Override
 	public boolean requireNewTransaction() {
-		return false;
+		return requireNewTransaction;
+	}
+	
+	@Override
+	public void setRequireNewTransaction(boolean requireNewTransaction) {
+		this.requireNewTransaction = requireNewTransaction;
 	}
 
 	private void executeProcess() {
@@ -263,7 +275,19 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			LOG.debug("Statefull process [{}] intermediate result: [{}], count: [{}/{}]",
 					getClass().getSimpleName(), opResult, count, counter);
 			if (!continueOnException() && opResult.getException() != null) {
-				throw (ResultCodeException) opResult.getException();
+				ResultCodeException resultCodeException;
+				if (opResult.getException() instanceof ResultCodeException) {
+					resultCodeException = (ResultCodeException) opResult.getException();
+				} else {
+					resultCodeException = new ResultCodeException(
+							CoreResultCode.LONG_RUNNING_TASK_ITEM_FAILED, 
+							ImmutableMap.of(
+									"referencedEntityId", candidate.getId()),
+							opResult.getException());	
+				}
+				LOG.error("[" + resultCodeException.getId() + "] ", resultCodeException);
+				//
+				throw resultCodeException;
 			}
 		} else {
 			LOG.debug("Statefull process [{}] processed item [{}] without result.",

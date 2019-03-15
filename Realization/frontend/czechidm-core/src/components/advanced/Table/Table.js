@@ -87,7 +87,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 niceLabel: (
                   <span key={ `b-a-${backendBulkAction.name}` }>
                     <Basic.Icon value={ icon } rendered={ backendBulkAction.module + icon !== iconKey } style={{ marginRight: 5 }}/>
-                    { this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label') }
+                    {
+                      this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label', {
+                        defaultValue: backendBulkAction.description || backendBulkAction.name
+                      })
+                    }
                   </span>),
                 action: this.showBulkActionDetail.bind(this, backendBulkAction),
                 disabled: !SecurityManager.hasAllAuthorities(backendBulkAction.authorities),

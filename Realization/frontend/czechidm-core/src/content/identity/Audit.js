@@ -7,6 +7,10 @@ import { IdentityManager } from '../../redux/data';
 
 const identityManager = new IdentityManager();
 
+/**
+ *
+ * @author Ondřej Kopr
+ */
 class Audit extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -36,17 +40,14 @@ class Audit extends Basic.AbstractContent {
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
-
-        <Basic.Panel className="no-border last">
-          {
-            !identity
-            ||
-            <AuditIdentityTable
-              singleUserMod
-              id={identity.id}
-              uiKey="identity-audit-table"/>
-          }
-        </Basic.Panel>
+        {
+          !identity
+          ||
+          <AuditIdentityTable
+            singleUserMod
+            id={identity.id}
+            uiKey="identity-audit-table"/>
+        }
       </div>
     );
   }

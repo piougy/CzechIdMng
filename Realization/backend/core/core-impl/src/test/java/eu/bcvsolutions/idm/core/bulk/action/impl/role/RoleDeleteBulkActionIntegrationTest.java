@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.bulk.action.impl;
+package eu.bcvsolutions.idm.core.bulk.action.impl.role;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
-import eu.bcvsolutions.idm.core.bulk.action.impl.RoleDeleteBulkAction;
+import eu.bcvsolutions.idm.core.bulk.action.impl.role.RoleDeleteBulkAction;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
  *
  */
 
-public class RoleDeleteBulkActionTest extends AbstractBulkActionTest {
+public class RoleDeleteBulkActionIntegrationTest extends AbstractBulkActionTest {
 
 	@Autowired
 	private IdmRoleService roleService;

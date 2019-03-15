@@ -54,7 +54,7 @@ export class AuditIdentityRolesTable extends Advanced.AbstractTableContent {
               <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
             </div>
           </Basic.Row>
-          <Basic.Row>
+          <Basic.Row className={ singleUserMod ? 'last' : ''}>
             <div className="col-lg-4">
               <Advanced.Filter.RoleSelect
                 ref="subOwnerId"
@@ -71,10 +71,9 @@ export class AuditIdentityRolesTable extends Advanced.AbstractTableContent {
                 returnProperty="modifier"/>
             </div>
           </Basic.Row>
-          <Basic.Row className="last">
+          <Basic.Row className="last" rendered={!singleUserMod}>
             <div className="col-lg-4">
               <Advanced.Filter.TextField
-                rendered={!singleUserMod}
                 ref="ownerCode"
                 placeholder={this.i18n('content.audit.identities.username')}/>
             </div>

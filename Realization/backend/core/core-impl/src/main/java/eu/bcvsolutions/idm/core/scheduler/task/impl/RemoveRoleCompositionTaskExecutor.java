@@ -92,11 +92,6 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		}
 	}
 	
-	@Override
-	public boolean requireNewTransaction() {
-		return true;
-	}
-	
 	/**
 	 * Returns superior roles, which should be processed
 	 */

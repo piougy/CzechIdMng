@@ -26,7 +26,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
@@ -55,7 +54,6 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
-	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	//
 	private UUID roleTreeNodeId = null;
 	private IdmRoleTreeNodeDto roleTreeNode = null;
@@ -112,8 +110,8 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			}
 			//
 			// automatic role by tree node is added directly trough identity role
-			// TODO: role attribute service is used - just added new transaction ... why is this needed?
-			automaticRoleAttributeService.addAutomaticRoles(identityContract, Sets.newHashSet(getRoleTreeNode()));
+			roleTreeNodeService.addAutomaticRoles(identityContract, Sets.newHashSet(getRoleTreeNode()));
+			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch(Exception ex) {
 			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);

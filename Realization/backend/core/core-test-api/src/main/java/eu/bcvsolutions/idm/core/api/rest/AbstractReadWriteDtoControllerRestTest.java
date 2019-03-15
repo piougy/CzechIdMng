@@ -353,6 +353,44 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	}
 	
 	@Test
+	public void testFindByTransactionId() {
+		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
+			LOG.warn("Controller [{}] doesn't support DataFilter. Find by id will not be tested.", getController().getClass());
+			return;
+		}
+		//
+		DTO dto = prepareDto();
+		//
+		dto.setTransactionId(UUID.randomUUID());
+		//
+		DTO createdDto = createDto(dto);
+		//
+		// create another mock dto
+		DTO dtoTwo = prepareDto();
+		dtoTwo.setTransactionId(UUID.randomUUID());
+		createDto(dtoTwo);
+		//
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(DataFilter.PARAMETER_TRANSACTION_ID, dto.getTransactionId().toString());
+		//
+		List<DTO> results = find(parameters);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		//
+		if (supportsAutocomplete()) {
+			results = autocomplete(parameters);
+			//
+			Assert.assertEquals(1, results.size());
+			Assert.assertEquals(createdDto.getId(), results.get(0).getId());
+		} else {
+			LOG.info("Controller [{}] doesn't support autocomplete method. Method will not be tested.", getController().getClass());
+		}
+		//
+		Assert.assertEquals(1, count(parameters));
+	}
+	
+	@Test
 	public void testDuplicateExternalId() throws Exception {
 		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
 			LOG.warn("Controller [{}] doesn't support DataFilter. Find by external id will not be tested.", getController().getClass());

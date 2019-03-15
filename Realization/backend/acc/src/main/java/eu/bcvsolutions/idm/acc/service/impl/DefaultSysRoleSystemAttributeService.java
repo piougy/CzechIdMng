@@ -118,22 +118,7 @@ public class DefaultSysRoleSystemAttributeService extends
 		
 		// If is mapped attribute marks as evicted, then we will start LRT for recalculation controlled values
 		if (!systemAttributeMappingService.isNew(attributeMappingDto) && attributeMappingDto.isEvictControlledValuesCache() == true) {
-			SysSystemMappingDto systemMappingDto = systemMappingService.get(attributeMappingDto.getSystemMapping());
-			SysSchemaObjectClassDto objectClassDto = DtoUtils.getEmbedded(systemMappingDto,
-					SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
-
-			// Init LRT
-			AttributeControlledValuesRecalculationTaskExecutor attributeControlledValueRecalculationTask = AutowireHelper
-					.createBean(AttributeControlledValuesRecalculationTaskExecutor.class);
-			attributeControlledValueRecalculationTask
-					.init(ImmutableMap.of(AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_SYSTEM_UUID,
-							objectClassDto.getSystem(), //
-							AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ENTITY_TYPE,
-							systemMappingDto.getEntityType(), //
-							AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ONLY_EVICTED, Boolean.TRUE //
-					)); //
-			// Execute recalculation LRT
-			longRunningTaskManager.execute(attributeControlledValueRecalculationTask);
+			recalculationOfControlledValues(attributeMappingDto);
 		}
 		
 		return savedDto;
@@ -254,8 +239,18 @@ public class DefaultSysRoleSystemAttributeService extends
 			attributeControlledValueService.addHistoricValue(systemAttributeMapping, (Serializable) value);
 			// Attribute changed, so we need evict the cache
 			systemAttributeMapping.setEvictControlledValuesCache(true);
-			systemAttributeMappingService.save(systemAttributeMapping);
+			systemAttributeMapping = systemAttributeMappingService.save(systemAttributeMapping);
+			
+			super.delete(roleSystemAttribute, permission);
+			
+			// If is mapped attribute marks as evicted, then we will start LRT for recalculation controlled values
+			if (!systemAttributeMappingService.isNew(systemAttributeMapping) && systemAttributeMapping.isEvictControlledValuesCache()) {
+				// Recalculate controlled values
+				recalculationOfControlledValues(systemAttributeMapping);
+			}
+			return;
 		}
+		
 
 		super.delete(roleSystemAttribute, permission);
 	}
@@ -477,5 +472,29 @@ public class DefaultSysRoleSystemAttributeService extends
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Recalculation of controlled values (starts LRT AttributeControlledValuesRecalculationTaskExecutor)
+	 * 
+	 * @param attributeMappingDto
+	 */
+	private void recalculationOfControlledValues(SysSystemAttributeMappingDto attributeMappingDto) {
+		SysSystemMappingDto systemMappingDto = systemMappingService.get(attributeMappingDto.getSystemMapping());
+		SysSchemaObjectClassDto objectClassDto = DtoUtils.getEmbedded(systemMappingDto,
+				SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
+
+		// Init LRT
+		AttributeControlledValuesRecalculationTaskExecutor attributeControlledValueRecalculationTask = AutowireHelper
+				.createBean(AttributeControlledValuesRecalculationTaskExecutor.class);
+		attributeControlledValueRecalculationTask
+				.init(ImmutableMap.of(AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_SYSTEM_UUID,
+						objectClassDto.getSystem(), //
+						AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ENTITY_TYPE,
+						systemMappingDto.getEntityType(), //
+						AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ONLY_EVICTED, Boolean.TRUE //
+				)); //
+		// Execute recalculation LRT
+		longRunningTaskManager.execute(attributeControlledValueRecalculationTask);
 	}
 }

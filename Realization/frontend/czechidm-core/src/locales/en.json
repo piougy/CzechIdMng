@@ -4720,6 +4720,21 @@
         "label": "Remove",
         "help": "Remove selected code list items.",
         "icon": "fa:trash"
+      },
+      "core-identity-role-by-identity-deduplication-bulk-action": {
+        "label": "Role deduplication",
+        "help": "Removes duplicate assigned roles. Removes only manually assigned roles, duplicates with business, automatic, or other manually assigned role.",
+        "icon": "fa:clone",
+        "attributes": {
+          "checksubdefinition": {
+            "label": "Check subdefinition",
+            "help": "Check subdefinitions and their values. The role will be removed if subdefinition except values is equals as another another role."
+          },
+          "approve": {
+            "label": "Approve",
+            "help": "After check, the role remove will be approved."
+          }
+        }
       }
     },
     "authorization-evaluator": {

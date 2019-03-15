@@ -4770,6 +4770,21 @@
         "label": "Odebrat",
         "help": "Odstraní vybrané položky číselníku.",
         "icon": "fa:trash"
+      },
+      "core-identity-role-by-identity-deduplication-bulk-action": {
+        "label": "Deduplikace rolí",
+        "help": "Odstraní duplicitně přidělené role. Odstraňuje pouze ručně přidělené role, při nalezení duplicity s byznys, automatickou, nebo jinou ručně přidělenou rolí.",
+        "icon": "fa:clone",
+        "attributes": {
+          "checksubdefinition": {
+            "label": "Kontrolovat subdefinice",
+            "help": "Kontrolovat subdefinice a jejich hodnoty. ROle bude odebrána pouze pokud její subdefinice včetně všech hodnot je stejná jako jiná."
+          },
+          "approve": {
+            "label": "Schvalovat",
+            "help": "Po zaškrtnutí bude odebrání role/rolí schvalováno."
+          }
+        }
       }
     },
     "authorization-evaluator": {

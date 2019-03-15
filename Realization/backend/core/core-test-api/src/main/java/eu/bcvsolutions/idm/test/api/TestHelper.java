@@ -822,4 +822,10 @@ public interface TestHelper {
 	 */
 	IdmProfileDto createProfile(IdmIdentityDto identity);
 
+	/**
+	 * Method recalculate automatic role for given ID.
+	 *
+	 * @param automaticRoleId
+	 */
+	void recalculateAutomaticRoleByAttribute(UUID automaticRoleId);
 }

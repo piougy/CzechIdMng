@@ -105,12 +105,12 @@ public class IdentityRoleByIdentityDeduplicationXlsxRenderer extends AbstractXls
 						duplicityRow.append(roleDto.getName());
 						duplicityRow.append(" (");
 						duplicityRow.append(roleDto.getCode());
-						duplicityRow.append(")");
+						duplicityRow.append(')');
 						duplicityRow.append(" [");
 						duplicityRow.append(ObjectUtils.nullSafeToString(duplicity.getValidFrom()));
 						duplicityRow.append(" - ");
 						duplicityRow.append(ObjectUtils.nullSafeToString(duplicity.getValidTill()));
-						duplicityRow.append("]");
+						duplicityRow.append(']');
 						duplicityRow.append(System.lineSeparator());
 					}
 
@@ -136,7 +136,7 @@ public class IdentityRoleByIdentityDeduplicationXlsxRenderer extends AbstractXls
 							treeNode.append(treeNodeDto.getName());
 							treeNode.append(" (");
 							treeNode.append(treeNodeDto.getCode());
-							treeNode.append(")");
+							treeNode.append(')');
 						}
 					}
 					

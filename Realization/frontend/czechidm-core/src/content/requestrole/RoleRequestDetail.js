@@ -136,22 +136,30 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       if (startRequest) {
         this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSaveAndStartRequest.bind(this)));
       } else {
-        this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+        // => save only
+        this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
+          this.afterSave(createdEntity, error, true);
+        }));
       }
     }
   }
 
-  afterSave(entity, error) {
-    this.setState({showLoading: false});
-    if (!error) {
-      // this.addMessage({ message: this.i18n('save.success') });
-      if (this._getIsNew()) {
-        this.context.router.replace(`/role-requests/${entity.id}/detail`);
-        this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(entity.id, `${ uiKeyIncompatibleRoles }${ entity.id }`));
+  afterSave(entity, error, showMessage = false) {
+    this.setState({
+      showLoading: false
+    }, () => {
+      if (!error) {
+        if (showMessage) {
+          this.addMessage({ message: this.i18n('save.success') });
+        }
+        if (this._getIsNew()) {
+          this.context.router.replace(`/role-requests/${entity.id}/detail`);
+          this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(entity.id, `${ uiKeyIncompatibleRoles }${ entity.id }`));
+        }
+      } else {
+        this.addError(error);
       }
-    } else {
-      this.addError(error);
-    }
+    });
   }
 
   afterSaveAndStartRequest(entity, error) {

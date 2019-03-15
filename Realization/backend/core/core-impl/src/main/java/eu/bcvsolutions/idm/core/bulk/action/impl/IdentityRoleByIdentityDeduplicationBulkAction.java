@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -107,6 +108,13 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 
 		List<IdmIdentityContractDto> contracts = identityContractService.findAllValidForDate(dto.getId(), LocalDate.now(), null);
 		for (IdmIdentityContractDto contract : contracts) {
+
+			// Check access for contract
+			try {
+				identityContractService.checkAccess(contract, PermissionUtils.toPermissions(getAuthoritiesForIdentityContract()).toArray(new BasePermission[] {}));
+			} catch (ForbiddenEntityException e) {
+				continue;
+			}
 			// Process deduplication per identity contract
 			concepts.addAll(processDuplicitiesForContract(contract));
 		}
@@ -145,10 +153,20 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 
 	/**
 	 * Authorities for identity role
+	 *
 	 * @return
 	 */
 	private List<String> getAuthoritiesForIdentityRole() {
 		return Lists.newArrayList(CoreGroupPermission.IDENTITYROLE_READ);
+	}
+	
+	/**
+	 * Authorities for identity contract
+	 *
+	 * @return
+	 */
+	private List<String> getAuthoritiesForIdentityContract() {
+		return Lists.newArrayList(CoreGroupPermission.IDENTITYCONTRACT_AUTOCOMPLETE);
 	}
 
 	/**

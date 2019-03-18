@@ -46,6 +46,9 @@ public class DuplicateRoleLogProcessor
 		return PROCESSOR_NAME;
 	}
 	
+	/**
+	 * Adds form attribute - if log will be created - into bulk action form.
+	 */
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		IdmFormAttributeDto include = new IdmFormAttributeDto(
@@ -75,6 +78,6 @@ public class DuplicateRoleLogProcessor
 	
 	@Override
 	public int getOrder() {
-		return 10000;
+		return 10000;  // on the end
 	}
 }

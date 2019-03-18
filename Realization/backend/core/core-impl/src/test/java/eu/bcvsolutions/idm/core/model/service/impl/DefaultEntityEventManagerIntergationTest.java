@@ -357,6 +357,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		//
 		try {
 			Assert.assertNotNull(processor);
+			manager.enable(processor.getId());
+			//
 			Assert.assertFalse(processor.isDisabled());
 			//
 			manager.disable(processor.getId());

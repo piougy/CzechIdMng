@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 - [#1474](https://redmine.czechidm.com/issues/1474) - Changing persistent type of form attribute is possible only if no values are persisted.
 - [#1050](https://redmine.czechidm.com/issues/1050) - **Shortext as default** - When **EAV attribute** from mapped attribute was created, then (for string schema attributes) **PersistentType.TEXT** type was used as default. TEXT type cannot be indexed, so this type is not useful for searching. For this reason will be since version 9.4.0 as default type sets **PersistentType.SHORTTEXT**.
 **Important**: Shortext is limmeted on max **2000** characters! Existing values (with old type) will be not modifed.
+- [#1405](https://redmine.czechidm.com/issues/1405) - Code of workflow **Synchronization - Roles from LDAP** was changed from **'syncRoleAd'** to **'syncRoleLdap'**. More info in the ticket.
+
 
 
 ## [9.3.0]

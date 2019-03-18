@@ -5022,7 +5022,7 @@
     },
     "PASSWORD_POLICY_MAX_RULE": {
       "title": "Exceeded the number of rules",
-      "message": "Minimum rules to fulfill can be {{rules}} or less."
+      "message": "Minimum rules to fulfill must be same or lower than count of required rules. The minimum number of additional rules can be {{rules}}."
     },
     "TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY": {
       "title": "Saving of delegation failed",

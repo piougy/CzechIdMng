@@ -176,11 +176,11 @@ public class RoleDuplicateBulkAction extends AbstractBulkAction<IdmRoleDto, IdmR
 	 * @return
 	 */
 	private IdmRoleDto prepareRole(String baseCode, String environment) {
-		IdmRoleDto cloned = new IdmRoleDto();
-		cloned.setId(UUID.randomUUID());
-		cloned.setBaseCode(baseCode);
-		cloned.setEnvironment(environment);
+		IdmRoleDto duplicate = new IdmRoleDto();
+		duplicate.setId(UUID.randomUUID());
+		duplicate.setBaseCode(baseCode);
+		duplicate.setEnvironment(environment);
 		//
-		return cloned;
+		return duplicate;
 	}
 }

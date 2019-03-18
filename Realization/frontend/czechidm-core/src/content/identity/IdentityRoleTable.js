@@ -165,13 +165,16 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             </Basic.Button>
           ]}
           _searchParameters={ this.getSearchParameters() }
-          rowClass={ ({rowIndex, data}) => {
-            const entity = data[rowIndex];
-            if (this._getIncompatibleRoles(entity).length > 0) {
-              // return 'warning';
-            }
-            return Utils.Ui.getDisabledRowClass(data[rowIndex]);
-          }}>
+          rowClass={
+            ({rowIndex, data}) => {
+              const entity = data[rowIndex];
+              if (this._getIncompatibleRoles(entity).length > 0) {
+                // RT: is looks to agressive? Or combine disabled + incompatible
+                // return 'warning';
+              }
+              return Utils.Ui.getRowClass(entity);
+            }}
+            >
           <Advanced.Column
             header=""
             className="detail-button"

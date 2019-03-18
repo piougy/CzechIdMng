@@ -5072,7 +5072,7 @@
     },
     "PASSWORD_POLICY_MAX_RULE": {
       "title": "Překročen povolený počet pravidel",
-      "message": "Minimum pravidel pro splnění politiky může být {{rules}}, nebo méně."
+      "message": "Minimum pravidel pro splnění politiky musí být stejný nebo menší než počet povinných pravidel. Minimum pravidel pro splnění politiky může být {{rules}}."
     },
     "TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY": {
       "title": "Uložení delegace selhalo",

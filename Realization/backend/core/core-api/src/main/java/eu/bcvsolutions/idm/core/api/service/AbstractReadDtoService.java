@@ -223,7 +223,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		
 		// count query
 		CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-		countQuery.where(predicate);
+		countQuery.select(criteriaBuilder.count(countQuery.from(getEntityClass())));
+		countQuery.where(criteria.toPredicate(root, countQuery, criteriaBuilder));
 		Long total = entityManager.createQuery(countQuery).getSingleResult();
 		
 		query.setFirstResult(pageable.getOffset());

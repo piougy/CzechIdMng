@@ -13,12 +13,13 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Automatic role service
+ * - automatic roles by tree structure
  * 
  * @author Radek Tomiška
  *
  */
 public interface IdmRoleTreeNodeService extends 
-		ReadWriteDtoService<IdmRoleTreeNodeDto, IdmRoleTreeNodeFilter>,
+		EventableDtoService<IdmRoleTreeNodeDto, IdmRoleTreeNodeFilter>,
 		AuthorizableService<IdmRoleTreeNodeDto> {
 	
 	/**

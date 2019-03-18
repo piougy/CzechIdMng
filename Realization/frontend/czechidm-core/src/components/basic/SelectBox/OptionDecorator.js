@@ -143,7 +143,7 @@ export default class OptionDecorator extends AbstractComponent {
       <ShortText
         value={ entity.description }
         maxLength={ this.getDescriptionMaxLength() }
-        style={{ color: '#555', fontSize: '0.95em', fontStyle: 'italic' }}/>
+        style={{ color: this.isDisabled(entity) ? '#ccc' : '#555', fontSize: '0.95em', fontStyle: 'italic' }}/>
     );
   }
 

@@ -3079,8 +3079,12 @@
     "audit": {
       "header": "Audit",
       "title": "Audit",
+      "label": "$t(content.audit.title)",
       "title-entities": "Audit pro entity",
       "title-identities": "Audit pro uživatele",
+      "title-identity-roles": "Audit přidělení rolí",
+      "title-identity-login": "Audit přihlášení",
+      "title-identity-password-change": "Audit změn hesla",
       "modifier": "Akci provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
@@ -3090,6 +3094,35 @@
       "noPreviousRevision": "Neexistují žádné předchozí revize",
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
+      },
+      "identityRoles": {
+        "label": "Audit rolí",
+        "role": "Role",
+        "modification": {
+          "ADD": "Přidání",
+          "MOD": "Úprava",
+          "DEL": "$t(content.audit.revision.modificationType.DEL)"
+        }
+      },
+      "identityLogin": {
+        "label": "Audit přihlášení",
+        "loginType": "Typ přihlášení",
+        "unsuccessfulAttempts": "Počet neúspešných pokusů",
+        "mustChange": "Povinná změna hesla",
+        "validTill": "Platnost hesla do",
+        "validFrom": "Platnost hesla od",
+        "blockLoginDate": "Heslo blokováno do",
+        "modification": {
+          "ADD": "Vytvoření hesla",
+          "MODFAILED": "Neúspěšné",
+          "MODSUCCESS": "Úspešné"
+        }
+      },
+      "identityPasswordChange": {
+        "label": "Audit změn hesla",
+        "created": "Datum změny hesla",
+        "creator": "Změnu hesla provedl",
+        "idmOnlyInfo": "<strong>Jsou zobrazeny auditní záznamy pro změnu hesla</strong> pouze pro změny, které byly provedeny proti  <strong>aplikaci CzechIdM </strong>. Pokud je změna hesla v systému CzechIdM vypnutá, nebo není systém CzechIdM vybrán, není možné auditovat změnu hesla."
       },
       "logging-event": {
         "title": "Logované události",
@@ -3555,7 +3588,7 @@
       },
       "roleCataloguePicker": "Výběr složky z katalogu",
       "directRole": {
-        "label": "Role napřímo",
+        "label": "Přiděleno díky roli",
         "title": "Napřímo přidělená role, díky které je přidělena i tato role. Napřímo přidělená role zahrnuje tuto roli.",
         "help": "$t(entity.IdentityRole.directRole.title)"
       }
@@ -3864,7 +3897,11 @@
       "modification": "Typ modifikace",
       "modifier": "Akci provedl",
       "revisionDate": "Datum revize",
-      "changedAttributes": "Změněné atributy",
+      "changedAttributes": {
+        "label": "Změněné atributy",
+        "placeholder": "Vyhledávání po skupinkách změněných atributů. $t(entity.Audit.changedAttributes.tooltip)",
+        "tooltip": "Vkládejte jednotlivé hodnoty své skupiny změněných atributů."
+      },
       "type": "Typ entity",
       "key": "Atribut",
       "value": "Hodnota",
@@ -4733,6 +4770,44 @@
         "label": "Odebrat",
         "help": "Odstraní vybrané položky číselníku.",
         "icon": "fa:trash"
+      },
+      "core-identity-role-by-identity-deduplication-bulk-action": {
+        "label": "Deduplikace rolí",
+        "help": "Odstraní duplicitně přidělené role. Odstraňuje pouze ručně přidělené role, při nalezení duplicity s byznys, automatickou, nebo jinou ručně přidělenou rolí.",
+        "icon": "fa:clone",
+        "attributes": {
+          "checksubdefinition": {
+            "label": "Kontrolovat atributy rolí",
+            "help": "Kontrolovat atributy rolí a jejich hodnoty. Role bude odebrána pouze pokud její atributy včetně všech hodnot je stejná jako jiná."
+          },
+          "approve": {
+            "label": "Schvalovat",
+            "help": "Po zaškrtnutí bude odebrání role/rolí schvalováno."
+          }
+        }
+      },
+      "core-duplicate-role-bulk-action": {
+        "label": "Duplikovat roli",
+        "help": "Vytvoření nové (či aktualizace) role se stejným kódem ve vybraném prostředí. Akce aktualizuje nastavení automatických rolí a stukturu sub rolí.",
+        "icon": "fa:clone",
+        "attributes": {
+          "environment": {
+            "label": "Prostředí",
+            "help": "Cílové prostředí. Pokud není zadáno, je role duplikována v rámci jednoho prostředí - je vytvořena role se stejným názvem a kódem se suffixem."
+          },
+          "include-automatic-role": {
+            "label": "Duplikovat automatické role",
+            "help": "Vytvoří (či aktualizuje) nakonfigurované automatické role."
+          },
+          "include-role-composition": {
+            "label": "Duplikovat podřazené role",
+            "help": "Vytvoří (či aktializuje) podřazené role dle definice business role (rekurzivně)."
+          },
+          "include-role-form-attribute": {
+            "label": "Duplikovat attributy role",
+            "help": "Vytvoří (či aktializuje) nakonfigurované attributy role."
+          }
+        }
       }
     },
     "authorization-evaluator": {

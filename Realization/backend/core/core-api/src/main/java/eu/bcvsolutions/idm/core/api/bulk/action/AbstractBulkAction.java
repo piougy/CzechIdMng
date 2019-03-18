@@ -267,7 +267,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 				}
 			} catch (Exception ex) {
 				// log failed result and continue
-				// TODO: log into log4j?
+				LOG.error("Processing of entity [{}] failed.", entityId, ex);
 				this.logItemProcessed(entity, new OperationResult.Builder(OperationState.EXCEPTION).setCause(ex).build());
 				if (!updateState()) {
 					return new OperationResult.Builder(OperationState.CANCELED).setCause(ex).build();

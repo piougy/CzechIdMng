@@ -120,7 +120,9 @@ public class AutomaticRoleAttributeRuleDeleteProcessor extends CoreEventProcesso
 	private void removeAllRoles(UUID automaticRoleId) {
 		RemoveAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
 		automaticRoleTask.setAutomaticRoleId(automaticRoleId);
-		automaticRoleTask.setDeleteEntity(false); // we dont want delete entity
+		automaticRoleTask.setDeleteEntity(false); // we don't want delete entity
+		automaticRoleTask.setContinueOnException(true);
+		automaticRoleTask.setRequireNewTransaction(true);
 		longRunningTaskManager.executeSync(automaticRoleTask);
 	}
 

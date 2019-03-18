@@ -58,6 +58,8 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	private BigDecimal min;
 	private String regex;
 	private String validationMessage;
+	@Size(max = DefaultFieldLengths.NAME)
+	private String module;
 	
 	public IdmFormAttributeDto() {
 	}
@@ -302,5 +304,25 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	 */
 	public void setValidationMessage(String validationMessage) {
 		this.validationMessage = validationMessage;
+	}
+	
+	/**
+	 * Attribute can be registered programmatically in different module than definition (e.g. bulk actions)
+	 * 
+	 * @param module
+	 * @since 9.5.0 
+	 */
+	public void setModule(String module) {
+		this.module = module;
+	}
+	
+	/**
+	 * Attribute can be registered programmatically in different module than definition (e.g. bulk actions)
+	 * 
+	 * @return
+	 * @since 9.5.0 
+	 */
+	public String getModule() {
+		return module;
 	}
 }

@@ -99,14 +99,13 @@ public interface IdmIdentityContractService extends
 	
 	/**
 	 * Method get valid {@link IdmIdentityContractDto} for date and {@link IdmIdentityDto} id given in parameter.
-	 * Parameter onlyExterne if it's true search only contracts where is {@link IdmIdentityDto} marked as externe, this param can be null - search all contracts.
 	 * 
 	 * @param identityId
 	 * @param date
-	 * @param onlyExterne
+	 * @param isExterne - standard filter (true / false / null). If {@code null} is given parameter is ignored.
 	 * @return
 	 */
-	List<IdmIdentityContractDto> findAllValidForDate(UUID identityId, LocalDate date, Boolean onlyExterne);
+	List<IdmIdentityContractDto> findAllValidForDate(UUID identityId, LocalDate date, Boolean isExterne);
 
 	
 	/**

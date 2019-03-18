@@ -646,7 +646,7 @@
       "APPROVED": "Approved"
     },
     "NotificationStateEnum": {
-      "ALL": "Send",
+      "ALL": "Sent",
       "PARTLY": "Partly",
       "NOT": "Not sent"
     },
@@ -3028,8 +3028,12 @@
     "audit": {
       "header": "Audit",
       "title": "Audit",
+      "label": "$t(content.audit.title)",
       "title-entities": "Entities",
       "title-identities": "Users",
+      "title-identity-roles": "Audit for added roles",
+      "title-identity-login": "Login audit",
+      "title-identity-password-change": "Password change audit",
       "modifier": "Action executor",
       "date": "Date of change",
       "empty": "Without records",
@@ -3039,6 +3043,35 @@
       "noPreviousRevision": "No previous revision",
       "profile": {
         "userDetail": "{{revision}}. revision, {{name}}, {{date}}"
+      },
+      "identityRoles": {
+        "label": "Audit of roles",
+        "role": "Role",
+        "modification": {
+          "ADD": "Add",
+          "MOD": "Update",
+          "DEL": "$t(content.audit.revision.modificationType.DEL)"
+        }
+      },
+      "identityLogin": {
+        "label": "Audit of login",
+        "loginType": "Login type",
+        "unsuccessfulAttempts": "Number of unsuccessful attempts",
+        "mustChange": "Required password change",
+        "validTill": "Valid password to",
+        "validFrom": "Valid password from",
+        "blockLoginDate": "Password blocked to",
+        "modification": {
+          "ADD": "Password create",
+          "MODFAILED": "Failed",
+          "MODSUCCESS": "Success"
+        }
+      },
+      "identityPasswordChange": {
+        "label": "Audit of password change",
+        "created": "Password change date",
+        "creator": "Password change made",
+        "idmOnlyInfo": "<strong>Audit records for password change</strong> are shown here only when password change is made against the  <strong>CzechIdM application</strong>. If the change of password against the CzechIdM system is disabled or the CzechIdM system is not selected during password change. Isn't possible audit the password change."
       },
       "logging-event": {
         "title": "Logging events",
@@ -3504,7 +3537,7 @@
       },
       "roleCataloguePicker": "Select a folder from the catalog",
       "directRole": {
-        "label": "Direct role",
+        "label": "Assigned by role",
         "title": "Directly assigned role, which assigned this role as well (business role).",
         "help": "$t(entity.IdentityRole.directRole.title)"
       }
@@ -3814,7 +3847,11 @@
       "modification": "Actions",
       "modifier": "Executed by",
       "revisionDate": "Date of revision",
-      "changedAttributes": "Changed attributes",
+      "changedAttributes": {
+        "label": "Changed attributes",
+        "placeholder": "Own group search by changed attributes. $t(entity.Audit.changedAttributes.tooltip)",
+        "tooltip": "Enter individual values of your group changed attributes."
+      },
       "type": "Entity type",
       "key": "Attribute",
       "value": "Value",
@@ -4683,6 +4720,44 @@
         "label": "Remove",
         "help": "Remove selected code list items.",
         "icon": "fa:trash"
+      },
+      "core-identity-role-by-identity-deduplication-bulk-action": {
+        "label": "Role deduplication",
+        "help": "Removes duplicate assigned roles. Removes only manually assigned roles, duplicates with business, automatic, or other manually assigned role.",
+        "icon": "fa:clone",
+        "attributes": {
+          "checksubdefinition": {
+            "label": "Check role attributes",
+            "help": "Check role attributes and their values. The role will be removed if attributes except values is equals as another another role."
+          },
+          "approve": {
+            "label": "Approve",
+            "help": "After check, the role remove will be approved."
+          }
+        }
+      },
+      "core-duplicate-role-bulk-action": {
+        "label": "Duplicate role",
+        "help": "Action creates new (or updates) role with the same code on the selected environment. On the target role will be created (updated) automatic role definitions and business role compositions. ",
+        "icon": "fa:clone",
+        "attributes": {
+          "environment": {
+            "label": "Environment",
+            "help": "Target environment. Role will be duplicated in the same environment by default (with the same name and base code with suffix)."
+          },
+          "include-automatic-role": {
+            "label": "Duplicate automatic roles",
+            "help": "Creates (or updates) configured automatic roles."
+          },
+          "include-role-composition": {
+            "label": "Duplicate sub roles",
+            "help": "Creates (or updates) sub roles by business role definition (recursively)."
+          },
+          "include-role-form-attribute": {
+            "label": "Duplicate role attributes",
+            "help": "Creates (or updates) configured role attributes."
+          }
+        }
       }
     },
     "authorization-evaluator": {

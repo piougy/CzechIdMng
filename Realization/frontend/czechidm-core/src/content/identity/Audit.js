@@ -7,6 +7,10 @@ import { IdentityManager } from '../../redux/data';
 
 const identityManager = new IdentityManager();
 
+/**
+ *
+ * @author Ondřej Kopr
+ */
 class Audit extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -26,7 +30,7 @@ class Audit extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    this.selectNavigationItems(['identities', 'profile-audit']);
+    this.selectNavigationItems(['identities', 'profile-audit', 'profile-audit-profile']);
     this.context.store.dispatch(identityManager.fetchEntity(entityId));
   }
 
@@ -36,21 +40,14 @@ class Audit extends Basic.AbstractContent {
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
-
-        <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          {this.i18n('header')}
-        </Basic.ContentHeader>
-
-        <Basic.Panel className="no-border last">
-          {
-            !identity
-            ||
-            <AuditIdentityTable
-              singleUserMod
-              id={identity.id}
-              uiKey="identity-audit-table"/>
-          }
-        </Basic.Panel>
+        {
+          !identity
+          ||
+          <AuditIdentityTable
+            singleUserMod
+            id={identity.id}
+            uiKey="identity-audit-table"/>
+        }
       </div>
     );
   }

@@ -7,6 +7,7 @@ import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
@@ -38,6 +39,11 @@ public class DataFilter extends QuickFilter {
 	 * "Quick" search parameter
 	 */
 	public static final String PARAMETER_TEXT = "text";
+	
+	/**
+	 * Transaction id search parameter
+	 */
+	public static final String PARAMETER_TRANSACTION_ID = Auditable.PROPERTY_TRANSACTION_ID;
 	
 	/**
 	 * Dto class
@@ -104,5 +110,25 @@ public class DataFilter extends QuickFilter {
 	
 	public void setCodeableIdentifier(String text) {
 		data.set(PARAMETER_CODEABLE_IDENTIFIER, text);
+	}
+	
+	/**
+	 * Transaction id search parameter - can be used for search all abstract dtos.
+	 * 
+	 * @return
+	 * @since 9.5.0
+	 */
+	public UUID getTransactionId() {
+		return EntityUtils.toUuid(data.getFirst(PARAMETER_TRANSACTION_ID));
+	}
+	
+	/**
+	 * Transaction id search parameter - can be used for search all abstract dtos.
+	 * 
+	 * @param transactionId
+	 * @since 9.5.0
+	 */
+	public void setTransactionId(UUID transactionId) {
+		data.set(PARAMETER_TRANSACTION_ID, transactionId);
 	}
 }

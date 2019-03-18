@@ -16,6 +16,8 @@ import eu.bcvsolutions.idm.core.api.event.EventType;
 public class RoleEvent extends CoreEvent<IdmRoleDto> {
 	
 	private static final long serialVersionUID = 1L;
+	//
+	public static final String PROPERTY_PROCESSED_ROLES = "idm:processed-roles"; // event property, contains Set<UUID> of processed roles (used for crole composition processing for the prevent cycles)
 
 	/**
 	 * Supported event types
@@ -25,7 +27,8 @@ public class RoleEvent extends CoreEvent<IdmRoleDto> {
 		UPDATE, 
 		DELETE, 
 		EAV_SAVE,
-		NOTIFY
+		NOTIFY,
+		DUPLICATE // duplicate a role ("clone" keyword is not used - role is not cloned 1:1 - depends on registered processors)
 	}
 
 	public RoleEvent(RoleEventType operation, IdmRoleDto content) {

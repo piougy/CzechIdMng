@@ -6,9 +6,12 @@ import java.util.UUID;
 import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 
 /**
- * Filter for audit
+ * Filter for audit.
+ * Filter must have only interface base filter is not
+ * {@link DataFilter} because audit has long ID.	
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -22,8 +25,18 @@ public class IdmAuditFilter implements BaseFilter {
     private DateTime till;
     private String modification;
     private String modifier;
+    /**
+     * Field changedAttributes is deprecated, please use filed {@link #changedAttributesList}
+     * @deprecated
+     * @since 9.5.0
+     */
     private String changedAttributes;
+    /**
+     * @since 9.5.0
+     */
+    private List<String> changedAttributesList;
     private UUID entityId;
+    private Boolean withVersion;
     
     // owner + sub owner attributes
     private String ownerId;
@@ -82,15 +95,39 @@ public class IdmAuditFilter implements BaseFilter {
         this.till = till;
     }
 
+    /**
+     * Attribute {@link #changedAttributes} is deprecated please use getters and setters
+     * for attribute {@link #changedAttributesList}
+     *
+     * @since 9.5.0
+     * @deprecated
+     * @return
+     */
     public String getChangedAttributes() {
         return changedAttributes;
     }
 
+    /**
+     * Attribute {@link #changedAttributes} is deprecated please use getters and setters
+     * for attribute {@link #changedAttributesList}
+     *
+     * @since 9.5.0
+     * @deprecated
+     * @param changedAttributes
+     */
     public void setChangedAttributes(String changedAttributes) {
         this.changedAttributes = changedAttributes;
     }
 
-    public Long getId() {
+    public List<String> getChangedAttributesList() {
+		return changedAttributesList;
+	}
+
+	public void setChangedAttributesList(List<String> changedAttributesList) {
+		this.changedAttributesList = changedAttributesList;
+	}
+
+	public Long getId() {
         return id;
     }
 
@@ -160,5 +197,13 @@ public class IdmAuditFilter implements BaseFilter {
 
 	public void setOwnerIds(List<String> ownerIds) {
 		this.ownerIds = ownerIds;
+	}
+
+	public Boolean isWithVersion() {
+		return withVersion;
+	}
+
+	public void setWithVersion(Boolean withVersion) {
+		this.withVersion = withVersion;
 	}
 }

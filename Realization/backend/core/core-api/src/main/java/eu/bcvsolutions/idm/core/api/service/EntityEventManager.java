@@ -85,6 +85,18 @@ public interface EntityEventManager {
 	List<EntityEventProcessorDto> find(EntityEventProcessorFilter filter);
 	
 	/**
+	 * Returns registered and enabled processor to given event.
+	 * Conditional method on the processor ({@link EntityEventProcessor#conditional(EntityEvent)}) is not evaluated -> all enabled processor 
+	 * registreded to given event type and content are returned. 
+	 * 
+	 * @param event
+	 * @return
+	 * @see EntityEventProcessor#conditional(EntityEvent)
+	 */
+	@SuppressWarnings("rawtypes")
+	List<EntityEventProcessor> getEnabledProcessors(EntityEvent<?> event);
+	
+	/**
 	 * Get registered event processor by id
 	 * 
 	 * @param processorId

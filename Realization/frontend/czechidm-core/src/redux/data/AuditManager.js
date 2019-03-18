@@ -2,6 +2,11 @@ import EntityManager from './EntityManager';
 import { AuditService } from '../../services';
 import DataManager from './DataManager';
 
+/**
+ * Uikey can be for all details same, beacuse result is also same.
+ */
+const AUDIT_ENTITY_NAMES_UIKEY = 'audit-entity-names-uikey';
+
 export default class AuditManager extends EntityManager {
 
   constructor() {
@@ -25,7 +30,7 @@ export default class AuditManager extends EntityManager {
   /**
    * Return search paramaters for endpoind with information about audited entities.
    */
-  getAuditedEntitiesNames() {
+  getSearchParametersAuditedEntitiesNames() {
     return this.getService().getAuditedEntitiesSearchParameters();
   }
 
@@ -65,5 +70,36 @@ export default class AuditManager extends EntityManager {
         dispatch(this.receiveError({}, uiKey, error, cb));
       });
     };
+  }
+
+  /**
+   * Fetch audited entity names
+   */
+  fetchAuditedEntitiesNames(cb = null) {
+    return (dispatch) => {
+      const searchParameters = this.getSearchParametersAuditedEntitiesNames();
+      const uiKey = AUDIT_ENTITY_NAMES_UIKEY;
+      dispatch(this.requestEntities(searchParameters, uiKey));
+      this.getService().search(searchParameters)
+      .then(json => {
+        dispatch(this.dataManager.receiveData(uiKey, json, cb));
+      })
+      .catch(error => {
+        dispatch(this.receiveError({}, uiKey, error, cb));
+      });
+    };
+  }
+
+  /**
+   * Get loaded audit entities names
+   */
+  getAuditedEntitiesNames(state) {
+    return DataManager.getData(state, AUDIT_ENTITY_NAMES_UIKEY);
+  }
+
+  prepareOptionsFromAuditedEntitiesNames(entities) {
+    if (entities !== null) {
+      return entities._embedded.strings.map(item => { return {value: item.content, niceLabel: item.content }; });
+    }
   }
 }

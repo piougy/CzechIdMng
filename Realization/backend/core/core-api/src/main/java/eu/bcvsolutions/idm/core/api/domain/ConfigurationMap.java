@@ -21,6 +21,14 @@ public class ConfigurationMap extends JobDataMap {
 
 	private static final long serialVersionUID = 7431983283346202466L;
 
+	
+	public ConfigurationMap() {
+	}
+	
+	public ConfigurationMap(Map<?, ?> map) {
+		super(map);
+	}
+	
 	/**
      * <p>
      * Retrieve the identified <code>UUID</code> value from the <code>StringKeyDirtyFlagMap</code>.

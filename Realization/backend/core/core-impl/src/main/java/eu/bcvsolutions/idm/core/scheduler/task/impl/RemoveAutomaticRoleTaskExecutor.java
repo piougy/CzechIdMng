@@ -148,7 +148,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	@Override
 	public Optional<OperationResult> processItem(IdmIdentityRoleDto identityRole) {	
 		try {
-			automaticRoleAttributeService.removeAutomaticRoles(identityRole);
+			roleTreeNodeService.removeAutomaticRoles(identityRole, null);
 			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch(Exception ex) {

@@ -22,7 +22,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvider, Serializable {
 	
-	String EVENT_PROPERTY = "entityEvent";
+	String EVENT_PROPERTY = "entityEvent"; // event propagated into WF process variable
+	//
+	// internal event properties - are not propagated automatically from parent to child event
 	String EVENT_PROPERTY_EVENT_ID = "idm:event-id"; // persisted event id
 	String EVENT_PROPERTY_EXECUTE_DATE = "idm:execute-date"; // asynchronous event processing time
 	String EVENT_PROPERTY_PRIORITY = "idm:priority"; // event priority
@@ -31,6 +33,9 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	String EVENT_PROPERTY_PARENT_EVENT_TYPE = "idm:parent-event-type"; // parent event type
 	String EVENT_PROPERTY_SUPER_OWNER_ID = "idm:super-owner-id"; // entity event super owner id (e.g. identity (~super owner) - identityRole (event owner))
 	String EVENT_PROPERTY_PERMISSION = "idm:permission"; // permission to evaluate (AND)
+	//
+	// additional properties - are propagated automatically from parent to child event
+	String EVENT_PROPERTY_TRANSACTION_ID = "idm:transaction-id"; // transaction identifier - whole event tree will be under one transaction id.
 	
 	/**
 	 * Operation type
@@ -249,4 +254,20 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	 * @param permission
 	 */
 	void setPermission(BasePermission... permission);
+	
+	/**
+	 * Action / transaction id
+	 * 
+	 * @return
+	 * @since 9.5.0
+	 */
+	UUID getTransactionId();
+	
+	/**
+	 * Action / transaction id
+	 * 
+	 * @param transactionId
+	 * @since 9.5.0
+	 */
+	void setTransactionId(UUID transactionId);
 }

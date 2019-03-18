@@ -17,9 +17,11 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
@@ -30,6 +32,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -51,27 +54,26 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 @Service
 public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<SysRoleSystemDto, SysRoleSystem, SysRoleSystemFilter> implements SysRoleSystemService {
 
-	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final AccIdentityAccountRepository identityAccountRepository;
 	private final IdmRoleService roleService;
 	@Autowired
 	private RequestManager requestManager;
 	@Autowired
 	private SysSystemMappingService systemMappingService;
+	@Autowired
+	private SysRoleSystemAttributeService roleSystemAttributeService;
 	
 	@Autowired
 	public DefaultSysRoleSystemService(
 			SysRoleSystemRepository repository,
-			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
+			SysRoleSystemAttributeRepository roleSystemAttributeRepository, // Since 9.5.0 isn't repository needed
 			AccIdentityAccountRepository identityAccountRepository,
 			IdmRoleService roleService) {
 		super(repository);
 		//
-		Assert.notNull(roleSystemAttributeRepository);
 		Assert.notNull(identityAccountRepository);
 		Assert.notNull(roleService);
 		//
-		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
 		this.identityAccountRepository = identityAccountRepository;
 		this.roleService = roleService;
 	}
@@ -80,9 +82,18 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteDtoService<Sys
 	@Transactional
 	public void delete(SysRoleSystemDto roleSystem, BasePermission... permission) {
 		Assert.notNull(roleSystem);
-		// delete attributes
+		Assert.notNull(roleSystem.getId());
+
 		SysRoleSystem roleSystemEntity = this.getEntity(roleSystem.getId());
-		roleSystemAttributeRepository.deleteByRoleSystem(this.getEntity(roleSystem.getId()));
+		//
+		// delete attributes
+		SysRoleSystemAttributeFilter filter = new SysRoleSystemAttributeFilter();
+		filter.setRoleSystemId(roleSystem.getId());
+		List<SysRoleSystemAttributeDto> attributes = roleSystemAttributeService.find(filter, null).getContent();
+		// We must delete attribute against service NOT repository. Historical controlled values are created by service.
+		for (SysRoleSystemAttributeDto attribute : attributes) {
+			roleSystemAttributeService.delete(attribute);
+		}
 		//
 		// clear identityAccounts - only link on roleSystem
 		identityAccountRepository.clearRoleSystem(roleSystemEntity);

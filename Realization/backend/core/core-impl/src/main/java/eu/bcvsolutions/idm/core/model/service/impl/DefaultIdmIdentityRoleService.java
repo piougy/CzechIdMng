@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -10,7 +12,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +27,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
@@ -36,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -60,6 +66,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * 
  * @author svanda
  * @author Radek Tomiška
+ * @author Ondrej Kopr
  *
  */
 public class DefaultIdmIdentityRoleService 
@@ -346,6 +353,162 @@ public class DefaultIdmIdentityRoleService
 		return toDtoPage(repository.findExpiredRoles(expirationDate, page));
 	}
 
+	@Override
+	public IdmIdentityRoleDto getDuplicated(IdmIdentityRoleDto one, IdmIdentityRoleDto two, Boolean skipSubdefinition) {
+
+		if (!one.getRole().equals(two.getRole())) {
+			// Role isn't same
+			return null;
+		}
+		
+		if (!one.getIdentityContract().equals(two.getIdentityContract())) {
+			// Contract isn't same
+			return null;
+		}
+		
+		IdmRoleDto role = DtoUtils.getEmbedded(one, IdmIdentityRole_.role, IdmRoleDto.class, null);
+		if (role == null) {
+			role = roleService.get(one.getRole());
+		}
+
+		IdmIdentityRoleDto manually = null;
+		IdmIdentityRoleDto automatic = null;
+		
+		if (isRoleAutomaticOrComposition(one)) {
+			automatic = one;
+			manually = two;
+		}
+
+		if (isRoleAutomaticOrComposition(two)) {
+			if (automatic != null) {
+				// Automatic role is set from role ONE -> Both identity roles are automatic
+				return null;
+			}
+			automatic = two;
+			manually = one;
+		}
+
+		/// Check duplicity for validity
+		IdmIdentityRoleDto validityDuplicity = null;
+		if (automatic == null) {
+			// Check if ONE role is dupliciti with TWO and change order
+			boolean duplicitOne = isIdentityRoleDatesDuplicit(one, two);
+			boolean duplicitTwo = isIdentityRoleDatesDuplicit(two, one);
+
+			if (duplicitOne && duplicitTwo) {
+				// Both roles are same call method for decide which role will be removed
+				validityDuplicity = getIdentityRoleForRemove(one, two);
+			} else if (duplicitOne) {
+				// Only role ONE is duplicit with TWO
+				validityDuplicity = one;
+			} else if (duplicitTwo) {
+				// Only role TWO is duplicit with ONE
+				validityDuplicity = two;
+			}
+		} else {
+			// In case that we have only manually and automatic compare only from one order
+			if (isIdentityRoleDatesDuplicit(manually, automatic)) {
+				validityDuplicity = manually;
+			}
+			
+		}
+
+		// Check subdefinition can be skipped
+		// and must be checked after validity
+		if (BooleanUtils.isNotTrue(skipSubdefinition)) {
+			// Validity must be same and subdefinition also. Then is possible remove role.
+			// Subdefinition must be exactly same and isn't different between manually and automatic identity role
+			if (validityDuplicity != null && equalsSubdefinitions(role, one, two)) {
+				return validityDuplicity;
+			}
+		} else {
+			// Check for subdefintion is skipped return only duplicity
+			return validityDuplicity;
+		}
+
+		// No duplicity founded
+		return null;
+	}
+
+	/**
+	 * Method decides identity role that will be removed if both roles are same.
+	 * In default behavior is for removing choosen the newer. Method is protected for easy
+	 * overriding.
+	 *
+	 * @param one
+	 * @param two
+	 * @return
+	 */
+	protected IdmIdentityRoleDto getIdentityRoleForRemove(IdmIdentityRoleDto one, IdmIdentityRoleDto two) {
+		// Both roles are same, remove newer
+		if (one.getCreated().isAfter(two.getCreated())) {
+			return one;
+		}
+		return two;
+	}
+
+	/**
+	 * Check if role ONE is duplicit by date with role TWO. For example if is role ONE fully in interval of validite the
+	 * role TWO.
+	 * =
+	 * @param one
+	 * @param two
+	 * @return
+	 */
+	private boolean isIdentityRoleDatesDuplicit(IdmIdentityRoleDto one, IdmIdentityRoleDto two) {
+		LocalDate validTillForFirst = getDateForValidTill(one);
+		// Validity role is in interval in a second role
+		if (isDatesInRange(one.getValidFrom(), validTillForFirst, two.getValidFrom(), two.getValidTill())) {
+			return true;
+		}
+		
+		// Both role are valid
+		if (one.isValid() && two.isValid()) {
+			if ((validTillForFirst == null && two.getValidTill() == null) ||
+					(validTillForFirst != null && two.getValidTill() != null &&	validTillForFirst.isEqual(two.getValidTill()))) {
+				// Valid tills from both identity roles are same
+				return true;
+			} else if (validTillForFirst != null && validTillForFirst.isBefore(two.getValidTill())) {
+				// Valid till from manually role is before automatic, manually role could be removed
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Get valid till for {@link IdmIdentityRoleDto}. Valid till could be set from contract if
+	 * date is after valid till from contract.
+	 *
+	 * @param identityRole
+	 * @return
+	 */
+	private LocalDate getDateForValidTill(IdmIdentityRoleDto identityRole) {
+		LocalDate validTill = identityRole.getValidTill();
+		IdmIdentityContractDto identityContractDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract, IdmIdentityContractDto.class, null);
+		LocalDate validTillContract = identityContractDto.getValidTill();
+
+		if (validTill != null && validTillContract != null && validTillContract.isAfter(validTill)) {
+			return validTill;
+		}
+
+		if (validTillContract == null && validTill != null) {
+			return validTill;
+		}
+
+		return validTillContract;
+	}
+
+	/**
+	 * Check if given {@link IdmIdentityRoleDto} is automatic or business role.
+	 *
+	 * @param identityRole
+	 * @return
+	 */
+	private boolean isRoleAutomaticOrComposition(IdmIdentityRoleDto identityRole) {
+		return identityRole.getAutomaticRole() != null || identityRole.getDirectRole() != null;
+	}
+	
 	/**
 	 * Default sort by role's name
 	 * 
@@ -353,5 +516,66 @@ public class DefaultIdmIdentityRoleService
 	 */
 	private Sort getDefaultSort() {
 		return new Sort(IdmIdentityRole_.role.getName() + "." + IdmRole_.code.getName());
+	}
+
+	/**
+	 * Check if given dates is in range/interval the second ones.
+	 *
+	 * @param validFrom
+	 * @param validTill
+	 * @param rangeFrom
+	 * @param rangeTill
+	 * @return
+	 */
+	private boolean isDatesInRange(LocalDate validFrom, LocalDate validTill, LocalDate rangeFrom, LocalDate rangeTill) {
+		boolean leftIntervalSideOk = false;
+		boolean rightIntervalSideOk = false;
+
+		if (rangeFrom == null || (validFrom != null && (rangeFrom.isBefore(validFrom) || rangeFrom.isEqual(validFrom)))) {
+			leftIntervalSideOk = true;
+		}
+
+		if (rangeTill == null || (validTill != null && (rangeTill.isAfter(validTill) || rangeTill.isEqual(validTill)))) {
+			rightIntervalSideOk = true;
+		}
+
+		return leftIntervalSideOk && rightIntervalSideOk;
+	}
+
+	/**
+	 * Compare subdefinition. Return true if subdefinition are same. If Role doesn't contain subdefinition
+	 * return true.
+	 *
+	 * @param role
+	 * @param one
+	 * @param two
+	 * @return
+	 */
+	private boolean equalsSubdefinitions(IdmRoleDto role, IdmIdentityRoleDto one, IdmIdentityRoleDto two) {
+		IdmFormDefinitionDto subdefinition = roleService.getFormAttributeSubdefinition(role);
+
+		// Role hasn't subdefintion, role are same
+		if (subdefinition == null) {
+			return true;
+		}
+
+		// Get form instance from both identity roles
+		List<Serializable> oneValues = getFormService().getFormInstance(one, subdefinition).getValues() //
+				.stream() //
+				.map(IdmFormValueDto::getValue) //
+				.collect(Collectors.toList());
+
+		List<Serializable> twoValues = getFormService().getFormInstance(two, subdefinition).getValues() //
+				.stream() //
+				.map(IdmFormValueDto::getValue) //
+				.collect(Collectors.toList());
+
+		// Values doesn't match
+		if (oneValues.size() != twoValues.size()) {
+			return false;
+		}
+
+		// Compare collections
+		return CollectionUtils.isEqualCollection(oneValues, twoValues);
 	}
 }

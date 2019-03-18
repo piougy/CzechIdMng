@@ -131,6 +131,18 @@ public class DefaultIdmRoleService
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
+	public IdmRoleDto getByBaseCodeAndEnvironment(String baseCode, String environment) {
+		IdmRoleDto role = new IdmRoleDto();
+		role.setBaseCode(baseCode);
+		role.setEnvironment(environment);
+		//
+		String code = getCodeWithEnvironment(role);
+		// lookout: filter cannot be used - environment could be empty (role without environment is correct state)
+		return getByCode(code);
+	}
+	
+	@Override
 	public IdmFormDefinitionDto getFormAttributeSubdefinition(IdmRoleDto role) {
 		Assert.notNull(role);
 		UUID identityRoleAttributeDefinition = role.getIdentityRoleAttributeDefinition();

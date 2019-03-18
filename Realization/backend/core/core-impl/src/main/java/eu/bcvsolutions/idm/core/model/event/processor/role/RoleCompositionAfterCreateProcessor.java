@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -49,7 +50,11 @@ public class RoleCompositionAfterCreateProcessor
 		//
 		AddNewRoleCompositionTaskExecutor addRoleCompositionTask = AutowireHelper.createBean(AddNewRoleCompositionTaskExecutor.class);
 		addRoleCompositionTask.setRoleCompositionId(roleComposition.getId());
-		longRunningTaskManager.execute(addRoleCompositionTask);
+		if (event.getPriority() == PriorityType.IMMEDIATE) {
+			longRunningTaskManager.executeSync(addRoleCompositionTask);
+		} else {
+			longRunningTaskManager.execute(addRoleCompositionTask);
+		}
 		//
 		return new DefaultEventResult<>(event, this);
 	}

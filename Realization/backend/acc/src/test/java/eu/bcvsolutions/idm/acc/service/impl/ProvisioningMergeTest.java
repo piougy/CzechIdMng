@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysAttributeControlledValueFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -54,6 +55,8 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 	private SysAttributeControlledValueService attributeControlledValueService;
 	@Autowired
 	private TestHelper helper;
+	@Autowired
+	private SysRoleSystemService roleSystemService;
 
 	@Test
 	public void testAttribteControlledValues() {
@@ -596,6 +599,112 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		assertTrue(cachedControlledAndHistoricAttributeValues.contains(ONE_VALUE));
 		assertTrue(cachedControlledAndHistoricAttributeValues.contains(TWO_VALUE + "Changed"));
 
+	}
+
+	@Test
+	public void testControlledAndHistoricValuesRemoveMapping() {
+		SysSystemDto system = helper.createSystem("test_resource");
+		SysSystemMappingDto mapping = helper.createMapping(system);
+		IdmRoleDto roleOne = helper.createRole();
+		IdmRoleDto roleTwo = helper.createRole();
+
+		SysRoleSystemDto roleSystemOne = helper.createRoleSystem(roleOne, system);
+		SysRoleSystemDto roleSystemTwo = helper.createRoleSystem(roleTwo, system);
+
+		SysSchemaAttributeDto rightsSchemaAttribute = new SysSchemaAttributeDto();
+		rightsSchemaAttribute.setObjectClass(mapping.getObjectClass());
+		rightsSchemaAttribute.setName(RIGHTS_ATTRIBUTE);
+		rightsSchemaAttribute.setMultivalued(true);
+		rightsSchemaAttribute.setClassType(String.class.getName());
+		rightsSchemaAttribute.setReadable(true);
+		rightsSchemaAttribute.setUpdateable(true);
+
+		rightsSchemaAttribute = schemaAttributeService.save(rightsSchemaAttribute);
+
+		SysSystemAttributeMappingDto rightsAttribute = new SysSystemAttributeMappingDto();
+		rightsAttribute.setSchemaAttribute(rightsSchemaAttribute.getId());
+		rightsAttribute.setSystemMapping(mapping.getId());
+		rightsAttribute.setName(RIGHTS_ATTRIBUTE);
+		rightsAttribute.setStrategyType(AttributeMappingStrategyType.MERGE);
+		rightsAttribute = attributeMappingService.save(rightsAttribute);
+
+		SysRoleSystemAttributeDto roleAttributeOne = new SysRoleSystemAttributeDto();
+		roleAttributeOne.setName(RIGHTS_ATTRIBUTE);
+		roleAttributeOne.setRoleSystem(roleSystemOne.getId());
+		roleAttributeOne.setStrategyType(AttributeMappingStrategyType.MERGE);
+		roleAttributeOne.setSystemAttributeMapping(rightsAttribute.getId());
+		roleAttributeOne.setTransformToResourceScript("return '" + ONE_VALUE + "';");
+		roleAttributeOne = roleSystemAttributeService.saveInternal(roleAttributeOne);
+
+
+		SysRoleSystemAttributeDto roleAttributeTwo = new SysRoleSystemAttributeDto();
+		roleAttributeTwo.setName(RIGHTS_ATTRIBUTE);
+		roleAttributeTwo.setRoleSystem(roleSystemTwo.getId());
+		roleAttributeTwo.setStrategyType(AttributeMappingStrategyType.MERGE);
+		roleAttributeTwo.setSystemAttributeMapping(rightsAttribute.getId());
+		roleAttributeTwo.setTransformToResourceScript("return '" + TWO_VALUE + "';");
+		roleAttributeTwo = roleSystemAttributeService.saveInternal(roleAttributeTwo);
+		
+		List<Serializable> controlledAttributeValues = attributeMappingService
+				.getControlledAttributeValues(system.getId(), mapping.getEntityType(), RIGHTS_ATTRIBUTE);
+
+		assertNotNull(controlledAttributeValues);
+		assertEquals(2, controlledAttributeValues.size());
+		assertTrue(controlledAttributeValues.contains(ONE_VALUE));
+		assertTrue(controlledAttributeValues.contains(TWO_VALUE));
+
+		attributeMappingService.recalculateAttributeControlledValues(system.getId(), mapping.getEntityType(),
+				RIGHTS_ATTRIBUTE, rightsAttribute);
+
+		SysAttributeControlledValueFilter attributeHistoricalValueFilter = new SysAttributeControlledValueFilter();
+		attributeHistoricalValueFilter.setHistoricValue(Boolean.TRUE);
+		attributeHistoricalValueFilter.setAttributeMappingId(rightsAttribute.getId());
+		List<SysAttributeControlledValueDto> historicAttributeValues = attributeControlledValueService.find(attributeHistoricalValueFilter, null).getContent();
+		List<Serializable> onlyValues = historicAttributeValues.stream() //
+			.map(SysAttributeControlledValueDto::getValue) //
+			.collect(Collectors.toList());
+
+		assertNotNull(onlyValues);
+		assertEquals(0, onlyValues.size());
+
+		// Remove whole mapping (this is different between another tests)
+		roleSystemService.delete(roleSystemOne);
+		
+		controlledAttributeValues = attributeMappingService
+				.getControlledAttributeValues(system.getId(), mapping.getEntityType(), RIGHTS_ATTRIBUTE);
+
+		assertNotNull(controlledAttributeValues);
+		assertEquals(1, controlledAttributeValues.size());
+		assertTrue(controlledAttributeValues.contains(TWO_VALUE));
+
+		historicAttributeValues = attributeControlledValueService.find(attributeHistoricalValueFilter, null).getContent();
+		onlyValues = historicAttributeValues.stream() //
+			.map(SysAttributeControlledValueDto::getValue) //
+			.collect(Collectors.toList());
+
+
+		assertNotNull(onlyValues);
+		assertEquals(1, onlyValues.size());
+		assertTrue(onlyValues.contains(ONE_VALUE));
+
+		// Remove second whole mapping (this is different between another tests)
+		roleSystemService.delete(roleSystemTwo);
+		
+		controlledAttributeValues = attributeMappingService
+				.getControlledAttributeValues(system.getId(), mapping.getEntityType(), RIGHTS_ATTRIBUTE);
+
+		assertNotNull(controlledAttributeValues);
+		assertEquals(0, controlledAttributeValues.size());
+
+		historicAttributeValues = attributeControlledValueService.find(attributeHistoricalValueFilter, null).getContent();
+		onlyValues = historicAttributeValues.stream() //
+			.map(SysAttributeControlledValueDto::getValue) //
+			.collect(Collectors.toList());
+
+		assertNotNull(onlyValues);
+		assertEquals(2, onlyValues.size());
+		assertTrue(onlyValues.contains(ONE_VALUE));
+		assertTrue(onlyValues.contains(TWO_VALUE));
 	}
 
 }

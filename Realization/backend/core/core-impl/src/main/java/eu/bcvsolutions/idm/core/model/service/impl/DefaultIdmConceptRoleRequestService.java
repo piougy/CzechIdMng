@@ -45,13 +45,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole_;
@@ -95,8 +93,6 @@ public class DefaultIdmConceptRoleRequestService extends
 	private IdmRoleService roleService;
 	@Autowired
 	private FormService formService;
-	@Autowired
-	private IdmFormAttributeService formAttributeService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
@@ -270,21 +266,12 @@ public class DefaultIdmConceptRoleRequestService extends
 			List<IdmFormValueDto> attributeValues = dto.getEavs().size() == 1 && dto.getEavs().get(0) != null
 					? dto.getEavs().get(0).getValues()
 					: null;
-			UUID formDefinition = roleDto.getIdentityRoleAttributeDefinition();
-
-			// Check if all attributes has correct form definition
-			if (attributeValues != null && formDefinition != null) {
-				attributeValues.stream() //
-						.filter(value -> { //
-							IdmFormAttributeDto attributeDto = formAttributeService.get(value.getFormAttribute());
-							return !formDefinition.equals(attributeDto.getFormDefinition());
-						}).findFirst() //
-						.ifPresent(present -> {
-							throw new ResultCodeException(CoreResultCode.REQUEST_ITEM_WRONG_FORM_DEFINITON_IN_VALUES,
-									ImmutableMap.of("item", savedDto.getId(), "role", savedDto.getRole(),
-											"formDefinition", formDefinition));
-						});
-				List<IdmFormValueDto> savedValues = formService.saveValues(savedDto, formDefinition, attributeValues);
+					
+			// Load sub definition by role
+			IdmFormDefinitionDto formDefinitionDto = roleService.getFormAttributeSubdefinition(roleDto);
+			if (formDefinitionDto != null) {
+				// Save form values for sub-definition
+				List<IdmFormValueDto> savedValues = formService.saveValues(savedDto, formDefinitionDto, attributeValues);
 				IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
 				formInstance.setValues(savedValues);
 				savedDto.getEavs().clear();

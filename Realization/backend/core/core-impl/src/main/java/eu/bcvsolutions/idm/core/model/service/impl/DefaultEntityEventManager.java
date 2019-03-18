@@ -190,6 +190,9 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			if (StringUtils.isEmpty(event.getParentType())) {
 				event.setParentType(parentEvent.getType().name());
 			}
+			// propagate properties from parent to child event. 
+			// properties need for internal event processing are ignored (see {@link EntityEvent} properties)
+			propagateProperties(event, parentEvent);
 		}
 		//
 		// read previous (original) dto source - usable in "check modification" processors
@@ -269,12 +272,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		return toDto(processor);
 	}
 	
-	/**
-	 * Get processor from context by id
-	 * 
-	 * @param processorId
-	 * @return
-	 */
 	@Override
 	public EntityEventProcessor<?> getProcessor(String processorId) {
 		Assert.notNull(processorId);
@@ -695,7 +692,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		return dto;
 	}
 	
-	@SuppressWarnings({"unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void putToQueue(IdmEntityEventDto entityEvent) {
 		if (entityEvent.getPriority() == PriorityType.IMMEDIATE) {
 			LOG.trace("Event type [{}] for owner with id [{}] will be executed synchronously.", 
@@ -710,26 +707,20 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			return;
 		}
 		//
-		// get enabled processors
-		final EntityEvent<? extends Serializable> event = toEvent(entityEvent);
-		List<EntityEventProcessor> registeredProcessors = context
-			.getBeansOfType(EntityEventProcessor.class)
-			.values()
-			.stream()
-			.filter(enabledEvaluator::isEnabled)
-			.filter(processor -> !processor.isDisabled())
-			.filter(processor -> processor.supports(event))
-			.filter(processor -> processor.conditional(event))
-			.sorted(new AnnotationAwareOrderComparator())
-			.collect(Collectors.toList());
-		if (registeredProcessors.isEmpty()) {
+		// get enabled processors, which listen given event (conditional is evaluated)
+		final EntityEvent<?> event = toEvent(entityEvent);
+		List<EntityEventProcessor> listenProcessors = getEnabledProcessors(event)
+				.stream()
+				.filter(processor -> processor.conditional(event))
+				.collect(Collectors.toList());
+		if (listenProcessors.isEmpty()) {
 			LOG.debug("Event type [{}] for owner with id [{}] will not be executed, no enabled processor is registered.", 
 					entityEvent.getEventType(), entityEvent.getOwnerId());	
 			return;
 		}
 		//
 		// evaluate event priority by registered processors
-		PriorityType priority = evaluatePriority(event, registeredProcessors);
+		PriorityType priority = evaluatePriority(event, listenProcessors);
 		if (priority != null && priority.getPriority() < entityEvent.getPriority().getPriority()) {
 			entityEvent.setPriority(priority);
 		}
@@ -762,6 +753,20 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		//
 		// persist event - asynchronous processing
 		entityEventService.save(entityEvent);
+	}
+	
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<EntityEventProcessor> getEnabledProcessors(EntityEvent<?> event) {
+		return context
+				.getBeansOfType(EntityEventProcessor.class)
+				.values()
+				.stream()
+				.filter(enabledEvaluator::isEnabled)
+				.filter(processor -> !processor.isDisabled())
+				.filter(processor -> processor.supports(event))
+				.sorted(new AnnotationAwareOrderComparator())
+				.collect(Collectors.toList());
 	}
 	
 	/**
@@ -958,22 +963,46 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	}
 	
 	/**
+	 * Propagate properties from parent to child event.
+	 * Properties need for internal event processing are ignored (see {@link EntityEvent} properties). 
+	 * 
+	 * @param event
+	 * @param parentEvent
+	 */
+	protected void propagateProperties(EntityEvent<?> event, EntityEvent<?> parentEvent) {
+		Assert.notNull(event);
+		Assert.notNull(parentEvent);
+		//
+		// clone event properties from parent - only if absent
+		getProperties(parentEvent.getProperties())
+			.entrySet()
+			.forEach(entry -> {
+				event.getProperties().putIfAbsent(entry.getKey(), (Serializable) entry.getValue());
+			});
+	}
+	
+	/**
 	 * Remove internal event properties needed for processing
 	 * 
 	 * @param event
 	 * @return
 	 */
 	private ConfigurationMap getProperties(IdmEntityEventDto event) {
-		ConfigurationMap copiedProperies = new ConfigurationMap();
-		copiedProperies.putAll(event.getProperties());
+		return getProperties(event.getProperties().toMap());
+	}
+	
+	private ConfigurationMap getProperties(Map<String, Serializable> eventProperties) {
+		ConfigurationMap copiedProperies = new ConfigurationMap(eventProperties);
 		//
-		// remove internal event properties needed for processing
+		// Remove internal event properties needed for processing - will be computed as new.
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_EVENT_ID);
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE);
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_PRIORITY);
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_SUPER_OWNER_ID);
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_PARENT_EVENT_ID);
+		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_PARENT_EVENT_TYPE);
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_ROOT_EVENT_ID);
+		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_PERMISSION);
 		//
 		return copiedProperies;
 	}
@@ -1154,6 +1183,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 					.build());
 		}
 		entityEvent.setSuspended(event.isSuspended());
+		entityEvent.setTransactionId(event.getTransactionId());
 		//
 		return entityEvent;
 	}

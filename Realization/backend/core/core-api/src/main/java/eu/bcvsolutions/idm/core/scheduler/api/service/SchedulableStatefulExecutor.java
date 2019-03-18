@@ -56,12 +56,28 @@ public interface SchedulableStatefulExecutor<DTO extends AbstractDto, V> extends
 	boolean requireNewTransaction();
 	
 	/**
+	 * Each item will be processed in new transaction
+	 * 
+	 * @param requireNewTransaction
+	 * @since 9.5.0
+	 */
+	void setRequireNewTransaction(boolean requireNewTransaction);
+	
+	/**
 	 * If process of one item fails on exception, then continue with the next item.
 	 *  
 	 * @return true - continue with next item, false - end on the first exception
 	 * @since 9.3.0
 	 */
 	boolean continueOnException();
+	
+	/**
+	 * If process of one item fails on exception, then continue with the next item.
+	 * 
+	 * @param continueOnException true - continue with next item, false - end on the first exception
+	 * @since 9.5.0
+	 */
+	void setContinueOnException(boolean continueOnException);
 	
 	/**
 	 * Returns all entity references (of type {@link AbstractDto#getId()}

@@ -99,7 +99,7 @@ public class DefaultIdmRoleCompositionService
 	
 	/**
 	 * @Transactional is not needed - (asynchronous) events is thrown for every sub role anyway ...
-	 * Can be called repetitively for given identity role => checks or creates missing sub roles  by composition.
+	 * Can be called repetitively for given identity role => checks or creates missing sub roles by composition.
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -120,14 +120,14 @@ public class DefaultIdmRoleCompositionService
 			.forEach(subRoleComposition -> {
 				IdmRoleDto subRole = DtoUtils.getEmbedded(subRoleComposition, IdmRoleComposition_.sub);
 				if (processedRoles.contains(subRole.getId())) {
-					LOG.debug("Role [{}] was already processed by business role composition - skipping", subRole.getCode());
+					LOG.debug("Role [{}] was already processed by other business role composition - cycle, skipping", subRole.getCode());
 				} else {
 					// try to find currently assigned subrole by this configuration (return operation)
 					IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 					filter.setRoleCompositionId(subRoleComposition.getId());
 					filter.setDirectRoleId(identityRole.getDirectRole() == null ? identityRole.getId() : identityRole.getDirectRole());
 					if (identityRoleService.find(filter, null).getTotalElements() > 0) {
-						LOG.debug("Role [{}] was already processed by business role composition - skipping", subRole.getCode());
+						LOG.debug("Role [{}] was already processed by other business role composition - cycle, skipping", subRole.getCode());
 					} else {
 						//
 						IdmIdentityRoleDto subIdentityRole = new IdmIdentityRoleDto();

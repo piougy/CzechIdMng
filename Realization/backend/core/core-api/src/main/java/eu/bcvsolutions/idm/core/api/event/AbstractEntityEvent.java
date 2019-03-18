@@ -229,4 +229,14 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 	public void setPermission(BasePermission... permission) {
 		getProperties().put(EVENT_PROPERTY_PERMISSION, permission);
 	}
+	
+	@Override
+	public UUID getTransactionId() {
+		return EntityUtils.toUuid(getProperties().get(EVENT_PROPERTY_TRANSACTION_ID));
+	}
+	
+	@Override
+	public void setTransactionId(UUID transactionId) {
+		getProperties().put(EVENT_PROPERTY_TRANSACTION_ID, transactionId);
+	}
 }

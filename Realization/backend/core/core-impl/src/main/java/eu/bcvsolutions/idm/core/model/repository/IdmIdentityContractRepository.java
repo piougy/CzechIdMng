@@ -48,7 +48,7 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 			+ " and"
 			+ " (:identityId is null or e.identity.id = :identityId)"
 			+ " and"
-			+ "  (:onlyExterne is null or e.externe = :onlyExterne)"
+			+ "  (:isExterne is null or e.externe = :isExterne)"
 			+ " and"
 			+ " ( e.validTill is null or (?#{[1] == null ? 'null' : ''} = 'null' or e.validTill >= :date ))"
 			+ " and"
@@ -56,7 +56,7 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	List<IdmIdentityContract> findAllValidContracts(
 			@Param("identityId") UUID identityId, 
 			@Param("date") LocalDate date, 
-			@Param("onlyExterne") Boolean onlyExterne);
+			@Param("isExterne") Boolean isExterne);
 	
 	/**
 	 * @deprecated use {@link #countByWorkPosition_Id(UUID)}

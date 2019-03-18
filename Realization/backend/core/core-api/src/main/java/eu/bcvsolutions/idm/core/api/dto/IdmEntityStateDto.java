@@ -53,6 +53,7 @@ public class IdmEntityStateDto extends AbstractDto {
 			this.ownerId = event.getOwnerId();
 			this.superOwnerId = event.getSuperOwnerId();
 			this.instanceId = event.getInstanceId();
+			this.setTransactionId(event.getTransactionId());
 		}
 	}
 	

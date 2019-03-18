@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.role.RoleTreeNodeDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleTreeNodeSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
@@ -57,7 +56,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmRoleTreeNodeService 
-		extends AbstractReadWriteDtoService<IdmRoleTreeNodeDto, IdmRoleTreeNode, IdmRoleTreeNodeFilter> 
+		extends AbstractEventableDtoService<IdmRoleTreeNodeDto, IdmRoleTreeNode, IdmRoleTreeNodeFilter> 
 		implements IdmRoleTreeNodeService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleTreeNodeService.class);
@@ -72,7 +71,7 @@ public class DefaultIdmRoleTreeNodeService
 			IdmTreeNodeRepository treeNodeRepository,
 			EntityEventManager entityEventManager,
 			IdmIdentityRoleService identityRoleService) {
-		super(repository);
+		super(repository, entityEventManager);
 		//
 		Assert.notNull(entityEventManager);
 		Assert.notNull(treeNodeRepository);
@@ -111,23 +110,6 @@ public class DefaultIdmRoleTreeNodeService
 			return context.getContent();
 		}
 		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED, "Automatic role update is not supported");
-	}
-	
-	/**
-	 * Publish {@link RoleTreeNodeEvent} only.
-	 * 
-	 * @see {@link RoleTreeNodeDeleteProcessor}
-	 */
-	@Override
-	@Transactional(noRollbackFor = AcceptedException.class)
-	public void delete(IdmRoleTreeNodeDto roleTreeNode, BasePermission... permission) {
-		Assert.notNull(roleTreeNode);
-		checkAccess(this.getEntity(roleTreeNode.getId()), permission);
-		//
-		LOG.debug("Deleting automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
-		//
-		// its asynchronous, but we cannot throw Accepted exception - its called from requests
-		entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.DELETE, roleTreeNode));
 	}
 	
 	@Override

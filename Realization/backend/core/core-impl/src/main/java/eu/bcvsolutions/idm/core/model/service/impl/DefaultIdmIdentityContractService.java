@@ -291,8 +291,8 @@ public class DefaultIdmIdentityContractService
 	}
 
 	@Override
-	public List<IdmIdentityContractDto> findAllValidForDate(UUID identityId, LocalDate date, Boolean onlyExterne) {
-		return toDtos(this.repository.findAllValidContracts(identityId, date, onlyExterne), false);
+	public List<IdmIdentityContractDto> findAllValidForDate(UUID identityId, LocalDate date, Boolean isExterne) {
+		return toDtos(this.repository.findAllValidContracts(identityId, date, isExterne), false);
 	}
 
 	@Override

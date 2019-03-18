@@ -64,9 +64,36 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONTRACTSLICE_READ' ] } ]
         },
         {
-          path: 'revision',
-          component: require('./src/content/identity/Audit'),
+          path: 'audit',
+          component: require('./src/content/identity/AuditRoutes'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+        },
+        {
+          path: 'audit/',
+          component: require('./src/content/identity/AuditRoutes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
+          childRoutes: [
+            {
+              path: 'identity',
+              component: require('./src/content/identity/Audit'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+            },
+            {
+              path: 'roles',
+              component: require('./src/content/identity/AuditRoles'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+            },
+            {
+              path: 'login',
+              component: require('./src/content/identity/AuditLogins'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+            },
+            {
+              path: 'password-change',
+              component: require('./src/content/identity/AuditPasswordChanges'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+            }
+          ]
         },
         {
           path: 'subordinates',
@@ -848,6 +875,21 @@ module.exports = {
         {
           path: 'identities',
           component: require('./src/content/audit/identity/AuditIdentityContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+        },
+        {
+          path: 'identity-roles',
+          component: require('./src/content/audit/identity/AuditIdentityRolesContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+        },
+        {
+          path: 'identity-login',
+          component: require('./src/content/audit/identity/AuditIdentityLoginContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+        },
+        {
+          path: 'identity-password-change',
+          component: require('./src/content/audit/identity/AuditIdentityPasswordChangeContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
         }
       ]

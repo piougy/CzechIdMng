@@ -61,6 +61,7 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * @see Page
  *
  * @param <DTO> dto type for entity type
+ * @param <E> entity type
  * @param <F> filter
  */
 public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>

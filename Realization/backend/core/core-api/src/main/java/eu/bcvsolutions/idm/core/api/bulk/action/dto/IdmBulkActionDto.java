@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.api.bulk.action.dto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import eu.bcvsolutions.idm.core.api.dto.AbstractComponentDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 
@@ -30,13 +30,10 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
  */
 @JsonInclude(Include.NON_NULL)
 @Relation(collectionRelation = "bulkOperations")
-public class IdmBulkActionDto implements Serializable {
+public class IdmBulkActionDto extends AbstractComponentDto {
 
 	private static final long serialVersionUID = 1L;
 
-	private String name;
-	@JsonProperty(access = Access.READ_ONLY)
-	private String module;
 	@JsonProperty(access = Access.READ_ONLY)
 	private String entityClass;
 	@JsonProperty(access = Access.READ_ONLY)
@@ -62,22 +59,6 @@ public class IdmBulkActionDto implements Serializable {
 
 	public void setLongRunningTaskId(UUID longRunningTaskId) {
 		this.longRunningTaskId = longRunningTaskId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getModule() {
-		return module;
-	}
-
-	public void setModule(String module) {
-		this.module = module;
 	}
 
 	public Map<String, Object> getProperties() {

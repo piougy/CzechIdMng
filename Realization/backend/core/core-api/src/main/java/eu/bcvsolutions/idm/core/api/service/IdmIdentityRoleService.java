@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -21,6 +22,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * 
  * @author svanda
  * @author Radek Tomiška
+ * @author Ondrej Kopr
  *
  */
 public interface IdmIdentityRoleService extends
@@ -105,4 +107,23 @@ public interface IdmIdentityRoleService extends
 	 * @return
 	 */
 	List<InvalidFormAttributeDto> validateFormAttributes(IdmIdentityRoleDto identityRole);
+
+	/**
+	 * Check if {@link IdmIdentityRoleDto} <b>ONE</b> is duplicit against {@link IdmIdentityRoleDto} <b>TWO</b>.</br></br>
+	 * Method check these states:</br>
+	 * - If {@link IdmIdentityRoleDto} has same {@link IdmRoleDto}</br>
+	 * - If {@link IdmIdentityRoleDto} has same {@link IdmIdentityContractDto}</br>
+	 * - If both roles are automatically added (in this case is return always false)</br>
+	 * - If role <b>ONE</b> is duplicity with validity to role <b>TWO</b>. When are both roles manually added is also check if
+	 * role <b>TWO</b> is duplicity with validity to role <b>ONE</b>
+	 * - If {@link IdmIdentityRoleDto} has same definition and values (this can be skipped by parameter @param <b>skipSubdefinition</b>)</br>
+	 * 
+	 * @param one
+	 * @param two
+	 * @param skipSubdefinition
+	 * @return true if {@link IdmIdentityRoleDto} are same or similar. Otherwise false if {@link IdmIdentityRoleDto} are different
+	 * @since 9.5.0
+	 * @see <a href="https://wiki.czechidm.com/devel/documentation/roles/dev/identity-role-deduplication">Documentation link</a> for more information
+	 */
+	IdmIdentityRoleDto getDuplicated(IdmIdentityRoleDto one, IdmIdentityRoleDto two, Boolean skipSubdefinition);
 }

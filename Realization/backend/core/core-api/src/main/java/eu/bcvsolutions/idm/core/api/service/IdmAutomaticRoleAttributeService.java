@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -65,6 +66,14 @@ public interface IdmAutomaticRoleAttributeService
 	void removeAutomaticRoles(UUID contractId, Set<AbstractIdmAutomaticRoleDto> automaticRoles);
 	
 	/**
+	 * The same as {@link #prepareRemoveAutomaticRoles(IdmIdentityRoleDto, Set)}, but doesn't add new transaction.
+	 * 
+	 * @param contractId
+	 * @param automaticRoles
+	 */
+	void removeAutomaticRolesInternal(UUID contractId, Set<AbstractIdmAutomaticRoleDto> automaticRoles);
+	
+	/**
 	 * Return all rules that pass/not pass (this is controlled by boolean parameter 'pass'),
 	 * automatic role will be search only for contract id.
 	 *
@@ -110,6 +119,14 @@ public interface IdmAutomaticRoleAttributeService
 	void addAutomaticRoles(IdmIdentityContractDto contract, Set<AbstractIdmAutomaticRoleDto> automaticRoles);
 	
 	/**
+	 * The same as @link {@link #addAutomaticRoles(IdmIdentityContractDto, Set)} but doesn't add new transaction
+	 * 
+	 * @param contract
+	 * @param automaticRoles
+	 */
+	void addAutomaticRolesInternal(IdmIdentityContractDto contract, Set<AbstractIdmAutomaticRoleDto> automaticRoles);
+	
+	/**
 	 * Add automatic role to contract position. This method doesn't use standard role request 
 	 * and add {@link IdmIdentityRoleDto} directly.
 	 * In this method skip check changed authorities by processor {@link IdentityRoleAddAuthoritiesProcessor}.
@@ -139,13 +156,23 @@ public interface IdmAutomaticRoleAttributeService
 	 * @param notPassedAutomaticRoles
 	 */
 	void processAutomaticRolesForContractInternal(UUID contractId, Set<AbstractIdmAutomaticRoleDto> passedAutomaticRoles, Set<AbstractIdmAutomaticRoleDto> notPassedAutomaticRoles);
+	
 	/**
 	 * Recalculate this automatic role and rules and assign new role to identity or remove.
 	 * 
 	 * @param automaticRoleId
-	 * @return 
+	 * @return
 	 */
 	IdmAutomaticRoleAttributeDto recalculate(UUID automaticRoleId);
+	
+	/**
+	 * Recalculate this automatic role and rules and assign new role to identity or remove.
+	 * 
+	 * @param event
+	 * @return 
+	 * @since 9.5.0
+	 */
+	IdmAutomaticRoleAttributeDto recalculate(EntityEvent<IdmAutomaticRoleAttributeDto> event);
 	
 	/**
 	 * Find all automatic role that is not in concept state. {@link AutomaticRoleAttributeRuleType}

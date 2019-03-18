@@ -51,7 +51,6 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
@@ -171,6 +170,24 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countSystems", 
+			tags = { SysSystemController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
 	}
 
 	@Override
@@ -594,16 +611,16 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@ApiOperation(
 			value = "Get available bulk actions", 
 			nickname = "availableBulkAction", 
 			tags = { SysSystemController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") }),
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
 				})
 	public List<IdmBulkActionDto> getAvailableBulkActions() {
 		return super.getAvailableBulkActions();
@@ -617,7 +634,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	 */
 	@ResponseBody
 	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@ApiOperation(
 			value = "Process bulk action for role", 
 			nickname = "bulkAction", 
@@ -625,9 +642,9 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			tags = { SysSystemController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "")}),
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "")})
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
 				})
 	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.bulkAction(bulkAction);
@@ -641,7 +658,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	 */
 	@ResponseBody
 	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@ApiOperation(
 			value = "Prevalidate bulk action for role", 
 			nickname = "prevalidateBulkAction", 
@@ -649,9 +666,9 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			tags = { SysSystemController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "")}),
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "")})
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
 				})
 	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.prevalidateBulkAction(bulkAction);

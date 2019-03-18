@@ -285,7 +285,7 @@ public class IdmCodeListItemController extends AbstractReadWriteDtoController<Id
 	
 	@ResponseBody
 	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CODE_LIST_ITEM_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CODE_LIST_ITEM_READ + "')")
 	@ApiOperation(
 			value = "Process bulk action for code list items", 
 			nickname = "bulkAction", 
@@ -293,9 +293,9 @@ public class IdmCodeListItemController extends AbstractReadWriteDtoController<Id
 			tags = { IdmCodeListItemController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.CODE_LIST_ITEM_UPDATE, description = "")}),
+						@AuthorizationScope(scope = CoreGroupPermission.CODE_LIST_ITEM_READ, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.CODE_LIST_ITEM_UPDATE, description = "")})
+						@AuthorizationScope(scope = CoreGroupPermission.CODE_LIST_ITEM_READ, description = "")})
 				})
 	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.bulkAction(bulkAction);

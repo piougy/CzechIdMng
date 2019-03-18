@@ -304,7 +304,7 @@ public class IdmProfileController extends AbstractEventableDtoController<IdmProf
 	 */
 	@ResponseBody
 	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PROFILE_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PROFILE_READ + "')")
 	@ApiOperation(
 			value = "Process bulk action for profile", 
 			nickname = "bulkAction", 
@@ -312,9 +312,9 @@ public class IdmProfileController extends AbstractEventableDtoController<IdmProf
 			tags = { IdmProfileController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.PROFILE_UPDATE, description = "")}),
+						@AuthorizationScope(scope = CoreGroupPermission.PROFILE_READ, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.PROFILE_UPDATE, description = "")})
+						@AuthorizationScope(scope = CoreGroupPermission.PROFILE_READ, description = "")})
 				})
 	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.bulkAction(bulkAction);

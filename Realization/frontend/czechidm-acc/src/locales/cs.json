@@ -133,7 +133,7 @@
         "situationActionsAndWf": "Níže je možné definovat, jak se synchronizace bude chovat v konkrétních situacích a jakou akci provede. Chování synchronizace v dané situaci, je možné ovlivnit výběrem workflow. Toto workflow bude spuštěné pro provedení standardní akce (pro každý příslušný element). Workflow musí zajistit uložení změn.",
         "situationAction": "Akce",
         "situationActionWf": "Workflow",
-        "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu) podle kterého chceme hledat a příslušné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
+        "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu), podle kterého chceme hledat příslušné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
         "treeInfo": "Synchronizace stromu je vždy spouštěna jako rekonciliace.",
         "edit": {
           "header": "Detail konfigurace synchronizace"
@@ -181,7 +181,7 @@
           },
           "startOfHrProcesses": {
             "label": "Po dokončení spustit HR procesy",
-            "helpBlock": "Po úspěšném dokončení synchronizace, budou spuštěny HR procesy. V případě synchronizace časových řezů je společně s HR procesy spouštěna rekalkulace časových řezů."
+            "helpBlock": "Po úspěšném dokončení synchronizace budou spuštěny HR procesy. V případě synchronizace časových řezů je společně s HR procesy spouštěna rekalkulace časových řezů."
           },
           "startAutoRoleRec": {
             "label": "Po dokončení spustit přepočet automatických rolí",
@@ -340,7 +340,7 @@
       "attributeDetail": {
         "title" : "Atribut ve schématu",
         "header" : "Detail atributu systému",
-        "returnedByDefaultTooltip": "Při vyhledání účtu, je atribut součástí výsledku. Toto neplatí například pro atribut hesla, který standardně není ve výsledku obsažen (vracen).",
+        "returnedByDefaultTooltip": "Při vyhledání účtu je atribut součástí výsledku. Toto neplatí například pro atribut hesla, který standardně není ve výsledku obsažen (vracen).",
         "save": {
           "success": "Atribut [{{name}}] systému byl úspěšně uložen"
         },
@@ -373,7 +373,7 @@
             },
             "historic": {
               "header": "V minulosti spravované hodnoty",
-              "helpBlock": "<strong>Seznam hodnot, které byly v minulosti pro tento atribut spravované v IdM</strong>. Tyto hodnoty jsou stále využívány při vyhodnocování sloučování. Pokud jste si jistí, že konkrétní hodnota již nemá být vyhodnocována jako spravovaná, pak jí zde můžete odstraňit."
+              "helpBlock": "<strong>Seznam hodnot, které byly v minulosti pro tento atribut spravované v IdM</strong>. Tyto hodnoty jsou stále využívány při vyhodnocování sloučování. Pokud jste si jistí, že konkrétní hodnota již nemá být vyhodnocována jako spravovaná, pak ji zde můžete odstranit."
             },
             "label": "Kontrolované hodnoty (slučování)"
           },
@@ -396,7 +396,7 @@
           "header": "Detail napojeného systému pro roli"
         },
         "create": {
-          "header": "Nový napojený systém pro roli"
+          "header": "Nově napojený systém pro roli"
         },
         "save": {
           "success": "Systém [{{system}}] pro roli {{role}} byl úspěšně uložen"
@@ -558,9 +558,9 @@
           "message_1": "Opakovat pouze vybranou operaci <strong>{{name}}</strong>. Bude spuštěna pouze vybraná operace bez ohledu na ostatní záznamy pro danou entitu na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
           "message_2": "Opakovat pouze <strong>{{count}}</strong> vybrané operace. Budou spuštěny pouze vybrané operace bez ohledu na ostatní záznamy pro dané entity na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
           "message_5": "Opakovat pouze <strong>{{count}}</strong> vybraných operací. Budou spuštěny pouze vybrané operace bez ohledu na ostatní záznamy pro dané entity na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
-          "batchMessage_1": "Opakovat všechny operace pro vybranou entitu <strong>{{name}}</strong> umístěné ve frontě dávkově. Budou spuštěny všechny operace pro danou entitu na koncovém systému v čase, jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entity na koncovém systému.",
-          "batchMessage_2": "Opakovat všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému.",
-          "batchMessage_5": "Opakovat všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému.",
+          "batchMessage_1": "Opakovat všechny operace pro vybranou entitu <strong>{{name}}</strong> umístěné ve frontě dávkově. Budou spuštěny všechny operace pro danou entitu na koncovém systému v čase, v jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entity na koncovém systému.",
+          "batchMessage_2": "Opakovat všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, v jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému.",
+          "batchMessage_5": "Opakovat všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, v jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému.",
           "error": "Při opakování operace {{name}} nastala chyba",
           "success": "Operace pro provisioning byly znovu spuštěny."
         },
@@ -692,7 +692,7 @@
       },
       "queue": {
         "label": "Asynchronní provisioning",
-        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) budou probíhat přes frontu asynchronně. Změna hesla bude probíhat nadále synchronně. Interval zpracování operací ve frontě je konfigurovatelný prostřednitvím dlouho trvající úlohy (ProvisioningQueueTaskExecutor)."
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) budou probíhat přes frontu asynchronně. Změna hesla bude probíhat nadále synchronně. Interval zpracování operací ve frontě je konfigurovatelný prostřednictvím dlouho trvající úlohy (ProvisioningQueueTaskExecutor)."
       },
       "connectorKey": {
         "_type": "Konektor",
@@ -751,7 +751,7 @@
       "system": "Napojený systém",
       "wish": {
         "label": "Přání",
-        "help": "Určuje, zda již je entita na koncový systém propsána či přilinkována. Pokud je entita ve stavu přání (zaškrtnuto), tak CzechIdM zatím není o entitě na koncovém systému."
+        "help": "Určuje, zda je entita na koncový systém již propsána či přilinkována. Pokud je entita ve stavu přání (zaškrtnuto), tak CzechIdM zatím není o entitě na koncovém systému."
       },
       "attributes": "Atributy na koncovém systému"
     },
@@ -774,7 +774,7 @@
       "account-management": "Správa účtů",
       "canBeAccountCreatedScript": {
         "label": "Může být pro danou entitu vytvořen účet?",
-        "help": "Správa účtů - umožňuje zakázat vytvoření účtu (pro danou entitu) na tomto systému. Vstupním parametrem tohoto Groovy skriptu, je IdM entita 'entity', vygenerovaný identifikátor účtu 'uid' a IdM system 'system'. Výstupní hodnota musí být Boolean.TRUE nebo Boolean.FALSE!"
+        "help": "Správa účtů - umožňuje zakázat vytvoření účtu (pro danou entitu) na tomto systému. Vstupním parametrem tohoto Groovy skriptu je IdM entita 'entity', vygenerovaný identifikátor účtu 'uid' a IdM system 'system'. Výstupní hodnota musí být Boolean.TRUE nebo Boolean.FALSE!"
       }
     },
     "SchemaAttribute": {
@@ -825,11 +825,11 @@
       },
       "authenticationAttribute": {
         "label": "Autentizační atribut",
-        "help": "Atribut kterým bude provedena autentizace proti koncovému systému."
+        "help": "Atribut, kterým bude provedena autentizace proti koncovému systému."
       },
       "transformToResourceScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IdM do podoby vhodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue', IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
+        "help": "Umožňuje transformovat hodnotu z IdM do podoby vhodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu je hodnota atributu 'attributeValue', IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
       },
       "uid": {
         "label": "Je identifikátorem",
@@ -841,11 +841,11 @@
       },
       "sendAlways": {
         "label": "Pošli vždy",
-        "tooltip": "Hodnota tohoto atributu, bude na koncový systém poslána vždy a to i když nebyla změněna."
+        "tooltip": "Hodnota tohoto atributu bude na koncový systém poslána vždy, a to i když nebyla změněna."
       },
       "disabledAttribute": {
         "label": "Neaktivní",
-        "tooltip": "Pokud je atribut deaktivován nebude se ve výchozím stavu využívat pro provisioning. Deaktivovaný atribut je ovšem možné přetížit a aktivovat v rámci konkrétní role."
+        "tooltip": "Pokud je atribut deaktivován, nebude se ve výchozím stavu využívat pro provisioning. Deaktivovaný atribut je ovšem možné přetížit a aktivovat v rámci konkrétní role."
       },
       "cached": {
         "label": "Hodnota ukládána do mezipaměti",
@@ -873,7 +873,7 @@
       "transformScriptTable": "Transformace",
       "transformScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IdM do podoby vhodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
+        "help": "Umožňuje transformovat hodnotu z IdM do podoby vhodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu je hodnota atributu 'attributeValue' a IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
       }
     },
     "Account": {
@@ -899,7 +899,7 @@
       "running": "Běží",
       "customFilter" :{
         "label": "Použít vlastní filtr",
-        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru. NENÍ použito pro rekonciliaci."
+        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru. NEPOUŽÍVÁ SE pro rekonciliaci."
       },
       "filterAttribute" :{
         "label": "Filtrovat dle atributu",
@@ -918,7 +918,7 @@
       },
       "rootsFilterScript": {
         "label": "Definice kořene/ů stromu",
-        "help": "V tomto Groovy skriptu můžete definovat jak se pozná kořen stromu. Vstupem je 'account' (IcObject). Výstupem musí být Boolean ('true', pokud je prvek kořen). Pokud není skript vyplněn, je za root považován každý prvek, který nemá rodiče."
+        "help": "V tomto Groovy skriptu můžete definovat, jak se pozná kořen stromu. Vstupem je 'account' (IcObject). Výstupem musí být Boolean ('true', pokud je prvek kořen). Pokud není skript vyplněn, je za root považován každý prvek, který nemá rodiče."
       },
       "reconciliation": {
         "label": "Rekonciliace",
@@ -1060,19 +1060,19 @@
     "ProvisioningBreakConfig": {
       "operationType": {
         "label": "Typ blokované operace",
-        "help": "Typ operace pro kterou bude mít brzda vliv."
+        "help": "Typ operace, pro kterou bude mít brzda vliv."
       },
       "warningLimit": {
         "label": "Limit pro varování",
-        "help": "Počet operací od kterých se bude posílat varovné hlášení."
+        "help": "Počet operací, od kterých se bude posílat varovné hlášení."
       },
       "period": {
         "label": "Perioda [min]",
-        "help": "Perioda po kterou jsou počítány limity operací. Jednotka jsou minuty."
+        "help": "Perioda, po kterou jsou počítány limity operací. Jednotka jsou minuty."
       },
       "disableLimit": {
         "label": "Limit pro zablokování",
-        "help": "Počet operací od kterých budou všechny následující operace zablokovány."
+        "help": "Počet operací, od kterých budou všechny následující operace zablokovány."
       },
       "warningTemplate": {
         "label": "Šablona pro varovné hlášení",
@@ -1193,7 +1193,7 @@
       "MERGE": "Sloučit (pouze provisioning)",
       "AUTHORITATIVE_MERGE": "Autoritativní sloučení (pouze provisioning)",
       "CREATE": "Nastavit pouze při vytvoření entity",
-      "WRITE_IF_NULL": "Nastavit pouze pokud je cílová hodnota prázdná"
+      "WRITE_IF_NULL": "Nastavit pouze tehdy, pokud je cílová hodnota prázdná"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",
@@ -1365,12 +1365,12 @@
           },
           "enableemptystring": {
             "label": "Povolit zadání prázdných řetězců",
-            "help": "Povolit zadání prázdných řetězců místo NULL hodnot pro sloupce pracující s řetězci. Pokud je mapovaný sloupec poviný, pošle místo NULL hodnoty prázdný řetězec. Tato volba neovlivňuje způsob zápisu řetězců na databázi Oracle. Výchozí hodnota je \"false\".",
+            "help": "Povolit zadání prázdných řetězců místo NULL hodnot pro sloupce pracující s řetězci. Pokud je mapovaný sloupec povinný, pošle místo NULL hodnoty prázdný řetězec. Tato volba neovlivňuje způsob zápisu řetězců na databázi Oracle. Výchozí hodnota je \"false\".",
             "placeholder": ""
           },
           "rethrowallsqlexceptions": {
             "label": "Vrať všechny SQL výjimky (SQLExceptions)",
-            "help": "Pokud není zaškrtnuto, SQL výrazy, které vrací SQL výjimky (SQLExceptions) s návratovým kódem 0 (ErrorCode 0) budou odchyceny a nebudou zpropagovány dále. Výchozí hodnota je \"true\".",
+            "help": "Pokud není zaškrtnuto, SQL výrazy, které vrací SQL výjimky (SQLExceptions) s návratovým kódem 0 (ErrorCode 0), budou odchyceny a nebudou zpropagovány dále. Výchozí hodnota je \"true\".",
             "placeholder": ""
           },
           "nativetimestamps": {
@@ -1590,8 +1590,8 @@
       "message": "Synchronizace [{{name}}] není spuštěná."
     },
     "SYNCHRONIZATION_TO_MANY_SYSTEM_ENTITY": {
-      "title": "Synchronizace - nalezeno více než jeden záznam 'System entity'",
-      "message": "Bylo nalezeno více než jeden záznam 'System entity' pro stejný UID [{{uid}}]!"
+      "title": "Synchronizace - nalezen více než jeden záznam 'System entity'",
+      "message": "Byl nalezen více než jeden záznam 'System entity' pro stejný UID [{{uid}}]!"
     },
     "SYNCHRONIZATION_FILTER_VALUE_WRONG_TYPE": {
       "title": "Synchronizace - filtr pro synchronizaci musí být typu 'IcFilter'",
@@ -1599,7 +1599,7 @@
     },
     "SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM": {
       "title": "Synchronizace - během synchronizace nastala chyba",
-      "message": "Během synchronizace položky s UID [{{uid}}], nastala neočekávaná chyba!"
+      "message": "Během synchronizace položky s UID [{{uid}}] nastala neočekávaná chyba!"
     },
     "SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT": {
       "title": "Synchronizace - nalezeno více než jeden záznam 'AccAccount'",

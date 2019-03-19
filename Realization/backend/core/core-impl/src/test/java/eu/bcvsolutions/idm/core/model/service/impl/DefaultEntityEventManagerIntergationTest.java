@@ -57,6 +57,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.NeverEndingProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.ObserveDtoProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.TestIdentityNotifyProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.event.EntityEventDeleteExecutedProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -628,6 +629,18 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
 		}
+	}
+	
+	@Test
+	public void testPropagatePropertiesOnNotifyIntoParent() {
+		// public notify event
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		
+		EntityEvent<IdmIdentityDto> event = new CoreEvent<>(CoreEventType.UPDATE, identity);
+		//
+		EventContext<IdmIdentityDto> process = manager.process(event);
+		//
+		Assert.assertEquals(TestIdentityNotifyProcessor.TEST_PROPERTY_VALUE, process.getLastResult().getEvent().getProperties().get(TestIdentityNotifyProcessor.TEST_PROPERTY_NAME));
 	}
 	
 	@Test

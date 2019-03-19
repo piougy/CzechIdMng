@@ -293,10 +293,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	public <E extends Identifiable> void changedEntity(E owner, EntityEvent<? extends Identifiable> originalEvent) {
 		Assert.notNull(owner);
 		//
-		IdmEntityEventDto event = prepareEvent(owner, originalEvent);
-		event.setEventType(CoreEventType.NOTIFY.name());
+		IdmEntityEventDto notifyEvent = prepareEvent(owner, originalEvent);
+		notifyEvent.setEventType(CoreEventType.NOTIFY.name());
 		//
-		putToQueue(event);
+		publishNotify(notifyEvent, originalEvent);
 	}
 	
 	@Override
@@ -309,10 +309,36 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			Class<? extends Identifiable> ownerType, 
 			UUID ownerId, 
 			EntityEvent<? extends Identifiable> originalEvent) {
-		IdmEntityEventDto event = prepareEvent(ownerType, ownerId, originalEvent);
-		event.setEventType(CoreEventType.NOTIFY.name());
+		IdmEntityEventDto notifyEvent = prepareEvent(ownerType, ownerId, originalEvent);
+		notifyEvent.setEventType(CoreEventType.NOTIFY.name());
 		//
-		putToQueue(event);
+		publishNotify(notifyEvent, originalEvent);
+	}
+	
+	/**
+	 * Try put notify event intto queue - event is put into queue, only if it's not executed synchronously.
+	 * If event is executed synchronously, then processed notify event properties (if some processor was ececuted) are propagated into original event. 
+	 * 
+	 * @param notifyEvent
+	 * @param originalEvent
+	 */
+	private void publishNotify(IdmEntityEventDto notifyEvent, EntityEvent<? extends Identifiable> originalEvent) {
+		EventContext<?> processedContext = putToQueue(notifyEvent);
+		if (originalEvent == null) {
+			// original was not set - just notify event was published
+			return;
+		}
+		if (processedContext == null) {
+			// asynchronous
+			return;
+		}
+		if (processedContext.getLastResult() == null) {
+			// no processor listens
+			return;
+		}
+		//
+		// propagate properties of processed event into parent
+		propagateProperties(originalEvent, processedContext.getLastResult().getEvent());
 	}
 	
 	/**
@@ -625,6 +651,74 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	}
 	
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<EntityEventProcessor> getEnabledProcessors(EntityEvent<?> event) {
+		return context
+				.getBeansOfType(EntityEventProcessor.class)
+				.values()
+				.stream()
+				.filter(enabledEvaluator::isEnabled)
+				.filter(processor -> !processor.isDisabled())
+				.filter(processor -> processor.supports(event))
+				.sorted(new AnnotationAwareOrderComparator())
+				.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Propagate properties from parent to child event.
+	 * Properties need for internal event processing are ignored (see {@link EntityEvent} properties). 
+	 * 
+	 * @param event
+	 * @param parentEvent
+	 */
+	@Override
+	public void propagateProperties(EntityEvent<?> event, EntityEvent<?> parentEvent) {
+		Assert.notNull(event);
+		Assert.notNull(parentEvent);
+		//
+		// clone event properties from parent - only if absent
+		getProperties(parentEvent.getProperties())
+			.entrySet()
+			.forEach(entry -> {
+				event.getProperties().putIfAbsent(entry.getKey(), (Serializable) entry.getValue());
+			});
+	}
+	
+	@Override
+	public IdmEntityEventDto saveEvent(EntityEvent<? extends Identifiable> event, OperationResultDto result) {
+		Assert.notNull(event);
+		Identifiable content = event.getContent();
+		Assert.notNull(content);
+		//
+		IdmEntityEventDto savedEvent = toDto(event);
+		savedEvent.setOwnerId(lookupService.getOwnerId(content));
+		savedEvent.setOwnerType(getOwnerType(content));
+		savedEvent.setResult(result);
+		//
+		if (savedEvent.getPriority() == null) {
+			savedEvent.setPriority(PriorityType.NORMAL);
+		}
+		//
+		savedEvent = entityEventService.save(savedEvent);
+		//
+		event.setId(savedEvent.getId());
+		event.setPriority(savedEvent.getPriority());
+		//
+		return savedEvent;
+	}
+
+	@Override
+	public IdmEntityEventDto prepareEvent(Identifiable owner, EntityEvent<? extends Identifiable> originalEvent) {
+		Assert.notNull(owner);
+		Assert.notNull(owner.getId(), "Change can be published after entity id is assigned at least.");
+		//
+		IdmEntityEventDto event = prepareEvent(owner.getClass(), lookupService.getOwnerId(owner), originalEvent);
+		event.setContent(owner);
+		//
+		return event;
+	}
+	
+	@Override
 	public void enable(String processorId) {
 		setEnabled(processorId, true);
 	}
@@ -644,14 +738,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		return eventConfiguration.isAsynchronous();
 	}
 	
-	private void removeRunningEvent(IdmEntityEventDto event) {
-		runningOwnerEvents.remove(event.getOwnerId());
-		UUID superOwnerId = event.getSuperOwnerId();
-		if (superOwnerId != null) {
-			runningOwnerEvents.remove(superOwnerId);
-		}
-	}
-	
 	/**
 	 * Returns true if some event for given owner currently running.
 	 * 
@@ -660,113 +746,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 */
 	protected boolean isRunningOwner(UUID ownerId) {
 		return runningOwnerEvents.containsKey(ownerId);
-	}
-	
-	private void setEnabled(EntityEventProcessor<?> processor, boolean enabled) {
-		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
-		configurationService.setBooleanValue(enabledPropertyName, enabled);
-	}
-	
-	/**
-	 * Convert processor to dto.
-	 * 
-	 * @param processor
-	 * @return
-	 */
-	private EntityEventProcessorDto toDto(EntityEventProcessor<?> processor) {
-		EntityEventProcessorDto dto = new EntityEventProcessorDto();
-		dto.setId(processor.getId());
-		dto.setName(processor.getName());
-		dto.setModule(processor.getModule());
-		dto.setContentClass(processor.getEntityClass());
-		dto.setEntityType(processor.getEntityClass().getSimpleName());
-		dto.setEventTypes(Lists.newArrayList(processor.getEventTypes()));
-		dto.setClosable(processor.isClosable());
-		dto.setDisabled(processor.isDisabled());
-		dto.setDisableable(processor.isDisableable());
-		dto.setOrder(processor.getOrder());
-		// resolve documentation
-		dto.setDescription(processor.getDescription());
-		dto.setConfigurationProperties(processor.getConfigurationMap());
-		//
-		return dto;
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void putToQueue(IdmEntityEventDto entityEvent) {
-		if (entityEvent.getPriority() == PriorityType.IMMEDIATE) {
-			LOG.trace("Event type [{}] for owner with id [{}] will be executed synchronously.", 
-					entityEvent.getEventType(), entityEvent.getOwnerId());	
-			executeEvent(entityEvent);
-			return;
-		}
-		if (!eventConfiguration.isAsynchronous()) {
-			LOG.trace("Event type [{}] for owner with id [{}] will be executed synchronously, asynchronous event processing [{}] is disabled.", 
-					entityEvent.getEventType(), entityEvent.getOwnerId(), EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED);	
-			executeEvent(entityEvent);
-			return;
-		}
-		//
-		// get enabled processors, which listen given event (conditional is evaluated)
-		final EntityEvent<?> event = toEvent(entityEvent);
-		List<EntityEventProcessor> listenProcessors = getEnabledProcessors(event)
-				.stream()
-				.filter(processor -> processor.conditional(event))
-				.collect(Collectors.toList());
-		if (listenProcessors.isEmpty()) {
-			LOG.debug("Event type [{}] for owner with id [{}] will not be executed, no enabled processor is registered.", 
-					entityEvent.getEventType(), entityEvent.getOwnerId());	
-			return;
-		}
-		//
-		// evaluate event priority by registered processors
-		PriorityType priority = evaluatePriority(event, listenProcessors);
-		if (priority != null && priority.getPriority() < entityEvent.getPriority().getPriority()) {
-			entityEvent.setPriority(priority);
-		}
-		//
-		// registered processors voted about event will be processed synchronously
-		if (entityEvent.getPriority() == PriorityType.IMMEDIATE) {
-			LOG.trace("Event type [{}] for owner with id [{}] will be executed synchronously.", 
-					entityEvent.getEventType(), entityEvent.getOwnerId());	
-			executeEvent(entityEvent);
-			return;
-		}
-		//
-		// TODO: send notification only when event fails
-		// notification - info about registered (asynchronous) processors
-//		Map<String, Object> parameters = new LinkedHashMap<>();
-//		parameters.put("eventType", entityEvent.getEventType());
-//		parameters.put("ownerId", entityEvent.getOwnerId());
-//		parameters.put("instanceId", entityEvent.getInstanceId());
-//		parameters.put("processors", registeredProcessors
-//				.stream()
-//				.map(DefaultEntityEventManager.this::toDto)
-//				.collect(Collectors.toList()));
-//		notificationManager.send(
-//				CoreModuleDescriptor.TOPIC_EVENT, 
-//				new IdmMessageDto
-//					.Builder()
-//					.setLevel(NotificationLevel.INFO)
-//					.setModel(new DefaultResultModel(CoreResultCode.EVENT_ACCEPTED, parameters))
-//					.build());
-		//
-		// persist event - asynchronous processing
-		entityEventService.save(entityEvent);
-	}
-	
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<EntityEventProcessor> getEnabledProcessors(EntityEvent<?> event) {
-		return context
-				.getBeansOfType(EntityEventProcessor.class)
-				.values()
-				.stream()
-				.filter(enabledEvaluator::isEnabled)
-				.filter(processor -> !processor.isDisabled())
-				.filter(processor -> processor.supports(event))
-				.sorted(new AnnotationAwareOrderComparator())
-				.collect(Collectors.toList());
 	}
 	
 	/**
@@ -962,23 +941,117 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		}
 	}
 	
+	private void removeRunningEvent(IdmEntityEventDto event) {
+		runningOwnerEvents.remove(event.getOwnerId());
+		UUID superOwnerId = event.getSuperOwnerId();
+		if (superOwnerId != null) {
+			runningOwnerEvents.remove(superOwnerId);
+		}
+	}
+	
+	private void setEnabled(EntityEventProcessor<?> processor, boolean enabled) {
+		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
+		configurationService.setBooleanValue(enabledPropertyName, enabled);
+	}
+	
 	/**
-	 * Propagate properties from parent to child event.
-	 * Properties need for internal event processing are ignored (see {@link EntityEvent} properties). 
+	 * Convert processor to dto.
 	 * 
-	 * @param event
-	 * @param parentEvent
+	 * @param processor
+	 * @return
 	 */
-	protected void propagateProperties(EntityEvent<?> event, EntityEvent<?> parentEvent) {
-		Assert.notNull(event);
-		Assert.notNull(parentEvent);
+	private EntityEventProcessorDto toDto(EntityEventProcessor<?> processor) {
+		EntityEventProcessorDto dto = new EntityEventProcessorDto();
+		dto.setId(processor.getId());
+		dto.setName(processor.getName());
+		dto.setModule(processor.getModule());
+		dto.setContentClass(processor.getEntityClass());
+		dto.setEntityType(processor.getEntityClass().getSimpleName());
+		dto.setEventTypes(Lists.newArrayList(processor.getEventTypes()));
+		dto.setClosable(processor.isClosable());
+		dto.setDisabled(processor.isDisabled());
+		dto.setDisableable(processor.isDisableable());
+		dto.setOrder(processor.getOrder());
+		// resolve documentation
+		dto.setDescription(processor.getDescription());
+		dto.setConfigurationProperties(processor.getConfigurationMap());
 		//
-		// clone event properties from parent - only if absent
-		getProperties(parentEvent.getProperties())
-			.entrySet()
-			.forEach(entry -> {
-				event.getProperties().putIfAbsent(entry.getKey(), (Serializable) entry.getValue());
-			});
+		return dto;
+	}
+	
+	/**
+	 * Try put event to queue - event is put into queue, only if it's not executed synchronously.
+	 * If event is executed synchronously, then {@link EventContext} is returned, {@code null} is returned otherwise. 
+	 * 
+	 * @param entityEvent
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private EventContext<?> putToQueue(IdmEntityEventDto entityEvent) {
+		if (entityEvent.getPriority() == PriorityType.IMMEDIATE) {
+			LOG.trace("Event type [{}] for owner with id [{}] will be executed synchronously.", 
+					entityEvent.getEventType(), entityEvent.getOwnerId());	
+			// synchronous processing
+			// we don't persist events and their states
+			return process(new CoreEvent<>(EntityEventType.EXECUTE, entityEvent));
+		}
+		if (!eventConfiguration.isAsynchronous()) {
+			LOG.trace("Event type [{}] for owner with id [{}] will be executed synchronously, asynchronous event processing [{}] is disabled.", 
+					entityEvent.getEventType(), entityEvent.getOwnerId(), EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED);	
+			// synchronous processing
+			return process(new CoreEvent<>(EntityEventType.EXECUTE, entityEvent));
+		}
+		//
+		// get enabled processors, which listen given event (conditional is evaluated)
+		final EntityEvent<?> event = toEvent(entityEvent);
+		List<EntityEventProcessor> listenProcessors = getEnabledProcessors(event)
+				.stream()
+				.filter(processor -> processor.conditional(event))
+				.collect(Collectors.toList());
+		if (listenProcessors.isEmpty()) {
+			LOG.debug("Event type [{}] for owner with id [{}] will not be executed, no enabled processor is registered.", 
+					entityEvent.getEventType(), entityEvent.getOwnerId());	
+			// return empty context - nothing is processed
+			return new DefaultEventContext<>();
+		}
+		//
+		// evaluate event priority by registered processors
+		PriorityType priority = evaluatePriority(event, listenProcessors);
+		if (priority != null && priority.getPriority() < entityEvent.getPriority().getPriority()) {
+			entityEvent.setPriority(priority);
+		}
+		//
+		// registered processors voted about event will be processed synchronously
+		if (entityEvent.getPriority() == PriorityType.IMMEDIATE) {
+			LOG.trace("Event type [{}] for owner with id [{}] will be executed synchronously.", 
+					entityEvent.getEventType(), entityEvent.getOwnerId());	
+			// synchronous processing
+			// we don't persist events and their states
+			process(new CoreEvent<>(EntityEventType.EXECUTE, entityEvent));
+		}
+		//
+		// TODO: send notification only when event fails
+		// notification - info about registered (asynchronous) processors
+//		Map<String, Object> parameters = new LinkedHashMap<>();
+//		parameters.put("eventType", entityEvent.getEventType());
+//		parameters.put("ownerId", entityEvent.getOwnerId());
+//		parameters.put("instanceId", entityEvent.getInstanceId());
+//		parameters.put("processors", registeredProcessors
+//				.stream()
+//				.map(DefaultEntityEventManager.this::toDto)
+//				.collect(Collectors.toList()));
+//		notificationManager.send(
+//				CoreModuleDescriptor.TOPIC_EVENT, 
+//				new IdmMessageDto
+//					.Builder()
+//					.setLevel(NotificationLevel.INFO)
+//					.setModel(new DefaultResultModel(CoreResultCode.EVENT_ACCEPTED, parameters))
+//					.build());
+		//
+		// persist event - asynchronous processing
+		entityEventService.save(entityEvent);
+		// not processed - persisted into queue
+		return null;
 	}
 	
 	/**
@@ -1076,45 +1149,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		}
 		//
 		return true;
-	}
-	
-	public IdmEntityEventDto saveEvent(EntityEvent<? extends Identifiable> event, OperationResultDto result) {
-		Assert.notNull(event);
-		Identifiable content = event.getContent();
-		Assert.notNull(content);
-		//
-		IdmEntityEventDto savedEvent = toDto(event);
-		savedEvent.setOwnerId(lookupService.getOwnerId(content));
-		savedEvent.setOwnerType(getOwnerType(content));
-		savedEvent.setResult(result);
-		//
-		if (savedEvent.getPriority() == null) {
-			savedEvent.setPriority(PriorityType.NORMAL);
-		}
-		//
-		savedEvent = entityEventService.save(savedEvent);
-		//
-		event.setId(savedEvent.getId());
-		event.setPriority(savedEvent.getPriority());
-		//
-		return savedEvent;
-	}
-	
-	/**
-	 * Constructs entity event
-	 * 
-	 * @param identifiable
-	 * @param originalEvent
-	 * @return
-	 */
-	public IdmEntityEventDto prepareEvent(Identifiable owner, EntityEvent<? extends Identifiable> originalEvent) {
-		Assert.notNull(owner);
-		Assert.notNull(owner.getId(), "Change can be published after entity id is assigned at least.");
-		//
-		IdmEntityEventDto event = prepareEvent(owner.getClass(), lookupService.getOwnerId(owner), originalEvent);
-		event.setContent(owner);
-		//
-		return event;
 	}
 	
 	private IdmEntityEventDto prepareEvent(Class<? extends Identifiable> ownerType, UUID ownerId, EntityEvent<? extends Identifiable> originalEvent) {

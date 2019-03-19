@@ -53,6 +53,11 @@ public class EntityEventExecuteProcessor extends CoreEventProcessor<IdmEntityEve
 			entityEvent.setContent(context.getContent()); // use current processed content
 			entityEvent.setProcessedOrder(context.getProcessedOrder());
 			entityEvent.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
+			//
+			// propagate processed properties
+			if (context.getLastResult() != null) {
+				entityEventManager.propagateProperties(event, context.getLastResult().getEvent());
+			}
 		} catch (EventContentDeletedException ex) {
 			// content was deleted - log state
 			LOG.warn("Event content was deleted, event cannot be executed.", ex);

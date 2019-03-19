@@ -1028,8 +1028,8 @@
       "change": {
         "header": "Změna hesla",
         "title": "Změna hesla",
-        "passwordOld": "Zadejte prosím staré heslo",
-        "password": "Zadejte nové heslo",
+        "passwordOld": "Staré heslo",
+        "password": "Nové heslo",
         "passwordChangeTooltip": "Síla hesla:",
         "passwordAgain": {
           "label": "Zadejte heslo znovu",

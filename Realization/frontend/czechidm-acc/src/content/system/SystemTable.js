@@ -90,11 +90,10 @@ export class SystemTable extends Advanced.AbstractTableContent {
           level="success"
           key="add_button"
           className="btn-xs"
-          onClick={this.showDetail.bind(this, { })}
-          rendered={Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton}>
-          <Basic.Icon type="fa" icon="plus"/>
-          {' '}
-          {this.i18n('button.add')}
+          onClick={ this.showDetail.bind(this, { }) }
+          rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
+          icon="fa:plus">
+          { this.i18n('button.add') }
         </Basic.Button>
       ]);
   }
@@ -159,12 +158,11 @@ export class SystemTable extends Advanced.AbstractTableContent {
 
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
-          manager={manager}
-          rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
-          filterOpened={filterOpened}
-          forceSearchParameters={forceSearchParameters}
-          showRowSelection={Managers.SecurityManager.hasAuthority('SYSTEM_DELETE') && showRowSelection}
+          uiKey={ uiKey }
+          manager={ manager }
+          filterOpened={ filterOpened }
+          forceSearchParameters={ forceSearchParameters }
+          showRowSelection={ showRowSelection }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -181,7 +179,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          buttons = {this.getTableButtons(showAddButton)}
+          buttons={ this.getTableButtons(showAddButton) }
           _searchParameters={ this.getSearchParameters() }
           >
 

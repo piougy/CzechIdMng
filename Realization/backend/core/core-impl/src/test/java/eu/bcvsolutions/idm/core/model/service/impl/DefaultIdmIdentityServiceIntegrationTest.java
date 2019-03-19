@@ -12,11 +12,13 @@ import javax.validation.ConstraintViolationException;
 import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableMap;
@@ -35,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
@@ -49,6 +52,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -377,7 +381,6 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
-	@Ignore // FIXME: why it's not working ?
 	public void testFindIdsWithPageRequest() {
 		// just for sure some two identity exists
 		getHelper().createIdentity((GuardedString) null);
@@ -387,5 +390,34 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		UUID secondIdentity = identityService.findIds(null, new PageRequest(1, 1)).getContent().get(0);
 		//
 		Assert.assertNotEquals(firstIdentity, secondIdentity);
+		Assert.assertTrue(identityService.findIds(null, new PageRequest(1, 1)).getTotalElements() > 1);
+		//
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setId(firstIdentity);
+		//
+		Page<UUID> findIds = identityService.findIds(filter, new PageRequest(0, 1));
+		//
+		Assert.assertEquals(1, findIds.getTotalElements());
+		Assert.assertEquals(firstIdentity, findIds.getContent().get(0));
+	}
+	
+	@Test
+	public void testFindIdsWithSort() {
+		// just for sure some two identity exists
+		getHelper().createIdentity((GuardedString) null);
+		getHelper().createIdentity((GuardedString) null);
+		//
+		Page<UUID> findIds = identityService.findIds(null, new PageRequest(0, 2, new Sort(Direction.ASC, IdmIdentity_.username.getName())));
+		UUID firstIdentity = findIds.getContent().get(0);
+		UUID secondIdentity = findIds.getContent().get(1);
+		//
+		Assert.assertNotNull(firstIdentity);
+		Assert.assertNotNull(secondIdentity);
+		Assert.assertTrue(findIds.getTotalElements() > 1);
+		//
+		findIds = identityService.findIds(null, new PageRequest(0, 2, new Sort(Direction.DESC, IdmIdentity_.username.getName())));
+		//
+		Assert.assertNotEquals(firstIdentity, findIds.getContent().get(0));
+		Assert.assertNotEquals(secondIdentity, findIds.getContent().get(1));
 	}
 }

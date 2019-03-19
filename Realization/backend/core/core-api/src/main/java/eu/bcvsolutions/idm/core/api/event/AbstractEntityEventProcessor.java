@@ -31,7 +31,6 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -370,7 +369,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 	 * @param type
 	 * @return
 	 */
-	protected <T> List<T> getListProperty(String property, EntityEvent<IdmRoleRequestDto> event, Class<T> type) {
+	protected <T> List<T> getListProperty(String property, EntityEvent<?> event, Class<T> type) {
 		Assert.notNull(property, "Name of event property cannot be null!");
 		Serializable value = event.getProperties().get(property);
 		if (value instanceof List) {

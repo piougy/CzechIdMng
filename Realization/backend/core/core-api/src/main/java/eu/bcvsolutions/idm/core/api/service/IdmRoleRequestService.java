@@ -23,10 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface IdmRoleRequestService
 		extends ReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequestFilter>, AuthorizableService<IdmRoleRequestDto> {
-	
-	public static final String ADDED_IDENTITY_ROLES_KEY = "added-identity-roles";
-	public static final String UPDATED_IDENTITY_ROLES_KEY = "updated-identity-roles";
-	public static final String REMOVED_IDENTITY_ROLES_KEY = "removed-identity-roles";
+
 
 	/**
 	 * Start approval process for given request. Request approving will be started

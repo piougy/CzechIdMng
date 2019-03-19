@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
@@ -66,11 +67,11 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 		IdmRoleRequestDto request = event.getContent();
 		IdmIdentityDto identity = identityService.get(request.getApplicant());
 
-		List<IdmIdentityRoleDto> addedIdentityRoles = this.getListProperty(IdmRoleRequestService.ADDED_IDENTITY_ROLES_KEY, event,
+		List<IdmIdentityRoleDto> addedIdentityRoles = this.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, event,
 				IdmIdentityRoleDto.class);
-		List<IdmIdentityRoleDto> updatedIdentityRoles = this.getListProperty(IdmRoleRequestService.UPDATED_IDENTITY_ROLES_KEY,
+		List<IdmIdentityRoleDto> updatedIdentityRoles = this.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES,
 				event, IdmIdentityRoleDto.class);
-		List<UUID> removedIdentityRoles = this.getListProperty(IdmRoleRequestService.REMOVED_IDENTITY_ROLES_KEY, event, UUID.class);
+		List<UUID> removedIdentityRoles = this.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, event, UUID.class);
 
 		Set<UUID> accountsForProvisioning = Sets.newHashSet();
 		

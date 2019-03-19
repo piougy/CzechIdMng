@@ -147,6 +147,9 @@ public class DefaultIdmRoleCompositionService
 						IdentityRoleEvent subEvent = new IdentityRoleEvent(IdentityRoleEventType.CREATE, subIdentityRole, props);
 						// 
 						identityRoleService.publish(subEvent, event, permission);
+						// Notes new created assigned role to parent event
+						IdmIdentityRoleDto subContent = subEvent.getContent();
+						this.noteNewAssgnedRole(event, subContent);
 					}
 				}
 			});
@@ -279,5 +282,22 @@ public class DefaultIdmRoleCompositionService
 		}
 		//
 		return props;
+	}
+	
+	@SuppressWarnings("unchecked")
+	/**
+	 * Method for notes new assigned role
+	 * 
+	 * @param event
+	 * @param identityRoleId
+	 */
+	private void noteNewAssgnedRole(EntityEvent<IdmIdentityRoleDto> event, IdmIdentityRoleDto identityRole) {
+		Assert.notNull(identityRole);
+		Assert.notNull(identityRole.getId());
+		
+		if (!event.getProperties().containsKey(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES)) {
+			event.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, new ArrayList<IdmIdentityRoleDto>());
+		}
+		((List<IdmIdentityRoleDto>)event.getProperties().get(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES)).add(identityRole);
 	}
 }

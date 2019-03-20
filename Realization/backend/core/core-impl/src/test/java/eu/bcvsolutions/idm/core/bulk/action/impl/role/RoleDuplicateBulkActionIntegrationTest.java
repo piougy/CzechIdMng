@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl.role;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -13,8 +14,10 @@ import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -23,12 +26,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
@@ -65,6 +70,7 @@ public class RoleDuplicateBulkActionIntegrationTest extends AbstractBulkActionTe
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmIdentityContractService contractService;
+	@Autowired private IdmEntityStateService entityStateService;
 	
 	@Before
 	public void login() {
@@ -463,6 +469,15 @@ public class RoleDuplicateBulkActionIntegrationTest extends AbstractBulkActionTe
 		//
 		automaticRoleAttributeService.delete(automaticRoleAttribute);
 		//
+		// create new entity state with a different transactionId - has to be preserved
+		IdmEntityStateDto otherState = new IdmEntityStateDto();
+		otherState.setOwnerId(UUID.randomUUID());
+		otherState.setOwnerType("mock");
+		otherState.setTransactionId(UUID.randomUUID());
+		otherState.setResult(new OperationResultDto.Builder(OperationState.CREATED).build());
+		otherState.setInstanceId("mock");
+		otherState = entityStateService.save(otherState);
+		//
 		processAction = bulkActionManager.processAction(bulkAction);
 		//
 		checkResultLrt(processAction, 1l, null, null);
@@ -470,6 +485,7 @@ public class RoleDuplicateBulkActionIntegrationTest extends AbstractBulkActionTe
 		duplicate = roleService.getByBaseCodeAndEnvironment(subRole.getBaseCode(), targetEnvironment);
 		//
 		Assert.assertTrue(findAutomaticRolesByAttribute(duplicate).isEmpty());
+		Assert.assertNotNull(entityStateService.get(otherState));
 	}
 	
 	@Test

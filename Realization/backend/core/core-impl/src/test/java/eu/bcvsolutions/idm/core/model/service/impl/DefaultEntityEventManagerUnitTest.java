@@ -725,6 +725,21 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
+	public void testPropagatePropertiesOnNotifyIntoChildren() {
+		IdmIdentity identity = new IdmIdentity(UUID.randomUUID());
+		when(lookupService
+				.getOwnerId(any()))
+				.thenReturn(identity.getId());
+		//
+		Map<String, Serializable> props = new HashMap<>();
+		props.put("one", "valueOne");
+		//
+		IdmEntityEventDto entityEvent = manager.prepareEvent(identity, new CoreEvent<>(CoreEventType.CREATE, identity, props));
+		//
+		Assert.assertEquals(props.get("one"), entityEvent.getProperties().get("one"));
+	}
+	
+	@Test
 	public void testPropagatePropertiesFromParentEvent() {
 		UUID eventId = UUID.randomUUID();
 		EntityEvent<?> event = new CoreEvent<>(CoreEventType.CREATE, new IdmIdentityDto());

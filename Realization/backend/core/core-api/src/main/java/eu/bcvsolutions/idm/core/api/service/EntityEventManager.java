@@ -351,4 +351,14 @@ public interface EntityEventManager {
 	 * @since 9.1.0
 	 */
 	boolean isAsynchronous();
+	
+	/**
+	 * Propagate properties from parent to child event.
+	 * Properties need for internal event processing are ignored (see {@link EntityEvent} properties). 
+	 * 
+	 * @param event
+	 * @param parentEvent
+	 * @since 9.6.0
+	 */
+	void propagateProperties(EntityEvent<?> event, EntityEvent<?> parentEvent);
 }

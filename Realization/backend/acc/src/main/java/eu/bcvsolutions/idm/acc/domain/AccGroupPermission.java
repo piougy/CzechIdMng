@@ -17,11 +17,12 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 public enum AccGroupPermission implements GroupPermission {
 	
 	SYSTEM(
-			IdmBasePermission.ADMIN, 
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
-			IdmBasePermission.READ, 
-			IdmBasePermission.CREATE, 
-			IdmBasePermission.UPDATE, 
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE,
+			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE),
 	ACCOUNT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE, IdmBasePermission.AUTOCOMPLETE),
 	IDENTITYACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
@@ -37,11 +38,12 @@ public enum AccGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE),;
+			IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
 	public static final String SYSTEM_ADMIN = "SYSTEM" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String SYSTEM_COUNT = "SYSTEM" + BasePermission.SEPARATOR + "COUNT";
 	public static final String SYSTEM_AUTOCOMPLETE = "SYSTEM" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String SYSTEM_READ = "SYSTEM" + BasePermission.SEPARATOR + "READ";
 	public static final String SYSTEM_CREATE = "SYSTEM" + BasePermission.SEPARATOR + "CREATE";

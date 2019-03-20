@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.core.Relation;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -39,7 +40,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
@@ -47,9 +50,12 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.DuplicateExternalIdException;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -59,7 +65,9 @@ import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -91,6 +99,8 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	//
 	@Autowired private FormService formService;
 	@Autowired private AttachmentManager attachmentManager;
+	@Autowired private BulkActionManager bulkActionManager;
+	@Autowired private LookupService lookupService;
 	
 	@Before
 	public void setup() throws Exception {
@@ -176,6 +186,15 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 */
 	protected boolean supportsFormValues() {
 		return formService.isFormable(getController().getDtoClass());
+	}
+	
+	/**
+	 * True - supports bulk actions.
+	 * 
+	 * @return
+	 */
+	protected boolean supportsBulkActions() {
+		return !bulkActionManager.getAvailableActions(lookupService.getDtoService(getController().getDtoClass()).getEntityClass()).isEmpty();
 	}
 	
 	@Test
@@ -872,6 +891,60 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		Assert.assertEquals(content, response);
 	}
 	
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testCheckAvailableBulkActions() throws Exception {
+		if(!supportsBulkActions()) {
+			LOG.info("Controller [{}] doesn't support bulk actions. Method will not be tested.", getController().getClass());
+			return;
+		}
+		//
+		Authentication authentication;
+		if (!(getController().getService() instanceof AuthorizableService)) {
+			authentication = getAdminAuthentication();
+		} else {
+			AuthorizableService<DTO> authorizableService = (AuthorizableService<DTO>) getController().getService();
+			if (authorizableService.getAuthorizableType() == null) {
+				// Some services can return null - internal transitive security can be implemented.
+				authentication = getAdminAuthentication();
+			} else {
+				// create read policy - all bulk action should be secured under READ permission
+				IdmRoleDto readRole = getHelper().createRole();
+				getHelper().createBasePolicy(
+						readRole.getId(), 
+						authorizableService.getAuthorizableType().getGroup(),
+						authorizableService.getAuthorizableType().getType(),
+						IdmBasePermission.READ);
+				// create test identity
+				IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+				getHelper().createIdentityRole(identity, readRole);
+				authentication = getAuthentication(identity.getUsername());
+			}
+		}
+		String response = getMockMvc().perform(get(getBulkActionsUrl())
+        		.with(authentication(authentication))
+        		.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		List<IdmBulkActionDto> actions = getMapper().readValue(response, new TypeReference<List<IdmBulkActionDto>>(){});
+		//
+		// if bulk actions are supported, then some action has to be returned (or override #supportsBulkActions method)
+		Assert.assertFalse(actions.isEmpty());
+		//
+		// test prevalidate - just action is available under given authentication for each registered action 
+		DTO dto = createDto();
+		for (IdmBulkActionDto action : actions) {
+			action.setIdentifiers(Sets.newHashSet(dto.getId()));
+			getMockMvc().perform(post(getBulkPrevalidateUrl())
+	        		.with(authentication(authentication))
+	        		.content(getMapper().writeValueAsString(action))
+	        		.contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk());
+		}
+	}
+	
 	/**
 	 * Find dtos by given filter. DataFilter should be fully implemented - only properties mapped in DATA will be used.
 	 * 
@@ -971,6 +1044,10 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	
 	protected String getBulkActionsUrl() {
 		return String.format("%s/bulk/actions", getBaseUrl());
+	}
+	
+	protected String getBulkPrevalidateUrl() {
+		return String.format("%s/bulk/prevalidate", getBaseUrl());
 	}
 	
 	protected String getBulkActionUrl() {

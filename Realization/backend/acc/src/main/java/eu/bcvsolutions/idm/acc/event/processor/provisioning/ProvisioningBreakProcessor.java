@@ -121,70 +121,10 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 				// break configuration is disable continue
 				return new DefaultEventResult<>(event, this, blocked);
 			}
-			Long currentTimeMillis = System.currentTimeMillis();
-			//
-			// get cache for system
-			SysProvisioningBreakItems cache = breakConfigService.getCacheProcessedItems(system.getId());
-			// calculate timestamp without period
-			Long timestampWithoutPeriod = currentTimeMillis - breakConfig.getPeriod(TimeUnit.MILLISECONDS);
-			// remove older records
-			cache.removeOlderRecordsThan(operationType, timestampWithoutPeriod);
-			// get actual count - processed items from timestampWithoutPeriod
-			int actualCount = cache.getSizeRecordsNewerThan(operationType, timestampWithoutPeriod);
-			//
-			// operation count is sum all previous operation except this operation
-			if (breakConfig.getWarningLimit() != null && breakConfig.getWarningLimit().equals(actualCount)) {
-				// if count is equals to warning limit send notification, only when notification is equals
-				// disabled may be null
-				if (breakConfig.getDisableLimit() == null) {
-					LOG.warn("Block for the system id [{}] and operation [{}] is not set. Operation counter [{}].",
-							provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), actualCount);
-				} else {
-					LOG.warn("To block the system id [{}] for operation [{}] remains [{}] operations + send message.",
-							provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), breakConfig.getDisableLimit() - actualCount);
-				}
-				IdmNotificationTemplateDto template = null;
-				if (breakConfig.getWarningTemplate() == null) {
-					LOG.debug("Warning template for provisioning break id [{}] missing.", breakConfig.getId());
-				} else {
-					template = DtoUtils.getEmbedded(breakConfig, SysProvisioningBreakConfig_.warningTemplate);				
-				}
-				//
-				sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_WARNING, system, actualCount, template,
-						breakConfig, operationType, cache.getDiffBetweenActualAndLast(operationType, currentTimeMillis));
-			} else if (breakConfig.getDisableLimit() != null && actualCount >= breakConfig.getDisableLimit()) {
-				// check count is higher than disable limit
-				// block system for operation
-				blockSystemForOperation(operationType, system);
-				//
-				IdmNotificationTemplateDto template = null;
-				if (breakConfig.getWarningTemplate() == null) {
-					LOG.debug("Warning template for provisioning break id [{}] missing.", breakConfig.getId());
-				} else {
-					template = DtoUtils.getEmbedded(breakConfig, SysProvisioningBreakConfig_.disableTemplate);
-				}
-				//
-				sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_DISABLE, system, actualCount, template,
-						breakConfig, operationType, cache.getDiffBetweenActualAndLast(operationType, currentTimeMillis));
-				//
-				LOG.warn("System id: [{}] will be blocked for operation: [{}].",
-						provisioningOperation.getSystem(), operationType.toString());
-				provisioningOperation = blockOperation(provisioningOperation, system);
-				blocked = true;
-			} else if (breakConfig.getWarningLimit() != null && actualCount > breakConfig.getWarningLimit()) {
-				// after overrun warning limit, isn't send any another notification - add at least log
-				if (breakConfig.getDisableLimit() == null) {
-					LOG.warn("Block for the system id [{}] and operation [{}] is not set. Operation counter [{}].",
-							provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), actualCount);
-				} else {
-					LOG.warn("To block the system id [{}] for operation [{}] remains [{}] operations.",
-							provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), breakConfig.getDisableLimit() - actualCount);
-				}
-			}
-			// remove all unless items in cache
-			cache.addItem(operationType, currentTimeMillis);
-			breakConfigService.saveCacheProcessedItems(provisioningOperation.getSystem(), cache);
-			//
+
+			// Process provisioning break in synchronized method
+			blocked = processProvisioningBreak(provisioningOperation, operationType, system, breakConfig);
+
 			event.setContent(provisioningOperation);
 			return new DefaultEventResult<>(event, this, blocked);
 		} catch (Exception ex) {
@@ -316,4 +256,106 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 				recipients);
 	}
 
+	private synchronized boolean processProvisioningBreak(SysProvisioningOperationDto provisioningOperation,
+			ProvisioningEventType operationType, SysSystemDto system, SysProvisioningBreakConfigDto breakConfig) {
+		boolean blocked = false;
+		Long currentTimeMillis = System.currentTimeMillis();
+		//
+		// get cache for system
+		SysProvisioningBreakItems cache = breakConfigService.getCacheProcessedItems(system.getId());
+		// calculate timestamp without period
+		Long timestampWithoutPeriod = currentTimeMillis - breakConfig.getPeriod(TimeUnit.MILLISECONDS);
+		// remove older records
+		cache.removeOlderRecordsThan(operationType, timestampWithoutPeriod);
+		// get actual count - processed items from timestampWithoutPeriod
+		int actualCount = cache.getSizeRecordsNewerThan(operationType, timestampWithoutPeriod);
+		//
+		if (isReachedDisableLimit(breakConfig, actualCount)) {
+			// check count is higher than disable limit
+			// block system for operation
+			blockSystemForOperation(operationType, system);
+			//
+			IdmNotificationTemplateDto template = null;
+			if (breakConfig.getWarningTemplate() == null) {
+				LOG.debug("Warning template for provisioning break id [{}] missing.", breakConfig.getId());
+			} else {
+				template = DtoUtils.getEmbedded(breakConfig, SysProvisioningBreakConfig_.disableTemplate);
+			}
+			//
+			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_DISABLE, system, actualCount, template,
+					breakConfig, operationType, cache.getDiffBetweenActualAndLast(operationType, currentTimeMillis));
+			//
+			LOG.warn("System id: [{}] will be blocked for operation: [{}].",
+					provisioningOperation.getSystem(), operationType.toString());
+			provisioningOperation = blockOperation(provisioningOperation, system);
+			blocked = true;
+		} else if (isReachedWarningLimit(breakConfig, actualCount)) {
+			// operation count is sum all previous operation except this operation
+			// if count is equals to warning limit send notification, only when notification is equals
+			// disabled may be null
+			if (breakConfig.getDisableLimit() == null) {
+				LOG.warn("Block for the system id [{}] and operation [{}] is not set. Operation counter [{}].",
+						provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), actualCount);
+			} else {
+				LOG.warn("To block the system id [{}] for operation [{}] remains [{}] operations + send message.",
+						provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), breakConfig.getDisableLimit() - actualCount);
+			}
+			IdmNotificationTemplateDto template = null;
+			if (breakConfig.getWarningTemplate() == null) {
+				LOG.debug("Warning template for provisioning break id [{}] missing.", breakConfig.getId());
+			} else {
+				template = DtoUtils.getEmbedded(breakConfig, SysProvisioningBreakConfig_.warningTemplate);				
+			}
+			//
+			sendMessage(AccModuleDescriptor.TOPIC_PROVISIONING_BREAK_WARNING, system, actualCount, template,
+					breakConfig, operationType, cache.getDiffBetweenActualAndLast(operationType, currentTimeMillis));
+		} else if (isMoreThanWarningLimit(breakConfig, actualCount)) {
+			// after overrun warning limit, isn't send any another notification - add at least log
+			if (breakConfig.getDisableLimit() == null) {
+				LOG.warn("Block for the system id [{}] and operation [{}] is not set. Operation counter [{}].",
+						provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), actualCount);
+			} else {
+				LOG.warn("To block the system id [{}] for operation [{}] remains [{}] operations.",
+						provisioningOperation.getSystem(), provisioningOperation.getOperationType().toString(), breakConfig.getDisableLimit() - actualCount);
+			}
+		}
+		// remove all unless items in cache
+		cache.addItem(operationType, currentTimeMillis);
+		breakConfigService.saveCacheProcessedItems(provisioningOperation.getSystem(), cache);
+		
+		return blocked;
+	}
+	
+	/**
+	 * Check if was reached warning limit.
+	 *
+	 * @param breakConfig
+	 * @param actualCount
+	 * @return
+	 */
+	private boolean isReachedWarningLimit(SysProvisioningBreakConfigDto breakConfig, int actualCount) {
+		return breakConfig.getWarningLimit() != null && breakConfig.getWarningLimit().equals(actualCount);
+	}
+
+	/**
+	 * Check if warning limit was already reached and continue next.
+	 *
+	 * @param breakConfig
+	 * @param actualCount
+	 * @return
+	 */
+	private boolean isMoreThanWarningLimit(SysProvisioningBreakConfigDto breakConfig, int actualCount) {
+		return breakConfig.getWarningLimit() != null && actualCount > breakConfig.getWarningLimit();
+	}
+
+	/**
+	 * Check if was reached disable limit
+	 *
+	 * @param breakConfig
+	 * @param actualCount
+	 * @return
+	 */
+	private boolean isReachedDisableLimit(SysProvisioningBreakConfigDto breakConfig, int actualCount) {
+		return breakConfig.getDisableLimit() != null && actualCount >= breakConfig.getDisableLimit();
+	}
 }

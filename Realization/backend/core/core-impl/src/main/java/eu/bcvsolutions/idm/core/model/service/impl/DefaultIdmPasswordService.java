@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * Service for working with password.
  * Now is password connect only to entity IdmIdentity.
  *
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  * @author Radek Tomiška
  */
 public class DefaultIdmPasswordService
@@ -95,6 +95,9 @@ public class DefaultIdmPasswordService
 		//
 		// reset unsuccessful attempts, after password is changed
 		passwordDto.resetUnsuccessfulAttempts();
+		//
+		// Clear block loging date
+		passwordDto.setBlockLoginDate(null);
 		//
 		// create new password history with currently changed password
 		createPasswordHistory(passwordDto);

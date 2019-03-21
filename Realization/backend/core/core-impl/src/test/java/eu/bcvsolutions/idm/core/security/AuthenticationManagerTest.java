@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
@@ -42,7 +43,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 /**
  * Default test for {@link AuthenticationManager} and core {@link Authenticator}.
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 public class AuthenticationManagerTest extends AbstractIntegrationTest {
@@ -270,6 +271,79 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		assertNotNull(passwordDto.getBlockLoginDate());
 		
 		passwordPolicyService.delete(passwordPolicy);
+	}
+
+	@Test
+	public void testClearBlockLoginDate() {
+		IdmPasswordPolicyDto validatePolicy = new IdmPasswordPolicyDto();
+		validatePolicy.setName(getHelper().createName());
+		validatePolicy.setBlockLoginTime(150);
+		validatePolicy.setMaxUnsuccessfulAttempts(3);
+		validatePolicy.setDefaultPolicy(true);
+		validatePolicy.setType(IdmPasswordPolicyType.VALIDATE);
+		validatePolicy = passwordPolicyService.save(validatePolicy);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getBlockLoginDate());
+		assertEquals(0, passwordDto.getUnsuccessfulAttempts());
+		
+		// first login
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername(identity.getUsername());
+		GuardedString oldPassword = new GuardedString(String.valueOf(System.currentTimeMillis()));
+		loginDto.setPassword(oldPassword);
+
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (IdmAuthenticationException ex) {
+			// success
+		}
+
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getBlockLoginDate());
+		assertEquals(1, passwordDto.getUnsuccessfulAttempts());
+
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (IdmAuthenticationException ex) {
+			// success
+		}
+
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getBlockLoginDate());
+		assertEquals(2, passwordDto.getUnsuccessfulAttempts());
+
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (ResultCodeException ex) { // Another exception
+			// success
+		}
+
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNotNull(passwordDto.getBlockLoginDate());
+		assertEquals(3, passwordDto.getUnsuccessfulAttempts());
+
+		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
+		passwordChangeDto.setAll(true);
+		passwordChangeDto.setIdm(true);
+		passwordChangeDto.setOldPassword(oldPassword);
+		passwordChangeDto.setNewPassword(new GuardedString(String.valueOf(System.currentTimeMillis())));
+		identityService.passwordChange(identity, passwordChangeDto);
+
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getBlockLoginDate());
+		assertEquals(0, passwordDto.getUnsuccessfulAttempts());
+
+		passwordPolicyService.delete(validatePolicy);
 	}
 	
 	private LoginDto tryLogin(String username, String password) {

@@ -9,6 +9,8 @@ import static org.junit.Assert.fail;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DurationFieldType;
+import org.joda.time.Seconds;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -345,7 +347,156 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 
 		passwordPolicyService.delete(validatePolicy);
 	}
-	
+
+	@Test
+	public void testReachSecondBlockPeriod() throws InterruptedException {
+		IdmPasswordPolicyDto validatePolicy = new IdmPasswordPolicyDto();
+		validatePolicy.setName(getHelper().createName());
+		validatePolicy.setBlockLoginTime(2);
+		validatePolicy.setMaxUnsuccessfulAttempts(1);
+		validatePolicy.setDefaultPolicy(true);
+		validatePolicy.setType(IdmPasswordPolicyType.VALIDATE);
+		validatePolicy = passwordPolicyService.save(validatePolicy);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getBlockLoginDate());
+		assertEquals(0, passwordDto.getUnsuccessfulAttempts());
+
+		// first login
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername(identity.getUsername());
+		GuardedString oldPassword = new GuardedString(String.valueOf(System.currentTimeMillis()));
+		loginDto.setPassword(oldPassword);
+
+		DateTime start = DateTime.now();
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (ResultCodeException ex) {
+			// success
+		}
+
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNotNull(passwordDto.getBlockLoginDate());
+		assertEquals(1, passwordDto.getUnsuccessfulAttempts());
+		DateTime blockLoginDate = passwordDto.getBlockLoginDate();
+
+		int seconds = Seconds.secondsBetween(start, blockLoginDate).get(DurationFieldType.seconds());
+		if (seconds > 3) { // correct is 2 second but some machine can be slower
+			fail("Diff between start and block date is more than 3 second. Current: " + seconds);
+		}
+		Thread.sleep(1000 * seconds);
+
+		start = DateTime.now();
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (ResultCodeException ex) {
+			// success
+		}
+
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNotNull(passwordDto.getBlockLoginDate());
+		assertEquals(2, passwordDto.getUnsuccessfulAttempts()); // Attempts are increased
+		blockLoginDate = passwordDto.getBlockLoginDate();
+		seconds = Seconds.secondsBetween(start, blockLoginDate).get(DurationFieldType.seconds());
+		if (seconds > 5) { // correct is 4 second but some machine can be slower
+			fail("Diff between start and block date is more than 5 second. Current: " + seconds);
+		}
+	}
+
+	@Test
+	public void testFailWithouBlockTime() {
+		IdmPasswordPolicyDto validatePolicy = new IdmPasswordPolicyDto();
+		validatePolicy.setName(getHelper().createName());
+		validatePolicy.setBlockLoginTime(null);
+		validatePolicy.setMaxUnsuccessfulAttempts(3);
+		validatePolicy.setDefaultPolicy(true);
+		validatePolicy.setType(IdmPasswordPolicyType.VALIDATE);
+		
+		try {
+			validatePolicy = passwordPolicyService.save(validatePolicy); // this state throw error
+			fail();
+		} catch (ResultCodeException e) {
+			// success
+		}
+	}
+
+	@Test
+	public void testFailWithouMaxUnsuccessfulAttempts() {
+		IdmPasswordPolicyDto validatePolicy = new IdmPasswordPolicyDto();
+		validatePolicy.setName(getHelper().createName());
+		validatePolicy.setBlockLoginTime(3);
+		validatePolicy.setMaxUnsuccessfulAttempts(null);
+		validatePolicy.setDefaultPolicy(true);
+		validatePolicy.setType(IdmPasswordPolicyType.VALIDATE);
+		validatePolicy = passwordPolicyService.save(validatePolicy);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getBlockLoginDate());
+		assertEquals(0, passwordDto.getUnsuccessfulAttempts());
+
+		// first login
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername(identity.getUsername());
+		GuardedString oldPassword = new GuardedString(String.valueOf(System.currentTimeMillis()));
+		loginDto.setPassword(oldPassword);
+		
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (IdmAuthenticationException ex) {
+			// success
+		}
+
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getBlockLoginDate());
+		assertEquals(1, passwordDto.getUnsuccessfulAttempts());
+
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (IdmAuthenticationException ex) {
+			// success
+		}
+
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getBlockLoginDate());
+		assertEquals(2, passwordDto.getUnsuccessfulAttempts());
+
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (IdmAuthenticationException ex) {
+			// success
+		}
+
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getBlockLoginDate());
+		assertEquals(3, passwordDto.getUnsuccessfulAttempts());
+
+		try {
+			authenticationManager.authenticate(loginDto);
+			fail();
+		} catch (IdmAuthenticationException ex) {
+			// success
+		}
+
+		passwordDto = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(passwordDto);
+		assertNull(passwordDto.getBlockLoginDate());
+		assertEquals(4, passwordDto.getUnsuccessfulAttempts());
+	}
+
 	private LoginDto tryLogin(String username, String password) {
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(username);

@@ -4031,7 +4031,7 @@
       },
       "blockLoginTime": {
         "label": "Doba blokace přihlášení (vteřiny)",
-        "help": "Při překročení limitu neúspěšných pokusů o přihlášení bude uživateli na tuto dobu blokováno přihlášení."
+        "help": "Při překročení limitu neúspěšných pokusů o přihlášení bude uživateli na tuto dobu blokováno přihlášení. Pokud se bude uživatel opakovaně přihlašovat neúspěšně bude počet násoben počtem bloků neuspěšných pokusů."
       },
       "maxUnsuccessfulAttempts": {
         "label": "Maximální počet neúspěšných pokusů o přihlášení",
@@ -4985,6 +4985,10 @@
     "AUTH_FAILED": {
       "title": "Chybné přihlašovací údaje",
       "message": "Zadány chybné přihlašovací údaje."
+    },
+    "AUTH_BLOCKED": {
+      "title": "Přihlášení je pro uživatele [{{username}}] blokováno",
+      "message": "Přihlášení je blokováno do {{date}}. Počet zbývajících vteřin do odblokování: {{seconds}}."
     },
     "AUTHORITIES_CHANGED": {
       "title": "Došlo ke změně Vašich systémových oprávnění",

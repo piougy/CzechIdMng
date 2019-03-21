@@ -3981,7 +3981,7 @@
       },
       "blockLoginTime": {
         "label": "Login blocking time (seconds)",
-        "help": "After exceeding the limit of unsuccessful login attempts, the user will be blocked from signing in for this period of time."
+        "help": "After exceeding the limit of unsuccessful login attempts, the user will be blocked from signing in for this period of time. If the user repeatedly login unsuccessfully, the time will be multiplied with blocks of unsuccessful attempts."
       },
       "maxUnsuccessfulAttempts": {
         "label": "Maximum number of unsuccessful login attempts",
@@ -4935,6 +4935,10 @@
     "AUTH_FAILED": {
       "title": "Login failed",
       "message": "Invalid login or password."
+    },
+    "AUTH_BLOCKED": {
+      "title": "Login is for user [{{username}}] blocked",
+      "message": "Login is blocked due {{date}}. Remaining seconds to unblock: {{seconds}}."
     },
     "AUTHORITIES_CHANGED": {
       "title": "Your application permissions have been modified",

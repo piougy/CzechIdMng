@@ -101,6 +101,11 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@After
 	public void logout() {
+		helper.setConfigurationValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, false);
+		helper.setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, false);
+		helper.setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
+		helper.setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, false);
+		helper.setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, false);
 		super.logout();
 	}
 

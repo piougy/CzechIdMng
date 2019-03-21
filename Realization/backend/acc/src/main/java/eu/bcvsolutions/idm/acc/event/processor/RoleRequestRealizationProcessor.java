@@ -13,10 +13,13 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -51,6 +54,8 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 	private ProvisioningService provisioningService;
 	@Autowired
 	private AccAccountService accountService;
+	@Autowired
+	private AccIdentityAccountService identityAccountService;
 
 	@Autowired
 	public RoleRequestRealizationProcessor(IdmRoleRequestService service) {
@@ -71,7 +76,7 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 				IdmIdentityRoleDto.class);
 		List<IdmIdentityRoleDto> updatedIdentityRoles = this.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES,
 				event, IdmIdentityRoleDto.class);
-		List<UUID> removedIdentityRoles = this.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, event, UUID.class);
+		List<UUID> removedIdentityAccounts = this.getListProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, event, UUID.class);
 
 		Set<UUID> accountsForProvisioning = Sets.newHashSet();
 		
@@ -87,24 +92,24 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 			addAccounts(accountsForProvisioning, accounts);
 		}
 		
-		if (addedIdentityRoles.size() > 0 || updatedIdentityRoles.size() > 0 || removedIdentityRoles.size() > 0) {
-			List<UUID> accounts = this.getListProperty(AccAccountManagementService.ACCOUNT_IDS_FOR_DELETED_IDENTITY_ROLE, event, UUID.class);
-			addAccounts(accountsForProvisioning, accounts);
-			
-//			if (accountsForProvisioning == null) {
-//				// We don't know about specific accounts, so we will execute provisioning for all accounts.
-//				LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
-//				provisioningService.doProvisioning(identity);
-//				
-//				return new DefaultEventResult<>(event, this);
-//			}
-			
+		// Provisioning for new and updated
+		if (addedIdentityRoles.size() > 0 || updatedIdentityRoles.size() > 0) {
 			accountsForProvisioning.forEach(accountId -> {
 				AccAccountDto account = accountService.get(accountId);
 				if (account != null) { // Account could be null (was deleted).
 					LOG.debug("Call provisioning for identity [{}] and account [{}]", identity.getUsername(), account.getUid());
 					provisioningService.doProvisioning(account, identity);
 				}
+			});
+		}
+		
+		// Remove delayed identity-accounts (includes provisioning)
+		if (removedIdentityAccounts.size() > 0) {
+			LOG.debug("Call account management for identity [{}] - remove identity-accounts [{}]",
+					identity.getUsername(), removedIdentityAccounts);
+			removedIdentityAccounts.stream().distinct().forEach(identityAccountId -> {
+				AccIdentityAccountDto identityAccountDto = identityAccountService.get(identityAccountId);
+				identityAccountService.delete(identityAccountDto);
 			});
 		}
 

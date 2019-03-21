@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -149,7 +151,7 @@ public class DefaultIdmRoleCompositionService
 						identityRoleService.publish(subEvent, event, permission);
 						// Notes new created assigned role to parent event
 						IdmIdentityRoleDto subContent = subEvent.getContent();
-						this.noteNewAssgnedRole(event, subContent);
+						this.notingAssgnedRole(event, subEvent, subContent, IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES);
 					}
 				}
 			});
@@ -172,6 +174,8 @@ public class DefaultIdmRoleCompositionService
 				IdentityRoleEvent subEvent = new IdentityRoleEvent(IdentityRoleEventType.DELETE, subIdentityRole);
 				//
 				identityRoleService.publish(subEvent, event, permission);
+				// Notes identity-accounts to ACM
+				notingIdentityAccountForDelayedAcm(event, subEvent);
 			});
 	}
 	
@@ -199,6 +203,9 @@ public class DefaultIdmRoleCompositionService
 				IdentityRoleEvent subEvent = new IdentityRoleEvent(IdentityRoleEventType.UPDATE, subIdentityRole);
 				//
 				identityRoleService.publish(subEvent, event, permission);
+				// Notes updated assigned role to parent event
+				IdmIdentityRoleDto subContent = subEvent.getContent();
+				this.notingAssgnedRole(event, subEvent, subContent, IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES);
 			});
 	}
 	
@@ -286,18 +293,50 @@ public class DefaultIdmRoleCompositionService
 	
 	@SuppressWarnings("unchecked")
 	/**
-	 * Method for notes new assigned role
+	 * Method for noting a new assigned role
 	 * 
 	 * @param event
 	 * @param identityRoleId
 	 */
-	private void noteNewAssgnedRole(EntityEvent<IdmIdentityRoleDto> event, IdmIdentityRoleDto identityRole) {
+	private void notingAssgnedRole(EntityEvent<IdmIdentityRoleDto> event, EntityEvent<IdmIdentityRoleDto> subEvent, IdmIdentityRoleDto identityRole, String property) {
 		Assert.notNull(identityRole);
 		Assert.notNull(identityRole.getId());
+		Assert.notNull(property);
 		
-		if (!event.getProperties().containsKey(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES)) {
-			event.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, new ArrayList<IdmIdentityRoleDto>());
+		if (!event.getProperties().containsKey(property)) {
+			event.getProperties().put(property, new ArrayList<IdmIdentityRoleDto>());
 		}
-		((List<IdmIdentityRoleDto>)event.getProperties().get(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES)).add(identityRole);
+		
+		List<IdmIdentityRoleDto> identityRoles = (List<IdmIdentityRoleDto>)event.getProperties().get(property);
+		// If sub-event contains this property, then will be all identity-roles added to parent event
+		if (subEvent.getProperties().containsKey(property)) {
+			identityRoles.addAll((Collection<? extends IdmIdentityRoleDto>) subEvent.getProperties().get(property));
+		}
+		// Add single identity-role to parent event
+		identityRoles.add(identityRole);
+	}
+	
+	/**
+	 * Method for noting identity-accounts for delayed account management
+	 * 
+	 * @param event
+	 * @param subEvent
+	 */
+	@SuppressWarnings("unchecked")
+	private void notingIdentityAccountForDelayedAcm(EntityEvent<IdmIdentityRoleDto> event,
+			EntityEvent<IdmIdentityRoleDto> subEvent) {
+		Assert.notNull(event);
+		Assert.notNull(subEvent);
+
+		if (!event.getProperties().containsKey(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM)) {
+			event.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, new ArrayList<UUID>());
+		}
+
+		List<UUID> identityAccounts = (List<UUID>) subEvent.getProperties()
+				.get(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM);
+		if (identityAccounts != null) {
+			((List<UUID>) event.getProperties().get(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM))
+					.addAll(identityAccounts);
+		}
 	}
 }

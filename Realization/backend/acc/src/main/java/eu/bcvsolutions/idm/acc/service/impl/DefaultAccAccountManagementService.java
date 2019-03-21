@@ -49,6 +49,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -196,11 +197,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		List<UUID> accounts = Lists.newArrayList();
 		// Create new identity accounts
 		identityAccountsToCreate.forEach(identityAccount -> {
-			AccIdentityAccountDto identityAccountDto = identityAccountService.save(identityAccount);
-			accounts.add(identityAccountDto.getAccount());
+			// Check if this identity-account already exists, if yes then is his account ID
+			// add to accounts (for provisioning).
+			createIdentityAccountIfNotExists(accounts, identityAccount);
 		});
 		return accounts;
-
 	}
 	
 	@Override
@@ -237,8 +238,9 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		
 		// Create new identity accounts
 		identityAccountsToCreate.forEach(identityAccount -> {
-			AccIdentityAccountDto identityAccountDto = identityAccountService.save(identityAccount);
-			accounts.add(identityAccountDto.getAccount());
+			// Check if this identity-account already exists, if yes then is his account ID
+			// add to accounts (for provisioning).
+			createIdentityAccountIfNotExists(accounts, identityAccount);
 		});
 
 		// Delete invalid identity accounts
@@ -250,6 +252,142 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		return accounts;
 	}
 
+	
+
+	/**
+	 * Return UID for this identity and roleSystem. First will be find and use
+	 * transform script from roleSystem attribute. If isn't UID attribute for
+	 * roleSystem defined, then will be use default UID attribute handling.
+	 * 
+	 * @param entity
+	 * @param roleSystem
+	 * @return
+	 */
+	@Override
+	public String generateUID(AbstractDto entity, SysRoleSystemDto roleSystem) {
+	
+		// Find attributes for this roleSystem
+		SysRoleSystemAttributeFilter roleSystemAttrFilter = new SysRoleSystemAttributeFilter();
+		roleSystemAttrFilter.setRoleSystemId(roleSystem.getId());
+		roleSystemAttrFilter.setIsUid(Boolean.TRUE);
+
+		List<SysRoleSystemAttributeDto> attributesUid = roleSystemAttributeService
+				.find(roleSystemAttrFilter, null) //
+				.getContent(); //
+		
+		if (attributesUid.size() > 1) {
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.role);
+			SysSystemDto systemDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system);
+			throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID,
+					ImmutableMap.of("role", roleDto.getCode(), "system", systemDto.getName()));
+		}
+
+		SysRoleSystemAttributeDto uidRoleAttribute = !attributesUid.isEmpty() ? attributesUid.get(0) : null;
+
+		// If roleSystem UID attribute found, then we use his transformation
+		// script.
+		if (uidRoleAttribute != null) {
+			// Default values (values from schema attribute handling)
+			SysSystemAttributeMappingDto systemAttributeMapping = DtoUtils.getEmbedded(uidRoleAttribute,
+					SysRoleSystemAttribute_.systemAttributeMapping.getName(), SysSystemAttributeMappingDto.class);
+			
+			uidRoleAttribute.setSchemaAttribute(systemAttributeMapping.getSchemaAttribute());
+			uidRoleAttribute.setTransformFromResourceScript(systemAttributeMapping.getTransformFromResourceScript());
+			Object uid = systemAttributeMappingService.getAttributeValue(null, entity, uidRoleAttribute);
+			if (uid == null) {
+				SysSystemDto systemEntity = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system);
+				throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
+						ImmutableMap.of("system", systemEntity.getName()));
+			}
+			if (!(uid instanceof String)) {
+				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
+						ImmutableMap.of("uid", uid));
+			}
+			return (String) uid;
+		}
+
+		// If roleSystem UID was not found, then we use default UID schema
+		// attribute handling
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(roleSystem.getSystemMapping());
+		attributeMappingFilter.setIsUid(Boolean.TRUE);
+		attributeMappingFilter.setDisabledAttribute(Boolean.FALSE);
+		List<SysSystemAttributeMappingDto> defaultUidAttributes = systemAttributeMappingService
+				.find(attributeMappingFilter, null).getContent();
+		if(defaultUidAttributes.size() == 1) {
+			return systemAttributeMappingService.generateUid(entity, defaultUidAttributes.get(0));
+		}
+		
+		// Default UID attribute was not correctly found, getUidAttribute method will be throw exception.
+		// This is good time for loading the system (is used in exception message)
+		SysSystemMappingDto mapping = systemMappingService.get(roleSystem.getSystemMapping());
+		SysSchemaObjectClassDto objectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
+		SysSystemDto system = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system);
+		systemAttributeMappingService.getUidAttribute(defaultUidAttributes, system);
+		// Exception occurred
+		return null;
+	}
+
+	@Override
+	@Transactional
+	public List<UUID> deleteIdentityAccount(IdmIdentityRoleDto entity) {
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+		filter.setIdentityRoleId(entity.getId());
+		List<UUID> accountIds = Lists.newArrayList();
+		
+		identityAccountService.find(filter, null).getContent() //
+				.forEach(identityAccount -> { //
+					accountIds.add(identityAccount.getAccount());
+					identityAccountService.delete(identityAccount);
+				});
+		return accountIds;
+	}
+	
+	@Override
+	@Transactional
+	public void deleteIdentityAccount(EntityEvent<IdmIdentityRoleDto> event) {
+		Assert.notNull(event);
+		IdmIdentityRoleDto identityRole = event.getContent();
+		Assert.notNull(identityRole);
+		Assert.notNull(identityRole.getId());
+		//
+		boolean skipPropagate = event.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE);
+		boolean bulk = event.getRootId() != null && entityEventManager.isRunnable(event.getRootId());
+		
+		if (!skipPropagate && !bulk) {
+			// role is deleted without request or without any parent ... we need to remove account synchronously
+			List<UUID> accountIds = deleteIdentityAccount(identityRole);
+			// We needs accounts which were connected to deleted identity-role in next
+			// processor (we want to execute provisioning only for that accounts)
+			event.getProperties().put(ACCOUNT_IDS_FOR_DELETED_IDENTITY_ROLE, (Serializable) accountIds);
+			return;
+		}
+		
+		// Role is deleted in bulk (e.g. role request) - account management has to be called outside
+		// we just mark identity account to be deleted and remove identity role
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+		filter.setIdentityRoleId(identityRole.getId());
+
+		identityAccountService.find(filter, null).getContent() //
+				.forEach(identityAccount -> { //
+					// Set relation on identity-role to null
+					identityAccount.setIdentityRole(null);
+
+					if(bulk) {
+						// For bulk create entity state for identity account.
+						IdmEntityStateDto stateDeleted = new IdmEntityStateDto();
+						stateDeleted.setSuperOwnerId(identityAccount.getIdentity());
+						stateDeleted.setResult(new OperationResultDto.Builder(OperationState.RUNNING)
+								.setModel(new DefaultResultModel(CoreResultCode.DELETED)).build());
+						entityStateManager.saveState(identityAccount, stateDeleted);
+					} else {
+						// Noting identity-accounts for delayed account management
+						notingIdentityAccountForDelayedAcm(event, identityAccount);
+					}
+					identityAccountService.save(identityAccount);
+				});
+	}
+	
 	/**
 	 * Resolve identity account to delete
 	 * 
@@ -352,131 +490,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 					});
 		});
-	}
-
-	/**
-	 * Return UID for this identity and roleSystem. First will be find and use
-	 * transform script from roleSystem attribute. If isn't UID attribute for
-	 * roleSystem defined, then will be use default UID attribute handling.
-	 * 
-	 * @param entity
-	 * @param roleSystem
-	 * @return
-	 */
-	@Override
-	public String generateUID(AbstractDto entity, SysRoleSystemDto roleSystem) {
-	
-		// Find attributes for this roleSystem
-		SysRoleSystemAttributeFilter roleSystemAttrFilter = new SysRoleSystemAttributeFilter();
-		roleSystemAttrFilter.setRoleSystemId(roleSystem.getId());
-		roleSystemAttrFilter.setIsUid(Boolean.TRUE);
-
-		List<SysRoleSystemAttributeDto> attributesUid = roleSystemAttributeService
-				.find(roleSystemAttrFilter, null) //
-				.getContent(); //
-		
-		if (attributesUid.size() > 1) {
-			IdmRoleDto roleDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.role);
-			SysSystemDto systemDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system);
-			throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID,
-					ImmutableMap.of("role", roleDto.getCode(), "system", systemDto.getName()));
-		}
-
-		SysRoleSystemAttributeDto uidRoleAttribute = !attributesUid.isEmpty() ? attributesUid.get(0) : null;
-
-		// If roleSystem UID attribute found, then we use his transformation
-		// script.
-		if (uidRoleAttribute != null) {
-			// Default values (values from schema attribute handling)
-			SysSystemAttributeMappingDto systemAttributeMapping = DtoUtils.getEmbedded(uidRoleAttribute,
-					SysRoleSystemAttribute_.systemAttributeMapping.getName(), SysSystemAttributeMappingDto.class);
-			
-			uidRoleAttribute.setSchemaAttribute(systemAttributeMapping.getSchemaAttribute());
-			uidRoleAttribute.setTransformFromResourceScript(systemAttributeMapping.getTransformFromResourceScript());
-			Object uid = systemAttributeMappingService.getAttributeValue(null, entity, uidRoleAttribute);
-			if (uid == null) {
-				SysSystemDto systemEntity = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.system);
-				throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
-						ImmutableMap.of("system", systemEntity.getName()));
-			}
-			if (!(uid instanceof String)) {
-				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
-						ImmutableMap.of("uid", uid));
-			}
-			return (String) uid;
-		}
-
-		// If roleSystem UID was not found, then we use default UID schema
-		// attribute handling
-		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
-		attributeMappingFilter.setSystemMappingId(roleSystem.getSystemMapping());
-		attributeMappingFilter.setIsUid(Boolean.TRUE);
-		attributeMappingFilter.setDisabledAttribute(Boolean.FALSE);
-		List<SysSystemAttributeMappingDto> defaultUidAttributes = systemAttributeMappingService
-				.find(attributeMappingFilter, null).getContent();
-		if(defaultUidAttributes.size() == 1) {
-			return systemAttributeMappingService.generateUid(entity, defaultUidAttributes.get(0));
-		}
-		
-		// Default UID attribute was not correctly found, getUidAttribute method will be throw exception.
-		// This is good time for loading the system (is used in exception message)
-		SysSystemMappingDto mapping = systemMappingService.get(roleSystem.getSystemMapping());
-		SysSchemaObjectClassDto objectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
-		SysSystemDto system = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system);
-		systemAttributeMappingService.getUidAttribute(defaultUidAttributes, system);
-		// Exception occurred
-		return null;
-	}
-
-	@Override
-	@Transactional
-	public List<UUID> deleteIdentityAccount(IdmIdentityRoleDto entity) {
-		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
-		filter.setIdentityRoleId(entity.getId());
-		List<UUID> accountIds = Lists.newArrayList();
-		
-		identityAccountService.find(filter, null).getContent() //
-				.forEach(identityAccount -> { //
-					accountIds.add(identityAccount.getAccount());
-					identityAccountService.delete(identityAccount);
-				});
-		return accountIds;
-	}
-	
-	@Override
-	@Transactional
-	public void deleteIdentityAccount(EntityEvent<IdmIdentityRoleDto> event) {
-		Assert.notNull(event);
-		IdmIdentityRoleDto identityRole = event.getContent();
-		Assert.notNull(identityRole);
-		Assert.notNull(identityRole.getId());
-		//
-		if (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) {
-			// role is deleted without request or without any parent ... we need to remove account synchronously
-			List<UUID> accountIds = deleteIdentityAccount(identityRole);
-			// We needs accounts which were connected to deleted identity-role in next
-			// processor (we want to execute provisioning only for that accounts)
-			event.getProperties().put(ACCOUNT_IDS_FOR_DELETED_IDENTITY_ROLE, (Serializable) accountIds);
-			return;
-		}
-		// Role is deleted in bulk (e.g. role request) - account management has to be called outside
-		// we just mark identity account to be deleted and remove identity role
-		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
-		filter.setIdentityRoleId(identityRole.getId());
-
-		identityAccountService.find(filter, null).getContent() //
-				.forEach(identityAccount -> { //
-					identityAccount.setIdentityRole(null);
-
-					// Create entity state for identity account.
-					IdmEntityStateDto stateDeleted = new IdmEntityStateDto();
-					stateDeleted.setSuperOwnerId(identityAccount.getIdentity());
-					stateDeleted.setResult(new OperationResultDto.Builder(OperationState.RUNNING)
-							.setModel(new DefaultResultModel(CoreResultCode.DELETED)).build());
-					entityStateManager.saveState(identityAccount, stateDeleted);
-					//
-					identityAccountService.save(identityAccount);
-				});
 	}
 	
 	/**
@@ -597,5 +610,55 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			return false;
 		}).findFirst().orElse(null);
 		return existsIdentityAccount;
+	}
+	
+	/**
+	 * Create identity-account, but first check if this identity-account already
+	 * exist, if yes then is only his account ID add to accounts (for provisioning).
+	 * 
+	 * @param accounts
+	 * @param identityAccount
+	 */
+	private void createIdentityAccountIfNotExists(List<UUID> accounts, AccIdentityAccountDto identityAccount) {
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setIdentityId(identityAccount.getIdentity());
+		identityAccountFilter.setIdentityRoleId(identityAccount.getIdentityRole());
+		identityAccountFilter.setAccountId(identityAccount.getAccount());
+		identityAccountFilter.setRoleSystemId(identityAccount.getRoleSystem());
+		// Check if on exist same identity-account (for same identity-role, account and
+		// role-system)
+		long count = identityAccountService.count(identityAccountFilter);
+		if (count == 0) {
+			AccIdentityAccountDto identityAccountDto = identityAccountService.save(identityAccount);
+			accounts.add(identityAccountDto.getAccount());
+		} else {
+			// If this identity-account already exists, then we need to add his account ID
+			// (for execute the provisioning).
+			accounts.add(identityAccountService.find(identityAccountFilter, null).getContent().get(0).getAccount());
+		}
+	}
+	
+	/**
+	 * Method for noting identity-accounts for delayed account management
+	 * 
+	 * @param event
+	 * @param identityAccount
+	 */
+	private void notingIdentityAccountForDelayedAcm(EntityEvent<IdmIdentityRoleDto> event,
+			AccIdentityAccountDto identityAccount) {
+		Assert.notNull(identityAccount);
+		Assert.notNull(identityAccount.getId());
+
+		if (!event.getProperties().containsKey(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM)) {
+			event.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM,
+					new ArrayList<UUID>());
+		}
+
+		@SuppressWarnings("unchecked")
+		List<UUID> identityAccounts = (List<UUID>) event.getProperties()
+				.get(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM);
+
+		// Add single identity-account to parent event
+		identityAccounts.add(identityAccount.getId());
 	}
 }

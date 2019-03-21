@@ -357,9 +357,6 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 		return properties.getBooleanValue(property);
 	}
 	
-	
-	
-	@SuppressWarnings("unchecked")
 	/**
 	 * Return list of values from event properties. Returns null, if value doesn't
 	 * exists for given property or if value is not instance of List.
@@ -371,13 +368,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 	 */
 	protected <T> List<T> getListProperty(String property, EntityEvent<?> event, Class<T> type) {
 		Assert.notNull(property, "Name of event property cannot be null!");
-		Serializable value = event.getProperties().get(property);
-		if (value instanceof List) {
-			List<?> list = (List<?>) value;
-			return (List<T>) Lists.newArrayList(list);
-		}
-
-		return Lists.newArrayList();
+		return event.getListProperty(property, type);
 	}
 	
 	/**

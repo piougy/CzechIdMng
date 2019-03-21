@@ -487,7 +487,7 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 		Assert.assertEquals(800, identityAccounts.size());
 	}
 	
-	// @Ignore
+	@Ignore
 	@Test
 	@Transactional
 	public void testDeletePerformance100() {
@@ -549,7 +549,7 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 		System.out.println("testDeletePerformance100 - Delete duration: " + (endAcmDelete.getTime() - startAcmDelete.getTime()));
 	}
 	
-	//@Ignore
+	@Ignore
 	@Test
 	@Transactional
 	public void testDeletePerformance200() {
@@ -611,7 +611,7 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 		System.out.println("testDeletePerformance200 - Delete duration: " + (endAcmDelete.getTime() - startAcmDelete.getTime()));
 	}
 	
-	//@Ignore
+	@Ignore
 	@Test
 	@Transactional
 	public void testDeletePerformance200WithSkip() {

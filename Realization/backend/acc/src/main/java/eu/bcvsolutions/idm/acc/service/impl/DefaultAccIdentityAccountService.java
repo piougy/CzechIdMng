@@ -142,7 +142,7 @@ public class DefaultAccIdentityAccountService extends
 			predicates.add(builder.notEqual(root.get(AccIdentityAccount_.id), filter.getNotIdentityAccount()));
 		}
 		if (filter.getIdentityRoleIds() != null) {
-			predicates.add(root.get(AccIdentityAccount_.identityRole).in(filter.getIdentityRoleIds()));
+			predicates.add(root.get(AccIdentityAccount_.identityRole).get(IdmIdentityRole_.id).in(filter.getIdentityRoleIds()));
 		}
 		//
 		return predicates;

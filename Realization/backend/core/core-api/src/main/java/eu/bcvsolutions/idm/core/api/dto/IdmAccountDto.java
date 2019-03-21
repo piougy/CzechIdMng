@@ -20,11 +20,16 @@ public class IdmAccountDto implements BaseDto {
 	 * Property in event. If the value is TRUE, then the provisioning is skipped. Skipping must be implemented in every processor for now!
 	 */
 	public static final String SKIP_PROVISIONING = "skip_provisioning";
-	public static final String SKIP_ACM = "skip_acm";
+	
 	/**
-	 * We needs accounts (IDs) which were connected to deleted identity-role in next processors (we want to execute provisioning only for that accounts).
+	 * We need to know identity-accounts which were connected to deleted identity-role (we want to execute account management).
 	 */
-	public static final String ACCOUNT_IDS_FOR_DELETED_IDENTITY_ROLE = "account-ids-for-deleted-identity-role";
+	public static final String IDENTITY_ACCOUNT_FOR_DELAYED_ACM = "identity-account-for-delayed-acm";
+	
+	/**
+	 * Skip propagate changes - equals to the skip account management
+	 */
+	public static final String SKIP_PROPAGATE = "skip_propagate";
 	//
 	private static final long serialVersionUID = 1L;
 	//

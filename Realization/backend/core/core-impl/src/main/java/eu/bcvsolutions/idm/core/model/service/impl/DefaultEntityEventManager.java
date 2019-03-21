@@ -316,8 +316,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	}
 	
 	/**
-	 * Try put notify event intto queue - event is put into queue, only if it's not executed synchronously.
-	 * If event is executed synchronously, then processed notify event properties (if some processor was ececuted) are propagated into original event. 
+	 * Try put notify event into queue - event is put into queue, only if it's not executed synchronously.
+	 * If event is executed synchronously, then processed notify event properties (if some processor was executed) are propagated into original event. 
 	 * 
 	 * @param notifyEvent
 	 * @param originalEvent

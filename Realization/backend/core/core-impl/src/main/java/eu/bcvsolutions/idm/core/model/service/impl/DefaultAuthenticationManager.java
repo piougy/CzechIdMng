@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
+import org.joda.time.DurationFieldType;
 import org.joda.time.Seconds;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+
+import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -39,7 +42,7 @@ import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 /**
  * Default implementation of authentication manager {@link AuthenticationManager}.
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  * @author Radek Tomiška
  */
 @Service
@@ -75,7 +78,19 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		if (passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfterNow()) {
 			LOG.info("Identity {} has blocked login to IdM.",
 					loginDto.getUsername());
-			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Invalid login or password.");
+			IdmIdentityDto identityDto = DtoUtils.getEmbedded(passwordDto, IdmPassword_.identity);
+			DateTimeFormatter formatter = DateTimeFormat.forPattern(configurationService.getDateTimeSecondsFormat());
+			DateTime blockLoginDate = passwordDto.getBlockLoginDate();
+			String dateAsString = blockLoginDate.toString(formatter);
+			
+			Seconds seconds = Seconds.secondsBetween(DateTime.now(), blockLoginDate);
+
+			throw new ResultCodeException(CoreResultCode.AUTH_BLOCKED,
+					ImmutableMap.of(
+							"username", identityDto.getUsername(),
+							"date", dateAsString,
+							"seconds", seconds.get(DurationFieldType.seconds()),
+							"unsuccessfulAttempts", passwordDto.getUnsuccessfulAttempts()));
 		}
 		//
 		for(Authenticator authenticator : getEnabledAuthenticators()) {
@@ -106,8 +121,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		//
 		// authenticator is sorted by implement ordered, return first success authenticate authenticator, if don't exist any otherwise throw first failure
 		if (resultsList.isEmpty()) {
-			passwordDto = passwordService.increaseUnsuccessfulAttempts(passwordDto);
-			checkLoginAttempts(passwordDto, loginDto);
+			blockLogin(passwordDto, loginDto);
 			throw firstFailture;
 		}
 		passwordDto = passwordService.setLastSuccessfulLogin(passwordDto);
@@ -145,40 +159,79 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 	
 	/**
-	 * Check current login attempts and if attempts exceeding lock authorization for time
-	 * and send notification to user.
+	 * Process login attempts and maximum attempts and then block block. Otherwise just increase attempts.
+	 * If
 	 *
 	 * @param passwordDto
 	 * @param loginDto
 	 */
-	private void checkLoginAttempts(IdmPasswordDto passwordDto, LoginDto loginDto) {
+	private void blockLogin(IdmPasswordDto passwordDto, LoginDto loginDto) {
+		Assert.notNull(passwordDto);
+		// In first increase unsuccessful attempts
+		passwordDto.increaseUnsuccessfulAttempts();
+
 		IdmPasswordPolicyDto validatePolicy = passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
-		// check if exists validate policy and then check if is exceeded max unsuccessful attempts
-		if (validatePolicy != null && validatePolicy.getMaxUnsuccessfulAttempts() != null &&
-				passwordDto.getUnsuccessfulAttempts() >= validatePolicy.getMaxUnsuccessfulAttempts()) {
-			if (validatePolicy.getBlockLoginTime() != null) {
-				int lockLoginTime = validatePolicy.getBlockLoginTime().intValue();
-				passwordDto.setBlockLoginDate(new DateTime().plus(Seconds.seconds(lockLoginTime)));
-				passwordDto = passwordService.save(passwordDto);
-				IdmIdentityDto identityDto = DtoUtils.getEmbedded(passwordDto, IdmPassword_.identity);
-				//
-				DateTimeFormatter formatter = DateTimeFormat.forPattern(configurationService.getDateTimeSecondsFormat());
-				String dateAsString = passwordDto.getBlockLoginDate().toString(formatter);
-				//
-				LOG.warn("For identity username: {} was lock authentization to IdM for {} seconds. Authentization will be available after: {}.",
-						loginDto.getUsername(), lockLoginTime, dateAsString);
-				// send notification to identity
-				notificationManager.send(CoreModuleDescriptor.TOPIC_LOGIN_BLOCKED,
-						new IdmMessageDto.Builder()
-						.addParameter("username", loginDto.getUsername())
-						.addParameter("after", dateAsString)
-						.addParameter("unsuccessfulAttempts", passwordDto.getUnsuccessfulAttempts())
-						.build(),
-						identityDto);
-			} else {
-				LOG.error("For password policy: {} isn't correctly filled lock login time!",
-						validatePolicy.getName());
-			}
+		
+		if (validatePolicy == null) {
+			LOG.warn("Default validation policy doesn't exist! Please setup correctly this policy type. CzechIdM without validation polcity is security risk");
+			passwordDto = passwordService.save(passwordDto); // Increase unsuccessful attempts
+			return;
+		}
+
+		Integer maxUnsuccessfulAttempts = validatePolicy.getMaxUnsuccessfulAttempts();
+		if (maxUnsuccessfulAttempts == null) {
+			LOG.warn("For default validation policy isn't set max unsuccessful attempts! Please setup correctly this policy type. CzechIdM without validation polcity is security risk");
+			passwordDto = passwordService.save(passwordDto); // Increase unsuccessful attempts
+			return;
+		}
+
+		Integer blockForSeconds = validatePolicy.getBlockLoginTime();
+		if (blockForSeconds == null) {
+			LOG.warn("For default validation policy isn't set block time! Please setup correctly this policy type. CzechIdM without validation polcity is security risk");
+			passwordDto = passwordService.save(passwordDto); // Increase unsuccessful attempts
+			return;
+		}
+
+		
+		int currentUnsuccessfulAttempts = passwordDto.getUnsuccessfulAttempts();
+		int remainder = currentUnsuccessfulAttempts % maxUnsuccessfulAttempts;
+
+		// If remainder is 0 the attempts reached new block
+		// Eq: 4 attempts and 4 is maximum = remainder = 0 => first block reached,
+		// 6 attempts 4 is maximum = remainder = 2 => inside first block
+		// 8 attempts 4 is maximum = remainder = 0 => second block reached
+		if (remainder == 0) {
+			// Multiplier is for increase block time
+			int multiplier = currentUnsuccessfulAttempts / maxUnsuccessfulAttempts;
+			int seconds = blockForSeconds * multiplier;
+			DateTime blockFinalTime = new DateTime().plusSeconds(seconds);
+			passwordDto.setBlockLoginDate(blockFinalTime);
+			passwordDto = passwordService.save(passwordDto);
+			IdmIdentityDto identityDto = DtoUtils.getEmbedded(passwordDto, IdmPassword_.identity);
+
+			DateTimeFormatter formatter = DateTimeFormat.forPattern(configurationService.getDateTimeSecondsFormat());
+			String dateAsString = passwordDto.getBlockLoginDate().toString(formatter);
+			//
+			LOG.warn("For identity username: {} was lock authentization to IdM for {} seconds. Authentization will be available after: {}.",
+					loginDto.getUsername(), blockFinalTime, dateAsString);
+			// send notification to identity
+			notificationManager.send(CoreModuleDescriptor.TOPIC_LOGIN_BLOCKED,
+					new IdmMessageDto.Builder()
+					.addParameter("username", loginDto.getUsername())
+					.addParameter("after", dateAsString)
+					.addParameter("unsuccessfulAttempts", passwordDto.getUnsuccessfulAttempts())
+					.build(),
+					identityDto);
+
+			throw new ResultCodeException(CoreResultCode.AUTH_BLOCKED,
+					ImmutableMap.of(
+							"username", identityDto.getUsername(),
+							"date", dateAsString,
+							"seconds", seconds,
+							"unsuccessfulAttempts", passwordDto.getUnsuccessfulAttempts()));
+		} else {
+			// Just increase attempts
+			passwordDto = passwordService.save(passwordDto);
 		}
 	}
 	

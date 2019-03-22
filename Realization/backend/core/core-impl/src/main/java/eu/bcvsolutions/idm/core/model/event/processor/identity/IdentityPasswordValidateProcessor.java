@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * Validate identity password
  * 
  * @author Radek Tomiška
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 @Component

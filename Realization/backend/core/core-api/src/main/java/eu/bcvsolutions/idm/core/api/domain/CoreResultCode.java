@@ -44,6 +44,7 @@ public enum CoreResultCode implements ResultCode {
 	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method is not allowed!"),
 	// auth errors
 	AUTH_FAILED(HttpStatus.UNAUTHORIZED, "Authentication failed - bad credentials."),
+	AUTH_BLOCKED(HttpStatus.UNAUTHORIZED, "Authentication failed - login for identity [%s] is blocked due [%s]. Seconds from now [%s]."),
 	AUTH_EXPIRED(HttpStatus.UNAUTHORIZED, "Authentication expired."),
 	TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "Token not found."),
 	AUTHORITIES_CHANGED(HttpStatus.UNAUTHORIZED, "Authorities changed or user logged out, log in again."),

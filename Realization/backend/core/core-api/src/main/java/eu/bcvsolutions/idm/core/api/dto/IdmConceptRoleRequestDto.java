@@ -5,9 +5,6 @@ import java.util.UUID;
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
@@ -36,13 +33,9 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
     private LocalDate validFrom;
     private LocalDate validTill;
     private ConceptRoleRequestOperation operation;
-    @JsonProperty(access = Access.READ_ONLY)
     private RoleRequestState state;
-    @JsonProperty(access = Access.READ_ONLY)
     private String wfProcessId;
-    @JsonProperty(access = Access.READ_ONLY)
     private String log;
-    @JsonProperty(access = Access.READ_ONLY)
     private boolean valid = true; // Is concept valid?
 
 	public UUID getRoleRequest() {

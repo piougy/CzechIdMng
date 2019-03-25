@@ -20,6 +20,7 @@ import javax.persistence.criteria.Root;
 
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -408,6 +409,7 @@ public class DefaultIdmRoleRequestService
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			createAssignedRole(concept, request, requestEvent);
+			flushHibernateSession();
 		});
 
 		// Update identity role
@@ -420,6 +422,7 @@ public class DefaultIdmRoleRequestService
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			updateAssignedRole(concept, request, requestEvent);
+			flushHibernateSession();
 		});
 		
 		// Delete identity role
@@ -432,6 +435,7 @@ public class DefaultIdmRoleRequestService
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			removeAssignedRole(concept, request, requestEvent);
+			flushHibernateSession();
 		});
 
 		request.setState(RoleRequestState.EXECUTED);
@@ -728,6 +732,20 @@ public class DefaultIdmRoleRequestService
 					.findFirst() //
 					.isPresent(); //
 			}).collect(Collectors.toSet());
+	}
+	
+	/**
+	 * Flush Hibernate session
+	 */
+	private void flushHibernateSession() {
+		if (getHibernateSession().isOpen()) {
+			getHibernateSession().flush();
+			getHibernateSession().clear();
+		}
+	}
+	
+	private Session getHibernateSession() {
+		return (Session) this.getEntityManager().getDelegate();
 	}
 	
 	

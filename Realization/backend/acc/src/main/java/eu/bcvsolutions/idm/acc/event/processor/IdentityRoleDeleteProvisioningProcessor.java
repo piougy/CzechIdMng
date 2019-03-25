@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -64,6 +65,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	public boolean conditional(EntityEvent<IdmIdentityRoleDto> event) {
 		return super.conditional(event)
 				// Skip provisioning
+				&& (!this.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE, event.getProperties()))
 				&& 	(!this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties()))
 				&& (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) ;
 	}

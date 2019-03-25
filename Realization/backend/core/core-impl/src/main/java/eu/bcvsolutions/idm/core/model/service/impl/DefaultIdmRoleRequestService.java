@@ -276,24 +276,6 @@ public class DefaultIdmRoleRequestService
 			request.setDuplicatedToRequest(null);
 		}
 
-		// Check on same applicants in all role concepts
-		boolean identityNotSame = this.get(request.getId()).getConceptRoles().stream().anyMatch(concept -> {
-			// get contract DTO from embedded map
-			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
-					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
-			if (contract == null) {
-				// If is contract from concept null, then contract via identity role must works
-				contract = (IdmIdentityContractDto) identityRoleService.get(concept.getIdentityRole()).getEmbedded()
-						.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
-			}
-			return !request.getApplicant().equals(contract.getIdentity());
-		});
-
-		if (identityNotSame) {
-			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
-					ImmutableMap.of("request", request, "applicant", request.getApplicant()));
-		}
-
 		// Convert whole request to JSON and persist (without logs and embedded data)
 		// Original request was canceled (since 9.4.0)
 
@@ -409,7 +391,6 @@ public class DefaultIdmRoleRequestService
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
 					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
 		}
-		
 		
 		// Add changed identity-roles to event (prevent redundant search). We will used them for recalculations (ACM / provisioning).
 		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, Lists.newArrayList());
@@ -535,29 +516,11 @@ public class DefaultIdmRoleRequestService
 		if (dto == null) {
 			return null;
 		}
-		// Set persisted value to read only properties
-		// TODO: Create converter for skip fields mark as read only
-		if (dto.getId() != null) {
-			IdmRoleRequestDto dtoPersisited = this.get(dto.getId());
-			if (dto.getState() == null) {
-				dto.setState(dtoPersisited.getState());
-			}
-			if (dto.getLog() == null) {
-				dto.setLog(dtoPersisited.getLog());
-			}
-			if (dto.getConceptRoles() == null) {
-				dto.setConceptRoles(dtoPersisited.getConceptRoles());
-			}
-			if (dto.getWfProcessId() == null) {
-				dto.setWfProcessId(dtoPersisited.getWfProcessId());
-			}
-			if (dto.getOriginalRequest() == null) {
-				dto.setOriginalRequest(dtoPersisited.getOriginalRequest());
-			}
-		} else {
+		
+		if (dto.getId() == null) {
 			dto.setState(RoleRequestState.CONCEPT);
 		}
-		//
+		
 		return super.toEntity(dto, entity);
 	}
 

@@ -41,7 +41,6 @@ public class IdentityRoleDeleteProcessor
 	//
 	@Autowired private IdmIdentityRoleService service;
 	@Autowired private IdmConceptRoleRequestService conceptRequestService;
-	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 
@@ -63,7 +62,6 @@ public class IdentityRoleDeleteProcessor
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setIdentityRoleId(identityRole.getId());
 		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
-			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(
@@ -75,11 +73,8 @@ public class IdentityRoleDeleteProcessor
 						concept.getId(), identityRole.getId());
 				concept.setState(RoleRequestState.CANCELED);
 			}
-			roleRequestService.addToLog(request, message);
 			conceptRequestService.addToLog(concept, message);
-			concept.setIdentityRole(null);
-
-			roleRequestService.save(request);
+			concept.setIdentityRole(null);;
 			conceptRequestService.save(concept);
 		});
 		//

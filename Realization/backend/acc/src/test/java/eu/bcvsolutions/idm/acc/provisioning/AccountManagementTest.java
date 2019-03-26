@@ -1,11 +1,15 @@
 package eu.bcvsolutions.idm.acc.provisioning;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
+import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,11 +19,16 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Sets;
+
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.bulk.action.impl.IdentityAccountManagementBulkAction;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
@@ -28,23 +37,32 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.entity.TestRoleResource;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -88,6 +106,12 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
+	@Autowired
+	private AccAccountService accountService;
+	@Autowired
+	private SysProvisioningArchiveService provisioningArchiveService;
+	@Autowired
+	private BulkActionManager bulkActionManager;
 
 	@Before
 	public void init() {
@@ -213,6 +237,357 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 		identityService.delete(identity);
 		roleService.delete(roleDefault);
 	}
+	
+	@Test
+	public void incrementalACM( ) {
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+
+		// create test system with mapping and link her to role
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysSystemDto systemTwo = getHelper().createTestResourceSystem(true);
+		getHelper().createRoleSystem(roleOne, systemOne);
+		getHelper().createRoleSystem(roleTwo, systemTwo);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, roleOne, roleTwo);
+		
+		getHelper().executeRequest(roleRequestOne, false);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+
+		// check created account
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		AccAccountDto accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	
+		// check provisioning archive
+		SysProvisioningOperationFilter archiveFilter = new SysProvisioningOperationFilter();
+		archiveFilter.setEntityIdentifier(identity.getId());
+
+		List<SysProvisioningArchiveDto> executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(2, executedOperations.size());
+		
+		IdmIdentityRoleDto identityRoleTwo = assignedRoles.stream() //
+				.filter(assignedRole -> roleTwo.getId().equals(assignedRole.getRole())) //
+				.findFirst() //
+				.get(); //
+		// Set identity-role as invalid and save without start ACM (save internal)
+		identityRoleTwo.setValidTill(LocalDate.now().minusDays(1));
+		assertFalse(identityRoleTwo.isValid());
+		identityRoleService.saveInternal(identityRoleTwo);
+		
+		// Identity-role is invalid, but ACM was not executed -> account must still exist
+		accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+
+		IdmRoleRequestDto removeRequest = getHelper().createRoleRequest(identity, 
+				ConceptRoleRequestOperation.REMOVE,	roleOne);
+		getHelper().executeRequest(removeRequest, false);
+		// Check after remove request
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+
+		// Account for system One must not exist
+		accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNull(accountOne);
+		// Identity-role is invalid, but ACM was not executed for this account -> account must still exist
+		accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+		
+		// Execute ACM and provisioning via bulk action
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentityAccountManagementBulkAction.NAME);
+		bulkAction.setIdentifiers(Sets.newHashSet(identity.getId()));
+		bulkActionManager.processAction(bulkAction);
+		
+		// Identity-role is invalid and ACM was executed for entire identity -> account must not exist
+		accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNull(accountTwo);
+	}
+	
+	@Test
+	public void incrementalProvisioningWithoutRequest( ) {
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+
+		// create test system with mapping and link her to role
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysSystemDto systemTwo = getHelper().createTestResourceSystem(true);
+		getHelper().createRoleSystem(roleOne, systemOne);
+		getHelper().createRoleSystem(roleTwo, systemTwo);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, roleOne, roleTwo);
+		
+		getHelper().executeRequest(roleRequestOne, false);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+
+		// check created account
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		AccAccountDto accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	
+		// check provisioning archive
+		SysProvisioningOperationFilter archiveFilter = new SysProvisioningOperationFilter();
+		archiveFilter.setEntityIdentifier(identity.getId());
+		archiveFilter.setSystemId(systemOne.getId());
+
+		List<SysProvisioningArchiveDto> executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+		
+		IdmRoleDto roleThree = getHelper().createRole();
+		getHelper().createRoleSystem(roleThree, systemOne);
+		
+		// Assign role Three without request
+		getHelper().createIdentityRole(identity, roleThree);
+		
+		// We expect new provisioning record in archive for system One
+		executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(2, executedOperations.size());
+		
+		// We expect still only one provisioning record in archive for system Two
+		archiveFilter.setSystemId(systemTwo.getId());
+		executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+	}
+	
+	@Test
+	public void incrementalProvisioningWithRequest() {
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+
+		// create test system with mapping and link her to role
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysSystemDto systemTwo = getHelper().createTestResourceSystem(true);
+		getHelper().createRoleSystem(roleOne, systemOne);
+		getHelper().createRoleSystem(roleTwo, systemTwo);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, roleOne, roleTwo);
+		
+		getHelper().executeRequest(roleRequestOne, false);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+
+		// check created account
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		AccAccountDto accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	
+		// check provisioning archive
+		SysProvisioningOperationFilter archiveFilter = new SysProvisioningOperationFilter();
+		archiveFilter.setEntityIdentifier(identity.getId());
+		archiveFilter.setSystemId(systemOne.getId());
+
+		List<SysProvisioningArchiveDto> executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+		
+		IdmRoleDto roleThree = getHelper().createRole();
+		getHelper().createRoleSystem(roleThree, systemOne);
+		
+		// Assign role Three with request
+		IdmRoleRequestDto roleRequestThree = getHelper().createRoleRequest(identity, roleThree);
+		getHelper().executeRequest(roleRequestThree, false);
+		
+		// We expect new provisioning record in archive for system One
+		executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(2, executedOperations.size());
+		
+		// We expect still only one provisioning record in archive for system Two
+		archiveFilter.setSystemId(systemTwo.getId());
+		executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+	}
+	
+	@Test
+	public void incrementalProvisioningRemoveWithRequest() {
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmRoleDto roleThree = getHelper().createRole();
+
+		// create test system with mapping and link her to role
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysSystemDto systemTwo = getHelper().createTestResourceSystem(true);
+		getHelper().createRoleSystem(roleOne, systemOne);
+		getHelper().createRoleSystem(roleTwo, systemTwo);
+		getHelper().createRoleSystem(roleThree, systemOne);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, roleOne, roleTwo, roleThree);
+		
+		getHelper().executeRequest(roleRequestOne, false);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(3, assignedRoles.size());
+
+		// check created account
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		AccAccountDto accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	
+		// check provisioning archive
+		SysProvisioningOperationFilter archiveFilter = new SysProvisioningOperationFilter();
+		archiveFilter.setEntityIdentifier(identity.getId());
+		archiveFilter.setSystemId(systemOne.getId());
+
+		List<SysProvisioningArchiveDto> executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+		
+		// Unassigns role Three with request
+		IdmRoleRequestDto roleRequestThree = getHelper().createRoleRequest(identity, ConceptRoleRequestOperation.REMOVE, roleThree);
+		getHelper().executeRequest(roleRequestThree, false);
+		
+		// We expect new provisioning record in archive for system One
+		executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(2, executedOperations.size());
+		
+		// We expect still only one provisioning record in archive for system Two
+		archiveFilter.setSystemId(systemTwo.getId());
+		executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+		
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	}
+	
+	@Test
+	public void incrementalProvisioningRemoveWithoutRequest() {
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmRoleDto roleThree = getHelper().createRole();
+
+		// create test system with mapping and link her to role
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysSystemDto systemTwo = getHelper().createTestResourceSystem(true);
+		getHelper().createRoleSystem(roleOne, systemOne);
+		getHelper().createRoleSystem(roleTwo, systemTwo);
+		getHelper().createRoleSystem(roleThree, systemOne);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, roleOne, roleTwo, roleThree);
+		
+		getHelper().executeRequest(roleRequestOne, false);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(3, assignedRoles.size());
+
+		// check created account
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		AccAccountDto accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	
+		// check provisioning archive
+		SysProvisioningOperationFilter archiveFilter = new SysProvisioningOperationFilter();
+		archiveFilter.setEntityIdentifier(identity.getId());
+		archiveFilter.setSystemId(systemOne.getId());
+
+		List<SysProvisioningArchiveDto> executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+		
+		// Unassigns role Three without request
+		IdmIdentityRoleDto identityRoleThree = assignedRoles.stream() //
+				.filter(assignedRole -> roleThree.getId().equals(assignedRole.getRole())) //
+				.findFirst() //
+				.get(); //
+		identityRoleService.delete(identityRoleThree);
+		
+		// We expect new provisioning record in archive for system One
+		executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(2, executedOperations.size());
+		
+		// We expect still only one provisioning record in archive for system Two
+		archiveFilter.setSystemId(systemTwo.getId());
+		executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+		
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	}
+	
+	@Test
+	public void incrementalProvisioningRemoveAccountWithRequest() {
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmRoleDto roleThree = getHelper().createRole();
+
+		// create test system with mapping and link her to role
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysSystemDto systemTwo = getHelper().createTestResourceSystem(true);
+		getHelper().createRoleSystem(roleOne, systemOne);
+		getHelper().createRoleSystem(roleTwo, systemTwo);
+		getHelper().createRoleSystem(roleThree, systemOne);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, roleOne, roleTwo, roleThree);
+		
+		getHelper().executeRequest(roleRequestOne, false);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(3, assignedRoles.size());
+
+		// check created account
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		AccAccountDto accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	
+		// check provisioning archive
+		SysProvisioningOperationFilter archiveFilter = new SysProvisioningOperationFilter();
+		archiveFilter.setEntityIdentifier(identity.getId());
+		archiveFilter.setSystemId(systemOne.getId());
+
+		List<SysProvisioningArchiveDto> executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+		
+		// Unassigns role One and Three with request
+		IdmRoleRequestDto removeRoleRequest = getHelper().createRoleRequest(identity, ConceptRoleRequestOperation.REMOVE, roleThree, roleOne);
+		getHelper().executeRequest(removeRoleRequest, false);
+		
+		// We expect only one new provisioning record in archive for system One
+		executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(2, executedOperations.size());
+		
+		// We expect still only one provisioning record in archive for system Two
+		archiveFilter.setSystemId(systemTwo.getId());
+		executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+		
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNull(accountOne);
+		accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	}
 
 	private SysSystemDto initData() {
 
@@ -240,6 +615,10 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 	public void initRoleData() {
 		deleteAllResourceData();
 
+	}
+	
+	protected TestHelper getHelper() {
+		return (TestHelper) super.getHelper();
 	}
 
 	private void createMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
@@ -384,5 +763,25 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 
 	private AccountManagementTest getBean() {
 		return applicationContext.getBean(this.getClass());
+	}
+	
+	/**
+	 * Find bulk action
+	 *
+	 * @param entity
+	 * @param name
+	 * @return
+	 */
+	protected IdmBulkActionDto findBulkAction(Class<? extends AbstractEntity> entity, String name) {
+		List<IdmBulkActionDto> actions = bulkActionManager.getAvailableActions(entity);
+		assertFalse(actions.isEmpty());
+		
+		for (IdmBulkActionDto action : actions) {
+			if (action.getName().equals(name)) {
+				return action;
+			}
+		}
+		fail("For entity class: " + entity.getSimpleName() + " was not found bulk action: " + name);
+		return null;
 	}
 }

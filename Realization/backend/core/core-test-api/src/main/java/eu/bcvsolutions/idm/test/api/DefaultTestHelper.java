@@ -581,14 +581,27 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
+	public IdmRoleRequestDto createRoleRequest(IdmIdentityDto identity, ConceptRoleRequestOperation operation,
+			IdmRoleDto... roles) {
+		return createRoleRequest(getPrimeContract(identity.getId()), operation, roles);
+	}
+
+	@Override
 	public IdmRoleRequestDto createRoleRequest(IdmIdentityContractDto contract, IdmRoleDto... roles) {
+		return createRoleRequest(contract, ConceptRoleRequestOperation.ADD, roles);
+	}
+
+	@Override
+	public IdmRoleRequestDto createRoleRequest(IdmIdentityContractDto contract, ConceptRoleRequestOperation operation, IdmRoleDto... roles) {
 		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 		roleRequest.setApplicant(contract.getIdentity());
 		roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
 		roleRequest.setExecuteImmediately(true);
 		roleRequest = roleRequestService.save(roleRequest);
 		//
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContract(contract.getId());
 		for (IdmRoleDto role : roles) {
+			
 			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
 			conceptRoleRequest.setRoleRequest(roleRequest.getId());
 			conceptRoleRequest.setIdentityContract(contract.getId());
@@ -596,8 +609,15 @@ public class DefaultTestHelper implements TestHelper {
 			conceptRoleRequest.setValidTill(contract.getValidTill());
 			conceptRoleRequest.setRole(role.getId());
 			//
-			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
+			conceptRoleRequest.setOperation(operation);
 			//
+			if (ConceptRoleRequestOperation.REMOVE == operation) {
+				IdmIdentityRoleDto identityRoleDto = assignedRoles.stream() //
+						.filter(assignedRole -> role.getId().equals(assignedRole.getRole())) //
+						.findFirst() //
+						.get(); //
+				conceptRoleRequest.setIdentityRole(identityRoleDto.getId());
+			}
 			conceptRoleRequestService.save(conceptRoleRequest);
 		}
 		return roleRequest;

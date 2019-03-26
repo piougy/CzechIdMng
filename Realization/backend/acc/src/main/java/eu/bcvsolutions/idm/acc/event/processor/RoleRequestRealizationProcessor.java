@@ -92,26 +92,28 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 			addAccounts(accountsForProvisioning, accounts);
 		}
 		
-		// Provisioning for new and updated
-		if (addedIdentityRoles.size() > 0 || updatedIdentityRoles.size() > 0) {
-			accountsForProvisioning.forEach(accountId -> {
-				AccAccountDto account = accountService.get(accountId);
-				if (account != null) { // Account could be null (was deleted).
-					LOG.debug("Call provisioning for identity [{}] and account [{}]", identity.getUsername(), account.getUid());
-					provisioningService.doProvisioning(account, identity);
-				}
-			});
-		}
-		
 		// Remove delayed identity-accounts (includes provisioning)
 		if (removedIdentityAccounts.size() > 0) {
 			LOG.debug("Call account management for identity [{}] - remove identity-accounts [{}]",
 					identity.getUsername(), removedIdentityAccounts);
 			removedIdentityAccounts.stream().distinct().forEach(identityAccountId -> {
 				AccIdentityAccountDto identityAccountDto = identityAccountService.get(identityAccountId);
-				identityAccountService.delete(identityAccountDto);
+				if(identityAccountDto != null) {
+					identityAccountService.delete(identityAccountDto);
+					accountsForProvisioning.add(identityAccountDto.getAccount());
+				}
 			});
 		}
+		
+		// Provisioning for modified account
+		accountsForProvisioning.forEach(accountId -> {
+			AccAccountDto account = accountService.get(accountId);
+			if (account != null) { // Account could be null (was deleted).
+				LOG.debug("Call provisioning for identity [{}] and account [{}]", identity.getUsername(),
+						account.getUid());
+				provisioningService.doProvisioning(account, identity);
+			}
+		});
 
 		return new DefaultEventResult<>(event, this);
 	}

@@ -8,6 +8,7 @@ import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -629,6 +630,29 @@ public interface TestHelper {
 	 */
 	IdmRoleRequestDto createRoleRequest(IdmIdentityContractDto contract, IdmRoleDto... roles);
 	
+	/***
+	 * Create role request - request is not executed
+	 * 
+	 * @param contract
+	 * @param operation
+	 * @param roles
+	 * @return
+	 */
+	IdmRoleRequestDto createRoleRequest(IdmIdentityContractDto contract, ConceptRoleRequestOperation operation,
+			IdmRoleDto... roles);
+	
+	/***
+	 * Create role request - request is not executed
+	 * 
+	 * @param identity
+	 * @param operation
+	 * @param roles
+	 * @return
+	 */
+	IdmRoleRequestDto createRoleRequest(IdmIdentityDto identity, ConceptRoleRequestOperation operation,
+			IdmRoleDto... roles);
+
+	
 	/**
 	 * Assign roles through role request (manual, execute immediately)
 	 *
@@ -852,4 +876,5 @@ public interface TestHelper {
 	 * @param automaticRoleId
 	 */
 	void recalculateAutomaticRoleByAttribute(UUID automaticRoleId);
+
 }

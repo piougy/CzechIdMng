@@ -162,6 +162,15 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		});
 	}
 	
+	// TODO: VS: We need run this in transaction.
+	// Requires new transaction should be here, but @Transactional seems sufficient
+	// (new thread = new transaction).
+	// I cannot enable the transaction here, because (minimal) the provisioning
+	// queues does not counting with transaction (exception = rollback of
+	// provisioning operation). If transaction is enabled test does not pass
+	// DefaultProvisioningExecutorIntegrationTest.testRetryProvisioning.
+	
+	// @Transactional
 	@Override
 	public <E extends Serializable> EventContext<E> process(EntityEvent<E> event) {
 		return process(event, null);

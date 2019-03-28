@@ -143,11 +143,15 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
           uiKey={ this.getUiKey() }
           manager={ manager }
           forceSearchParameters={ forceSearchParameters }
-          showRefreshButton={ false }
+          showRefreshButton
           className={ className }
-          showToolbar={ showAddButton }
+          showToolbar
           buttons={[
-            <Basic.Button level="success" className="btn-xs" onClick={ this.showDetail.bind(this, {}) } rendered={ showAddButton && TEST_ADD_ROLE_DIRECTLY }>
+            <Basic.Button
+              level="success"
+              className="btn-xs"
+              onClick={ this.showDetail.bind(this, {}) }
+              rendered={ showAddButton && TEST_ADD_ROLE_DIRECTLY }>
               <Basic.Icon value="fa:plus"/>
               {' '}
               {this.i18n('button.add')}

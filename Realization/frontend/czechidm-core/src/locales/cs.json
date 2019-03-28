@@ -1956,7 +1956,8 @@
         "startRequest": {
           "header": "Opravdu chcete podat tuto žádost",
           "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
-          "started": "Žádost byla úspěšně podána",
+          "started": "Žádost byla úspěšně podána a její zpracování probíhá na pozadí.",
+          "executed": "Žádost byla úspěšně provedena.",
           "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
           "duplicated": "Žádost nebyla podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
         }

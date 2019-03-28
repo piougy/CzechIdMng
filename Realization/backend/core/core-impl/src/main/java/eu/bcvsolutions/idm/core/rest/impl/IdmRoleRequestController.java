@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,6 +39,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
@@ -290,8 +292,15 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		// Validate
 		service.validate(requestDto);
 		// Start request
-		service.startRequest(UUID.fromString(backendId), true);
-		return this.get(backendId);
+		requestDto = service.startRequest(UUID.fromString(backendId), true);
+		if(!requestDto.getState().isTerminatedState()) {
+			throw new AcceptedException();
+		}
+		ResourceSupport resource = toResource(requestDto);
+		ResponseEntity<ResourceSupport> response = new ResponseEntity<>(resource, HttpStatus.OK);
+		addMetadataToConcepts(response);
+		
+		return response;
 	}
 
 	@ResponseBody

@@ -1908,7 +1908,8 @@
         "startRequest": {
           "header": "Do you really want execute this request",
           "message": "Do you really want execute this request and start approval process?",
-          "started": "Request was started",
+          "started": "Request was started and is executing on the background.",
+          "executed": "Request was successfully executed.",
           "exception": "Error occurred during submitting request. Request was not submitted!",
           "duplicated": "Request was not submitted because it is duplicate with another request created on [{{created}}]."
         }

@@ -154,7 +154,7 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 				concept = conceptRoleRequestService.save(concept, IdmBasePermission.CREATE);
 			}
 			//
-			roleRequest = roleRequestService.startRequestInternal(roleRequest.getId(), true);
+			roleRequest = roleRequestService.startRequestInternal(roleRequest.getId(), true, true);
 			if (roleRequest.getState() == RoleRequestState.EXECUTED) {
 				return new OperationResult.Builder(OperationState.EXECUTED).build();
 			} else {

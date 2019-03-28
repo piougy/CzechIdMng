@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.RoleRequestProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
@@ -23,7 +24,8 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventTyp
  */
 @Component
 @Description("Approve requested permission changes. By default will be started workflow with definition '"+RoleRequestApprovalProcessor.DEFAULT_WF_PROCESS_NAME+"'.")
-public class RoleRequestApprovalProcessor extends CoreEventProcessor<IdmRoleRequestDto> {
+public class RoleRequestApprovalProcessor extends CoreEventProcessor<IdmRoleRequestDto>
+		implements RoleRequestProcessor {
 	
 	public static final String PROCESSOR_NAME = "role-request-approval-processor";
 	public static final String PROPERTY_WF = "wf";

@@ -222,8 +222,26 @@ public class DefaultIdmRoleRequestService
 			String message = exceptionToLog.getLocalizedMessage();
 			this.addToLog(request, message != null ? message : ex.getLocalizedMessage());
 			request.setState(RoleRequestState.EXCEPTION);
+			
 			return save(request);
 		}
+	}
+	
+	@Override
+	public IdmRoleRequestDto processException(UUID requestId, Exception ex) {
+		Assert.notNull(requestId);
+		Assert.notNull(ex);
+		IdmRoleRequestDto request = this.get(requestId);
+		Assert.notNull(request);
+		
+		LOG.error(ex.getLocalizedMessage(), ex);
+		Throwable exceptionToLog = ExceptionUtils.resolveException(ex);
+		// Whole stack trace is too big, so we will save only message to the request log.
+		String message = exceptionToLog.getLocalizedMessage();
+		this.addToLog(request, message != null ? message : ex.getLocalizedMessage());
+		request.setState(RoleRequestState.EXCEPTION);
+		
+		return save(request);
 	}
 
 	/**
@@ -291,9 +309,11 @@ public class DefaultIdmRoleRequestService
 		if (immediate) {
 			event.setPriority(PriorityType.IMMEDIATE);
 		}
-		return entityEventManager
+		IdmRoleRequestDto content = entityEventManager
 				.process(event)
 				.getContent();
+		// Returned content is not actual, we need to load fresh request
+		return this.get(content.getId());
 	}
 
 	@Override
@@ -437,8 +457,7 @@ public class DefaultIdmRoleRequestService
 			removeAssignedRole(concept, request, requestEvent);
 			flushHibernateSession();
 		});
-
-		request.setState(RoleRequestState.EXECUTED);
+		
 		return this.save(request);
 
 	}

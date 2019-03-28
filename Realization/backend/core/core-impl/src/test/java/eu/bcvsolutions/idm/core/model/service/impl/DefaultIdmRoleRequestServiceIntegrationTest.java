@@ -174,7 +174,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 
 		Assert.assertEquals(RoleRequestState.CONCEPT, conceptA.getState());
 
-		roleRequestService.startRequestInternal(request.getId(), true);
+		roleRequestService.startRequestInternal(request.getId(), true, true);
 		request = roleRequestService.get(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
@@ -214,7 +214,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		conceptA.setIdentityRole(identityRoles.get(0).getId());
 		conceptA = conceptRoleRequestService.save(conceptA);
 
-		roleRequestService.startRequestInternal(request.getId(), true);
+		roleRequestService.startRequestInternal(request.getId(), true, true);
 		request = roleRequestService.get(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
@@ -251,7 +251,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		conceptA.setIdentityRole(identityRoles.get(0).getId());
 		conceptA = conceptRoleRequestService.save(conceptA);
 
-		roleRequestService.startRequestInternal(request.getId(), true);
+		roleRequestService.startRequestInternal(request.getId(), true, true);
 		request = roleRequestService.get(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
@@ -282,7 +282,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		conceptA = conceptRoleRequestService.save(conceptA);
 
 		// excepted ROLE_REQUEST_APPLICANTS_NOT_SAME exception
-		roleRequestService.startRequestInternal(request.getId(), true);
+		roleRequestService.startRequestInternal(request.getId(), true, true);
 
 	}
 	
@@ -313,7 +313,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		conceptA.setIdentityContract(contractA.getId());
 		conceptRoleRequestService.save(conceptA);
 
-		roleRequestService.startRequestInternal(requestA.getId(), true);
+		roleRequestService.startRequestInternal(requestA.getId(), true, true);
 		requestA = roleRequestService.get(requestA.getId());
 		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestA.getState());
 
@@ -322,7 +322,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		conceptRoleRequestService.save(conceptA);
 		
 		// We expect duplication exception
-		roleRequestService.startRequestInternal(requestB.getId(), true);
+		roleRequestService.startRequestInternal(requestB.getId(), true, true);
 		requestB = roleRequestService.get(requestB.getId());
 		Assert.assertEquals(RoleRequestState.DUPLICATED, requestB.getState());
 		Assert.assertEquals(requestA.getId(), requestB.getDuplicatedToRequest());
@@ -333,7 +333,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		roleRequestService.save(requestB);
 		
 		// We expect correct start
-		roleRequestService.startRequestInternal(requestB.getId(), true);
+		roleRequestService.startRequestInternal(requestB.getId(), true, true);
 		requestB = roleRequestService.get(requestB.getId());
 		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestB.getState());
 		Assert.assertEquals(null, requestB.getDuplicatedToRequest());
@@ -373,7 +373,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		Assert.assertEquals(RoleRequestState.CONCEPT, conceptA.getState());
 
 		// We expect exception state (we don`t have right for execute without approval)
-		roleRequestService.startRequestInternal(request.getId(), true);
+		roleRequestService.startRequestInternal(request.getId(), true, true);
 
 	}
 

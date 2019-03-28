@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.core.security.api.service.ExceptionProcessable;
 
 /**
  * Service for role request
@@ -22,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * 
  */
 public interface IdmRoleRequestService
-		extends ReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequestFilter>, AuthorizableService<IdmRoleRequestDto> {
+		extends ReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequestFilter>, AuthorizableService<IdmRoleRequestDto>, ExceptionProcessable<IdmRoleRequestDto> {
 
 
 	/**
@@ -133,4 +134,5 @@ public interface IdmRoleRequestService
 	 * @return
 	 */
 	Set<ResolvedIncompatibleRoleDto> getIncompatibleRoles(IdmRoleRequestDto request, IdmBasePermission... permissions);
+
 }

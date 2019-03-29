@@ -73,6 +73,13 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
           className={ className }
           showRowSelection={ manager.canDelete() }
           _searchParameters={ this.getSearchParameters() }
+          rowClass={({rowIndex, data}) => {
+            const embedded = data[rowIndex]._embedded;
+            if (embedded && embedded.guarantee && embedded.guarantee.disabled) {
+              return 'disabled';
+            }
+            return '';
+          }}
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }

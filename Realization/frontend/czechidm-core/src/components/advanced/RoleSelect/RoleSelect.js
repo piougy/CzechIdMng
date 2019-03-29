@@ -19,6 +19,7 @@ const roleCatalogueManager = new RoleCatalogueManager();
 
 /**
 * Component for select roles by role catalogue
+* TODO: allow return object instead of ids (selectedRoles)
 *
 * @author Ondrej Kopr
 * @author Radek Tomiška
@@ -31,6 +32,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     this.state = {
       ...this.state,
       selectedRows: [], // contains ids
+      selectedRoles: [], // contains role object, this is for return object instend of ids
       roleCatalogue: null,
       showRoleCatalogue: false
     };
@@ -215,27 +217,31 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       event.preventDefault();
     }
     const { multiSelect } = this.props;
-    const { selectedRows } = this.state;
+    const { selectedRows, selectedRoles } = this.state;
+    let valueId;
     let value;
     //
     if (selectedRows.length === 0) {
+      valueId = null;
       value = null;
     } else if (multiSelect) {
-      value = selectedRows;
+      valueId = selectedRows;
+      value = selectedRoles;
     } else {
-      value = selectedRows[0];
+      valueId = selectedRows[0];
+      value = selectedRoles[0];
     }
     //
     let result = true;
     if (this.props.onChange) {
-      result = this.props.onChange(value);
+      result = this.props.onChange(valueId, value);
     }
     // if onChange listener returns false, then we can end
     if (result === false) {
       return;
     }
     //
-    this.refs.role.setValue(value);
+    this.refs.role.setValue(valueId);
     this.hideRoleCatalogue();
   }
 
@@ -244,19 +250,24 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     if (event) {
       event.preventDefault();
     }
-    let { selectedRows } = this.state;
+    let { selectedRows, selectedRoles } = this.state;
     const { multiSelect } = this.props;
     //
     if (multiSelect) {
       selectedRows.push(value.id);
+      selectedRoles.push(value);
       this.setState({
-        selectedRows
+        selectedRows,
+        selectedRoles
       });
     } else {
       selectedRows = [];
+      selectedRoles = [];
       selectedRows.push(value.id);
+      selectedRoles.push(value);
       this.setState({
-        selectedRows
+        selectedRows,
+        selectedRoles
       });
     }
   }
@@ -266,11 +277,13 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       event.preventDefault();
     }
     //
-    let { selectedRows } = this.state;
+    let { selectedRows, selectedRoles } = this.state;
     //
     selectedRows = _.pull(selectedRows, value.id);
+    selectedRoles = _.pull(selectedRoles, value);
     this.setState({
-      selectedRows
+      selectedRows,
+      selectedRoles
     });
   }
 

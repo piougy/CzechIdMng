@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.6.0]
+- [#1534](https://redmine.czechidm.com/issues/1534) - Incremental account management and provisioning:
+  - Change/update/delete of the assigned roles (identity-roles) invoke account management only for changed identity-roles. No more for all identity-roles of the identity. If you need to execute account management for entire identity, then you can use bulk action "Recalculate accounts and provision".
+  - Change/update/delete of the assigned roles (identity-roles) invoke provisioning only for touched accounts.
+  - Return type for method ``AccAccountManagementService.deleteIdentityAccount`` was changed from ``void`` to ``List<UUID>``.
+  - New methods (``resolveNewIdentityRoles``, ``resolveUpdatedIdentityRoles``) for incremental account management were added to service ``AccAccountManagementService``.
+- [#1543](https://redmine.czechidm.com/issues/1543) - Realization of the role-request is executed asynchronously now. Processor ``RoleRequestRealizationProcessor`` catches event for type ``RoleRequestEventType.NOTIFY`` now (previously ``RoleRequestEventType.EXECUTION``). 
+
 ## [9.4.0]
 - [#1372](https://redmine.czechidm.com/issues/1372) - HTTP status 206 for long running task supports download result from them.
 - Deprecated static properties ``PARAMETER_PROPERTY`` and ``PARAMETER_VALUE`` defined in ``IdmTreeNodeFilter`` were removed (deprecated @since 8.2.0). Use static properties ``PARAMETER_CORRELATION_PROPERTY`` and ``PARAMETER_CORRELATION_VALUE`` instead.

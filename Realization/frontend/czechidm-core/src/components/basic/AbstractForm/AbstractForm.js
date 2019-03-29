@@ -6,6 +6,7 @@ import merge from 'object-assign';
 import ApiOperationTypeEnum from '../../../enums/ApiOperationTypeEnum';
 import Loading from '../Loading/Loading';
 import _ from 'lodash';
+import equal from 'fast-deep-equal';
 
 /**
  * Abstract form component
@@ -47,7 +48,8 @@ class AbstractForm extends AbstractContextComponent {
     if (nextProps.showLoading !== this.props.showLoading) {
       this.setState({showLoading: nextProps.showLoading});
     }
-    if (nextProps.data !== this.props.data) {
+    if (nextProps.data !== this.props.data
+      && (nextProps.data && !equal(nextProps.data, this.props.data))) {
       this.setData(nextProps.data);
     }
   }

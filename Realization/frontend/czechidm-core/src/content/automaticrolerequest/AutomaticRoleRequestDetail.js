@@ -530,7 +530,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     const changedConcepts = [];
     const removedConcepts = [];
     if (request && _roleRuleRequests) {
-      const concepts = _roleRuleRequests;
+      const concepts = _.merge([], _roleRuleRequests);
       if (request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
         for (const concept of concepts) {
           if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)) {

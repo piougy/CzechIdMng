@@ -522,6 +522,11 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     //
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
+    const requestForForm = _.merge({}, request);
+    // Form is rendered if data are changed, but we don't want rerenderd the form if only some
+    // concept was changed (prevent lost other changes in form ... filled description for example).
+    requestForForm.conceptRoles = null;
+
     // We want show audit fields only for Admin, but not in concept state.
     const hasAdminRights = Utils.Permission.hasPermission(_permissions, 'ADMIN');
     const _adminMode = hasAdminRights && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
@@ -577,7 +582,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
           </Basic.ContentHeader>
           <Basic.Panel rendered={ showRequestDetail }>
-            <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
+            <Basic.AbstractForm readOnly={!isEditable} ref="form" data={requestForForm} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   { this._getApplicantAndImplementer(request) }

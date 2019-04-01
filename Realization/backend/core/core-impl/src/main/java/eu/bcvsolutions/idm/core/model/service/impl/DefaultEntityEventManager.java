@@ -173,7 +173,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	// provisioning operation). If transaction is enabled test does not pass
 	// DefaultProvisioningExecutorIntegrationTest.testRetryProvisioning.
 	
-	// @Transactional
+	@Transactional
 	@Override
 	public <E extends Serializable> EventContext<E> process(EntityEvent<E> event) {
 		return process(event, null);

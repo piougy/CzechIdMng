@@ -343,6 +343,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                     uiKey={ `${uiKey}-identity` }
                     identityManager={ identityManager }
                     filterOpened={ filterOpened }
+                    showAddButton={ false }
                     treeType={ type }
                     showRowSelection/>
                 </Basic.Tab>

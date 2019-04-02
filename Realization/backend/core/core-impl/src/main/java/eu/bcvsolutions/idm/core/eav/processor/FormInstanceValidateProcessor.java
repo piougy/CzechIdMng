@@ -74,13 +74,9 @@ public class FormInstanceValidateProcessor
 				.collect(Collectors.toSet());
 		// only sent attributes in definition and instance
 		formDefinition.setFormAttributes(Lists.newArrayList(sentAttributes));
-		IdmFormInstanceDto validateFormInstance = new IdmFormInstanceDto();
-		validateFormInstance.setOwnerId(formInstance.getOwnerId());
-		validateFormInstance.setOwnerType(formInstance.getOwnerType());
-		validateFormInstance.setFormDefinition(formDefinition);
-		validateFormInstance.setValues(formInstance.getValues());
+		formInstance.setFormDefinition(formDefinition);
 		// validate
-		List<InvalidFormAttributeDto> errors = formService.validate(validateFormInstance);
+		List<InvalidFormAttributeDto> errors = formService.validate(formInstance);
 		if (!errors.isEmpty()) {
 			throw new InvalidFormException(errors);
 		}

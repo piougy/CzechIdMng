@@ -213,17 +213,17 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 		identity.setUsername(getHelper().createName());
 		
 		// prepare new form definition
-		UUID formDefinitionId = createFormDefinition().getId();
+		IdmFormDefinitionDto formDefinition = createFormDefinition();
 		
 		// prepare form attribute 1
 		String attrCode1 = getHelper().createName();
 		String attrDefaultValue1 = UUID.randomUUID().toString();
-		IdmFormAttributeDto att1 = createAttribute(attrCode1, attrDefaultValue1, PersistentType.UUID, formDefinitionId);
+		IdmFormAttributeDto att1 = createAttribute(attrCode1, attrDefaultValue1, PersistentType.UUID, formDefinition.getId());
 
 		// prepare form attribute 2
 		String attrCode2 = getHelper().createName();
 		String attrDefaultValue2 = "100";
-		IdmFormAttributeDto att2 = createAttribute(attrCode2, attrDefaultValue2, PersistentType.INT, formDefinitionId);
+		IdmFormAttributeDto att2 = createAttribute(attrCode2, attrDefaultValue2, PersistentType.INT, formDefinition.getId());
 
 		// check eav before
 		List<IdmFormInstanceDto> eavs = identity.getEavs();
@@ -235,7 +235,7 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 				this.createConfiguration(generator.getFormDefinition(), null), 1, null);
 
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
-		IdmFormDefinitionDto formDefinition = formDefinitionService.get(formDefinitionId);
+//		IdmFormDefinitionDto formDefinition = formDefinitionService.get(formDefinitionId);
 		formInstance.setFormDefinition(formDefinition);
 		
 		// create identity with given one EAV

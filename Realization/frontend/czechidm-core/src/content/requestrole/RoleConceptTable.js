@@ -475,7 +475,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
       const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values);
       result.push(
           <Advanced.EavForm
-            key={`${rowIndex}-${value.id}`}
+            key={ _.uniqueId(`${rowIndex}-${value.id}`) }
             ref="eavForm"
             formInstance={ _formInstance }
             validationErrors={ formInstance.validationErrors }

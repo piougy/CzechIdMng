@@ -52,7 +52,7 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private AccAccountManagementService accountManagementService;
 	@Autowired private ProvisioningService provisioningService;
-	@Autowired private IdmIdentityRoleService identityRoleSerivce;
+	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private AccAccountService accountService;
 	
 
@@ -96,7 +96,8 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 		// TODO: Basically this doesn't work, because identity-role is already created
 		// (not committed). So every times will be called update ACM, but this isn't big issue (only
 		// some redundant selects will be executed).
-		boolean isNew = identityRoleSerivce.isNew(identityRole);
+		// TODO: event.getParentType() === CREATE can be used instead
+		boolean isNew = identityRoleService.isNew(identityRole);
 		
 		LOG.debug("Call account management for identity [{}] and identity-role [{}]", identity.getUsername(), identityRole.toString());
 		

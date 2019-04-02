@@ -9,12 +9,17 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 
+/**
+ * 
+ * @author Vít Švanda
+ *
+ */
 public interface AccAccountManagementService {
 	
 	/**
 	 * We needs accounts (IDs) which were connected to deleted identity-role in next processors (we want to execute provisioning only for that accounts).
 	 */
-	public static final String ACCOUNT_IDS_FOR_DELETED_IDENTITY_ROLE = "account-ids-for-deleted-identity-role";
+	String ACCOUNT_IDS_FOR_DELETED_IDENTITY_ROLE = "account-ids-for-deleted-identity-role";
 
 	/**
 	 * Create or delete accounts for this identity according their roles

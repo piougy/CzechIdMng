@@ -22,7 +22,6 @@ public class IdentityRoleEvent extends CoreEvent<IdmIdentityRoleDto> {
 	public static final String PROPERTY_ASSIGNED_REMOVED_ROLES = "idm:assigned_removed_roles"; // event property, contains List<UUID> of removed assigned roles
 	public static final String PROPERTY_ASSIGNED_UPDATED_ROLES = "idm:assigned_updated_roles"; // event property, contains List<IdmIdentityRole> of updated assigned roles
 
-
 	/**
 	 * Supported identity events
 	 *

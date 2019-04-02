@@ -79,7 +79,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.ExceptionProcessable;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import joptsimple.internal.Strings;
 
 /**
  * Entity (dto) processing based on event publishing.
@@ -164,22 +163,15 @@ public class DefaultEntityEventManager implements EntityEventManager {
 				});
 		});
 	}
-	
-	// TODO: VS: We need run this in transaction.
-	// Requires new transaction should be here, but @Transactional seems sufficient
-	// (new thread = new transaction).
-	// I cannot enable the transaction here, because (minimal) the provisioning
-	// queues does not counting with transaction (exception = rollback of
-	// provisioning operation). If transaction is enabled test does not pass
-	// DefaultProvisioningExecutorIntegrationTest.testRetryProvisioning.
-	
-	@Transactional
+
 	@Override
+	@Transactional
 	public <E extends Serializable> EventContext<E> process(EntityEvent<E> event) {
 		return process(event, null);
 	}
 
 	@Override
+	@Transactional
 	@SuppressWarnings("unchecked")
 	public <E extends Serializable> EventContext<E> process(EntityEvent<E> event, EntityEvent<?> parentEvent) {
 		Assert.notNull(event);
@@ -510,8 +502,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		try {
 			eventConfiguration.getExecutor().execute(new Runnable() {
 				
-				@SuppressWarnings("unchecked")
 				@Override
+				@SuppressWarnings("unchecked")
 				public void run() {
 					try {
 						process(new CoreEvent<>(EntityEventType.EXECUTE, event));
@@ -529,33 +521,29 @@ public class DefaultEntityEventManager implements EntityEventManager {
 											"ownerId", String.valueOf(event.getOwnerId()),
 											"instanceId", String.valueOf(event.getInstanceId())));
 						}		
-						context.getBean(DefaultEntityEventManager.this.getClass()).saveResult(event.getId(), new OperationResultDto
+						saveResult(event.getId(), new OperationResultDto
 										.Builder(OperationState.EXCEPTION)
 										.setCause(ex)
 										.setModel(resultModel)
 										.build());
 						
 						LOG.error(resultModel.toString(), ex);
-						
-						// May be should be the exception processed within owner service (for audit purpose in some request).
+						//
+						// Sometimes should be the exception processed within owner service (for audit purpose in some request).
 						// We check if owner service supports this feature (implements ExceptionProcessable).
-						String ownerType = event.getOwnerType();
-						UUID ownerId = event.getOwnerId();
-						if(!Strings.isNullOrEmpty(ownerType) && ownerId != null) {
-							try {
-								Class<?> ownerClass = Class.forName(ownerType);
-								ReadDtoService<?, ?> dtoService = lookupService.getDtoService((Class<? extends Identifiable>) ownerClass);
-								if(dtoService instanceof ExceptionProcessable) {
-									@SuppressWarnings("rawtypes")
-									ExceptionProcessable exceptionProcessable = (ExceptionProcessable) dtoService;
-									// Propagate the exception
-									exceptionProcessable.processException(ownerId, ex);
-								}
-							} catch (ClassNotFoundException e) {
-								// Only to the log
-								LOG.error(e.getLocalizedMessage(), e);
+						try {
+							Class<?> ownerClass = Class.forName(event.getOwnerType());
+							ReadDtoService<?, ?> dtoService = lookupService.getDtoService((Class<? extends Identifiable>) ownerClass);
+							if (dtoService instanceof ExceptionProcessable) {
+								ExceptionProcessable<?> exceptionProcessable = (ExceptionProcessable<?>) dtoService;
+								// Propagate the exception
+								exceptionProcessable.processException(event.getOwnerId(), ex);
 							}
+						} catch (ClassNotFoundException e) {
+							// Only to the log
+							LOG.error(e.getLocalizedMessage(), e);
 						}
+						
 					} finally {
 						LOG.trace("Event [{}] ends for owner with id [{}].", event.getId(), event.getOwnerId());
 						removeRunningEvent(event);

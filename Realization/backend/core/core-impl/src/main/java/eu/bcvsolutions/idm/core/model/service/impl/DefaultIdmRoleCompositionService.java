@@ -151,7 +151,7 @@ public class DefaultIdmRoleCompositionService
 						identityRoleService.publish(subEvent, event, permission);
 						// Notes new created assigned role to parent event
 						IdmIdentityRoleDto subContent = subEvent.getContent();
-						this.notingAssgnedRole(event, subEvent, subContent, IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES);
+						notingAssignedRole(event, subEvent, subContent, IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES);
 					}
 				}
 			});
@@ -205,7 +205,7 @@ public class DefaultIdmRoleCompositionService
 				identityRoleService.publish(subEvent, event, permission);
 				// Notes updated assigned role to parent event
 				IdmIdentityRoleDto subContent = subEvent.getContent();
-				this.notingAssgnedRole(event, subEvent, subContent, IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES);
+				notingAssignedRole(event, subEvent, subContent, IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES);
 			});
 	}
 	
@@ -291,14 +291,14 @@ public class DefaultIdmRoleCompositionService
 		return props;
 	}
 	
-	@SuppressWarnings("unchecked")
 	/**
 	 * Method for noting a new assigned role
 	 * 
 	 * @param event
 	 * @param identityRoleId
 	 */
-	private void notingAssgnedRole(EntityEvent<IdmIdentityRoleDto> event, EntityEvent<IdmIdentityRoleDto> subEvent, IdmIdentityRoleDto identityRole, String property) {
+	@SuppressWarnings("unchecked")
+	private void notingAssignedRole(EntityEvent<IdmIdentityRoleDto> event, EntityEvent<IdmIdentityRoleDto> subEvent, IdmIdentityRoleDto identityRole, String property) {
 		Assert.notNull(identityRole);
 		Assert.notNull(identityRole.getId());
 		Assert.notNull(property);

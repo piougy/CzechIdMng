@@ -280,7 +280,7 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	 * @param type
 	 * @return
 	 */
-	public <T> List<T> getListProperty(String property, Class<T> type);
+	<T> List<T> getListProperty(String property, Class<T> type);
 
 	/**
 	 * Return true if event properties contains given property and this property is true.

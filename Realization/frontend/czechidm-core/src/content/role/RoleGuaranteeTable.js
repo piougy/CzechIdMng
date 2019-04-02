@@ -75,8 +75,8 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
           _searchParameters={ this.getSearchParameters() }
           rowClass={({rowIndex, data}) => {
             const embedded = data[rowIndex]._embedded;
-            if (embedded && embedded.guarantee && embedded.guarantee.disabled) {
-              return 'disabled';
+            if (embedded) {
+              return Utils.Ui.getRowClass(embedded.guarantee);
             }
             return '';
           }}

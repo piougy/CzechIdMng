@@ -70,6 +70,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -851,6 +852,7 @@ public class DefaultIdmRoleRequestService
 		if (roleDto != null && roleDto.getIdentityRoleAttributeDefinition() != null) {
 			IdmFormDefinitionDto formDefinitionDto = roleService.getFormAttributeSubdefinition(roleDto);
 			IdmFormInstanceDto formInstance = formService.getFormInstance(conceptRole, formDefinitionDto);
+			this.refillDeletedAttributeValue(formInstance);
 			identityRole.getEavs().clear();
 			identityRole.getEavs().add(formInstance);
 		}
@@ -868,6 +870,38 @@ public class DefaultIdmRoleRequestService
 			identityRole.setAutomaticRole(conceptRole.getAutomaticRole());
 		}
 		return identityRole;
+	}
+
+	/**
+	 * Form instance must contains delete attribute (with empty value). Without it
+	 * could be form values not deleted.
+	 * 
+	 * @param formInstance
+	 */
+	private void refillDeletedAttributeValue(IdmFormInstanceDto formInstance) {
+		Assert.notNull(formInstance, "Form instnace if mandatory!");
+		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
+		Assert.notNull(formDefinition);
+		
+		formDefinition
+		.getFormAttributes()
+		.stream()
+		.forEach(formAttribute -> { //
+			boolean valueExists = formInstance //
+					.getValues() //
+					.stream() //
+					.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute())) //
+					.findFirst() //
+					.isPresent();
+			if (!valueExists) {
+				List<IdmFormValueDto> values = formInstance.getValues();
+				ArrayList<IdmFormValueDto> newValues = Lists.newArrayList(values);
+				IdmFormValueDto deletedValue = new IdmFormValueDto(formAttribute);
+				newValues.add(deletedValue);
+				formInstance.setValues(newValues);
+			}
+		});
+		
 	}
 
 	private IdmRoleRequestService getIdmRoleRequestService() {

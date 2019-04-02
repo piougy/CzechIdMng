@@ -52,7 +52,7 @@ public class FormableSaveProcessor extends CoreEventProcessor<FormableDto> {
 			if (formInstance.getFormDefinition().getId() == null) {
 				formDefinition = formService.getDefinition(savedDto.getClass(), formInstance.getFormDefinition().getCode());
 			} else {
-				formDefinition = formService.getDefinition(formInstance.getFormDefinition().getId());
+				formDefinition = formInstance.getFormDefinition();
 			}
 			formInstance.setOwnerId(savedDto.getId());
 			formInstance.setOwnerType(savedDto.getClass());

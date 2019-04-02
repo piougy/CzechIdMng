@@ -129,7 +129,9 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     } else {
       selectedRole = null;
     }
-
+    // TODO: move selectedRole, _identityRoleAttributeDefinition, _identityRoleFormInstance to state and get them directly from callback above
+    this.setState({ selectedRole });
+    //
     return true;
   }
 

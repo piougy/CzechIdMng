@@ -150,7 +150,7 @@ class NodeDetail extends Basic.AbstractContent {
                 <Advanced.TreeNodeSelect
                   ref="parent"
                   header={ this.i18n('entity.TreeNode.parent.name') }
-                  treeNodeLabel={ this.i18n('entity.TreeNode.parent.name') }
+                  label={ this.i18n('entity.TreeNode.parent.name') }
                   forceSearchParameters={ manager.getDefaultSearchParameters().setFilter('treeTypeId', type) } />
 
                 <Basic.Checkbox

@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -230,6 +231,7 @@ public class DefaultIdmRoleCompositionServiceIntegrationTest extends AbstractInt
 	}
 	
 	@Test
+	@Ignore
 	public void testAssignSubRolesByRequestAsync() throws InterruptedException {
 		// prepare role composition
 		IdmRoleDto superior = getHelper().createRole();

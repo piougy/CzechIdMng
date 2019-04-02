@@ -595,4 +595,14 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected Pageable getPageableAll(Sort sort) {
 		return new PageRequest(0, Integer.MAX_VALUE, sort);
 	}
+
+	/**
+	 * Returns entity manager
+	 * 
+	 * @return
+	 */
+	protected EntityManager getEntityManager() {
+		return entityManager;
+	}
+	
 }

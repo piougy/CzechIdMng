@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -9,15 +11,17 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
-import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -47,6 +51,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private SysRoleSystemService roleSystemService;
+	@Autowired private AccAccountService accountService;
 
 	public IdentityRoleDeleteProvisioningProcessor() {
 		super(IdentityRoleEventType.DELETE);
@@ -60,6 +65,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	public boolean conditional(EntityEvent<IdmIdentityRoleDto> event) {
 		return super.conditional(event)
 				// Skip provisioning
+				&& (!this.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE, event.getProperties()))
 				&& 	(!this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties()))
 				&& (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) ;
 	}
@@ -69,6 +75,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 		return PROCESSOR_NAME;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
 		IdmIdentityRoleDto identityRole = event.getContent();
@@ -86,11 +93,27 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 		IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
 		IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
 		
-//		AccAccountFilter accountFilter = new AccAccountFilter();
-//		accountFilter.setIdentityRoleId(identityRole.getId());
+		Serializable accountsIdsObj = event.getProperties().get(AccAccountManagementService.ACCOUNT_IDS_FOR_DELETED_IDENTITY_ROLE);
+		List<UUID> accountsIds = null;
+		if(accountsIdsObj instanceof List) {
+			accountsIds =  (List<UUID>) accountsIdsObj;
+		}
 		
-		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
-		provisioningService.doProvisioning(identity);
+		if (accountsIds == null) {
+			// We don't know about specific accounts, so we will execute provisioning for all accounts.
+			LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
+			provisioningService.doProvisioning(identity);
+			
+			return new DefaultEventResult<>(event, this);
+		}
+		
+		accountsIds.forEach(accountId -> {
+			AccAccountDto account = accountService.get(accountId);
+			if (account != null) { // Account could be null (was deleted).
+				LOG.debug("Call provisioning for identity [{}] and account [{}]", identity.getUsername(), account.getUid());
+				provisioningService.doProvisioning(account, identity);
+			}
+		});
 		
 		return new DefaultEventResult<>(event, this);
 	}

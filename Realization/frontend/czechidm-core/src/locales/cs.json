@@ -1032,7 +1032,7 @@
         "password": "Nové heslo",
         "passwordChangeTooltip": "Síla hesla:",
         "passwordAgain": {
-          "label": "Heslo znovu",
+          "label": "Zadejte heslo znovu",
           "placeholder": "Nové heslo pro kontrolu"
         },
         "button": {
@@ -1350,7 +1350,7 @@
             "header": "Přidat podle uživatele",
             "selectUser": {
               "label": "Výběr uživatele",
-              "help": "Výběr uživatele od kterého budou kopírované role."
+              "help": "Výběr uživatele, od kterého budou kopírované role."
             },
             "copyRoleParameters": {
               "label": "Kopírovat včetně parametrů rolí",
@@ -1358,7 +1358,7 @@
             },
             "selectIdentityContract": {
               "label": "Úvazek vybraného uživatele",
-              "help": "Výběr úvazku od uživatele. Výběr úvazku filtruje uživatelovi role.",
+              "help": "Výběr úvazku od uživatele. Výběr úvazku filtruje uživatelovy role.",
               "placeholder": "Vyberte úvazek"
             },
             "roleSelectionHeader": "Výběr rolí",
@@ -1956,7 +1956,8 @@
         "startRequest": {
           "header": "Opravdu chcete podat tuto žádost",
           "message": "Opravdu chcete spustit schvalovací proces pro tuto žádost?",
-          "started": "Žádost byla úspěšně podána",
+          "started": "Žádost byla úspěšně podána a její zpracování probíhá na pozadí.",
+          "executed": "Žádost byla úspěšně provedena.",
           "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
           "duplicated": "Žádost nebyla podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
         }
@@ -3509,7 +3510,7 @@
     "AutomaticRole": {
       "name": {
           "label": "Název",
-          "help": "Název je použit pro jednoduší identifikaci automatické role."
+          "help": "Název je použit pro jednodušší identifikaci automatické role."
       },
       "role": {
         "label": "Role",
@@ -3530,7 +3531,7 @@
         "formAttribute": "Atribut formuláře",
         "value": {
             "label": "Hodnota",
-            "help": "Hodnota s kterou se bude porovnávat hodnota v atributu."
+            "help": "Hodnota, s kterou se bude porovnávat hodnota v atributu."
         }
       }
     },
@@ -3546,7 +3547,7 @@
       },
       "seq": {
         "label": "Pořadí",
-        "help": "Pouze z optimalizačních důvodů. Pořadí je použito při vyhodnocování oprávnění nad jednotlivými záznamy / entitami. Při nalezení první politiky vyhovující danému oprávnění nad danou entitou může vyhodnocení skončit. Jednodušší politiky na vyhodnocení by měly míti nižší pořadí, budou zpracovány dříve."
+        "help": "Pouze z optimalizačních důvodů. Pořadí je použito při vyhodnocování oprávnění nad jednotlivými záznamy / entitami. Při nalezení první politiky vyhovující danému oprávnění nad danou entitou může vyhodnocení skončit. Jednodušší politiky na vyhodnocení by měly mít nižší pořadí, budou zpracovány dříve."
       },
       "evaluatorType": {
         "label": "Typ vyhodnocení"
@@ -4195,20 +4196,20 @@
       "contractSliceId": "Časový řez právního vztahu",
       "guarantee": {
         "label": "Garant",
-        "help": "Garant na přímo přiřazený k časovému řezu pracovně právního vztahu"
+        "help": "Garant na přímo přiřazený k časovému řezu pracovněprávního vztahu"
       }
     },
     "ContractGuarantee": {
-      "identityContractId": "Pracovně právní vztah",
+      "identityContractId": "Pracovněprávní vztah",
       "guarantee": {
         "label": "Garant",
-        "help": "Garant na přímo přiřazený k pracovně právnímu vztahu"
+        "help": "Garant na přímo přiřazený k pracovněprávnímu vztahu"
       }
     },
     "ContractPosition": {
-      "_type": "Další pozice pracovně právního vztahu",
+      "_type": "Další pozice pracovněprávního vztahu",
       "identityContract": {
-        "label": "Pracovně právní vztah"
+        "label": "Pracovněprávní vztah"
       },
       "workPosition": {
         "label": "Pozice"
@@ -4329,7 +4330,7 @@
       },
       "priority": {
         "label": "Priorita",
-        "help": "Zpracování událost s větší prioritou bude spuštěno dříve."
+        "help": "Zpracování události s větší prioritou bude spuštěno dříve."
       }
     },
     "EntityState": {
@@ -4382,7 +4383,7 @@
       "seq": {
         "label": "Pořadí",
         "placeholder": "Nastavte pořadí",
-        "help": "Generátory jsou zpracovávány dle pořadí od nejmenšího po největší. V případě že dva generátory generují hodnoty pro stejný atribut, výsledná hodnota bude vygenerována z posledního generátoru."
+        "help": "Generátory jsou zpracovávány dle pořadí od nejmenšího po největší. V případě, že dva generátory generují hodnoty pro stejný atribut, výsledná hodnota bude vygenerována z posledního generátoru."
       },
       "description": {
         "label": "Popis"
@@ -4865,7 +4866,7 @@
         "attributes": {
           "connectioncharacter": {
             "label": "Spojovací znak",
-            "help": "Znak/y které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna. V tomto případě bude jméno a příjmení spojeno bez jakéhokoli spojovacího znaku."
+            "help": "Znak/y, které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna. V tomto případě bude jméno a příjmení spojeno bez jakéhokoli spojovacího znaku."
           },
           "firstnamecharactercount": {
             "label": "Počet znaků ze jména",
@@ -4885,7 +4886,7 @@
           },
           "replacewhitespacescharacter": {
             "label": "Znak/y pro vyplnění mezer",
-            "help": "Znak/y budou použity pro nahrazení mezer a to i vně uživatelského jména. Pokud ponecháte prázdné, všechny mezery budou odstraněny."
+            "help": "Znak/y budou použity pro nahrazení mezer, a to i vně uživatelského jména. Pokud ponecháte prázdné, všechny mezery budou odstraněny."
           }
         }
       },
@@ -4899,7 +4900,7 @@
           },
           "connectioncharacter": {
             "label": "Spojovací znak",
-            "help": "Znak/y které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna. V tomto případě bude jméno a příjmení spojeno bez žádného spojovacího znaku."
+            "help": "Znak/y, které budou použity pro spojení jména a příjmení. Hodnota nemusí být vyplněna. V tomto případě bude jméno a příjmení spojeno bez žádného spojovacího znaku."
           },
           "firstnamecharactercount": {
             "label": "Počet znaků ze jména",
@@ -4915,7 +4916,7 @@
           },
           "firstnamefirst": {
             "label": "Jméno uživatele použít první",
-            "help": "Při generování bude prvně doplněno jméno uživatele následně příjmení. Při odškrknutí bude pořadí opačné."
+            "help": "Při generování bude nejprve doplněno jméno uživatele, následně příjmení. Při odškrknutí bude pořadí opačné."
           },
           "replacewhitespacescharacter": {
             "label": "Znak/y pro vyplnění mezer",
@@ -4925,7 +4926,7 @@
       },
       "core-identity-script-value-generator": {
         "label": "Skriptovaný generátor",
-        "help": "Generátor spouští definovaný skript. Na vstupu skriptu jsou k dispozici tyto atributy 'entity' a 'valueGenerator'. Pozor funkci 'přegenerovat hodnotu' musí skript implementovat sám. Skript musí být z kategorie systémový.",
+        "help": "Generátor spouští definovaný skript. Na vstupu skriptu jsou k dispozici tyto atributy 'entity' a 'valueGenerator'. Pozor, funkci 'přegenerovat hodnotu' musí skript implementovat sám. Skript musí být z kategorie systémový.",
         "attributes": {
           "scriptcode": {
             "label": "Kód skriptu",
@@ -4943,7 +4944,7 @@
           },
           "regexmultiplevalues": {
             "label": "Oddělovač",
-            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y kterým jsou odděleny. Pokud necháte prázdné bude použit znak ','."
+            "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y, kterým jsou odděleny. Pokud necháte prázdné, bude použit znak ','."
           }
         }
       },
@@ -5097,7 +5098,7 @@
       "message": "Identifikátor [{{uuid}}] není validní. Očekáváno uuid."
     },
     "ROLE_CATALOGUE_BAD_PARENT": {
-      "title": "Nadřazená složka nelze přiřadit.",
+      "title": "Nelze přiřadit nadřazenou složku.",
       "message": "Neplatná nadřazená složka. Vyberte prosím jinou složku."
     },
     "IDMROLE_NAME_DUPLICATE": {
@@ -5142,7 +5143,7 @@
     },
     "TREE_TYPE_DELETE_FAILED_HAS_CONTRACTS": {
       "title": "Typ struktury nelze odebrat",
-      "message": "Typ struktury [{{treeType}}] je již použit v pracovně právních vztazích. Před odebráním tohoto typu upravte všechny vztahy."
+      "message": "Typ struktury [{{treeType}}] je již použit v pracovněprávních vztazích. Před odebráním tohoto typu upravte všechny vztahy."
     },
     "TREE_NODE_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Prvek struktury nelze odebrat",
@@ -5150,15 +5151,15 @@
     },
     "TREE_NODE_DELETE_FAILED_HAS_CONTRACTS": {
       "title": "Prvek struktury nelze odebrat",
-      "message": "Prvek struktury [{{treeNode}}] je již použit v pracovně právních vztazích. Před odebráním tohoto prvku upravte všechny vztahy."
+      "message": "Prvek struktury [{{treeNode}}] je již použit v pracovněprávních vztazích. Před odebráním tohoto prvku upravte všechny vztahy."
     },
     "TREE_NODE_DELETE_FAILED_HAS_CONTRACT_POSITIONS": {
       "title": "Prvek struktury nelze odebrat",
-      "message": "Prvek struktury [{{treeNode}}] je již použit u pozic v pracovně právních vztazích. Před odebráním tohoto prvku upravte všechny pozice."
+      "message": "Prvek struktury [{{treeNode}}] je již použit u pozic v pracovněprávních vztazích. Před odebráním tohoto prvku upravte všechny pozice."
     },
     "TREE_NODE_DELETE_FAILED_HAS_CONTRACT_SLICES": {
       "title": "Prvek struktury nelze odebrat",
-      "message": "Prvek struktury [{{treeNode}}] je již použit v časových řezech pracovně právních vztahů. Před odebráním tohoto prvku upravte všechny vztahy."
+      "message": "Prvek struktury [{{treeNode}}] je již použit v časových řezech pracovněprávních vztahů. Před odebráním tohoto prvku upravte všechny vztahy."
     },
     "TREE_NODE_BAD_TYPE": {
       "title": "Špatný typ prvku",
@@ -5373,8 +5374,8 @@
       "message": "Uživatel [{{username}}] nemůže být manuálně aktivován. Manuálně aktivovat lze pouze manuálně deaktivované uživatele."
     },
     "DRY_RUN": {
-      "title": "Zkušení běh",
-      "message": "Zkušení běh (dry run)."
+      "title": "Zkušební běh",
+      "message": "Zkušební běh (dry run)."
     },
     "FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED": {
       "title": "Atribut formuláře nelze smazat",
@@ -5385,8 +5386,8 @@
       "message": "Role [{{role}}] nelze smazat, protože je používána v automatických rolích na základě atributu."
     },
     "SCHEDULER_DRY_RUN_NOT_SUPPORTED": {
-      "title": "Zkušení běh není podporovaný",
-      "message": "Zkušení běh (dry run) pro úlohu [{{taskType}}] není podporovaný."
+      "title": "Zkušební běh není podporovaný",
+      "message": "Zkušební běh (dry run) pro úlohu [{{taskType}}] není podporovaný."
     },
     "AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT": {
       "title": "Typ atributu 'TEXT' není podporován",
@@ -5469,8 +5470,8 @@
       "message": "Pracovní pozici není možné odstranit, protože je kontrolována časovým řezem! Pracovní pozice bude odstraněna, po odstranění jejího posledního časového řezu. (Identifikátor pozice [{{contractId}}])"
     },
     "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
-      "title": "Politika [{{definition}}], nemá definovaný interval blokování!",
-      "message": "Politika [{{definition}}], definuje maximální počet pokusů přihlášení, ale nemá definovaný časový interval blokování uživatele!"
+      "title": "Politika [{{definition}}] nemá definovaný interval blokování!",
+      "message": "Politika [{{definition}}] definuje maximální počet pokusů přihlášení, ale nemá definovaný časový interval blokování uživatele!"
     },
     "PASSWORD_CHANGE_ACCOUNT_SUCCESS": {
       "title": "Změna hesla provedena",
@@ -5782,7 +5783,7 @@
     },
     "GENERATOR_FORM_DEFINITION_BAD_TYPE": {
       "title": "Definice má špatný typ",
-      "message": "Fromulářová definice id [{{formDefinitionId}}], má špastný typ. Správný typ: [{{dtoType}}]."
+      "message": "Formulářová definice id [{{formDefinitionId}}], má špatný typ. Správný typ: [{{dtoType}}]."
     },
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
       "title": "Uživatelské jméno nemůže být prázdné",
@@ -5830,7 +5831,7 @@
     },
     "REQUEST_ITEM_CANNOT_BE_CREATED": {
       "title": "Položka žádosti nemůže být vytvořena/upravena!",
-      "message": "Položka žádosti nemůže být vytvořena/upravena pro objekt [{{dto}}]. Rodičovská žádost můsí být ve stavu 'Zpracovává se', 'Koncept' nebo 'Výjimka', ale je ve stavu [{{state}}]!"
+      "message": "Položka žádosti nemůže být vytvořena/upravena pro objekt [{{dto}}]. Rodičovská žádost musí být ve stavu 'Zpracovává se', 'Koncept' nebo 'Výjimka', ale je ve stavu [{{state}}]!"
     },
     "REQUEST_ITEM_NOT_EXECUTED_PARENT_CANCELED": {
       "title": "Položka žádosti [{{item}}] nemůže být provedena!",
@@ -5858,11 +5859,11 @@
     },
     "ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE": {
       "title": "Žádost není validní!",
-      "message": "Koncept pro roli [{{roleCode}}], nemá validní atribut [{{attributeCode}}]! Nevalidní koncepty budou v žádosti označeny."
+      "message": "Koncept pro roli [{{roleCode}}] nemá validní atribut [{{attributeCode}}]! Nevalidní koncepty budou v žádosti označeny."
     },
     "IDENTITY_ROLE_UNVALID_ATTRIBUTE": {
       "title": "Role uživatele není validní!",
-      "message": "Role [{{roleCode}}] uživatele, nemá validní atribut [{{attributeCode}}]!"
+      "message": "Role [{{roleCode}}] uživatele nemá validní atribut [{{attributeCode}}]!"
     },
     "FORM_DEFINITION_DELETE_FAILED_ROLE": {
       "title": "Definici formuláře není možné smazat!",

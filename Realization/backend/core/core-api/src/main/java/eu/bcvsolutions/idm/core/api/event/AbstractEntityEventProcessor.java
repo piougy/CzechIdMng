@@ -345,7 +345,6 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 	 * Return true if event properties contains given property and this property is true.
 	 * If event does not contains this property, then return false.
 	 * 
-	 * TODO: Move to utils
 	 * @param property
 	 * @param properties
 	 * @return
@@ -356,6 +355,20 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 			return false;
 		}
 		return properties.getBooleanValue(property);
+	}
+	
+	/**
+	 * Return list of values from event properties. Returns null, if value doesn't
+	 * exists for given property or if value is not instance of List.
+	 * 
+	 * @param property
+	 * @param event
+	 * @param type
+	 * @return
+	 */
+	protected <T> List<T> getListProperty(String property, EntityEvent<?> event, Class<T> type) {
+		Assert.notNull(property, "Name of event property cannot be null!");
+		return event.getListProperty(property, type);
 	}
 	
 	/**

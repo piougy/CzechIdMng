@@ -727,21 +727,21 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	 * @return
 	 */
 	private Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> createThreeScripts() {
-		String codeName1 = "script_name_" + System.currentTimeMillis();
+		String codeName1 = "script_name1_" + System.currentTimeMillis();
 		IdmScriptDto script1 = new IdmScriptDto();
 		script1.setCategory(IdmScriptCategory.DEFAULT);
 		script1.setCode(codeName1);
 		script1.setName(codeName1);
 		script1 = this.scriptService.save(script1);
 		//
-		String codeName2 = "script_name_" + System.currentTimeMillis();
+		String codeName2 = "script_name2_" + System.currentTimeMillis();
 		IdmScriptDto script2 = new IdmScriptDto();
 		script2.setCategory(IdmScriptCategory.DEFAULT);
 		script2.setCode(codeName2);
 		script2.setName(codeName2);
 		script2 = this.scriptService.save(script2);
 		//
-		String codeName3 = "script_name_" + System.currentTimeMillis();
+		String codeName3 = "script_name3_" + System.currentTimeMillis();
 		IdmScriptDto script3 = new IdmScriptDto();
 		script3.setCategory(IdmScriptCategory.DEFAULT);
 		script3.setCode(codeName3);

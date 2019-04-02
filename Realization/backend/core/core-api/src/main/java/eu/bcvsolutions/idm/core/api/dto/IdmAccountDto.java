@@ -15,6 +15,16 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 public class IdmAccountDto implements BaseDto {
 
 	public static final String PARAMETER_NAME = "account"; // account in parameters (eg. operation result, event paramaeters)
+	
+	/**
+	 * We need to know identity-accounts which were connected to deleted identity-role (we want to execute account management).
+	 */
+	public static final String IDENTITY_ACCOUNT_FOR_DELAYED_ACM = "identity-account-for-delayed-acm";
+	
+	/**
+	 * Skip propagate changes - equals to the skip account management
+	 */
+	public static final String SKIP_PROPAGATE = "skip_propagate";
 	//
 	private static final long serialVersionUID = 1L;
 	//

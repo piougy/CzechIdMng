@@ -135,7 +135,7 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 			concept = conceptRoleRequestService.save(concept, IdmBasePermission.CREATE);
 		}
 
-		IdmRoleRequestDto request = roleRequestService.startRequestInternal(roleRequest.getId(), true);
+		IdmRoleRequestDto request = roleRequestService.startRequestInternal(roleRequest.getId(), true, true);
 		if (request.getState() == RoleRequestState.EXECUTED) {
 			return new OperationResult.Builder(OperationState.EXECUTED).build();
 		} else {

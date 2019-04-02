@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -11,6 +13,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -238,5 +241,43 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 	@Override
 	public void setTransactionId(UUID transactionId) {
 		getProperties().put(EVENT_PROPERTY_TRANSACTION_ID, transactionId);
+	}
+	
+	@Override
+	public boolean getBooleanProperty(String property) {
+		Assert.notNull(property, "Name of event property cannot be null!");
+		if (this.getProperties() == null) {
+			return false;
+		}
+
+		Object propertyValue = this.getProperties().get(property);
+
+		if (propertyValue == null) {
+			return false;
+		}
+		if (propertyValue instanceof String) {
+			return Boolean.parseBoolean((String) propertyValue);
+        }
+		//
+		Assert.isInstanceOf(Boolean.class, propertyValue, MessageFormat
+				.format("Property [{0}] must be Boolean, but is [{1}]!", property, propertyValue.getClass()));
+
+		if ((Boolean) propertyValue) {
+			return true;
+		}
+
+		return false;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> List<T> getListProperty(String property, Class<T> type) {
+		Assert.notNull(property, "Name of event property cannot be null!");
+		Serializable value = this.getProperties().get(property);
+		if (value instanceof List) {
+			return (List<T>) value;
+		}
+
+		return Lists.newArrayList();
 	}
 }

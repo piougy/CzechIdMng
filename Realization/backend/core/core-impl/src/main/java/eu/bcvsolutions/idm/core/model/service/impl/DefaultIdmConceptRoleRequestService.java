@@ -187,21 +187,8 @@ public class DefaultIdmConceptRoleRequestService extends
 		if (dto == null) {
 			return null;
 		}
-		// Set persisted value to read only properties
-		// TODO: Create converter for skip fields mark as read only
-		if (dto.getId() != null) {
-			IdmConceptRoleRequestDto dtoPersisited = this.get(dto.getId());
-			if (dto.getState() == null) {
-				dto.setState(dtoPersisited.getState());
-			}
-			if (dto.getLog() == null) {
-				dto.setLog(dtoPersisited.getLog());
-			}
-
-			if (dto.getWfProcessId() == null) {
-				dto.setWfProcessId(dtoPersisited.getWfProcessId());
-			}
-		} else {
+		
+		if (dto.getId() == null) {
 			dto.setState(RoleRequestState.CONCEPT);
 		}
 		//

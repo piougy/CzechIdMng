@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
@@ -47,6 +49,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -63,7 +66,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  * Service for control account management. Account management is supported for
  * {@link SystemEntityType#IDENTITY} only.
  * 
- * @author svandav
+ * @author Vít Švanda
  *
  */
 @Service
@@ -118,8 +121,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		List<AccIdentityAccountDto> allIdentityAccountList = identityAccountService.find(filter, null).getContent();
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		
-		boolean provisioningRequired = false;
-
 		if (CollectionUtils.isEmpty(identityRoles) && CollectionUtils.isEmpty(allIdentityAccountList)) {
 			// No roles and accounts ... we don't have anything to do
 			return false;
@@ -148,21 +149,18 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	
 			// Is role valid in this moment
 			resolveIdentityAccountForCreate(identity, identityAccountList, identityRoles, identityAccountsToCreate,
-					identityAccountsToDelete);
+					identityAccountsToDelete, false);
 	
 			// Is role invalid in this moment
 			resolveIdentityAccountForDelete(identityAccountList, identityRoles, identityAccountsToDelete);
+			
+			// Create new identity accounts
+			identityAccountsToCreate.forEach(identityAccount -> identityAccountService.save(identityAccount));
 	
 			// Delete invalid identity accounts
-			provisioningRequired = !identityAccountsToDelete.isEmpty() ? true : provisioningRequired;
 			identityAccountsToDelete.forEach(identityAccount -> identityAccountService.deleteById(identityAccount.getId()));
-	
-			// Create new identity accounts
-			provisioningRequired = !identityAccountsToCreate.isEmpty() ? true : provisioningRequired;
-			identityAccountsToCreate.forEach(identityAccount -> identityAccountService.save(identityAccount));
 		}		
 		// clear identity accounts marked to be deleted
-		provisioningRequired = allIdentityAccountList.size() != identityAccountList.size() ? true : provisioningRequired;
 		identityAccountStates //
 			.stream() //
 			.forEach(state -> {	// 
@@ -173,111 +171,88 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 				}
 				entityStateManager.deleteState(state);
 			});
-		//
-		return provisioningRequired;
+		
+		// Return value is deprecated since version 9.5.0  (is useless)
+		return true;
 	}
+	
+	
+	@Override
+	public List<UUID> resolveNewIdentityRoles(IdmIdentityDto identity, IdmIdentityRoleDto... identityRoles) {
+		Assert.notNull(identity);
 
-	/**
-	 * Resolve identity account to delete
-	 * 
-	 * @param identityAccountList
-	 * @param identityRoles
-	 * @param identityAccountsToDelete
-	 */
-	private void resolveIdentityAccountForDelete(List<AccIdentityAccountDto> identityAccountList,
-			List<IdmIdentityRoleDto> identityRoles, List<AccIdentityAccountDto> identityAccountsToDelete) {
+		if (identityRoles == null || identityRoles.length == 0) {
+			// No identity-roles ... we don't have anything to do
+			return null;
+		}
 
-		identityRoles.stream().filter(identityRole -> {
-			return !identityRole.isValid();
-		}).forEach(identityRole -> {
-			// Search IdentityAccounts to delete
+		List<IdmIdentityRoleDto> identityRolesList = Lists.newArrayList(identityRoles);
+		List<AccIdentityAccountDto> identityAccountsToCreate = Lists.newArrayList();
 
-			// Identity-account is not removed (even if that identity-role is invalid) if
-			// the role-system has enabled forward account management and identity-role will
-			// be valid in the future.
-			identityAccountList.stream() //
-					.filter(identityAccount -> identityRole.getId().equals(identityAccount.getIdentityRole())) //
-					.filter(identityAccount -> identityAccount.getRoleSystem() == null
-							|| !( ((SysRoleSystemDto) DtoUtils
-									.getEmbedded(identityAccount, AccIdentityAccount_.roleSystem))
-									.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture())) //
-					.forEach(identityAccount -> {
-						identityAccountsToDelete.add(identityAccount);
-					});
+		// Is role valid in this moment
+		resolveIdentityAccountForCreate(identity, Lists.newArrayList(), identityRolesList, identityAccountsToCreate,
+				Lists.newArrayList(), true);
+
+		// For this account should be executed provisioning
+		List<UUID> accounts = Lists.newArrayList();
+		// Create new identity accounts
+		identityAccountsToCreate.forEach(identityAccount -> {
+			// Check if this identity-account already exists, if yes then is his account ID
+			// add to accounts (for provisioning).
+			createIdentityAccountIfNotExists(accounts, identityAccount);
 		});
+		return accounts;
 	}
+	
+	@Override
+	public  List<UUID>  resolveUpdatedIdentityRoles(IdmIdentityDto identity, IdmIdentityRoleDto... identityRoles) {
+		Assert.notNull(identity);
 
-	/**
-	 * Resolve Identity account - to create
-	 * 
-	 * @param identity
-	 * @param identityAccountList
-	 * @param identityRoles
-	 * @param identityAccountsToCreate
-	 * @param identityAccountsToDelete
-	 * @param resolvedRolesForCreate
-	 */
-	private void resolveIdentityAccountForCreate(IdmIdentityDto identity,
-			List<AccIdentityAccountDto> identityAccountList, List<IdmIdentityRoleDto> identityRoles,
-			List<AccIdentityAccountDto> identityAccountsToCreate,
-			List<AccIdentityAccountDto> identityAccountsToDelete) {
+		if (identityRoles == null || identityRoles.length == 0) {
+			// No identity-roles ... we don't have anything to do
+			return null;
+		}
+		List<IdmIdentityRoleDto> identityRolesList = Lists.newArrayList(identityRoles);
+		// Find identity-accounts for changed identity-roles (using IN predicate)
+		List<UUID> identityRoleIds = identityRolesList.stream() //
+				.map(IdmIdentityRoleDto::getId) //
+				.collect(Collectors.toList()); //
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		filter.setIdentityRoleIds(identityRoleIds);
+		List<AccIdentityAccountDto> identityAccountList = identityAccountService.find(filter, null).getContent();
 
-		identityRoles.stream() //
-			// Filter out identity-role for which exists identity-account (increase performance (300%), but turn off check on UID change )
-			//			.filter(identityRole -> {
-			//					return !identityAccountList.stream() //
-			//							.filter(identityAccount -> { //
-			//								return identityRole.getId().equals(identityAccount.getIdentityRole());
-			//							}) //
-			//							.findFirst() //
-			//							.isPresent();
-			//			})
-			.forEach(identityRole -> {
+		// create / remove accounts
+		List<AccIdentityAccountDto> identityAccountsToCreate = new ArrayList<>();
+		List<AccIdentityAccountDto> identityAccountsToDelete = new ArrayList<>();
 
-			UUID role = identityRole.getRole();
-			SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
-			roleSystemFilter.setRoleId(role);
-			List<SysRoleSystemDto> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
+		// Is role valid in this moment
+		resolveIdentityAccountForCreate(identity, identityAccountList, identityRolesList, identityAccountsToCreate,
+				identityAccountsToDelete, false);
 
-			// Is role valid in this moment or
-			// role-system has enabled forward account management (identity-role have to be
-			// valid in the future)
-			roleSystems.stream()
-					.filter(roleSystem -> (identityRole.isValid()
-							|| (roleSystem.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture()))) //
-					.forEach(roleSystem -> {
+		// Is role invalid in this moment
+		resolveIdentityAccountForDelete(identityAccountList, identityRolesList, identityAccountsToDelete);
 
-						String uid = generateUID(identity, roleSystem);
-						// Check identity-account for that role-system on change the definition of UID
-						checkOnChangeUID(uid, identity, roleSystem, identityAccountList, identityAccountsToDelete);
-						// For this system we have to create new account
-						
-						AccAccountDto account = createAccountByRoleSystem(uid, identity, roleSystem, identityAccountsToCreate);
-						if (account == null) {
-							return;
-						}
-						
-						// Prevent to create the same identity account
-						if (identityAccountList.stream().filter(identityAccount -> {
-							return identityAccount.getAccount().equals(account.getId())
-									&& identityRole.getId().equals(identityAccount.getIdentityRole())
-									&& roleSystem.getId().equals(identityAccount.getRoleSystem());
-						}).count() == 0) {
-							AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
-							identityAccount.setAccount(account.getId());
-							identityAccount.setIdentity(identity.getId());
-							identityAccount.setIdentityRole(identityRole.getId());
-							identityAccount.setRoleSystem(roleSystem.getId());
-							// TODO: Add flag ownership to SystemRole and set here.
-							identityAccount.setOwnership(true);
-							identityAccount.getEmbedded().put(AccIdentityAccount_.account.getName(), account);
-
-							identityAccountsToCreate.add(identityAccount);
-						}
-
-					});
+		// For this account should be executed provisioning
+		List<UUID> accounts = Lists.newArrayList();
+		
+		// Create new identity accounts
+		identityAccountsToCreate.forEach(identityAccount -> {
+			// Check if this identity-account already exists, if yes then is his account ID
+			// add to accounts (for provisioning).
+			createIdentityAccountIfNotExists(accounts, identityAccount);
 		});
+
+		// Delete invalid identity accounts
+		identityAccountsToDelete.forEach(identityAccount -> {
+			identityAccountService.deleteById(identityAccount.getId());
+			accounts.add(identityAccount.getAccount());
+		});
+		
+		return accounts;
 	}
+
+	
 
 	/**
 	 * Return UID for this identity and roleSystem. First will be find and use
@@ -355,14 +330,17 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 	@Override
 	@Transactional
-	public void deleteIdentityAccount(IdmIdentityRoleDto entity) {
+	public List<UUID> deleteIdentityAccount(IdmIdentityRoleDto entity) {
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityRoleId(entity.getId());
-	
+		List<UUID> accountIds = Lists.newArrayList();
+		
 		identityAccountService.find(filter, null).getContent() //
 				.forEach(identityAccount -> { //
+					accountIds.add(identityAccount.getAccount());
 					identityAccountService.delete(identityAccount);
 				});
+		return accountIds;
 	}
 	
 	@Override
@@ -373,11 +351,18 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(identityRole);
 		Assert.notNull(identityRole.getId());
 		//
-		if (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) {
+		boolean skipPropagate = event.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE);
+		boolean bulk = event.getRootId() != null && entityEventManager.isRunnable(event.getRootId());
+		
+		if (!skipPropagate && !bulk) {
 			// role is deleted without request or without any parent ... we need to remove account synchronously
-			deleteIdentityAccount(identityRole);
+			List<UUID> accountIds = deleteIdentityAccount(identityRole);
+			// We needs accounts which were connected to deleted identity-role in next
+			// processor (we want to execute provisioning only for that accounts)
+			event.getProperties().put(ACCOUNT_IDS_FOR_DELETED_IDENTITY_ROLE, (Serializable) accountIds);
 			return;
 		}
+		
 		// Role is deleted in bulk (e.g. role request) - account management has to be called outside
 		// we just mark identity account to be deleted and remove identity role
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
@@ -385,28 +370,136 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 		identityAccountService.find(filter, null).getContent() //
 				.forEach(identityAccount -> { //
+					// Set relation on identity-role to null
 					identityAccount.setIdentityRole(null);
 
-					// Create entity state for identity account.
-					IdmEntityStateDto stateDeleted = new IdmEntityStateDto();
-					stateDeleted.setSuperOwnerId(identityAccount.getIdentity());
-					stateDeleted.setResult(new OperationResultDto.Builder(OperationState.RUNNING)
-							.setModel(new DefaultResultModel(CoreResultCode.DELETED)).build());
-					entityStateManager.saveState(identityAccount, stateDeleted);
-					//
+					if(bulk) {
+						// For bulk create entity state for identity account.
+						IdmEntityStateDto stateDeleted = new IdmEntityStateDto();
+						stateDeleted.setSuperOwnerId(identityAccount.getIdentity());
+						stateDeleted.setResult(new OperationResultDto.Builder(OperationState.RUNNING)
+								.setModel(new DefaultResultModel(CoreResultCode.DELETED)).build());
+						entityStateManager.saveState(identityAccount, stateDeleted);
+					} else {
+						// Noting identity-accounts for delayed account management
+						notingIdentityAccountForDelayedAcm(event, identityAccount);
+					}
 					identityAccountService.save(identityAccount);
 				});
 	}
 	
 	/**
-	 * Check identity-account for that role-system on change the definition of UID
+	 * Resolve identity account to delete
+	 * 
+	 * @param identityAccountList
+	 * @param identityRoles
+	 * @param identityAccountsToDelete
+	 */
+	private void resolveIdentityAccountForDelete(List<AccIdentityAccountDto> identityAccountList,
+			List<IdmIdentityRoleDto> identityRoles, List<AccIdentityAccountDto> identityAccountsToDelete) {
+
+		identityRoles.stream().filter(identityRole -> {
+			return !identityRole.isValid();
+		}).forEach(identityRole -> {
+			// Search IdentityAccounts to delete
+
+			// Identity-account is not removed (even if that identity-role is invalid) if
+			// the role-system has enabled forward account management and identity-role will
+			// be valid in the future.
+			identityAccountList.stream() //
+					.filter(identityAccount -> identityRole.getId().equals(identityAccount.getIdentityRole())) //
+					.filter(identityAccount -> identityAccount.getRoleSystem() == null
+							|| !( ((SysRoleSystemDto) DtoUtils
+									.getEmbedded(identityAccount, AccIdentityAccount_.roleSystem))
+									.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture())) //
+					.forEach(identityAccount -> {
+						identityAccountsToDelete.add(identityAccount);
+					});
+		});
+	}
+
+	/**
+	 * Resolve Identity account - to create
 	 * 
 	 * @param identity
+	 * @param identityAccountList
+	 * @param identityRoles
+	 * @param identityAccountsToCreate
+	 * @param identityAccountsToDelete
+	 * @param resolvedRolesForCreate
+	 */
+	private void resolveIdentityAccountForCreate(IdmIdentityDto identity,
+			List<AccIdentityAccountDto> identityAccountList, List<IdmIdentityRoleDto> identityRoles,
+			List<AccIdentityAccountDto> identityAccountsToCreate, List<AccIdentityAccountDto> identityAccountsToDelete,
+			boolean onlyCreateNew) {
+
+		identityRoles.forEach(identityRole -> {
+			UUID role = identityRole.getRole();
+			SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
+			roleSystemFilter.setRoleId(role);
+			List<SysRoleSystemDto> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
+
+			// Is role valid in this moment or
+			// role-system has enabled forward account management (identity-role have to be
+			// valid in the future)
+			roleSystems.stream()
+					.filter(roleSystem -> (identityRole.isValid()
+							|| (roleSystem.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture()))) //
+					.forEach(roleSystem -> {
+
+						String uid = generateUID(identity, roleSystem);
+
+						// Check on change of UID is not executed if all given identity-roles are new
+						if (!onlyCreateNew) {
+							// Check identity-account for that role-system on change the definition of UID
+							checkOnChangeUID(uid, roleSystem, identityAccountList, identityAccountsToDelete);
+						}
+
+						// Try to find identity-account for this identity-role. If exists and doesn't in
+						// list of identity-account to delete, then we are done.
+						AccIdentityAccountDto existsIdentityAccount = findAlreadyExistsIdentityAccount(
+								identityAccountList, identityAccountsToDelete, identityRole);
+
+						if (existsIdentityAccount != null) {
+							return;
+						}
+
+						// For this system we need to create new (or found exists) account
+						AccAccountDto account = createAccountByRoleSystem(uid, identity, roleSystem,
+								identityAccountsToCreate);
+						if (account == null) {
+							return;
+						}
+
+						// Prevent to create the same identity account
+						if (identityAccountList.stream().filter(identityAccount -> {
+							return identityAccount.getAccount().equals(account.getId())
+									&& identityRole.getId().equals(identityAccount.getIdentityRole())
+									&& roleSystem.getId().equals(identityAccount.getRoleSystem());
+						}).count() == 0) {
+							AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
+							identityAccount.setAccount(account.getId());
+							identityAccount.setIdentity(identity.getId());
+							identityAccount.setIdentityRole(identityRole.getId());
+							identityAccount.setRoleSystem(roleSystem.getId());
+							identityAccount.setOwnership(true);
+							identityAccount.getEmbedded().put(AccIdentityAccount_.account.getName(), account);
+
+							identityAccountsToCreate.add(identityAccount);
+						}
+
+					});
+		});
+	}
+	
+	/**
+	 * Check identity-account for that role-system on change the definition of UID
+	 * 
 	 * @param roleSystem
 	 * @param identityAccountList
 	 * @param identityAccountsToDelete
 	 */
-	private void checkOnChangeUID(String uid, IdmIdentityDto identity, SysRoleSystemDto roleSystem,
+	private void checkOnChangeUID(String uid, SysRoleSystemDto roleSystem,
 			List<AccIdentityAccountDto> identityAccountList, List<AccIdentityAccountDto> identityAccountsToDelete) {
 		identityAccountList.forEach(identityAccount -> { //
 			if (roleSystem.getId().equals(identityAccount.getRoleSystem())) {
@@ -414,10 +507,10 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 				AccAccountDto account = AccIdentityAccountService.getEmbeddedAccount(identityAccount);
 				if (!uid.equals(account.getUid())) {
 					// We found identityAccount for same identity and roleSystem, but this
-					// identityAccount
-					// is link to Account with different UID. It's probably means definition of UID
-					// (transformation)\
-					// on roleSystem was changed. We have to delete this identityAccount.
+					// identityAccount is link to Account with different UID. It's probably means
+					// definition of UID
+					// (transformation) on roleSystem was changed. We have to delete this
+					// identityAccount.
 					identityAccountsToDelete.add(identityAccount);
 				}
 			}
@@ -436,7 +529,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			List<AccIdentityAccountDto> identityAccountsToCreate) {
 
 		// We try find account for same UID on same system
-		// First we try search same account in list for create new accounts
+		// First we try to search same account in list for create new accounts
 		AccIdentityAccountDto sameAccount = identityAccountsToCreate.stream() //
 				.filter(identityAccountToCreate -> {
 					AccAccountDto account = DtoUtils.getEmbedded(identityAccountToCreate, AccIdentityAccount_.account.getName(), AccAccountDto.class);
@@ -496,5 +589,76 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private boolean canBeAccountCreated(String uid, IdmIdentityDto dto, SysSystemMappingDto mapping,
 			SysSystemDto system) {
 		return systemMappingService.canBeAccountCreated(uid, dto, mapping.getCanBeAccountCreatedScript(), system);
+	}
+	
+	/**
+	 * Try to find identity-account for this identity-role. If exists and doesn't in
+	 * list of identity-account to delete, then we are done.
+	 * 
+	 * @param identityAccountList
+	 * @param identityAccountsToDelete
+	 * @param identityRole
+	 * @return
+	 */
+	private AccIdentityAccountDto findAlreadyExistsIdentityAccount(List<AccIdentityAccountDto> identityAccountList,
+			List<AccIdentityAccountDto> identityAccountsToDelete, IdmIdentityRoleDto identityRole) {
+		AccIdentityAccountDto existsIdentityAccount = identityAccountList.stream().filter(identityAccount -> {
+			if (identityRole.getId().equals(identityAccount.getIdentityRole())
+					&& !identityAccountsToDelete.contains(identityAccount)) {
+				return true;
+			}
+			return false;
+		}).findFirst().orElse(null);
+		return existsIdentityAccount;
+	}
+	
+	/**
+	 * Create identity-account, but first check if this identity-account already
+	 * exist, if yes then is only his account ID add to accounts (for provisioning).
+	 * 
+	 * @param accounts
+	 * @param identityAccount
+	 */
+	private void createIdentityAccountIfNotExists(List<UUID> accounts, AccIdentityAccountDto identityAccount) {
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setIdentityId(identityAccount.getIdentity());
+		identityAccountFilter.setIdentityRoleId(identityAccount.getIdentityRole());
+		identityAccountFilter.setAccountId(identityAccount.getAccount());
+		identityAccountFilter.setRoleSystemId(identityAccount.getRoleSystem());
+		// Check if on exist same identity-account (for same identity-role, account and
+		// role-system)
+		long count = identityAccountService.count(identityAccountFilter);
+		if (count == 0) {
+			AccIdentityAccountDto identityAccountDto = identityAccountService.save(identityAccount);
+			accounts.add(identityAccountDto.getAccount());
+		} else {
+			// If this identity-account already exists, then we need to add his account ID
+			// (for execute the provisioning).
+			accounts.add(identityAccountService.find(identityAccountFilter, null).getContent().get(0).getAccount());
+		}
+	}
+	
+	/**
+	 * Method for noting identity-accounts for delayed account management
+	 * 
+	 * @param event
+	 * @param identityAccount
+	 */
+	private void notingIdentityAccountForDelayedAcm(EntityEvent<IdmIdentityRoleDto> event,
+			AccIdentityAccountDto identityAccount) {
+		Assert.notNull(identityAccount);
+		Assert.notNull(identityAccount.getId());
+
+		if (!event.getProperties().containsKey(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM)) {
+			event.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM,
+					new ArrayList<UUID>());
+		}
+
+		@SuppressWarnings("unchecked")
+		List<UUID> identityAccounts = (List<UUID>) event.getProperties()
+				.get(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM);
+
+		// Add single identity-account to parent event
+		identityAccounts.add(identityAccount.getId());
 	}
 }

@@ -10,14 +10,14 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * Executes account management and provisioning
  * 
  * @author Radek Tomiška
+ * @author Vít Švanda
  */
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Component(IdentityAccountManagementBulkAction.NAME)
@@ -38,19 +39,18 @@ public class IdentityAccountManagementBulkAction extends AbstractBulkAction<IdmI
 	//
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private SecurityService securityService;
-	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private AccAccountManagementService accountManagementService;
+	@Autowired private ProvisioningService provisioningService;
 	
 	@Override
 	protected OperationResult processDto(IdmIdentityDto dto) {
 		if (!securityService.hasAnyAuthority(AccGroupPermission.SYSTEM_ADMIN)) {
 			throw new ForbiddenEntityException(dto.getId(), AccGroupPermission.SYSTEM);
 		}
-		//
-		// ACM and provisioning will be executed asynchronously by roleRequest notify event
-		IdmRoleRequestDto request = new IdmRoleRequestDto();
-		request.setId(dto.getId()); // required by event mechanism - owner id is used
-		request.setApplicant(dto.getId());
-		entityEventManager.changedEntity(request);
+		// Execute account management for entire identity (for all identity-roles)
+		accountManagementService.resolveIdentityAccounts(dto);
+		// Execute provisioning for entire identity
+		provisioningService.doProvisioning(dto);
 		//
 		return new OperationResult(OperationState.EXECUTED);
 	}

@@ -20,6 +20,7 @@ import javax.persistence.criteria.Root;
 
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,10 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -48,7 +49,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
@@ -222,8 +222,26 @@ public class DefaultIdmRoleRequestService
 			String message = exceptionToLog.getLocalizedMessage();
 			this.addToLog(request, message != null ? message : ex.getLocalizedMessage());
 			request.setState(RoleRequestState.EXCEPTION);
+			
 			return save(request);
 		}
+	}
+	
+	@Override
+	public IdmRoleRequestDto processException(UUID requestId, Exception ex) {
+		Assert.notNull(requestId);
+		Assert.notNull(ex);
+		IdmRoleRequestDto request = this.get(requestId);
+		Assert.notNull(request);
+		
+		LOG.error(ex.getLocalizedMessage(), ex);
+		Throwable exceptionToLog = ExceptionUtils.resolveException(ex);
+		// Whole stack trace is too big, so we will save only message to the request log.
+		String message = exceptionToLog.getLocalizedMessage();
+		this.addToLog(request, message != null ? message : ex.getLocalizedMessage());
+		request.setState(RoleRequestState.EXCEPTION);
+		
+		return save(request);
 	}
 
 	/**
@@ -277,24 +295,6 @@ public class DefaultIdmRoleRequestService
 			request.setDuplicatedToRequest(null);
 		}
 
-		// Check on same applicants in all role concepts
-		boolean identityNotSame = this.get(request.getId()).getConceptRoles().stream().anyMatch(concept -> {
-			// get contract DTO from embedded map
-			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
-					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
-			if (contract == null) {
-				// If is contract from concept null, then contract via identity role must works
-				contract = (IdmIdentityContractDto) identityRoleService.get(concept.getIdentityRole()).getEmbedded()
-						.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
-			}
-			return !request.getApplicant().equals(contract.getIdentity());
-		});
-
-		if (identityNotSame) {
-			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
-					ImmutableMap.of("request", request, "applicant", request.getApplicant()));
-		}
-
 		// Convert whole request to JSON and persist (without logs and embedded data)
 		// Original request was canceled (since 9.4.0)
 
@@ -309,9 +309,11 @@ public class DefaultIdmRoleRequestService
 		if (immediate) {
 			event.setPriority(PriorityType.IMMEDIATE);
 		}
-		return entityEventManager
+		IdmRoleRequestDto content = entityEventManager
 				.process(event)
 				.getContent();
+		// Returned content is not actual, we need to load fresh request
+		return this.get(content.getId());
 	}
 
 	@Override
@@ -396,7 +398,7 @@ public class DefaultIdmRoleRequestService
 		IdmIdentityDto identity = identityService.get(request.getApplicant());
 
 		boolean identityNotSame = concepts.stream().anyMatch(concept -> {
-			// get contract dto from embedded map
+			// get contract DTO from embedded map
 			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
 					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
 			if (contract == null) {
@@ -411,14 +413,12 @@ public class DefaultIdmRoleRequestService
 					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
 		}
 		
-		// Persist event for whole request, listeners can intercept this event event is created as processed
-		if (requestEvent.getPriority() == PriorityType.NORMAL) {
-			requestEvent.setPriority(PriorityType.HIGH); // TODO: propagate from FE?
-		}
-		requestEvent.setSuperOwnerId(identity.getId());
-		// start request event
-		entityEventManager.saveEvent(requestEvent, new OperationResultDto.Builder(OperationState.RUNNING).build());
-		//
+		// Add changed identity-roles to event (prevent redundant search). We will used them for recalculations (ACM / provisioning).
+		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, Lists.newArrayList());
+		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, Lists.newArrayList());
+		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, Lists.newArrayList());
+		requestEvent.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, Lists.newArrayList());
+		
 		// Create new identity role
 		concepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.ADD == concept.getOperation();
@@ -428,22 +428,8 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
-			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole);
-			
-			// propagate event
-			identityRole = identityRoleService.publish(event, requestEvent).getContent();
-			
-			// Save created identity role id
-			concept.setIdentityRole(identityRole.getId());
-			concept.setState(RoleRequestState.EXECUTED);
-			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role);
-			String message = MessageFormat.format("Role [{0}] was added to applicant. Requested in concept [{1}].",
-					roleDto.getCode(), concept.getId());
-			conceptRoleRequestService.addToLog(concept, message);
-			conceptRoleRequestService.addToLog(request, message);
-			conceptRoleRequestService.save(concept);
+			createAssignedRole(concept, request, requestEvent);
+			flushHibernateSession();
 		});
 
 		// Update identity role
@@ -455,24 +441,10 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-			identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
-			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.UPDATE, identityRole);
-			
-			// propagate event
-			identityRole = identityRoleService.publish(event, requestEvent).getContent();
-
-			// Save created identity role id
-			concept.setIdentityRole(identityRole.getId());
-			concept.setState(RoleRequestState.EXECUTED);
-			IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role);
-			String message = MessageFormat.format("Role [{0}] was changed. Requested in concept [{1}].",
-					roleDto.getCode(), concept.getId());
-			conceptRoleRequestService.addToLog(concept, message);
-			conceptRoleRequestService.addToLog(request, message);
-			conceptRoleRequestService.save(concept);
+			updateAssignedRole(concept, request, requestEvent);
+			flushHibernateSession();
 		});
-
+		
 		// Delete identity role
 		concepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
@@ -482,27 +454,10 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			Assert.notNull(concept.getIdentityRole(), "IdentityRole is mandatory for delete!");
-			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-			
-			if (identityRole != null) {
-				concept.setState(RoleRequestState.EXECUTED);
-				concept.setIdentityRole(null); // we have to remove relation on
-												// deleted identityRole
-				String message = MessageFormat.format(
-						"IdentityRole [{0}] (reqested in concept [{1}]) was deleted (from this role request).",
-						identityRole.getId(), concept.getId());
-				conceptRoleRequestService.addToLog(concept, message);
-				conceptRoleRequestService.addToLog(request, message);
-				conceptRoleRequestService.save(concept);
-				
-				IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole);
-				
-				identityRoleService.publish(event, requestEvent);
-			}
+			removeAssignedRole(concept, request, requestEvent);
+			flushHibernateSession();
 		});
-
-		request.setState(RoleRequestState.EXECUTED);
+		
 		return this.save(request);
 
 	}
@@ -584,29 +539,11 @@ public class DefaultIdmRoleRequestService
 		if (dto == null) {
 			return null;
 		}
-		// Set persisted value to read only properties
-		// TODO: Create converter for skip fields mark as read only
-		if (dto.getId() != null) {
-			IdmRoleRequestDto dtoPersisited = this.get(dto.getId());
-			if (dto.getState() == null) {
-				dto.setState(dtoPersisited.getState());
-			}
-			if (dto.getLog() == null) {
-				dto.setLog(dtoPersisited.getLog());
-			}
-			if (dto.getConceptRoles() == null) {
-				dto.setConceptRoles(dtoPersisited.getConceptRoles());
-			}
-			if (dto.getWfProcessId() == null) {
-				dto.setWfProcessId(dtoPersisited.getWfProcessId());
-			}
-			if (dto.getOriginalRequest() == null) {
-				dto.setOriginalRequest(dtoPersisited.getOriginalRequest());
-			}
-		} else {
+		
+		if (dto.getId() == null) {
 			dto.setState(RoleRequestState.CONCEPT);
 		}
-		//
+		
 		return super.toEntity(dto, entity);
 	}
 
@@ -815,6 +752,142 @@ public class DefaultIdmRoleRequestService
 					.isPresent(); //
 			}).collect(Collectors.toSet());
 	}
+	
+	/**
+	 * Flush Hibernate session
+	 */
+	private void flushHibernateSession() {
+		if (getHibernateSession().isOpen()) {
+			getHibernateSession().flush();
+			getHibernateSession().clear();
+		}
+	}
+	
+	private Session getHibernateSession() {
+		return (Session) this.getEntityManager().getDelegate();
+	}
+	
+	
+	/**
+	 * Remove identity-role by concept
+	 * 
+	 * @param concept
+	 * @param request
+	 * @param removedIdentityRoles
+	 * @param accounts
+	 */
+	private void removeAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
+			EntityEvent<IdmRoleRequestDto> requestEvent) {
+		Assert.notNull(concept.getIdentityRole(), "IdentityRole is mandatory for delete!");
+		IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
+		
+		if (identityRole != null) {
+			concept.setState(RoleRequestState.EXECUTED);
+			concept.setIdentityRole(null); // we have to remove relation on
+											// deleted identityRole
+			String message = MessageFormat.format(
+					"IdentityRole [{0}] (reqested in concept [{1}]) was deleted (from this role request).",
+					identityRole.getId(), concept.getId());
+			conceptRoleRequestService.addToLog(concept, message);
+			conceptRoleRequestService.addToLog(request, message);
+			conceptRoleRequestService.save(concept);
+			
+			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole,
+					 ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE));
+
+			identityRoleService.publish(event);
+			// Add list of identity-accounts for delayed ACM to parent event
+			List<UUID> subIdentityAccountsForAcm = event
+					.getListProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, UUID.class);
+			List<UUID> identityAccountsForAcm = requestEvent
+					.getListProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, UUID.class);
+			identityAccountsForAcm.addAll(subIdentityAccountsForAcm);
+			
+			// Removed assigned roles by business roles
+			List<UUID> subRemovedIdentityRoles = event.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, UUID.class);
+			// Add to parent event
+			List<UUID> removedIdentityRoles = requestEvent
+					.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, UUID.class);
+			removedIdentityRoles.addAll(subRemovedIdentityRoles);
+			removedIdentityRoles.add(identityRole.getId());
+		}
+	}
+
+	/**
+	 * Update exists identity-role by concept
+	 * 
+	 * @param concept
+	 * @param request
+	 * @param updatedIdentityRoles
+	 */
+	private void updateAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
+			EntityEvent<IdmRoleRequestDto> requestEvent) {
+		IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
+		identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
+		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.UPDATE, identityRole, ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE));
+		event.setPriority(PriorityType.IMMEDIATE);
+		
+		// propagate event
+		identityRole = identityRoleService.publish(event).getContent();
+		
+		// Updated assigned roles by business roles
+		List<IdmIdentityRoleDto> subUpdatedIdentityRoles = event
+				.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, IdmIdentityRoleDto.class);
+		// Add to parent event
+		List<IdmIdentityRoleDto> updatedIdentityRoles = requestEvent
+				.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, IdmIdentityRoleDto.class);
+		updatedIdentityRoles.addAll(subUpdatedIdentityRoles);
+		updatedIdentityRoles.add(identityRole);
+
+		// Save created identity role id
+		concept.setIdentityRole(identityRole.getId());
+		concept.setState(RoleRequestState.EXECUTED);
+		IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role);
+		String message = MessageFormat.format("Role [{0}] was changed. Requested in concept [{1}].",
+				roleDto.getCode(), concept.getId());
+		conceptRoleRequestService.addToLog(concept, message);
+		conceptRoleRequestService.addToLog(request, message);
+		conceptRoleRequestService.save(concept);
+	}
+
+	/**
+	 * Create new identity-role by concept
+	 * 
+	 * @param concept
+	 * @param request
+	 * @param addedIdentityRoles
+	 */
+	private void createAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request, EntityEvent<IdmRoleRequestDto> requestEvent) {
+		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+		identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
+		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole,
+				ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE)); // I can't use the NOTIFY skip, because I
+																				// don't want skip recalculation of
+																				// business roles now.
+		event.setPriority(PriorityType.IMMEDIATE);
+		
+		// propagate event
+		identityRole = identityRoleService.publish(event).getContent();
+
+		// New assigned roles by business roles
+		List<IdmIdentityRoleDto> subNewIdentityRoles = event
+				.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, IdmIdentityRoleDto.class);
+		// Add to parent event
+		List<IdmIdentityRoleDto> addedIdentityRoles = requestEvent
+				.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, IdmIdentityRoleDto.class);
+		addedIdentityRoles.addAll(subNewIdentityRoles);
+		addedIdentityRoles.add(identityRole);
+		
+		// Save created identity role id
+		concept.setIdentityRole(identityRole.getId());
+		concept.setState(RoleRequestState.EXECUTED);
+		IdmRoleDto roleDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role);
+		String message = MessageFormat.format("Role [{0}] was added to applicant. Requested in concept [{1}].",
+				roleDto.getCode(), concept.getId());
+		conceptRoleRequestService.addToLog(concept, message);
+		conceptRoleRequestService.addToLog(request, message);
+		conceptRoleRequestService.save(concept);
+	}
 
 	private void cancelWF(IdmRoleRequestDto dto) {
 		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
@@ -932,5 +1005,4 @@ public class DefaultIdmRoleRequestService
 		conceptRoleRequest.setOperation(operation);
 		return conceptRoleRequestService.save(conceptRoleRequest);
 	}
-
 }

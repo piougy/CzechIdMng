@@ -333,18 +333,27 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     }, () => {
       const promise = roleRequestManager.getService().startRequest(idRequest);
       promise.then((json) => {
-        this.context.router.goBack();
-        if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
-          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
-          return;
-        }
-        if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
-          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.exception'), level: 'error' });
-          return;
-        }
-        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started') });
         this.setState({
           showLoading: false
+        }, () => {
+          if (json && json.id) {
+            this.context.store.dispatch(roleRequestManager.fetchEntity(json.id));
+          }
+          if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
+            this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
+            return;
+          }
+          if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
+            this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.exception'), level: 'warning' });
+            return;
+          }
+          if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
+            this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.executed')});
+            this.context.router.goBack();
+            return;
+          }
+          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started'), level: 'info' });
+          this.context.router.goBack();
         });
       }).catch(ex => {
         this.addError(ex);
@@ -616,13 +625,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 rows={ 3 }
                 placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
                 label={this.i18n('entity.RoleRequest.description.label')}/>
-              <Basic.ScriptArea
-                ref="log"
-                hidden={!_adminMode}
-                mode="sqlserver"
-                height="30em"
-                readOnly
-                label={this.i18n('entity.RoleRequest.log')}/>
+
             </Basic.AbstractForm>
             <div style={{ padding: '15px 15px 0 15px' }}>
               {
@@ -631,6 +634,19 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               {
                 this._renderRoleConceptChangesTable(request, forceSearchParameters, _adminMode)
               }
+              <Basic.AbstractForm
+                readOnly
+                ref="formLog"
+                data={request}
+                showLoading={showLoading}>
+                <Basic.ScriptArea
+                  ref="log"
+                  hidden={!_adminMode}
+                  mode="sqlserver"
+                  height="20em"
+                  readOnly
+                  label={this.i18n('entity.RoleRequest.log')}/>
+              </Basic.AbstractForm>
             </div>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"

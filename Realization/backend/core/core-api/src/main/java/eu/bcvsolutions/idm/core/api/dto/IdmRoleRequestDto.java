@@ -1,16 +1,15 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.hateoas.core.Relation;
+
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
-import org.springframework.hateoas.core.Relation;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Dto for role request
@@ -25,20 +24,15 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
 
     @Embedded(dtoClass = IdmIdentityDto.class)
     private UUID applicant;
-    @JsonProperty(access = Access.READ_ONLY)
     private RoleRequestState state;
     private RoleRequestedByType requestedByType;
-    @JsonProperty(access = Access.READ_ONLY)
     //In embedded map, is under wfProcessId key actual task - WorkflowHistoricTaskInstanceDto.class
     private String wfProcessId;
-    @JsonProperty(access = Access.READ_ONLY)
     private String originalRequest;
-    @JsonProperty(access = Access.READ_ONLY)
     private List<IdmConceptRoleRequestDto> conceptRoles;
     private boolean executeImmediately = false;
     @Embedded(dtoClass = IdmRoleRequestDto.class)
     private UUID duplicatedToRequest;
-    @JsonProperty(access = Access.READ_ONLY)
     private String log;
     private String description;
 

@@ -11,7 +11,6 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -22,7 +21,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 
 /**
@@ -41,7 +39,6 @@ public class IdentityRoleDeleteProcessor
 	//
 	@Autowired private IdmIdentityRoleService service;
 	@Autowired private IdmConceptRoleRequestService conceptRequestService;
-	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 
@@ -63,7 +60,6 @@ public class IdentityRoleDeleteProcessor
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setIdentityRoleId(identityRole.getId());
 		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
-			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(
@@ -75,11 +71,8 @@ public class IdentityRoleDeleteProcessor
 						concept.getId(), identityRole.getId());
 				concept.setState(RoleRequestState.CANCELED);
 			}
-			roleRequestService.addToLog(request, message);
 			conceptRequestService.addToLog(concept, message);
 			concept.setIdentityRole(null);
-
-			roleRequestService.save(request);
 			conceptRequestService.save(concept);
 		});
 		//

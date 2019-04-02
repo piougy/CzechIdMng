@@ -38,12 +38,15 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -82,6 +85,8 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
+	@Autowired
+	private IdmConceptRoleRequestService conceptRoleRequestService;
 
 	@Before
 	public void init() {
@@ -93,153 +98,34 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 		super.logout();
 	}
 
-	
-	@Ignore
-	@Test
-	public void testAcmPerformance10() {
-		SysSystemDto system = initIdentityData();
-		Assert.assertNotNull(system);
-		
-		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
-		Assert.assertNotNull(mapping);
-		mapping = systemMappingService.save(mapping);
-		IdmIdentityDto identity = helper.createIdentity();
-		
-		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
-		roleAccountFilter.setEntityId(identity.getId());
-		roleAccountFilter.setOwnership(Boolean.TRUE);
-		roleAccountFilter.setSystemId(system.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		// None role assigned
-		Assert.assertEquals(0, identityAccounts.size());
-		
-		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 10);
-		
-		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
-		
-		Date startAcm = new Date();
-		
-		roles.forEach(role -> {
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setIdentityContract(primeContract);
-			identityRole.setRole(role.getId());
-			identityRole = identityRoleService.save(identityRole);
-		});
-		
-		Date endAcm = new Date();
-		
-		System.out.println("testAcmPerformance10 - ACM duration: "+ (endAcm.getTime() - startAcm.getTime()));
-		
-		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		Assert.assertEquals(10, identityAccounts.size());
-	}
-	
-	@Ignore
-	@Test
-	public void testAcmPerformance20() {
-		SysSystemDto system = initIdentityData();
-		Assert.assertNotNull(system);
-		
-		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
-		Assert.assertNotNull(mapping);
-		mapping = systemMappingService.save(mapping);
-		IdmIdentityDto identity = helper.createIdentity();
-		
-		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
-		roleAccountFilter.setEntityId(identity.getId());
-		roleAccountFilter.setOwnership(Boolean.TRUE);
-		roleAccountFilter.setSystemId(system.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		// None role assigned
-		Assert.assertEquals(0, identityAccounts.size());
-		
-		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 20);
-		
-		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
-		
-		Date startAcm = new Date();
-		
-		roles.forEach(role -> {
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setIdentityContract(primeContract);
-			identityRole.setRole(role.getId());
-			identityRole = identityRoleService.save(identityRole);
-		});
-		
-		Date endAcm = new Date();
-		
-		System.out.println("testAcmPerformance20 - ACM duration: "+ (endAcm.getTime() - startAcm.getTime()));
-		
-		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		Assert.assertEquals(20, identityAccounts.size());
-	}
-	
-	@Ignore
-	@Test
-	public void testAcmPerformance50() {
-		SysSystemDto system = initIdentityData();
-		Assert.assertNotNull(system);
-		
-		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
-		Assert.assertNotNull(mapping);
-		mapping = systemMappingService.save(mapping);
-		IdmIdentityDto identity = helper.createIdentity();
-		
-		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
-		roleAccountFilter.setEntityId(identity.getId());
-		roleAccountFilter.setOwnership(Boolean.TRUE);
-		roleAccountFilter.setSystemId(system.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		// None role assigned
-		Assert.assertEquals(0, identityAccounts.size());
-		
-		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 50);
-		
-		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
-		
-		Date startAcm = new Date();
-		
-		roles.forEach(role -> {
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setIdentityContract(primeContract);
-			identityRole.setRole(role.getId());
-			identityRole = identityRoleService.save(identityRole);
-		});
-		
-		Date endAcm = new Date();
-		
-		System.out.println("testAcmPerformance50 - ACM duration: "+ (endAcm.getTime() - startAcm.getTime()));
-		
-		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		Assert.assertEquals(50, identityAccounts.size());
-	}
-	
 	@Ignore
 	@Test
 	@Transactional
-	public void testAcmPerformance100() {
+	public void testAcmPerformance100WithoutRequest() {
 		SysSystemDto system = initIdentityData();
 		Assert.assertNotNull(system);
-		
-		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
+				SystemEntityType.IDENTITY);
 		Assert.assertNotNull(mapping);
 		mapping = systemMappingService.save(mapping);
 		IdmIdentityDto identity = helper.createIdentity();
-		
+
 		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
 		roleAccountFilter.setEntityId(identity.getId());
 		roleAccountFilter.setOwnership(Boolean.TRUE);
 		roleAccountFilter.setSystemId(system.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
+				.getContent();
 		// None role assigned
 		Assert.assertEquals(0, identityAccounts.size());
-		
+
 		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 100);
-		
+
 		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
-		
+
 		Date startAcm = new Date();
-		
+
 		roles.forEach(role -> {
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 			identityRole.setIdentityContract(primeContract);
@@ -251,18 +137,19 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 				getHibernateSession().clear();
 			}
 		});
-		
+
 		Date endAcm = new Date();
-		
-		System.out.println("testAcmPerformance100 - ACM duration: "+ (endAcm.getTime() - startAcm.getTime()));
-		
+
+		System.out.println("testAcmPerformance100 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+
 		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
 		Assert.assertEquals(100, identityAccounts.size());
 	}
-	
+
 	@Ignore
 	@Test
-	public void testAcmPerformanceAdd50One() {
+	@Transactional
+	public void testAcmPerformance200WithoutRequest() {
 		SysSystemDto system = initIdentityData();
 		Assert.assertNotNull(system);
 
@@ -270,21 +157,18 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 				SystemEntityType.IDENTITY);
 		Assert.assertNotNull(mapping);
 		mapping = systemMappingService.save(mapping);
-
-		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_PERFORMANCE);
-		boolean first = false;
-		if (identity == null) {
-			identity = helper.createIdentity(IDENTITY_PERFORMANCE);
-			first = true;
-		}
+		IdmIdentityDto identity = helper.createIdentity();
 
 		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
 		roleAccountFilter.setEntityId(identity.getId());
 		roleAccountFilter.setOwnership(Boolean.TRUE);
+		roleAccountFilter.setSystemId(system.getId());
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
 				.getContent();
+		// None role assigned
+		Assert.assertEquals(0, identityAccounts.size());
 
-		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 50);
+		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 200);
 
 		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
 
@@ -295,23 +179,24 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 			identityRole.setIdentityContract(primeContract);
 			identityRole.setRole(role.getId());
 			identityRole = identityRoleService.save(identityRole);
+			// Call hard hibernate session flush and clear
+			if (getHibernateSession().isOpen()) {
+				getHibernateSession().flush();
+				getHibernateSession().clear();
+			}
 		});
 
 		Date endAcm = new Date();
 
-		System.out.println("testAcmPerformance50 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+		System.out.println("testAcmPerformance200 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
 
 		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		if (first) {
-			Assert.assertEquals(50, identityAccounts.size());
-		} else {
-			Assert.assertEquals(100, identityAccounts.size());
-		}
+		Assert.assertEquals(200, identityAccounts.size());
 	}
-	
+
 	@Ignore
 	@Test
-	public void testAcmPerformanceAdd50Two() {
+	public void testAcmPerformanceAdd200One() {
 		SysSystemDto system = initIdentityData();
 		Assert.assertNotNull(system);
 
@@ -333,159 +218,190 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
 				.getContent();
 
-		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 50);
+		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 200);
 
 		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
 
 		Date startAcm = new Date();
-		
 
 		IdmRoleRequestDto request = helper.createRoleRequest(primeContract, roles.toArray(new IdmRoleDto[0]));
 		helper.executeRequest(request, false, true);
 
 		Date endAcm = new Date();
 
-		System.out.println("testAcmPerformance50 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+		System.out.println("testAcmPerformance200One - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
 
 		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
 		if (first) {
-			Assert.assertEquals(50, identityAccounts.size());
+			Assert.assertEquals(200, identityAccounts.size());
 		} else {
-			Assert.assertEquals(100, identityAccounts.size());
+			Assert.assertEquals(400, identityAccounts.size());
 		}
 	}
 
-	
+	@Ignore
+	@Test
+	public void testAcmPerformanceAdd200Two() {
+		SysSystemDto system = initIdentityData();
+		Assert.assertNotNull(system);
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
+				SystemEntityType.IDENTITY);
+		Assert.assertNotNull(mapping);
+		mapping = systemMappingService.save(mapping);
+
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_PERFORMANCE);
+		boolean first = false;
+		if (identity == null) {
+			identity = helper.createIdentity(IDENTITY_PERFORMANCE);
+			first = true;
+		}
+
+		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
+		roleAccountFilter.setEntityId(identity.getId());
+		roleAccountFilter.setOwnership(Boolean.TRUE);
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
+				.getContent();
+
+		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 200);
+
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
+
+		Date startAcm = new Date();
+
+		IdmRoleRequestDto request = helper.createRoleRequest(primeContract, roles.toArray(new IdmRoleDto[0]));
+		helper.executeRequest(request, false, true);
+
+		Date endAcm = new Date();
+
+		System.out.println("testAcmPerformance200Two - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+
+		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		if (first) {
+			Assert.assertEquals(200, identityAccounts.size());
+		} else {
+			Assert.assertEquals(400, identityAccounts.size());
+		}
+	}
+
 	@Ignore
 	@Test
 	@Transactional
 	public void testAcmPerformance200() {
 		SysSystemDto system = initIdentityData();
 		Assert.assertNotNull(system);
-		
-		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
+				SystemEntityType.IDENTITY);
 		Assert.assertNotNull(mapping);
 		mapping = systemMappingService.save(mapping);
 		IdmIdentityDto identity = helper.createIdentity();
-		
+
 		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
 		roleAccountFilter.setEntityId(identity.getId());
 		roleAccountFilter.setOwnership(Boolean.TRUE);
 		roleAccountFilter.setSystemId(system.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
+				.getContent();
 		// None role assigned
 		Assert.assertEquals(0, identityAccounts.size());
-		
+
 		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 200);
-		
-		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
-		
+
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
+
 		Date startAcm = new Date();
-		
-		roles.forEach(role -> {
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setIdentityContract(primeContract);
-			identityRole.setRole(role.getId());
-			identityRole = identityRoleService.save(identityRole);
-			if (getHibernateSession().isOpen()) {
-				getHibernateSession().flush();
-				getHibernateSession().clear();
-			}
-		});
-		
+
+		IdmRoleRequestDto request = helper.createRoleRequest(primeContract, roles.toArray(new IdmRoleDto[0]));
+		helper.executeRequest(request, false, true);
+
 		Date endAcm = new Date();
-		
-		
-		System.out.println("testAcmPerformance200 - ACM duration: "+ (endAcm.getTime() - startAcm.getTime()));
+
+		System.out.println("testAcmPerformance200 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
 		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
 		Assert.assertEquals(200, identityAccounts.size());
 	}
-	
-	
-	@Ignore
-	@Test
-	public void testAcmPerformance400() {
-		SysSystemDto system = initIdentityData();
-		Assert.assertNotNull(system);
-		
-		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
-		Assert.assertNotNull(mapping);
-		mapping = systemMappingService.save(mapping);
-		IdmIdentityDto identity = helper.createIdentity();
-		
-		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
-		roleAccountFilter.setEntityId(identity.getId());
-		roleAccountFilter.setOwnership(Boolean.TRUE);
-		roleAccountFilter.setSystemId(system.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		// None role assigned
-		Assert.assertEquals(0, identityAccounts.size());
-		
-		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 400);
-		
-		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
-		
-		Date startAcm = new Date();
-		
-		roles.forEach(role -> {
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setIdentityContract(primeContract);
-			identityRole.setRole(role.getId());
-			identityRole = identityRoleService.save(identityRole);
-		});
-		
-		Date endAcm = new Date();
-		
-		System.out.println("testAcmPerformance400 - ACM duration: "+ (startAcm.getTime() - endAcm.getTime()));
-		
-		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		Assert.assertEquals(400, identityAccounts.size());
-	}
-	
-	@Ignore
-	@Test
-	public void testAcmPerformance800() {
-		SysSystemDto system = initIdentityData();
-		Assert.assertNotNull(system);
-		
-		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
-		Assert.assertNotNull(mapping);
-		mapping = systemMappingService.save(mapping);
-		IdmIdentityDto identity = helper.createIdentity();
-		
-		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
-		roleAccountFilter.setEntityId(identity.getId());
-		roleAccountFilter.setOwnership(Boolean.TRUE);
-		roleAccountFilter.setSystemId(system.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		// None role assigned
-		Assert.assertEquals(0, identityAccounts.size());
-		
-		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 800);
-		
-		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
-		
-		Date startAcm = new Date();
-		
-		roles.forEach(role -> {
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setIdentityContract(primeContract);
-			identityRole.setRole(role.getId());
-			identityRole = identityRoleService.save(identityRole);
-		});
-		
-		Date endAcm = new Date();
-		
-		System.out.println("testAcmPerformance800 - ACM duration: "+ (startAcm.getTime() - endAcm.getTime()));
-		
-		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
-		Assert.assertEquals(800, identityAccounts.size());
-	}
-	
+
 	@Ignore
 	@Test
 	@Transactional
-	public void testDeletePerformance100() {
+	public void testAcmPerformance400() {
+		SysSystemDto system = initIdentityData();
+		Assert.assertNotNull(system);
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
+				SystemEntityType.IDENTITY);
+		Assert.assertNotNull(mapping);
+		mapping = systemMappingService.save(mapping);
+		IdmIdentityDto identity = helper.createIdentity();
+
+		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
+		roleAccountFilter.setEntityId(identity.getId());
+		roleAccountFilter.setOwnership(Boolean.TRUE);
+		roleAccountFilter.setSystemId(system.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
+				.getContent();
+		// None role assigned
+		Assert.assertEquals(0, identityAccounts.size());
+
+		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 400);
+
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
+
+		Date startAcm = new Date();
+
+		IdmRoleRequestDto request = helper.createRoleRequest(primeContract, roles.toArray(new IdmRoleDto[0]));
+		helper.executeRequest(request, false, true);
+
+		Date endAcm = new Date();
+
+		System.out.println("testAcmPerformance400 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		Assert.assertEquals(400, identityAccounts.size());
+	}
+
+	@Ignore
+	@Test
+	@Transactional
+	public void testAcmPerformance1000() {
+		SysSystemDto system = initIdentityData();
+		Assert.assertNotNull(system);
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
+				SystemEntityType.IDENTITY);
+		Assert.assertNotNull(mapping);
+		mapping = systemMappingService.save(mapping);
+		IdmIdentityDto identity = helper.createIdentity();
+
+		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
+		roleAccountFilter.setEntityId(identity.getId());
+		roleAccountFilter.setOwnership(Boolean.TRUE);
+		roleAccountFilter.setSystemId(system.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
+				.getContent();
+		// None role assigned
+		Assert.assertEquals(0, identityAccounts.size());
+
+		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 1000);
+
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
+
+		Date startAcm = new Date();
+
+		IdmRoleRequestDto request = helper.createRoleRequest(primeContract, roles.toArray(new IdmRoleDto[0]));
+		helper.executeRequest(request, false, true);
+
+		Date endAcm = new Date();
+
+		System.out.println("testAcmPerformance1000 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		Assert.assertEquals(1000, identityAccounts.size());
+	}
+
+	@Ignore
+	@Test
+	@Transactional
+	public void testDeletePerformance100WithoutRequest() {
 		SysSystemDto system = initIdentityData();
 		Assert.assertNotNull(system);
 
@@ -504,33 +420,25 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 
 		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 100);
 
-		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
 
 		Date startAcm = new Date();
 
-		roles.forEach(role -> {
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setIdentityContract(primeContract);
-			identityRole.setRole(role.getId());
-			identityRole = identityRoleService.save(identityRole);
-			if (getHibernateSession().isOpen()) {
-				getHibernateSession().flush();
-				getHibernateSession().clear();
-			}
-		});
-
+		IdmRoleRequestDto request = helper.createRoleRequest(primeContract, roles.toArray(new IdmRoleDto[0]));
+		helper.executeRequest(request, false, true);
 		Date endAcm = new Date();
 
-		System.out.println("testDeletePerformance100 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+		System.out.println(
+				"testDeletePerformance100WithoutRequest - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
 
 		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
 		Assert.assertEquals(100, identityAccounts.size());
-		
+
 		// Delete
 		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
-		identityRoleFilter.setIdentityContractId(primeContract);
+		identityRoleFilter.setIdentityContractId(primeContract.getId());
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
-		
+
 		Date startAcmDelete = new Date();
 		identityRoles.forEach(identityRole -> {
 			identityRoleService.delete(identityRole);
@@ -539,11 +447,68 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 				getHibernateSession().clear();
 			}
 		});
-		
+
 		Date endAcmDelete = new Date();
-		System.out.println("testDeletePerformance100 - Delete duration: " + (endAcmDelete.getTime() - startAcmDelete.getTime()));
+		System.out.println("testDeletePerformance100WithoutRequest - Delete duration: "
+				+ (endAcmDelete.getTime() - startAcmDelete.getTime()));
 	}
-	
+
+	@Ignore
+	@Test
+	@Transactional
+	public void testDeletePerformance200WithoutRequest() {
+		SysSystemDto system = initIdentityData();
+		Assert.assertNotNull(system);
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
+				SystemEntityType.IDENTITY);
+		Assert.assertNotNull(mapping);
+		mapping = systemMappingService.save(mapping);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
+		roleAccountFilter.setEntityId(identity.getId());
+		roleAccountFilter.setOwnership(Boolean.TRUE);
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
+				.getContent();
+
+		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 200);
+
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
+
+		Date startAcm = new Date();
+
+		IdmRoleRequestDto request = helper.createRoleRequest(primeContract, roles.toArray(new IdmRoleDto[0]));
+		helper.executeRequest(request, false, true);
+
+		Date endAcm = new Date();
+
+		System.out.println(
+				"testDeletePerformance200WithoutRequest - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+
+		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		Assert.assertEquals(200, identityAccounts.size());
+
+		// Delete
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityContractId(primeContract.getId());
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+
+		Date startAcmDelete = new Date();
+		identityRoles.forEach(identityRole -> {
+			identityRoleService.delete(identityRole);
+			if (getHibernateSession().isOpen()) {
+				getHibernateSession().flush();
+				getHibernateSession().clear();
+			}
+		});
+
+		Date endAcmDelete = new Date();
+		System.out.println("testDeletePerformance200WithoutRequest - Delete duration: "
+				+ (endAcmDelete.getTime() - startAcmDelete.getTime()));
+	}
+
 	@Ignore
 	@Test
 	@Transactional
@@ -566,53 +531,112 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 
 		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 200);
 
-		UUID primeContract = identityContractService.getPrimeContract(identity.getId()).getId();
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
 
 		Date startAcm = new Date();
 
-		roles.forEach(role -> {
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setIdentityContract(primeContract);
-			identityRole.setRole(role.getId());
-			identityRole = identityRoleService.save(identityRole);
-			if (getHibernateSession().isOpen()) {
-				getHibernateSession().flush();
-				getHibernateSession().clear();
-			}
-		});
-
+		IdmRoleRequestDto request = helper.createRoleRequest(primeContract, roles.toArray(new IdmRoleDto[0]));
+		helper.executeRequest(request, false, true);
 		Date endAcm = new Date();
 
 		System.out.println("testDeletePerformance200 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
 
 		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
 		Assert.assertEquals(200, identityAccounts.size());
-		
+
 		// Delete
 		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
-		identityRoleFilter.setIdentityContractId(primeContract);
+		identityRoleFilter.setIdentityContractId(primeContract.getId());
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
-		
-		Date startAcmDelete = new Date();
+
+		IdmRoleRequestDto requestDel = helper.createRoleRequest(identity);
 		identityRoles.forEach(identityRole -> {
-			identityRoleService.delete(identityRole);
-			if (getHibernateSession().isOpen()) {
-				getHibernateSession().flush();
-				getHibernateSession().clear();
-			}
+			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+			conceptRoleRequest.setRoleRequest(requestDel.getId());
+			conceptRoleRequest.setIdentityContract(primeContract.getId());
+			conceptRoleRequest.setIdentityRole(identityRole.getId());
+			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+			conceptRoleRequestService.save(conceptRoleRequest);
 		});
-		
+
+		Date startAcmDelete = new Date();
+
+		helper.executeRequest(requestDel, false, true);
+
 		Date endAcmDelete = new Date();
-		System.out.println("testDeletePerformance200 - Delete duration: " + (endAcmDelete.getTime() - startAcmDelete.getTime()));
+		System.out.println(
+				"testDeletePerformance200 - Delete duration: " + (endAcmDelete.getTime() - startAcmDelete.getTime()));
+
+		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		Assert.assertEquals(0, identityAccounts.size());
 	}
 
+	@Ignore
+	@Test
+	@Transactional
+	public void testDeletePerformance100() {
+		SysSystemDto system = initIdentityData();
+		Assert.assertNotNull(system);
 
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(),
+				SystemEntityType.IDENTITY);
+		Assert.assertNotNull(mapping);
+		mapping = systemMappingService.save(mapping);
 
+		IdmIdentityDto identity = helper.createIdentity();
+
+		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
+		roleAccountFilter.setEntityId(identity.getId());
+		roleAccountFilter.setOwnership(Boolean.TRUE);
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
+				.getContent();
+
+		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 100);
+
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
+
+		Date startAcm = new Date();
+
+		IdmRoleRequestDto request = helper.createRoleRequest(primeContract, roles.toArray(new IdmRoleDto[0]));
+		helper.executeRequest(request, false, true);
+		Date endAcm = new Date();
+
+		System.out.println("testDeletePerformance100 - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+
+		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		Assert.assertEquals(100, identityAccounts.size());
+
+		// Delete
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityContractId(primeContract.getId());
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+
+		IdmRoleRequestDto requestDel = helper.createRoleRequest(identity);
+		identityRoles.forEach(identityRole -> {
+			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+			conceptRoleRequest.setRoleRequest(requestDel.getId());
+			conceptRoleRequest.setIdentityContract(primeContract.getId());
+			conceptRoleRequest.setIdentityRole(identityRole.getId());
+			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+			conceptRoleRequestService.save(conceptRoleRequest);
+		});
+
+		Date startAcmDelete = new Date();
+
+		helper.executeRequest(requestDel, false, true);
+
+		Date endAcmDelete = new Date();
+		System.out.println(
+				"testDeletePerformance100 - Delete duration: " + (endAcmDelete.getTime() - startAcmDelete.getTime()));
+
+		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		Assert.assertEquals(0, identityAccounts.size());
+	}
 
 	private List<IdmRoleDto> createRolesWithSystem(SysSystemDto system, int numberOfRoles) {
 		List<IdmRoleDto> roles = Lists.newArrayList();
-		
-		for(int i = 0; i < numberOfRoles; i++) {
+
+		for (int i = 0; i < numberOfRoles; i++) {
 			IdmRoleDto role = helper.createRole();
 			helper.createRoleSystem(role, system);
 			roles.add(role);
@@ -620,15 +644,13 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 		return roles;
 	}
 
-	
-
 	@Transactional
 	public void deleteAllResourceData() {
 		// Delete all
 		Query q = entityManager.createNativeQuery("DELETE FROM " + TestRoleResource.TABLE_NAME);
 		q.executeUpdate();
 	}
-	
+
 	private SysSystemDto initIdentityData() {
 
 		// create test system
@@ -649,7 +671,7 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 		return system;
 
 	}
-	
+
 	private void createIdentityMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
 		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
@@ -693,7 +715,7 @@ public class PerformanceAccountManagementTest extends AbstractIntegrationTest {
 			}
 		});
 	}
-	
+
 	private Session getHibernateSession() {
 		return (Session) this.entityManager.getDelegate();
 	}

@@ -12,13 +12,18 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -47,6 +52,7 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
 	@Autowired private AccAccountService accountService;
 	@Autowired private IdmEntityEventService entityEventService;
+	@Autowired private SysSystemMappingService systemMappingService;
 	
 	@Test
 	public void testAssignSubRolesByRequestAsync() {
@@ -336,6 +342,49 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			Assert.assertNotNull(getHelper().findResource(updatedAccount.getRealUid()));
 			Assert.assertEquals(account.getCreated(), updatedAccount.getCreated());
 			Assert.assertEquals(account.getRealUid(), updatedAccount.getRealUid());
+		} finally {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		}
+	}
+	
+	
+	@Test
+	public void testRoleRequestAsyncWithException() {
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			// prepare role composition
+			IdmRoleDto superior = getHelper().createRole();
+			String exceptionMessage = getHelper().createName();
+			//
+			// create test system with mapping and link her to the sub roles
+			SysSystemDto system = getHelper().createTestResourceSystem(true);
+			getHelper().createRoleSystem(superior, system);
+			//
+			// assign superior role
+			IdmIdentityDto identity = getHelper().createIdentity();
+			//
+			final IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, superior);
+			
+			// Broke the system
+			SysSystemMappingDto defaultMapping = getHelper().getDefaultMapping(system);
+			defaultMapping.setCanBeAccountCreatedScript("throw new Exception('" + exceptionMessage + "')");
+			systemMappingService.save(defaultMapping);
+			
+			//
+			getHelper().executeRequest(roleRequestOne, false);
+			//
+			// wait for executed events
+			final IdmEntityEventFilter eventFilter = new IdmEntityEventFilter();
+			eventFilter.setOwnerId(roleRequestOne.getId());
+			getHelper().waitForResult(res -> {
+				IdmEntityEventDto event = entityEventService.find(eventFilter, new PageRequest(0, 1)).getContent().get(0);
+				return OperationState.EXCEPTION != event.getResult().getState();
+			}, 1000, Integer.MAX_VALUE);
+			
+			IdmRoleRequestDto roleRequest = roleRequestService.get(roleRequestOne.getId());
+			Assert.assertEquals(RoleRequestState.EXCEPTION, roleRequest.getState());
+			Assert.assertTrue(roleRequest.getLog().contains(exceptionMessage));
+			
 		} finally {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 		}

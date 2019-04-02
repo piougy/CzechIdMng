@@ -46,11 +46,11 @@ public class DefaultSysSystemEntityServiceFilterTest extends AbstractIntegration
 	public void testSystemId() {
 		SysSystemDto system1 = helper.createTestResourceSystem(false);
 		SysSystemDto system2 = helper.createTestResourceSystem(false);
-		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system1.getId(),
+		createEntitySystem("test1-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system1.getId(),
 				UUID.randomUUID());
-		SysSystemEntityDto entity2 = createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT,
+		SysSystemEntityDto entity2 = createEntitySystem("test2-" + System.currentTimeMillis(), SystemEntityType.CONTRACT,
 				system2.getId(), UUID.randomUUID());
-		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system2.getId(),
+		createEntitySystem("test3-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system2.getId(),
 				UUID.randomUUID());
 		//
 		SysSystemEntityFilter testFilter = new SysSystemEntityFilter();
@@ -65,11 +65,11 @@ public class DefaultSysSystemEntityServiceFilterTest extends AbstractIntegration
 	@Test
 	public void testUid() {
 		SysSystemDto system = helper.createTestResourceSystem(false);
-		SysSystemEntityDto entity1 = createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT,
+		SysSystemEntityDto entity1 = createEntitySystem("test1-" + System.currentTimeMillis(), SystemEntityType.CONTRACT,
 				system.getId(), UUID.randomUUID());
-		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
+		createEntitySystem("test2-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
 				UUID.randomUUID());
-		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
+		createEntitySystem("test3-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
 				UUID.randomUUID());
 		//
 		SysSystemEntityFilter testFilter = new SysSystemEntityFilter();
@@ -85,11 +85,11 @@ public class DefaultSysSystemEntityServiceFilterTest extends AbstractIntegration
 	@Test
 	public void testId() {
 		SysSystemDto system = helper.createTestResourceSystem(false);
-		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
+		createEntitySystem("test1-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
 				UUID.randomUUID());
-		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
+		createEntitySystem("test2-" + System.currentTimeMillis(), SystemEntityType.CONTRACT, system.getId(),
 				UUID.randomUUID());
-		SysSystemEntityDto entity3 = createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.CONTRACT,
+		SysSystemEntityDto entity3 = createEntitySystem("test3-" + System.currentTimeMillis(), SystemEntityType.CONTRACT,
 				system.getId(), UUID.randomUUID());
 		//
 		SysSystemEntityDto foundedEntity = entityService.get(entity3.getId());
@@ -99,11 +99,11 @@ public class DefaultSysSystemEntityServiceFilterTest extends AbstractIntegration
 	@Test
 	public void testEntityType() {
 		SysSystemDto system = helper.createTestResourceSystem(false);
-		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.ROLE, system.getId(),
+		createEntitySystem("test1-" + System.currentTimeMillis(), SystemEntityType.ROLE, system.getId(),
 				UUID.randomUUID());
-		SysSystemEntityDto entity2 = createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.TREE,
+		SysSystemEntityDto entity2 = createEntitySystem("test2-" + System.currentTimeMillis(), SystemEntityType.TREE,
 				system.getId(), UUID.randomUUID());
-		createEntitySystem("test-" + System.currentTimeMillis(), SystemEntityType.IDENTITY, system.getId(),
+		createEntitySystem("tes3t-" + System.currentTimeMillis(), SystemEntityType.IDENTITY, system.getId(),
 				UUID.randomUUID());
 		//
 		SysSystemEntityFilter testFilter = new SysSystemEntityFilter();

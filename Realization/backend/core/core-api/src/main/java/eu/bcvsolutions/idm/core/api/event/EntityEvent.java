@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -270,4 +271,23 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	 * @since 9.5.0
 	 */
 	void setTransactionId(UUID transactionId);
+
+	/**
+	 * Return list of values from event properties. Returns null, if value doesn't
+	 * exists for given property or if value is not instance of List.
+	 * 
+	 * @param property
+	 * @param type
+	 * @return
+	 */
+	public <T> List<T> getListProperty(String property, Class<T> type);
+
+	/**
+	 * Return true if event properties contains given property and this property is true.
+	 * If event does not contains this property, then return false.
+	 * 
+	 * @param property
+	 * @return
+	 */
+	boolean getBooleanProperty(String property);
 }

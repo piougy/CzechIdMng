@@ -73,10 +73,13 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
+import eu.bcvsolutions.idm.core.security.api.service.ExceptionProcessable;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import joptsimple.internal.Strings;
 
 /**
  * Entity (dto) processing based on event publishing.
@@ -162,6 +165,15 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		});
 	}
 	
+	// TODO: VS: We need run this in transaction.
+	// Requires new transaction should be here, but @Transactional seems sufficient
+	// (new thread = new transaction).
+	// I cannot enable the transaction here, because (minimal) the provisioning
+	// queues does not counting with transaction (exception = rollback of
+	// provisioning operation). If transaction is enabled test does not pass
+	// DefaultProvisioningExecutorIntegrationTest.testRetryProvisioning.
+	
+	@Transactional
 	@Override
 	public <E extends Serializable> EventContext<E> process(EntityEvent<E> event) {
 		return process(event, null);
@@ -316,8 +328,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	}
 	
 	/**
-	 * Try put notify event intto queue - event is put into queue, only if it's not executed synchronously.
-	 * If event is executed synchronously, then processed notify event properties (if some processor was ececuted) are propagated into original event. 
+	 * Try put notify event into queue - event is put into queue, only if it's not executed synchronously.
+	 * If event is executed synchronously, then processed notify event properties (if some processor was executed) are propagated into original event. 
 	 * 
 	 * @param notifyEvent
 	 * @param originalEvent
@@ -498,6 +510,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		try {
 			eventConfiguration.getExecutor().execute(new Runnable() {
 				
+				@SuppressWarnings("unchecked")
 				@Override
 				public void run() {
 					try {
@@ -523,6 +536,26 @@ public class DefaultEntityEventManager implements EntityEventManager {
 										.build());
 						
 						LOG.error(resultModel.toString(), ex);
+						
+						// May be should be the exception processed within owner service (for audit purpose in some request).
+						// We check if owner service supports this feature (implements ExceptionProcessable).
+						String ownerType = event.getOwnerType();
+						UUID ownerId = event.getOwnerId();
+						if(!Strings.isNullOrEmpty(ownerType) && ownerId != null) {
+							try {
+								Class<?> ownerClass = Class.forName(ownerType);
+								ReadDtoService<?, ?> dtoService = lookupService.getDtoService((Class<? extends Identifiable>) ownerClass);
+								if(dtoService instanceof ExceptionProcessable) {
+									@SuppressWarnings("rawtypes")
+									ExceptionProcessable exceptionProcessable = (ExceptionProcessable) dtoService;
+									// Propagate the exception
+									exceptionProcessable.processException(ownerId, ex);
+								}
+							} catch (ClassNotFoundException e) {
+								// Only to the log
+								LOG.error(e.getLocalizedMessage(), e);
+							}
+						}
 					} finally {
 						LOG.trace("Event [{}] ends for owner with id [{}].", event.getId(), event.getOwnerId());
 						removeRunningEvent(event);

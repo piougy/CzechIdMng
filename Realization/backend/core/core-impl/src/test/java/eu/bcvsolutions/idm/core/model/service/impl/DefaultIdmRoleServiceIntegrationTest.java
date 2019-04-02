@@ -556,8 +556,8 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 		conceptRole.setRoleRequest(request.getId());
 		conceptRole.getEavs().add(formInstance);
 		conceptRole = conceptRoleService.save(conceptRole);
-		
-		IdmRoleRequestDto roleRequestDto = roleRequestService.startRequestInternal(request.getId(), false);
+
+		IdmRoleRequestDto roleRequestDto = roleRequestService.startRequestInternal(request.getId(), false, true);
 		assertEquals(RoleRequestState.EXECUTED, roleRequestDto.getState());
 		
 		conceptRole = conceptRoleService.get(conceptRole.getId());
@@ -648,7 +648,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 		assertNotEquals(valueChanged.getValue(), originalValue.getValue());
 		assertEquals( originalFormValue.getValue(),  originalValue.getValue());
 		
-		IdmRoleRequestDto roleRequestDto = roleRequestService.startRequestInternal(request.getId(), false);
+		IdmRoleRequestDto roleRequestDto = roleRequestService.startRequestInternal(request.getId(), false, true);
 		assertEquals(RoleRequestState.EXECUTED, roleRequestDto.getState());
 		
 		conceptRole = conceptRoleService.get(conceptRole.getId());

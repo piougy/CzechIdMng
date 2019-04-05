@@ -4,6 +4,7 @@ import Helmet from 'react-helmet';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
 import { TreeNodeManager, TreeTypeManager } from '../../../redux';
 
@@ -102,9 +103,6 @@ class NodeDetail extends Basic.AbstractContent {
     });
   }
 
-  closeDetail() {
-  }
-
   render() {
     const { uiKey, type, entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
@@ -149,11 +147,12 @@ class NodeDetail extends Basic.AbstractContent {
                   </Basic.Col>
                 </Basic.Row>
 
-                <Basic.SelectBox
+                <Advanced.TreeNodeSelect
                   ref="parent"
-                  label={this.i18n('entity.TreeNode.parent.name')}
-                  forceSearchParameters={manager.getDefaultSearchParameters().setFilter('treeTypeId', type)}
-                  manager={manager}/>
+                  header={ this.i18n('entity.TreeNode.parent.name') }
+                  label={ this.i18n('entity.TreeNode.parent.name') }
+                  forceSearchParameters={ manager.getDefaultSearchParameters().setFilter('treeTypeId', type) } />
+
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('entity.TreeNode.disabled')}/>

@@ -28,6 +28,9 @@ import replace from 'gulp-replace';
 import concat from 'gulp-concat';
 import vfs from 'vinyl-fs';
 import inject from 'gulp-inject';
+import _ from 'lodash';
+import version from 'gulp-version-number';
+import packageDescriptor from './package.json';
 
 require('babel/register');
 
@@ -465,6 +468,13 @@ gulp.task('htmlReplace', () => {
       js: ['js/jquery.min.js', 'js/bootstrap.min.js', 'config.js', 'js/app.js']
     })
   )
+  .pipe(version({
+    value: _.kebabCase(packageDescriptor.version),
+    append: {
+      key: 'v',
+      to: ['css', 'js']
+    }
+  }))
   .pipe(gulp.dest(paths.dist));
 });
 

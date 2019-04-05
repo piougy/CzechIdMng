@@ -107,6 +107,10 @@ public class DefaultIdmRoleFormAttributeService
 		roleFormAttributeDto.setFormAttribute(attribute.getId());
 		roleFormAttributeDto.setDefaultValue(attribute.getDefaultValue());
 		roleFormAttributeDto.setRequired(attribute.isRequired());
+		roleFormAttributeDto.setMin(attribute.getMin());
+		roleFormAttributeDto.setMax(attribute.getMax());
+		roleFormAttributeDto.setUnique(attribute.isUnique());
+		roleFormAttributeDto.setRegex(attribute.getRegex());
 		
 		return this.save(roleFormAttributeDto, permission);
 	}

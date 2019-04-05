@@ -452,7 +452,6 @@ gulp.task('styles', () => {
 
 gulp.task('htmlReplace', () => {
   const config = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
-  const coreVersion = _.kebabCase(packageDescriptor.version);
   //
   return gulp.src(['index.html'])
   .pipe(htmlReplace(
@@ -470,7 +469,7 @@ gulp.task('htmlReplace', () => {
     })
   )
   .pipe(version({
-    value: coreVersion,
+    value: _.kebabCase(packageDescriptor.version),
     append: {
       key: 'v',
       to: ['css', 'js']

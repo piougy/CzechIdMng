@@ -75,7 +75,7 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 					ImmutableMap.of("name", uid, "system", system.getName()));
 			provisioningOperation.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 			//
-			provisioningOperation = provisioningOperationService.save(provisioningOperation);
+			provisioningOperation = provisioningOperationService.saveOperation(provisioningOperation);
 			//
 			LOG.info(resultModel.toString());
 			notificationManager.send(

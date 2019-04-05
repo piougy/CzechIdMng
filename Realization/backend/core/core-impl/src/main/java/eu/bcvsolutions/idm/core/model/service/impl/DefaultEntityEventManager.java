@@ -379,7 +379,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		LOG.trace("Events to process [{}] on instance [{}].", events.size(), instanceId);
 		for (IdmEntityEventDto event : events) {
 			// adds @Transactional
-			context.getBean(this.getClass()).executeEvent(event);;
+			context.getBean(this.getClass()).executeEvent(event);
 		}
 		return events.size();
 	}

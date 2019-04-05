@@ -205,7 +205,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 		Assert.notNull(longRunningTaskId);
 		IdmLongRunningTaskDto task = longRunningTaskService.get(longRunningTaskId);
 		Assert.notNull(task, "Long running task has to be prepared before task is ended");
-		LOG.debug("Long running task ends [{}] with result [{}].", longRunningTaskId, result);
+		LOG.debug("Long running task ends [{}] with result [{}].", longRunningTaskId, result, ex);
 		//
 		setStateProperties(task);
 		//
@@ -227,9 +227,8 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 			LOG.debug("Long running task ended [{}] standardly, previous state [{}], result [{}].", longRunningTaskId, task.getResultState(), result);
 			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}
-		// after update state is send websocket with information about end of LRT
+		// after update state is send notification with information about end of LRT
 		task = longRunningTaskService.save(task);
-		this.updateState();
 		//
 		// publish event - LRT ended
 		// TODO: result is not persisted - propagate him in event?

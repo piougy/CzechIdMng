@@ -190,6 +190,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 * 
 	 * @param futureTask
 	 */
+	@Transactional
 	@TransactionalEventListener
 	public synchronized<V> void executeInternal(LongRunningFutureTask<V> futureTask) {
 		Assert.notNull(futureTask);
@@ -389,6 +390,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			task.setTaskDescription(taskExecutor.getDescription());	
 			task.setInstanceId(configurationService.getInstanceId());
 			task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
+			// LRT is saved in new transaction implicitly.
 			task = service.save(task);
 			taskExecutor.setLongRunningTaskId(task.getId());
 		} else {
@@ -397,13 +399,30 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		return task;
 	}
 	
+	/**
+	 * TODO: RUNNING state and running flag can look as redundant, but is not now - we need to flag them 
+	 * from scheduler side (prevent to try execute prepared LRT twice) and thread side (physical run).
+	 * COS: more LRT than physical running are shown in agenda (depends on thread count configuration).
+	 * Rewrite LRT engine - use some library for batch processing (e.g. Spring batch).  
+	 * 
+	 * @param task
+	 * @return
+	 */
 	private synchronized IdmLongRunningTaskDto markTaskAsRunning(IdmLongRunningTaskDto task) {
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		// LRT is saved in new transaction implicitly.
 		return service.save(task);
 	}
 	
+	/**
+	 * Task was rejected from thread poll (exhausted) - return task to prepared state.
+	 * 
+	 * @param task
+	 * @return
+	 */
 	private synchronized IdmLongRunningTaskDto markTaskAsCreated(IdmLongRunningTaskDto task) {
 		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
+		// LRT is saved in new transaction implicitly.
 		return service.save(task);
 	}
 	

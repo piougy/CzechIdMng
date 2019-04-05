@@ -70,7 +70,7 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		//
 		// set connector object back to provisioning context
 		provisioningOperation.getProvisioningContext().setConnectorObject(connectorObject);
-		provisioningOperation = provisioningOperationService.save(provisioningOperation); // has to be first - we need to replace guarded strings before systemEntityService.save(systemEntity)
+		provisioningOperation = provisioningOperationService.saveOperation(provisioningOperation); // has to be first - we need to replace guarded strings before systemEntityService.save(systemEntity)
 		return icUid;
 	}
 	

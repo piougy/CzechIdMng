@@ -179,7 +179,7 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 				ImmutableMap.of("name", uid, "system", system.getName()));
 		provisioningOperation.setResult(new OperationResult.Builder(OperationState.BLOCKED).setModel(resultModel).build());
 		//
-		provisioningOperation = provisioningOperationService.save(provisioningOperation);
+		provisioningOperation = provisioningOperationService.saveOperation(provisioningOperation);
 		//
 		// send also to provisioning topic (websocket)
 		notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -333,20 +334,39 @@ public class DefaultSysProvisioningOperationService
 		return newConnectorObject;
 	}
 	
+	/**
+	 * REQUIRES_NEW => we handle success in the new transaction too, we need to prepare (save) her in new transaction too.
+	 */
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public SysProvisioningOperationDto saveOperation(SysProvisioningOperationDto operation) {
+		return save(operation);
+	}
+	
+	/**
+	 * REQUIRES_NEW => we handle success in the new transaction too, we need to prepare (save) her in new transaction too.
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void deleteOperation(SysProvisioningOperationDto operation) {
+		deleteById(operation.getId());
+	}
+	
+	/**
+	 * REQUIRES_NEW => we want to have log in queue / archive all time, even original transaction ends with exception.
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public SysProvisioningOperationDto handleFailed(SysProvisioningOperationDto operation, Exception ex) {
-		SysSystemDto system = systemService.get(operation.getSystem());
-		String uid = this.getByProvisioningOperation(operation).getUid();
-		
 		ResultModel resultModel;
 		if (ex instanceof ResultCodeException) {
 			resultModel = ((ResultCodeException) ex).getError().getError();
 		} else {
+			String uid = getByProvisioningOperation(operation).getUid();
 			resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_FAILED, 
 					ImmutableMap.of(
 							"name", uid, 
-							"system", system.getName(),
+							"system", getSystem(operation).getName(),
 							"operationType", operation.getOperationType(),
 							"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));	
 		}
@@ -371,6 +391,7 @@ public class DefaultSysProvisioningOperationService
 		}
 		//
 		if (securityService.getCurrentId() != null) { // TODO: check account owner
+			// TODO: notification is moved into console ... simple LOG instead?
 			notificationManager.send(
 					AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
 					.setModel(resultModel)
@@ -378,23 +399,18 @@ public class DefaultSysProvisioningOperationService
 		}
 		return operation;
 	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public SysSystemEntityDto getByProvisioningOperation(SysProvisioningOperationDto operation) {
-		return systemEntityService.getByProvisioningOperation(operation);
-	}
 
+	/**
+	 * REQUIRES_NEW => we want to have log in queue / archive all time, even original transaction ends with exception (after calling this method).
+	 */
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public SysProvisioningOperationDto handleSuccessful(SysProvisioningOperationDto operation) {
-		SysSystemDto system = systemService.get(operation.getSystem());
-		String uid = this.getByProvisioningOperation(operation).getUid();
 		ResultModel resultModel = new DefaultResultModel(
 				AccResultCode.PROVISIONING_SUCCEED, 
 				ImmutableMap.of(
-						"name", uid, 
-						"system", system.getName(),
+						"name", operation.getSystemEntityUid(), // FIXME: String uid = getByProvisioningOperation(operation).getUid();
+						"system", getSystem(operation).getName(),
 						"operationType", operation.getOperationType(),
 						"objectClass", operation.getProvisioningContext().getConnectorObject().getObjectClass().getType()));
 		operation.setResult(new OperationResult.Builder(OperationState.EXECUTED).setModel(resultModel).build());
@@ -410,13 +426,15 @@ public class DefaultSysProvisioningOperationService
 			batch = batchService.save(batch);
 		}
 		//
-		LOG.debug(resultModel.toString());
-		if (securityService.getCurrentId() != null) { // TODO: check account owner
-			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
-					.setModel(resultModel)
-					.build());
-		}
+		LOG.info(resultModel.toString());
+		//
 		return operation;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public SysSystemEntityDto getByProvisioningOperation(SysProvisioningOperationDto operation) {
+		return systemEntityService.getByProvisioningOperation(operation);
 	}
 	
 	/**
@@ -618,5 +636,21 @@ public class DefaultSysProvisioningOperationService
 				}
 			});
 		}
+	}
+	
+	/**
+	 * Optimize - system can be pre-loaded in DTO.
+	 * 
+	 * @param operation
+	 * @return
+	 */
+	private SysSystemDto getSystem(SysProvisioningOperationDto operation) {
+		SysSystemDto system = DtoUtils.getEmbedded(operation, SysProvisioningOperation_.system, (SysSystemDto) null);
+		if (system == null) {
+			// just for sure, self constructed operation can be given
+			system = systemService.get(operation.getSystem());
+		}
+		//
+		return system;
 	}
 }

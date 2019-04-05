@@ -7,7 +7,10 @@ All notable changes to this project will be documented in this file.
   - Change/update/delete of the assigned roles (identity-roles) invoke provisioning only for touched accounts.
   - Return type for method ``AccAccountManagementService.deleteIdentityAccount`` was changed from ``void`` to ``List<UUID>``.
   - New methods (``resolveNewIdentityRoles``, ``resolveUpdatedIdentityRoles``) for incremental account management were added to service ``AccAccountManagementService``.
-- [#1543](https://redmine.czechidm.com/issues/1543) - Realization of the role-request is executed asynchronously now. Processor ``RoleRequestRealizationProcessor`` catches event for type ``RoleRequestEventType.NOTIFY`` now (previously ``RoleRequestEventType.EXECUTION``). 
+- [#1543](https://redmine.czechidm.com/issues/1543) - Realization of the role-request is executed asynchronously now. Processor ``RoleRequestRealizationProcessor`` catches event for type ``RoleRequestEventType.NOTIFY`` now (previously ``RoleRequestEventType.EXECUTION``).
+- [#514](https://redmine.czechidm.com/issues/514) - Records are saved in new transaction into provisioning queue - event if some connector throws unexpected exception (which doesn't generalize ``ProvisioningException``), then log with exception is available in queue. If you are using custom processor for event with ``SysProvisioningOperationDto`` content, don't forget to save this provisioning operation in new transaction too - use prepared ``SysProvisioningOperationService#saveOperation`` method.
+- [#514](https://redmine.czechidm.com/issues/514) - **Notification after successful provisioning operation is not sent any more**. Information is available in application log under level ``INFO`` only for now. It is the same behavior as original default notification configuration for topic ``acc:provisioning`` with ``SUCCESS`` level. Notification about failed provisioning operation is still available (the same topic ``acc:provisioning`` with level ``ERROR``) and can be configured to email (sent to application log by default notification configuration). 
+
 
 ## [9.4.0]
 - [#1372](https://redmine.czechidm.com/issues/1372) - HTTP status 206 for long running task supports download result from them.

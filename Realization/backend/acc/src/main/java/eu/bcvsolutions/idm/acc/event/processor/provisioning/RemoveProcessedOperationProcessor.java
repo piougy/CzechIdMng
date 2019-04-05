@@ -58,12 +58,12 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		if (OperationState.EXECUTED == provisioningOperation.getResultState() 
 				|| ProvisioningEventType.CANCEL == event.getType()) {
-			provisioningOperationService.delete(provisioningOperation);
+			provisioningOperationService.deleteOperation(provisioningOperation);
 			LOG.debug("Executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
 			//
 			if (ProvisioningEventType.DELETE == event.getType()) {
 				// We successfully deleted account on target system. We need to delete system entity
-				systemEntityService.delete(systemEntityService.getByProvisioningOperation(provisioningOperation));
+				systemEntityService.deleteById(provisioningOperation.getSystemEntity());
 			}
 		}
 		return new DefaultEventResult<>(event, this, isClosable());

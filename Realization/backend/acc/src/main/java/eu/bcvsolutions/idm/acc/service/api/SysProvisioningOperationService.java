@@ -42,19 +42,40 @@ public interface SysProvisioningOperationService extends ReadWriteDtoService<Sys
 	IcConnectorObject getFullConnectorObject(SysProvisioningOperationDto provisioningOperation);
 	
 	/**
-	 * Handles failed operation (plans next attempt etc.)
+	 * Saves operation in new transaction
+	 * 
+	 * @param operation
+	 * @return
+	 * @since 9.6.0
+	 */
+	SysProvisioningOperationDto saveOperation(SysProvisioningOperationDto operation);
+	
+	/**
+	 * Deletes operation in new transaction
+	 * 
+	 * @param operation
+	 * @since 9.6.0 
+	 */
+	void deleteOperation(SysProvisioningOperationDto operation);
+	
+	/**
+	 * Handles failed operation (plans next attempt etc.).
+	 * Operation state is saved in new transaction @since 9.6.0. Don't forget to save operation states in new transaction too if needed.
 	 * 
 	 * @param operation
 	 * @param ex
 	 * @return
+	 * @see #saveOperation(SysProvisioningOperationDto)
 	 */
 	SysProvisioningOperationDto handleFailed(SysProvisioningOperationDto operation, Exception ex);
 	
 	/**
 	 * Called when operation succeeded. 
+	 * Operation state is saved in new transaction @since 9.6.0. Don't forget to save operation states in new transaction too if needed.
 	 * 
 	 * @param operation
 	 * @return
+	 * @see #saveOperation(SysProvisioningOperationDto)
 	 */
 	SysProvisioningOperationDto handleSuccessful(SysProvisioningOperationDto operation);
 	

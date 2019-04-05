@@ -68,14 +68,15 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
+		//
 		boolean closed = false;
 		if (system.isDisabled()) {
+			String uid = provisioningOperationService.getByProvisioningOperation(provisioningOperation).getUid();
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_DISABLED, 
 					ImmutableMap.of("name", uid, "system", system.getName()));
 			provisioningOperation.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 			//
-			provisioningOperation = provisioningOperationService.save(provisioningOperation);
+			provisioningOperation = provisioningOperationService.saveOperation(provisioningOperation);
 			//
 			LOG.info(resultModel.toString());
 			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()

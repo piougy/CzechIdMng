@@ -273,7 +273,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 				this.addToProcessedQueue(candidate, opResult);
 			}
 			LOG.debug("Statefull process [{}] intermediate result: [{}], count: [{}/{}]",
-					getClass().getSimpleName(), opResult, count, counter);
+					getClass().getSimpleName(), opResult.getState(), count, counter);
 			if (!continueOnException() && opResult.getException() != null) {
 				ResultCodeException resultCodeException;
 				if (opResult.getException() instanceof ResultCodeException) {

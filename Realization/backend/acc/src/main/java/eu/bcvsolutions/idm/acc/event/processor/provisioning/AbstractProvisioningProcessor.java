@@ -106,7 +106,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 		}
 		//
 		try {
-			provisioningOperation = provisioningOperationService.save(provisioningOperation);
+			provisioningOperation = provisioningOperationService.saveOperation(provisioningOperation);
 			// convert confidential string to guarded strings before provisioning realization
 			connectorObject = provisioningOperationService.getFullConnectorObject(provisioningOperation);
 			provisioningOperation.getProvisioningContext().setConnectorObject(connectorObject);
@@ -128,9 +128,9 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 				}
 			}
 			
-			provisioningOperationService.handleSuccessful(provisioningOperation);
+			provisioningOperation = provisioningOperationService.handleSuccessful(provisioningOperation);
 		} catch (Exception ex) {
-			provisioningOperationService.handleFailed(provisioningOperation, ex);
+			provisioningOperation = provisioningOperationService.handleFailed(provisioningOperation, ex);
 		}
 
 		// set operation back to content

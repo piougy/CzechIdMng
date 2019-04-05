@@ -436,7 +436,6 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			DateTime now = new DateTime();
 			//
 			// publish event
-			// publish event
 			provisioningExecutor.execute(provisioningOperation); // 1 - create
 			// is necessary to get again operation from service
 			SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
@@ -472,8 +471,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			// retry - expected success now
 			testProvisioningExceptionProcessor.setDisabled(true);
 			retryProvisioningTaskExecutor = new RetryProvisioningTaskExecutor();
-			result = longRunningTaskManager.executeSync(retryProvisioningTaskExecutor);
-			Assert.assertTrue(result);
+			longRunningTaskManager.execute(retryProvisioningTaskExecutor); // async way, but turned off
 			//
 			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 			Assert.assertFalse(systemEntity.isWish());

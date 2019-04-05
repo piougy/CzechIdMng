@@ -23,7 +23,6 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
-import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
@@ -37,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
@@ -90,73 +90,9 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		this.provisioningConfiguration = provisioningConfiguration;
 		this.systemEntityService = systemEntityService;
 	}
-	
-	/**
-	 * Persist new operation
-	 * 
-	 * @param provisioningOperation
-	 * @return
-	 */
-	private SysProvisioningOperationDto persistOperation(SysProvisioningOperationDto provisioningOperation) {
-		Assert.notNull(provisioningOperation);
-		Assert.notNull(provisioningOperation.getSystemEntity());
-		Assert.notNull(provisioningOperation.getProvisioningContext());
-		// get system from service, in provisioning operation may not exist
-		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
-		Assert.notNull(system);
-		provisioningOperation.getEmbedded().put(SysProvisioningOperation_.system.getName(), system); // make sure system will be in embedded
-		//
-		// save new operation to provisioning log / queue
-		String uid = systemEntityService.getByProvisioningOperation(provisioningOperation).getUid();
-		// look out - system entity uid can be changed - we need to use system entity id
-		SysProvisioningBatchDto batch = batchService.findBatch(provisioningOperation.getSystemEntity());
-		if (batch == null) {
-			// new batch
-			batch = batchService.save(new SysProvisioningBatchDto(provisioningOperation));
-			provisioningOperation.setResult(new OperationResult.Builder(OperationState.CREATED).build());
-		} else {
-			SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-			filter.setBatchId(batch.getId());
-			List<SysProvisioningOperationDto> activeOperations = provisioningOperationService
-					.find(filter, new PageRequest(0, 1, new Sort(Direction.DESC, SysProvisioningOperation_.created.getName())))
-					.getContent();
-			if (activeOperations.isEmpty()) {
-				// batch is completed (no operations in queue)
-				provisioningOperation.setResult(new OperationResult.Builder(OperationState.CREATED).build());			
-			} else {
-				// put to queue, if previous
-				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
-						ImmutableMap.of(
-								"name", uid, 
-								"system", system.getName(),
-								"operationType", provisioningOperation.getOperationType(),
-								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
-				LOG.debug(resultModel.toString());				
-				provisioningOperation.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
-				if (activeOperations.get(0).getResultState() == OperationState.RUNNING) { // the last operation = the first operation and it's running
-					// Retry date will be set for the second operation in the queue (the first is running). 
-					// Other operations will be executed automatically by batch.
-					provisioningOperation.setMaxAttempts(provisioningConfiguration.getRetryMaxAttempts());
-					batch.setNextAttempt(batchService.calculateNextAttempt(provisioningOperation));
-					batch = batchService.save(batch);
-				}
-				if (securityService.getCurrentId() != null) { // TODO: check logged identity and account owner
-					notificationManager.send(
-							AccModuleDescriptor.TOPIC_PROVISIONING,
-							new IdmMessageDto.Builder(NotificationLevel.WARNING)
-								.setModel(provisioningOperation.getResult().getModel())
-								.build());
-				}
-			}
-		}
-		provisioningOperation.setBatch(batch.getId());
-		provisioningOperation = provisioningOperationService.save(provisioningOperation);
-		//
-		return provisioningOperation;
-	}
 
 	@Override
-	@Transactional(noRollbackFor = ProvisioningException.class)
+	@Transactional
 	public synchronized void execute(SysProvisioningOperationDto provisioningOperation) {
 		//
 		// execute - after original transaction is commited
@@ -173,20 +109,28 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		}
 	}
 	
+	/**
+	 * Next processing is executed outside a transaction 
+	 * => operation states has to be saved in new transactions 
+	 * => rollback on the target system is not possible anyway
+	 */
 	@Override
-	@Transactional(noRollbackFor = ProvisioningException.class)
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public SysProvisioningOperationDto executeSync(SysProvisioningOperationDto provisioningOperation) {
 		return executeInternal(provisioningOperation);
 	}
 	
 	/**
 	 * We need to wait to transaction commit, when provisioning is executed - all accounts have to be prepared.
+	 * Next processing is executed outside a transaction 
+	 * => operation states has to be saved in new transactions 
+	 * => rollback on the target system is not possible anyway
 	 * 
 	 * @param provisioningOperation
 	 * @return
 	 */
 	@TransactionalEventListener
-	@Transactional(noRollbackFor = ProvisioningException.class, propagation = Propagation.REQUIRES_NEW)
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public synchronized SysProvisioningOperationDto executeInternal(SysProvisioningOperationDto provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		Assert.notNull(provisioningOperation.getSystemEntity());
@@ -201,9 +145,10 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		//
 		CoreEvent<SysProvisioningOperationDto> event = new CoreEvent<SysProvisioningOperationDto>(provisioningOperation.getOperationType(), provisioningOperation);
 		try {
-			EventContext<SysProvisioningOperationDto> context = entityEventManager.process(event);		
+			EventContext<SysProvisioningOperationDto> context = entityEventManager.process(event);
+			//
 			return context.getContent();
-		} catch (ProvisioningException ex) { // TODO: result code exceptions? or all exceptions?
+		} catch (Exception ex) {
 			return provisioningOperationService.handleFailed(provisioningOperation, ex);
 		}
 	}
@@ -217,7 +162,13 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		return context.getContent();
 	}
 
+	/**
+	 * Next processing is executed outside a transaction 
+	 * => operation states has to be saved in new transactions 
+	 * => rollback on the target system is not possible anyway
+	 */
 	@Override
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public synchronized OperationResult execute(SysProvisioningBatchDto batch) {
 		Assert.notNull(batch);
 		batch = batchService.get(batch.getId());
@@ -273,5 +224,72 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	@Override
 	public ProvisioningConfiguration getConfiguration() {
 		return provisioningConfiguration;
+	}
+	
+	/**
+	 * Persist new operation - assign appropriate batch. Operation is put into queue, if it's already in the queue
+	 * 
+	 * @param provisioningOperation
+	 * @return
+	 */
+	private SysProvisioningOperationDto persistOperation(SysProvisioningOperationDto provisioningOperation) {
+		Assert.notNull(provisioningOperation);
+		Assert.notNull(provisioningOperation.getSystemEntity());
+		Assert.notNull(provisioningOperation.getProvisioningContext());
+		// get system from service, in provisioning operation may not exist
+		SysSystemDto system = DtoUtils.getEmbedded(provisioningOperation, SysProvisioningOperation_.system, (SysSystemDto) null);
+		if (system == null) { 
+			system = systemService.get(provisioningOperation.getSystem());
+		}
+		Assert.notNull(system);
+		provisioningOperation.getEmbedded().put(SysProvisioningOperation_.system.getName(), system); // make sure system will be in embedded - optimize
+		//
+		// save new operation to provisioning log / queue
+		String uid = systemEntityService.getByProvisioningOperation(provisioningOperation).getUid();
+		// look out - system entity uid can be changed - we need to use system entity id
+		SysProvisioningBatchDto batch = batchService.findBatch(provisioningOperation.getSystemEntity());
+		if (batch == null) {
+			// new batch
+			batch = batchService.save(new SysProvisioningBatchDto(provisioningOperation));
+			provisioningOperation.setResult(new OperationResult.Builder(OperationState.CREATED).build());
+		} else {
+			SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+			filter.setBatchId(batch.getId());
+			List<SysProvisioningOperationDto> activeOperations = provisioningOperationService
+					.find(filter, new PageRequest(0, 1, new Sort(Direction.DESC, SysProvisioningOperation_.created.getName())))
+					.getContent();
+			if (activeOperations.isEmpty()) {
+				// batch is completed (no operations in queue)
+				provisioningOperation.setResult(new OperationResult.Builder(OperationState.CREATED).build());			
+			} else {
+				// put to queue, if previous
+				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
+						ImmutableMap.of(
+								"name", uid, 
+								"system", system.getName(),
+								"operationType", provisioningOperation.getOperationType(),
+								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
+				LOG.debug(resultModel.toString());				
+				provisioningOperation.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
+				if (activeOperations.get(0).getResultState() == OperationState.RUNNING) { // the last operation = the first operation and it's running
+					// Retry date will be set for the second operation in the queue (the first is running). 
+					// Other operations will be executed automatically by batch.
+					provisioningOperation.setMaxAttempts(provisioningConfiguration.getRetryMaxAttempts());
+					batch.setNextAttempt(batchService.calculateNextAttempt(provisioningOperation));
+					batch = batchService.save(batch);
+				}
+				if (securityService.getCurrentId() != null) { // TODO: check logged identity and account owner
+					notificationManager.send(
+							AccModuleDescriptor.TOPIC_PROVISIONING,
+							new IdmMessageDto.Builder(NotificationLevel.WARNING)
+								.setModel(provisioningOperation.getResult().getModel())
+								.build());
+				}
+			}
+		}
+		provisioningOperation.setBatch(batch.getId());
+		provisioningOperation = provisioningOperationService.save(provisioningOperation);
+		//
+		return provisioningOperation;
 	}
 }

@@ -198,11 +198,11 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					"Preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed",
 					provisioningOperation.getOperationType(), uid, objectClass.getType());
 			// set back to event content
-			provisioningOperation = provisioningOperationService.save(provisioningOperation);
+			provisioningOperation = provisioningOperationService.saveOperation(provisioningOperation);
 			event.setContent(provisioningOperation);
 			return new DefaultEventResult<>(event, this);
 		} catch (Exception ex) {
-			provisioningOperationService.handleFailed(provisioningOperation, ex);
+			provisioningOperation = provisioningOperationService.handleFailed(provisioningOperation, ex);
 			// set back to event content
 			event.setContent(provisioningOperation);
 			return new DefaultEventResult<>(event, this, true);

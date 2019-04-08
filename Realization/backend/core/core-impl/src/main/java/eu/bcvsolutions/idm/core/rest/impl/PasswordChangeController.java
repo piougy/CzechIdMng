@@ -104,7 +104,7 @@ public class PasswordChangeController {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 		}
 		// we need to login as identity, if no one is logged in
-		try{
+		try {
 			if (!securityService.isAuthenticated()) {
 				LoginDto loginDto = new LoginDto();
 				loginDto.setSkipMustChange(true);

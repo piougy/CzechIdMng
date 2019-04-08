@@ -48,6 +48,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -310,6 +311,13 @@ public class DefaultIdmIdentityService
 				}
 			});
 		});
+		// logging
+		passwordChangeResults
+			.values()
+			.stream()
+			.forEach(result -> {
+				ExceptionUtils.log(LOG, result.getModel(), result.getException());
+			});
 		return new ArrayList<>(passwordChangeResults.values());
 	}
 	

@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 
 /**
@@ -45,14 +46,8 @@ public class ExceptionControllerAdvice {
 	
 	@ExceptionHandler(ResultCodeException.class)
     ResponseEntity<ResultModels> handle(ResultCodeException ex) {
-		if (ex.getStatus().is5xxServerError()) {
-			LOG.error("[" + ex.getId() + "] ", ex);
-		} else if(ex.getStatus().is2xxSuccessful()) {
-			// nothing
-			// TODO: refactor restApplicationException to different types or reimplement 2xx event throwing mechanism
-		} else {
-			LOG.warn("[" + ex.getId() + "] ", ex);
-		}
+		ExceptionUtils.log(LOG, ex);
+		//
 		return new ResponseEntity<>(ex.getError(), new HttpHeaders(), ex.getStatus());
 	}
 	

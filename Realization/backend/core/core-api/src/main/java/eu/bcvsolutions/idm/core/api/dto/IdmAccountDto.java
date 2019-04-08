@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -91,5 +92,10 @@ public class IdmAccountDto implements BaseDto {
 
 	public void setSystemName(String systemName) {
 		this.systemName = systemName;
+	}
+	
+	@Override
+	public String toString() {
+		return MessageFormat.format("Account [id={0}] [uid={1}] [realUid={2}] [systemName={3}]", getId(), uid, realUid, systemName);
 	}
 }

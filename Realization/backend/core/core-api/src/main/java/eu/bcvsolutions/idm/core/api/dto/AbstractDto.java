@@ -260,10 +260,10 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 			String code = ((Codeable) this).getCode();
 			if (!Strings.isNullOrEmpty(code)) {
 				// TODO: e.g. "username" in logs can be dangerous ...
-				return MessageFormat.format("{0} [code= {1}]", getClass().getCanonicalName(), code);
+				return MessageFormat.format("{0} [code={1}]", getClass().getCanonicalName(), code);
 			}
 		}
-		return MessageFormat.format("{0} [id= {1}]", getClass().getCanonicalName(), getId());
+		return MessageFormat.format("{0} [id={1}]", getClass().getCanonicalName(), getId());
 	}
 
 	@Override

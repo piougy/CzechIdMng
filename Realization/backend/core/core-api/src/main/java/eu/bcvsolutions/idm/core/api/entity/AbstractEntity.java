@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -266,7 +267,7 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	 */
 	@Override
 	public String toString() {
-		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
+		return MessageFormat.format("{0} [id={1}]", getClass().getCanonicalName(), getId());
 	}
 
 	/**

@@ -592,7 +592,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	}
 	
 	@Test
-	public void testRemoveRunningEnvent() {
+	public void testRemoveRunningEvent() {
 		try {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 			getHelper().disable(EntityEventDeleteExecutedProcessor.class);
@@ -673,7 +673,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			//
 			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
 			//
-			// end running event on backgroud
+			// end running event on background
 			NeverEndingProcessor.wait = false;
 			// just for sure
 			Assert.assertFalse(manager.isRunningOwner(identity.getId()));

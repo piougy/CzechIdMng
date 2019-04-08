@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
@@ -255,7 +256,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 								"processor", getName()));
 			}
 			//
-			LOG.error(resultModel.toString(), ex);
+			ExceptionUtils.log(LOG, resultModel, ex);
 			//
 			if (eventId != null) {
 				//

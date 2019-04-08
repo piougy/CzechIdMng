@@ -358,6 +358,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Confirm ref="confirm-task-run" level="success"/>
         <Basic.Confirm ref="confirm-task-dry-run" level="info"/>
+        <Basic.Confirm ref="confirm-task-run" level=""/>
 
         <Advanced.Table
           ref="table"
@@ -634,6 +635,14 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   label={ this.i18n('entity.SchedulerTask.trigger.fireTime') }
                   hidden={ triggerType !== 'SIMPLE' }
                   required={ triggerType === 'SIMPLE' }/>
+
+                {/* NAHRADIT ZA KOMPONENTU GUI NAD CRONEM! */}
+                <Advanced.CronTab
+                  ref="fireTime"
+                  label={ this.i18n('entity.SchedulerTask.trigger.fireTime') }
+                  hidden={ triggerType !== 'ADVANCED' }
+                  required={ triggerType === 'ADVANCED' }/>
+
                 <Basic.TextField
                   ref="cron"
                   label={ this.i18n('entity.SchedulerTask.trigger.cron.label') }

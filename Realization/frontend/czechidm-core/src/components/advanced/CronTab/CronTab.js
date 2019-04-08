@@ -7,12 +7,16 @@ import AbstractComponent from '../../basic/AbstractComponent/AbstractComponent';
 
 class CronTab extends AbstractComponent {
 
+  getContentKey() {
+    return 'content.scheduler.schedule-tasks';
+  }
+
   constructor(props) {
     super(props);
   }
 
     render() {
-      const { style, showLoading, rendered } = this.props;
+      const { style, showLoading, rendered, hidden, required } = this.props;
       if (!rendered) {
         return null;
       }
@@ -22,7 +26,22 @@ class CronTab extends AbstractComponent {
         );
       }
       return (
-        <div/>
+        // posunout hidden do ScheduleTasks
+        <div
+          hidden={ hidden }>
+          <Basic.DateTimePicker
+            ref="fireTime"
+            label={ "ahoj" }
+            // hidden={ hidden }
+            // required={ triggerType === 'ADVANCED' }
+            />
+          <Basic.DateTimePicker
+            ref="fireTime"
+            // label={ this.i18n('entity.SchedulerTask.trigger.fireTime') }
+            // hidden={ hidden }
+            // required={ triggerType === 'ADVANCED' }
+            />
+        </div>
       );
     }
 }

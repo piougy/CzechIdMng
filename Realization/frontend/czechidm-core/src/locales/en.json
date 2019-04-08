@@ -734,6 +734,7 @@
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
+      "ADVANCED": "Repeated start",
       "CRON": "Cron",
       "DEPENDENT": "Other task"
     },

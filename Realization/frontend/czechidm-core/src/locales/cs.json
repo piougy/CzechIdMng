@@ -765,6 +765,7 @@
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
+      "ADVANCED": "Opakované spuštění",
       "CRON": "Cron",
       "DEPENDENT": "Jiná úloha"
     },

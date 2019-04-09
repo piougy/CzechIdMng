@@ -41,7 +41,8 @@ class Button extends AbstractComponent {
       style,
       onClick,
       onDoubleClick,
-      icon
+      icon,
+      tabIndex
     } = this.props;
     //
     if (!rendered) {
@@ -69,7 +70,8 @@ class Button extends AbstractComponent {
             className={ classNames }
             style={ style }
             onClick={ onClick }
-            onDoubleClick={ onDoubleClick }>
+            onDoubleClick={ onDoubleClick }
+            tabIndex={ tabIndex }>
             {
               showLoading
               ?

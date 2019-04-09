@@ -365,11 +365,11 @@ class AbstractFormComponent extends AbstractContextComponent {
         validationClass = this.getValidationResult().class;
       }
       if (this.state.showValidationError && this.getValidationResult().status === 'error') {
-        feedback = <Icon icon="warning-sign" className="form-control-feedback" style={{zIndex: 0}} />;
+        feedback = <Icon icon="warning-sign" className="form-control-feedback" />;
       }
     }
     if (validationErrors && validationErrors.length > 0) {
-      feedback = <Icon icon="warning-sign" className="form-control-feedback" style={ {zIndex: 0 }} />;
+      feedback = <Icon icon="warning-sign" className="form-control-feedback" />;
       validationClass = 'has-error has-feedback';
     }
     return (

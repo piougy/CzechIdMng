@@ -391,6 +391,14 @@
       "TextField": {
         "confidential": {
           "edit": "Nastavit novou hodnotu"
+        },
+        "password": {
+          "show": {
+            "title": "Zobrazit heslo"
+          },
+          "hide": {
+            "title": "Skrýt heslo"
+          }
         }
       }
     },

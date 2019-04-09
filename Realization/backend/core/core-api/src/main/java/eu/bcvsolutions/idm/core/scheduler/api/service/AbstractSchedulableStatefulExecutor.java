@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.exception.DryRunNotSupportedException;
@@ -162,7 +163,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	}
 
 	private void executeProcess() {
-		Set<UUID> retrievedRefs = new HashSet<>();
+		Set<UUID> processedRefs = new HashSet<>();
 		//
 		int page = 0;
 		boolean canContinue = true;
@@ -180,8 +181,12 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 				Assert.notNull(candidate);
 				Assert.notNull(candidate.getId());
 				//
-				retrievedRefs.add(candidate.getId());
-				processCandidate(candidate, dryRun);
+				Optional<OperationResult> result = processCandidate(candidate, dryRun);
+				if (!result.isPresent() 
+						|| result.get().getState().isSuccessful() // executed
+						|| result.get().getState().isRunnable()) { // running (e.q. asynchronously)
+					processedRefs.add(candidate.getId());
+				}
  				canContinue &= this.updateState();
  				//
  				// flush and clear session - if LRT is wrapped in parent transaction, we need to clear it
@@ -195,27 +200,34 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			//
 		} while (canContinue);
 		//
-		List<UUID> queueEntityRefs = Lists.newArrayList(this.getProcessedItemRefsFromQueue());
-		queueEntityRefs.removeAll(retrievedRefs);
-		queueEntityRefs.forEach(entityRef -> this.removeFromProcessedQueue(entityRef));
+		// check task was not canceled or interrupted, then clean history
+		// task is not ended yet - running is the correct state in this phase
+		IdmLongRunningTaskDto task = longRunningTaskService.get(getLongRunningTaskId());
+		if (task.getResultState().isSuccessful() // executed (set manually somehow ... just for sure)
+				|| task.getResultState().isRunnable()) { // running is the correct state in this phase
+			List<UUID> queueEntityRefs = Lists.newArrayList(this.getProcessedItemRefsFromQueue());
+			// processed should remain in history (is not related to whole task is canceled)
+			queueEntityRefs.removeAll(processedRefs);
+			queueEntityRefs.forEach(entityRef -> this.removeFromProcessedQueue(entityRef));
+		}
 	}
 	
 	private Session getHibernateSession() {
 		return (Session) this.entityManager.getDelegate();
 	}
 
-	private void processCandidate(DTO candidate, boolean dryRun) {
+	private Optional<OperationResult> processCandidate(DTO candidate, boolean dryRun) {
 		if (isInProcessedQueue(candidate)) {
 			// item was processed earlier - just drop the count by one
 			// FIXME: this is confusing => task ends with 0 count, if all items are skipped (processed before)
 			--count;
-			return;
+			return Optional.empty();
 		}
 		//
 		if (requireNewTransaction()) {
-			this.processItemInternalNewTransaction(candidate, dryRun);
+			return this.processItemInternalNewTransaction(candidate, dryRun);
 		} else {
-			this.processItemInternal(candidate, dryRun);
+			return this.processItemInternal(candidate, dryRun);
 		}
 	}
 	

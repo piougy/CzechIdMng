@@ -55,7 +55,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmProcessedTaskItemService itemService;
 	@Autowired private IdmScheduledTaskService scheduledTaskService;
-	@Autowired private IdmLongRunningTaskService longRunningService;
+	@Autowired private IdmLongRunningTaskService longRunningTaskService;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	
 	/**
@@ -80,11 +80,11 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 	 */
 	@Test
 	public void testExecute() throws Exception {
-		TestIdenityIntegrationExecutor executor = new TestIdenityIntegrationExecutor();
+		TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
 		AutowireHelper.autowire(executor);
 		// manually prepare control entities - normally scheduler will take care of it itself
 		IdmScheduledTaskDto scheduledTask = createIdmScheduledTask(UUID.randomUUID().toString());
-		IdmLongRunningTaskDto longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdenityIntegrationExecutor.class);
+		IdmLongRunningTaskDto longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
 		executor.setLongRunningTaskId(longRunningTask.getId());
 		// first run
 		List<IdmIdentityDto> itemsToProcess = findTestIdentities();
@@ -106,7 +106,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		//
 		// second run
 		//
-		longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdenityIntegrationExecutor.class);
+		longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
 		executor.setLongRunningTaskId(longRunningTask.getId());
 		executor.dtos = itemsToProcess;
 		//
@@ -123,12 +123,13 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		//
 		// third run
 		//
-		longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdenityIntegrationExecutor.class);
+		longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
 		executor.setLongRunningTaskId(longRunningTask.getId());
 		//
 		result = executor.process();
 		queueItems = itemService.findQueueItems(scheduledTask, null);
 		logItems = itemService.findLogItems(longRunningTask, null);
+		longRunningTask = longRunningTaskManager.getLongRunningTask(longRunningTask.getId());
 		//
 		assertTrue(result);
 		assertEquals(0, queueItems.getTotalElements());
@@ -161,7 +162,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 	public void testNotContinueWithoutRequiresNew() throws Exception {
 		List<IdmIdentityDto> identities = createTestIdentities(3);
 		//
-		TestIdenityIntegrationExecutor executor = new TestIdenityIntegrationExecutor();
+		TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
 		executor.dtos = identities;
 		executor.continueOnException = false;
 		executor.requireNewTransaction = false;
@@ -181,7 +182,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			// nothing
 		}
 		//
-		IdmLongRunningTaskDto taskDto = longRunningService.get(executor.getLongRunningTaskId());
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
 		Assert.assertEquals(3, taskDto.getCount().intValue());
 		Assert.assertEquals(1, taskDto.getSuccessItemCount().intValue());
 		Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -199,7 +200,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		try {
 			List<IdmIdentityDto> identities = createTestIdentities(3);
 			//
-			TestIdenityIntegrationExecutor executor = new TestIdenityIntegrationExecutor();
+			TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
 			executor.dtos = identities;
 			executor.continueOnException = false;
 			executor.requireNewTransaction = false;
@@ -213,7 +214,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			};
 			getHelper().waitForResult(continueFunction);
 			//
-			IdmLongRunningTaskDto taskDto = longRunningService.get(executor.getLongRunningTaskId());
+			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
 			Assert.assertEquals(3, taskDto.getCount().intValue());
 			Assert.assertEquals(1, taskDto.getSuccessItemCount().intValue());
 			Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -228,7 +229,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 	public void testContinueWithoutRequiresNew() throws Exception {
 		List<IdmIdentityDto> identities = createTestIdentities(3);
 		//
-		TestIdenityIntegrationExecutor executor = new TestIdenityIntegrationExecutor();
+		TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
 		executor.dtos = identities;
 		executor.continueOnException = true;
 		executor.requireNewTransaction = false;
@@ -248,7 +249,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			// nothing
 		}
 		//
-		IdmLongRunningTaskDto taskDto = longRunningService.get(executor.getLongRunningTaskId());
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
 		Assert.assertEquals(3, taskDto.getCount().intValue());
 		Assert.assertEquals(2, taskDto.getSuccessItemCount().intValue());
 		Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -266,7 +267,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		try {
 			List<IdmIdentityDto> identities = createTestIdentities(3);
 			//
-			TestIdenityIntegrationExecutor executor = new TestIdenityIntegrationExecutor();
+			TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
 			executor.dtos = identities;
 			executor.continueOnException = true;
 			executor.requireNewTransaction = false;
@@ -280,7 +281,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			};
 			getHelper().waitForResult(continueFunction);
 			//
-			IdmLongRunningTaskDto taskDto = longRunningService.get(executor.getLongRunningTaskId());
+			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
 			Assert.assertEquals(3, taskDto.getCount().intValue());
 			Assert.assertEquals(2, taskDto.getSuccessItemCount().intValue());
 			Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -295,7 +296,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 	public void testNotContinueWithRequiresNew() throws Exception {
 		List<IdmIdentityDto> identities = createTestIdentities(3);
 		//
-		TestIdenityIntegrationExecutor executor = new TestIdenityIntegrationExecutor();
+		TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
 		executor.dtos = identities;
 		executor.continueOnException = false;
 		executor.requireNewTransaction = true;
@@ -315,7 +316,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			// nothing
 		}
 		//
-		IdmLongRunningTaskDto taskDto = longRunningService.get(executor.getLongRunningTaskId());
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
 		Assert.assertEquals(3, taskDto.getCount().intValue());
 		Assert.assertEquals(1, taskDto.getSuccessItemCount().intValue());
 		Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -331,7 +332,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		try {
 			List<IdmIdentityDto> identities = createTestIdentities(3);
 			//
-			TestIdenityIntegrationExecutor executor = new TestIdenityIntegrationExecutor();
+			TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
 			executor.dtos = identities;
 			executor.continueOnException = false;
 			executor.requireNewTransaction = true;
@@ -345,7 +346,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			};
 			getHelper().waitForResult(continueFunction);
 			//
-			IdmLongRunningTaskDto taskDto = longRunningService.get(executor.getLongRunningTaskId());
+			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
 			Assert.assertEquals(3, taskDto.getCount().intValue());
 			Assert.assertEquals(1, taskDto.getSuccessItemCount().intValue());
 			Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -360,7 +361,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 	public void testContinueWithRequiresNew() throws Exception {
 		List<IdmIdentityDto> identities = createTestIdentities(3);
 		//
-		TestIdenityIntegrationExecutor executor = new TestIdenityIntegrationExecutor();
+		TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
 		executor.dtos = identities;
 		executor.continueOnException = true;
 		executor.requireNewTransaction = true;
@@ -380,7 +381,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			// nothing
 		}
 		//
-		IdmLongRunningTaskDto taskDto = longRunningService.get(executor.getLongRunningTaskId());
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
 		Assert.assertEquals(3, taskDto.getCount().intValue());
 		Assert.assertEquals(2, taskDto.getSuccessItemCount().intValue());
 		Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -396,7 +397,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		try {
 			List<IdmIdentityDto> identities = createTestIdentities(3);
 			//
-			TestIdenityIntegrationExecutor executor = new TestIdenityIntegrationExecutor();
+			TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
 			executor.dtos = identities;
 			executor.continueOnException = true;
 			executor.requireNewTransaction = true;
@@ -410,7 +411,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			};
 			getHelper().waitForResult(continueFunction);
 			//
-			IdmLongRunningTaskDto taskDto = longRunningService.get(executor.getLongRunningTaskId());
+			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
 			Assert.assertEquals(3, taskDto.getCount().intValue());
 			Assert.assertEquals(2, taskDto.getSuccessItemCount().intValue());
 			Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -421,7 +422,141 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		}
 	}
 	
+	@Test
+	public void testDontRemoveProcessedQueueOnCancel() throws Exception {
+		TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
+		AutowireHelper.autowire(executor);
+		// manually prepare control entities - normally scheduler will take care of it itself
+		IdmScheduledTaskDto scheduledTask = createIdmScheduledTask(UUID.randomUUID().toString());
+		IdmLongRunningTaskDto longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
+		executor.setLongRunningTaskId(longRunningTask.getId());
+		// first run
+		List<IdmIdentityDto> itemsToProcess = findTestIdentities();
+		// set executor data
+		executor.dtos = itemsToProcess;
+		//
+		Boolean result = executor.process();
+		Page<IdmProcessedTaskItemDto> queueItems = itemService.findQueueItems(scheduledTask, null);
+		Page<IdmProcessedTaskItemDto> logItems = itemService.findLogItems(longRunningTask, null);
+		//
+		assertTrue(result);
+		assertEquals(longRunningTask.getScheduledTask(), scheduledTask.getId());
+		assertEquals(itemsToProcess.size(), queueItems.getTotalElements());
+		assertEquals(itemsToProcess.size(), logItems.getTotalElements());
+		assertEquals(Long.valueOf(itemsToProcess.size()), executor.getCount());
+		assertEquals(Long.valueOf(itemsToProcess.size()), executor.getCounter());
+		SchedulerTestUtils.checkLogItems(longRunningTask, IdmIdentityDto.class, logItems);
+		SchedulerTestUtils.checkQueueItems(scheduledTask, IdmIdentityDto.class, queueItems);
+		//
+		// second run
+		//
+		longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
+		executor.setLongRunningTaskId(longRunningTask.getId());
+		executor.dtos = itemsToProcess;
+		//
+		result = executor.process();
+		queueItems = itemService.findQueueItems(scheduledTask, null);
+		logItems = itemService.findLogItems(longRunningTask, null);
+		//
+		assertTrue(result);
+		assertEquals(itemsToProcess.size(), queueItems.getTotalElements());
+		assertEquals(0, logItems.getTotalElements());
+		assertEquals(Long.valueOf(0), executor.getCount());
+		assertEquals(Long.valueOf(0), executor.getCounter());
+		//
+		// third run with cancel
+		//
+		longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
+		executor.setLongRunningTaskId(longRunningTask.getId());
+		executor.dtos = itemsToProcess;
+		executor.cancel = true;
+		//
+		result = executor.process();
+		queueItems = itemService.findQueueItems(scheduledTask, null);
+		logItems = itemService.findLogItems(longRunningTask, null);
+		longRunningTask = longRunningTaskManager.getLongRunningTask(longRunningTask.getId());
+		//
+		assertTrue(result);
+		assertEquals(itemsToProcess.size(), queueItems.getTotalElements());
+		assertEquals(0, logItems.getTotalElements());
+		//
+		// four run after cancel
+		//
+		longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
+		executor.setLongRunningTaskId(longRunningTask.getId());
+		executor.dtos = itemsToProcess;
+		executor.cancel = false;
+		//
+		result = executor.process();
+		queueItems = itemService.findQueueItems(scheduledTask, null);
+		logItems = itemService.findLogItems(longRunningTask, null);
+		longRunningTask = longRunningTaskManager.getLongRunningTask(longRunningTask.getId());
+		//
+		assertTrue(result);
+		assertEquals(longRunningTask.getScheduledTask(), scheduledTask.getId());
+		assertEquals(itemsToProcess.size(), queueItems.getTotalElements());
+		assertEquals(0, logItems.getTotalElements());
+		//
+		// five run with empty dtos - clear the queure
+		longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
+		executor.setLongRunningTaskId(longRunningTask.getId());
+		//
+		result = executor.process();
+		queueItems = itemService.findQueueItems(scheduledTask, null);
+		logItems = itemService.findLogItems(longRunningTask, null);
+		longRunningTask = longRunningTaskManager.getLongRunningTask(longRunningTask.getId());
+		//
+		assertTrue(result);
+		assertEquals(0, queueItems.getTotalElements());
+		assertEquals(0, logItems.getTotalElements());
+	}
+	
+	@Test
+	public void testDontRepeatProcessedItemOnCancel() throws Exception {
+		TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
+		AutowireHelper.autowire(executor);
+		// manually prepare control entities - normally scheduler will take care of it itself
+		IdmScheduledTaskDto scheduledTask = createIdmScheduledTask(UUID.randomUUID().toString());
+		IdmLongRunningTaskDto longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
+		executor.setLongRunningTaskId(longRunningTask.getId());
+		// first run
+		List<IdmIdentityDto> itemsToProcess = findTestIdentities();
+		// set executor data
+		executor.dtos = itemsToProcess;
+		executor.cancel = true;
+		//
+		Boolean result = executor.process();
+		Page<IdmProcessedTaskItemDto> queueItems = itemService.findQueueItems(scheduledTask, null);
+		Page<IdmProcessedTaskItemDto> logItems = itemService.findLogItems(longRunningTask, null);
+		//
+		assertTrue(result);
+		assertEquals(longRunningTask.getScheduledTask(), scheduledTask.getId());
+		assertEquals(1, queueItems.getTotalElements());
+		assertEquals(1, logItems.getTotalElements());
+		assertEquals(Long.valueOf(itemsToProcess.size()), executor.getCount());
+		assertEquals(Long.valueOf(1), executor.getCounter());
+		//
+		// second run
+		//
+		longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
+		executor.setLongRunningTaskId(longRunningTask.getId());
+		executor.dtos = itemsToProcess;
+		executor.cancel = false;
+		//
+		result = executor.process();
+		queueItems = itemService.findQueueItems(scheduledTask, null);
+		logItems = itemService.findLogItems(longRunningTask, null);
+		//
+		assertTrue(result);
+		assertEquals(itemsToProcess.size(), queueItems.getTotalElements());
+		assertEquals(itemsToProcess.size() -1, logItems.getTotalElements());
+		assertEquals(Long.valueOf(itemsToProcess.size() - 1), executor.getCount());
+		assertEquals(Long.valueOf(itemsToProcess.size() - 1), executor.getCounter());
+		SchedulerTestUtils.checkQueueItems(scheduledTask, IdmIdentityDto.class, queueItems);
+	}
+	
 	private List<IdmIdentityDto> findTestIdentities() {
+		// FIXME: prepare new identities instead ... 
 		return identityService.find(null, new PageRequest(0, 10)).getContent();
 	}
 	
@@ -440,10 +575,10 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 
 	private IdmLongRunningTaskDto createIdmLongRunningTask(IdmScheduledTaskDto taskDto,
 			Class<? extends SchedulableTaskExecutor<Boolean>> clazz) {
-		return longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(taskDto, clazz));
+		return longRunningTaskService.save(SchedulerTestUtils.createIdmLongRunningTask(taskDto, clazz));
 	}
 	
-	private static class TestIdenityIntegrationExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityDto> {
+	private static class TestIdentityIntegrationExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityDto> {
 		
 		@Autowired private IdmIdentityService identityService;
 		//
@@ -452,6 +587,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		private boolean requireNewTransaction;
 		private Integer exceptionOnItem = null;
 		private String changeLastName = null;
+		private boolean cancel = false; 
 		
 		@Override
 		public boolean continueOnException() {
@@ -480,6 +616,9 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			if (changeLastName != null) {
 				dto.setLastName(changeLastName);
 				identityService.save(dto);
+			}
+			if (cancel) {
+				longRunningTaskManager.cancel(getLongRunningTaskId());
 			}
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}	

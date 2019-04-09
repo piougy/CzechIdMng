@@ -16,7 +16,7 @@ public enum OperationState {
 	CANCELED; // canceled by some reason (administrator etc.)
 
 	/**
-	 * Returns true, when task could ran
+	 * Returns true, when task could ran (created) or running
 	 *
 	 * @param state
 	 * @return
@@ -25,14 +25,31 @@ public enum OperationState {
 		return CREATED == state || RUNNING == state;
 	}
 
+	/**
+	 * ~Executed
+	 * 
+	 * @param state
+	 * @return
+	 */
 	public static boolean isSuccessful(OperationState state) {
 		return EXECUTED == state;
 	}
 	
+	/**
+	 * Returns true, when task could ran (created) or running
+	 *
+	 * @param state
+	 * @return
+	 */
 	public boolean isRunnable() {
 		return isRunnable(this);
 	}
 	
+	/**
+	 * ~Executed
+	 * 
+	 * @return
+	 */
 	public boolean isSuccessful() {
 		return isSuccessful(this);
 	}

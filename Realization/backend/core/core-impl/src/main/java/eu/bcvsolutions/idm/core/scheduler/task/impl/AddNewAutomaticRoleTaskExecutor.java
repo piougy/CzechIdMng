@@ -67,6 +67,12 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	}
 	
 	@Override
+	public boolean isInProcessedQueue(IdmIdentityContractDto dto) {
+		// we want to log items, but we want to execute them every times
+		return false;
+	}
+	
+	@Override
 	public Page<IdmIdentityContractDto> getItemsToProcess(Pageable pageable) {
 		List<IdmIdentityContractDto> contracts = identityContractService
 				.findAllByWorkPosition(getRoleTreeNode().getTreeNode(), getRoleTreeNode().getRecursionType());

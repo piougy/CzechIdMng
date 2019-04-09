@@ -78,6 +78,12 @@ public class AddNewAutomaticRoleForPositionTaskExecutor extends AbstractSchedula
 	}
 	
 	@Override
+	public boolean isInProcessedQueue(IdmContractPositionDto dto) {
+		// we want to log items, but we want to execute them every times
+		return false;
+	}
+	
+	@Override
 	public Optional<OperationResult> processItem(IdmContractPositionDto contractPosition) {
 		IdmIdentityContractDto contract = DtoUtils.getEmbedded(contractPosition, IdmContractPosition_.identityContract);
 		//

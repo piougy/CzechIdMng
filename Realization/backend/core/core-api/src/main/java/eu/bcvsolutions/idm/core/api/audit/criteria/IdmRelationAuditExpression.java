@@ -23,10 +23,10 @@ public class IdmRelationAuditExpression implements AuditCriterion {
 	private final String leftPropertyName;
 	private final String op;
 	
-	public IdmRelationAuditExpression(String leftPropertyNamel, String opl, String rightPropertyNamel) {
-		this.leftPropertyName = leftPropertyNamel;
-		this.op = opl;
-		this.rightPropertyName = rightPropertyNamel;
+	public IdmRelationAuditExpression(String leftPropertyName, String op, String rightPropertyName) {
+		this.leftPropertyName = leftPropertyName;
+		this.op = op;
+		this.rightPropertyName = rightPropertyName;
 	}
 
 	@Override

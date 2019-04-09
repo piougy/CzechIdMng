@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  * Entity that store identities passwords in hash.
  * Only password isn't audited.
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 @Entity
@@ -65,6 +65,10 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 	@Audited
 	@Column(name = "block_login_date")
 	private DateTime blockLoginDate;
+
+	@Audited
+	@Column(name = "password_never_expires")
+	private boolean passwordNeverExpires = false;
 	
 	public DateTime getBlockLoginDate() {
 		return blockLoginDate;
@@ -165,4 +169,13 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 	public String getSubOwnerType() {
 		return IdmPassword.class.getName();
 	}
+
+	public boolean isPasswordNeverExpires() {
+		return passwordNeverExpires;
+	}
+
+	public void setPasswordNeverExpires(boolean passwordNeverExpires) {
+		this.passwordNeverExpires = passwordNeverExpires;
+	}
+
 }

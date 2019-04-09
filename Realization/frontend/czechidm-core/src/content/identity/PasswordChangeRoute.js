@@ -10,8 +10,8 @@ export default class PasswordChange extends Basic.AbstractContent {
     this.componentService = new ComponentService();
   }
 
-  getNavigationKey() {
-    return 'profile-password';
+  componentDidMount() {
+    this.selectNavigationItems(['identities', 'identity-profile', 'profile-password', 'profile-password-change']);
   }
 
   render() {

@@ -34,7 +34,6 @@ import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -93,7 +92,6 @@ public class DefaultIdmIdentityService
 	private final EntityEventManager entityEventManager;
 	private final RoleConfiguration roleConfiguration;
 	private final IdmIdentityContractService identityContractService;
-	private final IdmPasswordService passwordService;
 	private final TokenManager tokenManager;
 	
 	@Autowired
@@ -105,6 +103,7 @@ public class DefaultIdmIdentityService
 			TokenManager tokenManager,
 			RoleConfiguration roleConfiguration,
 			IdmIdentityContractService identityContractService,
+			// @since 9.6.0 is IdmPasswordService in for backward compatibility
 			IdmPasswordService passwordService) {
 		super(repository, entityEventManager, formService);
 		//
@@ -112,7 +111,6 @@ public class DefaultIdmIdentityService
 		Assert.notNull(entityEventManager);
 		Assert.notNull(roleConfiguration);
 		Assert.notNull(identityContractService);
-		Assert.notNull(passwordService);
 		Assert.notNull(tokenManager);
 		//
 		this.repository = repository;
@@ -120,7 +118,6 @@ public class DefaultIdmIdentityService
 		this.entityEventManager = entityEventManager;
 		this.roleConfiguration = roleConfiguration;
 		this.identityContractService = identityContractService;
-		this.passwordService = passwordService;
 		this.tokenManager = tokenManager;
 	}
 	
@@ -159,13 +156,6 @@ public class DefaultIdmIdentityService
 		if (dto != null && entity != null) {
 			// set state - prevent to use disabled setter
 			dto.setState(entity.getState());
-			//
-			// set information about password
-			// password cannot exist, set block login date only if active
-			IdmPasswordDto passwordDto = passwordService.findOneByIdentity(dto.getId());
-			if (passwordDto != null && passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfterNow()) {
-				dto.setBlockLoginDate(passwordDto.getBlockLoginDate());
-			}
 		}
 		return dto;
 	}

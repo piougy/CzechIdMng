@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -16,10 +17,12 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 /**
  * Password dto
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  * @author Radek Tomiška
  *
  */
+
+@Relation(collectionRelation = "passwords")
 public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
 
 	private static final long serialVersionUID = 1L;
@@ -34,6 +37,7 @@ public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
     private DateTime lastSuccessfulLogin;
     private int unsuccessfulAttempts;
     private DateTime blockLoginDate = null;
+    private boolean passwordNeverExpires = false;
 
     public DateTime getLastSuccessfulLogin() {
         return lastSuccessfulLogin;
@@ -108,4 +112,13 @@ public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
 	public void setBlockLoginDate(DateTime blockLoginDate) {
 		this.blockLoginDate = blockLoginDate;
 	}
+
+	public boolean isPasswordNeverExpires() {
+		return passwordNeverExpires;
+	}
+
+	public void setPasswordNeverExpires(boolean passwordNeverExpires) {
+		this.passwordNeverExpires = passwordNeverExpires;
+	}
+
 }

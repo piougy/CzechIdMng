@@ -4,7 +4,6 @@ import RestApiService from './RestApiService';
 
 class PasswordPolicyService extends AbstractService {
 
-  const
   getApiPath() {
     return '/password-policies';
   }

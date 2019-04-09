@@ -9,18 +9,19 @@ import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Service for working with password.
  * Now is password connect only to entity IdmIdentity.
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 
-public interface IdmPasswordService 
-		extends ReadWriteDtoService<IdmPasswordDto, IdmPasswordFilter>, ScriptEnabled {
-	
+public interface IdmPasswordService extends ReadWriteDtoService<IdmPasswordDto, IdmPasswordFilter>, ScriptEnabled,
+		AuthorizableService<IdmPasswordDto> {
+
 	/**
 	 * Save password to identity. This method not validate password.
 	 * 

@@ -85,7 +85,7 @@ class IdentityDashboard extends Basic.AbstractContent {
   }
 
   onPasswordChange() {
-    this.context.router.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/password`);
+    this.context.router.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/password/change`);
   }
 
   /**

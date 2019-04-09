@@ -17,6 +17,7 @@ public class IdmPasswordFilter extends QuickFilter {
     private LocalDate validTill;
     private LocalDate validFrom;
     private UUID identityId;
+    private String identityUsername;
     private Boolean mustChange;
     private Boolean identityDisabled;
 
@@ -66,5 +67,13 @@ public class IdmPasswordFilter extends QuickFilter {
     
     public Boolean getIdentityDisabled() {
 		return identityDisabled;
+	}
+
+	public String getIdentityUsername() {
+		return identityUsername;
+	}
+
+	public void setIdentityUsername(String identityUsername) {
+		this.identityUsername = identityUsername;
 	}
 }

@@ -22,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
@@ -69,6 +71,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -126,6 +129,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	@Autowired private IdmFormDefinitionController formDefinitionController;
 	@Autowired private IdmProfileController profileController;
 	@Autowired private FormService formService;
+	@Autowired private IdmPasswordService passwordService;
 	//
 	private final IdmIdentityService identityService;
 
@@ -232,7 +236,24 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return super.get(backendId);
+		IdmIdentityDto identityDto = this.getDto(backendId);
+		if (identityDto == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
+		//
+		// set information about password
+		// password may not exist, set block login date only if active
+		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identityDto.getId());
+		if (passwordDto != null && passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfterNow()) {
+			identityDto.setBlockLoginDate(passwordDto.getBlockLoginDate());
+		}
+		//
+		ResourceSupport resource = toResource(identityDto);
+		if (resource == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		//
+		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 
 	@Override

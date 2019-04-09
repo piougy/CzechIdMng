@@ -225,6 +225,7 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, IdmAud
 	AbstractEntity getActualRemovedEntity(Class<AbstractEntity> entityClass, Object primaryKey);
 
 	/**
+	 * Find all audits records for given identity. Identity must be added as attribute ownerId in given filter.
 	 * Because entity {@link IdmPasswordDto} hasn't own rest is audit for this entity solved by audit service {@link IdmAuditService} and audit controller.
 	 *
 	 * @param filter

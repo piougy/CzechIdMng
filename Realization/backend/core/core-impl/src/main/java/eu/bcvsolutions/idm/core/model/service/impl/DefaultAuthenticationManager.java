@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
-import org.joda.time.DurationFieldType;
-import org.joda.time.Seconds;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,14 +80,19 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			DateTimeFormatter formatter = DateTimeFormat.forPattern(configurationService.getDateTimeSecondsFormat());
 			DateTime blockLoginDate = passwordDto.getBlockLoginDate();
 			String dateAsString = blockLoginDate.toString(formatter);
-			
-			Seconds seconds = Seconds.secondsBetween(DateTime.now(), blockLoginDate);
+
+			// Block login date can be set manually by password metadata,
+			// so block login date can be more than int amount.
+			long blockMillies = blockLoginDate.getMillis();
+			long nowMillis = DateTime.now().getMillis();
+			long different = blockMillies - nowMillis;
+			different = different / 1000;
 
 			throw new ResultCodeException(CoreResultCode.AUTH_BLOCKED,
 					ImmutableMap.of(
 							"username", identityDto.getUsername(),
 							"date", dateAsString,
-							"seconds", seconds.get(DurationFieldType.seconds()),
+							"seconds", different,
 							"unsuccessfulAttempts", passwordDto.getUnsuccessfulAttempts()));
 		}
 		//

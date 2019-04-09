@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.security;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DurationFieldType;
+import org.joda.time.LocalDate;
 import org.joda.time.Seconds;
 import org.junit.After;
 import org.junit.Before;
@@ -154,14 +156,20 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		
 		identity = identityService.get(identity.getId());
 		DateTime blockLoginDate = identity.getBlockLoginDate();
+		assertNull(blockLoginDate); // blockLoginDate isn't filled by service more
+		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(password);
+		blockLoginDate = password.getBlockLoginDate();
 		assertNotNull(blockLoginDate);
 		
 		// try success but login is blocked
 		tryLoginExceptFail(identity.getUsername(), testPassword);
 		
 		identity = identityService.get(identity.getId());
-		assertNotNull(identity.getBlockLoginDate());
-		assertEquals(blockLoginDate, identity.getBlockLoginDate()); // date is same
+		password = passwordService.findOneByIdentity(identity.getId());
+		assertNotNull(password);
+		assertNotNull(password.getBlockLoginDate());
+		assertEquals(blockLoginDate, password.getBlockLoginDate()); // date is same
 		
 		// wait for 2 sec
 		Thread.sleep(2000);
@@ -495,6 +503,69 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		assertNotNull(passwordDto);
 		assertNull(passwordDto.getBlockLoginDate());
 		assertEquals(4, passwordDto.getUnsuccessfulAttempts());
+	}
+
+	@Test
+	public void testSavePasswordNeverExpires() {
+		String password = "pass-" + System.currentTimeMillis();
+		IdmIdentityDto identityDto = this.getHelper().createIdentity(new GuardedString(password));
+		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identityDto.getId());
+		
+		assertFalse(passwordDto.isPasswordNeverExpires());
+		passwordDto.setPasswordNeverExpires(true);
+
+		IdmPasswordDto newlySaved = passwordService.save(passwordDto);
+
+		assertTrue(newlySaved.isPasswordNeverExpires());
+	}
+
+	@Test
+	public void testSavePasswordNeverExpiresWithSetValidTill() {
+		String password = "pass-" + System.currentTimeMillis();
+		IdmIdentityDto identityDto = this.getHelper().createIdentity(new GuardedString(password));
+		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identityDto.getId());
+		
+		assertFalse(passwordDto.isPasswordNeverExpires());
+		passwordDto.setValidTill(new LocalDate().plusDays(10));
+		passwordDto = passwordService.save(passwordDto);
+		assertFalse(passwordDto.isPasswordNeverExpires());
+		assertEquals(new LocalDate().plusDays(10), passwordDto.getValidTill());
+		
+		passwordDto.setPasswordNeverExpires(true);
+
+		IdmPasswordDto newlySaved = passwordService.save(passwordDto);
+
+		assertTrue(newlySaved.isPasswordNeverExpires());
+		assertNull(passwordDto.getValidTill());
+	}
+
+	@Test
+	public void testChangPasswordWithNeverExpiresAndValidTill() {
+		IdmPasswordPolicyDto validatePolicy = new IdmPasswordPolicyDto();
+		validatePolicy.setName(getHelper().createName());
+		validatePolicy.setMaxPasswordAge(10);
+		validatePolicy.setDefaultPolicy(true);
+		validatePolicy.setType(IdmPasswordPolicyType.VALIDATE);
+		validatePolicy = passwordPolicyService.save(validatePolicy);
+		
+		String password = "pass-" + System.currentTimeMillis();
+		IdmIdentityDto identityDto = this.getHelper().createIdentity(new GuardedString(password));
+		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identityDto.getId());
+
+		assertEquals(new LocalDate().plusDays(10), passwordDto.getValidTill());
+		
+		
+		PasswordChangeDto passwordChange = new PasswordChangeDto();
+		passwordChange.setOldPassword(new GuardedString(password));
+		passwordChange.setNewPassword(new GuardedString(password + "2"));
+		passwordService.save(identityDto, passwordChange);
+		
+		assertFalse(passwordDto.isPasswordNeverExpires());
+		passwordDto.setPasswordNeverExpires(true);
+		IdmPasswordDto newlySaved = passwordService.save(passwordDto);
+
+		assertTrue(newlySaved.isPasswordNeverExpires());
+		assertNull(passwordDto.getValidTill());
 	}
 
 	private LoginDto tryLogin(String username, String password) {

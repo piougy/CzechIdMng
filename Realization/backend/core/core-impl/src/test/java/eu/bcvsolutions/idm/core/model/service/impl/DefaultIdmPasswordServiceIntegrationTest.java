@@ -5,7 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -17,11 +19,13 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
@@ -273,6 +277,291 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		IdmPasswordDto newPassword = new IdmPasswordDto();
 		newPassword.setPassword(generateHash(password));
 		assertFalse(passwordService.checkPassword(passwordForCheck, newPassword));
+	}
+
+	@Test
+	public void testFilterIdentityUsername() {
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+
+		IdmPasswordFilter filter = new IdmPasswordFilter();
+		filter.setIdentityUsername(identity.getUsername());
+		List<IdmPasswordDto> passwords = passwordService.find(filter, null).getContent();
+
+		assertEquals(1, passwords.size());
+		IdmPasswordDto passwordDto = passwords.get(0);
+		assertEquals(identity.getId(), passwordDto.getIdentity());
+	}
+
+	@Test
+	public void testFilterIdentityId() {
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+
+		IdmPasswordFilter filter = new IdmPasswordFilter();
+		filter.setIdentityId(identity.getId());
+		List<IdmPasswordDto> passwords = passwordService.find(filter, null).getContent();
+
+		assertEquals(1, passwords.size());
+		IdmPasswordDto passwordDto = passwords.get(0);
+		assertEquals(identity.getId(), passwordDto.getIdentity());
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testFilterText() {
+		getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+
+		IdmPasswordFilter filter = new IdmPasswordFilter();
+		filter.setText("text-" + System.currentTimeMillis());
+		passwordService.find(filter, null).getContent();
+		fail();
+	}
+
+	@Test
+	public void testFilterByPassword() {
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+
+		IdmPasswordFilter filter = new IdmPasswordFilter();
+		filter.setIdentityId(identity.getId());
+		List<IdmPasswordDto> passwords = passwordService.find(filter, null).getContent();
+
+		assertEquals(1, passwords.size());
+		IdmPasswordDto passwordDto = passwords.get(0);
+		assertEquals(identity.getId(), passwordDto.getIdentity());
+		
+		filter = new IdmPasswordFilter();
+		filter.setPassword(passwordDto.getPassword());
+		
+		passwords = passwordService.find(filter, null).getContent();
+
+		assertEquals(1, passwords.size());
+		IdmPasswordDto passwordDtoTwo = passwords.get(0);
+		assertEquals(identity.getId(), passwordDtoTwo.getIdentity());
+		assertEquals(passwordDto.getId(), passwordDtoTwo.getId());
+		assertEquals(passwordDto.getPassword(), passwordDtoTwo.getPassword());
+	}
+
+	@Test
+	public void testFilterMustChange() {
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+
+		IdmPasswordFilter filter = new IdmPasswordFilter();
+		filter.setIdentityId(identity.getId());
+		List<IdmPasswordDto> passwords = passwordService.find(filter, null).getContent();
+
+		assertEquals(1, passwords.size());
+		IdmPasswordDto passwordDto = passwords.get(0);
+		assertEquals(identity.getId(), passwordDto.getIdentity());
+
+		passwordDto.setMustChange(true);
+		passwordService.save(passwordDto);
+
+		filter = new IdmPasswordFilter();
+		filter.setMustChange(true);
+		passwords = passwordService.find(filter, null).getContent();
+		assertEquals(1, passwords.size());
+		IdmPasswordDto passwordDtoTwo = passwords.get(0);
+		assertEquals(identity.getId(), passwordDtoTwo.getIdentity());
+		assertEquals(passwordDto.getId(), passwordDtoTwo.getId());
+		assertEquals(passwordDto.getPassword(), passwordDtoTwo.getPassword());
+	}
+
+	@Test
+	public void testFilterIdentityDisabled() {
+		IdmIdentityDto identityOne = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+		IdmIdentityDto identityTwo = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+		IdmIdentityDto identityThree = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+
+		identityOne.setState(IdentityState.DISABLED);
+		identityTwo.setState(IdentityState.DISABLED);
+		identityThree.setState(IdentityState.DISABLED);
+
+		identityService.save(identityOne);
+		identityService.save(identityTwo);
+		identityService.save(identityThree);
+
+		IdmPasswordFilter filter = new IdmPasswordFilter();
+		filter.setIdentityDisabled(true);
+		List<IdmPasswordDto> passwords = passwordService.find(filter, null).getContent();
+
+		assertTrue(passwords.size() >= 3);
+
+		IdmPasswordDto passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityOne.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTwo.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityThree.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+	}
+
+	@Test
+	public void testFilterValidTill() {
+		IdmIdentityDto identityOne = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+		IdmIdentityDto identityTwo = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+		IdmIdentityDto identityTree = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+
+		IdmPasswordFilter filter = new IdmPasswordFilter();
+		filter.setIdentityId(identityOne.getId());
+		IdmPasswordDto passwordOne = passwordService.find(filter, null).getContent().get(0);
+		filter.setIdentityId(identityTwo.getId());
+		IdmPasswordDto passwordTwo = passwordService.find(filter, null).getContent().get(0);
+		filter.setIdentityId(identityTree.getId());
+		IdmPasswordDto passwordThree = passwordService.find(filter, null).getContent().get(0);
+
+		passwordOne.setValidTill(LocalDate.now().minusDays(1));
+		passwordTwo.setValidTill(LocalDate.now().minusDays(10));
+		passwordThree.setValidTill(LocalDate.now().minusDays(100));
+		passwordService.save(passwordOne);
+		passwordService.save(passwordTwo);
+		passwordService.save(passwordThree);
+
+		filter = new IdmPasswordFilter();
+		filter.setValidTill(LocalDate.now().minusDays(99));
+		List<IdmPasswordDto> passwords = passwordService.find(filter, null).getContent();
+		assertTrue(passwords.size() >= 1);
+		
+		IdmPasswordDto passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityOne.getId());
+		}).findFirst().orElse(null);
+		assertNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTwo.getId());
+		}).findFirst().orElse(null);
+		assertNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTree.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+
+		filter = new IdmPasswordFilter();
+		filter.setValidTill(LocalDate.now().minusDays(9));
+		passwords = passwordService.find(filter, null).getContent();
+		assertTrue(passwords.size() >= 2);
+
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityOne.getId());
+		}).findFirst().orElse(null);
+		assertNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTwo.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTree.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+
+		filter = new IdmPasswordFilter();
+		filter.setValidTill(LocalDate.now());
+		passwords = passwordService.find(filter, null).getContent();
+		assertTrue(passwords.size() >= 2);
+
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityOne.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTwo.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTree.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+	}
+
+	@Test
+	public void testFilterValidFrom() {
+		IdmIdentityDto identityOne = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+		IdmIdentityDto identityTwo = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+		IdmIdentityDto identityTree = getHelper().createIdentity(new GuardedString("test" + System.currentTimeMillis()));
+
+		IdmPasswordFilter filter = new IdmPasswordFilter();
+		filter.setIdentityId(identityOne.getId());
+		IdmPasswordDto passwordOne = passwordService.find(filter, null).getContent().get(0);
+		filter.setIdentityId(identityTwo.getId());
+		IdmPasswordDto passwordTwo = passwordService.find(filter, null).getContent().get(0);
+		filter.setIdentityId(identityTree.getId());
+		IdmPasswordDto passwordThree = passwordService.find(filter, null).getContent().get(0);
+
+		passwordOne.setValidFrom(LocalDate.now().minusDays(55));
+		passwordTwo.setValidFrom(LocalDate.now().minusDays(1));
+		passwordThree.setValidFrom(LocalDate.now().plusDays(100));
+		passwordService.save(passwordOne);
+		passwordService.save(passwordTwo);
+		passwordService.save(passwordThree);
+
+		filter = new IdmPasswordFilter();
+		filter.setValidFrom(LocalDate.now().minusDays(99));
+		List<IdmPasswordDto> passwords = passwordService.find(filter, null).getContent();
+		assertTrue(passwords.size() >= 3);
+		
+		IdmPasswordDto passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityOne.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTwo.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTree.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+
+		filter = new IdmPasswordFilter();
+		filter.setValidFrom(LocalDate.now().minusDays(9));
+		passwords = passwordService.find(filter, null).getContent();
+		assertTrue(passwords.size() >= 2);
+
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityOne.getId());
+		}).findFirst().orElse(null);
+		assertNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTwo.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTree.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
+
+		filter = new IdmPasswordFilter();
+		filter.setValidFrom(LocalDate.now().plusDays(50));
+		passwords = passwordService.find(filter, null).getContent();
+		assertTrue(passwords.size() >= 1);
+
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityOne.getId());
+		}).findFirst().orElse(null);
+		assertNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTwo.getId());
+		}).findFirst().orElse(null);
+		assertNull(passwordDto);
+		
+		passwordDto = passwords.stream().filter(pass -> {
+			return pass.getIdentity().equals(identityTree.getId());
+		}).findFirst().orElse(null);
+		assertNotNull(passwordDto);
 	}
 
 	private IdmPasswordPolicyDto getTestPolicy(boolean isDefault, IdmPasswordPolicyType type, Integer maxAge) {

@@ -159,8 +159,9 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 	
 	/**
-	 * Process login attempts and maximum attempts and then block block. Otherwise just increase attempts.
-	 * If
+	 * Process wrong login attempt. If exceeding a maximum attempts then user is
+	 * block for the time (and send notification to user). Otherwise just increase
+	 * attempts.
 	 *
 	 * @param passwordDto
 	 * @param loginDto

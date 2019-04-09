@@ -9,6 +9,12 @@ import Button from '../Button/Button';
 
 const CONFIDENTIAL_VALUE = '*****';
 
+/**
+ * Basic input component.
+ *
+ * @author Vít Švanda
+ * @author Radek Tomiška
+ */
 class TextField extends AbstractFormComponent {
 
   constructor(props) {
@@ -17,7 +23,8 @@ class TextField extends AbstractFormComponent {
       ...this.state,
       confidentialState: {
         showInput: false
-      }
+      },
+      inputType: props.type
     };
   }
 
@@ -111,6 +118,15 @@ class TextField extends AbstractFormComponent {
     });
   }
 
+  toogleInputType(inputType, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({
+      inputType
+    });
+  }
+
   /**
    * Returns filled value. Depends on confidential property
    *
@@ -151,7 +167,7 @@ class TextField extends AbstractFormComponent {
 
   getBody(feedback) {
     const { type, labelSpan, label, componentSpan, placeholder, style, required } = this.props;
-    const { value, disabled, readOnly } = this.state;
+    const { inputType, value, disabled, readOnly } = this.state;
     //
     const className = classNames(
       'form-control',
@@ -181,22 +197,24 @@ class TextField extends AbstractFormComponent {
     const component = (
       <input
         ref="input"
-        type={type}
-        className={className}
-        disabled={disabled}
-        placeholder={placeholder}
-        onChange={this.onChange.bind(this)}
-        onClick={this.toogleConfidentialState.bind(this, true)}
-        value={_value}
-        style={style}
-        readOnly={_readOnly}/>
+        type={ inputType }
+        className={ className }
+        disabled={ disabled }
+        placeholder={ placeholder }
+        onChange={ this.onChange.bind(this) }
+        onClick={ this.toogleConfidentialState.bind(this, true) }
+        value={ _value }
+        style={ style }
+        readOnly={ _readOnly }/>
     );
     //
     // show confidential wrapper, when confidential value could be changed
     let confidentialWrapper = component;
+    let hasAdditionalButton = false;
     if (this._showConfidentialWrapper()) {
+      hasAdditionalButton = true;
       confidentialWrapper = (
-        <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={this.i18n('confidential.edit')}>
+        <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.i18n('confidential.edit') }>
           <div className="input-group">
             { component }
             <span className="input-group-btn">
@@ -204,13 +222,32 @@ class TextField extends AbstractFormComponent {
                 type="button"
                 level="default"
                 className="btn-sm"
-                style={{ marginTop: '0px', height: '34px' }}
-                onClick={this.toogleConfidentialState.bind(this, true)}>
+                style={{ marginTop: 0, height: 34, borderLeft: 0, borderRadius: '0px 3px 3px 0px' }}
+                onClick={ this.toogleConfidentialState.bind(this, true) }>
                 <Icon icon="fa:edit"/>
               </Button>
             </span>
           </div>
         </Tooltip>
+      );
+    } else if (type === 'password') {
+      hasAdditionalButton = true;
+      confidentialWrapper = (
+        <div className="input-group">
+          { component }
+          <span className="input-group-btn">
+            <Button
+              type="button"
+              level="default"
+              className="btn-sm"
+              tabIndex={ -1 }
+              style={{ marginTop: 0, height: 34, borderLeft: 0, borderRadius: '0px 3px 3px 0px' }}
+              onClick={ this.toogleInputType.bind(this, inputType === 'password' ? 'text' : 'password') }
+              title={ inputType === 'password' ? this.i18n('password.show.title') : this.i18n('password.hide.title') }>
+              <Icon type="fa" icon={ inputType === 'password' ? 'eye' : 'eye-slash' }/>
+            </Button>
+          </span>
+        </div>
       );
     }
 
@@ -227,14 +264,14 @@ class TextField extends AbstractFormComponent {
         }
         <div className={ componentSpan } style={{ whiteSpace: 'nowrap' }}>
           <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
-            <span>
+            <span className={ hasAdditionalButton ? 'additional-button-1' : ''}>
               { confidentialWrapper }
               {
                 feedback
                 ||
                 !showAsterix
                 ||
-                <span className="form-control-feedback" style={ {color: 'red', zIndex: 0 }}>*</span>
+                <span className="form-control-feedback" style={{ color: 'red' }}>*</span>
               }
             </span>
           </Tooltip>

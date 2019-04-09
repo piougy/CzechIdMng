@@ -361,6 +361,14 @@
       "TextField": {
         "confidential": {
           "edit": "Set new value"
+        },
+        "password": {
+          "show": {
+            "title": "Show password"
+          },
+          "hide": {
+            "title": "Hide password"
+          }
         }
       }
     },

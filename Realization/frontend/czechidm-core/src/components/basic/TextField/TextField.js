@@ -233,20 +233,15 @@ class TextField extends AbstractFormComponent {
     } else if (type === 'password') {
       hasAdditionalButton = true;
       confidentialWrapper = (
-        <div className="input-group">
+        <div>
           { component }
-          <span className="input-group-btn">
-            <Button
-              type="button"
-              level="default"
-              className="btn-sm"
-              tabIndex={ -1 }
-              style={{ marginTop: 0, height: 34, borderLeft: 0, borderRadius: '0px 3px 3px 0px' }}
+          <div className="password-eye">
+            <Icon
+              type="fa"
+              icon={ inputType === 'password' ? 'eye-slash' : 'eye' }
               onClick={ this.toogleInputType.bind(this, inputType === 'password' ? 'text' : 'password') }
-              title={ inputType === 'password' ? this.i18n('password.show.title') : this.i18n('password.hide.title') }>
-              <Icon type="fa" icon={ inputType === 'password' ? 'eye' : 'eye-slash' }/>
-            </Button>
-          </span>
+              title={ inputType === 'password' ? this.i18n('password.show.title') : this.i18n('password.hide.title') }/>
+          </div>
         </div>
       );
     }

@@ -32,7 +32,7 @@ class PasswordChangeDashboardButton extends Advanced.AbstractIdentityDashboardBu
   }
 
   onClick() {
-    this.context.router.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/password`);
+    this.context.router.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/password/change`);
   }
 }
 

@@ -258,7 +258,6 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     return (
       <Basic.Alert
         icon="info-sign"
-        text={ this.i18n('content.passwordPolicies.validation.passwordHintPreValidate') }
         className="no-margin">
         <Basic.Popover
           ref="popover"
@@ -278,8 +277,9 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
           {
             <Basic.Button
               level="link"
-              style={{ padding: 0, whiteSpace: 'normal', verticalAlign: 'baseline' }}
+              style={{ padding: 0, whiteSpace: 'normal', verticalAlign: 'baseline', textDecoration: 'underline' }}
               title={ this.i18n('content.passwordPolicies.validation.prevalidationLink.title') }>
+              { this.i18n('content.passwordPolicies.validation.passwordHintPreValidate') }
               { this.i18n('content.passwordPolicies.validation.passwordHintPreValidatePwd') }
             </Basic.Button>
           }

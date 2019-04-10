@@ -233,7 +233,7 @@ class TextField extends AbstractFormComponent {
     } else if (type === 'password') {
       hasAdditionalButton = true;
       confidentialWrapper = (
-        <div>
+        <div style={{ position: 'relative' }}>
           { component }
           <div className="password-eye">
             <Icon

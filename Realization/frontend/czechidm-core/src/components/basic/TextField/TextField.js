@@ -230,7 +230,7 @@ class TextField extends AbstractFormComponent {
           </div>
         </Tooltip>
       );
-    } else if (type === 'password') {
+    } else if (type === 'password' && !_readOnly) {
       hasAdditionalButton = true;
       confidentialWrapper = (
         <div style={{ position: 'relative' }}>

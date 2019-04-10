@@ -52,7 +52,7 @@ class IdentityContent extends Basic.AbstractContent {
     //
     return (
       <div>
-        <Helmet title={this.i18n('navigation.menu.profile')} />
+        <Helmet title={ this.i18n('navigation.menu.profile') } />
 
         <Basic.PageHeader>
           {
@@ -60,16 +60,16 @@ class IdentityContent extends Basic.AbstractContent {
             ?
             <img src={ _imageUrl } className="img-circle img-thumbnail" style={{ height: 40, padding: 0 }} />
             :
-            <Basic.Icon icon="user"/>
+            <Basic.Icon icon="component:identity" identity={ identity }/>
           }
-          {' '}
-          {identityManager.getNiceLabel(identity)} <small> {this.i18n('content.identity.profile.userDetail')}</small>
+          { ' ' }
+          { identityManager.getNiceLabel(identity) } <small> { this.i18n('content.identity.profile.userDetail') }</small>
         </Basic.PageHeader>
 
-        <OrganizationPosition identity={entityId}/>
+        <OrganizationPosition identity={ entityId }/>
 
-        <Advanced.TabPanel position="left" parentId="identity-profile" params={this.props.params} style={{ display: 'none'}}>
-          {this.props.children}
+        <Advanced.TabPanel position="left" parentId="identity-profile" params={ this.props.params } style={{ display: 'none'}}>
+          { this.props.children }
         </Advanced.TabPanel>
       </div>
     );

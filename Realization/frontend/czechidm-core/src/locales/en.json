@@ -4650,10 +4650,12 @@
     "bulk-action": {
       "identity-disable-bulk-action": {
         "label": "Deactivate - (manually)",
-        "icon": "fa:square-o"
+        "title": "Deactivate user manually",
+        "icon": "fa:user-slash"
       },
       "identity-enable-bulk-action": {
         "label": "Activate - (manually)",
+        "title": "Activate user manually",
         "icon": "fa:check-square-o"
       },
       "identity-delete-bulk-action": {

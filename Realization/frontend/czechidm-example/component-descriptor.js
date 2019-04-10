@@ -10,6 +10,12 @@ module.exports = {
       'component': require('./src/content/dashboards/ExampleDashboard')
     },
     {
+      'id': 'identity-contract-dashboard-button',
+      'type': 'identity-dashboard-button',
+      'order': 150,
+      'component': require('./src/content/dashboards/button/IdentityContractDashboardButton')
+    },
+    {
       'id': 'priority-select-form-value',
       'type': 'form-attribute-renderer',
       'persistentType': 'INT',

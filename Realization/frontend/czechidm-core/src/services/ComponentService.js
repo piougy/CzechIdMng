@@ -131,6 +131,7 @@ export default class ComponentService {
 ComponentService.ENTITY_INFO_COMPONENT_TYPE = 'entity-info';
 ComponentService.DASHBOARD_COMPONENT_TYPE = 'dashboard';
 ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE = 'identity-dashboard';
+ComponentService.IDENTITY_DASHBOARD_BUTTON_COMPONENT_TYPE = 'identity-dashboard-button';
 ComponentService.FORM_ATTRIBUTE_RENDERER = 'form-attribute-renderer';
 ComponentService.ENTITY_SELECT_BOX_COMPONENT_TYPE = 'entity-select-box';
 ComponentService.PASSWORD_CHANGE_COMPONENTS_TYPE = 'password-change-component';

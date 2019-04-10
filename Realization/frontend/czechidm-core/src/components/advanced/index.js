@@ -52,6 +52,7 @@ import CodeListSelect from './CodeListSelect/CodeListSelect';
 import CodeListValue from './CodeListValue/CodeListValue';
 import AbstractIcon from './Icon/AbstractIcon';
 import Icons from './Icon/Icons';
+import AbstractIdentityDashboardButton from './Button/AbstractIdentityDashboardButton';
 
 const Components = {
   Table,
@@ -109,7 +110,8 @@ const Components = {
   CodeListSelect,
   CodeListValue,
   AbstractIcon,
-  Icons
+  Icons,
+  AbstractIdentityDashboardButton
 };
 
 Components.version = '9.4.0';

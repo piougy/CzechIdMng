@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { IdentityManager, DataManager, ConfigurationManager } from '../../redux';
 import ComponentService from '../../services/ComponentService';
@@ -15,7 +16,6 @@ const componentService = new ComponentService();
  * Identity dashboard - personalized dashboard with quick buttons and overview
  *
  * TODO:
- * - implement all buttons + register buttons
  * - extract css styles
  * - dashboard component super class
  *
@@ -129,7 +129,7 @@ class IdentityDashboard extends Basic.AbstractContent {
             ?
             <img src={ _imageUrl } className="img-circle img-thumbnail" style={{ height: 40, padding: 0 }} />
             :
-            <Basic.Icon icon="user"/>
+            <Basic.Icon icon="component:identity" identity={ identity } />
           }
           {' '}
           { identityManager.getNiceLabel(identity) } <small> { this.isDashboard() ? this.i18n('content.identity.dashboard.header') : this.i18n('navigation.menu.profile.label') }</small>
@@ -138,42 +138,21 @@ class IdentityDashboard extends Basic.AbstractContent {
         <OrganizationPosition identity={ identityIdentifier } showLink={ false }/>
 
         <div style={{ paddingBottom: 15 }}>
-          <Basic.Button
-            icon="fa:angle-double-right"
-            className="btn-large"
-            onClick={ this.onIdentityDetail.bind(this) }
-            style={{ height: 50, marginRight: 3, minWidth: 150 }}
-            text={ this.i18n('component.advanced.IdentityInfo.link.detail.label') }
-            rendered={ identityManager.canRead(identity, _permissions) } />
-          <Basic.Button
-            icon="lock"
-            className="btn-large"
-            text={ this.i18n('content.password.change.header') }
-            onClick={ this.onPasswordChange.bind(this) }
-            style={{ height: 50, marginRight: 3, minWidth: 150 }}
-            rendered={ this._canPasswordChange() }/>
-          <Basic.Button
-            icon="component:identity-roles"
-            className="btn-large"
-            text={ this.i18n('content.identity.roles.changePermissions') }
-            onClick={ this.onChangePermissions.bind(this) }
-            style={{ height: 50, marginRight: 3, minWidth: 150 }}
-            rendered={ this._canChangePermissions() }/>
+          {
+            componentService
+              .getComponentDefinitions(ComponentService.IDENTITY_DASHBOARD_BUTTON_COMPONENT_TYPE)
+              .map(component => {
+                const DashboardButtonComponent = component.component;
+                return (
+                  <DashboardButtonComponent
+                    key={`${ComponentService.IDENTITY_DASHBOARD_BUTTON_COMPONENT_TYPE}-${component.id}`}
+                    entityId={ identity.username }
+                    identity={ identity }
+                    permissions={ _permissions }/>
+                );
+              })
+          }
 
-          <Basic.Button
-            level="danger"
-            icon="fa:square-o"
-            className="btn-large hidden"
-            style={{ height: 50, marginRight: 3, minWidth: 150 }}
-            onClick={ () => alert('not implemented') }
-            text="Disable identity"/>
-          <Basic.Button
-            level="success"
-            icon="fa:plus"
-            className="btn-large hidden"
-            onClick={ () => alert('not implemented') }
-            style={{ height: 50, marginRight: 3, minWidth: 150 }}
-            text="Create user"/>
           <Basic.Button
             level="info"
             icon="link"

@@ -56,6 +56,36 @@ module.exports = {
       'component': require('./src/content/dashboards/LongRunningTaskDashboard')
     },
     {
+      'id': 'detail-identity-dashboard-button',
+      'type': 'identity-dashboard-button',
+      'order': 100,
+      'component': require('./src/content/dashboards/button/IdentityDetailDashboardButton')
+    },
+    {
+      'id': 'password-change-identity-dashboard-button',
+      'type': 'identity-dashboard-button',
+      'order': 200,
+      'component': require('./src/content/dashboards/button/PasswordChangeDashboardButton')
+    },
+    {
+      'id': 'change-permission-identity-dashboard-button',
+      'type': 'identity-dashboard-button',
+      'order': 300,
+      'component': require('./src/content/dashboards/button/ChangePermissionDashboardButton')
+    },
+    {
+      'id': 'disable-identity-dashboard-button',
+      'type': 'identity-dashboard-button',
+      'order': 400,
+      'component': require('./src/content/dashboards/button/DisableIdentityDashboardButton')
+    },
+    {
+      'id': 'enable-identity-dashboard-button',
+      'type': 'identity-dashboard-button',
+      'order': 400,
+      'component': require('./src/content/dashboards/button/EnableIdentityDashboardButton')
+    },
+    {
       'id': 'password-change-content',
       'priority': 0,
       'component': require('./src/content/identity/PasswordChangeContent')
@@ -411,6 +441,24 @@ module.exports = {
       'type': 'icon',
       'entityType': ['script', 'scripts'],
       'component': 'fa:clone'
+    },
+    {
+      'id': 'identity-icon',
+      'type': 'icon',
+      'entityType': ['identity'],
+      'component': require('./src/components/advanced/Icon/IdentityIcon')
+    },
+    {
+      'id': 'enabled-identity-icon',
+      'type': 'icon',
+      'entityType': ['enabled-identity'],
+      'component': 'fa:user'
+    },
+    {
+      'id': 'disabled-identity-icon',
+      'type': 'icon',
+      'entityType': ['disabled-identity'],
+      'component': 'fa:user-slash'
     }
   ]
 };

@@ -94,7 +94,7 @@ class Button extends AbstractComponent {
               </span>
               :
               <span>
-                <Icon value={ icon } className="icon-left" style={ (text || (children && children.length > 0)) ? { marginRight: 5 } : {} }/>
+                <Icon value={ icon } className="icon-left" style={ (text || (children && React.Children.count(children) > 0)) ? { marginRight: 5 } : {} }/>
                 { text }
                 { children }
               </span>

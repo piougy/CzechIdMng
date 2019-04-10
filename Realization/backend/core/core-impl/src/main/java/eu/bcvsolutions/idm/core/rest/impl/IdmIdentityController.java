@@ -308,7 +308,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/enable", method = RequestMethod.PATCH)
 	@ApiOperation(
 			value = "Activate identity", 
@@ -317,9 +317,9 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_ADMIN, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_ADMIN, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") })
 				},
 			notes = "Enable manually disabled identity. Identity will have automatically recounted state assigned by their contract state." )
 	public ResponseEntity<?> enable(
@@ -329,7 +329,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return new ResponseEntity<>(toResource(identityService.enable(identity.getId(), IdmBasePermission.ADMIN)), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(identityService.enable(identity.getId(), IdmBasePermission.UPDATE)), HttpStatus.OK);
 	}
 	
 	/**
@@ -338,7 +338,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/disable", method = RequestMethod.PATCH)
 	@ApiOperation(
 			value = "Disable identity", 
@@ -347,9 +347,9 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_ADMIN, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_ADMIN, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") })
 				},
 			notes = "Disable identity manually. This identity will be disabled even with valid contracts."
 					+ " Identity can be enabled manually again only. See 'enable' method." )
@@ -360,7 +360,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return new ResponseEntity<>(toResource(identityService.disable(identity.getId(), IdmBasePermission.ADMIN)), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(identityService.disable(identity.getId(), IdmBasePermission.UPDATE)), HttpStatus.OK);
 	}
 
 	@Override

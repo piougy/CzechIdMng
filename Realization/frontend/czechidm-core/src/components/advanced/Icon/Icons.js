@@ -4,6 +4,8 @@ import _ from 'lodash';
 //
 import * as Basic from '../../basic';
 import BusinessRoleIcon from './BusinessRoleIcon';
+import MainContractIcon from './MainContractIcon';
+import IdentityIcon from './IdentityIcon';
 import ComponentService from '../../../services/ComponentService';
 
 const componentService = new ComponentService();
@@ -65,3 +67,5 @@ export default class Icons extends Basic.AbstractComponent {
 }
 
 Icons.BusinessRoleIcon = BusinessRoleIcon;
+Icons.MainContractIcon = MainContractIcon;
+Icons.IdentityIcon = IdentityIcon;

@@ -4700,10 +4700,12 @@
     "bulk-action": {
       "identity-disable-bulk-action": {
         "label": "Deaktivovat - (manuálně)",
-        "icon": "fa:square-o"
+        "title": "Deaktivovat uživatele manuálně",
+        "icon": "fa:user-slash"
       },
       "identity-enable-bulk-action": {
         "label": "Aktivovat - (manuálně)",
+        "title": "Aktivovat uživatele manuálně",
         "icon": "fa:check-square-o"
       },
       "identity-delete-bulk-action": {

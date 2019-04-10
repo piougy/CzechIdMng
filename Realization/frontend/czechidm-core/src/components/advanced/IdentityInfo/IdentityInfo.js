@@ -90,9 +90,9 @@ export class IdentityInfo extends AbstractEntityInfo {
    */
   getEntityIcon(entity) {
     if (this.isDisabled(entity)) {
-      return 'fa:user-times';
+      return 'component:disabled-identity';
     }
-    return 'user';
+    return 'component:enabled-identity';
   }
 
   /**
@@ -133,7 +133,8 @@ export class IdentityInfo extends AbstractEntityInfo {
     } else {
       content = (
         <Basic.Icon
-          value="user"
+          value="component:identity"
+          identity={ entity }
           className="text-center img-thumbnail img-none"
           style={{ backgroundColor: this.isDisabled(entity) ? '#FCF8E3' : '#DFF0D8' }}
           color={ '#FFFFFF' }

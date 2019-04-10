@@ -28,6 +28,16 @@ class TextField extends AbstractFormComponent {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    super.componentWillReceiveProps(nextProps);
+    //
+    if (nextProps.type !== this.props.type) {
+      this.setState({
+        inputType: nextProps.type
+      });
+    }
+  }
+
   getComponentKey() {
     return 'component.basic.TextField';
   }

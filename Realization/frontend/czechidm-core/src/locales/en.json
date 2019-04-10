@@ -943,7 +943,8 @@
       "AUTOMATICROLEREQUEST": "Requests for automatic roles",
       "AUTOMATICROLEATTRIBUTERULEREQUEST": "Requests for automatic roles (rules of the attributes)",
       "TOKEN": "Token",
-      "GENERATEVALUE": "Value generate"
+      "GENERATEVALUE": "Value generate",
+      "PASSWORD": "Users passwords"
     }
   },
   "content": {
@@ -1002,6 +1003,43 @@
       }
     },
     "password": {
+      "header": "Information about password",
+      "label": "$t(content.password.header)",
+      "title": "$t(content.password.header)",
+      "created": {
+        "label": "Created",
+        "help": "Date of created password"
+      },
+      "creator": {
+        "label": "Creator",
+        "help": "Username of create password."
+      },
+      "unsuccessfulAttempts": {
+        "label": "Number of unsuccessful attempts",
+        "help": "Current number of failed login attempts against IdM."
+      },
+      "validFrom": {
+        "label": "Valid from",
+        "help": "The valid from is changed every time the password was changed."
+      },
+      "validTill": {
+        "label": "Valid till",
+        "help": "The valid till is composed from the password policy setting."
+      },
+      "lastSuccessfulLogin": {
+        "label": "Las successful login",
+        "help": "Date of last successful login to IdM. It is possible update las successful login by authenticate by another system."
+      },
+      "blockLoginDate": {
+        "label": "Login block date",
+        "help": "Date of block login and password change."
+      },
+      "passwordNeverExpires": {
+        "label": "Password never expires",
+        "help": "The password will never expire. Valid till will never setup."
+      },
+      "blockLoginDateInfo": "$t(content.identity.profile.blockLoginDate)",
+      "passwordNeverExpiresAndValidTillInfo": "For passwords that can never expire, it cannot be set valid till.",
       "change": {
         "header": "Change password",
         "title": "Change password",
@@ -1042,6 +1080,9 @@
         "okay": "normal",
         "strong": "strong",
         "great": "perfect"
+      },
+      "save": {
+        "success": "Matadata about password was successfully saved"
       }
     },
     "messages": {
@@ -2271,7 +2312,7 @@
     "identity": {
       "sidebar": {
         "profile": "Personal data",
-        "password": "Change password",
+        "password": "Password",
         "roles": "Roles",
         "approve": "Approver of roles",
         "subordinates": "Subordinates",
@@ -2433,8 +2474,8 @@
         }
       },
       "passwordChange": {
-        "header": "Password",
-        "title": "Password",
+        "header": "Password change",
+        "title": "Password change",
         "password": {
           "old": "Current password",
           "new": "New password",
@@ -5836,6 +5877,10 @@
     "FORM_ATTRIBUTE_DELETE_FAILED_ROLE_ATTRIBUTE": {
       "title": "Attribute definition cannot be deleted!",
       "message": "Attribute definition [{{definition}}]  cannot be deleted, because is using in the role [{{role}}]!"
+    },
+    "PASSWORD_CANNOT_BE_CREATED": {
+      "title": "Password cannot be created",
+      "message": "Password for users can be create only by internal IdM process."
     }
   },
   "validationError": {

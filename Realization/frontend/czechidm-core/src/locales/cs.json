@@ -974,7 +974,8 @@
       "AUTOMATICROLEREQUEST": "Žádosti o automatické role",
       "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)",
       "TOKEN": "Token",
-      "GENERATEVALUE": "Generování hodnot"
+      "GENERATEVALUE": "Generování hodnot",
+      "PASSWORD": "Uživatelská hesla"
     }
   },
   "content": {
@@ -1033,6 +1034,43 @@
       }
     },
     "password": {
+      "header": "Informace o hesle",
+      "label": "$t(content.password.header)",
+      "title": "$t(content.password.header)",
+      "created": {
+        "label": "Vytvořeno",
+        "help": "Datum vytvoření hesla"
+      },
+      "creator": {
+        "label": "Vytvořil",
+        "help": "Uživatelské jméno tvůrce hesla"
+      },
+      "unsuccessfulAttempts": {
+        "label": "Počet neúspěšných pokusů",
+        "help": "Aktuální počet neúspěšných pokůsu o přihlášení do IdM."
+      },
+      "validFrom": {
+        "label": "Platnost od",
+        "help": "Platnost hesla od se mění při každé změně hesla."
+      },
+      "validTill": {
+        "label": "Platnost do",
+        "help": "Platnost hesla do je počítáná z nastavení politiky hesel."
+      },
+      "lastSuccessfulLogin": {
+        "label": "Poslední úspěšné přihlášení",
+        "help": "Datum posledního úspěšného přihlášení do IdM. Aktualizace data může proběhnout i při úspěšném přihlášení proti jinému systému."
+      },
+      "blockLoginDate": {
+        "label": "Datum blokování přihlášení",
+        "help": "Datum blokování přihlášení a změny hesla."
+      },
+      "passwordNeverExpires": {
+        "label": "Heslo nikdy neexpiruje",
+        "help": "Heslo nebude nikdy expirovat. Platnost hesla DO nebude nikdy uplatněna."
+      },
+      "blockLoginDateInfo": "$t(content.identity.profile.blockLoginDate)",
+      "passwordNeverExpiresAndValidTillInfo": "Pro hesla která nemohou expirovat nelze nastavit platnost do.",
       "change": {
         "header": "Změna hesla",
         "title": "Změna hesla",
@@ -1073,6 +1111,9 @@
         "okay": "normální",
         "strong": "silné",
         "great": "perfektní"
+      },
+      "save": {
+        "success": "Metadata o hesle úspěšně uloženy"
       }
     },
     "messages": {
@@ -2322,7 +2363,7 @@
     "identity": {
       "sidebar": {
         "profile": "Osobní údaje",
-        "password": "Změna hesla",
+        "password": "Heslo",
         "roles": "Přiřazené role",
         "subordinates": "Podřízení",
         "positions": "Pracovně právní vztahy",
@@ -5886,6 +5927,10 @@
     "FORM_ATTRIBUTE_DELETE_FAILED_ROLE_ATTRIBUTE": {
       "title": "Definici atributu není možné smazat!",
       "message": "Definici atributu [{{definition}}] není možné smazat, protože je použita na roli [{{role}}]!"
+    },
+    "PASSWORD_CANNOT_BE_CREATED": {
+      "title": "Heslo nemůže být vytvořeno",
+      "message": "Heslo pro uživatele může být vytvořeno pouze interními procesy IdM."
     }
   },
   "validationError": {

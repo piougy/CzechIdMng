@@ -61,6 +61,7 @@ import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.audit.criteria.IdmPasswordSelfRelationWithOwnerExpression;
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditEntityDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
@@ -625,6 +626,8 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		conjunctionForFailed.add(AuditEntity.property(IdmPassword_.modifier.getName()).eq(SecurityService.GUEST_NAME));
 		
 		conjunctionForSuccessful.add(AuditEntity.revisionProperty(IdmAudit_.changedAttributes.getName()).ilike(IdmPassword_.lastSuccessfulLogin.getName(), MatchMode.ANYWHERE));
+		// Self created relation, created by expression
+		conjunctionForSuccessful.add(new IdmPasswordSelfRelationWithOwnerExpression());
 		
 		disjunction.add(conjunctionForSuccessful);
 		disjunction.add(conjunctionForFailed);

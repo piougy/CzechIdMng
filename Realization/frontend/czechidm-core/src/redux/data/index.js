@@ -72,6 +72,7 @@ import CodeListItemManager from './CodeListItemManager';
 import IncompatibleRoleManager from './IncompatibleRoleManager';
 import RoleFormAttributeManager from './RoleFormAttributeManager';
 import PasswordHistoryManager from './PasswordHistoryManager';
+import PasswordManager from './PasswordManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -140,7 +141,8 @@ const ManagerRoot = {
   CodeListItemManager,
   IncompatibleRoleManager,
   RoleFormAttributeManager,
-  PasswordHistoryManager
+  PasswordHistoryManager,
+  PasswordManager
 };
 
 ManagerRoot.version = '9.4.0';

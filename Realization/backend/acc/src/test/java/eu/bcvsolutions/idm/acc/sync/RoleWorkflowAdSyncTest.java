@@ -452,10 +452,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		Assert.assertEquals(1, dnValues.size());
 		Assert.assertEquals(ATTRIBUTE_DN_VALUE, dnValues.get(0).getValue());
 		// resource existing
-		SysRoleSystemAttributeDto systemAttribute = getSystemAttribute(userSystem.getId(), overridedAttributeName, role.getId());
-		Assert.assertNotNull(systemAttribute);
-		String transformationScript = "\"" + ATTRIBUTE_DN_VALUE + "\"";
-		Assert.assertEquals(systemAttribute.getTransformToResourceScript(), transformationScript);
+		Assert.assertNotNull(getSystemAttribute(userSystem.getId(), overridedAttributeName, role.getId()));
 
 		// Delete log
 		syncLogService.delete(log);

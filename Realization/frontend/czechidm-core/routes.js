@@ -40,8 +40,20 @@ module.exports = {
         },
         {
           path: 'password',
-          component: require('./src/content/identity/PasswordChangeRoute'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE' ] } ]
+          component: require('./src/content/identity/password/PasswordRoute'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE', 'PASSWORD_READ' ] } ],
+          childRoutes: [
+            {
+              path: 'change',
+              component: require('./src/content/identity/PasswordChangeRoute'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE' ] } ]
+            },
+            {
+              path: 'detail',
+              component: require('./src/content/identity/password/IdentityPasswordDetail'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORD_READ' ] } ]
+            }
+          ]
         },
         {
           path: 'roles',

@@ -1,13 +1,18 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -22,11 +27,14 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword_;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Service for working with password.
@@ -39,7 +47,6 @@ public class DefaultIdmPasswordService
 		extends AbstractEventableDtoService<IdmPasswordDto, IdmPassword, IdmPasswordFilter>
 		implements IdmPasswordService {
 
-	private final IdmPasswordRepository repository;
 	private final IdmPasswordHistoryService passwordHistoryService;
 	private final LookupService lookupService;
 
@@ -51,19 +58,50 @@ public class DefaultIdmPasswordService
 									 EntityEventManager entityEventManager) {
 		super(repository, entityEventManager);
 		//
-		this.repository = repository;
 		this.passwordHistoryService = passwordHistoryService;
 		this.lookupService = lookupService;
 	}
-	
-	@Override
-	protected Page<IdmPassword> findEntities(IdmPasswordFilter filter, Pageable pageable, BasePermission... permission) {
-		if (filter == null) {
-			return getRepository().findAll(pageable);
-		}
-		return repository.find(filter, pageable);
-	}
 
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmPassword> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			IdmPasswordFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
+		if (filter.getIdentityDisabled() != null) {
+			predicates.add(builder.equal(root.get(IdmPassword_.identity).get(IdmIdentity_.disabled), filter.getIdentityDisabled()));
+		}
+		//
+		if (StringUtils.isNotEmpty(filter.getPassword())) {
+			predicates.add(builder.equal(root.get(IdmPassword_.password), filter.getPassword()));
+		}
+		//
+		if (filter.getMustChange() != null) {
+			predicates.add(builder.equal(root.get(IdmPassword_.mustChange), filter.getMustChange()));
+		}
+		//
+		if (filter.getIdentityId() != null) {
+			predicates.add(builder.equal(root.get(IdmPassword_.identity).get(IdmIdentity_.id), filter.getIdentityId()));
+		}
+		//
+		if (StringUtils.isNotEmpty(filter.getIdentityUsername())) {
+			predicates.add(builder.equal(root.get(IdmPassword_.identity).get(IdmIdentity_.username), filter.getIdentityUsername()));
+		}
+		//
+		if (filter.getValidFrom() != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmPassword_.validFrom), filter.getValidFrom()));
+		}
+		//
+		if (filter.getValidTill() != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmPassword_.validTill), filter.getValidTill()));
+		}
+		//
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			throw new UnsupportedOperationException("Filter by text is not supported");
+		}
+		//
+		return predicates;
+	}
+	
 	@Override
 	@Transactional
 	public IdmPasswordDto save(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto) {
@@ -213,6 +251,10 @@ public class DefaultIdmPasswordService
 		return this.save(passwordDto);
 	}
 
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.PASSWORD, getEntityClass());
+	}
 
 	/**
 	 * Method get IdmIdentityPassword by identity.
@@ -223,7 +265,10 @@ public class DefaultIdmPasswordService
 	private IdmPasswordDto getPasswordByIdentity(UUID identityId) {
 		Assert.notNull(identityId);
 		//
-		return toDto(this.repository.findOneByIdentity_Id(identityId));
+		IdmPasswordFilter filter = new IdmPasswordFilter();
+		filter.setIdentityId(identityId);
+		// Isn't possible found more than one password for identity, on table exists unique index
+		return this.find(filter, null).getContent().stream().findFirst().orElse(null);
 	}
 
 	/**
@@ -235,7 +280,10 @@ public class DefaultIdmPasswordService
 	private IdmPasswordDto getPasswordByIdentityUsername(String username) {
 		Assert.notNull(username);
 		//
-		return toDto(this.repository.findOneByIdentity_username(username));
+		IdmPasswordFilter filter = new IdmPasswordFilter();
+		filter.setIdentityUsername(username);
+		// Isn't possible found more than one password for identity, on table exists unique index
+		return this.find(filter, null).getContent().stream().findFirst().orElse(null);
 	}
 	
 	/**

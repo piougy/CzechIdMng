@@ -101,12 +101,32 @@ module.exports = {
                 'type': 'TAB',
                 'labelKey': 'content.identity.sidebar.password',
                 'order': 20,
-                'path': '/identity/:entityId/password',
+                'path': '/identity/:entityId/password/change',
                 'icon': 'lock',
                 'conditions': [
                   'todo: eval( canPasswordChange ...)'
                 ],
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE', 'IDENTITY_PASSWORDRESET'] } ] // TODO: PASSWORDRESET is from pwdreset module, implement some conditional iten hidding
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE', 'PASSWORD_READ', 'IDENTITY_PASSWORDRESET'] } ], // TODO: PASSWORDRESET is from pwdreset module, implement some conditional iten hidding
+                'items': [
+                  {
+                    'id': 'profile-password-change',
+                    'type': 'TAB',
+                    'labelKey': 'content.identity.passwordChange.title',
+                    'order': 0,
+                    'icon': '',
+                    'path': '/identity/:entityId/password/change',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE'] } ]
+                  },
+                  {
+                    'id': 'profile-password-metadata',
+                    'type': 'TAB',
+                    'labelKey': 'content.password.label',
+                    'order': 100,
+                    'icon': '',
+                    'path': '/identity/:entityId/password/detail',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORD_READ'] } ]
+                  }
+                ]
               },
               {
                 'id': 'profile-roles',

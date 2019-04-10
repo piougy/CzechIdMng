@@ -303,7 +303,7 @@ import org.springframework.data.domain.Page;
 
         execution.setVariable("distinguishedName", distinguishedNameV);
         execution.setVariable("name", nameV);
-        execution.setVariable("transformationScript", MessageFormat.format("\"{0}\"", distinguishedName));
+        execution.setVariable("transformationScript", MessageFormat.format(" \"[{0}]\"", distinguishedName));
 
         execution.setVariable("organizationTreeNode", null);
         execution.setVariable("automaticAttributes", null);

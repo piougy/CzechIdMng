@@ -162,6 +162,9 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
+	PASSWORD(
+			IdmBasePermission.READ, 
+			IdmBasePermission.UPDATE),
 	SCRIPT(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
@@ -482,6 +485,9 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String PASSWORDPOLICY_CREATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "CREATE";
 	public static final String PASSWORDPOLICY_UPDATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String PASSWORDPOLICY_DELETE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String PASSWORD_READ = "PASSWORD" + BasePermission.SEPARATOR + "READ";
+	public static final String PASSWORD_UPDATE = "PASSWORD" + BasePermission.SEPARATOR + "UPDATE";
 	//
 	public static final String SCRIPT_AUTOCOMPLETE = "SCRIPT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String SCRIPT_READ = "SCRIPT" + BasePermission.SEPARATOR + "READ";

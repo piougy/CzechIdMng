@@ -57,6 +57,7 @@ import AbstractIdentityDashboardButton from './Button/AbstractIdentityDashboardB
 import RoleRequestInfo from './RoleRequestInfo/RoleRequestInfo';
 import PasswordInfo from './PasswordInfo/PasswordInfo';
 import CronTab from './CronTab/CronTab';
+import CronGenerator from './CronGenerator/CronGenerator';
 
 const Components = {
   Table,
@@ -119,7 +120,8 @@ const Components = {
   AbstractIdentityDashboardButton,
   RoleRequestInfo,
   PasswordInfo,
-  CronTab
+  CronTab,
+  CronGenerator
 };
 
 Components.version = '9.4.0';

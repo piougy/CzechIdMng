@@ -269,6 +269,28 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       return;
     }
     const formEntity = this.refs.triggerForm.getData();
+
+    if (formEntity.type === 'REPEAT') {
+      // bude tohle fungovat?
+      console.log(this.refs.repeat);
+      
+      // const intervalType = cronTabEntity.intervalType;
+      // console.log(intervalType);
+
+      // poskládat v CronGeneratoru nebo tady?
+      const second = '0';
+      const minute = '0';
+      const hour = '16';
+      const dayInMonth = '*';
+      const monthInYear = '*';
+      const dayOfWeek = '?';
+
+      const trigger = `${second} ${minute} ${hour} ${dayInMonth} ${monthInYear} ${dayOfWeek}`;
+
+      formEntity.type = 'CRON';
+      formEntity.cron = trigger;
+    }
+    // console.log(formEntity);
     //
     this.context.store.dispatch(this.getManager().createTrigger(formEntity, () => {
       this.addMessage({ message: this.i18n('action.trigger-create.success') });
@@ -643,10 +665,10 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   required={ triggerType === 'SIMPLE' }/>
 
                 {/* MOJE REPEAT KOMPONENTA (UVNITR FORM V MODALU) */}
-                <Advanced.CronTab
+                <Advanced.CronGenerator
                   ref="repeat"
-                  hidden={ triggerType !== 'REPEATED' }
-                  required={ triggerType === 'REPEATED' }/>
+                  hidden={ triggerType !== 'REPEAT' }
+                  required={ triggerType === 'REPEAT' }/>
 
                 <Basic.TextField
                   ref="cron"

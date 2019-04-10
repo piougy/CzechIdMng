@@ -734,9 +734,16 @@
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
-      "ADVANCED": "Repeated start",
+      "REPEATED": "Repeated start",
       "CRON": "Cron",
       "DEPENDENT": "Other task"
+    },
+    "IntervalTypeEnum": {
+      "MINUTE": "minute",
+      "HOUR": "hour",
+      "DAY": "day",
+      "WEEK": "week",
+      "MONTH": "month"
     },
     "RolePriorityEnum": {
       "NONE": "None (0)",

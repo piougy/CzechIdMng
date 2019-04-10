@@ -765,9 +765,16 @@
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
-      "ADVANCED": "Opakované spuštění",
+      "REPEATED": "Opakované spuštění",
       "CRON": "Cron",
       "DEPENDENT": "Jiná úloha"
+    },
+    "IntervalTypeEnum": {
+      "MINUTE": "minut",
+      "HOUR": "hodin",
+      "DAY": "dnů",
+      "WEEK": "týden",
+      "MONTH": "měsíc"
     },
     "RolePriorityEnum": {
       "NONE": "Žádná (0)",

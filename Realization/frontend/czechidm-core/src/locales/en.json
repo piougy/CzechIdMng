@@ -734,7 +734,7 @@
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
-      "REPEATED": "Repeated start",
+      "REPEAT": "Repeat start",
       "CRON": "Cron",
       "DEPENDENT": "Other task"
     },
@@ -4269,6 +4269,10 @@
           "help": "Scheduled start type"
         },
         "fireTime": "Fire time",
+        "repeat": {
+          "label": "Repeat every",
+          "firstRun": "First run"
+        },
         "cron": {
           "label": "Cron expression",
           "help": "Quartz cron",

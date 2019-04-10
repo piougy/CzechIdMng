@@ -765,7 +765,7 @@
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
-      "REPEATED": "Opakované spuštění",
+      "REPEAT": "Opakované spuštění",
       "CRON": "Cron",
       "DEPENDENT": "Jiná úloha"
     },
@@ -4319,6 +4319,10 @@
           "help": "Typ plánovaného spuštění"
         },
         "fireTime": "Datum spuštění",
+        "repeat": {
+          "label": "Opakovat jednou za",
+          "firstRun": "Datum prvního spuštění"
+        },
         "cron": {
           "label": "Cron výraz",
           "help": "Quartz cron",

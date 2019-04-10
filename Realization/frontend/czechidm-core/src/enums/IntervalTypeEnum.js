@@ -14,36 +14,6 @@ export default class IntervalTypeEnum extends AbstractEnum {
   static findKeyBySymbol(sym) {
     return super.findKeyBySymbol(this, sym);
   }
-
-//   
-  static getLevel(key) {
-    if (!key) {
-      return null;
-    }
-
-    const sym = super.findSymbolByKey(this, key);
-
-    switch (sym) {
-      case this.MINUTE: {
-        return 'info';
-        }
-      case this.HOUR: {
-        return 'success';
-      }
-      case this.DAY: {
-        return 'info';
-      }
-      case this.WEEK: {
-        return 'info';
-      }
-      case this.MONTH: {
-        return 'warning';
-      }
-      default: {
-        // nothing
-      }
-    }
-  }
 }
 
 IntervalTypeEnum.MINUTE = Symbol('MINUTE');

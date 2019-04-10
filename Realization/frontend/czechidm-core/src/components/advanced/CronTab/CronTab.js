@@ -2,10 +2,11 @@
 import React, { PropTypes } from 'react';
 import * as Basic from '../../basic';
 //
-import AbstractComponent from '../../basic/AbstractComponent/AbstractComponent';
+import AbstractFormComponent from '../../basic/AbstractFormComponent/AbstractFormComponent';
+import IntervalTypeEnum from '../../../enums/IntervalTypeEnum';
 // import Datetime from 'react-datetime';
 
-class CronTab extends AbstractComponent {
+class CronTab extends AbstractFormComponent {
 
   getContentKey() {
     return 'content.scheduler.schedule-tasks';
@@ -13,37 +14,44 @@ class CronTab extends AbstractComponent {
 
   constructor(props) {
     super(props);
+    this.state = {
+      intervalType: IntervalTypeEnum.findKeyBySymbol(IntervalTypeEnum.HOUR)
+    }
   }
 
-    render() {
-      const { style, showLoading, rendered, hidden, required } = this.props;
-      if (!rendered) {
-        return null;
-      }
-      if (showLoading) {
-        return (
-          <Basic.Loading isStatic showLoading/>
-        );
-      }
+  onChangeIntervalType(intervalType) {
+    this.setState({
+      intervalType: intervalType.value
+    });
+  }
+
+  getBody() {
+    const { style, showLoading, rendered, label } = this.props;
+    if (!rendered) {
+      return null;
+    }
+    if (showLoading) {
       return (
-        // posunout hidden do ScheduleTasks
-        <div
-          hidden={ hidden }>
-          <Basic.DateTimePicker
-            ref="fireTime"
-            label={ "ahoj" }
-            // hidden={ hidden }
-            // required={ triggerType === 'ADVANCED' }
-            />
-          <Basic.DateTimePicker
-            ref="fireTime"
-            // label={ this.i18n('entity.SchedulerTask.trigger.fireTime') }
-            // hidden={ hidden }
-            // required={ triggerType === 'ADVANCED' }
-            />
-        </div>
+        <Basic.Loading isStatic showLoading/>
       );
     }
+    return (
+      <Basic.AbstractForm showLoading={showLoading}>
+        <Basic.EnumSelectBox
+          ref="type"
+          enum={ IntervalTypeEnum }
+          label={ this.i18n('entity.SchedulerTask.trigger._type.label') }
+          required
+          onChange={this.onChangeIntervalType.bind(this)}/>
+        <Basic.DateTimePicker
+          ref="fireTime"
+          label={ this.i18n('entity.SchedulerTask.trigger.fireTime') }
+          // hidden={ intervalType !== 'HOUR' }
+          // required={ intervalType === 'HOUR' }
+          />
+      </Basic.AbstractForm>
+    );
+  }
 }
 
 export default CronTab;

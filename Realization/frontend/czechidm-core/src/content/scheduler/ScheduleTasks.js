@@ -642,12 +642,11 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   hidden={ triggerType !== 'SIMPLE' }
                   required={ triggerType === 'SIMPLE' }/>
 
-                {/* NAHRADIT ZA KOMPONENTU GUI NAD CRONEM! */}
+                {/* MOJE REPEAT KOMPONENTA (UVNITR FORM V MODALU) */}
                 <Advanced.CronTab
-                  ref="fireTime"
-                  label={ this.i18n('entity.SchedulerTask.trigger.fireTime') }
-                  hidden={ triggerType !== 'ADVANCED' }
-                  required={ triggerType === 'ADVANCED' }/>
+                  ref="repeat"
+                  hidden={ triggerType !== 'REPEATED' }
+                  required={ triggerType === 'REPEATED' }/>
 
                 <Basic.TextField
                   ref="cron"

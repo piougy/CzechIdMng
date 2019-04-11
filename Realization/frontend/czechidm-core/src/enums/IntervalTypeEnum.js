@@ -14,6 +14,10 @@ export default class IntervalTypeEnum extends AbstractEnum {
   static findKeyBySymbol(sym) {
     return super.findKeyBySymbol(this, sym);
   }
+
+  static findSymbolByKey(key) {
+    return super.findSymbolByKey(this, key);
+  }
 }
 
 IntervalTypeEnum.MINUTE = Symbol('MINUTE');

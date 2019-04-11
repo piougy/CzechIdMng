@@ -745,6 +745,15 @@
       "WEEK": "week",
       "MONTH": "month"
     },
+    "WeekDayEnum": {
+      "MONDAY": "mon",
+      "TUESDAY": "tue",
+      "WEDNESDAY": "wed",
+      "THURSTDAY": "thu",
+      "FRIDAY": "fri",
+      "SATURDAY": "sat",
+      "SUNDAY": "sun"
+    },
     "RolePriorityEnum": {
       "NONE": "None (0)",
       "MINOR": "Minor (2)",
@@ -4271,7 +4280,7 @@
         "fireTime": "Fire time",
         "repeat": {
           "label": "Repeat every",
-          "firstRun": "First run"
+          "firstRun": "Valid from"
         },
         "cron": {
           "label": "Cron expression",

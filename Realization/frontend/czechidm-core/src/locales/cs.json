@@ -773,9 +773,18 @@
     "IntervalTypeEnum": {
       "MINUTE": "minut",
       "HOUR": "hodin",
-      "DAY": "dnů",
+      "DAY": "den",
       "WEEK": "týden",
       "MONTH": "měsíc"
+    },
+    "WeekDayEnum": {
+      "MONDAY": "po",
+      "TUESDAY": "út",
+      "WEDNESDAY": "st",
+      "THURSTDAY": "čt",
+      "FRIDAY": "pá",
+      "SATURDAY": "so",
+      "SUNDAY": "ne"
     },
     "RolePriorityEnum": {
       "NONE": "Žádná (0)",
@@ -4376,7 +4385,7 @@
         "fireTime": "Datum spuštění",
         "repeat": {
           "label": "Opakovat jednou za",
-          "firstRun": "Datum prvního spuštění"
+          "firstRun": "Platné od"
         },
         "cron": {
           "label": "Cron výraz",

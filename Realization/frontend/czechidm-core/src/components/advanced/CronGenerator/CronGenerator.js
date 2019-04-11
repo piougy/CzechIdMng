@@ -3,7 +3,7 @@ import * as Basic from '../../basic';
 //
 import AbstractFormComponent from '../../basic/AbstractFormComponent/AbstractFormComponent';
 import IntervalTypeEnum from '../../../enums/IntervalTypeEnum';
-import Row from '../../basic/Row/Row';
+import WeekDayEnum from '../../../enums/WeekDayEnum';
 // import Datetime from 'react-datetime';
 
 class CronGenerator extends AbstractFormComponent {
@@ -11,7 +11,8 @@ class CronGenerator extends AbstractFormComponent {
   constructor(props) {
     super(props);
     this.state = {
-      intervalType: IntervalTypeEnum.findKeyBySymbol(IntervalTypeEnum.HOUR)
+      intervalType: IntervalTypeEnum.findKeyBySymbol(IntervalTypeEnum.HOUR),
+      weekDay: WeekDayEnum.findKeyBySymbol(WeekDayEnum.MONDAY)
     };
   }
 
@@ -26,9 +27,15 @@ class CronGenerator extends AbstractFormComponent {
     });
   }
 
+  onChangeWeekDay(weekDay) {
+    this.setState({
+      weekDay: weekDay.value
+    });
+  }
+
   getBody() {
     const { style, showLoading, rendered, label } = this.props;
-    const { intervalType } = this.state;
+    const { intervalType, weekDay } = this.state;
     if (!rendered) {
       return null;
     }
@@ -50,6 +57,7 @@ class CronGenerator extends AbstractFormComponent {
             <Basic.EnumSelectBox
               ref="intervalType"
               enum={ IntervalTypeEnum }
+              hidden={ intervalType !== 'MINUTE' && intervalType !== 'HOUR'}
               // required
               onChange={this.onChangeIntervalType.bind(this)}/>
           </Basic.Col>
@@ -62,12 +70,82 @@ class CronGenerator extends AbstractFormComponent {
           </Basic.Col>
         </Basic.Row>
 
+        {/* Week properties */}
+        <Basic.Row
+          hidden={ intervalType !== 'WEEK' }>
+          <Basic.Col lg={ 3 }>
+            <div>
+              { 'Každé' }
+            </div>
+          </Basic.Col>
+          <Basic.Col lg={ 3 }>
+            <Basic.EnumSelectBox
+              ref="weekDay"
+              enum={ WeekDayEnum }
+              // required
+              onChange={this.onChangeWeekDay.bind(this)}/>
+          </Basic.Col>
+          <Basic.Col lg={ 1 }>
+            <div>
+              { 'v' }
+            </div>
+          </Basic.Col>
+          <Basic.Col lg={ 5 }>
+            <Basic.DateTimePicker
+              ref="fireTime"
+              mode="time"
+              // required
+            />
+          </Basic.Col>
+        </Basic.Row>
+
+        {/* Month properties */}
+        <Basic.Row
+          hidden={ intervalType !== 'MONTH' }>
+          <Basic.Col lg={ 2 }>
+            <div>
+              { 'Měsíčně' }
+            </div>
+          </Basic.Col>
+          <Basic.Col lg={ 3 }>
+            <Basic.EnumSelectBox
+              ref="monthDay"
+              enum={ WeekDayEnum }
+              // required
+              onChange={this.onChangeWeekDay.bind(this)}/>
+          </Basic.Col>
+          <Basic.Col lg={ 2 }>
+            <div>
+              { 'den v' }
+            </div>
+          </Basic.Col>
+          <Basic.Col lg={ 5 }>
+            <Basic.DateTimePicker
+              ref="fireTime"
+              mode="time"
+              // required
+            />
+          </Basic.Col>
+        </Basic.Row>
+
+        <Basic.Row>
+          <Basic.Col lg={ 2 }>
+            <div>
+              { this.i18n('entity.SchedulerTask.trigger.repeat.firstRun') }
+            </div>
+          </Basic.Col>
+          <Basic.Col lg={ 5 }>
         <Basic.DateTimePicker
           ref="fireTime"
-          label={ this.i18n('entity.SchedulerTask.trigger.repeat.firstRun') }
           hidden={ intervalType !== 'MINUTE' && intervalType !== 'HOUR' && intervalType !== 'DAY' }
-          required={ intervalType !== 'MINUTE' && intervalType !== 'HOUR' && intervalType !== 'DAY' }
           />
+        <Basic.DateTimePicker
+          ref="fireTime"
+          hidden={ intervalType !== 'WEEK' && intervalType !== 'MONTH' }
+          mode="date"
+          />
+          </Basic.Col>
+        </Basic.Row>
       </Basic.AbstractForm>
     );
   }

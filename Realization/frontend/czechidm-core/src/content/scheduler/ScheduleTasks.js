@@ -271,9 +271,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     const formEntity = this.refs.triggerForm.getData();
 
     if (formEntity.type === 'REPEAT') {
-      // bude tohle fungovat?
       console.log(this.refs.repeat);
-      
       // const intervalType = cronTabEntity.intervalType;
       // console.log(intervalType);
 

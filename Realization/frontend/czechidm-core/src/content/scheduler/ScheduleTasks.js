@@ -288,7 +288,6 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       formEntity.type = 'CRON';
       formEntity.cron = trigger;
     }
-    // console.log(formEntity);
     //
     this.context.store.dispatch(this.getManager().createTrigger(formEntity, () => {
       this.addMessage({ message: this.i18n('action.trigger-create.success') });

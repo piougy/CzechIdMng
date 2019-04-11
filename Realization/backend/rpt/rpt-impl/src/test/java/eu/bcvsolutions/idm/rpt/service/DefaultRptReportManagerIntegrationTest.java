@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.rpt.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,7 +66,12 @@ public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationT
 		RptReportDto report = testReportExecutor.generate(new RptReportDto(UUID.randomUUID()));
 		
 		Assert.assertNotNull(report.getData());
-		Assert.assertEquals(mapper.writeValueAsString(TestReportExecutor.identities), IOUtils.toString(attachmentManager.getAttachmentData(report.getData())));
+		InputStream is = attachmentManager.getAttachmentData(report.getData());
+		try {
+			Assert.assertEquals(mapper.writeValueAsString(TestReportExecutor.identities), IOUtils.toString(is));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		//
 		attachmentManager.deleteAttachments(report);
 	}
@@ -79,8 +85,12 @@ public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationT
 		Assert.assertNotNull(reportId);
 		
 		Assert.assertNotNull(report.getData());
-		Assert.assertEquals(mapper.writeValueAsString(TestReportExecutor.identities), IOUtils.toString(attachmentManager.getAttachmentData(report.getData())));
-		
+		InputStream is = attachmentManager.getAttachmentData(report.getData());
+		try {
+			Assert.assertEquals(mapper.writeValueAsString(TestReportExecutor.identities), IOUtils.toString(is));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		attachmentManager.deleteAttachments(report);
 	}
 	
@@ -102,9 +112,14 @@ public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationT
 		Assert.assertNotNull(reportId);
 		
 		Assert.assertNotNull(report.getData());
-		Assert.assertEquals(
-				mapper.writeValueAsString(Lists.newArrayList(TestReportExecutor.identities.get(0))), 
-				IOUtils.toString(attachmentManager.getAttachmentData(report.getData())));
+		InputStream is = attachmentManager.getAttachmentData(report.getData());
+		try {
+			Assert.assertEquals(
+					mapper.writeValueAsString(Lists.newArrayList(TestReportExecutor.identities.get(0))), 
+					IOUtils.toString(is));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		
 		attachmentManager.deleteAttachments(report);
 	}

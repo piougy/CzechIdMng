@@ -265,10 +265,17 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 			assertNotNull(resource);
 			String valueOnResource = resource.getDescrip();
 
-			String data = new String(IOUtils.toByteArray(attachmentManager.getAttachmentData(attachment.getId())));
-			assertEquals(data, valueOnResource);
+			InputStream is = attachmentManager.getAttachmentData(attachment.getId());
+			try {
+				String data = new String(IOUtils.toByteArray(is));
+				assertEquals(data, valueOnResource);
+			} finally {
+				IOUtils.closeQuietly(is);
+			}
 		} catch (IOException e) {
 			throw new CoreException(e);
+		} finally {
+			IOUtils.closeQuietly(inputStream);
 		}
 	}
 }

@@ -798,6 +798,8 @@ public class DefaultSysSystemAttributeMappingService extends
 					attachmentWithDataDto.setData(bytes);
 				} catch (IOException e) {
 					throw new CoreException(e);
+				} finally {
+					IOUtils.closeQuietly(inputStream);
 				}
 			}
 			return attachmentWithDataDto;

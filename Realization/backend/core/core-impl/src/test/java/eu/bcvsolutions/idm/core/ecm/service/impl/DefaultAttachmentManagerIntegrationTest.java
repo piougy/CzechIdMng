@@ -1,7 +1,8 @@
-package eu.bcvsolutions.idm.core.ecm.service;
+package eu.bcvsolutions.idm.core.ecm.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +21,6 @@ import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.dto.filter.IdmAttachmentFilter;
 import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
-import eu.bcvsolutions.idm.core.ecm.service.impl.DefaultAttachmentManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -98,7 +98,12 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 		// last version only
 		List<IdmAttachmentDto> attachments = attachmentManager.getAttachments(owner, null).getContent();
 		Assert.assertEquals(1, attachments.size());
-		Assert.assertEquals(contentThree, IOUtils.toString(attachmentManager.getAttachmentData(attachments.get(0).getId())));
+		InputStream is = attachmentManager.getAttachmentData(attachments.get(0).getId());
+		try {
+			Assert.assertEquals(contentThree, IOUtils.toString(is));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		//
 		attachments = attachmentManager.getAttachmentVersions(attachmentOne.getId());
 		Assert.assertEquals(3, attachments.size());
@@ -107,19 +112,34 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 		Assert.assertEquals("3.0", attachments.get(0).getVersionLabel());
 		Assert.assertNull(attachments.get(0).getNextVersion());
 		Assert.assertEquals(attachmentOne.getId(), attachments.get(0).getParent());
-		Assert.assertEquals(contentThree, IOUtils.toString(attachmentManager.getAttachmentData(attachments.get(0).getId())));
+		is = attachmentManager.getAttachmentData(attachments.get(0).getId());
+		try {
+			Assert.assertEquals(contentThree, IOUtils.toString(is));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		// two
 		Assert.assertEquals(Integer.valueOf(2), attachments.get(1).getVersionNumber());
 		Assert.assertEquals("2.0", attachments.get(1).getVersionLabel());
 		Assert.assertEquals(attachmentThree.getId(), attachments.get(1).getNextVersion());
 		Assert.assertEquals(attachmentOne.getId(), attachments.get(1).getParent());
-		Assert.assertEquals(contentTwo, IOUtils.toString(attachmentManager.getAttachmentData(attachments.get(1).getId())));
+		is = attachmentManager.getAttachmentData(attachments.get(1).getId());
+		try {
+			Assert.assertEquals(contentTwo, IOUtils.toString(is));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		// one
 		Assert.assertEquals(Integer.valueOf(1), attachments.get(2).getVersionNumber());
 		Assert.assertEquals("1.0", attachments.get(2).getVersionLabel());
 		Assert.assertEquals(attachmentTwo.getId(), attachments.get(2).getNextVersion());
 		Assert.assertNull(attachments.get(2).getParent());
-		Assert.assertEquals(contentOne, IOUtils.toString(attachmentManager.getAttachmentData(attachments.get(2).getId())));
+		is = attachmentManager.getAttachmentData(attachments.get(2).getId());
+		try {
+			Assert.assertEquals(contentOne, IOUtils.toString(is));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		//
 		attachmentManager.deleteAttachment(attachmentThree);
 		//

@@ -4,6 +4,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.dto.filter.IdmAttachmentFilter;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
-import eu.bcvsolutions.idm.core.ecm.service.DefaultAttachmentManagerIntegrationTest;
+import eu.bcvsolutions.idm.core.ecm.service.impl.DefaultAttachmentManagerIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
@@ -69,7 +70,12 @@ public class IdmAttachmentControllerRestTest extends AbstractReadWriteDtoControl
 		Assert.assertEquals(content.length(), createdDto.getFilesize().intValue());
 		Assert.assertNull(createdDto.getOwnerId());
 		Assert.assertEquals(fileName, createdDto.getName());
-		Assert.assertEquals(content, IOUtils.toString(attachmentManager.getAttachmentData(createdDto.getId())));
+		InputStream is = attachmentManager.getAttachmentData(createdDto.getId());
+		try {
+			Assert.assertEquals(content, IOUtils.toString(is));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		//
 		attachmentManager.delete(createdDto);
 	}

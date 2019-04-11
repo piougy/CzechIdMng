@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -580,7 +581,12 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		Assert.assertEquals(createdProfile.getId(), image.getOwnerId());
 		Assert.assertEquals(attachmentManager.getOwnerType(createdProfile), image.getOwnerType());
 		Assert.assertEquals(fileName, image.getName());
-		Assert.assertEquals(content, IOUtils.toString(attachmentManager.getAttachmentData(image.getId())));
+		InputStream is = attachmentManager.getAttachmentData(image.getId());
+		try {
+			Assert.assertEquals(content, IOUtils.toString(is));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		//
 		// get profile
 		response = getMockMvc().perform(MockMvcRequestBuilders.get(getDetailUrl(owner.getId()) + "/profile")

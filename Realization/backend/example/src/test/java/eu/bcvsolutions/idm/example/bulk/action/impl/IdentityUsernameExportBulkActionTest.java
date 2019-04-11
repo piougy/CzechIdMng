@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.UUID;
 
@@ -90,14 +91,19 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 		assertNotNull(attachmentForLongRunningTask);
 		assertEquals(attachmentDto.getId(), attachmentForLongRunningTask.getId());
 		
-		String string = IOUtils.toString(attachmentManager.getAttachmentData(attachmentDto.getId()));
-		assertTrue(string.contains(identity.getUsername()));
-		assertTrue(string.contains(identity2.getUsername()));
-		assertTrue(string.contains(identity3.getUsername()));
-
-		assertTrue(string.contains(IdmIdentity_.username.getName().toUpperCase()));
-		assertTrue(string.contains(IdmIdentity_.externalCode.getName().toUpperCase()));
-		assertTrue(string.contains(IdmIdentity_.state.getName().toUpperCase()));
+		InputStream is = attachmentManager.getAttachmentData(attachmentDto.getId());
+		try {
+			String string = IOUtils.toString(is);
+			assertTrue(string.contains(identity.getUsername()));
+			assertTrue(string.contains(identity2.getUsername()));
+			assertTrue(string.contains(identity3.getUsername()));
+	
+			assertTrue(string.contains(IdmIdentity_.username.getName().toUpperCase()));
+			assertTrue(string.contains(IdmIdentity_.externalCode.getName().toUpperCase()));
+			assertTrue(string.contains(IdmIdentity_.state.getName().toUpperCase()));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 	}
 
 	@Test

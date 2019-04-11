@@ -4,6 +4,9 @@ import * as Basic from '../../basic';
 import AbstractFormComponent from '../../basic/AbstractFormComponent/AbstractFormComponent';
 import IntervalTypeEnum from '../../../enums/IntervalTypeEnum';
 import WeekDayEnum from '../../../enums/WeekDayEnum';
+import CronMinuteEnum from '../../../enums/CronMinuteEnum';
+import CronHourEnum from '../../../enums/CronHourEnum';
+import DayInMonthEnum from '../../../enums/DayInMonthEnum';
 // import Datetime from 'react-datetime';
 
 class CronGenerator extends AbstractFormComponent {
@@ -34,8 +37,8 @@ class CronGenerator extends AbstractFormComponent {
   }
 
   getBody() {
-    const { style, showLoading, rendered, label } = this.props;
-    const { intervalType, weekDay } = this.state;
+    const { showLoading, rendered } = this.props;
+    const { intervalType } = this.state;
     if (!rendered) {
       return null;
     }
@@ -55,11 +58,15 @@ class CronGenerator extends AbstractFormComponent {
           </Basic.Col>
           <Basic.Col lg={ 3 }>
             <Basic.EnumSelectBox
-              ref="intervalType"
-              enum={ IntervalTypeEnum }
-              hidden={ intervalType !== 'MINUTE' && intervalType !== 'HOUR'}
-              // required
-              onChange={this.onChangeIntervalType.bind(this)}/>
+              ref="cronMinute"
+              enum={ CronMinuteEnum }
+              hidden={ intervalType !== 'MINUTE'}
+              />
+            <Basic.EnumSelectBox
+              ref="cronHour"
+              enum={ CronHourEnum }
+              hidden={ intervalType !== 'HOUR'}
+              />
           </Basic.Col>
           <Basic.Col lg={ 3 }>
             <Basic.EnumSelectBox
@@ -110,9 +117,7 @@ class CronGenerator extends AbstractFormComponent {
           <Basic.Col lg={ 3 }>
             <Basic.EnumSelectBox
               ref="monthDay"
-              enum={ WeekDayEnum }
-              // required
-              onChange={this.onChangeWeekDay.bind(this)}/>
+              enum={ DayInMonthEnum }/>
           </Basic.Col>
           <Basic.Col lg={ 2 }>
             <div>
@@ -146,6 +151,7 @@ class CronGenerator extends AbstractFormComponent {
           />
           </Basic.Col>
         </Basic.Row>
+
       </Basic.AbstractForm>
     );
   }

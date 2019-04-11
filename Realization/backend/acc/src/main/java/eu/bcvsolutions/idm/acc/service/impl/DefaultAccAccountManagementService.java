@@ -458,7 +458,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 						// Try to find identity-account for this identity-role. If exists and doesn't in
 						// list of identity-account to delete, then we are done.
 						AccIdentityAccountDto existsIdentityAccount = findAlreadyExistsIdentityAccount(
-								identityAccountList, identityAccountsToDelete, identityRole);
+								identityAccountList, identityAccountsToDelete, identityRole, roleSystem);
 
 						if (existsIdentityAccount != null) {
 							return;
@@ -592,24 +592,29 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	}
 	
 	/**
-	 * Try to find identity-account for this identity-role. If exists and doesn't in
+	 * Try to find identity-account for this identity-role and system. If exists and doesn't in
 	 * list of identity-account to delete, then we are done.
 	 * 
 	 * @param identityAccountList
 	 * @param identityAccountsToDelete
 	 * @param identityRole
+	 * @param roleSystem 
 	 * @return
 	 */
 	private AccIdentityAccountDto findAlreadyExistsIdentityAccount(List<AccIdentityAccountDto> identityAccountList,
-			List<AccIdentityAccountDto> identityAccountsToDelete, IdmIdentityRoleDto identityRole) {
-		AccIdentityAccountDto existsIdentityAccount = identityAccountList.stream().filter(identityAccount -> {
+			List<AccIdentityAccountDto> identityAccountsToDelete, IdmIdentityRoleDto identityRole, SysRoleSystemDto roleSystem) {
+		return identityAccountList.stream() //
+				.filter(identityAccount -> {
 			if (identityRole.getId().equals(identityAccount.getIdentityRole())
 					&& !identityAccountsToDelete.contains(identityAccount)) {
-				return true;
+				AccAccountDto account = DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.account.getName(), AccAccountDto.class);
+				Assert.notNull(account.getSystem());
+				if(account.getSystem().equals(roleSystem.getSystem())) {
+					return true;
+				}
 			}
 			return false;
 		}).findFirst().orElse(null);
-		return existsIdentityAccount;
 	}
 	
 	/**

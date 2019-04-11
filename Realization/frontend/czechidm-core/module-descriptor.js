@@ -993,7 +993,7 @@ module.exports = {
             'order': 55,
             'path': '/scheduler/all-tasks',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
-            'icon': 'fa:calendar-times-o',
+            'icon': 'component:scheduled-tasks',
             'items': [
               {
                 'id': 'scheduler-running-tasks',

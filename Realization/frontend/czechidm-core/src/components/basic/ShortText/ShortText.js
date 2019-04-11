@@ -24,7 +24,7 @@ class ShortText extends AbstractComponent {
       return null;
     }
     let shortText = '';
-    if (_text.length > maxLength) {
+    if (maxLength !== null && _text.length > maxLength) {
       if (cutPointEnd) {
         shortText = UiUtils.substringBegin(_text, maxLength, cutChar, '...');
       } else {

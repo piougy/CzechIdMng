@@ -3,7 +3,7 @@ import classNames from 'classnames';
 //
 import Icon from '../Icon/Icon';
 import ShortText from '../ShortText/ShortText';
-import AbstractComponent from '../AbstractComponent/AbstractComponent';
+import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 
 /**
  * Base selectbox option decorator. Reuses react-select component behavior.
@@ -15,7 +15,7 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
  * @author Radek Tomiška
  * @since 9.5.0
  */
-export default class OptionDecorator extends AbstractComponent {
+export default class OptionDecorator extends AbstractContextComponent {
 
   /**
    * react-select method

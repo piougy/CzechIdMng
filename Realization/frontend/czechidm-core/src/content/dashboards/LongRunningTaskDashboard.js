@@ -32,7 +32,7 @@ class LongRunningTaskDashboard extends Basic.AbstractContent {
     return (
       <div className={ _total ? '' : 'hidden' }>
         <Basic.ContentHeader
-          icon="fa:calendar-times-o"
+          icon="component:scheduled-task"
           text={ this.i18n('dashboard.longRunningTaskDashboard.header') }/>
         <Basic.Panel>
           <RunningTasks

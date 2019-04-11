@@ -673,7 +673,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       condensed,
       header,
       forceSearchParameters,
-      className
+      className,
+      uuidEnd
     } = this.props;
     const {
       filterOpened,
@@ -919,7 +920,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 cell={
                   ({rowIndex, data, property}) => {
                     return (
-                      <UuidInfo value={ data[rowIndex][property] }/>
+                      <UuidInfo value={ data[rowIndex][property] } uuidEnd={ uuidEnd }/>
                     );
                   }
                 }/>
@@ -1054,6 +1055,10 @@ AdvancedTable.propTypes = {
    * Table styles
    */
   style: PropTypes.object,
+  /**
+   * Shows ending uuid characters in shorten label.
+   */
+  uuidEnd: PropTypes.bool,
   //
   // Private properties, which are used internally for async data fetching
   //
@@ -1089,6 +1094,7 @@ AdvancedTable.defaultProps = {
   showPageSize: true,
   showToolbar: true,
   showRefreshButton: true,
+  uuidEnd: false
 };
 
 function select(state, component) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 //
-import AbstractComponent from '../AbstractComponent/AbstractComponent';
+import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Icon from '../Icon/Icon';
 
 /**
@@ -12,7 +12,7 @@ import Icon from '../Icon/Icon';
  * @author Radek Tomiška
  * @since 9.5.0
  */
-export default class ValueDecorator extends AbstractComponent {
+export default class ValueDecorator extends AbstractContextComponent {
 
   constructor(props) {
     super(props);

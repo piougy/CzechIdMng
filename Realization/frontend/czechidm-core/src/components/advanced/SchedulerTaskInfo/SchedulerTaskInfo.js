@@ -41,7 +41,7 @@ export class SchedulerTaskInfo extends AbstractEntityInfo {
    * @param  {object} entity
    */
   getEntityIcon() {
-    return 'fa:calendar-times-o';
+    return 'component:scheduled-task';
   }
 
   getNiceLabel() {

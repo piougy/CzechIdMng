@@ -459,6 +459,12 @@ module.exports = {
       'type': 'icon',
       'entityType': ['disabled-identity'],
       'component': 'fa:user-slash'
+    },
+    {
+      'id': 'scheduled-task-icon',
+      'type': 'icon',
+      'entityType': ['scheduled-task', 'scheduled-tasks'],
+      'component': 'fa:calendar-times-o'
     }
   ]
 };

@@ -4164,7 +4164,10 @@
       },
       "duration": "Trvání úlohy",
       "taskProperties": {
-        "label": "Parametry úlohy"
+        "label": "Parametry úlohy",
+        "core-instanceid": {
+          "label": "$t(entity.LongRunningTask.instanceId.label)"
+        }
       }
     },
     "LongRunningTaskItem": {
@@ -4182,7 +4185,7 @@
       "id": "Identifikátor",
       "taskType": "Typ úlohy",
       "instanceId": {
-        "label": "Instance",
+        "label": "$t(entity.LongRunningTask.instanceId.label)",
         "help": "Spustit na serveru (identifikátor instance)"
       },
       "description": "Popis",

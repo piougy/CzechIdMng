@@ -26,6 +26,10 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
    */
   shorten(value) {
     if (typeof value === 'string') {
+      const { uuidEnd } = this.props;
+      if (uuidEnd) {
+        return value.substr(value.length - 7, value.length);
+      }
       return value.substring(0, MAX_UUID_LENGTH);
     }
     return value;
@@ -75,8 +79,13 @@ UuidInfo.propTypes = {
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number
-  ]).isRequired
+  ]).isRequired,
+  /**
+   * Shows ending uuid characters in shorten label.
+   */
+  uuidEnd: PropTypes.bool
 };
 UuidInfo.defaultProps = {
-  ...Basic.AbstractContextComponent.defaultProps
+  ...Basic.AbstractContextComponent.defaultProps,
+  uuidEnd: false
 };

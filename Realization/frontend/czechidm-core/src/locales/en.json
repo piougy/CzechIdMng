@@ -4114,7 +4114,10 @@
       },
       "duration": "Task duration",
       "taskProperties": {
-        "label": "Parameters"
+        "label": "Parameters",
+        "core-instanceid": {
+          "label": "$t(entity.LongRunningTask.instanceId.label)"
+        }
       }
     },
     "LongRunningTaskItem": {
@@ -4132,7 +4135,7 @@
       "id": "Identificator",
       "taskType": "Task type",
       "instanceId": {
-        "label": "Instance",
+        "label": "$t(entity.LongRunningTask.instanceId.label)",
         "help": "Execute on server (instance identifier)"
       },
       "description": "Description",

@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.event.processor.LongRunningTaskExecuteDependentProcessor;
 import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
+import eu.bcvsolutions.idm.core.scheduler.repository.IdmDependentTaskTriggerRepository;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleExpirationTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -48,6 +49,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	@Autowired private IdmScheduledTaskService scheduledTaskService;
+	@Autowired private IdmDependentTaskTriggerRepository dependentTaskTriggerRepository;
 	//
 	private DefaultSchedulerManager manager;
 	
@@ -60,6 +62,38 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	public void testAsynchronousTasks() {
 		// we are testing scheduler, not async lrts
 		Assert.assertFalse(longRunningTaskManager.isAsynchronous());
+	}
+	
+	@Test
+	public void testReferentialIntegrityAfterInitiatorDelete() throws Exception {
+		Task initiatorTask = createTask("mock");
+		Task dependentTask = createTask("mock");
+		DependentTaskTrigger trigger = new DependentTaskTrigger();
+		trigger.setInitiatorTaskId(initiatorTask.getId());
+		//
+		manager.createTrigger(dependentTask.getId(), trigger);
+		//
+		Assert.assertFalse(dependentTaskTriggerRepository.findByDependentTaskId(dependentTask.getId()).isEmpty());
+		// delete initiator
+		manager.deleteTask(initiatorTask.getId());
+		//
+		Assert.assertTrue(dependentTaskTriggerRepository.findByDependentTaskId(dependentTask.getId()).isEmpty());
+	}
+	
+	@Test
+	public void testReferentialIntegrityAfterDependentDelete() throws Exception {
+		Task initiatorTask = createTask("mock");
+		Task dependentTask = createTask("mock");
+		DependentTaskTrigger trigger = new DependentTaskTrigger();
+		trigger.setInitiatorTaskId(initiatorTask.getId());
+		//
+		manager.createTrigger(dependentTask.getId(), trigger);
+		//
+		Assert.assertFalse(dependentTaskTriggerRepository.findByInitiatorTaskId(initiatorTask.getId()).isEmpty());
+		// delete initiator
+		manager.deleteTask(dependentTask.getId());
+		//
+		Assert.assertTrue(dependentTaskTriggerRepository.findByInitiatorTaskId(initiatorTask.getId()).isEmpty());
 	}
 	
 	@Test

@@ -13,9 +13,9 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @author Jan Helbich
  *
  */
-public interface IdmScheduledTaskService
-	extends ReadWriteDtoService<IdmScheduledTaskDto, IdmScheduledTaskFilter>, 
-	AuthorizableService<IdmScheduledTaskDto> {
+public interface IdmScheduledTaskService extends
+		ReadWriteDtoService<IdmScheduledTaskDto, IdmScheduledTaskFilter>,
+		AuthorizableService<IdmScheduledTaskDto> {
 
 	/**
 	 * Finds scheduled tasks by relative quartz task name.

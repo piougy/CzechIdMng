@@ -26,6 +26,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.utils.Key;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -297,8 +298,20 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	}
 
 	@Override
+	@Transactional
 	public void deleteTask(String taskId) {		
 		try {
+			// delete dependent task triggers - are stored in our repository
+			dependentTaskTriggerRepository
+				.findByDependentTaskId(taskId)
+				.forEach(trigger -> {
+					dependentTaskTriggerRepository.delete(trigger);
+				});
+			dependentTaskTriggerRepository
+				.findByInitiatorTaskId(taskId)
+				.forEach(trigger -> {
+					dependentTaskTriggerRepository.delete(trigger);
+				});			
 			scheduler.deleteJob(new JobKey(taskId, DEFAULT_GROUP_NAME));
 		} catch (org.quartz.SchedulerException ex) {
 			throw new SchedulerException(CoreResultCode.SCHEDULER_DELETE_TASK_FAILED, ex);

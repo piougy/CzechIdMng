@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.LongRunningTaskProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent.LongRunningTaskEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
@@ -82,7 +83,15 @@ public class LongRunningTaskExecuteDependentProcessor
 						dependentTaskTrigger.getInitiatorTaskId(), 
 						dependentTaskTrigger.getDependentTaskId(),
 						longRunningTask.isDryRun());
-				schedulerManager.runTask(dependentTaskTrigger.getDependentTaskId(), longRunningTask.isDryRun());
+				
+				Task task = schedulerManager.getTask(dependentTaskTrigger.getDependentTaskId());
+				if (task == null) {
+					// Just for sure - quartz tasks can be persisted in different storage and can be reconfigured.
+					// Check quartz.properties if you see this line in log.
+					LOG.warn("Task [{}] was deleted and will not be executed.", dependentTaskTrigger.getDependentTaskId());
+				} else {
+					schedulerManager.runTask(task.getId(), longRunningTask.isDryRun());
+				}
 			});
 
 		return new DefaultEventResult.Builder<IdmLongRunningTaskDto>(event, this)

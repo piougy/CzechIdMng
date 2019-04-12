@@ -587,7 +587,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
 
     const result = (
       <div>
-        <Basic.Panel showLoading={showLoading} rendered={ request !== null && _currentIdentityRoles !== null && !detail.show && !showRoleByIdentitySelect}>
+        <Basic.Panel rendered={ request !== null && _currentIdentityRoles !== null && !detail.show && !showRoleByIdentitySelect}>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
           <Basic.Toolbar rendered={!detail.show && !showRoleByIdentitySelect}>
             <div className="pull-right">

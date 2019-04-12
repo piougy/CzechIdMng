@@ -1,7 +1,7 @@
 import AbstractEnum from './AbstractEnum';
 
 /**
- * Cron minute repetition possibilities - 1, 2, 3, 5, 6, 10, 12, 15, 20, 30
+ * Cron day in month repetition possibilities 1 - 31
  *
  * @author Petr Hanák
  */

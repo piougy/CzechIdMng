@@ -271,24 +271,13 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     const formEntity = this.refs.triggerForm.getData();
 
     if (formEntity.type === 'REPEAT') {
-      console.log(this.refs.repeat);
-      // const intervalType = cronTabEntity.intervalType;
-      // console.log(intervalType);
-
-      // poskládat v CronGeneratoru nebo tady?
-      const second = '0';
-      const minute = '0';
-      const hour = '16';
-      const dayInMonth = '*';
-      const monthInYear = '*';
-      const dayOfWeek = '?';
-
-      const trigger = `${second} ${minute} ${hour} ${dayInMonth} ${monthInYear} ${dayOfWeek}`;
-
+      const repeat = this.refs.repeat;
+      const trigger = repeat.resolveIntervalToCron();
+      console.log(trigger);
       formEntity.type = 'CRON';
       formEntity.cron = trigger;
     }
-    //
+
     this.context.store.dispatch(this.getManager().createTrigger(formEntity, () => {
       this.addMessage({ message: this.i18n('action.trigger-create.success') });
       this.closeTriggerDetail();

@@ -20,10 +20,10 @@ export default class WeekDayEnum extends AbstractEnum {
   }
 }
 
-WeekDayEnum.MONDAY = Symbol('MONDAY');
-WeekDayEnum.TUESDAY = Symbol('TUESDAY');
-WeekDayEnum.WEDNESDAY = Symbol('WEDNESDAY');
-WeekDayEnum.THURSTDAY = Symbol('THURSTDAY');
-WeekDayEnum.FRIDAY = Symbol('FRIDAY');
-WeekDayEnum.SATURDAY = Symbol('SATURDAY');
-WeekDayEnum.SUNDAY = Symbol('SUNDAY');
+WeekDayEnum.MONDAY = Symbol('mon');
+WeekDayEnum.TUESDAY = Symbol('tue');
+WeekDayEnum.WEDNESDAY = Symbol('wed');
+WeekDayEnum.THURSTDAY = Symbol('thu');
+WeekDayEnum.FRIDAY = Symbol('fri');
+WeekDayEnum.SATURDAY = Symbol('sat');
+WeekDayEnum.SUNDAY = Symbol('sun');

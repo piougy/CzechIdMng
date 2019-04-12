@@ -154,7 +154,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         }
         if (this._getIsNew()) {
           this.context.router.replace(`/role-requests/${entity.id}/detail`);
-          this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(entity.id, `${ uiKeyIncompatibleRoles }${ entity.id }`));
         }
       } else {
         this.addError(error);

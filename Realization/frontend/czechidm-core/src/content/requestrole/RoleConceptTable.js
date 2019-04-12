@@ -587,7 +587,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
 
     const result = (
       <div>
-        <Basic.Panel showLoading={showLoading} rendered={ request !== null && _currentIdentityRoles !== null && !detail.show && !showRoleByIdentitySelect}>
+        <Basic.Panel rendered={ request !== null && _currentIdentityRoles !== null && !detail.show && !showRoleByIdentitySelect}>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
           <Basic.Toolbar rendered={!detail.show && !showRoleByIdentitySelect}>
             <div className="pull-right">
@@ -616,13 +616,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
           {/* this.generateTable(conceptData)*/}
           <Basic.Table
             rendered={!detail.show && !showRoleByIdentitySelect}
-            hover={false}
-            showLoading={showLoading}
-            data={conceptData}
-            rowClass={this._rowClass}
-            className={className}
-            showRowSelection={false}
-            noData={this.i18n('component.basic.Table.noData')}>
+            hover={ false }
+            showLoading={ showLoading }
+            data={ conceptData }
+            rowClass={ this._rowClass }
+            className={ className }
+            showRowSelection={ false }
+            noData={ this.i18n('component.basic.Table.noData') }>
             <Basic.Column
               header=""
               className="detail-button"

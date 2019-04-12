@@ -484,7 +484,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       return null;
     }
     //
-    const { _permissions, canExecute, _incompatibleRoles } = this.props;
+    const { _permissions, canExecute, _incompatibleRoles, showLoadingRoles } = this.props;
     return (
       <div>
         <Basic.ContentHeader>
@@ -495,7 +495,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         <RoleConceptTable
           ref="identityRoleConceptTable"
           uiKey="identity-role-concept-table"
-          showLoading={showLoading}
+          showLoading={showLoading || showLoadingRoles}
           showLoadingButtonRemove={showLoadingButtonRemove}
           className="lg-vertical-scroll"
           readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
@@ -715,6 +715,7 @@ function select(state, component) {
   return {
     _request: entity,
     _showLoading: entity ? false : true,
+    showLoadingRoles: identityRoleManager.isShowLoading(state, `${uiKey}-${identityId}`),
     _currentIdentityRoles,
     _permissions: roleRequestManager.getPermissions(state, null, entity),
     _incompatibleRoles: entity ? DataManager.getData(state, `${ uiKeyIncompatibleRoles }${entity.id}`) : null,

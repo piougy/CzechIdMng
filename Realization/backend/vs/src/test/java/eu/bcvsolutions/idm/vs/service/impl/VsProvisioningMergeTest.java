@@ -3,14 +3,20 @@ package eu.bcvsolutions.idm.vs.service.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
@@ -18,15 +24,20 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysAttributeControlledValueFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -40,7 +51,6 @@ import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
  *
  * @author Svanda
  */
-// @Transactional
 public class VsProvisioningMergeTest extends AbstractIntegrationTest {
 
 	private static final String RIGHTS_ATTRIBUTE = "rights";
@@ -61,6 +71,10 @@ public class VsProvisioningMergeTest extends AbstractIntegrationTest {
 	private IdmIdentityService identityService;
 	@Autowired
 	private SysAttributeControlledValueService controlledValueService;
+	@Autowired
+	private AccIdentityAccountService identityAccountService;
+	@Autowired
+	private IdmIdentityContractService identityContractService;
 
 	@Test
 	public void testAttribteControlledValues() {
@@ -288,5 +302,79 @@ public class VsProvisioningMergeTest extends AbstractIntegrationTest {
 		assertTrue(rightsValues.contains(ONE_VALUE));
 		assertTrue(rightsValues.contains(TWO_VALUE));
 		assertTrue(rightsValues.contains(ONE_VALUE+"_changed"));
+	}
+	
+	@Ignore
+	@Test
+	public void test300ProvisioningsWithMergePerformance() {
+		VsSystemDto config = new VsSystemDto();
+		config.setName(helper.createName());
+		config.setCreateDefaultRole(false);
+		
+		SysSystemDto system = helper.createVirtualSystem(config);
+		Assert.assertNotNull(system);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		AccIdentityAccountFilter roleAccountFilter = new AccIdentityAccountFilter();
+		roleAccountFilter.setEntityId(identity.getId());
+		roleAccountFilter.setOwnership(Boolean.TRUE);
+		roleAccountFilter.setSystemId(system.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(roleAccountFilter, null)
+				.getContent();
+		// None role assigned
+		Assert.assertEquals(0, identityAccounts.size());
+
+		List<IdmRoleDto> roles = this.createRolesWithSystem(system, 300);
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
+
+		Date startAcm = new Date();
+		IdmRoleRequestDto request = helper.createRoleRequest(primeContract, roles.toArray(new IdmRoleDto[0]));
+		helper.executeRequest(request, false, true);
+
+		Date endAcm = new Date();
+
+		System.out.println("test300PrvisioningsWithMergePerformance - ACM duration: " + (endAcm.getTime() - startAcm.getTime()));
+		identityAccounts = identityAccountService.find(roleAccountFilter, null).getContent();
+		Assert.assertEquals(300, identityAccounts.size());
+		
+		Date startProv = new Date();
+		// Save identity -> execute the provisioning
+		identityService.save(identity);
+		Date endProv = new Date();
+
+		System.out.println("test300PrvisioningsWithMergePerformance - Provisioning duration: " + (endProv.getTime() - startProv.getTime()));
+	}
+
+	
+	private List<IdmRoleDto> createRolesWithSystem(SysSystemDto system, int numberOfRoles) {
+		List<IdmRoleDto> roles = Lists.newArrayList();
+
+		for (int i = 0; i < numberOfRoles; i++) {
+			IdmRoleDto role = helper.createRole();
+			String mergeValue = role.getCode();
+			SysRoleSystemDto roleSystem = helper.createRoleSystem(role, system);
+			SysSystemMappingDto mapping = mappingService.findProvisioningMapping(system.getId(), SystemEntityType.IDENTITY);
+			
+			SysSystemAttributeMappingFilter attributeFilter = new SysSystemAttributeMappingFilter();
+			attributeFilter.setSystemMappingId(mapping.getId());
+			attributeFilter.setSchemaAttributeName(RIGHTS_ATTRIBUTE);
+			List<SysSystemAttributeMappingDto> attributes = attributeMappingService.find(attributeFilter, null).getContent();
+			assertEquals(1, attributes.size());
+			SysSystemAttributeMappingDto rightsAttribute = attributes.get(0);
+
+			SysRoleSystemAttributeDto roleAttributeOne = new SysRoleSystemAttributeDto();
+			roleAttributeOne.setName(RIGHTS_ATTRIBUTE);
+			roleAttributeOne.setRoleSystem(roleSystem.getId());
+			roleAttributeOne.setEntityAttribute(false);
+			roleAttributeOne.setExtendedAttribute(false);
+			roleAttributeOne.setUid(false);
+			roleAttributeOne.setStrategyType(AttributeMappingStrategyType.MERGE);
+			roleAttributeOne.setSystemAttributeMapping(rightsAttribute.getId());
+			roleAttributeOne.setTransformToResourceScript("return '" + mergeValue + "';");
+			roleAttributeOne = roleSystemAttributeService.saveInternal(roleAttributeOne);
+			roles.add(role);
+		}
+		return roles;
 	}
 }

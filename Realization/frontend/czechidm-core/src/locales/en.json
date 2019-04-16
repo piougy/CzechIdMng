@@ -734,13 +734,13 @@
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
-      "REPEAT": "Repeat start",
+      "REPEAT": "Repeated start",
       "CRON": "Cron",
       "DEPENDENT": "Other task"
     },
     "IntervalTypeEnum": {
-      "MINUTE": "minute",
-      "HOUR": "hour",
+      "MINUTE": "minutes",
+      "HOUR": "hours",
       "DAY": "day",
       "WEEK": "week",
       "MONTH": "month"
@@ -4334,7 +4334,12 @@
         "fireTime": "Fire time",
         "repeat": {
           "label": "Repeat every",
-          "firstRun": "Valid from"
+          "validFrom": "Valid from",
+          "at": "at",
+          "every": "On",
+          "monthly": "Monthly",
+          "day": "day",
+          "cronExpression": "Cron expression:"
         },
         "cron": {
           "label": "Cron expression",

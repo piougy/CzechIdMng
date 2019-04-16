@@ -14,23 +14,42 @@ class CronGenerator extends AbstractFormComponent {
   constructor(props) {
     super(props);
     this.state = {
-      intervalType: IntervalTypeEnum.findKeyBySymbol(IntervalTypeEnum.MINUTE)
+      intervalType: IntervalTypeEnum.findKeyBySymbol(IntervalTypeEnum.MINUTE),
+      cronExpression: this.resolveIntervalToCron()
     };
+  }
+
+  getComponentKey() {
+    // jak se dostane lokalizace do: 'content.scheduler.schedule-tasks' ???
+    return 'entity.SchedulerTask.trigger.repeat';
+  }
+
+  onChangeIntervalType(intervalType) {
+    this.setState({
+      intervalType: intervalType.value,
+      cronExpression: this.resolveIntervalToCron()
+    });
+  }
+
+  generateCron() {
+    this.setState({
+      cronExpression: this.resolveIntervalToCron()
+    });
   }
 
   resolveIntervalToCron() {
     const { intervalType } = this.state;
     switch (intervalType) {
-      case 'MONTH':
-        return this.resolveEveryMonth();
-      case 'WEEK':
-        return this.resolveEveryWeek();
-      case 'DAY':
-        return this.resolveEveryDay();
-      case 'HOUR':
-        return this.resolveHours();
       case 'MINUTE':
         return this.resolveMinutes();
+      case 'HOUR':
+        return this.resolveHours();
+      case 'DAY':
+        return this.resolveEveryDay();
+      case 'WEEK':
+        return this.resolveEveryWeek();
+      case 'MONTH':
+        return this.resolveEveryMonth();
       default:
         // should never happened
     }
@@ -137,20 +156,11 @@ class CronGenerator extends AbstractFormComponent {
     return `${second} ${minute} ${hour} ${monthDay} ${monthInYear} ${dayOfWeek}`;
   }
 
-  getContentKey() {
-    // return 'content.scheduler.schedule-tasks';
-    // return 'content.scheduler.schedule-tasks.entity.SchedulerTask.trigger';
-  }
-
-  onChangeIntervalType(intervalType) {
-    this.setState({
-      intervalType: intervalType.value
-    });
-  }
-
   getBody() {
+    // this.generateCron();
+
     const { showLoading, rendered } = this.props;
-    const { intervalType } = this.state;
+    const { intervalType, cronExpression } = this.state;
     if (!rendered) {
       return null;
     }
@@ -163,10 +173,10 @@ class CronGenerator extends AbstractFormComponent {
       <Basic.AbstractForm showLoading={showLoading}>
 
         <Basic.Row>
-          <Basic.Col lg={ 4 }>
-            <div>
-              { this.i18n('entity.SchedulerTask.trigger.repeat.label') }
-            </div>
+          <Basic.Col lg={ 5 }>
+              <h3 className="align-middle">
+                { this.i18n('label') }
+              </h3>
           </Basic.Col>
           <Basic.Col lg={ 2 }>
             <Basic.EnumSelectBox
@@ -192,11 +202,20 @@ class CronGenerator extends AbstractFormComponent {
               clearable={ false }
               onChange={this.onChangeIntervalType.bind(this)}/>
           </Basic.Col>
+        </Basic.Row>
+
+        <Basic.Row
+          hidden={ intervalType !== 'DAY' && intervalType !== 'HOUR' && intervalType !== 'MINUTE' }>
+          <Basic.Col lg={ 1 }>
+            <h3>
+              { this.i18n('at') }
+            </h3>
+          </Basic.Col>
           <Basic.Col lg={ 4 }>
             <Basic.DateTimePicker
               ref="dayTime"
               mode="time"
-              hidden={ intervalType !== 'DAY' && intervalType !== 'HOUR' && intervalType !== 'MINUTE' }/>
+              value={ '0001-01-01 22:00' }/>
           </Basic.Col>
         </Basic.Row>
 
@@ -204,9 +223,9 @@ class CronGenerator extends AbstractFormComponent {
         <Basic.Row
           hidden={ intervalType !== 'WEEK' }>
           <Basic.Col lg={ 2 }>
-            <div>
-              { 'Každé' }
-            </div>
+            <h3>
+              { this.i18n('every') }
+            </h3>
           </Basic.Col>
           <Basic.Col lg={ 2 }>
             <Basic.EnumSelectBox
@@ -216,14 +235,17 @@ class CronGenerator extends AbstractFormComponent {
               clearable={ false }/>
           </Basic.Col>
           <Basic.Col lg={ 1 }>
-            <div>
-              { 'v' }
-            </div>
+            <h3>
+            { this.i18n('at') }
+            </h3>
           </Basic.Col>
           <Basic.Col lg={ 4 }>
             <Basic.DateTimePicker
               ref="weekTime"
-              mode="time"/>
+              mode="time"
+              value={ '0001-01-01 22:00' }
+              // required
+              />
           </Basic.Col>
         </Basic.Row>
 
@@ -231,9 +253,9 @@ class CronGenerator extends AbstractFormComponent {
         <Basic.Row
           hidden={ intervalType !== 'MONTH' }>
           <Basic.Col lg={ 2 }>
-            <div>
-              { 'Měsíčně' }
-            </div>
+            <h3>
+              { this.i18n('monthly') }
+            </h3>
           </Basic.Col>
           <Basic.Col lg={ 2 }>
             <Basic.EnumSelectBox
@@ -242,25 +264,32 @@ class CronGenerator extends AbstractFormComponent {
               value={ DayInMonthEnum.ONE }
               clearable={ false }/>
           </Basic.Col>
-          <Basic.Col lg={ 2 }>
-            <div>
-              { 'den v' }
-            </div>
+          <Basic.Col lg={ 1 }>
+            <h3>
+              { this.i18n('day') }
+            </h3>
+          </Basic.Col>
+          <Basic.Col lg={ 1 }>
+            <h3>
+              { this.i18n('at') }
+            </h3>
           </Basic.Col>
           <Basic.Col lg={ 4 }>
             <Basic.DateTimePicker
               ref="monthTime"
               mode="time"
+              value={ '0001-01-01 22:00' }
               // required
             />
           </Basic.Col>
         </Basic.Row>
 
-        <Basic.Row>
+        {/* Prepared for scheduled first start */}
+        <Basic.Row rendered={ false }>
           <Basic.Col lg={ 2 }>
-            <div>
-              { this.i18n('entity.SchedulerTask.trigger.repeat.firstRun') }
-            </div>
+            <h3>
+              { this.i18n('validFrom') }
+            </h3>
           </Basic.Col>
           <Basic.Col lg={ 5 }>
             <Basic.DateTimePicker
@@ -272,6 +301,16 @@ class CronGenerator extends AbstractFormComponent {
               hidden={ intervalType !== 'WEEK' && intervalType !== 'MONTH' }
               mode="date"
               />
+          </Basic.Col>
+        </Basic.Row>
+
+        <Basic.Row>
+          <Basic.Col lg={ 6 }>
+            <h3>
+            { this.i18n('cronExpression') }
+            { ' ' }
+            { cronExpression }
+            </h3>
           </Basic.Col>
         </Basic.Row>
 

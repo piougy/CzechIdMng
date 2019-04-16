@@ -4148,7 +4148,7 @@
           "label": "Cron výraz",
           "help": "Quartz cron",
           "link": {
-            "href": "http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html",
+            "href": "http://www.quartz-scheduler.org/documentation/quartz-2.2.2/tutorials/crontrigger.html",
             "text": "výraz"
           }
         },

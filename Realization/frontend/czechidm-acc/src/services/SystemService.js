@@ -135,6 +135,61 @@ class SystemService extends Services.AbstractService {
       });
   }
 
+
+  /**
+   * Returns pooling connector form definition to given system
+   * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+   *
+   * @param  {string} id system identifier
+   * @return {promise}
+   */
+  getPoolingConnectorFormDefinition(id) {
+    return Services.RestApiService
+      .get(this.getApiPath() + `/${id}/pooling-connector-form-definition`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Returns filled connector configuration
+   * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+   *
+   * @param  {string} id system identifier
+   * @return {promise}
+   */
+  getPoolingConnectorFormValues(id) {
+    return Services.RestApiService
+      .get(this.getApiPath() + `/${id}/pooling-connector-form-values`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
   /**
    * Saves connector configuration form values
    *
@@ -161,6 +216,34 @@ class SystemService extends Services.AbstractService {
         return json;
       });
   }
+
+  /**
+   * Saves pooling connector configuration form values
+   *
+   * @param  {string} id system identifier
+   * @param  {arrayOf(entity)} values filled form values
+   * @return {promise}
+   */
+  savePoolingConnectorFormValues(id, values) {
+    return Services.RestApiService
+      .post(this.getApiPath() + `/${id}/pooling-connector-form-values`, values)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
 
   checkSystem(id) {
     return Services.RestApiService.get(this.getApiPath() + `/${id}/check`, null).then(response => {

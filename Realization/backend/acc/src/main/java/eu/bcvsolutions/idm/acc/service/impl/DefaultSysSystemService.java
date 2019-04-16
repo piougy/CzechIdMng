@@ -53,6 +53,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -72,11 +73,13 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
+import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.czechidm.domain.IcConnectorConfigurationCzechIdMImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
+import eu.bcvsolutions.idm.ic.impl.IcObjectPoolConfigurationImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -233,16 +236,19 @@ public class DefaultSysSystemService
 		Map<String, List<IdmFormValueDto>> attributeValues = formInstance.toValueMap();
 
 		// fill connector configuration from form values
-		IcConnectorConfigurationImpl icConf = null;
+		IcConnectorConfigurationImpl configuration = null;
 		if(SysSystemService.CONNECTOR_FRAMEWORK_CZECHIDM.equals(connectorInstance.getConnectorKey().getFramework())){
 			// For CzechIdM connector framework is needs system ID (exactly for virtual systems).
-			 icConf = new IcConnectorConfigurationCzechIdMImpl();
-			 ((IcConnectorConfigurationCzechIdMImpl)icConf).setSystemId(system.getId());
+			 configuration = new IcConnectorConfigurationCzechIdMImpl();
+			 ((IcConnectorConfigurationCzechIdMImpl)configuration).setSystemId(system.getId());
 		}else {
-			 icConf = new IcConnectorConfigurationImpl();
+			 configuration = new IcConnectorConfigurationImpl();
 		}
+		// Create configuration for pool
+		fillPoolingConnectorConfiguration(configuration, system.getConnectorInstance(), system);
+		
 		IcConfigurationProperties properties = new IcConfigurationPropertiesImpl();
-		icConf.setConfigurationProperties(properties);
+		configuration.setConfigurationProperties(properties);
 		//
 		for (short seq = 0; seq < connectorConfig.getConfigurationProperties().getProperties().size(); seq++) {
 			IcConfigurationProperty propertyConfig = connectorConfig.getConfigurationProperties().getProperties()
@@ -260,9 +266,9 @@ public class DefaultSysSystemService
 			}
 		}
 		
-		return icConf;
+		return configuration;
 	}
-	
+
 	@Override
 	@Transactional
 	public IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass){
@@ -426,7 +432,23 @@ public class DefaultSysSystemService
 			formDefinition = createConnectorFormDefinition(connectorInstance);
 			formDefinition.setUnmodifiable(true);
 		}
+		
 		return formDefinition;
+	}
+	
+	@Override
+	@Transactional
+	public IdmFormDefinitionDto getPoolingConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
+	
+		IdmFormDefinitionDto formDefinitionPooling = getFormService().getDefinition(SysSystem.class.getName(),
+				getPoolingFormDefinitionCode(connectorInstance));
+		
+		if (formDefinitionPooling == null) {
+			formDefinitionPooling = createPoolingFormDefinition(connectorInstance);
+		}
+		return formDefinitionPooling;
 	}
 
 	@Override
@@ -542,6 +564,60 @@ public class DefaultSysSystemService
 	}
 	
 	/**
+	 * Creates configuration for pool by EAV values
+	 * 
+	 * @param configuration
+	 * @param connectorInstance
+	 * @param system
+	 */
+	private void fillPoolingConnectorConfiguration(IcConnectorConfigurationImpl configuration,
+			IcConnectorInstance connectorInstance, SysSystemDto system) {
+
+		IdmFormDefinitionDto formDefinition = getPoolingConnectorFormDefinition(connectorInstance);
+		if( formDefinition == null) {
+			return;
+		}
+		IdmFormInstanceDto formInstance = getFormService().getFormInstance(system, formDefinition);
+		if (formInstance == null) {
+			return;
+		}
+
+		IcObjectPoolConfiguration connectorPoolConfiguration = configuration.getConnectorPoolConfiguration();
+		if (connectorPoolConfiguration == null) {
+			connectorPoolConfiguration = new IcObjectPoolConfigurationImpl();
+		}
+
+		Serializable poolingSupported = formInstance.toSinglePersistentValue(POOLING_SUPPORTED_PROPERTY);
+		if (poolingSupported instanceof Boolean) {
+			configuration.setConnectorPoolingSupported(((Boolean) poolingSupported).booleanValue());
+		} else {
+			configuration.setConnectorPoolingSupported(false);
+		}
+		configuration.setConnectorPoolConfiguration(connectorPoolConfiguration);
+
+		Serializable minIdle = formInstance.toSinglePersistentValue(MIN_IDLE_PROPERTY);
+		if (minIdle instanceof Integer) {
+			connectorPoolConfiguration.setMinIdle((int) minIdle);
+		}
+		Serializable minEvicTime = formInstance.toSinglePersistentValue(MIN_TIME_TO_EVIC_PROPERTY);
+		if (minEvicTime instanceof Long) {
+			connectorPoolConfiguration.setMinEvictableIdleTimeMillis((long) minEvicTime);
+		}
+		Serializable maxIdle = formInstance.toSinglePersistentValue(MAX_IDLE_PROPERTY);
+		if (maxIdle instanceof Integer) {
+			connectorPoolConfiguration.setMaxIdle((int) maxIdle);
+		}
+		Serializable maxObjects = formInstance.toSinglePersistentValue(MAX_OBJECTS_PROPERTY);
+		if (maxObjects instanceof Integer) {
+			connectorPoolConfiguration.setMaxObjects((int) maxObjects);
+		}
+		Serializable maxWait = formInstance.toSinglePersistentValue(MAX_WAIT_PROPERTY);
+		if (maxWait instanceof Long) {
+			connectorPoolConfiguration.setMaxWait((long) maxWait);
+		}
+	}
+	
+	/**
 	 * Create form definition to given connectorInstance by connector properties
 	 * 
 	 * @param connectorKey
@@ -563,6 +639,82 @@ public class DefaultSysSystemService
 		}
 		return getFormService().createDefinition(SysSystem.class.getName(),
 				connectorInstance.getConnectorKey().getFullName(), formAttributes);
+	}
+	
+	/**
+	 * Create form definition for connector pooling configuration
+	 * 
+	 * @param connectorInstance
+	 * @return
+	 */
+	private synchronized IdmFormDefinitionDto createPoolingFormDefinition(IcConnectorInstance connectorInstance) {
+		IcConnectorConfiguration config = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
+		
+		String poolingDefinitionCode = getPoolingFormDefinitionCode(connectorInstance);
+		if (config == null) {
+			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found!",
+					poolingDefinitionCode));
+		}
+		//
+		List<IdmFormAttributeDto> formAttributes = new ArrayList<>();
+		IcObjectPoolConfiguration poolConfiguration = config.getConnectorPoolConfiguration();
+		
+		IdmFormAttributeDto attributePoolingSupported = new IdmFormAttributeDto(POOLING_SUPPORTED_PROPERTY, POOLING_SUPPORTED_NAME, PersistentType.BOOLEAN);
+		attributePoolingSupported.setDefaultValue(String.valueOf(config.isConnectorPoolingSupported()));
+		attributePoolingSupported.setSeq((short)1);
+		formAttributes.add(attributePoolingSupported);
+		
+		// Max idle objects
+		IdmFormAttributeDto attributeMaxIdle = new IdmFormAttributeDto(MAX_IDLE_PROPERTY, MAX_IDLE_NAME, PersistentType.INT);
+		if(poolConfiguration != null) {
+			attributeMaxIdle.setDefaultValue(String.valueOf(poolConfiguration.getMaxIdle()));
+		}
+		attributeMaxIdle.setSeq((short)2);
+		formAttributes.add(attributeMaxIdle);
+		
+		// Max idle objects
+		IdmFormAttributeDto attributeMinIdle = new IdmFormAttributeDto(MIN_IDLE_PROPERTY, MIN_IDLE_NAME, PersistentType.INT);
+		if(poolConfiguration != null) {
+			attributeMinIdle.setDefaultValue(String.valueOf(poolConfiguration.getMinIdle()));
+		}
+		attributeMinIdle.setSeq((short)3);
+		formAttributes.add(attributeMinIdle);
+		
+		// Max objects (idle + active).
+		IdmFormAttributeDto attributeMaxObjects = new IdmFormAttributeDto(MAX_OBJECTS_PROPERTY, MAX_OBJECTS_NAME, PersistentType.INT);
+		if(poolConfiguration != null) {
+			attributeMaxObjects.setDefaultValue(String.valueOf(poolConfiguration.getMaxObjects()));
+		}
+		attributeMaxObjects.setSeq((short)4);
+		formAttributes.add(attributeMaxObjects);
+		
+		// Max time to wait if the pool is waiting for a free object. Zero means do not wait.
+		IdmFormAttributeDto attributeMaxWait = new IdmFormAttributeDto(MAX_WAIT_PROPERTY, MAX_WAIT_NAME, PersistentType.LONG);
+		if(poolConfiguration != null) {
+			attributeMaxWait.setDefaultValue(String.valueOf(poolConfiguration.getMaxWait()));
+		}
+		attributeMaxWait.setSeq((short)5);
+		formAttributes.add(attributeMaxWait);
+		
+		// Minimum time to wait before evicting idle objects. Zero means do not wait.
+		IdmFormAttributeDto attributeMinEvicTime = new IdmFormAttributeDto(MIN_TIME_TO_EVIC_PROPERTY, MIN_TIME_TO_EVIC_NAME, PersistentType.LONG);
+		if(poolConfiguration != null) {
+			attributeMinEvicTime.setDefaultValue(String.valueOf(poolConfiguration.getMinEvictableIdleTimeMillis()));
+		}
+		attributeMinEvicTime.setSeq((short)6);
+		formAttributes.add(attributeMinEvicTime);
+	
+		return getFormService().createDefinition(SysSystem.class.getName(),
+				poolingDefinitionCode, formAttributes);
+	}
+	
+	/**
+	 * Returns name (code) of form-definition pool configuration
+	 * @param connectorInstance
+	 * @return
+	 */
+	private String getPoolingFormDefinitionCode(IcConnectorInstance connectorInstance) {
+		return MessageFormat.format("{0}:{1}", POOLING_PREFIX, connectorInstance.getConnectorKey().getFullName());
 	}
 
 	/**

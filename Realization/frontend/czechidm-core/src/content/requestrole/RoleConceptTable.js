@@ -616,13 +616,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
           {/* this.generateTable(conceptData)*/}
           <Basic.Table
             rendered={!detail.show && !showRoleByIdentitySelect}
-            hover={false}
-            showLoading={showLoading}
-            data={conceptData}
-            rowClass={this._rowClass}
-            className={className}
-            showRowSelection={false}
-            noData={this.i18n('component.basic.Table.noData')}>
+            hover={ false }
+            showLoading={ showLoading }
+            data={ conceptData }
+            rowClass={ this._rowClass }
+            className={ className }
+            showRowSelection={ false }
+            noData={ this.i18n('component.basic.Table.noData') }
+            supportsPagination>
             <Basic.Column
               header=""
               className="detail-button"

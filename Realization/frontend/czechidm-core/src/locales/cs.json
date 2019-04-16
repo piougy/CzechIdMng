@@ -4439,7 +4439,12 @@
         "fireTime": "Datum spuštění",
         "repeat": {
           "label": "Opakovat jednou za",
-          "firstRun": "Platné od"
+          "validFrom": "Platné od",
+          "at": "v",
+          "every": "Každé",
+          "monthly": "Měsíčně",
+          "day": "den",
+          "cronExpression": "Cron výraz:"
         },
         "cron": {
           "label": "Cron výraz",

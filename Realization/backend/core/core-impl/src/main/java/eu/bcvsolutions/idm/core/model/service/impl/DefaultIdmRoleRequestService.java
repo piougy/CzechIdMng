@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -19,7 +21,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.fusesource.hawtbuf.ByteArrayInputStream;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -68,11 +72,17 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue_;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -126,6 +136,10 @@ public class DefaultIdmRoleRequestService
 	private IdmIncompatibleRoleService incompatibleRoleService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
+	@Autowired
+	private IdmFormAttributeService formAttributeService;
+	@Autowired
+	private AttachmentManager attachmentManager;
 
 	@Autowired
 	public DefaultIdmRoleRequestService(IdmRoleRequestRepository repository,
@@ -681,6 +695,50 @@ public class DefaultIdmRoleRequestService
 				if (roleDto.getIdentityRoleAttributeDefinition() != null) {
 					IdmFormDefinitionDto formDefinition = formService.getDefinition(roleDto.getIdentityRoleAttributeDefinition());
 					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinition);
+
+					List<IdmFormValueDto> finalValues = new ArrayList<IdmFormValueDto>(formInstance.getValues());
+					// Iterate over all values and find values that must be deep copied
+					for (IdmFormValueDto value : formInstance.getValues()) {
+						IdmFormAttributeDto attribute = DtoUtils.getEmbedded(value, IdmFormValue_.formAttribute, IdmFormAttributeDto.class, null);
+						if (attribute == null) {
+							attribute = formAttributeService.get(value.getFormAttribute());
+						}
+
+						// Attachments are one of attribute with deep copy
+						// TODO: confidential values are another, but identity role doesn't support them
+						if (attribute.getPersistentType() == PersistentType.ATTACHMENT) {
+							finalValues.remove(value);
+							IdmFormValueDto valueCopy = new IdmFormValueDto(attribute);
+							IdmAttachmentDto originalAttachmentDto = attachmentManager.get(value.getUuidValue());
+
+							ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+							try {
+								IOUtils.copy(attachmentManager.getAttachmentData(originalAttachmentDto.getId()), outputStream);
+							} catch (IOException e) {
+								LOG.error("Error during copy attachment data.", e);
+								throw new ResultCodeException(CoreResultCode.ATTACHMENT_CREATE_FAILED, ImmutableMap.of(
+										"attachmentName", originalAttachmentDto.getName(),
+										"ownerType", originalAttachmentDto.getOwnerType(),
+										"ownerId", originalAttachmentDto.getOwnerId() == null ? "" : originalAttachmentDto.getOwnerId().toString())
+										, e);
+							}
+
+							IdmAttachmentDto attachmentCopy = new IdmAttachmentDto();
+							attachmentCopy.setOwnerType(AttachmentManager.TEMPORARY_ATTACHMENT_OWNER_TYPE);
+							attachmentCopy.setName(originalAttachmentDto.getName());
+							attachmentCopy.setMimetype(originalAttachmentDto.getMimetype());
+							attachmentCopy.setInputData(new ByteArrayInputStream(outputStream.toByteArray()));
+
+							attachmentCopy = attachmentManager.saveAttachment(null, attachmentCopy); // owner and version is resolved after attachment is saved
+							valueCopy.setUuidValue(attachmentCopy.getId());
+							valueCopy.setShortTextValue(attachmentCopy.getName());
+
+							finalValues.add(valueCopy);
+						}
+					}
+
+					formInstance.setValues(finalValues);
+
 					conceptRoleRequestDto.setEavs(Lists.newArrayList(formInstance));
 				}
 			}

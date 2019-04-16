@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
@@ -23,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -51,6 +54,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -90,6 +95,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	private FormService formService;
 	@Autowired
 	private IdmRoleFormAttributeService roleFormAttributeService;
+	@Autowired
+	private AttachmentManager attachmentManager;
 	//
 	private IdmRoleDto roleA;
 
@@ -640,5 +647,101 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		assertNotNull(formInstanceOne);
 		assertTrue(formInstanceOne.getValues().isEmpty());
 		assertNull(formInstanceTwo);
+	}
+
+	@Test
+	@Transactional
+	public void testCopyRolesWithParameterAttachment() {
+		long countBefore = attachmentManager.find(null).getTotalElements();
+		String attributeCode = "attr-" + System.currentTimeMillis();
+
+		// Prepare identity, role and parameters
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto(attributeCode);
+		attribute.setPersistentType(PersistentType.ATTACHMENT);
+
+		IdmFormDefinitionDto definition = formService.createDefinition(IdmIdentityRole.class,
+				ImmutableList.of(attribute));
+		role.setIdentityRoleAttributeDefinition(definition.getId());
+		role = roleService.save(role);
+		final IdmRoleDto roleFinal = role;
+		definition.getFormAttributes().forEach(attr -> {
+			roleFormAttributeService.addAttributeToSubdefintion(roleFinal, attr);
+		});
+		
+		attribute = formService.getAttribute(definition, attributeCode);
+		assertNotNull(attribute);
+		
+		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityRoleDto identityRoleDto = this.getHelper().createIdentityRole(identityContact, role);
+		
+		// Add attachment to identity role
+		String originalContent = "test-content-" + System.currentTimeMillis();
+		IdmAttachmentDto attachment = prepareAttachment(originalContent);
+		attachment.setOwnerType(AttachmentManager.TEMPORARY_ATTACHMENT_OWNER_TYPE);
+		attachment = attachmentManager.saveAttachment(null, attachment);
+
+		List<IdmFormInstanceDto> eavs = identityRoleDto.getEavs();
+		IdmFormInstanceDto formInstanceDto = eavs.get(0);
+		IdmFormValueDto newValue = new IdmFormValueDto(attribute);
+		newValue.setShortTextValue(attachment.getName());
+		newValue.setUuidValue(attachment.getId());
+
+		formInstanceDto.setValues(Lists.newArrayList(newValue));
+		identityRoleDto.setEavs(Lists.newArrayList(formInstanceDto));
+		
+		identityRoleDto = identityRoleService.save(identityRoleDto);
+		
+		IdmFormInstanceDto identityRoleValues = identityRoleService.getRoleAttributeValues(identityRoleDto);
+		identityRoleValues = identityRoleService.getRoleAttributeValues(identityRoleDto);
+		List<IdmFormValueDto> values = identityRoleValues.getValues();
+		assertEquals(1, values.size());
+		IdmFormValueDto originalValue = values.get(0);
+
+		// Assign roles by identity
+		IdmIdentityDto identityDto = this.getHelper().createIdentity((GuardedString) null);
+
+		List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
+		List<UUID> identityRolesId = allByIdentity.stream().map(IdmIdentityRoleDto::getId).collect(Collectors.toList());
+
+		IdmIdentityContractDto identityContractDto = getHelper().createIdentityContact(identityDto);
+		IdmRoleRequestDto createdRequest = roleRequestService.createRequest(identityContractDto);
+
+		IdmRoleRequestByIdentityDto requestByIdentityDto = new IdmRoleRequestByIdentityDto();
+		requestByIdentityDto.setIdentityContract(identityContractDto.getId());
+		requestByIdentityDto.setRoleRequest(createdRequest.getId());
+		requestByIdentityDto.setIdentityRoles(identityRolesId);
+		requestByIdentityDto.setCopyRoleParameters(true);
+		IdmRoleRequestDto copyRolesByIdentity = roleRequestService.copyRolesByIdentity(requestByIdentityDto);
+
+		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService
+				.findAllByRoleRequest(copyRolesByIdentity.getId());
+		assertEquals(1, concepts.size());
+
+		IdmConceptRoleRequestDto concept = concepts.stream().filter(cntp -> {
+			return cntp.getRole().equals(roleFinal.getId());
+		}).findAny().orElse(null);
+		assertNotNull(concept);
+
+		IdmFormInstanceDto formInstance = conceptRoleRequestService.getRoleAttributeValues(concept, false);
+		values = formInstance.getValues();
+		assertEquals(1, values.size());
+		
+		IdmFormValueDto copyValue = values.get(0);
+		assertEquals(originalValue.getPersistentType(), copyValue.getPersistentType());
+		assertEquals(originalValue.getFormAttribute(), copyValue.getFormAttribute());
+		assertNotEquals(originalValue.getUuidValue(), copyValue.getUuidValue());
+
+		assertEquals(countBefore + 2, attachmentManager.find(null).getTotalElements());
+	}
+
+	private IdmAttachmentDto prepareAttachment(String content) {
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
+		attachment.setName("test.txt");
+		attachment.setMimetype("text/plain");
+		attachment.setInputData(IOUtils.toInputStream(content));
+		//
+		return attachment;
 	}
 }

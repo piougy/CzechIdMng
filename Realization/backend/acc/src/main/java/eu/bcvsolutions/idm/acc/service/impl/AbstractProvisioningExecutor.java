@@ -50,8 +50,10 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -586,9 +588,9 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			if (AttributeMappingStrategyType.MERGE == parentAttribute.getStrategyType()
 					|| AttributeMappingStrategyType.AUTHORITATIVE_MERGE == parentAttribute.getStrategyType()) {
 				Optional<AttributeMapping> conflictAttributeOptional = finalAttributes.stream().filter(att -> {
-					SysSchemaAttributeDto attributeSchema = getSchemaAttribute(att);
-					SysSchemaAttributeDto parentSchema = getSchemaAttribute(parentAttribute);
-					return attributeSchema.equals(parentSchema)
+					UUID attributeSchemaId = getSchemaAttributeId(att);
+					UUID parentSchemaId = getSchemaAttributeId(parentAttribute);
+					return attributeSchemaId.equals(parentSchemaId)
 							&& !(att.getStrategyType() == parentAttribute.getStrategyType()
 									|| att.getStrategyType() == AttributeMappingStrategyType.CREATE
 									|| att.getStrategyType() == AttributeMappingStrategyType.WRITE_IF_NULL);
@@ -613,21 +615,31 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	/**
 	 * Get {@link IdmRoleDto} for attribute mapping. Attribute mapping must be instance of {@link SysRoleSystemAttributeDto}.
 	 * And attribute must have role system connection.
+	 * If exists data in the embedded map, then is use.
 	 *
 	 * @param attribute
 	 * @return
 	 */
 	private IdmRoleDto getRole(AttributeMapping attribute) {
 		if (attribute instanceof SysRoleSystemAttributeDto) {
-			SysRoleSystemAttributeDto conflictRoleAttribute = (SysRoleSystemAttributeDto) attribute;
-			if (conflictRoleAttribute.getRoleSystem() == null) {
+			SysRoleSystemAttributeDto roleSystemAttributeDto = (SysRoleSystemAttributeDto) attribute;
+			if (roleSystemAttributeDto.getRoleSystem() == null) {
 				return null;
 			}
-			SysRoleSystemDto roleSystem = roleSystemService.get(conflictRoleAttribute.getRoleSystem());
+			SysRoleSystemDto roleSystem = DtoUtils.getEmbedded(roleSystemAttributeDto,
+					SysRoleSystemAttribute_.roleSystem.getName(), SysRoleSystemDto.class, null);
+			if (roleSystem == null) {
+				roleSystem = roleSystemService.get(roleSystemAttributeDto.getRoleSystem());
+			}
 			if (roleSystem == null) {
 				return null;
 			}
-			return roleService.get(roleSystem.getRole());
+			IdmRoleDto role = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.role.getName(),
+					IdmRoleDto.class, null);
+			if (role == null) {
+				return roleService.get(roleSystem.getRole());
+			}
+			return role;
 		}
 		return null;
 	}
@@ -688,6 +700,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		if (provisioningOperation != null) {
 			provisioningExecutor.execute(provisioningOperation);
 		}
+		
 	}
 
 	/**
@@ -758,30 +771,31 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 								system.getName()));
 			}
 
-			// we use SET collection because we want collection of merged values without duplicates
+			// We use SET collection because we want collection of merged values without duplicates
 			Set<Object> mergedValues = new LinkedHashSet<>();
-			attributes.stream().filter(attribute -> {
-				SysSchemaAttributeDto schemaAttribute = getSchemaAttribute(attribute);
-				return !accountAttributes.containsKey(attributeParentKey)
-						&& schemaAttributeParent.equals(schemaAttribute)
-						&& attributeParent.getStrategyType() == attribute.getStrategyType();
-			}).forEach(attribute -> {
-				Object value = getAttributeValue(uid, dto, attribute, system);
-				// We don`t want null item in list (problem with
-				// provisioning in IC)
-				if (value != null) {
-					// If is value collection, then we add all its items to
-					// main list!
-					if (value instanceof Collection) {
-						Collection<?> collectionNotNull = ((Collection<?>) value).stream().filter(item -> {
-							return item != null;
-						}).collect(Collectors.toList());
-						mergedValues.addAll(collectionNotNull);
-					} else {
-						mergedValues.add(value);
-					}
-				}
-			});
+			attributesMerge.stream() //
+					.filter(attribute -> { //
+						SysSchemaAttributeDto schemaAttribute = getSchemaAttribute(attribute);
+						return !accountAttributes.containsKey(attributeParentKey)
+								&& schemaAttributeParent.equals(schemaAttribute)
+								&& attributeParent.getStrategyType() == attribute.getStrategyType();
+					}).forEach(attribute -> {
+						Object value = getAttributeValue(uid, dto, attribute, system);
+						// We don`t want null item in list (problem with
+						// provisioning in IC)
+						if (value != null) {
+							// If is value collection, then we add all its items to
+							// main list!
+							if (value instanceof Collection) {
+								Collection<?> collectionNotNull = ((Collection<?>) value).stream().filter(item -> {
+									return item != null;
+								}).collect(Collectors.toList());
+								mergedValues.addAll(collectionNotNull);
+							} else {
+								mergedValues.add(value);
+							}
+						}
+					});
 			if (!accountAttributes.containsKey(attributeParentKey)) {
 				// we must put merged values as array list
 				accountAttributes.put(attributeParentKey, new ArrayList<>(mergedValues));
@@ -934,6 +948,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		if (defaultAttributes == null) {
 			return null;
 		}
+
 		defaultAttributes.stream().forEach(defaultAttribute -> {
 			for (AttributeMappingStrategyType strategy : AttributeMappingStrategyType.values()) {
 				finalAttributes.addAll(compileAtributeForStrategy(strategy, defaultAttribute, overloadingAttributes));
@@ -952,6 +967,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 * @param strategy
 	 * @param defaultAttribute
 	 * @param overloadingAttributes
+	 * 
 	 * @return
 	 */
 	protected List<AttributeMapping> compileAtributeForStrategy(AttributeMappingStrategyType strategy,
@@ -968,10 +984,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 					return attributeMapping.equals(defaultAttribute);
 				}).sorted((att1, att2) -> {
 					// Sort attributes by role priority
-					SysRoleSystemDto roleSystem2 = roleSystemService.get(att2.getRoleSystem());
-					SysRoleSystemDto roleSystem1 = roleSystemService.get(att1.getRoleSystem());
-					IdmRoleDto role1 = roleService.get(roleSystem1.getRole());
-					IdmRoleDto role2 = roleService.get(roleSystem2.getRole());
+					IdmRoleDto role1 = this.getRole(att1);
+					IdmRoleDto role2 = this.getRole(att2);
 					return Integer.valueOf(role2.getPriority()).compareTo(Integer.valueOf(role1.getPriority()));
 				}).collect(Collectors.toList());
 
@@ -988,27 +1002,21 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			}
 
 			// First element have role with max priority
-			SysRoleSystemDto roleSystemForSetMaxPriority = roleSystemService
-					.get(attributesOrderedGivenStrategy.get(0).getRoleSystem());
-			IdmRoleDto roleForSetMaxPriority = roleService.get(roleSystemForSetMaxPriority.getRole());
+			IdmRoleDto roleForSetMaxPriority = this.getRole((AttributeMapping) attributesOrderedGivenStrategy.get(0));
 			int maxPriority = roleForSetMaxPriority.getPriority();
 
 			// We will search for attribute with highest priority (and role
 			// name)
 			Optional<SysRoleSystemAttributeDto> highestPriorityAttributeOptional = attributesOrderedGivenStrategy
 					.stream().filter(attribute -> {
-						SysRoleSystemDto roleSystem = roleSystemService.get(attribute.getRoleSystem());
-						IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
+						IdmRoleDto roleDto = this.getRole(attribute);
 						// Filter attributes by max priority
 						return maxPriority == roleDto.getPriority();
 					}).sorted((att1, att2) -> {
 						// Second filtering, if we have same priority, then
 						// we will sort by role name
-						SysRoleSystemDto roleSystem1 = roleSystemService.get(att1.getRoleSystem());
-						SysRoleSystemDto roleSystem2 = roleSystemService.get(att2.getRoleSystem());
-						//
-						IdmRoleDto roleDto1 = roleService.get(roleSystem1.getRole());
-						IdmRoleDto roleDto2 = roleService.get(roleSystem2.getRole());
+						IdmRoleDto roleDto1 = this.getRole(att1);
+						IdmRoleDto roleDto2 = this.getRole(att2);
 						//
 						return roleDto2.getCode().compareTo(roleDto1.getCode());
 					}).findFirst();
@@ -1044,8 +1052,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 				Optional<SysRoleSystemAttributeDto> disabledOverloadedAttOptional = attributesOrderedGivenStrategy
 						.stream().filter(attribute -> {
 							// Filter attributes by max priority
-							SysRoleSystemDto roleSystem = roleSystemService.get(attribute.getRoleSystem());
-							IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
+							IdmRoleDto roleDto = this.getRole(attribute);
 							return maxPriority == roleDto.getPriority();
 						}).filter(attribute -> {
 							// Second filtering, we will search for disabled
@@ -1287,6 +1294,23 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 */
 	protected SysSchemaAttributeDto getSchemaAttribute(AttributeMapping attributeMapping) {
 		if (attributeMapping.getSchemaAttribute() != null) {
+			SysSchemaAttributeDto schemaAttributeDto = DtoUtils.getEmbedded((AbstractDto) attributeMapping,
+					SysSystemAttributeMapping_.schemaAttribute.getName(), SysSchemaAttributeDto.class, null);
+			if(schemaAttributeDto != null) {
+				return schemaAttributeDto;
+			}
+			if (attributeMapping instanceof SysRoleSystemAttributeDto) {
+				SysSystemAttributeMappingDto systemAttributeMappingDto = DtoUtils.getEmbedded((SysRoleSystemAttributeDto) attributeMapping,
+						SysRoleSystemAttribute_.systemAttributeMapping.getName(), SysSystemAttributeMappingDto.class, null);
+				if(systemAttributeMappingDto != null) {
+					schemaAttributeDto = DtoUtils.getEmbedded(systemAttributeMappingDto,
+							SysSystemAttributeMapping_.schemaAttribute.getName(), SysSchemaAttributeDto.class, null);
+					if(schemaAttributeDto != null) {
+						return schemaAttributeDto;
+					}
+				}
+			}
+
 			return schemaAttributeService.get(attributeMapping.getSchemaAttribute());
 		} else {
 			// schema attribute is null = roleSystemAttribute
@@ -1295,6 +1319,27 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			return schemaAttributeService.get(dto.getSchemaAttribute());
 		}
 	}
+	
+	/**
+	 * Method returns schema attribute ID from interface attribute mapping. Schema
+	 * can be null for RoleSystemAttribute
+	 * 
+	 * @return
+	 */
+	protected UUID getSchemaAttributeId(AttributeMapping attributeMapping) {
+		if (attributeMapping.getSchemaAttribute() != null) {
+			return attributeMapping.getSchemaAttribute();
+		} else {
+			// schema attribute is null = roleSystemAttribute
+			if (attributeMapping instanceof SysRoleSystemAttributeDto) {
+				return systemAttributeMappingService
+						.get(((SysRoleSystemAttributeDto) attributeMapping).getSystemAttributeMapping())
+						.getSchemaAttribute();
+			}
+			return null;
+		}
+	}
+	
 
 	/**
 	 * Transform password via transformation stored in {@link AttributeMapping}.

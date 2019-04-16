@@ -883,7 +883,11 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		
 		roleSystem = roleSystemService.save(roleSystem);
 
-		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, overloadingAttributes, SystemEntityType.IDENTITY);
+		List<SysRoleSystemAttributeDto> freshOverloadingAttributes = new ArrayList<>();
+		overloadingAttributes.forEach(attributeOver -> {
+			freshOverloadingAttributes.add(roleSystemAttributeService.get(attributeOver.getId()));
+		});
+		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, freshOverloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloaded".equals(attribute.getName());
@@ -896,8 +900,12 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		attribute.setDisabledDefaultAttribute(true);
 		attribute = roleSystemAttributeService.save(attribute);
 		overloadingAttributes.set(1, attribute);
-
-		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, overloadingAttributes, SystemEntityType.IDENTITY);
+		
+		List<SysRoleSystemAttributeDto> freshOverloadingAttributesTwo = new ArrayList<>();
+		overloadingAttributes.forEach(attributeOver -> {
+			freshOverloadingAttributes.add(roleSystemAttributeService.get(attributeOver.getId()));
+		});
+		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, freshOverloadingAttributesTwo, SystemEntityType.IDENTITY);
 		Assert.assertEquals(1, compilledAttributes.size());
 	}
 
@@ -924,8 +932,13 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		roleDto.setPriority(100);
 		roleDto = roleService.save(roleDto);
 		
+		List<SysRoleSystemAttributeDto> freshOverloadingAttributes = new ArrayList<>();
+		overloadingAttributes.forEach(attribute -> {
+			freshOverloadingAttributes.add(roleSystemAttributeService.get(attribute.getId()));
+		});
+		
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes, SystemEntityType.IDENTITY);
+				freshOverloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloaded".equals(attribute.getName());

@@ -7,7 +7,6 @@ import WeekDayEnum from '../../../enums/WeekDayEnum';
 import CronMinuteEnum from '../../../enums/CronMinuteEnum';
 import CronHourEnum from '../../../enums/CronHourEnum';
 import DayInMonthEnum from '../../../enums/DayInMonthEnum';
-// import Datetime from 'react-datetime';
 
 class CronGenerator extends AbstractFormComponent {
 
@@ -15,20 +14,53 @@ class CronGenerator extends AbstractFormComponent {
     super(props);
     this.state = {
       intervalType: IntervalTypeEnum.findKeyBySymbol(IntervalTypeEnum.MINUTE),
-      cronExpression: this.resolveIntervalToCron()
+      weekDay: WeekDayEnum.findKeyBySymbol(WeekDayEnum.MONDAY),
+      cronMinute: CronMinuteEnum.findKeyBySymbol(CronMinuteEnum.FIVE),
+      cronHour: CronHourEnum.findKeyBySymbol(CronHourEnum.ONE),
+      dayInMonth: DayInMonthEnum.findKeyBySymbol(DayInMonthEnum.ONE),
+      time: '',
+      cronExpression: ''
     };
   }
 
   getComponentKey() {
-    // jak se dostane lokalizace do: 'content.scheduler.schedule-tasks' ???
     return 'entity.SchedulerTask.trigger.repeat';
   }
 
   onChangeIntervalType(intervalType) {
     this.setState({
-      intervalType: intervalType.value,
-      cronExpression: this.resolveIntervalToCron()
-    });
+      intervalType: intervalType.value
+    }, () => this.generateCron());
+  }
+
+  onChangeWeekDay(weekDay) {
+    this.setState({
+      weekDay: weekDay.value
+    }, () => this.generateCron());
+  }
+
+  onChangeCronMinute(cronMinute) {
+    this.setState({
+      cronMinute: cronMinute.value
+    }, () => this.generateCron());
+  }
+
+  onChangeCronHour(cronHour) {
+    this.setState({
+      cronHour: cronHour.value
+    }, () => this.generateCron());
+  }
+
+  onChangeDayInMonth(dayInMonth) {
+    this.setState({
+      dayInMonth: dayInMonth.value
+    }, () => this.generateCron());
+  }
+
+  onChangeDateTime() {
+    this.setState({
+      time: this.refs.dayTime.getValue()
+    }, () => this.generateCron());
   }
 
   generateCron() {
@@ -59,9 +91,9 @@ class CronGenerator extends AbstractFormComponent {
     // Minutes
     const time = this.refs.dayTime.getValue();
     const initMinute = time.split(':')[1];
-    const repetitionRate = this.refs.cronMinute.getValue().description;
+    const repetitionRate = CronMinuteEnum.findSymbolByKey(this.state.cronMinute).description;
 
-    // nahradit konstantou!
+    // nahradit konstantou?
     let cronStartMinute = initMinute;
     if (initMinute - repetitionRate > 0) {
       while (cronStartMinute - repetitionRate > 0) {
@@ -84,10 +116,9 @@ class CronGenerator extends AbstractFormComponent {
     const time = this.refs.dayTime.getValue();
     const initHour = time.split(':')[0];
     const initMinute = time.split(':')[1];
+    const repetitionRate = CronHourEnum.findSymbolByKey(this.state.cronHour).description;
 
-    const repetitionRate = this.refs.cronHour.getValue().description;
-
-    // nahradit konstantou!
+    // nahradit konstantou?
     let cronStartHour = initHour;
     if (initHour - repetitionRate > 0) {
       while (cronStartHour - repetitionRate > 0) {
@@ -126,8 +157,7 @@ class CronGenerator extends AbstractFormComponent {
     const time = this.refs.weekTime.getValue();
     const initHour = time.split(':')[0];
     const initMinute = time.split(':')[1];
-
-    const weekDay = this.refs.weekDay.getValue().description;
+    const weekDay = WeekDayEnum.findSymbolByKey(this.state.weekDay).description;
 
     const second = 0;
     const minute = initMinute;
@@ -144,7 +174,7 @@ class CronGenerator extends AbstractFormComponent {
     const time = this.refs.monthTime.getValue();
     const initHour = time.split(':')[0];
     const initMinute = time.split(':')[1];
-    const dayInMonth = this.refs.monthDay.getValue().description;
+    const dayInMonth = DayInMonthEnum.findSymbolByKey(this.state.dayInMonth).description;
 
     const second = 0;
     const minute = initMinute;
@@ -157,10 +187,8 @@ class CronGenerator extends AbstractFormComponent {
   }
 
   getBody() {
-    // this.generateCron();
-
     const { showLoading, rendered } = this.props;
-    const { intervalType, cronExpression } = this.state;
+    const { intervalType, cronExpression, cronMinute, cronHour, weekDay, dayInMonth } = this.state;
     if (!rendered) {
       return null;
     }
@@ -170,28 +198,30 @@ class CronGenerator extends AbstractFormComponent {
       );
     }
     return (
-      <Basic.AbstractForm showLoading={showLoading}>
+      <Basic.AbstractForm showLoading={showLoading} className="">
 
         <Basic.Row>
           <Basic.Col lg={ 5 }>
-              <h3 className="align-middle">
-                { this.i18n('label') }
-              </h3>
+            <h3>
+              {this.i18n('label')}
+            </h3>
           </Basic.Col>
           <Basic.Col lg={ 2 }>
             <Basic.EnumSelectBox
               ref="cronMinute"
               enum={ CronMinuteEnum }
-              value={ CronMinuteEnum.FIVE}
+              value={ cronMinute }
               clearable={ false }
               hidden={ intervalType !== 'MINUTE'}
+              onChange={ this.onChangeCronMinute.bind(this) }
               />
             <Basic.EnumSelectBox
               ref="cronHour"
               enum={ CronHourEnum }
-              value={ CronHourEnum.ONE }
+              value={ cronHour }
               clearable={ false }
               hidden={ intervalType !== 'HOUR'}
+              onChange={ this.onChangeCronHour.bind(this) }
               />
           </Basic.Col>
           <Basic.Col lg={ 3 }>
@@ -215,7 +245,9 @@ class CronGenerator extends AbstractFormComponent {
             <Basic.DateTimePicker
               ref="dayTime"
               mode="time"
-              value={ '0001-01-01 22:00' }/>
+              value={ '0001-01-01 22:00' }
+              onChange={ this.onChangeDateTime.bind(this) }
+              />
           </Basic.Col>
         </Basic.Row>
 
@@ -231,8 +263,9 @@ class CronGenerator extends AbstractFormComponent {
             <Basic.EnumSelectBox
               ref="weekDay"
               enum={ WeekDayEnum }
-              value={ WeekDayEnum.MONDAY }
-              clearable={ false }/>
+              value={ weekDay }
+              clearable={ false }
+              onChange={ this.onChangeWeekDay.bind(this) }/>
           </Basic.Col>
           <Basic.Col lg={ 1 }>
             <h3>
@@ -244,6 +277,7 @@ class CronGenerator extends AbstractFormComponent {
               ref="weekTime"
               mode="time"
               value={ '0001-01-01 22:00' }
+              onChange={ this.onChangeDateTime.bind(this) }
               // required
               />
           </Basic.Col>
@@ -261,8 +295,10 @@ class CronGenerator extends AbstractFormComponent {
             <Basic.EnumSelectBox
               ref="monthDay"
               enum={ DayInMonthEnum }
-              value={ DayInMonthEnum.ONE }
-              clearable={ false }/>
+              value={ dayInMonth }
+              clearable={ false }
+              onChange={ this.onChangeDayInMonth.bind(this) }
+              />
           </Basic.Col>
           <Basic.Col lg={ 1 }>
             <h3>
@@ -279,6 +315,7 @@ class CronGenerator extends AbstractFormComponent {
               ref="monthTime"
               mode="time"
               value={ '0001-01-01 22:00' }
+              onChange={ this.onChangeDateTime.bind(this) }
               // required
             />
           </Basic.Col>

@@ -12,6 +12,7 @@ import * as Domain from '../../domain';
 //
 import { SchedulerManager, DataManager, ConfigurationManager, SecurityManager, FormAttributeManager } from '../../redux';
 import TriggerTypeEnum from '../../enums/TriggerTypeEnum';
+import { callbackify } from 'util';
 
 const manager = new SchedulerManager();
 const formAttributeManager = new FormAttributeManager();
@@ -286,9 +287,16 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
   }
 
   onChangeTriggerType(triggerType) {
+    // If the repeat task is chosen, trigger init of cron expression preview
     this.setState({
       triggerType: triggerType.value
-    });
+    }, () => this.initCron());
+  }
+
+  initCron() {
+    if (this.state.triggerType === 'REPEAT') {
+      this.refs.repeat.generateCron();
+    }
   }
 
   /**

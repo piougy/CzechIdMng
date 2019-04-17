@@ -34,6 +34,15 @@ public interface IdmRoleRequestService
 	 *            (if is requires)
 	 */
 	IdmRoleRequestDto startRequest(UUID requestId, boolean checkRight);
+	
+	/**
+	 * Start approval process for given request. Request approving will be started
+	 * in new transaction.
+	 * 
+	 * @param event
+	 * @return
+	 */
+	IdmRoleRequestDto startRequest(EntityEvent<IdmRoleRequestDto> event);
 
 	/**
 	 * Internal start request. Not accessible from REST.
@@ -54,6 +63,14 @@ public interface IdmRoleRequestService
 	 * @param immediate - will be executed synchronously
 	 */
 	IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight, boolean immediate);
+	
+	/**
+	 * Internal start request. 
+	 * 
+	 * @param event
+	 * @return
+	 */
+	IdmRoleRequestDto startRequestInternal(EntityEvent<IdmRoleRequestDto> event);
 
 	/**
 	 * Add record to request log

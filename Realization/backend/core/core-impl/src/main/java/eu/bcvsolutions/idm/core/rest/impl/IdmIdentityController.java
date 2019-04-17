@@ -72,11 +72,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
@@ -546,6 +548,22 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 					new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmIdentityRole_.role.getName() + "." + IdmRole_.name.getName())), 
 					IdmBasePermission.READ)
 				.getContent();
+		// clear embedded, with is not needed for FE (cannot be disabled globally) 
+		identityRoles.forEach(ir -> {
+			ir.getEavs().forEach(formInstance -> {
+				formInstance.getFormDefinition().getFormAttributes().forEach(fa-> {
+					// clear form definition in form attribute
+					fa.getEmbedded().clear();
+				});
+				formInstance.getValues().forEach(fv -> {
+					// clear form definition in form attribute
+					IdmFormAttributeDto formAttribute = DtoUtils.getEmbedded(fv, AbstractFormValue_.formAttribute, null);
+					if (formAttribute != null) {
+						formAttribute.getEmbedded().clear();
+					}
+				});
+			});
+		});
 		return toResources(identityRoles, IdmIdentityRoleDto.class);
 	}
 	

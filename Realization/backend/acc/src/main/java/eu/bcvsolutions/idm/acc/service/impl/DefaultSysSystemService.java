@@ -660,7 +660,7 @@ public class DefaultSysSystemService
 		IcObjectPoolConfiguration poolConfiguration = config.getConnectorPoolConfiguration();
 		
 		IdmFormAttributeDto attributePoolingSupported = new IdmFormAttributeDto(POOLING_SUPPORTED_PROPERTY, POOLING_SUPPORTED_NAME, PersistentType.BOOLEAN);
-		attributePoolingSupported.setDefaultValue(String.valueOf(config.isConnectorPoolingSupported()));
+		attributePoolingSupported.setDefaultValue(String.valueOf(false));
 		attributePoolingSupported.setSeq((short)1);
 		formAttributes.add(attributePoolingSupported);
 		
@@ -714,7 +714,7 @@ public class DefaultSysSystemService
 	 * @return
 	 */
 	private String getPoolingFormDefinitionCode(IcConnectorInstance connectorInstance) {
-		return MessageFormat.format("{0}:{1}", POOLING_PREFIX, connectorInstance.getConnectorKey().getFullName());
+		return POOLING_DEFINITION_KEY;
 	}
 
 	/**

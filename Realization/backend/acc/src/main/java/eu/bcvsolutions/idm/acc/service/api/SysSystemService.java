@@ -28,7 +28,22 @@ public interface SysSystemService extends EventableDtoService<SysSystemDto, SysS
 
 	String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
 	String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";
+	// Pooling
+	String POOLING_PREFIX = "pooling";
+	String POOLING_SUPPORTED_PROPERTY = "poolingSupported";
+	String POOLING_SUPPORTED_NAME = "Pooling supported";
+	String MAX_IDLE_PROPERTY = "maxIdle";
+	String MAX_IDLE_NAME = "Max idle objects";
+	String MIN_IDLE_PROPERTY = "minIdle";
+	String MIN_IDLE_NAME = "Minimum number of idle objects";
+	String MAX_OBJECTS_PROPERTY = "maxObjects";
+	String MAX_OBJECTS_NAME = "Max objects";
+	String MAX_WAIT_PROPERTY = "maxWait";
+	String MAX_WAIT_NAME = "Max time to wait";
+	String MIN_TIME_TO_EVIC_PROPERTY = "minEvictableIdleTimeMillis";
+	String MIN_TIME_TO_EVIC_NAME = "Minimum time to wait before evicting";
 
+	
 	/**
 	 * Generate and persist schema to system. Use connector info and connector
 	 * configuration stored in system. If system contains any schema, then will be
@@ -56,6 +71,16 @@ public interface SysSystemService extends EventableDtoService<SysSystemDto, SysS
 	 * @return
 	 */
 	IdmFormDefinitionDto getConnectorFormDefinition(IcConnectorInstance connectorInstance);
+	
+	/**
+	 * Returns form-definition (for pool configuration) by given connector key. If no definition for
+	 * connector type is found, then new definition is created by connector
+	 * pool configuration.
+	 * 
+	 * @param connectorInstance
+	 * @return
+	 */
+	IdmFormDefinitionDto getPoolingConnectorFormDefinition(IcConnectorInstance connectorInstance);
 
 	/**
 	 * Check if is connector works fine

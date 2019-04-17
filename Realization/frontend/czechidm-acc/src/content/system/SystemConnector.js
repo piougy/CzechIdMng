@@ -20,6 +20,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
+      activeKey: 1,
       error: null,
       emptyConnector: false, // for first time is not choosen connector -> show alert block with info
       remoteConnectorError: false // dont show options for invalid password
@@ -51,6 +52,26 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
   reloadConnectorConfiguration(entityId) {
     this.context.store.dispatch(manager.fetchConnectorConfiguration(entityId, `${uiKey}-${entityId}`, (formInstance, error) => {
+      if (error) {
+        if (error.statusEnum === 'CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND') {
+          this.addErrorMessage({ hidden: true, level: 'info' }, error);
+          this.setState({ error });
+        } else if (error.statusEnum === 'CONNECTOR_FORM_DEFINITION_NOT_FOUND') {
+          // dont set error, just show alert block
+          this.addErrorMessage({ hidden: true, level: 'info' }, error);
+          this.setState({ error });
+        } else {
+          this.addError(error);
+          this.setState({ error: null });
+        }
+      } else {
+        this.setState({
+          emptyConnector: false
+        });
+        this.getLogger().debug(`[EavForm]: Loaded form definition [${formInstance.getDefinition().type}|${formInstance.getDefinition().name}]`);
+      }
+    }));
+    this.context.store.dispatch(manager.fetchPoolingConnectorConfiguration(entityId, `pooling-${uiKey}-${entityId}`, (formInstance, error) => {
       if (error) {
         if (error.statusEnum === 'CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND') {
           this.addErrorMessage({ hidden: true, level: 'info' }, error);
@@ -200,6 +221,33 @@ class SystemConnectorContent extends Basic.AbstractContent {
     }));
   }
 
+  savePoolingConfiguration(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({
+      showLoading: true
+    }, () => {
+      if (!this.refs.poolingEav.isValid()) {
+        return;
+      }
+      //
+      const { entityId } = this.props.params;
+      const filledFormValues = this.refs.poolingEav.getValues();
+      this.getLogger().debug(`[EavForm]: Saving form [${this.refs.poolingEav.getFormDefinition().type}|${this.refs.poolingEav.getFormDefinition().name}]`);
+      // save values
+      this.context.store.dispatch(manager.savePoolingConnectorConfiguration(entityId, filledFormValues, `pooling-${uiKey}-${entityId}`, (savedFormInstance, error) => {
+        if (error) {
+          this.addError(error);
+        } else {
+          this.getLogger().debug(`[EavForm]: Form [${this.refs.poolingEav.getFormDefinition().type}|${this.refs.poolingEav.getFormDefinition().name}] saved`);
+        }
+        this.setState({
+          showLoading: false
+        });
+      }));});
+  }
+
   _getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity) {
     const options = [];
     if (entity) {
@@ -225,10 +273,15 @@ class SystemConnectorContent extends Basic.AbstractContent {
     }
     return options;
   }
+  _onChangeSelectTabs(activeKey) {
+    this.setState({
+      activeKey
+    });
+  }
 
   render() {
-    const { formInstance, availableFrameworks, availableRemoteFrameworks, entity } = this.props;
-    const { error, showLoading, remoteConnectorError } = this.state;
+    const { formInstance, poolingFormInstance, availableFrameworks, availableRemoteFrameworks, entity } = this.props;
+    const { error, showLoading, remoteConnectorError, activeKey } = this.state;
     const _showLoading = showLoading || this.props._showLoading;
     const _availableConnectors = this._getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity);
 
@@ -251,22 +304,46 @@ class SystemConnectorContent extends Basic.AbstractContent {
     } else {
       // connector setting is ready
       content = (
-        <form style={{ marginTop: 15 }} onSubmit={this.save.bind(this, false)}>
-          <Advanced.EavForm
-            ref="eav"
-            formInstance={ formInstance }
-            readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
-            useDefaultValue/>
-          <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }>
-            <Basic.Button
-              type="submit"
-              level="success"
-              showLoadingIcon
-              showLoadingText={this.i18n('button.saving')}>
-              {this.i18n('button.save')}
-            </Basic.Button>
-          </Basic.PanelFooter>
-        </form>
+        <Basic.Tabs activeKey={ activeKey } onSelect={ this._onChangeSelectTabs.bind(this) }>
+          <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
+            <form style={{ marginRight: 15, marginLeft: 15, paddingTop: 10}} onSubmit={this.save.bind(this, false)}>
+              <Advanced.EavForm
+                ref="eav"
+                formInstance={ formInstance }
+                readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
+                useDefaultValue/>
+              <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }>
+                <Basic.Button
+                  type="submit"
+                  level="success"
+                  showLoadingIcon
+                  showLoadingText={this.i18n('button.saving')}>
+                  {this.i18n('button.save')}
+                </Basic.Button>
+              </Basic.PanelFooter>
+            </form>
+          </Basic.Tab>
+          <Basic.Tab eventKey={ 2 } title={ this.i18n('poolingConfiguration') } className="bordered">
+            <form
+              style={{ paddingRight: 15, paddingLeft: 15, paddingTop: 10}}
+              onSubmit={this.savePoolingConfiguration.bind(this)}>
+              <Advanced.EavForm
+                ref="poolingEav"
+                formInstance={ poolingFormInstance }
+                readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
+                useDefaultValue/>
+              <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }>
+                <Basic.Button
+                  type="submit"
+                  level="success"
+                  showLoadingIcon
+                  showLoadingText={this.i18n('button.saving')}>
+                  {this.i18n('button.save')}
+                </Basic.Button>
+              </Basic.PanelFooter>
+            </form>
+          </Basic.Tab>
+        </Basic.Tabs>
       );
     }
 
@@ -313,9 +390,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
             </div>
 
           </Basic.AbstractForm>
-
           <hr style={{ margin: 0 }}/>
-
           { content }
         </Basic.Panel>
       </div>
@@ -340,6 +415,7 @@ function select(state, component) {
     entity: manager.getEntity(state, entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),
     formInstance: Managers.DataManager.getData(state, `${uiKey}-${entityId}`),
+    poolingFormInstance: Managers.DataManager.getData(state, `pooling-${uiKey}-${entityId}`),
     availableFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_CONNECTORS),
     availableRemoteFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_REMOTE_CONNECTORS),
     _permissions: manager.getPermissions(state, null, entityId)

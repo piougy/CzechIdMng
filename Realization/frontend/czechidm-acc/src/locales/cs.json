@@ -248,6 +248,7 @@
       },
       "connector": {
         "header": "Nastavení konektoru",
+        "poolingConfiguration": "Pooling nastavení",
         "title": "Konfigurace",
         "button": {
           "showBasicInfo": "Přejít na základní údaje",

@@ -62,6 +62,40 @@ export default class SystemManager extends Managers.EntityManager {
   }
 
   /**
+   * Load pooling connector configuration for given system
+   *
+   * @param  {string} id system identifier
+   * @param {string} uiKey
+   * @param {func} cb callback
+   * @returns {action}
+   */
+  fetchPoolingConnectorConfiguration(id, uiKey, cb = null) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+
+      const connectorFormDefinitionPromise = this.getService().getPoolingConnectorFormDefinition(id);
+      const connectorFormValuesPromise = this.getService().getPoolingConnectorFormValues(id);
+
+      Promise.all([connectorFormDefinitionPromise, connectorFormValuesPromise])
+        .then((jsons) => {
+          const formDefinition = jsons[0];
+          const formValues = jsons[1].values;
+
+          const formInstance = new Domain.FormInstance(formDefinition, formValues);
+
+          dispatch(this.dataManager.receiveData(uiKey, formInstance));
+          if (cb) {
+            cb(formInstance);
+          }
+        })
+        .catch(error => {
+          // TODO: data uiKey
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
+    };
+  }
+
+  /**
    * Saves connector configuration form values
    *
    * @param  {string} id system identifier
@@ -76,6 +110,28 @@ export default class SystemManager extends Managers.EntityManager {
       this.getService().saveConnectorFormValues(id, values)
       .then(() => {
         dispatch(this.fetchConnectorConfiguration(id, uiKey, cb));
+      })
+      .catch(error => {
+        dispatch(this.receiveError(null, uiKey, error, cb));
+      });
+    };
+  }
+
+  /**
+   * Saves pooling connector configuration form values
+   *
+   * @param  {string} id system identifier
+   * @param  {arrayOf(entity)} values filled form values
+   * @param {string} uiKey
+   * @param {func} cb callback
+   * @returns {action}
+   */
+  savePoolingConnectorConfiguration(id, values, uiKey, cb = null) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().savePoolingConnectorFormValues(id, values)
+      .then(() => {
+        dispatch(this.fetchPoolingConnectorConfiguration(id, uiKey, cb));
       })
       .catch(error => {
         dispatch(this.receiveError(null, uiKey, error, cb));

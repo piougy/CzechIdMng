@@ -29,7 +29,7 @@ public interface SysSystemService extends EventableDtoService<SysSystemDto, SysS
 	String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
 	String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";
 	// Pooling
-	String POOLING_PREFIX = "pooling";
+	String POOLING_DEFINITION_KEY = "pooling-connector-configuration";
 	String POOLING_SUPPORTED_PROPERTY = "poolingSupported";
 	String POOLING_SUPPORTED_NAME = "Pooling supported";
 	String MAX_IDLE_PROPERTY = "maxIdle";

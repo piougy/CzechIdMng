@@ -4333,7 +4333,7 @@
         },
         "fireTime": "Fire time",
         "repeat": {
-          "label": "Repeat every",
+          "repeatEvery": "Repeat every",
           "validFrom": "Valid from",
           "at": "at",
           "every": "On",

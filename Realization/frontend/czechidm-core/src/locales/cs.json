@@ -4438,7 +4438,7 @@
         },
         "fireTime": "Datum spuštění",
         "repeat": {
-          "label": "Opakovat jednou za",
+          "repeatEvery": "Opakovat jednou za",
           "validFrom": "Platné od",
           "at": "v",
           "every": "Každé",

@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -46,7 +47,6 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 
 	public static final String PROCESSOR_NAME = "system-delete-processor";
 	private final SysSystemService service;
-	private final SysProvisioningOperationRepository provisioningOperationRepository;
 	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
 	private final SysSchemaObjectClassService objectClassService;
 	private final SysSyncConfigService synchronizationConfigService;
@@ -54,6 +54,8 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 	private final SysSystemEntityService systemEntityService;
 	private final SysProvisioningBreakConfigService provisioningBreakConfigService;
 	private final ConfidentialStorage confidentialStorage;
+	@Autowired
+	private SysProvisioningOperationService provisioningOperationService;
 
 	@Autowired
 	public SystemDeleteProcessor(SysSystemService service,
@@ -67,7 +69,6 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		//
 		Assert.notNull(service);
 		Assert.notNull(provisioningOperationRepository);
-		Assert.notNull(provisioningArchiveRepository);
 		Assert.notNull(objectClassService);
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(accountRepository);
@@ -79,7 +80,6 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		this.objectClassService = objectClassService;
 		this.accountRepository = accountRepository;
 		this.synchronizationConfigService = synchronizationConfigService;
-		this.provisioningOperationRepository = provisioningOperationRepository;
 		this.provisioningArchiveRepository = provisioningArchiveRepository;
 		this.systemEntityService = systemEntityService;
 		this.provisioningBreakConfigService = provisioningBreakConfigService;
@@ -100,7 +100,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		// system
 		SysProvisioningOperationFilter operationFilter = new SysProvisioningOperationFilter();
 		operationFilter.setSystemId(system.getId());
-		if (provisioningOperationRepository.find(operationFilter, null).getTotalElements() > 0) {
+		if (provisioningOperationService.find(operationFilter, null).getTotalElements() > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_OPERATIONS,
 					ImmutableMap.of("system", system.getName()));
 		}

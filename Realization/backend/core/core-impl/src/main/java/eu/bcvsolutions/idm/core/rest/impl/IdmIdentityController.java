@@ -467,7 +467,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			value = "Prevalidate bulk action for identities", 
 			nickname = "prevalidateBulkAction", 
 			response = IdmBulkActionDto.class, 
-			tags = { IdmRoleController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "")}),

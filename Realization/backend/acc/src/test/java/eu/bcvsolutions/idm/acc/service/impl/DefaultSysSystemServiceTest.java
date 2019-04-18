@@ -71,6 +71,7 @@ import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -532,6 +533,95 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		
 		Assert.assertEquals(emailAttribute.getName(), filterAtt.getName());
 		Assert.assertEquals(emailAttribute.getIdmPropertyName(), filterAtt.getIdmPropertyName());
+	}
+	
+	@Test
+	public void testPoolingConnectorDefinition(){
+		// create test system
+		SysSystemDto system = helper.createTestResourceSystem(true);
+		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(system);
+		Assert.assertNotNull(connectorInstance);
+		IdmFormDefinitionDto formDefinition = systemService.getPoolingConnectorFormDefinition(connectorInstance);
+		Assert.assertNotNull(formDefinition);
+		
+		// Get pooling definition
+		IdmFormAttributeDto attributeDto = formDefinition.getMappedAttributeByCode(SysSystemService.POOLING_SUPPORTED_PROPERTY);
+		Assert.assertNotNull(attributeDto);
+		Assert.assertEquals(String.valueOf(false), attributeDto.getDefaultValue());
+		
+		attributeDto = formDefinition.getMappedAttributeByCode(SysSystemService.MAX_IDLE_PROPERTY);
+		Assert.assertNotNull(attributeDto);
+		attributeDto = formDefinition.getMappedAttributeByCode(SysSystemService.MAX_OBJECTS_PROPERTY);
+		Assert.assertNotNull(attributeDto);
+		attributeDto = formDefinition.getMappedAttributeByCode(SysSystemService.MAX_WAIT_PROPERTY);
+		Assert.assertNotNull(attributeDto);
+		attributeDto = formDefinition.getMappedAttributeByCode(SysSystemService.MIN_IDLE_PROPERTY);
+		Assert.assertNotNull(attributeDto);
+		attributeDto = formDefinition.getMappedAttributeByCode(SysSystemService.MIN_TIME_TO_EVIC_PROPERTY);
+		Assert.assertNotNull(attributeDto);
+	}
+	
+	
+	@Test
+	public void testPoolingConnectorConfiguration(){
+		// create test system
+		SysSystemDto system = helper.createTestResourceSystem(true);
+		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(system);
+		Assert.assertNotNull(connectorInstance);
+		IdmFormDefinitionDto formDefinition = systemService.getPoolingConnectorFormDefinition(connectorInstance);
+		Assert.assertNotNull(formDefinition);
+		systemService.save(system);
+		
+		List<IdmFormValueDto> values = formService.getValues(system, formDefinition);
+		Assert.assertNotNull(values);
+		Assert.assertEquals(0, values.size());
+		values = Lists.newArrayList();
+		
+		IdmFormValueDto formValueDto = new IdmFormValueDto(formService.getAttribute(formDefinition, SysSystemService.POOLING_SUPPORTED_PROPERTY));
+		// Change value
+		formValueDto.setValue(true);
+		values.add(formValueDto);
+		
+		formValueDto = new IdmFormValueDto(formService.getAttribute(formDefinition, SysSystemService.MAX_IDLE_PROPERTY));
+		// Change value
+		formValueDto.setValue(111);
+		values.add(formValueDto);
+
+		formValueDto = new IdmFormValueDto(formService.getAttribute(formDefinition, SysSystemService.MAX_OBJECTS_PROPERTY));
+		// Change value
+		formValueDto.setValue(222);
+		values.add(formValueDto);
+		
+		formValueDto = new IdmFormValueDto(formService.getAttribute(formDefinition, SysSystemService.MIN_IDLE_PROPERTY));
+		// Change value
+		formValueDto.setValue(333);
+		values.add(formValueDto);
+	
+		formValueDto = new IdmFormValueDto(formService.getAttribute(formDefinition, SysSystemService.MAX_WAIT_PROPERTY));
+		// Change value
+		formValueDto.setValue((long)444);
+		values.add(formValueDto);
+		
+		formValueDto = new IdmFormValueDto(formService.getAttribute(formDefinition, SysSystemService.MIN_TIME_TO_EVIC_PROPERTY));
+		// Change value
+		formValueDto.setValue((long)555);
+		values.add(formValueDto);
+		
+		// Save all values
+		formService.saveValues(system, formDefinition, values);
+		
+		IcConnectorConfiguration connectorConfiguration = systemService.getConnectorConfiguration(system);
+		Assert.assertNotNull(connectorConfiguration);
+		Assert.assertTrue(connectorConfiguration.isConnectorPoolingSupported());
+		
+		IcObjectPoolConfiguration poolConfiguration = connectorConfiguration.getConnectorPoolConfiguration();
+		Assert.assertNotNull(poolConfiguration);
+		
+		Assert.assertEquals(111, poolConfiguration.getMaxIdle());
+		Assert.assertEquals(222, poolConfiguration.getMaxObjects());
+		Assert.assertEquals(333, poolConfiguration.getMinIdle());
+		Assert.assertEquals(444, poolConfiguration.getMaxWait());
+		Assert.assertEquals(555, poolConfiguration.getMinEvictableIdleTimeMillis());
 	}
 	
 }

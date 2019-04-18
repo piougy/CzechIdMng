@@ -21,7 +21,7 @@ public class IcConnectorConfigurationImpl implements IcConnectorConfiguration {
 	/**
 	 * Determines if this connector uses the framework's connector pooling.
 	 */
-	private boolean connectorPoolingSupported;
+	private boolean connectorPoolingSupported = false;
 
 	/**
 	 * Connector pooling configuration.

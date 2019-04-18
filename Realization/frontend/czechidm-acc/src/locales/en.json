@@ -248,6 +248,7 @@
       },
       "connector": {
         "header": "Connector configuration",
+        "poolingConfiguration": "Pooling configuration",
         "title": "Configuration",
         "button": {
           "showBasicInfo": "Show basic information",

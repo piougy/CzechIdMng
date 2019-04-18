@@ -209,15 +209,30 @@ public class DefaultIdmRoleRequestService
 	@Override
 	@Transactional
 	public IdmRoleRequestDto startRequest(UUID requestId, boolean checkRight) {
+		Assert.notNull(requestId, "Role request ID is required!");
+		// Load request ... check right for read
+		IdmRoleRequestDto request = get(requestId);
+		Assert.notNull(request, "Role request DTO is required!");
+		//
+		Map<String, Serializable> variables = new HashMap<>();
+		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
+		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, request, variables);
+		//
+		return startRequest(event);
+	}
+	
+	@Override
+	@Transactional
+	public IdmRoleRequestDto startRequest(EntityEvent<IdmRoleRequestDto> event) {
 		try {
 			IdmRoleRequestService service = this.getIdmRoleRequestService();
 			if (!(service instanceof DefaultIdmRoleRequestService)) {
 				throw new CoreException("We expects instace of DefaultIdmRoleRequestService!");
 			}
-			return ((DefaultIdmRoleRequestService) service).startRequestNewTransactional(requestId, checkRight);
+			return ((DefaultIdmRoleRequestService) service).startRequestNewTransactional(event);
 		} catch (Exception ex) {
 			LOG.error(ex.getLocalizedMessage(), ex);
-			IdmRoleRequestDto request = get(requestId);
+			IdmRoleRequestDto request = get(event.getContent().getId());
 			Throwable exceptionToLog = ExceptionUtils.resolveException(ex);
 			// Whole stack trace is too big, so we will save only message to the request log.
 			String message = exceptionToLog.getLocalizedMessage();
@@ -226,18 +241,10 @@ public class DefaultIdmRoleRequestService
 			return save(request);
 		}
 	}
-
-	/**
-	 * Internal start request. Start in new transaction
-	 * 
-	 * @param requestId
-	 * @param checkRight
-	 *            - If is true, then will be check right for immediately execution
-	 *            (if is requires)
-	 */
+	
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public IdmRoleRequestDto startRequestNewTransactional(UUID requestId, boolean checkRight) {
-		return this.getIdmRoleRequestService().startRequestInternal(requestId, checkRight);
+	public IdmRoleRequestDto startRequestNewTransactional(EntityEvent<IdmRoleRequestDto> event) {
+		return this.getIdmRoleRequestService().startRequestInternal(event);
 	}
 
 	@Override
@@ -253,6 +260,27 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(requestId, "Role request ID is required!");
 		// Load request ... check right for read
 		IdmRoleRequestDto request = get(requestId);
+		Assert.notNull(request, "Role request DTO is required!");
+		//
+		// Throw event
+		Map<String, Serializable> variables = new HashMap<>();
+		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
+		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, request, variables);
+		if (immediate) {
+			event.setPriority(PriorityType.IMMEDIATE);
+		}
+		return startRequestInternal(event);
+	}
+	
+	@Override
+	@Transactional
+	public IdmRoleRequestDto startRequestInternal(EntityEvent<IdmRoleRequestDto> event) {
+		IdmRoleRequestDto request = event.getContent();
+		//
+		LOG.debug("Start role request [{}], checkRight [{}], immediate [{}]", 
+				request.getId(), 
+				event.getProperties().get(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY),
+				event.getPriority());
 		Assert.notNull(request, "Role request DTO is required!");
 		Assert.isTrue(
 				RoleRequestState.CONCEPT == request.getState() || RoleRequestState.DUPLICATED == request.getState()
@@ -302,14 +330,8 @@ public class DefaultIdmRoleRequestService
 		// Request will be set on in progress state
 		request.setState(RoleRequestState.IN_PROGRESS);
 		IdmRoleRequestDto savedRequest = this.save(request);
-
-		// Throw event
-		Map<String, Serializable> variables = new HashMap<>();
-		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
-		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, savedRequest, variables);
-		if (immediate) {
-			event.setPriority(PriorityType.IMMEDIATE);
-		}
+		event.setContent(savedRequest);
+		//
 		return entityEventManager
 				.process(event)
 				.getContent();

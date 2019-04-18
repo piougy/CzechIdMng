@@ -10,6 +10,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,8 +37,11 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch_;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
+import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
@@ -118,16 +126,66 @@ public class DefaultSysProvisioningOperationService
 		this.securityService = securityService;
 		this.systemEntityService = systemEntityService;
 	}
-	
+
 	@Override
-	protected Page<SysProvisioningOperation> findEntities(SysProvisioningOperationFilter filter, Pageable pageable, BasePermission... permission) {
-		// TODO: rewrite to toPredicates ...
-		if (filter == null) {
-			return repository.findAll(pageable);
+	protected List<Predicate> toPredicates(Root<SysProvisioningOperation> root, CriteriaQuery<?> query,
+			CriteriaBuilder builder, SysProvisioningOperationFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+
+		// System Id
+		if (filter.getSystemId() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.system).get(SysSystem_.id), filter.getSystemId()));
 		}
-		return repository.find(filter, pageable);
+
+		// From
+		if (filter.getFrom() != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(SysProvisioningOperation_.created), filter.getFrom()));
+		}
+
+		// Till
+		if (filter.getTill() != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(SysProvisioningOperation_.created), filter.getTill()));
+		}
+
+		// Operation type
+		if (filter.getOperationType() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.operationType), filter.getOperationType()));
+		}
+
+		// Entity type
+		if (filter.getEntityType() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.entityType), filter.getEntityType()));
+		}
+
+		// Entity identifier
+		if (filter.getEntityIdentifier() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.entityIdentifier), filter.getEntityIdentifier()));
+		}
+
+		// System entity
+		if (filter.getSystemEntity() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.systemEntity).get(SysSystemEntity_.id), filter.getSystemEntity()));
+		}
+
+		// System entity UID
+		if (filter.getSystemEntityUid() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.systemEntity).get(SysSystemEntity_.uid), filter.getSystemEntityUid()));
+		}
+
+		// Operation result and his state
+		if (filter.getResultState() != null) {
+			// TODO: Operation result hasn't metadata model
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.result).get("state"), filter.getResultState()));
+		}
+
+		// Batch ID
+		if (filter.getBatchId() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.batch).get(SysProvisioningBatch_.id), filter.getBatchId()));
+		}
+
+		return predicates;
 	}
-	
+
 	@Override
 	protected SysProvisioningOperationDto toDto(SysProvisioningOperation entity, SysProvisioningOperationDto dto) {
 		dto = super.toDto(entity, dto);
@@ -548,7 +606,12 @@ public class DefaultSysProvisioningOperationService
 		//
 		return deleted;
 	}
-	
+
+	@Override
+	@Transactional
+	public void deleteAllOperations() {
+		repository.deleteAll();
+	}
 	/**
 	 * Deletes persisted confidential storage values
 	 * 

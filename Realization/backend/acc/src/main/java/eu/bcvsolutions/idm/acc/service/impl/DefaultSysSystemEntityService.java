@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -46,8 +48,10 @@ public class DefaultSysSystemEntityService
 
 	private final SysSystemEntityRepository repository;
 	private final AccAccountRepository accountRepository;
-	private final SysProvisioningOperationRepository provisioningOperationRepository;
 	private final SysSystemService systemService;
+	//
+	// TODO: after transformation to events can be this removed
+	@Autowired @Lazy private SysProvisioningOperationService provisioningOperationService;
 	//
 	@Autowired private SysProvisioningBatchService batchService;
 
@@ -58,12 +62,10 @@ public class DefaultSysSystemEntityService
 		super(systemEntityRepository);
 		//
 		Assert.notNull(accountRepository);
-		Assert.notNull(provisioningOperationRepository);
 		Assert.notNull(systemService);
 		//
 		this.repository = systemEntityRepository;
 		this.accountRepository = accountRepository;
-		this.provisioningOperationRepository = provisioningOperationRepository;
 		this.systemService = systemService;
 	}
 
@@ -85,7 +87,8 @@ public class DefaultSysSystemEntityService
 		filter.setSystemId(systemEntityDto.getSystem());
 		filter.setEntityType(systemEntityDto.getEntityType());
 		filter.setSystemEntity(systemEntityDto.getId());
-		if (provisioningOperationRepository.find(filter, null).getTotalElements() > 0) {
+		// TODO: transform this behavior to events
+		if (provisioningOperationService.find(filter, null).getTotalElements() > 0) {
 			SysSystemDto system = DtoUtils.getEmbedded(systemEntityDto, SysSystemEntity_.system);
 			throw new ResultCodeException(AccResultCode.SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS,
 					ImmutableMap.of("uid", systemEntityDto.getUid(), "system", system.getName()));

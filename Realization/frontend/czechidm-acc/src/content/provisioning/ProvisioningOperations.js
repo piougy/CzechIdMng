@@ -25,11 +25,6 @@ class ProvisioningOperations extends Basic.AbstractContent {
       detail: {
         show: false,
         entity: null
-      },
-      retryDialog: {
-        show: false,
-        bulkActionValue: null,
-        ids: []
       }
     };
   }
@@ -40,45 +35,6 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
   getContentKey() {
     return 'acc:content.provisioningOperations';
-  }
-
-  /**
-   * Shows retry dialog
-   *
-   * @return {[type]} [description]
-   */
-  showRetryDialog(bulkActionValue, ids) {
-    this.setState({
-      retryDialog: {
-        show: true,
-        bulkActionValue,
-        ids
-      }
-    });
-  }
-
-  onRetry(batch = true) {
-    const { retryDialog } = this.state;
-    this.closeRetryDialog();
-    this.context.store.dispatch(manager.retry(retryDialog.ids, retryDialog.bulkActionValue, batch, () => {
-      // clear selected rows and reload
-      this.refs.table.getWrappedInstance().clearSelectedRows();
-      this.refs.table.getWrappedInstance().reload();
-      this.refs.archiveTable.getWrappedInstance().reload();
-    }));
-  }
-
-  /**
-   * Close modal retry dialog
-   */
-  closeRetryDialog() {
-    this.setState({
-      retryDialog: {
-        show: false,
-        bulkActionValue: null,
-        ids: []
-      }
-    });
   }
 
   /**
@@ -118,7 +74,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
   render() {
     const { forceSearchParameters, columns, uiKey, showDeleteAllButton } = this.props;
-    const { detail, retryDialog } = this.state;
+    const { detail } = this.state;
     // accountObject to table
     const accountData = [];
     if (detail.entity && detail.entity.provisioningContext.accountObject) {
@@ -160,13 +116,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
               showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_ADMIN'])}
               forceSearchParameters={forceSearchParameters}
               columns={columns}
-              showDeleteAllButton={ showDeleteAllButton }
-              actions={
-                [
-                  { value: 'retry', niceLabel: this.i18n('action.retry.action'), action: this.showRetryDialog.bind(this) },
-                  { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.showRetryDialog.bind(this) }
-                ]
-              }/>
+              showDeleteAllButton={ showDeleteAllButton }/>
           </Basic.Tab>
 
           <Basic.Tab eventKey={2} title={this.i18n('tabs.archive.label')}>
@@ -295,40 +245,6 @@ class ProvisioningOperations extends Basic.AbstractContent {
             </Basic.Button>
           </Basic.Modal.Footer>
         </Basic.Modal>
-
-        <Basic.Modal
-          show={retryDialog.show}
-          onHide={this.closeRetryDialog.bind(this)}
-          backdrop="static">
-          <Basic.Modal.Header closeButton text={this.i18n(`action.${retryDialog.bulkActionValue}.header`, { count: retryDialog.ids.length})}/>
-          <Basic.Modal.Body>
-            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.message`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
-          </Basic.Modal.Body>
-          <Basic.Modal.Footer>
-            <Basic.Button
-              level="warning"
-              onClick={this.onRetry.bind(this, false)}>
-              {this.i18n(`action.${retryDialog.bulkActionValue}.button.selected`)}
-            </Basic.Button>
-          </Basic.Modal.Footer>
-          <Basic.Modal.Body>
-            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.batchMessage`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
-          </Basic.Modal.Body>
-
-          <Basic.Modal.Footer>
-            <Basic.Button
-              level="link"
-              onClick={this.closeRetryDialog.bind(this)}>
-              {this.i18n('button.close')}
-            </Basic.Button>
-            <Basic.Button
-              level="success"
-              onClick={this.onRetry.bind(this, true)}>
-              {this.i18n(`action.${retryDialog.bulkActionValue}.button.batch`)}
-            </Basic.Button>
-          </Basic.Modal.Footer>
-        </Basic.Modal>
-
       </div>
     );
   }

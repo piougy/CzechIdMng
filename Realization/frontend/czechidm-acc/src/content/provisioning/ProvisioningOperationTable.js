@@ -50,34 +50,6 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
-  _cancelAll() {
-    const { uiKey, manager, isArchive } = this.props;
-    if (isArchive) {
-      // not supported for archive
-      return;
-    }
-    //
-    this.useFilter();
-    //
-    this.refs['confirm-cancelAll'].show(
-      this.i18n(`action.cancelAll.message`),
-      this.i18n(`action.cancelAll.header`)
-    ).then(() => {
-      // get filled filter
-      const searchParameters = this.refs.table.getWrappedInstance().getSearchParameters(this.refs.filterForm).setName(null); // prevent to use search url
-      //
-      this.context.store.dispatch(manager.cancelAll(searchParameters, uiKey, (lrt, error) => {
-        if (!error || error.statusCode === 202) {
-          this.addMessage({ level: 'info', message: this.i18n('action.cancelAll.accepted')});
-        } else {
-          this.addError(error);
-        }
-      }));
-    }, () => {
-      // nothing
-    });
-  }
-
   _deleteAll() {
     const { uiKey, manager, isArchive } = this.props;
     if (isArchive) {
@@ -135,7 +107,6 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
     //
     return (
       <div>
-        <Basic.Confirm ref="confirm-cancelAll" level="warning"/>
         <Basic.Confirm ref="confirm-deleteAll" level="danger">
           <div style={{ marginTop: 20 }}>
             <Basic.AbstractForm ref="delete-form" uiKey="confirm-deleteAll" >
@@ -145,7 +116,6 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 placeholder={ this.i18n('action.deleteAll.system.placeholder') }
                 manager={ systemManager }
                 value={ systemId }
-                required
                 readOnly={ systemId !== null }/>
             </Basic.AbstractForm>
           </div>
@@ -230,18 +200,6 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 titlePlacement="bottom"
                 icon="fa:trash">
                 { this.i18n('action.deleteAll.button.label') }
-              </Basic.Button>,
-              <Basic.Button
-                level="warning"
-                key="cancel-all-button"
-                className="btn-xs"
-                onClick={ this._cancelAll.bind(this) }
-                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_ADMIN']) && !isArchive }
-                title={ this.i18n('action.cancelAll.button.title') }
-                titlePlacement="bottom"
-                icon="fa:ban"
-                style={{ marginLeft: 3 }}>
-                { this.i18n('action.cancelAll.button.label') }
               </Basic.Button>
             ]
           }

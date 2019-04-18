@@ -19,6 +19,7 @@ const identityContractManager = new IdentityContractManager();
 const workflowProcessInstanceManager = new WorkflowProcessInstanceManager();
 const roleRequestManager = new RoleRequestManager();
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
+const uiKeyIncompatibleRoles = 'identity-incompatible-roles-';
 
 /**
  * Assigned identity roles
@@ -50,6 +51,7 @@ class IdentityRoles extends Basic.AbstractContent {
     //
     const { entityId } = this.props.params;
     this.context.store.dispatch(identityContractManager.fetchEntities(new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('identity', entityId).setFilter('validNowOrInFuture', true), `${uiKeyContracts}-${entityId}`));
+    this.context.store.dispatch(identityManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
   }
 
   showProcessDetail(entity) {
@@ -219,7 +221,8 @@ class IdentityRoles extends Basic.AbstractContent {
               showAddButton={ _contracts.length > 0 }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole']) }
-              _permissions={ _permissions }/>
+              _permissions={ _permissions }
+              fetchIncompatibleRoles={ false }/>
 
             <Basic.ContentHeader icon="component:sub-roles" text={ this.i18n('subRoles.header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15 }}/>
 
@@ -231,7 +234,8 @@ class IdentityRoles extends Basic.AbstractContent {
                 .setFilter('addEavMetadata', true) }
               showAddButton={ false }
               params={ this.props.params }
-              columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['automaticRole']) }/>
+              columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['automaticRole']) }
+              fetchIncompatibleRoles={ false }/>
           </Basic.Tab>
 
           <Basic.Tab

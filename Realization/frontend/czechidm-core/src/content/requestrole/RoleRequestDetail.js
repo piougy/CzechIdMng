@@ -23,6 +23,7 @@ const identityRoleManager = new IdentityRoleManager();
 
 /**
  * Detail of the role request
+ *
  * @author Vít Švanda
  */
 class RoleRequestDetail extends Advanced.AbstractTableContent {
@@ -54,7 +55,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     if (entityId && entityId !== entityIdCurrent) {
       this._initComponent(nextProps);
     }
-    if (_request && _request !== this.props._request) {
+    if (_request && (!this.props._request || _request.id !== this.props._request.id)) {
       this._initComponentCurrentRoles(nextProps);
     }
   }
@@ -64,6 +65,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     this._initComponent(this.props);
+    //
     this._initComponentCurrentRoles(this.props);
     if (this.refs.description) {
       this.refs.description.focus();
@@ -84,7 +86,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           applicant: props.location.query.applicantId,
           state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
           requestedByType: 'MANUALLY'
-        }}, () => {
+        }
+      }, () => {
         this.save(this, false);
       });
     } else {
@@ -104,13 +107,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   _initComponentCurrentRoles(props) {
     const { _request } = props;
     //
-    if (this._getIsNew(props)) {
-      const applicant = props.location.query.applicantId;
-      this.context.store.dispatch(identityRoleManager.fetchRoles(applicant, `${uiKey}-${applicant}`, () => {} ));
-    } else {
-      if (_request) {
-        this.context.store.dispatch(identityRoleManager.fetchRoles(_request.applicant, `${uiKey}-${_request.applicant}`, () => {}));
-      }
+    if (!this._getIsNew(props) && _request) {
+      this.context.store.dispatch(identityRoleManager.fetchRoles(_request.applicant, `${uiKey}-${_request.applicant}`, () => {}));
     }
   }
 
@@ -272,7 +270,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             _request.conceptRoles[i] = updatedEntity;
           }
         }
-        this.reloadComponent();
         if (cb) {
           cb();
         }
@@ -300,7 +297,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     conceptRoleRequestManager.getService().create(concept)
     .then(json => {
       _request.conceptRoles.push(json);
-      this.reloadComponent();
       if (cb) {
         cb();
       }
@@ -509,7 +505,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           createConceptFunc={this._createConcept.bind(this)}
           updateConceptFunc={this._updateConcept.bind(this)}
           conceptRoleRequestManager={conceptRoleRequestManager}
-          reloadComponent={this.reloadComponent.bind(this)}
+          reloadComponent={ this.reloadComponent.bind(this) }
           _incompatibleRoles={ _incompatibleRoles }
           />
       </div>

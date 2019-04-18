@@ -38,8 +38,12 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     const { entityId } = this.props.params;
+    const { fetchIncompatibleRoles } = this.props;
+    //
     this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
-    this.context.store.dispatch(identityManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
+    if (fetchIncompatibleRoles) {
+      this.context.store.dispatch(identityManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
+    }
   }
 
   getContentKey() {
@@ -471,7 +475,11 @@ IdentityRoleTable.propTypes = {
   _permissions: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.arrayOf(PropTypes.string)
-  ])
+  ]),
+  /**
+   * Load incompatible roles internally - incompatible roles can be pre loaded from outside.
+   */
+  fetchIncompatibleRoles: PropTypes.bool
 };
 
 IdentityRoleTable.defaultProps = {
@@ -480,6 +488,7 @@ IdentityRoleTable.defaultProps = {
   forceSearchParameters: null,
   showAddButton: true,
   showDetailButton: true,
+  fetchIncompatibleRoles: true,
   _permissions: null
 };
 

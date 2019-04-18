@@ -2,13 +2,15 @@ import React, { PropTypes } from 'react';
 import invariant from 'invariant';
 import Immutable from 'immutable';
 import _ from 'lodash';
+import classNames from 'classnames';
+import Waypoint from 'react-waypoint';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Loading from '../Loading/Loading';
 import Alert from '../Alert/Alert';
 import Row from './Row';
 import DefaultCell from './DefaultCell';
-import classNames from 'classnames';
+import Icon from '../Icon/Icon';
 
 const HEADER = 'header';
 // const FOOTER = 'footer';
@@ -24,7 +26,8 @@ class Table extends AbstractComponent {
   constructor(props) {
     super(props);
     this.state = {
-      selectedRows: this.props.selectedRows ? new Immutable.Set(this.props.selectedRows) : new Immutable.Set()
+      selectedRows: this.props.selectedRows ? new Immutable.Set(this.props.selectedRows) : new Immutable.Set(),
+      showMax: 20
     };
   }
 
@@ -215,6 +218,12 @@ class Table extends AbstractComponent {
     return data[rowIndex][this.getIdentifierProperty()];
   }
 
+  _incrementData() {
+    this.setState({
+      showMax: this.state.showMax + 20
+    });
+  }
+
   renderHeader(columns) {
     const { showLoading, showRowSelection, noHeader, data } = this.props;
     if (noHeader) {
@@ -238,17 +247,40 @@ class Table extends AbstractComponent {
   }
 
   renderBody(columns) {
-    const { data } = this.props;
+    const { data, showLoading, supportsPagination } = this.props;
+    const { showMax } = this.state;
     if (!data || data.length === 0) {
       return null;
     }
     const rows = [];
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length && (!supportsPagination || i < showMax); i++) {
       rows.push(this.renderRow(columns, i));
     }
     return (
       <tbody key="basic-table-body">
         { rows }
+        {
+          !supportsPagination
+          ||
+          showLoading
+          ||
+          showMax >= data.length
+          ||
+          <tr>
+            <th colSpan={ columns.length }>
+              <div className="text-center" style={{ padding: 15, color: '#ccc' }}>
+                <Icon value="fa:refresh" showLoading />
+              </div>
+              <div>
+                <Waypoint onEnter={ this._incrementData.bind(this) }>
+                  <div>
+                    { ' ' }
+                  </div>
+                </Waypoint>
+              </div>
+            </th>
+          </tr>
+        }
       </tbody>
     );
   }
@@ -415,7 +447,11 @@ Table.propTypes = {
   /**
    * Function that is called for check if all row are selected
    */
-  isAllRowsSelectedCb: PropTypes.func
+  isAllRowsSelectedCb: PropTypes.func,
+  /**
+   * Supports frontend pagination
+   */
+  supportsPagination: PropTypes.bool
 };
 Table.defaultProps = {
   ...AbstractComponent.defaultProps,
@@ -428,7 +464,8 @@ Table.defaultProps = {
   noHeader: false,
   selectRowCb: null,
   isRowSelectedCb: null,
-  isAllRowsSelectedCb: null
+  isAllRowsSelectedCb: null,
+  supportsPagination: false
 };
 
 Table.SELECT_ALL = 'select-all-rows';

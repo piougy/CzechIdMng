@@ -109,7 +109,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     this.setState({
       showLoading: true
     }, () => {
-      const { identityUsername, createConceptFunc, updateConceptFunc } = this.props;
+      const { identityUsername, createConceptFunc, updateConceptFunc, reloadComponent } = this.props;
 
       const entity = form.getData();
       let eavValues = null;
@@ -130,20 +130,26 @@ export class RoleConceptTable extends Basic.AbstractContent {
             showLoading: false
           }, () => {
             this._closeDetail();
+            if (reloadComponent) {
+              reloadComponent();
+            }
           });
         }
       };
       //
       if (entity._added) {
         if (!entity._virtualId && !entity.id && entity.role instanceof Array) {
+          let index = 0;
           for (const roleId of entity.role) {
+            index++;
             const uuidId = uuid.v1();
             const identityRole = _.merge({}, entity, {_virtualId: uuidId, _added: true});
             identityRole._virtualId = uuidId;
             identityRole._embedded = {};
             identityRole._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
             identityRole._embedded.role = roleManager.getEntity(this.context.store.getState(), roleId);
-            createConceptFunc(identityRole, 'ADD', eavValues, cb);
+            // call calback on the last entity only
+            createConceptFunc(identityRole, 'ADD', eavValues, index === entity.role.length ? cb : null);
           }
         } else {
           const addedIdentityRole = this._findAddedIdentityRoleById(entity.id);
@@ -251,7 +257,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   _internalDeleteConcept(data) {
-    const {createConceptFunc, removeConceptFunc} = this.props;
+    const { createConceptFunc, removeConceptFunc, reloadComponent } = this.props;
 
     if (data._added) {
       removeConceptFunc(data);
@@ -260,7 +266,11 @@ export class RoleConceptTable extends Basic.AbstractContent {
     } else if (data._changed) {
       removeConceptFunc(data.id, 'UPDATE');
     } else {
-      createConceptFunc(data, 'REMOVE');
+      createConceptFunc(data, 'REMOVE', null, () => {
+        if (reloadComponent) {
+          reloadComponent();
+        }
+      });
       return;
     }
   }
@@ -622,7 +632,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
             rowClass={ this._rowClass }
             className={ className }
             showRowSelection={ false }
-            noData={ this.i18n('component.basic.Table.noData') }>
+            noData={ this.i18n('component.basic.Table.noData') }
+            supportsPagination>
             <Basic.Column
               header=""
               className="detail-button"

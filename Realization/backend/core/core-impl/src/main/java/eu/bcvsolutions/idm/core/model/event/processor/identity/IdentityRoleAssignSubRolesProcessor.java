@@ -6,12 +6,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityRoleProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 
 /**
@@ -39,6 +42,22 @@ public class IdentityRoleAssignSubRolesProcessor
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
+	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmIdentityRoleDto> event) {
+		if (!super.conditional(event)) {
+			return false;
+		}
+		// listen event only if role has some sub roles
+		IdmRoleDto assignedRole = DtoUtils.getEmbedded(event.getContent(), IdmIdentityRole_.role, (IdmRoleDto) null);
+		if (assignedRole == null) {
+			return true;
+		}
+		if (assignedRole.getChildrenCount() == 0) {
+			return false;
+		}
+		return true;
 	}
 	
 	@Override

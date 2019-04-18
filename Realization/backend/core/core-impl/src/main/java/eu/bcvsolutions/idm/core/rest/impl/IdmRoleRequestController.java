@@ -300,7 +300,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		service.validate(requestDto);
 		// Start request
 		Map<String, Serializable> variables = new HashMap<>();
-		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, true);
+		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, Boolean.TRUE);
 		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, requestDto, variables);
 		event.setPriority(PriorityType.HIGH);
 		//

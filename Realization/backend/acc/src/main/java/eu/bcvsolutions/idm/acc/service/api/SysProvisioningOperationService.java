@@ -145,4 +145,11 @@ public interface SysProvisioningOperationService extends ReadWriteDtoService<Sys
 	 * @since 8.1.4
 	 */
 	long deleteOperations(UUID systemId);
+
+	/**
+	 * Delete all operations. Archive is not used, delete operations directly without any audit information.
+	 * 
+	 * @since 9.5.2
+	 */
+	void deleteAllOperations();
 }

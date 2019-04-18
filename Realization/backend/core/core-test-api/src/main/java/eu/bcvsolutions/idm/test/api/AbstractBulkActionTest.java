@@ -171,6 +171,18 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 
 		return taskDto;
 	}
+
+	/**
+	 * Check processed items in {@link IdmProcessedTaskItemService}
+	 *
+	 * @param processAction
+	 * @param expected
+	 */
+	protected void checkProcessItemsCount(IdmBulkActionDto processAction, int expected) {
+		assertNotNull(processAction.getLongRunningTaskId());
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(processAction.getLongRunningTaskId());
+		assertEquals(expected, getItemsForLrt(taskDto).size());
+	}
 	
 	/**
 	 * Transform object to map

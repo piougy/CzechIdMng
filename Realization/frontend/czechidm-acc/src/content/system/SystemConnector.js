@@ -241,6 +241,8 @@ class SystemConnectorContent extends Basic.AbstractContent {
           this.addError(error);
         } else {
           this.getLogger().debug(`[EavForm]: Form [${this.refs.poolingEav.getFormDefinition().type}|${this.refs.poolingEav.getFormDefinition().name}] saved`);
+          const system = manager.getEntity(this.context.store.getState(), entityId);
+          this.addMessage({ message: this.i18n('save.success', { name: system.name }) });
         }
         this.setState({
           showLoading: false
@@ -312,7 +314,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 formInstance={ formInstance }
                 readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
                 useDefaultValue/>
-              <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }>
+              <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } className="marginable">
                 <Basic.Button
                   type="submit"
                   level="success"
@@ -332,7 +334,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 formInstance={ poolingFormInstance }
                 readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
                 useDefaultValue/>
-              <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }>
+              <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } className="marginable">
                 <Basic.Button
                   type="submit"
                   level="success"
@@ -390,7 +392,6 @@ class SystemConnectorContent extends Basic.AbstractContent {
             </div>
 
           </Basic.AbstractForm>
-          <hr style={{ margin: 0 }}/>
           { content }
         </Basic.Panel>
       </div>

@@ -547,42 +547,6 @@
       "title" : "Provisioning - log operací",
       "header" : "Provisioning <small>log operací</small>",
       "action": {
-        "retry": {
-          "action": "Opakovat operaci",
-          "button": {
-            "selected": "Opakovat pouze vybrané",
-            "batch": "Opakovat celou dávku"
-          },
-          "header_1": "Opakovat operaci pro provisioning",
-          "header_2": "Opakovat operace pro provisioning",
-          "header_5": "$t(acc:content.provisioningOperations.action.retry.header_2)",
-          "message_1": "Opakovat pouze vybranou operaci <strong>{{name}}</strong>. Bude spuštěna pouze vybraná operace bez ohledu na ostatní záznamy pro danou entitu na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
-          "message_2": "Opakovat pouze <strong>{{count}}</strong> vybrané operace. Budou spuštěny pouze vybrané operace bez ohledu na ostatní záznamy pro dané entity na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
-          "message_5": "Opakovat pouze <strong>{{count}}</strong> vybraných operací. Budou spuštěny pouze vybrané operace bez ohledu na ostatní záznamy pro dané entity na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
-          "batchMessage_1": "Opakovat všechny operace pro vybranou entitu <strong>{{name}}</strong> umístěné ve frontě dávkově. Budou spuštěny všechny operace pro danou entitu na koncovém systému v čase, v jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entity na koncovém systému.",
-          "batchMessage_2": "Opakovat všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, v jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému.",
-          "batchMessage_5": "Opakovat všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, v jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému.",
-          "error": "Při opakování operace {{name}} nastala chyba",
-          "success": "Operace pro provisioning byly znovu spuštěny."
-        },
-        "cancel": {
-          "action": "Zrušit operaci",
-          "button": {
-            "selected": "Zrušit pouze vybrané",
-            "batch": "Zrušit celou dávku"
-          },
-          "header_1": "Zrušit operaci pro provisioning",
-          "header_2": "Zrušit operace pro provisioning",
-          "header_5": "$t(acc:content.provisioningOperations.action.cancel.header_2)",
-          "message_1": "Nebo chcete zrušit pouze vybranou operaci <strong>{{name}}</strong>?",
-          "message_2": "Nebo chcete zrušit pouze <strong>{{count}}</strong> vybrané operace?",
-          "message_5": "Nebo chcete zrušit pouze <strong>{{count}}</strong> vybraných operací?",
-          "batchMessage_1": "Chcete zrušit všechny operace pro vybranou entitu <strong>{{name}}</strong> umístěné ve frontě dávkově?",
-          "batchMessage_2": "Chcete zrušit všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově?",
-          "batchMessage_5": "Chcete zrušit všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově?",
-          "error": "Při rušení operace {{name}} nastala chyba",
-          "success": "Operace pro provisioning byly zrušeny."
-        },
         "cancelAll": {
           "button": {
             "label": "Zrušit operace",
@@ -1462,6 +1426,28 @@
         "icon": "link",
         "label": "Provisioning bez přepočtu účtů",
         "help": "Tato operace vyvolá pro každého vybraného uživatele <strong>provisioning</strong> na koncové systémy. Samotný provisioning je prováděn <strong>asynchronně</strong>. Postup můžete sledovat v agendě spravující <strong>Události</strong>."
+      },
+      "provisioning-operation-cancel-bulk-action": {
+        "label": "Zrušit operaci",
+        "help": "Zrušit operace pro provisioning.",
+        "icon": "fa:ban",
+        "attributes": {
+          "retrywholebatch": {
+            "label": "Zrušit celou dávku",
+            "help": "Zrušit všechny operace pro entity dle vybraných operací umístěných ve frontě dávkově. V případě odškrtnutí bude zrušena pouze vybraná operace pro danou entitu na systému ve frontě."
+          }
+        }
+      },
+      "provisioning-operation-retry-bulk-action": {
+        "label": "Opakovat operaci",
+        "help": "Opakovat provisioning operace.",
+        "icon": "fa:retweet",
+        "attributes": {
+          "retrywholebatch": {
+            "label": "Opakovat všechny operace",
+            "help": "Opakovat všechny operace pro entity dle vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému. V případě odškrtnutí bude spuštěna pouze vybraná operace bez ohledu na ostatní záznamy pro danou entitu na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány)."
+          }
+        }
       }
     }
   },

@@ -547,36 +547,6 @@
       "title" : "Provisioning - operations log",
       "header" : "Provisioning <small> operations log</small>",
       "action": {
-        "retry": {
-          "action": "Retry operation",
-          "button": {
-            "selected": "Retry selected",
-            "batch": "Retry full batch"
-          },
-          "header": "Retry operation",
-          "header_plural": "Retry operations",
-          "message": "Retry only selected operation <strong>{{name}}</strong>. Only selected operation will be executed regardless of other records in queue. Sequence of operations may not be followed.",
-          "message_plural": "Retry only <strong>{{count}}</strong> selected operations. Only selected operation will be executed regardless of other records in queue. Sequence of operations may not be followed.",
-          "batchMessage": "Retry all operations for selected entity <strong>{{name}}</strong> in queue. All operations for selected entity will be sent to system. Sequence sorted as per time of entering queue. Final state of entity in system will be retained",
-          "batchMessage_plural": "Retry all operations for selected entity by <strong>{{count}}</strong> selected operations in queue. All operations for selected entities will be sent to system. Sequence sorted as per time of entering queue. Final state of entities in system will be retained",
-          "error": "Error while retrying operation {{name}}",
-          "success": "Retrying of provisioning operations has been started."
-        },
-        "cancel": {
-          "action": "Cancel operation",
-          "button": {
-            "selected": "Cancel only selected",
-            "batch": "Cancel full batch"
-          },
-          "header": "Cancel provisioning operation",
-          "header_plural": "Cancel provisioning operations",
-          "message": "Or do you want to cancel just selected operation <strong>{{name}}</strong>?",
-          "message_plural": "Or do you want to cancel just <strong>{{count}}</strong> selected operations?",
-          "batchMessage": "Do you want to cancel all operations for entity <strong>{{name}}</strong> in queue?",
-          "batchMessage_plural": "Do you want to cancel all operations for entity <strong>{{count}}</strong> in queue?",
-          "error": "Error while canceling operation {{name}} ",
-          "success": "Operations for provisioning were canceled."
-        },
         "cancelAll": {
           "button": {
             "label": "Cancel operations",
@@ -1454,6 +1424,28 @@
         "icon": "link",
         "label": "Provision without account recalculation",
         "help": "This operation invokes <strong>provisioning</strong> for each selected users. Provisioning will be performed <strong>asynchronously</strong>. You can see progress of this operations in the <strong>Events</strong> agenda."
+      },
+      "provisioning-operation-cancel-bulk-action": {
+        "label": "Cancel operation",
+        "help": "Cancel provisioning operations.",
+        "icon": "fa:ban",
+        "attributes": {
+          "retrywholebatch": {
+            "label": "Cancel full batch",
+            "help": "Cancel all operations for entity in queue? After uncheck will be canceled only selected operation in queue."
+          }
+        }
+      },
+      "provisioning-operation-retry-bulk-action": {
+        "label": "Retry operation",
+        "help": "Retry provisioning operations.",
+        "icon": "fa:retweet",
+        "attributes": {
+          "retrywholebatch": {
+            "label": "Retry full batch",
+            "help": "Retry all operations for selected entity by selected operations in queue. All operations for selected entities will be sent to system. Sequence sorted as per time of entering queue. Final state of entities in system will be retained. After uncheck retry only selected operation. Only selected operation will be executed regardless of other records in queue. Sequence of operations may not be followed."
+          }
+        }
       }
     }
   },

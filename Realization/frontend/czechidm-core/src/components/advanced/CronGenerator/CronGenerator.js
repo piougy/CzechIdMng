@@ -9,7 +9,6 @@ import CronMinuteEnum from '../../../enums/CronMinuteEnum';
 import CronHourEnum from '../../../enums/CronHourEnum';
 import DayInMonthEnum from '../../../enums/DayInMonthEnum';
 import Datetime from 'react-datetime';
-import FilterTextField from '../Filter/FilterTextField';
 
 class CronGenerator extends AbstractFormComponent {
 
@@ -202,28 +201,31 @@ class CronGenerator extends AbstractFormComponent {
       );
     }
     return (
-      <Basic.AbstractForm
+      <div
         showLoading={showLoading}
-        style={{
-          backgroundColor: 'palevioletred'
-        }}
         className="">
-
-        <Basic.Row
+        <div
           style={{
-            backgroundColor: 'lightblue',
             display: 'flex',
-            alignItems: 'center'
+            flexWrap: 'wrap',
+            // flexShrink: '0',
+            alignItems: 'center',
+            marginBottom: '15px'
           }}>
-          <Basic.Col lg={ 4 } style={{ backgroundColor: '' }}>
-            {/* <h3> */}
+          <div
+            style={{
+              marginRight: '10px'
+            }}>
               {this.i18n('repeatEvery')}
-            {/* </h3> */}
-          </Basic.Col>
-          <Basic.Col lg={ 2 }>
+          </div>
+          <div>
             <Basic.EnumSelectBox
               ref="cronMinute"
-              label={ " " }
+              style={{
+                marginBottom: 0,
+                marginRight: '10px',
+                width: '56px'
+              }}
               enum={ CronMinuteEnum }
               value={ cronMinute }
               clearable={ false }
@@ -232,116 +234,166 @@ class CronGenerator extends AbstractFormComponent {
               />
             <Basic.EnumSelectBox
               ref="cronHour"
-              label={ " " }
+              style={{
+                marginBottom: 0,
+                marginRight: '10px',
+                width: '56px'
+              }}
               enum={ CronHourEnum }
               value={ cronHour }
               clearable={ false }
               hidden={ intervalType !== 'HOUR' }
               onChange={ this.onChangeCronHour.bind(this) }
               />
-          </Basic.Col>
-          <Basic.Col lg={ 3 }>
+          </div>
+          <div>
             <Basic.EnumSelectBox
               ref="intervalType"
-              label={ " " }
+              style={{
+                marginBottom: 0,
+                marginRight: '10px',
+                width: '90px'
+              }}
               enum={ IntervalTypeEnum }
               value={ intervalType }
               clearable={ false }
               onChange={ this.onChangeIntervalType.bind(this) }
               input={ false }/>
-          </Basic.Col>
-        </Basic.Row>
-
-        <Basic.Row
-          hidden={ intervalType !== 'DAY' && intervalType !== 'HOUR' && intervalType !== 'MINUTE' }>
-          <Basic.Col>
-              { this.i18n('at') }
-          </Basic.Col>
-          <Basic.Col lg={ 4 }>
-          <Datetime
-            ref="dayTime"
-            dateFormat={ false }
-            timeFormat={ 'HH:mm' }
-            value={ time }
-            onChange={ this.onChangeTime.bind(this) }
-          />
-          </Basic.Col>
-        </Basic.Row>
+          </div>
+          {(intervalType === 'DAY' || intervalType === 'HOUR' || intervalType === 'MINUTE') &&
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+              <div
+                style={{
+                  marginRight: '10px'
+                }}>
+                  { this.i18n('at') }
+              </div>
+              <div
+                style={{
+                  width: '70px',
+                  marginRight: '10px'
+                }}>
+                <Datetime
+                  ref="dayTime"
+                  dateFormat={ false }
+                  timeFormat={ 'HH:mm' }
+                  value={ time }
+                  onChange={ this.onChangeTime.bind(this) }
+                />
+              </div>
+            </div>
+          }
+        </div>
 
         {/* Week properties */}
-        <Basic.Row
-          hidden={ intervalType !== 'WEEK' }>
-          <Basic.Col lg={ 2 }>
-              { this.i18n('every') }
-          </Basic.Col>
-          <Basic.Col lg={ 2 }>
-            <Basic.EnumSelectBox
-              ref="weekDay"
-              enum={ WeekDayEnum }
-              value={ weekDay }
-              clearable={ false }
-              onChange={ this.onChangeWeekDay.bind(this) }/>
-          </Basic.Col>
-          <Basic.Col lg={ 1 }>
-            { this.i18n('at') }
-          </Basic.Col>
-          <Basic.Col lg={ 4 }>
-            <Datetime
-              ref="weekTime"
-              dateFormat={ false }
-              timeFormat={ 'HH:mm' }
-              value={ time }
-              onChange={ this.onChangeTime.bind(this) }
-            />
-          </Basic.Col>
-        </Basic.Row>
+        {intervalType === 'WEEK' &&
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+            <div
+              style={{
+                marginRight: '10px'
+              }}>
+                { this.i18n('every') }
+            </div>
+            <div>
+              <Basic.EnumSelectBox
+                ref="weekDay"
+                style={{
+                  marginBottom: 0,
+                  marginRight: '10px',
+                  width: '70px'
+                }}
+                enum={ WeekDayEnum }
+                value={ weekDay }
+                clearable={ false }
+                onChange={ this.onChangeWeekDay.bind(this) }/>
+            </div>
+            <div
+              style={{
+                marginRight: '10px'
+              }}>
+              { this.i18n('at') }
+            </div>
+            <div
+              style={{
+                width: '70px',
+                marginRight: '10px'
+              }}>
+              <Datetime
+                ref="weekTime"
+                dateFormat={ false }
+                timeFormat={ 'HH:mm' }
+                value={ time }
+                onChange={ this.onChangeTime.bind(this) }
+              />
+            </div>
+          </div>
+        }
 
         {/* Month properties */}
-        <Basic.Row
-          hidden={ intervalType !== 'MONTH' }>
-          <Basic.Col lg={ 2 }>
-            <h3>
-              { this.i18n('monthly') }
-            </h3>
-          </Basic.Col>
-          <Basic.Col lg={ 2 }>
-            <Basic.EnumSelectBox
-              ref="monthDay"
-              enum={ DayInMonthEnum }
-              value={ dayInMonth }
-              clearable={ false }
-              onChange={ this.onChangeDayInMonth.bind(this) }
-              />
-          </Basic.Col>
-          <Basic.Col lg={ 1 }>
-            <h3>
-              { this.i18n('day') }
-            </h3>
-          </Basic.Col>
-          <Basic.Col lg={ 1 }>
-            <h3>
-              { this.i18n('at') }
-            </h3>
-          </Basic.Col>
-          <Basic.Col lg={ 4 }>
-            <Datetime
-              ref="monthTime"
-              dateFormat={ false }
-              timeFormat={ 'HH:mm' }
-              value={ time }
-              onChange={ this.onChangeTime.bind(this) }
-              />
-          </Basic.Col>
-        </Basic.Row>
+        {intervalType === 'MONTH' &&
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+            <div
+              style={{
+                marginRight: '10px'
+              }}>
+                { this.i18n('monthly') }
+            </div>
+            <div>
+              <Basic.EnumSelectBox
+                ref="monthDay"
+                style={{
+                  marginBottom: 0,
+                  marginRight: '10px',
+                  width: '56px'
+                }}
+                enum={ DayInMonthEnum }
+                value={ dayInMonth }
+                clearable={ false }
+                onChange={ this.onChangeDayInMonth.bind(this) }
+                />
+            </div>
+            <div
+              style={{
+                marginRight: '10px'
+              }}>
+                { this.i18n('day') }
+                {' '}
+                { this.i18n('at') }
+            </div>
+            <div
+              style={{
+                width: '70px',
+                marginRight: '10px'
+              }}>
+              <Datetime
+                ref="monthTime"
+                dateFormat={ false }
+                timeFormat={ 'HH:mm' }
+                value={ time }
+                onChange={ this.onChangeTime.bind(this) }
+                />
+            </div>
+          </div>
+        }
 
         {/* Prepared for scheduled first start */}
         <Basic.Row rendered={ false }>
-          <Basic.Col lg={ 2 }>
-            <h3>
+          <Basic.Col>
               { this.i18n('validFrom') }
-            </h3>
           </Basic.Col>
-          <Basic.Col lg={ 5 }>
+          <Basic.Col>
             <Basic.DateTimePicker
               ref="fireTime"
               hidden={ intervalType !== 'MINUTE' && intervalType !== 'HOUR' && intervalType !== 'DAY' }
@@ -354,17 +406,21 @@ class CronGenerator extends AbstractFormComponent {
           </Basic.Col>
         </Basic.Row>
 
-        <Basic.Row>
-          <Basic.Col lg={ 6 }>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+          <div>
             <h3>
             { this.i18n('cronExpression') }
             { ' ' }
             { cronExpression }
             </h3>
-          </Basic.Col>
-        </Basic.Row>
+          </div>
+        </div>
 
-      </Basic.AbstractForm>
+      </div>
     );
   }
 }

@@ -203,8 +203,9 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		// check task was not canceled or interrupted, then clean history
 		// task is not ended yet - running is the correct state in this phase
 		IdmLongRunningTaskDto task = longRunningTaskService.get(getLongRunningTaskId());
-		if (task.getResultState().isSuccessful() // executed (set manually somehow ... just for sure)
-				|| task.getResultState().isRunnable()) { // running is the correct state in this phase
+		OperationState resultState = task.getResultState();
+		if (resultState.isSuccessful() // executed (set manually somehow ... just for sure)
+				|| resultState.isRunnable()) { // running is the correct state in this phase
 			List<UUID> queueEntityRefs = Lists.newArrayList(this.getProcessedItemRefsFromQueue());
 			// processed should remain in history (is not related to whole task is canceled)
 			queueEntityRefs.removeAll(processedRefs);

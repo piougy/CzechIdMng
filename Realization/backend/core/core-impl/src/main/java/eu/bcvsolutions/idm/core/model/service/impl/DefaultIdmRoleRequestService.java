@@ -726,9 +726,10 @@ public class DefaultIdmRoleRequestService
 					IdmFormDefinitionDto formDefinition = formService.getDefinition(roleDto.getIdentityRoleAttributeDefinition());
 					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinition);
 
-					List<IdmFormValueDto> finalValues = new ArrayList<IdmFormValueDto>(formInstance.getValues());
+					List<IdmFormValueDto> values = formInstance.getValues();
+					List<IdmFormValueDto> finalValues = new ArrayList<IdmFormValueDto>(values);
 					// Iterate over all values and find values that must be deep copied
-					for (IdmFormValueDto value : formInstance.getValues()) {
+					for (IdmFormValueDto value : values) {
 						IdmFormAttributeDto attribute = DtoUtils.getEmbedded(value, IdmFormValue_.formAttribute, IdmFormAttributeDto.class, null);
 						if (attribute == null) {
 							attribute = formAttributeService.get(value.getFormAttribute());
@@ -1043,26 +1044,25 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(formInstance, "Form instnace if mandatory!");
 		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
 		Assert.notNull(formDefinition);
-		
+
+		List<IdmFormValueDto> values = formInstance.getValues();
+
 		formDefinition
 		.getFormAttributes()
 		.stream()
 		.forEach(formAttribute -> { //
-			boolean valueExists = formInstance //
-					.getValues() //
+			boolean valueExists = values //
 					.stream() //
 					.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute())) //
 					.findFirst() //
 					.isPresent();
 			if (!valueExists) {
-				List<IdmFormValueDto> values = formInstance.getValues();
 				ArrayList<IdmFormValueDto> newValues = Lists.newArrayList(values);
 				IdmFormValueDto deletedValue = new IdmFormValueDto(formAttribute);
 				newValues.add(deletedValue);
 				formInstance.setValues(newValues);
 			}
 		});
-		
 	}
 
 	private IdmRoleRequestService getIdmRoleRequestService() {

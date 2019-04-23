@@ -73,8 +73,10 @@ public class EntityEventSaveProcessor
 						rootEvent.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
 						rootEvent = service.save(rootEvent);
 						// publish notify event
-						EntityEvent<? extends Identifiable> notifyEvent = entityEventManager.toEvent(rootEvent);
-						entityEventManager.changedEntity(notifyEvent.getContent(), notifyEvent);
+						if (!rootEvent.getProperties().getBooleanValue(EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFY)) {
+							EntityEvent<? extends Identifiable> notifyEvent = entityEventManager.toEvent(rootEvent);
+							entityEventManager.changedEntity(notifyEvent.getContent(), notifyEvent);
+						}
 					}
 				}
 			}

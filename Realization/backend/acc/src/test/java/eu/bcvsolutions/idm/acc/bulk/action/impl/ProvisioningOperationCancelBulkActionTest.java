@@ -206,6 +206,7 @@ public class ProvisioningOperationCancelBulkActionTest extends AbstractBulkActio
 		identityService.save(identity);
 		identityService.save(identity);
 		identityService.save(identity);
+		// 7 operations
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setEntityIdentifier(identity.getId());
@@ -226,7 +227,7 @@ public class ProvisioningOperationCancelBulkActionTest extends AbstractBulkActio
 		bulkAction.setProperties(properties);
 
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
-		checkResultLrt(processAction, 1l, null, null);
+		checkResultLrt(processAction, 7l, null, null); // Filtering by filter = 7 operations
 		checkProcessItemsCount(processAction, allOperations);
 
 		List<SysProvisioningOperationDto> newOperations = provisioningOperationService.find(filter, null).getContent();
@@ -253,11 +254,13 @@ public class ProvisioningOperationCancelBulkActionTest extends AbstractBulkActio
 		identityService.save(identity);
 		identityService.save(identity);
 		identityService.save(identity);
+		// 7 Operations
 		
 		identityService.save(identityTwo);
 		identityService.save(identityTwo);
 		identityService.save(identityTwo);
 		identityService.save(identityTwo);
+		// 5 Operations
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setSystemId(system.getId());
@@ -278,7 +281,7 @@ public class ProvisioningOperationCancelBulkActionTest extends AbstractBulkActio
 		bulkAction.setProperties(properties);
 
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
-		checkResultLrt(processAction, 2l, null, null);
+		checkResultLrt(processAction, 12l, null, null); // Filtering by filter = 12 operations
 		checkProcessItemsCount(processAction, allOperations);
 
 		List<SysProvisioningOperationDto> newOperations = provisioningOperationService.find(filter, null).getContent();

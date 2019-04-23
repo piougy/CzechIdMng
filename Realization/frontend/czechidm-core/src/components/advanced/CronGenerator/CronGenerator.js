@@ -90,6 +90,15 @@ class CronGenerator extends AbstractFormComponent {
     }
   }
 
+  reCronNumber(number) {
+    // cuts first zeros from minutes and hours
+    if (number.length === 2) {
+      const result = (number[0] === '0') ? number[1] : number;
+      return result;
+    }
+    return number;
+  }
+
   resolveMinutes() {
     // Minutes
     const time = this.state.time;
@@ -97,7 +106,7 @@ class CronGenerator extends AbstractFormComponent {
     const repetitionRate = CronMinuteEnum.findSymbolByKey(this.state.cronMinute).description;
 
     // nahradit konstantou?
-    let cronStartMinute = initMinute;
+    let cronStartMinute = this.reCronNumber(initMinute);
     if (initMinute - repetitionRate > 0) {
       while (cronStartMinute - repetitionRate > 0) {
         cronStartMinute -= repetitionRate;
@@ -122,7 +131,7 @@ class CronGenerator extends AbstractFormComponent {
     const repetitionRate = CronHourEnum.findSymbolByKey(this.state.cronHour).description;
 
     // nahradit konstantou?
-    let cronStartHour = initHour;
+    let cronStartHour = this.reCronNumber(initHour);
     if (initHour - repetitionRate > 0) {
       while (cronStartHour - repetitionRate > 0) {
         cronStartHour -= repetitionRate;
@@ -130,7 +139,7 @@ class CronGenerator extends AbstractFormComponent {
     }
 
     const second = 0;
-    const minute = initMinute;
+    const minute = this.reCronNumber(initMinute);
     const hour = `${cronStartHour}/${repetitionRate}`;
     const monthDay = `*`;
     const monthInYear = `*`;
@@ -146,8 +155,8 @@ class CronGenerator extends AbstractFormComponent {
     const initMinute = time.split(':')[1];
 
     const second = 0;
-    const minute = initMinute;
-    const hour = initHour;
+    const minute = this.reCronNumber(initMinute);
+    const hour = this.reCronNumber(initHour);
     const monthDay = '*';
     const monthInYear = '*';
     const dayOfWeek = '?';
@@ -163,8 +172,8 @@ class CronGenerator extends AbstractFormComponent {
     const weekDay = WeekDayEnum.findSymbolByKey(this.state.weekDay).description;
 
     const second = 0;
-    const minute = initMinute;
-    const hour = initHour;
+    const minute = this.reCronNumber(initMinute);
+    const hour = this.reCronNumber(initHour);
     const monthDay = '?';
     const monthInYear = '*';
     const dayOfWeek = weekDay;
@@ -180,8 +189,8 @@ class CronGenerator extends AbstractFormComponent {
     const dayInMonth = DayInMonthEnum.findSymbolByKey(this.state.dayInMonth).description;
 
     const second = 0;
-    const minute = initMinute;
-    const hour = initHour;
+    const minute = this.reCronNumber(initMinute);
+    const hour = this.reCronNumber(initHour);
     const monthDay = dayInMonth;
     const monthInYear = '*';
     const dayOfWeek = '?';
@@ -203,29 +212,34 @@ class CronGenerator extends AbstractFormComponent {
     return (
       <div
         showLoading={showLoading}
-        className="">
+        className="cron-generator">
         <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            // flexShrink: '0',
-            alignItems: 'center',
-            marginBottom: '15px'
-          }}>
+          className="main-group"
+          // style={{
+          //   display: 'flex',
+          //   flexWrap: 'wrap',
+          //   alignItems: 'center',
+          //   marginTop: '20px',
+          //   fontSize: '14px'
+          // }}
+          >
           <div
-            style={{
-              marginRight: '10px'
-            }}>
+            className="cron-text"
+            // style={{
+            //   marginRight: '10px'
+            // }}
+            >
               {this.i18n('repeatEvery')}
           </div>
           <div>
             <Basic.EnumSelectBox
               ref="cronMinute"
-              style={{
-                marginBottom: 0,
-                marginRight: '10px',
-                width: '56px'
-              }}
+              className="num-select"
+              // style={{
+              //   marginBottom: 0,
+              //   marginRight: '10px',
+              //   width: '56px'
+              // }}
               enum={ CronMinuteEnum }
               value={ cronMinute }
               clearable={ false }
@@ -234,11 +248,12 @@ class CronGenerator extends AbstractFormComponent {
               />
             <Basic.EnumSelectBox
               ref="cronHour"
-              style={{
-                marginBottom: 0,
-                marginRight: '10px',
-                width: '56px'
-              }}
+              className="num-select"
+              // style={{
+              //   marginBottom: 0,
+              //   marginRight: '10px',
+              //   width: '56px'
+              // }}
               enum={ CronHourEnum }
               value={ cronHour }
               clearable={ false }
@@ -249,19 +264,23 @@ class CronGenerator extends AbstractFormComponent {
           <div>
             <Basic.EnumSelectBox
               ref="intervalType"
-              style={{
-                marginBottom: 0,
-                marginRight: '10px',
-                width: '90px'
-              }}
+              className="interval-select"
+              // style={{
+              //   marginBottom: 0,
+              //   marginRight: '10px',
+              //   width: '90px'
+              // }}
               enum={ IntervalTypeEnum }
               value={ intervalType }
               clearable={ false }
               onChange={ this.onChangeIntervalType.bind(this) }
               input={ false }/>
           </div>
-          {(intervalType === 'DAY' || intervalType === 'HOUR' || intervalType === 'MINUTE') &&
+          {(intervalType === 'DAY' ||
+            intervalType === 'HOUR' ||
+            intervalType === 'MINUTE') && (
             <div
+              className=""
               style={{
                 display: 'flex',
                 alignItems: 'center'
@@ -286,46 +305,56 @@ class CronGenerator extends AbstractFormComponent {
                 />
               </div>
             </div>
-          }
+          )}
         </div>
 
         {/* Week properties */}
-        {intervalType === 'WEEK' &&
+        {intervalType === 'WEEK' && (
           <div
-            style={{
-              display: 'flex',
-              alignItems: 'center'
-            }}>
+            className="week-group"
+            // style={{
+            //   display: 'flex',
+            //   alignItems: 'center',
+            //   marginTop: '16px'
+            // }}
+            >
             <div
-              style={{
-                marginRight: '10px'
-              }}>
+              className="cron-text"
+              // style={{
+              //   marginRight: '10px'
+              // }}
+              >
                 { this.i18n('every') }
             </div>
             <div>
               <Basic.EnumSelectBox
+                className="weekday-select"
                 ref="weekDay"
-                style={{
-                  marginBottom: 0,
-                  marginRight: '10px',
-                  width: '70px'
-                }}
+                // style={{
+                //   marginBottom: 0,
+                //   marginRight: '10px',
+                //   width: '70px'
+                // }}
                 enum={ WeekDayEnum }
                 value={ weekDay }
                 clearable={ false }
                 onChange={ this.onChangeWeekDay.bind(this) }/>
             </div>
             <div
-              style={{
-                marginRight: '10px'
-              }}>
+              className="cron-text"
+              // style={{
+              //   marginRight: '10px'
+              // }}
+              >
               { this.i18n('at') }
             </div>
             <div
-              style={{
-                width: '70px',
-                marginRight: '10px'
-              }}>
+              className="time-select"
+              // style={{
+              //   width: '70px',
+              //   marginRight: '10px'
+              // }}
+              >
               <Datetime
                 ref="weekTime"
                 dateFormat={ false }
@@ -335,29 +364,35 @@ class CronGenerator extends AbstractFormComponent {
               />
             </div>
           </div>
-        }
+        )}
 
         {/* Month properties */}
-        {intervalType === 'MONTH' &&
+        {intervalType === 'MONTH' && (
           <div
-            style={{
-              display: 'flex',
-              alignItems: 'center'
-            }}>
+            className="month-group"
+            // style={{
+            //   display: 'flex',
+            //   alignItems: 'center',
+            //   marginTop: '16px'
+            // }}
+            >
             <div
-              style={{
-                marginRight: '10px'
-              }}>
+              className="cron-text"
+              // style={{
+              //   marginRight: '10px'
+              // }}
+              >
                 { this.i18n('monthly') }
             </div>
             <div>
               <Basic.EnumSelectBox
                 ref="monthDay"
-                style={{
-                  marginBottom: 0,
-                  marginRight: '10px',
-                  width: '56px'
-                }}
+                className="num-select"
+                // style={{
+                //   marginBottom: 0,
+                //   marginRight: '10px',
+                //   width: '56px'
+                // }}
                 enum={ DayInMonthEnum }
                 value={ dayInMonth }
                 clearable={ false }
@@ -373,10 +408,12 @@ class CronGenerator extends AbstractFormComponent {
                 { this.i18n('at') }
             </div>
             <div
-              style={{
-                width: '70px',
-                marginRight: '10px'
-              }}>
+              className="time-select"
+              // style={{
+              //   width: '70px',
+              //   marginRight: '10px'
+              // }}
+              >
               <Datetime
                 ref="monthTime"
                 dateFormat={ false }
@@ -386,7 +423,7 @@ class CronGenerator extends AbstractFormComponent {
                 />
             </div>
           </div>
-        }
+        )}
 
         {/* Prepared for scheduled first start */}
         <Basic.Row rendered={ false }>
@@ -396,8 +433,10 @@ class CronGenerator extends AbstractFormComponent {
           <Basic.Col>
             <Basic.DateTimePicker
               ref="fireTime"
-              hidden={ intervalType !== 'MINUTE' && intervalType !== 'HOUR' && intervalType !== 'DAY' }
-              />
+              hidden={
+                intervalType !== 'MINUTE' &&
+                intervalType !== 'HOUR' &&
+                intervalType !== 'DAY' }/>
             <Basic.DateTimePicker
               ref="fireTime"
               hidden={ intervalType !== 'WEEK' && intervalType !== 'MONTH' }
@@ -406,11 +445,7 @@ class CronGenerator extends AbstractFormComponent {
           </Basic.Col>
         </Basic.Row>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center'
-          }}>
+        <div>
           <div>
             <h3>
             { this.i18n('cronExpression') }

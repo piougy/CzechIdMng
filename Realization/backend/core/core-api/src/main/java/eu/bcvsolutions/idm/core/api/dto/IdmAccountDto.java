@@ -15,6 +15,10 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 public class IdmAccountDto implements BaseDto {
 
 	public static final String PARAMETER_NAME = "account"; // account in parameters (eg. operation result, event paramaeters)
+	/**
+	 * Skip propagate changes - equals to the skip account management
+	 */
+	public static final String SKIP_PROPAGATE = "skip_propagate";
 	//
 	private static final long serialVersionUID = 1L;
 	//

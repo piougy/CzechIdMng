@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -62,7 +63,8 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 	@Override
 	public boolean conditional(EntityEvent<IdmIdentityRoleDto> event) {
 		return super.conditional(event)
-				&& (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) ;
+				&& (!this.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE, event.getProperties()))
+				&& (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId()));
 	}
  
 	@Override

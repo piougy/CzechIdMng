@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -373,7 +374,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(identityRole);
 		Assert.notNull(identityRole.getId());
 		//
-		if (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) {
+		if ((event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) && !event.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE)) {
 			// role is deleted without request or without any parent ... we need to remove account synchronously
 			deleteIdentityAccount(identityRole);
 			return;

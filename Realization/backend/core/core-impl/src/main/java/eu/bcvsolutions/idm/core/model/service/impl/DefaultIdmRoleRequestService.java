@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -435,10 +436,37 @@ public class DefaultIdmRoleRequestService
 		}
 		
 		// Persist event for whole request, listeners can intercept this event event is created as processed
-		if (requestEvent.getPriority() == PriorityType.NORMAL) {
-			requestEvent.setPriority(PriorityType.HIGH); // TODO: propagate from FE?
-		}
 		requestEvent.setSuperOwnerId(identity.getId());
+		// notify manually at end -> if no role is business
+		//
+		Map<UUID, IdmConceptRoleRequestDto> cachedConcepts = new HashMap<>();
+		concepts
+			.stream()
+			.filter(concept -> {
+				return ConceptRoleRequestOperation.ADD == concept.getOperation()
+						|| ConceptRoleRequestOperation.UPDATE == concept.getOperation();
+			})
+			.filter(concept -> {
+				// Only approved concepts can be executed
+				// Concepts in concept state will be executed too (for situation, when will be
+				// approval event disabled)
+				return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
+			})
+			.forEach(concept -> {
+				cachedConcepts.put(concept.getId(), conceptRoleRequestService.get(concept.getId()));	
+			});
+		boolean hasSubRoles = cachedConcepts
+				.values()
+				.stream()
+				.anyMatch(concept -> {
+					IdmRoleDto roleDto = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role);
+					//
+					return roleDto.getChildrenCount() > 0;
+				});
+		//		
+		if (!hasSubRoles) {
+			requestEvent.getProperties().put(EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFY, Boolean.TRUE);
+		}
 		// start request event
 		entityEventManager.saveEvent(requestEvent, new OperationResultDto.Builder(OperationState.RUNNING).build());
 		//
@@ -452,8 +480,9 @@ public class DefaultIdmRoleRequestService
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
-			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole);
+			identityRole = convertConceptRoleToIdentityRole(cachedConcepts.get(concept.getId()), identityRole);
+			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole, 
+					ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE));
 			
 			// propagate event
 			identityRole = identityRoleService.publish(event, requestEvent).getContent();
@@ -479,8 +508,9 @@ public class DefaultIdmRoleRequestService
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-			identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
-			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.UPDATE, identityRole);
+			identityRole = convertConceptRoleToIdentityRole(cachedConcepts.get(concept.getId()), identityRole);
+			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.UPDATE, identityRole,
+					ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE));
 			
 			// propagate event
 			identityRole = identityRoleService.publish(event, requestEvent).getContent();
@@ -519,14 +549,21 @@ public class DefaultIdmRoleRequestService
 				conceptRoleRequestService.addToLog(request, message);
 				conceptRoleRequestService.save(concept);
 				
-				IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole);
+				IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole,
+						ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE));
 				
 				identityRoleService.publish(event, requestEvent);
 			}
 		});
 
 		request.setState(RoleRequestState.EXECUTED);
-		return this.save(request);
+		IdmRoleRequestDto savedRequest = this.save(request);
+		// notify
+		if (!hasSubRoles) {
+			entityEventManager.changedEntity(savedRequest, requestEvent);
+		}
+		// 
+		return request;
 
 	}
 	

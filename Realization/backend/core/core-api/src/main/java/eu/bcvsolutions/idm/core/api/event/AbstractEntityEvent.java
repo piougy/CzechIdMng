@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -238,5 +239,31 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 	@Override
 	public void setTransactionId(UUID transactionId) {
 		getProperties().put(EVENT_PROPERTY_TRANSACTION_ID, transactionId);
+	}
+	
+	@Override
+	public boolean getBooleanProperty(String property) {
+		Assert.notNull(property, "Name of event property cannot be null!");
+		if (this.getProperties() == null) {
+			return false;
+		}
+
+		Object propertyValue = this.getProperties().get(property);
+
+		if (propertyValue == null) {
+			return false;
+		}
+		if (propertyValue instanceof String) {
+			return Boolean.parseBoolean((String) propertyValue);
+        }
+		//
+		Assert.isInstanceOf(Boolean.class, propertyValue, MessageFormat
+				.format("Property [{0}] must be Boolean, but is [{1}]!", property, propertyValue.getClass()));
+
+		if ((Boolean) propertyValue) {
+			return true;
+		}
+
+		return false;
 	}
 }

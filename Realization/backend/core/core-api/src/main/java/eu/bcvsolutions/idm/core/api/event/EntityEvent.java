@@ -270,4 +270,13 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	 * @since 9.5.0
 	 */
 	void setTransactionId(UUID transactionId);
+	
+	/**
+	 * Return true if event properties contains given property and this property is true.
+	 * If event does not contains this property, then return false.
+	 * 
+	 * @param property
+	 * @return
+	 */
+	boolean getBooleanProperty(String property);
 }

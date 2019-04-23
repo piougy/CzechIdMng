@@ -12,7 +12,6 @@ import * as Domain from '../../domain';
 //
 import { SchedulerManager, DataManager, ConfigurationManager, SecurityManager, FormAttributeManager } from '../../redux';
 import TriggerTypeEnum from '../../enums/TriggerTypeEnum';
-import { callbackify } from 'util';
 
 const manager = new SchedulerManager();
 const formAttributeManager = new FormAttributeManager();

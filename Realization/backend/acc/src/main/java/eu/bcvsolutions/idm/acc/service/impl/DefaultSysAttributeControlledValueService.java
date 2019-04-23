@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -119,8 +120,11 @@ public class DefaultSysAttributeControlledValueService extends
 	@Transactional
 	@Override
 	public void addHistoricValue(SysSystemAttributeMappingDto attributeMapping, Serializable value) {
+		// If value doesn't exists do nothing
+		if (ObjectUtils.isEmpty(value)) {
+			return;
+		}
 		Assert.notNull(attributeMapping);
-		Assert.notNull(value);
 
 		SysAttributeControlledValueFilter attributeControlledValueFilter = new SysAttributeControlledValueFilter();
 		attributeControlledValueFilter.setAttributeMappingId(attributeMapping.getId());

@@ -19,7 +19,13 @@ public interface SysAttributeControlledValueService extends EventableDtoService<
 
 	void setControlledValues(SysSystemAttributeMappingDto attributeMapping,
 			List<Serializable> controlledAttributeValues);
-	
+
+	/**
+	 * Add new historic value in all managed values. Value must be filled, otherwise historic value will not be created.
+	 *
+	 * @param attributeMapping
+	 * @param value
+	 */
 	void addHistoricValue(SysSystemAttributeMappingDto attributeMapping,
 			Serializable value);
 

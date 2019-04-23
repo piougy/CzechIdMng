@@ -707,4 +707,114 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		assertTrue(onlyValues.contains(TWO_VALUE));
 	}
 
+	@Test
+	public void testAttribteControlledValueWithNull() {
+		SysSystemDto system = helper.createSystem("test_resource");
+		SysSystemMappingDto mapping = helper.createMapping(system);
+		IdmRoleDto role = helper.createRole();
+
+		SysRoleSystemDto roleSystem = helper.createRoleSystem(role, system);
+
+		SysSchemaAttributeDto rightsSchemaAttribute = new SysSchemaAttributeDto();
+		rightsSchemaAttribute.setObjectClass(mapping.getObjectClass());
+		rightsSchemaAttribute.setName(RIGHTS_ATTRIBUTE);
+		rightsSchemaAttribute.setMultivalued(true);
+		rightsSchemaAttribute.setClassType(String.class.getName());
+		rightsSchemaAttribute.setReadable(true);
+		rightsSchemaAttribute.setUpdateable(true);
+
+		rightsSchemaAttribute = schemaAttributeService.save(rightsSchemaAttribute);
+
+		SysSystemAttributeMappingDto rightsAttribute = new SysSystemAttributeMappingDto();
+		rightsAttribute.setSchemaAttribute(rightsSchemaAttribute.getId());
+		rightsAttribute.setSystemMapping(mapping.getId());
+		rightsAttribute.setName(RIGHTS_ATTRIBUTE);
+		rightsAttribute.setStrategyType(AttributeMappingStrategyType.MERGE);
+		rightsAttribute = attributeMappingService.save(rightsAttribute);
+
+		SysRoleSystemAttributeDto roleAttribute = new SysRoleSystemAttributeDto();
+		roleAttribute.setName(RIGHTS_ATTRIBUTE);
+		roleAttribute.setRoleSystem(roleSystem.getId());
+		roleAttribute.setStrategyType(AttributeMappingStrategyType.MERGE);
+		roleAttribute.setSystemAttributeMapping(rightsAttribute.getId());
+		roleAttribute.setTransformToResourceScript(null); // Set null
+		roleAttribute = roleSystemAttributeService.save(roleAttribute);
+
+		List<Serializable> controlledAttributeValues = attributeMappingService
+				.getControlledAttributeValues(system.getId(), mapping.getEntityType(), RIGHTS_ATTRIBUTE);
+		assertNotNull(controlledAttributeValues);
+		assertEquals(0, controlledAttributeValues.size());
+
+		roleSystemAttributeService.delete(roleAttribute);
+		
+		controlledAttributeValues = attributeMappingService
+				.getControlledAttributeValues(system.getId(), mapping.getEntityType(), RIGHTS_ATTRIBUTE);
+		assertNotNull(controlledAttributeValues);
+		assertEquals(0, controlledAttributeValues.size());
+	}
+
+	@Test
+	public void testAttribteControlledValueWithNullAfter() {
+		String controlledValue = "test-" + System.currentTimeMillis();
+		SysSystemDto system = helper.createSystem("test_resource");
+		SysSystemMappingDto mapping = helper.createMapping(system);
+		IdmRoleDto role = helper.createRole();
+
+		SysRoleSystemDto roleSystem = helper.createRoleSystem(role, system);
+
+		SysSchemaAttributeDto rightsSchemaAttribute = new SysSchemaAttributeDto();
+		rightsSchemaAttribute.setObjectClass(mapping.getObjectClass());
+		rightsSchemaAttribute.setName(RIGHTS_ATTRIBUTE);
+		rightsSchemaAttribute.setMultivalued(true);
+		rightsSchemaAttribute.setClassType(String.class.getName());
+		rightsSchemaAttribute.setReadable(true);
+		rightsSchemaAttribute.setUpdateable(true);
+
+		rightsSchemaAttribute = schemaAttributeService.save(rightsSchemaAttribute);
+
+		SysSystemAttributeMappingDto rightsAttribute = new SysSystemAttributeMappingDto();
+		rightsAttribute.setSchemaAttribute(rightsSchemaAttribute.getId());
+		rightsAttribute.setSystemMapping(mapping.getId());
+		rightsAttribute.setName(RIGHTS_ATTRIBUTE);
+		rightsAttribute.setStrategyType(AttributeMappingStrategyType.MERGE);
+		rightsAttribute = attributeMappingService.save(rightsAttribute);
+
+		SysRoleSystemAttributeDto roleAttribute = new SysRoleSystemAttributeDto();
+		roleAttribute.setName(RIGHTS_ATTRIBUTE);
+		roleAttribute.setRoleSystem(roleSystem.getId());
+		roleAttribute.setStrategyType(AttributeMappingStrategyType.MERGE);
+		roleAttribute.setSystemAttributeMapping(rightsAttribute.getId());
+		roleAttribute.setTransformToResourceScript("'" + controlledValue + "'");
+		roleAttribute = roleSystemAttributeService.save(roleAttribute);
+
+		List<Serializable> controlledAttributeValues = attributeMappingService
+				.getControlledAttributeValues(system.getId(), mapping.getEntityType(), RIGHTS_ATTRIBUTE);
+		assertNotNull(controlledAttributeValues);
+		assertEquals(1, controlledAttributeValues.size());
+		assertEquals(controlledValue, controlledAttributeValues.get(0));
+
+		SysAttributeControlledValueFilter filter = new SysAttributeControlledValueFilter();
+		filter.setHistoricValue(Boolean.TRUE);
+		filter.setAttributeMappingId(rightsAttribute.getId());
+		List<SysAttributeControlledValueDto> hitoricalValues = attributeControlledValueService.find(filter, null).getContent();
+		assertEquals(0, hitoricalValues.size());
+
+		roleAttribute.setTransformToResourceScript(null);
+		roleAttribute = roleSystemAttributeService.save(roleAttribute);
+		
+		hitoricalValues = attributeControlledValueService.find(filter, null).getContent();
+		assertEquals(1, hitoricalValues.size());
+		assertEquals(controlledValue, hitoricalValues.get(0).getValue());
+
+		controlledAttributeValues = attributeMappingService
+				.getControlledAttributeValues(system.getId(), mapping.getEntityType(), RIGHTS_ATTRIBUTE);
+		assertNotNull(controlledAttributeValues);
+		assertEquals(0, controlledAttributeValues.size());
+		
+		roleSystemAttributeService.delete(roleAttribute);
+		
+		hitoricalValues = attributeControlledValueService.find(filter, null).getContent();
+		assertEquals(1, hitoricalValues.size());
+		assertEquals(controlledValue, hitoricalValues.get(0).getValue());
+	}
 }

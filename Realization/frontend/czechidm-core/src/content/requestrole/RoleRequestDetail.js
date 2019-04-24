@@ -247,6 +247,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         'identityRole': data.identityRole,
         'validFrom': data.validFrom,
         'validTill': data.validTill,
+        'state': data.state,
         '_eav': [formInstance]
       };
     }
@@ -260,6 +261,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         'identityRole': data.identityRole,
         'validFrom': data.validFrom,
         'validTill': data.validTill,
+        'state': data.state,
         '_eav': [formInstance]
       };
     }
@@ -291,6 +293,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       'identityRole': data.id,
       'validFrom': data.validFrom,
       'validTill': data.validTill,
+      'state': data.state,
       '_eav': [formInstance]
     };
 

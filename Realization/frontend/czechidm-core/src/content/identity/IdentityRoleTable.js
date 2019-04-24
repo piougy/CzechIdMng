@@ -211,15 +211,21 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                   <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity) }/>
                 );
                 content.push(
-                  <Advanced.EntityInfo
-                    entityType="role"
-                    entityIdentifier={ entity.role }
-                    entity={ entity._embedded.role }
-                    face="popover"
-                    showIcon/>
+                  <div style={{ flex: 1 }}>
+                    <Advanced.EntityInfo
+                      entityType="role"
+                      entityIdentifier={ entity.role }
+                      entity={ entity._embedded.role }
+                      face="popover"
+                      showIcon/>
+                  </div>
                 );
                 //
-                return content;
+                return (
+                  <div style={{ display: 'flex' }}>
+                    { content }
+                  </div>
+                );
               }
             }
             rendered={ _.includes(columns, 'role') }/>
@@ -343,8 +349,13 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
           rendered={ showDetailButton }>
 
           <form onSubmit={ this.save.bind(this) }>
-            <Basic.Modal.Header closeButton={ !_showLoading } text={ this.i18n('create.header') } rendered={ Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Header
+              icon="component:identity-role"
+              closeButton={ !_showLoading }
+              text={ this.i18n('create.header') }
+              rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              icon={ detail.entity._embedded && detail.entity._embedded.role && detail.entity._embedded.role.childrenCount > 0 ? 'component:business-role' : 'component:identity-role' }
               closeButton={ !_showLoading }
               text={this.i18n('edit.header', { role: detail.entity._embedded ? roleManager.getNiceLabel(detail.entity._embedded.role) : null })}
               rendered={ !Utils.Entity.isNew(detail.entity) }/>

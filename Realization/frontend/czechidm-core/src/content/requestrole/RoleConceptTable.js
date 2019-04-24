@@ -662,14 +662,21 @@ export class RoleConceptTable extends Basic.AbstractContent {
                     <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(role) }/>
                   );
                   content.push(
-                    <Advanced.EntityInfo
-                      entityType="role"
-                      entityIdentifier={ role.id }
-                      entity={ role }
-                      face="popover" />
+                    <div style={{ flex: 1 }}>
+                      <Advanced.EntityInfo
+                        entityType="role"
+                        entityIdentifier={ role.id }
+                        entity={ role }
+                        face="popover"
+                        showIcon/>
+                    </div>
                   );
                   //
-                  return content;
+                  return (
+                    <div style={{ display: 'flex' }}>
+                      { content }
+                    </div>
+                  );
                 }
               }
               />

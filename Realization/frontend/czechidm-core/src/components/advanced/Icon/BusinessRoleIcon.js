@@ -21,7 +21,7 @@ export default class BusinessRoleIcon extends AbstractIcon {
 
   renderIcon() {
     return (
-      <span className="fa-layers fa-fw" title={ i18n('entity.RoleComposition._type') }>
+      <span className="fa-layers fa-fw" title={ i18n('entity.RoleComposition._type') } style={{ fontSize: '0.9em' }}>
         <FontAwesomeIcon icon={ faKey } transform="rotate-315 up-1 right-0.3" style={{ color: '#ccc' }} />
         <FontAwesomeIcon icon={ faKey } transform="up-3.2 right--3"/>
         <FontAwesomeIcon icon={ faCircle } transform="up-9 right-5 shrink-6"/>

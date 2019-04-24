@@ -94,13 +94,16 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    *
    * @return {string} entity identifier
    */
-  getEntityId() {
+  getEntityId(_entity) {
     const { entityIdentifier, entity } = this.props;
     //
-    if (entityIdentifier) {
+    if (_entity) { // propagated entity - higher priority
+      return _entity.id;
+    }
+    if (entityIdentifier) { // given as property - codeable
       return entityIdentifier;
     }
-    if (entity) {
+    if (entity) { // given property - basic uuid id
       return entity.id;
     }
     return null;
@@ -120,7 +123,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    *
    * @return {string}
    */
-  getLink() {
+  getLink(/* entity */) {
     return null;
   }
 
@@ -184,8 +187,8 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     return null;
   }
 
-  getNiceLabel() {
-    const _entity = this.getEntity();
+  getNiceLabel(entity) {
+    const _entity = entity || this.getEntity();
     //
     return this.getManager().getNiceLabel(_entity);
   }
@@ -201,12 +204,12 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
  * Render icon (rendered only if props showIcon is true)
  * @return {[type]} [description]
  */
-  _renderIcon() {
-    const {showIcon} = this.props;
+  _renderIcon(entity) {
+    const { showIcon } = this.props;
     if (!showIcon) {
       return '';
     }
-    const _entity = this.getEntity();
+    const _entity = entity || this.getEntity();
     return (
     <span className="pull-left">
       <Basic.Icon value={ this.getEntityIcon(_entity) } title={ this.getPopoverTitle(_entity) } style={{ marginRight: 5 }}/>
@@ -217,22 +220,22 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
   /**
    * Renders nicelabel used in text and link face
    */
-  _renderNiceLabel() {
+  _renderNiceLabel(entity) {
     const { className, style } = this.props;
     //
     return (
-      <span className={className} style={style}>{ this.getNiceLabel() }</span>
+      <span className={ className } style={ style }>{ this.getNiceLabel(entity) }</span>
     );
   }
 
   /**
    * Renders text face
    */
-  _renderText() {
+  _renderText(entity) {
     return (
       <span>
-        {this._renderIcon()}
-        {this._renderNiceLabel()}
+        { this._renderIcon(entity) }
+        { this._renderNiceLabel(entity) }
       </span>
     );
   }
@@ -246,7 +249,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     }
     return (
       <span>
-        {this._renderIcon()}
+        { this._renderIcon() }
         <Link
           to={ this.getLink() }
           title={ this.i18n('component.advanced.EntityInfo.link.detail.label') }>
@@ -259,24 +262,24 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
   /**
    * Renders popover info card
    */
-  _renderPopover() {
+  _renderPopover(entity) {
     const { style } = this.props;
     //
     return (
       <Basic.Popover
         trigger={['click']}
-        value={ this._renderFull() }
+        value={ this._renderFull(entity) }
         className="abstract-entity-info-popover"
         onEnter={ this.onEnter.bind(this) }>
         {
           <span
             style={ style }>
-            { this._renderIcon() }
+            { this._renderIcon(entity) }
             <Basic.Button
               level="link"
               style={{ padding: 0, whiteSpace: 'normal', textAlign: 'left' }}
               title={ this.i18n('component.advanced.EntityInfo.link.popover.title') }>
-              { this._renderNiceLabel() }
+              { this._renderNiceLabel(entity) }
             </Basic.Button>
           </span>
         }
@@ -287,9 +290,9 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
   /**
    * Renders full info card - its used ass popover content too
    */
-  _renderFull() {
+  _renderFull(entity) {
     const { className, style } = this.props;
-    const _entity = this.getEntity();
+    const _entity = entity || this.getEntity();
     //
     const panelClassNames = classNames(
       'abstract-entity-info',
@@ -326,7 +329,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           !this.showLink()
           ||
           <Basic.PanelFooter>
-            <Link to={ this.getLink() }>
+            <Link to={ this.getLink(_entity) }>
               <Basic.Icon value="fa:angle-double-right"/>
               {' '}
               {this.i18n('component.advanced.EntityInfo.link.detail.label')}

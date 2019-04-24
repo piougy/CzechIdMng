@@ -563,6 +563,8 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		filter.setIdentityId(identity.getId());	
 		// Add eav attributes
 		filter.setAddEavMetadata(Boolean.TRUE);
+		// FIXME: as url parameter - null as backward compatible
+		// filter.setDirectRole(Boolean.TRUE);
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService
 				.find(
 					filter, 
@@ -1010,7 +1012,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			@PathVariable String backendId) {
 		IdmProfileDto profile = profileService.findOneByIdentity(backendId, IdmBasePermission.READ);
 		if (profile == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			return new ResponseEntity<InputStreamResource>(HttpStatus.NO_CONTENT);
 		}
 		return profileController.get(profile.getId().toString());
 	}

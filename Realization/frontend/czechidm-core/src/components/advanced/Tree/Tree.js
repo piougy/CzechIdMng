@@ -476,6 +476,22 @@ class Tree extends Basic.AbstractContextComponent {
     return icon;
   }
 
+  _getNodeStyle(node) {
+    if (!node) {
+      return null;
+    }
+    //
+    const { nodeStyle, traverse } = this.props;
+    const { nodes } = this.state;
+    const opened = nodes.has(node.id) && !traverse;
+    //
+    if (nodeStyle && _.isFunction(nodeStyle)) {
+      return nodeStyle({ node, opened });
+    }
+    // object or null etc.
+    return nodeStyle;
+  }
+
   /**
    * Configurable node icon classnames - add color, shadow etc.
    * @param  {[type]} node [description]
@@ -597,7 +613,7 @@ class Tree extends Basic.AbstractContextComponent {
    * @param  {[type]} parentId node id (null is root)
    */
   _renderNodes(parentId = null, level = 0) {
-    const { traverse } = this.props;
+    const { traverse, nodeContent } = this.props;
     const { nodes, ui, selected } = this.state;
     //
     if (!nodes.has(parentId)) {
@@ -643,7 +659,7 @@ class Tree extends Basic.AbstractContextComponent {
             //
             return (
               <div>
-                <div className={ nodeClassNames }>
+                <div className={ nodeClassNames } style={ this._getNodeStyle(node) }>
                   {/* Expand button */}
                   {/* - expand button is shown, when children count is higher than zero or undefinid (children is unknown and has to be loaded at first) */}
                   <Basic.Icon
@@ -669,23 +685,30 @@ class Tree extends Basic.AbstractContextComponent {
                     style={{ marginLeft: 2 + (level * BASE_ICON_WIDTH) }}/> {/* dynamic margin by node level */}
 
                   {/* Node icon + label */}
-                  <Basic.Button
-                    level="link"
-                    className="embedded"
-                    onClick={ this.onSelect.bind(this, node.id) }
-                    onDoubleClick={ this.onDoubleClick.bind(this, node.id) }>
-                    <Basic.Icon
-                      value={ icon }
-                      className={ iconClassNames }
-                      showLoading={ uiState && uiState.showLoading }/>
-                    {
-                      node.childrenCount && this._getNodeNiceLabel(node)
-                      ?
-                      `${ this._getNodeNiceLabel(node) }`
-                      :
-                      this._getNodeNiceLabel(node)
-                    }
-                  </Basic.Button>
+                  {
+                    nodeContent
+                    ?
+                    <span>
+                      <Basic.Icon
+                        value={ icon }
+                        className={ iconClassNames }
+                        showLoading={ uiState && uiState.showLoading }
+                        style={{ width: 14 }}/>
+                      { nodeContent({ node }) }
+                    </span>
+                    :
+                    <Basic.Button
+                      level="link"
+                      className="embedded"
+                      onClick={ this.onSelect.bind(this, node.id) }
+                      onDoubleClick={ this.onDoubleClick.bind(this, node.id) }>
+                      <Basic.Icon
+                        value={ icon }
+                        className={ iconClassNames }
+                        showLoading={ uiState && uiState.showLoading }/>
+                      { this._getNodeNiceLabel(node) }
+                    </Basic.Button>
+                  }
                   {
                     !node.childrenCount
                     ||
@@ -918,6 +941,21 @@ Tree.propTypes = {
     PropTypes.string,
     PropTypes.func
   ),
+  /**
+   * Node style - single style for all nodes (string) or callback - named parameters "node" and "opened" will be given.
+   */
+  nodeStyle: PropTypes.oneOfType(
+    PropTypes.string,
+    PropTypes.func
+  ),
+  /**
+   * Override whole node content - all listeners will be disabled (onSelect ...), just node icon remains.
+   * Can be used, if tree is used just as decorator without selected value holder.
+   */
+  nodeContent: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.element
+  ]),
   /**
    * Node label. Manager's nice label is used by default.
    */

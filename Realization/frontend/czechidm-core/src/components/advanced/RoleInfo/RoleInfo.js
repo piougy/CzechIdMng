@@ -2,17 +2,13 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import * as Utils from '../../../utils';
-import { RoleManager, RoleCompositionManager, SecurityManager } from '../../../redux/';
+import { RoleManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import RolePriorityEnum from '../../../enums/RolePriorityEnum';
-import SearchParameters from '../../../domain/SearchParameters';
 import Tree from '../Tree/Tree';
 import CodeListValue from '../CodeListValue/CodeListValue';
 
-const uiKeyRoles = 'role-composition-sub-table';
 const manager = new RoleManager();
-const roleCompositionManager = new RoleCompositionManager();
 
 /**
  * Role basic information (info card)
@@ -27,18 +23,6 @@ export class RoleInfo extends AbstractEntityInfo {
 
   getManager() {
     return manager;
-  }
-
-  onEnter() {
-    super.onEnter();
-
-    const entityId = this.getEntityId();
-    if (entityId) {
-      if (SecurityManager.hasAuthority('ROLECOMPOSITION_AUTOCOMPLETE')) {
-        const forceSubSearchParameters = new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('superiorId', entityId);
-        this.context.store.dispatch(roleCompositionManager.fetchEntities(forceSubSearchParameters, `${uiKeyRoles}-${entityId}`));
-      }
-    }
   }
 
   showLink() {
@@ -59,8 +43,8 @@ export class RoleInfo extends AbstractEntityInfo {
    *
    * @return {string}
    */
-  getLink() {
-    return `/role/${encodeURIComponent(this.getEntityId())}/detail`;
+  getLink(entity) {
+    return `/role/${encodeURIComponent(this.getEntityId(entity))}/detail`;
   }
 
   /**
@@ -91,9 +75,11 @@ export class RoleInfo extends AbstractEntityInfo {
       <Basic.Column property="value"/>
     ];
   }
-  /**
-   * TODO: add original popover content
-   *
+
+  _renderIcon() {
+    return null;
+  }
+
   _renderPopover() {
     return (
       <Tree
@@ -101,11 +87,20 @@ export class RoleInfo extends AbstractEntityInfo {
         manager={ this.getManager() }
         roots={[ this.getEntity() ]}
         header={ null }
-        bodyStyle={{ padding: 0 }}
+        style={{ display: 'inline' }}
+        bodyStyle={{ padding: 0, overflowX: 'hidden' }}
         onChange={ () => false }
-        nodeIcon={ this.getEntityIcon() }/>
+        nodeIcon={ ({ node }) => this.props.showIcon ? this.getEntityIcon(node) : null }
+        nodeStyle={{ paddingLeft: 0 }}
+        nodeIconClassName={ null }
+        nodeContent={ ({ node }) => {
+          return (
+            <span>{ super._renderPopover(node) }</span>
+          );
+        }}
+        />
     );
-  }*/
+  }
 
   /**
    * Returns popover info content
@@ -113,8 +108,6 @@ export class RoleInfo extends AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    const { _subRoles, _subRolesUi } = this.props;
-    //
     const content = [
       {
         label: this.i18n('entity.name'),
@@ -135,29 +128,6 @@ export class RoleInfo extends AbstractEntityInfo {
       label: this.i18n('entity.Role.priorityEnum'),
       value: (<Basic.EnumValue enum={ RolePriorityEnum } value={ RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(entity.priority)) } />)
     });
-    // subroles
-    if (_subRolesUi) {
-      content.push({
-        label: this.i18n('entity.Role.subRoles'),
-        value: (
-          _subRolesUi.showLoading
-          ?
-          <Basic.Icon value="refresh" showLoading />
-          :
-          <span>
-            {
-              _subRoles
-                .map(subRole => {
-                  return subRole._embedded.sub.name;
-                })
-                .join(', ')
-            }
-            {' '}
-            ({ _subRolesUi.total })
-          </span>
-        )
-      });
-    }
     //
     return content;
   }
@@ -196,9 +166,7 @@ function select(state, component) {
   return {
     _entity: manager.getEntity(state, entityId),
     _showLoading: manager.isShowLoading(state, null, entityId),
-    _permissions: manager.getPermissions(state, null, entityId),
-    _subRoles: roleCompositionManager.getEntities(state, `${uiKeyRoles}-${entityId}`),
-    _subRolesUi: Utils.Ui.getUiState(state, `${uiKeyRoles}-${entityId}`)
+    _permissions: manager.getPermissions(state, null, entityId)
   };
 }
 export default connect(select)(RoleInfo);

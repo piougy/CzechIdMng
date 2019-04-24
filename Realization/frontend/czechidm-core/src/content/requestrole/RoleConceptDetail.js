@@ -225,6 +225,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
               label={this.i18n('label.validTill')}/>
           </Basic.Col>
         </Basic.Row>
+        { entity ? entity.state : 'n/a'}
         <Basic.Panel rendered={_showEAV} showLoading={!_formInstance} style={{border: '0px'}}>
           <Basic.ContentHeader>
             {this.i18n('identityRoleAttributes.header') }

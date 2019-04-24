@@ -1,41 +1,44 @@
+// variables
+@margin-right: 10px;
+// mixins
+.flex-vertical-center {
+  display: flex;
+  align-items: center;
+}
 // groups
 .main-group {
-  font-size: 14px;
-  display: flex;
+  .flex-vertical-center();
   flex-wrap: wrap;
-  align-items: center;
+  font-size: 14px;
   margin-top: 20px;
 }
-.week-group {
-  display: flex;
-  align-items: center;
+.secondary-group {
+  .flex-vertical-center();
   margin-top: 16px;
 }
-.month-group {
-  display: flex;
-  align-items: center;
-  margin-top: 16px;
+.time-group {
+  .flex-vertical-center();
 }
 // boxes
 .interval-select {
+  margin-right: @margin-right;
   margin-bottom: 0;
-  margin-right: 10px;
   width: 90px;
 }
 .cron-text {
-  margin-right: 10px;
+  margin-right: @margin-right;
 }
 .num-select {
+  margin-right: @margin-right;
   margin-bottom: 0;
-  margin-right: 10px;
   width: 56px;
 }
 .weekday-select {
+  margin-right: @margin-right;
   margin-bottom: 0;
-  margin-right: 10px;
   width: 70px;
 }
 .time-select {
+  margin-right: @margin-right;
   width: 70px;
-  margin-right: 10px;
 }

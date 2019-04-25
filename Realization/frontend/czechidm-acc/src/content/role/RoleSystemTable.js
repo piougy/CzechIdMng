@@ -206,8 +206,8 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
               sortProperty="systemMapping.entityType" />
             <Advanced.Column
               property="_embedded.role.name"
-              header={this.i18n('core:entity.Role._type')}
-              rendered={_.includes(columns, 'role')}
+              header={ this.i18n('core:entity.Role._type') }
+              rendered={ _.includes(columns, 'role') }
               sort
               sortProperty="role.name"
               cell={
@@ -216,7 +216,8 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
                     <Advanced.RoleInfo
                       entityIdentifier={ data[rowIndex]._embedded.role.id }
                       entity={ data[rowIndex]._embedded.role }
-                      face="popover" />
+                      face="popover"
+                      showIcon/>
                   );
                 }
               }/>

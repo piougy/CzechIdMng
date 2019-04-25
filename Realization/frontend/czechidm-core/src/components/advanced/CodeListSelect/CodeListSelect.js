@@ -37,6 +37,15 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
     this._loadOptions();
   }
 
+  componentWillReceiveProps(nextProps) {
+    super.componentWillReceiveProps(nextProps);
+    //
+    const { items } = nextProps;
+    if (items !== this.props.items) {
+      this._loadOptions(nextProps);
+    }
+  }
+
   getComponentKey() {
     return 'component.advanced.CodeListSelect';
   }
@@ -55,7 +64,14 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   }
 
   setValue(value, cb) {
-    this.setState({ value }, cb);
+    this.setState({ value }, () => {
+      this.refs.inputEnum.setValue(value);
+      this.refs.inputText.setValue(value);
+      // FIXME: cb is calleb before both inputs are set
+      if (cb) {
+        cb();
+      }
+    });
   }
 
   isValid() {
@@ -141,9 +157,14 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
 
   _loadOptions(props = null) {
     const _props = props ? props : this.props;
-    const { code, forceSearchParameters, useFirst } = this.props;
+    const { code, forceSearchParameters, useFirst, items } = this.props;
     if (!_props.rendered) {
       // component is not rendered ... loading is not needed
+      return;
+    }
+    if (items !== null && items !== undefined) {
+      // set options from preloaded externally
+      this._setOptions(items, useFirst);
       return;
     }
     //
@@ -157,31 +178,10 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
       }
       searchParameters = codeListItemManager.mergeSearchParameters(searchParameters, _forceSearchParameters);
       this.context.store.dispatch(codeListItemManager.fetchEntities(searchParameters, `${this.getUiKey()}-${code}`, (json, error) => {
-        const options = [];
-        let value = this.state.value;
         if (!error) {
           const data = json._embedded[codeListItemManager.getCollectionType()] || [];
-          let valueIsPresent = false;
-          // constuct operation
-          data.forEach(item => {
-            if (value && item.code === value) {
-              valueIsPresent = true;
-            }
-            options.push({
-              value: item.code,
-              niceLabel: codeListItemManager.getNiceLabel(item)
-            });
-          });
-          // filled value is not in the code list - append ar start
-          if (value && !valueIsPresent) {
-            options.unshift({
-              value,
-              niceLabel: this.i18n(value)
-            });
-          }
-          if (!value && useFirst && options.length > 0) {
-            value = options[0].value;
-          }
+          //
+          this._setOptions(data, useFirst);
         } else {
           if (error.statusCode === 400 || error.statusCode === 403) {
             // FIXME: 204 / 404 - codelist doesn't found
@@ -197,16 +197,54 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
               key: 'error-code-list-load'
             }, error);
           }
+          this.setState({
+            options: [],
+            showLoading: false
+          }, () => {
+            // TODO: enum refresh - normalize item has to be called.
+            const value = this.state.value;
+            this.refs.inputEnum.setValue(value);
+            this.refs.inputText.setValue(value);
+          });
         }
-        this.setState({
-          options,
-          showLoading: false
-        }, () => {
-          // TODO: enum refresh - normalize item has to be called.
-          this.refs.inputEnum.setValue(value);
-          this.refs.inputText.setValue(value);
-        });
       }));
+    });
+  }
+
+  _setOptions(options, useFirst) {
+    let value = this.state.value;
+    const _options = [];
+    //
+    let valueIsPresent = false;
+    // constuct operation
+    options.forEach(item => {
+      if (value && item.code === value) {
+        valueIsPresent = true;
+      }
+      _options.push({
+        value: item.code,
+        niceLabel: codeListItemManager.getNiceLabel(item)
+      });
+    });
+    // filled value is not in the code list - append ar start
+    if (value && !valueIsPresent) {
+      _options.unshift({
+        value,
+        niceLabel: this.i18n(value)
+      });
+    }
+    if (!value && useFirst && _options.length > 0) {
+      value = _options[0].value;
+    }
+    console.log('options', _options);
+    //
+    this.setState({
+      options: _options,
+      showLoading: false
+    }, () => {
+      // TODO: enum refresh - normalize item has to be called.
+      this.refs.inputEnum.setValue(value);
+      this.refs.inputText.setValue(value);
     });
   }
 
@@ -277,11 +315,16 @@ CodeListSelect.propTypes = {
   /**
    * Use the first searched value, if value is empty
    */
-  useFirst: PropTypes.bool
+  useFirst: PropTypes.bool,
+  /**
+   * Preloaded codelist items - prevent to fetch options internally
+   */
+  items: PropTypes.arrayOf(PropTypes.object)
 };
 
 CodeListSelect.defaultProps = {
   ...Basic.AbstractFormComponent.defaultProps,
   uiKey: 'code-list-select',
-  useFirst: false
+  useFirst: false,
+  items: null
 };

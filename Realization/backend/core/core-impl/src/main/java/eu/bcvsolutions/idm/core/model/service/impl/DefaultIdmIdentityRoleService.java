@@ -183,9 +183,10 @@ public class DefaultIdmIdentityRoleService
 		String text = filter.getText();
 		if (StringUtils.isNotEmpty(text)) {
 			text = text.toLowerCase();
-			predicates.add(builder.like(
-					builder.lower(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.username)),
-					"%" + text + "%")
+			predicates.add(
+					builder.like(
+							builder.lower(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.username)),
+							"%" + text + "%")
 					);
 		}
 		UUID identityId = filter.getIdentityId();
@@ -200,6 +201,13 @@ public class DefaultIdmIdentityRoleService
 			predicates.add(builder.equal(
 					root.get(IdmIdentityRole_.role).get(IdmRole_.id), 
 					roleId)
+					);
+		}
+		String roleEnvironment = filter.getRoleEnvironment();
+		if (StringUtils.isNotEmpty(roleEnvironment)) {
+			predicates.add(builder.equal(
+					root.get(IdmIdentityRole_.role).get(IdmRole_.environment), 
+					roleEnvironment)
 					);
 		}
 		UUID roleCatalogueId = filter.getRoleCatalogueId();

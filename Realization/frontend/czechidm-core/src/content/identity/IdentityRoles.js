@@ -7,7 +7,16 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityContractManager, IdentityManager, WorkflowTaskInstanceManager, WorkflowProcessInstanceManager, SecurityManager, RoleRequestManager } from '../../redux';
+import {
+  IdentityRoleManager,
+  IdentityContractManager,
+  IdentityManager,
+  WorkflowTaskInstanceManager,
+  WorkflowProcessInstanceManager,
+  SecurityManager,
+  RoleRequestManager,
+  CodeListManager }
+  from '../../redux';
 import RoleRequestTable from '../requestrole/RoleRequestTable';
 import IdentityRoleTableComponent, { IdentityRoleTable } from './IdentityRoleTable';
 
@@ -19,6 +28,7 @@ const identityContractManager = new IdentityContractManager();
 const workflowProcessInstanceManager = new WorkflowProcessInstanceManager();
 const roleRequestManager = new RoleRequestManager();
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
+const codeListManager = new CodeListManager();
 const uiKeyIncompatibleRoles = 'identity-incompatible-roles-';
 
 /**
@@ -50,8 +60,15 @@ class IdentityRoles extends Basic.AbstractContent {
     super.componentDidMount();
     //
     const { entityId } = this.props.params;
-    this.context.store.dispatch(identityContractManager.fetchEntities(new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('identity', entityId).setFilter('validNowOrInFuture', true), `${uiKeyContracts}-${entityId}`));
-    this.context.store.dispatch(identityManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
+    this.context.store.dispatch(
+      identityContractManager.fetchEntities(
+        new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('identity', entityId).setFilter('validNowOrInFuture', true), `${uiKeyContracts}-${entityId}`
+        , () => {
+          this.context.store.dispatch(identityManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
+          this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
+        }
+      )
+    );
   }
 
   showProcessDetail(entity) {
@@ -222,7 +239,8 @@ class IdentityRoles extends Basic.AbstractContent {
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole']) }
               _permissions={ _permissions }
-              fetchIncompatibleRoles={ false }/>
+              fetchIncompatibleRoles={ false }
+              fetchCodeLists={ false }/>
 
             <Basic.ContentHeader icon="component:sub-roles" text={ this.i18n('subRoles.header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15 }}/>
 
@@ -235,7 +253,8 @@ class IdentityRoles extends Basic.AbstractContent {
               showAddButton={ false }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['automaticRole']) }
-              fetchIncompatibleRoles={ false }/>
+              fetchIncompatibleRoles={ false }
+              fetchCodeLists={ false }/>
           </Basic.Tab>
 
           <Basic.Tab

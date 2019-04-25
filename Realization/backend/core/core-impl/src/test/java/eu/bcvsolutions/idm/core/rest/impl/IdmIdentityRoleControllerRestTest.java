@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
@@ -150,6 +151,21 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		//
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getId().equals(one.getId())));
+	}
+	
+	@Test
+	public void testFindByRoleEnvironment() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleDto roleOne = getHelper().createRole(null, getHelper().createName(), getHelper().createName());
+		IdmRoleDto roleTwo = getHelper().createRole(null, getHelper().createName(), getHelper().createName());
+		IdmIdentityRoleDto createIdentityRole = getHelper().createIdentityRole(identity, roleOne);
+		getHelper().createIdentityRole(identity, roleTwo);
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setRoleEnvironment(roleOne.getEnvironment());
+		List<IdmIdentityRoleDto> results = find(filter);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createIdentityRole.getId())));
 	}
 	
 	@Test

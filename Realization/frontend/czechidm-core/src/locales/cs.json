@@ -2457,6 +2457,11 @@
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
+        "filter": {
+          "role": {
+            "placeholder": "$t(content.identities.filter.role.placeholder)"
+          }
+        },
         "changePermissions": "Žádost o změnu rolí",
         "authorities": "Přidělená oprávnění <small>dle přiřazených rolí</small>",
         "changeRoleProcesses": {

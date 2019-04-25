@@ -39,13 +39,16 @@ export default class CodeListManager extends EntityManager {
     return `codelist-${ code }`;
   }
 
-  fetchCodeListIfNeeded(code) {
+  fetchCodeListIfNeeded(code, cb = null) {
     const uiKey = `codelist-${ code }`;
     //
     return (dispatch, getState) => {
       const codeList = DataManager.getData(getState(), uiKey);
       if (codeList) {
-        // we dont need to load code list again - cache
+        // we don't need to load code list again - cache
+        if (cb) {
+          cb(codeList);
+        }
       } else {
         // TODO: new store?
         dispatch(this.dataManager.requestData(uiKey));
@@ -53,16 +56,16 @@ export default class CodeListManager extends EntityManager {
         this.codeListItemManager.getService().search(searchParameters)
           .then(json => {
             const data = json._embedded[this.codeListItemManager.getCollectionType()] || [];
-            dispatch(this.dataManager.receiveData(uiKey, data));
+            dispatch(this.dataManager.receiveData(uiKey, data, cb));
           })
           .catch(error => {
             if (error.statusCode === 400 || error.statusCode === 403) {
               // FIXME: 204 / 404 - codelist doesn't found
               // FIXME: 403 - input only
-              dispatch(this.dataManager.receiveData(uiKey, []));
+              dispatch(this.dataManager.receiveData(uiKey, [], cb));
             } else {
               // TODO: data uiKey
-              dispatch(this.receiveError(null, uiKey, error));
+              dispatch(this.receiveError(null, uiKey, error, cb));
             }
           });
       }

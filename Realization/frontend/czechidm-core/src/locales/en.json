@@ -2406,6 +2406,11 @@
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
+        "filter": {
+          "role": {
+            "placeholder": "$t(content.identities.filter.role.placeholder)"
+          }
+        },
         "changePermissions": "Request to change roles",
         "authorities": "Granted authorizations <small>from assigned roles</small>",
         "changeRoleProcesses": {

@@ -4441,10 +4441,13 @@
           "repeatEvery": "Opakovat jednou za",
           "validFrom": "Platné od",
           "at": "v",
-          "every": "Každé",
+          "every_1": "Každé",
+          "every_2": "Každou",
+          "every_3": "Každý",
           "monthly": "Měsíčně",
           "day": "den",
-          "cronExpression": "Cron výraz:"
+          "cronExpression": "Cron výraz:",
+          "warning": "Úloha se spustí pouze pokud daný měsíc obsahuje požadovaný den."
         },
         "cron": {
           "label": "Cron výraz",

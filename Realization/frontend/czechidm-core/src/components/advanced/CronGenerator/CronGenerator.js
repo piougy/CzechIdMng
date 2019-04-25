@@ -21,7 +21,9 @@ class CronGenerator extends AbstractFormComponent {
       cronHour: CronHourEnum.findKeyBySymbol(CronHourEnum.ONE),
       dayInMonth: DayInMonthEnum.findKeyBySymbol(DayInMonthEnum.ONE),
       time: '22:00',
-      cronExpression: ''
+      cronExpression: '',
+      showMonthWarning: false,
+      weekDaySpelling: 'every_1'
     };
   }
 
@@ -31,14 +33,47 @@ class CronGenerator extends AbstractFormComponent {
 
   onChangeIntervalType(intervalType) {
     this.setState({
-      intervalType: intervalType.value
+      intervalType: intervalType.value,
+      showMonthWarning: this.showWarning(intervalType.value)
     }, () => this.generateCron());
   }
 
+  showWarning(intervalType) {
+    const dayNumber = DayInMonthEnum.findSymbolByKey(this.state.dayInMonth).description;
+    if (intervalType === 'MONTH' &&
+      (dayNumber === '29' || dayNumber === '30' || dayNumber === '31')) {
+      return true;
+    }
+    return false;
+  }
+
   onChangeWeekDay(weekDay) {
+    const weekDaySymbol = WeekDayEnum.findSymbolByKey(weekDay.value).description;
     this.setState({
-      weekDay: weekDay.value
+      weekDay: weekDay.value,
+      weekDaySpelling: this.checkWeekDaySpelling(weekDaySymbol)
     }, () => this.generateCron());
+  }
+
+  checkWeekDaySpelling(weekDaySymbol) {
+    switch (weekDaySymbol) {
+      case 'mon':
+        return 'every_1';
+      case 'tue':
+        return 'every_1';
+      case 'wed':
+        return 'every_2';
+      case 'thu':
+        return 'every_3';
+      case 'fri':
+        return 'every_3';
+      case 'sat':
+        return 'every_2';
+      case 'sun':
+        return 'every_2';
+      default:
+      //
+    }
   }
 
   onChangeCronMinute(cronMinute) {
@@ -54,8 +89,10 @@ class CronGenerator extends AbstractFormComponent {
   }
 
   onChangeDayInMonth(dayInMonth) {
+    const dayNumber = DayInMonthEnum.findSymbolByKey(dayInMonth.value).description;
     this.setState({
-      dayInMonth: dayInMonth.value
+      dayInMonth: dayInMonth.value,
+      showMonthWarning: dayNumber === '29' || dayNumber === '30' || dayNumber === '31' ? true : false
     }, () => this.generateCron());
   }
 
@@ -198,7 +235,17 @@ class CronGenerator extends AbstractFormComponent {
 
   getBody() {
     const { showLoading, rendered } = this.props;
-    const { intervalType, cronExpression, cronMinute, cronHour, weekDay, dayInMonth, time } = this.state;
+    const {
+      intervalType,
+      cronExpression,
+      cronMinute,
+      cronHour,
+      weekDay,
+      dayInMonth,
+      time,
+      showMonthWarning,
+      weekDaySpelling
+    } = this.state;
     if (!rendered) {
       return null;
     }
@@ -212,7 +259,7 @@ class CronGenerator extends AbstractFormComponent {
         <div
           className="main-group">
           <div
-            className="cron-text">
+            className="text">
               {this.i18n('repeatEvery')}
           </div>
           <div>
@@ -248,8 +295,8 @@ class CronGenerator extends AbstractFormComponent {
           {(intervalType === 'DAY' ||
             intervalType === 'HOUR' ||
             intervalType === 'MINUTE') && (
-            <div className="time-group">
-              <div className="cron-text">
+            <div className="text-group">
+              <div className="text">
                   { this.i18n('at') }
               </div>
               <div className="time-select">
@@ -269,8 +316,8 @@ class CronGenerator extends AbstractFormComponent {
         {intervalType === 'WEEK' && (
           <div className="secondary-group">
             <div
-              className="cron-text">
-                { this.i18n('every') }
+              className="text">
+                { this.i18n(weekDaySpelling) }
             </div>
             <div>
               <Basic.EnumSelectBox
@@ -281,7 +328,7 @@ class CronGenerator extends AbstractFormComponent {
                 clearable={ false }
                 onChange={ this.onChangeWeekDay.bind(this) }/>
             </div>
-            <div className="cron-text">
+            <div className="text">
               { this.i18n('at') }
             </div>
             <div className="time-select">
@@ -300,7 +347,7 @@ class CronGenerator extends AbstractFormComponent {
         {intervalType === 'MONTH' && (
           <div className="secondary-group">
             <div
-              className="cron-text">
+              className="text">
                 { this.i18n('monthly') }
             </div>
             <div>
@@ -313,7 +360,7 @@ class CronGenerator extends AbstractFormComponent {
                 onChange={ this.onChangeDayInMonth.bind(this) }
                 />
             </div>
-            <div className="cron-text">
+            <div className="text">
                 { this.i18n('day') }
                 {' '}
                 { this.i18n('at') }
@@ -330,6 +377,21 @@ class CronGenerator extends AbstractFormComponent {
             </div>
           </div>
         )}
+
+        {/* Warning for 29., 30., 31. days of month */}
+        {showMonthWarning && (
+          <div className="text-group">
+            <Basic.Icon icon="warning-sign" className="text warning-icon"/>
+            {' '}
+            {this.i18n('warning')}
+          </div>
+        )}
+
+        <div className="text-group">
+          { this.i18n('cronExpression') }
+          { ' ' }
+          { cronExpression }
+        </div>
 
         {/* Prepared for scheduled first start */}
         <Basic.Row rendered={ false }>
@@ -350,16 +412,6 @@ class CronGenerator extends AbstractFormComponent {
               />
           </Basic.Col>
         </Basic.Row>
-
-        <div>
-          <div>
-            <h3>
-            { this.i18n('cronExpression') }
-            { ' ' }
-            { cronExpression }
-            </h3>
-          </div>
-        </div>
 
       </div>
     );

@@ -273,7 +273,6 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     if (formEntity.type === 'REPEAT') {
       const repeat = this.refs.repeat;
       const trigger = repeat.resolveIntervalToCron();
-      console.log(trigger);
       formEntity.type = 'CRON';
       formEntity.cron = trigger;
     }
@@ -656,13 +655,10 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   label={ this.i18n('entity.SchedulerTask.trigger.fireTime') }
                   hidden={ triggerType !== 'SIMPLE' }
                   required={ triggerType === 'SIMPLE' }/>
-
-                {/* MOJE REPEAT KOMPONENTA (UVNITR FORM V MODALU) */}
                 <Advanced.CronGenerator
                   ref="repeat"
                   hidden={ triggerType !== 'REPEAT' }
                   required={ triggerType === 'REPEAT' }/>
-
                 <Basic.TextField
                   ref="cron"
                   label={ this.i18n('entity.SchedulerTask.trigger.cron.label') }

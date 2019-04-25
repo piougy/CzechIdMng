@@ -56,7 +56,6 @@ import Icons from './Icon/Icons';
 import AbstractIdentityDashboardButton from './Button/AbstractIdentityDashboardButton';
 import RoleRequestInfo from './RoleRequestInfo/RoleRequestInfo';
 import PasswordInfo from './PasswordInfo/PasswordInfo';
-import CronTab from './CronTab/CronTab';
 import CronGenerator from './CronGenerator/CronGenerator';
 
 const Components = {
@@ -120,7 +119,6 @@ const Components = {
   AbstractIdentityDashboardButton,
   RoleRequestInfo,
   PasswordInfo,
-  CronTab,
   CronGenerator
 };
 

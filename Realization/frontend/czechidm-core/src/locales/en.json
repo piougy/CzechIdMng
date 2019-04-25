@@ -4336,10 +4336,13 @@
           "repeatEvery": "Repeat every",
           "validFrom": "Valid from",
           "at": "at",
-          "every": "On",
+          "every_1": "On",
+          "every_2": "On",
+          "every_3": "On",
           "monthly": "Monthly",
           "day": "day",
-          "cronExpression": "Cron expression:"
+          "cronExpression": "Cron expression:",
+          "warning": "Task will run only on current month contains requested day."
         },
         "cron": {
           "label": "Cron expression",

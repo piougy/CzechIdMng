@@ -373,4 +373,13 @@ public class SysProvisioningOperationController
 		bulkAction.setEntityClass(getService().getEntityClass().getName());
 		bulkAction.setFilterClass(this.getFilterClass().getName());
 	}
+
+	@Override
+	protected SysProvisioningOperationFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysProvisioningOperationFilter filter = super.toFilter(parameters);
+		if (filter == null) {
+			return new SysProvisioningOperationFilter();
+		}
+		return filter;
+	}
 }

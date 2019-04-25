@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.rest.impl.SysProvisioningOperationController;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
@@ -46,6 +47,8 @@ public class ProvisioningOperationRetryBulkActionTest extends AbstractBulkAction
 	private SysProvisioningOperationService provisioningOperationService;
 	@Autowired
 	private IdmIdentityService identityService;
+	@Autowired
+	private SysProvisioningOperationController provisioningOperationController;
 
 	@Before
 	public void init() {
@@ -265,5 +268,46 @@ public class ProvisioningOperationRetryBulkActionTest extends AbstractBulkAction
 
 		List<SysProvisioningOperationDto> newOperations = provisioningOperationService.find(filter, null).getContent();
 		assertEquals(0, newOperations.size());
+	}
+
+	@Test
+	public void testEmptyFilterWithController() {
+		// Delete operation from before
+		provisioningOperationService.deleteAllOperations();
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		List<SysProvisioningOperationDto> operations = provisioningOperationService.find(filter, null).getContent();
+		assertTrue(operations.isEmpty());
+
+		IdmRoleDto role = getHelper().createRole();
+		IdmIdentityDto identity = getHelper().createIdentity();
+
+		SysSystemDto system = helper.createTestResourceSystem(true);
+		system.setDisabled(true);
+		system = systemService.save(system);
+
+		helper.createRoleSystem(role, system);
+		getHelper().createIdentityRole(identity, role);
+
+		system.setDisabled(false);
+		system = systemService.save(system);
+
+		operations = provisioningOperationService.find(filter, null).getContent();
+		assertFalse(operations.isEmpty());
+
+		IdmBulkActionDto bulkAction = this.findBulkAction(SysProvisioningOperation.class, ProvisioningOperationRetryBulkAction.NAME);
+		bulkAction.setTransformedFilter(null); // There must be null
+		bulkAction.setFilter(toMap(filter)); // Empty filter
+
+		int allOperations = operations.size();
+
+		Map<String, Object> properties = new HashMap<>();
+		properties.put(ProvisioningOperationCancelBulkAction.RETRY_WHOLE_BATCH_CODE, Boolean.TRUE.toString());
+		bulkAction.setProperties(properties);
+
+		IdmBulkActionDto processAction = provisioningOperationController.bulkAction(bulkAction).getBody();
+		checkResultLrt(processAction, Long.valueOf(allOperations), null, null);
+
+		operations = provisioningOperationService.find(filter, null).getContent();
+		assertTrue(operations.isEmpty());
 	}
 }

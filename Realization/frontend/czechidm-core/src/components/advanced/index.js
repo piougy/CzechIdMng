@@ -15,6 +15,7 @@ import EavForm from './Form/EavForm';
 import EavContent from './Form/EavContent';
 import AbstractFormAttributeRenderer from './Form/AbstractFormAttributeRenderer';
 import SelectBoxFormAttributeRenderer from './Form/SelectBoxFormAttributeRenderer';
+import BooleanFormAttributeRenderer from './Form/BooleanFormAttributeRenderer';
 import PasswordField from './PasswordField/PasswordField';
 import ProgressBar from './ProgressBar/ProgressBar';
 import RichTextArea from './RichTextArea/RichTextArea';
@@ -75,6 +76,7 @@ const Components = {
   EavContent,
   AbstractFormAttributeRenderer,
   SelectBoxFormAttributeRenderer,
+  BooleanFormAttributeRenderer,
   PasswordField,
   RichTextArea,
   AbstractTableContent,

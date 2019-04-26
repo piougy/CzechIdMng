@@ -46,7 +46,7 @@ public interface SchedulerConfiguration {
 	 * Event queue processing period (ms)
 	 */
 	String PROPERTY_EVENT_QUEUE_PROCESS = "scheduler.event.queue.process";
-	int DEFAULT_EVENT_QUEUE_PROCESS = 1000;
+	int DEFAULT_EVENT_QUEUE_PROCESS = 500;
 	
 	/**
 	 * Task executor core pool size. Uses CPU count as default.
@@ -92,7 +92,7 @@ public interface SchedulerConfiguration {
 	 * {@link AbotrPolicy} is set for rejected tasks.
 	 */
 	String PROPERTY_EVENT_EXECUTOR_QUEUE_CAPACITY = "scheduler.event.executor.queueCapacity";
-	int DEFAULT_EVENT_EXECUTOR_QUEUE_CAPACITY = 1000;
+	int DEFAULT_EVENT_EXECUTOR_QUEUE_CAPACITY = 50;
 	
 	/**
 	 * Thread priority for threads in event executor pool - 6 by default (a little higher priority than normal 5).

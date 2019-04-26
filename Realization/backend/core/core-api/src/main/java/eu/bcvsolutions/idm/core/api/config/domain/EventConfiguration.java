@@ -6,12 +6,13 @@ import java.util.concurrent.Executor;
 
 import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 
 /**
  * Configuration for event processing
  * 
+ * @see SchedulerConfiguration
  * @author Radek Tomiška
- *
  */
 public interface EventConfiguration extends Configurable {
 	
@@ -27,6 +28,14 @@ public interface EventConfiguration extends Configurable {
 	 */
 	String PROPERTY_EVENT_ASYNCHRONOUS_INSTANCE_ID = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.event.asynchronous.instanceId";
+	
+	/**
+	 * Asynchronous events will be executed in batch - batch will be split for event with HIGH / NORMAL priority in 70% HIGH / 30% NORMAL.
+	 */
+	String PROPERTY_EVENT_ASYNCHRONOUS_BATCH_SIZE = 
+			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.event.asynchronous.batchSize";
+	int DEFAULT_EVENT_BATCH_SIZE = 15;
+	
 	
 	@Override
 	default String getConfigurableType() {
@@ -74,5 +83,12 @@ public interface EventConfiguration extends Configurable {
 	 * @return
 	 */
 	String getAsynchronousInstanceId();
+	
+	/**
+	 * Asynchronous events will be executed in batch - batch will be split for event with HIGH / NORMAL priority in 70% HIGH / 30% NORMAL.
+	 * 
+	 * @return
+	 */
+	int getBatchSize();
 
 }

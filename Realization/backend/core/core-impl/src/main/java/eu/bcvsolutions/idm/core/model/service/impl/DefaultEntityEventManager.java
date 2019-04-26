@@ -356,7 +356,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			return;
 		}
 		// check running events are full already
-		if (runningOwnerEvents.size() > 100) { // TODO: configurable batch size => 70 / 30 hard coded now
+		if (runningOwnerEvents.size() > eventConfiguration.getBatchSize()) {
 			LOG.trace("Asynchronous running events queue is full, waiting for complete running events.");
 			return;
 		}
@@ -815,7 +815,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		//
 		// already running owners are excluded (super owner is excluded too)
 		List<UUID> exceptOwnerIds = Lists.newArrayList(runningOwnerEvents.keySet());
-		exceptOwnerIds = exceptOwnerIds.subList(0, exceptOwnerIds.size() > 100 ? 100 : exceptOwnerIds.size());
+		exceptOwnerIds = exceptOwnerIds.subList(0, exceptOwnerIds.size() > 500 ? 500 : exceptOwnerIds.size()); // prevent sql queue size is exceeded
 		//
 		// load created events - high priority
 		DateTime executeDate = new DateTime();
@@ -824,14 +824,14 @@ public class DefaultEntityEventManager implements EntityEventManager {
 				executeDate,
 				PriorityType.HIGH,
 				exceptOwnerIds,
-				new PageRequest(0, 100, new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
+				new PageRequest(0, eventConfiguration.getBatchSize(), new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
 		// load created events - low priority
 		Page<IdmEntityEventDto> normalEvents = entityEventService.findToExecute(
 				instanceId,
 				executeDate,
 				PriorityType.NORMAL,
 				exceptOwnerIds,
-				new PageRequest(0, 100, new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
+				new PageRequest(0, eventConfiguration.getBatchSize(), new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
 		// merge events
 		List<IdmEntityEventDto> events = new ArrayList<>();
 		events.addAll(highEvents.getContent());
@@ -883,7 +883,11 @@ public class DefaultEntityEventManager implements EntityEventManager {
 				})
 				.collect(Collectors.toList());
 		int normalCount = events.stream().filter(e -> e.getPriority() == PriorityType.NORMAL).collect(Collectors.toList()).size();
-		int highMaximum = normalCount > 30 ? 70 : (100 - normalCount);
+		int maxNormalCount = eventConfiguration.getBatchSize() / 3;
+		
+		int highMaximum = normalCount > maxNormalCount
+				? (eventConfiguration.getBatchSize() - maxNormalCount)
+				: (eventConfiguration.getBatchSize() - normalCount);
 		// evaluate priority => high 70 / low 30
 		int highCounter = 0;
 		List<IdmEntityEventDto> prioritizedEvents = new ArrayList<>();
@@ -895,7 +899,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 				}
 			} else {
 				// normal priority remains only
-				if (prioritizedEvents.size() >= 100) {
+				if (prioritizedEvents.size() >= eventConfiguration.getBatchSize()) {
 					break;
 				}
 				prioritizedEvents.add(event);

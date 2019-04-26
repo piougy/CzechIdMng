@@ -37,4 +37,9 @@ public class DefaultEventConfiguration extends AbstractConfiguration implements 
 	public String getAsynchronousInstanceId() {
 		return getConfigurationService().getValue(PROPERTY_EVENT_ASYNCHRONOUS_INSTANCE_ID, getConfigurationService().getInstanceId());
 	}
+	
+	@Override
+	public int getBatchSize() {
+		return getConfigurationService().getIntegerValue(PROPERTY_EVENT_ASYNCHRONOUS_BATCH_SIZE, DEFAULT_EVENT_BATCH_SIZE);
+	}
 }

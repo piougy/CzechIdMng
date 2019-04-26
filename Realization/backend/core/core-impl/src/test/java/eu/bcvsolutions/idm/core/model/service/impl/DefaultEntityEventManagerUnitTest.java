@@ -77,6 +77,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testCreatedEventsEmpty() {
 		List<IdmEntityEventDto> events = new ArrayList<>();
+		when(eventConfiguration.getBatchSize()).thenReturn(100);
 		when(entityEventService
 				.findToExecute(
 						any(), 
@@ -115,6 +116,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 0));
+		when(eventConfiguration.getBatchSize()).thenReturn(100);
 		
 		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
@@ -140,6 +142,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 100));
+		when(eventConfiguration.getBatchSize()).thenReturn(100);
 		
 		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
@@ -165,6 +168,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(),
 						any()))
 				.thenReturn(createEvents(PriorityType.NORMAL, 30));
+		when(eventConfiguration.getBatchSize()).thenReturn(100);
 		
 		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
@@ -174,6 +178,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testCreatedEventsLessHighThanAvailableSize() {
+		when(eventConfiguration.getBatchSize()).thenReturn(100);
 		when(entityEventService
 				.findToExecute(
 						any(), 						
@@ -195,6 +200,32 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		//
 		Assert.assertEquals(65, events.stream().filter(e -> e.getPriority() == PriorityType.HIGH).collect(Collectors.toList()).size());
 		Assert.assertEquals(35, events.stream().filter(e -> e.getPriority() == PriorityType.NORMAL).collect(Collectors.toList()).size());
+	}
+	
+	@Test
+	public void testCreatedEventsLessHighThanAvailableSizeNotDividable() {
+		when(eventConfiguration.getBatchSize()).thenReturn(16);
+		when(entityEventService
+				.findToExecute(
+						any(), 						
+						any(DateTime.class), 
+						eq(PriorityType.HIGH), 
+						any(),
+						any()))
+				.thenReturn(createEvents(PriorityType.HIGH, 65));
+		when(entityEventService
+				.findToExecute(
+						any(), 						
+						any(DateTime.class), 
+						eq(PriorityType.NORMAL), 
+						any(),
+						any()))
+				.thenReturn(createEvents(PriorityType.NORMAL, 50));
+		
+		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
+		//
+		Assert.assertEquals(11, events.stream().filter(e -> e.getPriority() == PriorityType.HIGH).collect(Collectors.toList()).size());
+		Assert.assertEquals(5, events.stream().filter(e -> e.getPriority() == PriorityType.NORMAL).collect(Collectors.toList()).size());
 	}
 	
 	@Test
@@ -239,6 +270,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 						any(),
 						any()))
 				.thenReturn(new PageImpl<>(normalEvents));
+		when(eventConfiguration.getBatchSize()).thenReturn(100);
 		//
 		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
@@ -297,6 +329,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
 				.thenReturn(new PageImpl<>(new ArrayList<>()));
+		when(eventConfiguration.getBatchSize()).thenReturn(100);
 		//
 		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
@@ -364,6 +397,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
 				.thenReturn(new PageImpl<>(new ArrayList<>()));
+		when(eventConfiguration.getBatchSize()).thenReturn(100);
 		//
 		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//
@@ -556,6 +590,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
 				.thenReturn(new PageImpl<>(new ArrayList<>()));
+		when(eventConfiguration.getBatchSize()).thenReturn(100);
 		//
 		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		Assert.assertEquals(1, events.size());
@@ -620,6 +655,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.find(any(IdmEntityEventFilter.class), any(PageRequest.class)))
 				.thenReturn(new PageImpl<>(new ArrayList<>()));
+		when(eventConfiguration.getBatchSize()).thenReturn(100);
 		//
 		List<IdmEntityEventDto> events = manager.getCreatedEvents("instance");
 		//

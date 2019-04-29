@@ -1,10 +1,16 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -23,7 +29,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	public static final String PARAMETER_DIRECT_ROLE_ID = "directRoleId";
 	public static final String PARAMETER_ROLE_COMPOSITION_ID = "roleCompositionId";
 	public static final String PARAMETER_ROLE_ID = "roleId";
-	public static final String PARAMETER_ROLE_ENVIRONMENT = "roleEnvironment";
+	public static final String PARAMETER_ROLE_ENVIRONMENT = "roleEnvironment";  // list - OR
 	public static final String PARAMETER_IDENTITY_ID = "identityId";
 	public static final String PARAMETER_ROLE_CATALOGUE_ID = "roleCatalogueId";
 	public static final String PARAMETER_VALID = "valid"; // valid identity roles with valid contract
@@ -62,6 +68,21 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
     
     public void setRoleEnvironment(String roleEnvironment) {
     	data.set(PARAMETER_ROLE_ENVIRONMENT, roleEnvironment);
+	}
+    
+    public List<String> getRoleEnvironments() {
+		List<Object> environments = data.get(PARAMETER_ROLE_ENVIRONMENT);
+		if (environments == null) {
+			return Lists.newArrayList();
+		}
+		return environments
+				.stream()
+				.map(object -> Objects.toString(object, null))
+				.collect(Collectors.toList());
+	}
+    
+    public void setRoleEnvironments(List<String> roleEnvironments) {
+    	data.put(PARAMETER_ROLE_ENVIRONMENT, roleEnvironments == null ? null : new ArrayList<Object>(roleEnvironments));
 	}
 
 	public UUID getRoleCatalogueId() {

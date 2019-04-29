@@ -223,7 +223,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                       code="environment"
                       label={ null }
                       placeholder={ this.i18n('entity.Role.environment.label') }
-                      items={ environmentItems || [] }/>
+                      items={ environmentItems || [] }
+                      multiSelect/>
                   </Basic.Col>
                   <Basic.Col lg={ 3 }>
                     <Basic.Div rendered={ contractForceSearchparameters !== null }>

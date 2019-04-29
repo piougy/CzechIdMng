@@ -10,9 +10,9 @@ const codeListItemManager = new CodeListItemManager();
 * Code list select
 * - render enum select box with available code list items (options)
 * - decorator only - if code list is not available (204), then text box is shown
+* - multiSelect - used only if code list definition is available
 *
 * TODO: creatable?
-* TODO: multiselect
 * TODO: big code list - pagination
 * TODO: use redux data, when force search parameters are empty?
 * TODO: readme
@@ -67,7 +67,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
     this.setState({ value }, () => {
       this.refs.inputEnum.setValue(value);
       this.refs.inputText.setValue(value);
-      // FIXME: cb is calleb before both inputs are set
+      // FIXME: cb is called before both inputs are set, we are not usign this now, but should be fixed.
       if (cb) {
         cb();
       }
@@ -157,7 +157,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
 
   _loadOptions(props = null) {
     const _props = props ? props : this.props;
-    const { code, forceSearchParameters, useFirst, items } = this.props;
+    const { code, forceSearchParameters, useFirst, items } = _props;
     if (!_props.rendered) {
       // component is not rendered ... loading is not needed
       return;
@@ -236,7 +236,6 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
     if (!value && useFirst && _options.length > 0) {
       value = _options[0].value;
     }
-    console.log('options', _options);
     //
     this.setState({
       options: _options,
@@ -249,7 +248,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { hidden, required, rendered, validationErrors } = this.props;
+    const { hidden, required, rendered, validationErrors, multiSelect } = this.props;
     const { options, value, disabled, readOnly } = this.state;
     const showLoading = this.props.showLoading || this.state.showLoading;
     //
@@ -270,7 +269,8 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           validationErrors={ validationErrors }
           hidden={ hidden || (options.length === 0 && !showLoading) }
           showLoading={ showLoading }
-          options={ options }/>
+          options={ options }
+          multiSelect={ multiSelect }/>
         <Basic.TextField
           ref="inputText"
           value={ value }
@@ -319,12 +319,17 @@ CodeListSelect.propTypes = {
   /**
    * Preloaded codelist items - prevent to fetch options internally
    */
-  items: PropTypes.arrayOf(PropTypes.object)
+  items: PropTypes.arrayOf(PropTypes.object),
+  /**
+   * The component is in multi select mode - available just if code list definition is available (simple input is rendered otherwise).
+   */
+  multiSelect: PropTypes.bool
 };
 
 CodeListSelect.defaultProps = {
   ...Basic.AbstractFormComponent.defaultProps,
   uiKey: 'code-list-select',
   useFirst: false,
-  items: null
+  items: null,
+  multiSelect: false
 };

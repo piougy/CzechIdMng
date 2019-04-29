@@ -15,6 +15,8 @@ import Icon from '../Icon/Icon';
 const HEADER = 'header';
 // const FOOTER = 'footer';
 const CELL = 'cell';
+// FE page size - pagination on FE
+const FE_PAGE_SIZE = 20;
 
 /**
  * Table component with header and columns.
@@ -27,7 +29,7 @@ class Table extends AbstractComponent {
     super(props);
     this.state = {
       selectedRows: this.props.selectedRows ? new Immutable.Set(this.props.selectedRows) : new Immutable.Set(),
-      showMax: 20
+      showMax: FE_PAGE_SIZE
     };
   }
 
@@ -220,7 +222,7 @@ class Table extends AbstractComponent {
 
   _incrementData() {
     this.setState({
-      showMax: this.state.showMax + 20
+      showMax: this.state.showMax + FE_PAGE_SIZE
     });
   }
 

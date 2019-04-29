@@ -555,7 +555,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		// profile image
 		getMockMvc().perform(MockMvcRequestBuilders.get(getDetailUrl(owner.getId()) + "/profile")
         		.with(authentication(getAdminAuthentication())))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isNoContent());
 		getMockMvc().perform(MockMvcRequestBuilders.get(getDetailUrl(owner.getId()) + "/profile/image")
         		.with(authentication(getAdminAuthentication())))
 				.andExpect(status().isNoContent());

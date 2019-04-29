@@ -588,6 +588,95 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 		accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
 		Assert.assertNotNull(accountTwo);
 	}
+	
+	@Test
+	public void testOneRoleAssingnTwoSystemsViaRequest() {
+		IdmRoleDto roleOne = getHelper().createRole();
+
+		// create test system with mapping and link her to role
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysSystemDto systemTwo = getHelper().createTestResourceSystem(true);
+		getHelper().createRoleSystem(roleOne, systemOne);
+		getHelper().createRoleSystem(roleOne, systemTwo);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, roleOne);
+		
+		getHelper().executeRequest(roleRequestOne, false);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+
+		// check created account
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		AccAccountDto accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setIdentityId(identity.getId());
+
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null)
+				.getContent();
+		// We have one role and two system -> two identity-accounts for roleOne should be exists.
+		Assert.assertEquals(2, identityAccounts.size());
+		long countIdentityAccountsWithRoleOne = identityAccounts.stream()
+				.filter(identityAccount -> identityAccount.getIdentityRole().equals(assignedRoles.get(0).getId()))
+				.count();
+		Assert.assertEquals(2, countIdentityAccountsWithRoleOne);
+	}
+	
+	@Test
+	public void testOneRoleAssingnTwoSystems() {
+		IdmRoleDto roleOne = getHelper().createRole();
+
+		// create test system with mapping and link her to role
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysSystemDto systemTwo = getHelper().createTestResourceSystem(true);
+		getHelper().createRoleSystem(roleOne, systemOne);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		getHelper().createIdentityRole(identity, roleOne);
+		// Role assign systemTwo now -> second account is not created 
+		getHelper().createRoleSystem(roleOne, systemTwo);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+
+		// check created account (second account is not created )
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		AccAccountDto accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNull(accountTwo);
+
+		// Execute ACM and provisioning via bulk action
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentityAccountManagementBulkAction.NAME);
+		bulkAction.setIdentifiers(Sets.newHashSet(identity.getId()));
+		bulkActionManager.processAction(bulkAction);
+		
+		// check created account
+		accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		accountTwo = accountService.getAccount(identity.getUsername(), systemTwo.getId());
+		Assert.assertNotNull(accountTwo);
+	
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setIdentityId(identity.getId());
+
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null)
+				.getContent();
+		// We have one role and two system -> two identity-accounts for roleOne should be exists.
+		Assert.assertEquals(2, identityAccounts.size());
+		long countIdentityAccountsWithRoleOne = identityAccounts.stream()
+				.filter(identityAccount -> identityAccount.getIdentityRole().equals(assignedRoles.get(0).getId()))
+				.count();
+		Assert.assertEquals(2, countIdentityAccountsWithRoleOne);
+	}
 
 	private SysSystemDto initData() {
 

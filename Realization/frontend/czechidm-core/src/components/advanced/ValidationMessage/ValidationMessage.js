@@ -258,7 +258,7 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     return (
       <Basic.Alert
         icon="info-sign"
-        className="no-margin">
+        style={{ margin: '15px 0' }}>
         <Basic.Popover
           ref="popover"
           trigger={['click']}

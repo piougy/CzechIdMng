@@ -295,7 +295,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           icon="info-sign"
           text={this.i18n('message.isAdmin')}
           rendered={ SecurityManager.isAdmin(userContext) }
-          style={{ margin: '15px 0'}}/>
+          style={{ margin: '15px 0 0 0' }}/>
       );
       content.push(
         <ValidationMessage error={validationError} validationDefinition={validationDefinition} />
@@ -339,8 +339,8 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     //
     return (
       <form onSubmit={this.save.bind(this)}>
-        <Basic.ContentHeader icon="lock" text={ this.i18n('header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }} />
-        <Basic.Panel className="no-border" style={{ paddingRight: 15, paddingLeft: 15 }}>
+        <Basic.ContentHeader icon="lock" text={ this.i18n('header') }/>
+        <Basic.Panel className="no-border">
           <Basic.Loading className="static" showLoading={preload && this._canPasswordChange(_permissions)}/>
           <Basic.Alert
             level="warning"

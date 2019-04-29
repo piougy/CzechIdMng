@@ -47,10 +47,13 @@ class PasswordChangeForm extends Basic.AbstractContent {
       const Component = component.component;
       finalComponents.push(
         <Basic.Col lg={component.col}>
-          <Component
-            userContext={userContext}
-            accountOptions={accountOptions}
-            entityId={entityId}/>
+          {/* FIXME: new behavior for the marginable class */}
+          <div style={{ paddingLeft: 15, paddingRight: 15 }}>
+            <Component
+              userContext={userContext}
+              accountOptions={accountOptions}
+              entityId={entityId}/>
+          </div>
         </Basic.Col>
       );
     });

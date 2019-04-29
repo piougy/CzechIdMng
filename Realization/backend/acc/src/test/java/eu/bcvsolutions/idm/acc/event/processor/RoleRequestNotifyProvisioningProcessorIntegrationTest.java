@@ -341,6 +341,40 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 		}
 	}
 	
+	@Test
+	public void testAssignRoleWithoutSubRoleSync() {
+		// prepare role composition
+		IdmRoleDto superior = getHelper().createRole();
+		//
+		// create test system with mapping and link her to the sub roles
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		getHelper().createRoleSystem(superior, system);
+		//
+		// assign superior role
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		final IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, superior);
+		//
+		getHelper().executeRequest(roleRequestOne, false);
+		//
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		//
+		// check created account
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+		Assert.assertNotNull(account);
+		Assert.assertNotNull(getHelper().findResource(account.getRealUid()));
+		//
+		// check provisioning archive
+		SysProvisioningOperationFilter archiveFilter = new SysProvisioningOperationFilter();
+		archiveFilter.setEntityIdentifier(identity.getId());
+		//
+		List<SysProvisioningArchiveDto> executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertEquals(1, executedOperations.size());
+		Assert.assertTrue(executedOperations.stream().anyMatch(o -> o.getOperationType() == ProvisioningEventType.CREATE));
+	}
+	
 	protected TestHelper getHelper() {
 		return (TestHelper) super.getHelper();
 	}

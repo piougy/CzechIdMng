@@ -560,7 +560,8 @@ public class DefaultIdmRoleRequestService
 		IdmRoleRequestDto savedRequest = this.save(request);
 		// notify
 		if (!hasSubRoles) {
-			entityEventManager.changedEntity(savedRequest, requestEvent);
+			// parent event is not published - can be processed already (=> and removed already)
+			entityEventManager.changedEntity(savedRequest);
 		}
 		// 
 		return request;

@@ -212,8 +212,8 @@ class RoleTable extends Advanced.AbstractTableContent {
                     <Basic.Col lg={ 4 } rendered={ false }>
                       <Advanced.Filter.EnumSelectBox
                         ref="roleType"
-                        placeholder={this.i18n('entity.Role.roleType')}
-                        enum={RoleTypeEnum}/>
+                        placeholder={ this.i18n('entity.Role.roleType') }
+                        enum={ RoleTypeEnum }/>
                     </Basic.Col>
                     <Basic.Col lg={ 4 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
@@ -232,7 +232,8 @@ class RoleTable extends Advanced.AbstractTableContent {
                         ref="environment"
                         code="environment"
                         label={ null }
-                        placeholder={ this.i18n('entity.Role.environment.label') }/>
+                        placeholder={ this.i18n('entity.Role.environment.label') }
+                        multiSelect/>
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>

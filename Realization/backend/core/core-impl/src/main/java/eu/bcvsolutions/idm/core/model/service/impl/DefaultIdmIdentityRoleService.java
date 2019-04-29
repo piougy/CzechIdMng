@@ -203,12 +203,9 @@ public class DefaultIdmIdentityRoleService
 					roleId)
 					);
 		}
-		String roleEnvironment = filter.getRoleEnvironment();
-		if (StringUtils.isNotEmpty(roleEnvironment)) {
-			predicates.add(builder.equal(
-					root.get(IdmIdentityRole_.role).get(IdmRole_.environment), 
-					roleEnvironment)
-					);
+		List<String> roleEnvironments = filter.getRoleEnvironments();
+		if (CollectionUtils.isNotEmpty(roleEnvironments)) {
+			predicates.add(root.get(IdmIdentityRole_.role).get(IdmRole_.environment).in(roleEnvironments));
 		}
 		UUID roleCatalogueId = filter.getRoleCatalogueId();
 		if (roleCatalogueId != null) {

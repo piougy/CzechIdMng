@@ -10,6 +10,7 @@ import EntitySelectBox from '../EntitySelectBox/EntitySelectBox';
 import Table from '../Table/Table';
 import Column from '../Table/Column';
 import Tree from '../Tree/Tree';
+import CodeListValue from '../CodeListValue/CodeListValue';
 import SearchParameters from '../../../domain/SearchParameters';
 import RoleOptionDecorator from './RoleOptionDecorator';
 import RoleValueDecorator from './RoleValueDecorator';
@@ -507,7 +508,18 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                     }/>
                   <Column property="name" sort={false} face="text" rendered={_.includes(columns, 'name')}/>
                   <Column property="baseCode" sort={false} face="text" rendered={_.includes(columns, 'baseCode')}/>
-                  <Column property="environment" sort={false} face="text" rendered={_.includes(columns, 'environment')}/>
+                  <Column
+                    property="environment"
+                    sort={ false }
+                    face="text"
+                    rendered={ _.includes(columns, 'environment') }
+                    cell={
+                      ({ rowIndex, data, property }) => {
+                        return (
+                          <CodeListValue code="environment" value={ data[rowIndex][property] }/>
+                        );
+                      }
+                    }/>
                 </Table>
               </Basic.Col>
             </Basic.Row>

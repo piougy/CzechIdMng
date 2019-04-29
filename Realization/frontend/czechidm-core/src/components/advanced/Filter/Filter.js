@@ -54,8 +54,8 @@ export default class Filter extends Basic.AbstractContextComponent {
       return false;
     }
     return (
-      <form onSubmit={this.useFilter.bind(this)} className="advanced-filter">
-        {this.props.children}
+      <form onSubmit={ this.useFilter.bind(this) } className="advanced-filter">
+        { this.props.children }
       </form>
     );
   }

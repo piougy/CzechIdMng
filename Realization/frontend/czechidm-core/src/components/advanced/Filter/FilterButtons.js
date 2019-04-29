@@ -31,11 +31,11 @@ export default class FilterButtons extends Basic.AbstractContextComponent {
     //
     return (
       <span style={ style } className={ className }>
-        <Basic.Button onClick={this._cancelFilter.bind(this)} style={{ marginRight: 5 }}>
-          {this.i18n('button.filter.cancel')}
+        <Basic.Button onClick={ this._cancelFilter.bind(this) } style={{ marginRight: 5 }}>
+          { this.i18n('button.filter.cancel') }
         </Basic.Button>
         <Basic.Button level="primary" type="submit">
-          {this.i18n('button.filter.use')}
+          { this.i18n('button.filter.use') }
         </Basic.Button>
       </span>
     );

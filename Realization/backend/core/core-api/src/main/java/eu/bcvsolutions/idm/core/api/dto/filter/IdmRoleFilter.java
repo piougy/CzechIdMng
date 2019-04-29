@@ -1,9 +1,15 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
@@ -30,7 +36,7 @@ public class IdmRoleFilter
 	//
 	public static final String PARAMETER_ROLE_CATALOGUE = "roleCatalogue";
 	public static final String PARAMETER_GUARANTEE = "guarantee";
-	public static final String PARAMETER_ENVIRONMENT = "environment";
+	public static final String PARAMETER_ENVIRONMENT = "environment"; // list - OR
 	public static final String PARAMETER_BASE_CODE = "baseCode";
 	public static final String PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF = "identityRoleAttributeDefinition";
 	
@@ -99,11 +105,26 @@ public class IdmRoleFilter
 	}
 	
 	public String getEnvironment() {
-		return (String) data.getFirst(PARAMETER_ENVIRONMENT);
+    	return (String) data.getFirst(PARAMETER_ENVIRONMENT);
 	}
-
-	public void setEnvironment(String environment) {
-		data.set(PARAMETER_ENVIRONMENT, environment);
+    
+    public void setEnvironment(String environment) {
+    	data.set(PARAMETER_ENVIRONMENT, environment);
+	}
+    
+    public List<String> getEnvironments() {
+		List<Object> environments = data.get(PARAMETER_ENVIRONMENT);
+		if (environments == null) {
+			return Lists.newArrayList();
+		}
+		return environments
+				.stream()
+				.map(object -> Objects.toString(object, null))
+				.collect(Collectors.toList());
+	}
+    
+    public void setEnvironments(List<String> environments) {
+    	data.put(PARAMETER_ENVIRONMENT, environments == null ? null : new ArrayList<Object>(environments));
 	}
 	
 	public String getBaseCode() {

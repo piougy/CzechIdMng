@@ -6,7 +6,8 @@ import uuid from 'uuid';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleManager, RoleRequestManager, IdentityManager } from '../../redux';
+import { RoleManager, RoleRequestManager, IdentityManager, IdentityContractManager } from '../../redux';
+import SearchParameters from '../../domain/SearchParameters';
 import RoleSelectByIdentity from './RoleSelectByIdentity';
 import RoleConceptDetail from './RoleConceptDetail';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
@@ -21,9 +22,13 @@ import FormInstance from '../../domain/FormInstance';
 const roleManager = new RoleManager();
 const identityManager = new IdentityManager();
 const roleRequestManager = new RoleRequestManager();
+const identityContractManager = new IdentityContractManager();
 
 /**
+ * Concepts in role request.
+ *
  * @author VS
+ * @author Radek Tomiška
  */
 export class RoleConceptTable extends Basic.AbstractContent {
 
@@ -38,6 +43,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
         entity: {},
         add: false
       },
+      filter: new SearchParameters(),
       validationErrors: null
     };
   }
@@ -62,6 +68,69 @@ export class RoleConceptTable extends Basic.AbstractContent {
     )) {
       this._setConcept(nextProps);
     }
+  }
+
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({
+      filter: SearchParameters.getSearchParameters(SearchParameters.getFilterData(this.refs.filterForm))
+    });
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({
+      filter: new SearchParameters()
+    }, () => {
+      this.refs.filterForm.setData({
+        roleEnvironment: []
+      });
+    });
+  }
+
+  applyFilter(conceptData, filter) {
+    if (!filter || filter.getFilters().size === 0) {
+      return conceptData;
+    }
+    return conceptData
+      .filter(concept => {
+        if (!filter.getFilters().has('roleEnvironment')) {
+          return true;
+        }
+        const roleEnvironments = filter.getFilters().get('roleEnvironment');
+        if (roleEnvironments.length === 0) {
+          return true;
+        }
+        if (!concept._embedded || !concept._embedded.role) {
+          // never undefined, bud just for sure ...
+          return true;
+        }
+        return _.includes(roleEnvironments, concept._embedded.role.environment);
+      })
+      .filter(concept => {
+        if (!filter.getFilters().has('roleId')) {
+          return true;
+        }
+        const roleId = filter.getFilters().get('roleId');
+        if (!roleId) {
+          return true;
+        }
+        return roleId === concept.role;
+      })
+      .filter(concept => {
+        if (!filter.getFilters().has('identityContractId')) {
+          return true;
+        }
+        const identityContractId = filter.getFilters().get('identityContractId');
+        if (!identityContractId) {
+          return true;
+        }
+        return identityContractId === concept.identityContract;
+      });
   }
 
   /**
@@ -578,6 +647,12 @@ export class RoleConceptTable extends Basic.AbstractContent {
     return _incompatibleRoles.filter(ir => ir.directRole.id === role.id);
   }
 
+  _filterOpen(open) {
+    this.setState({
+      filterOpened: open
+    });
+  }
+
   render() {
     const {
       identityUsername,
@@ -590,45 +665,94 @@ export class RoleConceptTable extends Basic.AbstractContent {
       conceptData,
       detail,
       showRoleByIdentitySelect,
-      validationErrors
+      validationErrors,
+      filterOpened,
+      filter
     } = this.state;
-
+    //
     const showLoading = this.props.showLoading || this.state.showLoading;
-
+    const contractForceSearchparameters = new SearchParameters().setFilter('identity', identityUsername);
+    //
     const result = (
       <div>
-        <Basic.Panel rendered={ request !== null && _currentIdentityRoles !== null && !detail.show && !showRoleByIdentitySelect}>
+        <Basic.Panel rendered={ request !== null && _currentIdentityRoles !== null } className={ detail.show || showRoleByIdentitySelect ? 'hidden' : '' }>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
-          <Basic.Toolbar rendered={!detail.show && !showRoleByIdentitySelect}>
-            <div className="pull-right">
-              <Basic.Button
-                level="success"
-                className="btn-xs"
-                disabled={readOnly}
-                onClick={this._addConcept.bind(this)}>
-                <Basic.Icon value="fa:plus"/>
-                {' '}
-                {this.i18n('button.add')}
-              </Basic.Button>
-              {' '}
-              <Basic.Button
-                level="success"
-                className="btn-xs"
-                disabled={readOnly}
-                onClick={this._showRoleByIdentitySelect.bind(this)}>
-                <Basic.Icon value="fa:plus"/>
-                {' '}
-                {this.i18n('addByIdentity.header')}
-              </Basic.Button>
+          <Basic.Toolbar>
+            <div>
+              <div className="pull-right">
+                <Basic.Button
+                  level="success"
+                  className="btn-xs"
+                  disabled={readOnly}
+                  onClick={this._addConcept.bind(this)}
+                  icon="fa:plus"
+                  text={ this.i18n('button.add') }/>
+                <Basic.Button
+                  level="success"
+                  className="btn-xs"
+                  disabled={ readOnly }
+                  onClick={ this._showRoleByIdentitySelect.bind(this) }
+                  icon="fa:plus"
+                  text={ this.i18n('addByIdentity.header') }
+                  style={{ marginLeft: 3 }}/>
+                <Advanced.Filter.ToogleButton
+                  filterOpen={ this._filterOpen.bind(this) }
+                  filterOpened={ filterOpened }
+                  style={{ marginLeft: 3 }}
+                  searchParameters={ filter }/>
+              </div>
+              <div className="clearfix"></div>
             </div>
-            <div className="clearfix"></div>
+            <Basic.Collapse in={ filterOpened }>
+              <div>
+                <Basic.Div className="advanced-filter">
+                  <Basic.AbstractForm ref="filterForm">
+                    <Basic.Row className="last">
+                      <Basic.Col lg={ 3 }>
+                        <Advanced.Filter.RoleSelect
+                          ref="roleId"
+                          label={ null }
+                          placeholder={ this.i18n('content.identity.roles.filter.role.placeholder') }
+                          header={ this.i18n('content.identity.roles.filter.role.placeholder') }/>
+                      </Basic.Col>
+                      <Basic.Col lg={ 3 }>
+                        <Advanced.CodeListSelect
+                          ref="roleEnvironment"
+                          code="environment"
+                          label={ null }
+                          placeholder={ this.i18n('entity.Role.environment.label') }
+                          multiSelect/>
+                      </Basic.Col>
+                      <Basic.Col lg={ 3 }>
+                        <Basic.Div>
+                          <Advanced.Filter.SelectBox
+                            ref="identityContractId"
+                            placeholder={ this.i18n('entity.IdentityRole.identityContract.title') }
+                            manager={ identityContractManager }
+                            forceSearchParameters={ contractForceSearchparameters }
+                            niceLabel={ (entity) => identityContractManager.getNiceLabel(entity, false) }/>
+                        </Basic.Div>
+                      </Basic.Col>
+                      <Basic.Col lg={ 3 } className="text-right">
+                        <Basic.Button onClick={ this.cancelFilter.bind(this) } style={{ marginRight: 5 }}>
+                          { this.i18n('button.filter.cancel') }
+                        </Basic.Button>
+                        <Basic.Button level="primary" onClick={ this.useFilter.bind(this) } >
+                          { this.i18n('button.filter.use') }
+                        </Basic.Button>
+                      </Basic.Col>
+                    </Basic.Row>
+                  </Basic.AbstractForm>
+                </Basic.Div>
+              </div>
+            </Basic.Collapse>
           </Basic.Toolbar>
           {/* this.generateTable(conceptData)*/}
           <Basic.Table
             rendered={!detail.show && !showRoleByIdentitySelect}
             hover={ false }
             showLoading={ showLoading }
-            data={ conceptData }
+            data={ this.applyFilter(conceptData, filter) }
             rowClass={ this._rowClass }
             className={ className }
             showRowSelection={ false }

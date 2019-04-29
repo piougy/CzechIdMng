@@ -866,7 +866,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               </div>
               <div className="clearfix"></div>
             </div>
-            <Basic.Collapse in={filterOpened} rendered={ showFilter }>
+            <Basic.Collapse in={ filterOpened } rendered={ showFilter }>
               <div>
                 { filter }
               </div>

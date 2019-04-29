@@ -11,6 +11,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -270,9 +271,9 @@ public class DefaultIdmRoleService
 			predicates.add(builder.exists(subquery));
 		}
 		// environment
-		String environment = filter.getEnvironment();
-		if (StringUtils.isNotEmpty(environment)) {
-			predicates.add(builder.equal(root.get(IdmRole_.environment), environment));
+		List<String> environments = filter.getEnvironments();
+		if (!CollectionUtils.isEmpty(environments)) {
+			predicates.add(root.get(IdmRole_.environment).in(environments));
 		}
 		// baseCode
 		String baseCode = filter.getBaseCode();

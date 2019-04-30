@@ -22,8 +22,7 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
       filterOpened: this.props.filterOpened,
       detail: {
         show: false,
-        entity: {},
-        forceSearchParameters: new SearchParameters()
+        entity: {}
       }
     };
   }
@@ -49,10 +48,7 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
     }
   }
 
-  _initComponent(props) {
-    this.setState({
-      forceSearchParameters: props.forceSearchParameters
-    });
+  _initComponent() {
     this.refs.table.getWrappedInstance().reload();
   }
 
@@ -123,14 +119,8 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
   }
 
   render() {
-    const { uiKey, workflowHistoricProcessInstanceManager, columns } = this.props;
-    let { forceSearchParameters } = this.state;
+    const { uiKey, workflowHistoricProcessInstanceManager, columns, forceSearchParameters } = this.props;
     const { filterOpened } = this.state;
-    // Check if exists forceSearchParameters in props. When will be component
-    // loaded for firstime in state can be undefined
-    if (_.isNil(forceSearchParameters) && this.props.forceSearchParameters) {
-      forceSearchParameters = this.props.forceSearchParameters;
-    }
     return (
       <div>
         <Advanced.Table

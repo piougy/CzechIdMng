@@ -124,8 +124,13 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
 
   render() {
     const { uiKey, workflowHistoricProcessInstanceManager, columns } = this.props;
-    const { filterOpened, forceSearchParameters } = this.state;
-
+    let { forceSearchParameters } = this.state;
+    const { filterOpened } = this.state;
+    // Check if exists forceSearchParameters in props. When will be component
+    // loaded for firstime in state can be undefined
+    if (_.isNil(forceSearchParameters) && this.props.forceSearchParameters) {
+      forceSearchParameters = this.props.forceSearchParameters;
+    }
     return (
       <div>
         <Advanced.Table

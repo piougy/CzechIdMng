@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -743,8 +744,10 @@ public class DefaultIdmRoleRequestService
 							IdmAttachmentDto originalAttachmentDto = attachmentManager.get(value.getUuidValue());
 
 							ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+							InputStream inputStream = null;
 							try {
-								IOUtils.copy(attachmentManager.getAttachmentData(originalAttachmentDto.getId()), outputStream);
+								inputStream = attachmentManager.getAttachmentData(originalAttachmentDto.getId());
+								IOUtils.copy(inputStream, outputStream);
 							} catch (IOException e) {
 								LOG.error("Error during copy attachment data.", e);
 								throw new ResultCodeException(CoreResultCode.ATTACHMENT_CREATE_FAILED, ImmutableMap.of(
@@ -752,6 +755,8 @@ public class DefaultIdmRoleRequestService
 										"ownerType", originalAttachmentDto.getOwnerType(),
 										"ownerId", originalAttachmentDto.getOwnerId() == null ? "" : originalAttachmentDto.getOwnerId().toString())
 										, e);
+							} finally {
+								IOUtils.closeQuietly(inputStream);
 							}
 
 							IdmAttachmentDto attachmentCopy = new IdmAttachmentDto();

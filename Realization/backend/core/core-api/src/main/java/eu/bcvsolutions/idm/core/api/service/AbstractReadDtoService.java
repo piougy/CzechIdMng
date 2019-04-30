@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,9 +10,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -321,6 +325,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 						predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permissions));
 					}
 				}
+				// include referenced entity in "master" select  => reduces number of sub selects
+				applyFetchMode(root);
 				//
 				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
 			}
@@ -603,6 +609,23 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 */
 	protected EntityManager getEntityManager() {
 		return entityManager;
+	}
+	
+	/**
+	 * Sets FETCH JOIN policy to selecting referenced entities.
+	 * 
+	 * @param root
+	 * @since 9.6.0
+	 */
+	protected void applyFetchMode(Root<E> root) {
+	    for (Field field : getEntityClass().getDeclaredFields()) {
+	    	ManyToOne relation = field.getAnnotation(ManyToOne.class);
+	        if (relation != null && relation.fetch() == FetchType.EAGER && !relation.optional()) {
+	        	// include referenced entity in "master" select
+	        	// reduce number of sub selects
+        		root.fetch(field.getName(), JoinType.LEFT);
+	        }
+	    }
 	}
 	
 }

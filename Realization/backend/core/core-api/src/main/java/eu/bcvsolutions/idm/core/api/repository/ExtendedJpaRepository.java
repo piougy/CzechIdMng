@@ -53,18 +53,6 @@ public class ExtendedJpaRepository<E, ID extends Serializable>
 		return super.findAll();
 	}
 	
-	/**
-	 * Saves an entity and flushes changes instantly.
-	 * 
-	 * @param entity
-	 * @return the saved entity
-	 */
-	@Override
-	@Transactional
-	public <S extends E> S saveAndFlush(S entity) {
-		return super.saveAndFlush(entity);
-	}
-	
 	@Override
 	protected TypedQuery<Long> getCountQuery(Specification<E> spec) {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();

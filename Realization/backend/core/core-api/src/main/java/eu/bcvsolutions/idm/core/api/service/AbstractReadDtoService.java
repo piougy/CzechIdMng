@@ -201,7 +201,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	
 	@Override
 	public Page<UUID> findIds(F filter, Pageable pageable, BasePermission... permission) {
-		Specification<E> criteria = toCriteria(filter, permission);
+		Specification<E> criteria = toCriteria(filter, false, permission);
 		
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<UUID> cq = criteriaBuilder.createQuery(UUID.class);
@@ -241,7 +241,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	@Transactional(readOnly = true)
 	public long count(final F filter, BasePermission... permission) {
-		return getRepository().count(toCriteria(filter, permission));
+		return getRepository().count(toCriteria(filter, false, permission));
 	}
 	
 	/**
@@ -294,7 +294,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
 		LOG.trace("Find entities for the filter [{}] with pageable [{}] starts", filter != null, pageable != null);
 		//
-		Page<E> entities = getRepository().findAll(toCriteria(filter, permission), pageable);
+		Page<E> entities = getRepository().findAll(toCriteria(filter, true, permission), pageable);
 		//
 		LOG.trace("Found entities [{}].", entities.getTotalElements());
 		return entities;
@@ -306,8 +306,22 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * @param filter
 	 * @param permission
 	 * @return
+	 * @deprecated @since 9.6.0 use {@link #toCriteria(BaseFilter, boolean, BasePermission...)}
 	 */
+	@Deprecated 
 	protected Specification<E> toCriteria(F filter, BasePermission... permission) {
+		return toCriteria(filter, true, permission);
+	}
+	
+	/**
+	 * Constructs find / count jpa criteria from given filter and permissions
+	 * 
+	 * @param filter
+	 * @param applyFetchMode fetch related entities in the master select
+	 * @param permission
+	 * @return
+	 */
+	protected Specification<E> toCriteria(F filter, boolean applyFetchMode, BasePermission... permission) {
 		return new Specification<E>() {
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				List<Predicate> predicates = new ArrayList<>();
@@ -326,7 +340,9 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 					}
 				}
 				// include referenced entity in "master" select  => reduces number of sub selects
-				applyFetchMode(root);
+				if (applyFetchMode) {
+					applyFetchMode(root);
+				}
 				//
 				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
 			}
@@ -620,7 +636,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected void applyFetchMode(Root<E> root) {
 	    for (Field field : getEntityClass().getDeclaredFields()) {
 	    	ManyToOne relation = field.getAnnotation(ManyToOne.class);
-	        if (relation != null && relation.fetch() == FetchType.EAGER && !relation.optional()) {
+	        if (relation != null && relation.fetch() == FetchType.EAGER) {
+	        	LOG.trace("Set fetch strategy LEFT to field [{}] of entity [{}]", field.getName(), getEntityClass().getSimpleName());
 	        	// include referenced entity in "master" select
 	        	// reduce number of sub selects
         		root.fetch(field.getName(), JoinType.LEFT);

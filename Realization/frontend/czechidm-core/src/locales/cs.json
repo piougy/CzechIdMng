@@ -756,7 +756,7 @@
       "CONCEPT": "Koncept",
       "EXECUTED": "Provedeno",
       "CANCELED": "Zrušeno",
-      "APPROVED": "Schváleno",
+      "APPROVED": "Zpracovává se (schváleno)",
       "DISAPPROVED": "Zamítnuto",
       "IN_PROGRESS": "Zpracovává se",
       "EXCEPTION": "Chyba",

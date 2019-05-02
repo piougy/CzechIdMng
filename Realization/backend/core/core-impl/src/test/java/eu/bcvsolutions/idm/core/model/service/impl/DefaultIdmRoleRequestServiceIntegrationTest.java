@@ -44,7 +44,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -98,8 +97,6 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	private IdmRoleFormAttributeService roleFormAttributeService;
 	@Autowired
 	private AttachmentManager attachmentManager;
-	@Autowired
-	private IdmRoleCompositionService roleCompositionService;
 	//
 	private IdmRoleDto roleA;
 
@@ -123,7 +120,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		roleA = helper.createRole();
 		roleA.setPriority(100);
 		roleService.save(roleA);
-		
+
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "true");
 
 		// prepare identity and contract
@@ -295,12 +292,12 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		roleRequestService.startRequestInternal(request.getId(), true, true);
 
 	}
-	
+
 	@Test()
 	@Transactional()
 	public void duplicatedRequestExceptionTest() {
 		loginAsAdmin(USER_TEST_A);
-		
+
 		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
 
@@ -330,38 +327,40 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		IdmRoleRequestDto requestB = roleRequestService.save(request);
 		conceptA.setRoleRequest(requestB.getId());
 		conceptRoleRequestService.save(conceptA);
-		
+
 		// We expect duplication exception
 		roleRequestService.startRequestInternal(requestB.getId(), true, true);
 		requestB = roleRequestService.get(requestB.getId());
 		Assert.assertEquals(RoleRequestState.DUPLICATED, requestB.getState());
 		Assert.assertEquals(requestA.getId(), requestB.getDuplicatedToRequest());
-		
-		
+
 		// We change only description (remove duplicity)
 		requestB.setDescription("-----");
 		roleRequestService.save(requestB);
-		
+
 		// We expect correct start
 		roleRequestService.startRequestInternal(requestB.getId(), true, true);
 		requestB = roleRequestService.get(requestB.getId());
 		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestB.getState());
 		Assert.assertEquals(null, requestB.getDuplicatedToRequest());
-		
+
 	}
 
 	@Test(expected = RoleRequestException.class)
 	@Transactional()
 	public void notRightForExecuteImmediatelyExceptionTest() {
 		this.logout();
-		// Log as user without right for immediately execute role request (without approval)
-		Collection<GrantedAuthority> authorities = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
-			return !CoreGroupPermission.ROLE_REQUEST_EXECUTE.equals(authority.getAuthority())
-					&& !CoreGroupPermission.ROLE_REQUEST_ADMIN.equals(authority.getAuthority())
-					&& !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
-		}).collect(Collectors.toList());
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto(USER_TEST_A), null, authorities, "test"));
-		
+		// Log as user without right for immediately execute role request (without
+		// approval)
+		Collection<GrantedAuthority> authorities = IdmAuthorityUtils
+				.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
+					return !CoreGroupPermission.ROLE_REQUEST_EXECUTE.equals(authority.getAuthority())
+							&& !CoreGroupPermission.ROLE_REQUEST_ADMIN.equals(authority.getAuthority())
+							&& !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
+				}).collect(Collectors.toList());
+		SecurityContextHolder.getContext().setAuthentication(
+				new IdmJwtAuthentication(new IdmIdentityDto(USER_TEST_A), null, authorities, "test"));
+
 		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
 
@@ -397,7 +396,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		IdmIdentityContractDto primeContract = this.getHelper().getPrimeContract(identityDto);
 		this.getHelper().createIdentityRole(primeContract, roleOne);
 		this.getHelper().createIdentityRole(primeContract, roleTwo);
-		
+
 		List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identityDto.getId());
 		List<UUID> identityRolesId = allByIdentity.stream().map(IdmIdentityRoleDto::getId).collect(Collectors.toList());
 
@@ -593,7 +592,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		IdmFormAttributeDto attributeTwo = new IdmFormAttributeDto(attributeTwoCode);
 		attributeTwo.setPersistentType(PersistentType.SHORTTEXT);
 		attributeTwo.setRequired(false);
-		
+
 		IdmFormAttributeDto attributeThree = new IdmFormAttributeDto(attributeThreeCode);
 		attributeThree.setPersistentType(PersistentType.SHORTTEXT);
 		attributeThree.setRequired(true);
@@ -604,11 +603,10 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		roleOne = roleService.save(roleOne);
 		IdmRoleDto roleOneFinal = roleOne;
 		definition.getFormAttributes().forEach(attribute -> {
-			if(!attributeThreeCode.equals(attribute.getCode())) {
+			if (!attributeThreeCode.equals(attribute.getCode())) {
 				roleFormAttributeService.addAttributeToSubdefintion(roleOneFinal, attribute);
 			}
 		});
-
 
 		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
 		this.getHelper().createIdentityRole(identityContact, roleOne);
@@ -672,13 +670,13 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		definition.getFormAttributes().forEach(attr -> {
 			roleFormAttributeService.addAttributeToSubdefintion(roleFinal, attr);
 		});
-		
+
 		attribute = formService.getAttribute(definition, attributeCode);
 		assertNotNull(attribute);
-		
+
 		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
 		IdmIdentityRoleDto identityRoleDto = this.getHelper().createIdentityRole(identityContact, role);
-		
+
 		// Add attachment to identity role
 		String originalContent = "test-content-" + System.currentTimeMillis();
 		IdmAttachmentDto attachment = prepareAttachment(originalContent);
@@ -693,9 +691,9 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 
 		formInstanceDto.setValues(Lists.newArrayList(newValue));
 		identityRoleDto.setEavs(Lists.newArrayList(formInstanceDto));
-		
+
 		identityRoleDto = identityRoleService.save(identityRoleDto);
-		
+
 		IdmFormInstanceDto identityRoleValues = identityRoleService.getRoleAttributeValues(identityRoleDto);
 		identityRoleValues = identityRoleService.getRoleAttributeValues(identityRoleDto);
 		List<IdmFormValueDto> values = identityRoleValues.getValues();
@@ -730,7 +728,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		IdmFormInstanceDto formInstance = conceptRoleRequestService.getRoleAttributeValues(concept, false);
 		values = formInstance.getValues();
 		assertEquals(1, values.size());
-		
+
 		IdmFormValueDto copyValue = values.get(0);
 		assertEquals(originalValue.getPersistentType(), copyValue.getPersistentType());
 		assertEquals(originalValue.getFormAttribute(), copyValue.getFormAttribute());
@@ -738,13 +736,13 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 
 		assertEquals(countBefore + 2, attachmentManager.find(null).getTotalElements());
 	}
-	
+
 	@Test
 	@Transactional
 	public void testBulkSubRolesInOneRequest() {
-		int subRolesCount = 5;
+		int subRolesCount = 50;
 		IdmRoleDto superior = getHelper().createRole();
-		for (int i = 1; i<= subRolesCount; i++) {
+		for (int i = 1; i <= subRolesCount; i++) {
 			IdmRoleDto sub = getHelper().createRole();
 			getHelper().createRoleComposition(superior, sub);
 		}

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -304,13 +303,17 @@ public class DefaultIdmRoleCompositionService
 		Assert.notNull(property);
 		
 		if (!event.getProperties().containsKey(property)) {
-			event.getProperties().put(property, new ArrayList<IdmIdentityRoleDto>());
+			event.getProperties().put(property, new HashSet<IdmIdentityRoleDto>());
 		}
 		
-		List<IdmIdentityRoleDto> identityRoles = (List<IdmIdentityRoleDto>)event.getProperties().get(property);
+		Set<IdmIdentityRoleDto> identityRoles = (Set<IdmIdentityRoleDto>)event.getProperties().get(property);
 		// If sub-event contains this property, then will be all identity-roles added to parent event
 		if (subEvent.getProperties().containsKey(property)) {
-			identityRoles.addAll((Collection<? extends IdmIdentityRoleDto>) subEvent.getProperties().get(property));
+			Set<IdmIdentityRoleDto> subIdentityRoles = (Set<IdmIdentityRoleDto>) subEvent.getProperties().get(property);
+			// Add all identity-roles from sub-event, but only if Sets instances are different
+			if (identityRoles != subIdentityRoles) {
+				identityRoles.addAll(subIdentityRoles);
+			}
 		}
 		// Add single identity-role to parent event
 		identityRoles.add(identityRole);
@@ -329,14 +332,14 @@ public class DefaultIdmRoleCompositionService
 		Assert.notNull(subEvent);
 
 		if (!event.getProperties().containsKey(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM)) {
-			event.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, new ArrayList<UUID>());
+			event.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, new HashSet<UUID>());
 		}
 
-		List<UUID> identityAccounts = (List<UUID>) subEvent.getProperties()
+		Set<UUID> identityAccounts = (Set<UUID>) subEvent.getProperties()
 				.get(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM);
 		if (identityAccounts != null) {
-			((List<UUID>) event.getProperties().get(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM))
-					.addAll(identityAccounts);
+			((Set<UUID>) event.getProperties().get(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM))
+				.addAll(identityAccounts);
 		}
 	}
 }

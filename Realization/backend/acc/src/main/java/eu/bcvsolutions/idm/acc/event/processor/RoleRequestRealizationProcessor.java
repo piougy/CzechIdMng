@@ -74,11 +74,11 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 		IdmRoleRequestDto request = event.getContent();
 		IdmIdentityDto identity = identityService.get(request.getApplicant());
 
-		List<IdmIdentityRoleDto> addedIdentityRoles = this
-				.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, event, IdmIdentityRoleDto.class);
-		List<IdmIdentityRoleDto> updatedIdentityRoles = this.getListProperty(
+		Set<IdmIdentityRoleDto> addedIdentityRoles = this
+				.getSetProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, event, IdmIdentityRoleDto.class);
+		Set<IdmIdentityRoleDto> updatedIdentityRoles = this.getSetProperty(
 				IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, event, IdmIdentityRoleDto.class);
-		List<UUID> removedIdentityAccounts = this.getListProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM,
+		Set<UUID> removedIdentityAccounts = this.getSetProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM,
 				event, UUID.class);
 
 		Set<UUID> accountsForProvisioning = Sets.newHashSet();

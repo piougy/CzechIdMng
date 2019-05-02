@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -459,10 +460,10 @@ public class DefaultIdmRoleRequestService
 		}
 		
 		// Add changed identity-roles to event (prevent redundant search). We will used them for recalculations (ACM / provisioning).
-		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, Lists.newArrayList());
-		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, Lists.newArrayList());
-		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, Lists.newArrayList());
-		requestEvent.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, Lists.newArrayList());
+		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, Sets.newHashSet());
+		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, Sets.newHashSet());
+		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, Sets.newHashSet());
+		requestEvent.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, Sets.newHashSet());
 		
 		// Create new identity role
 		concepts.stream().filter(concept -> {
@@ -887,17 +888,17 @@ public class DefaultIdmRoleRequestService
 
 			identityRoleService.publish(event);
 			// Add list of identity-accounts for delayed ACM to parent event
-			List<UUID> subIdentityAccountsForAcm = event
-					.getListProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, UUID.class);
-			List<UUID> identityAccountsForAcm = requestEvent
-					.getListProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, UUID.class);
+			Set<UUID> subIdentityAccountsForAcm = event
+					.getSetProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, UUID.class);
+			Set<UUID> identityAccountsForAcm = requestEvent
+					.getSetProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, UUID.class);
 			identityAccountsForAcm.addAll(subIdentityAccountsForAcm);
 			
 			// Removed assigned roles by business roles
-			List<UUID> subRemovedIdentityRoles = event.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, UUID.class);
+			Set<UUID> subRemovedIdentityRoles = event.getSetProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, UUID.class);
 			// Add to parent event
-			List<UUID> removedIdentityRoles = requestEvent
-					.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, UUID.class);
+			Set<UUID> removedIdentityRoles = requestEvent
+					.getSetProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, UUID.class);
 			removedIdentityRoles.addAll(subRemovedIdentityRoles);
 			removedIdentityRoles.add(identityRole.getId());
 		}
@@ -921,11 +922,11 @@ public class DefaultIdmRoleRequestService
 		identityRole = identityRoleService.publish(event).getContent();
 		
 		// Updated assigned roles by business roles
-		List<IdmIdentityRoleDto> subUpdatedIdentityRoles = event
-				.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, IdmIdentityRoleDto.class);
+		Set<IdmIdentityRoleDto> subUpdatedIdentityRoles = event
+				.getSetProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, IdmIdentityRoleDto.class);
 		// Add to parent event
-		List<IdmIdentityRoleDto> updatedIdentityRoles = requestEvent
-				.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, IdmIdentityRoleDto.class);
+		Set<IdmIdentityRoleDto> updatedIdentityRoles = requestEvent
+				.getSetProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, IdmIdentityRoleDto.class);
 		updatedIdentityRoles.addAll(subUpdatedIdentityRoles);
 		updatedIdentityRoles.add(identityRole);
 
@@ -960,11 +961,11 @@ public class DefaultIdmRoleRequestService
 		identityRole = identityRoleService.publish(event).getContent();
 
 		// New assigned roles by business roles
-		List<IdmIdentityRoleDto> subNewIdentityRoles = event
-				.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, IdmIdentityRoleDto.class);
+		Set<IdmIdentityRoleDto> subNewIdentityRoles = event
+				.getSetProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, IdmIdentityRoleDto.class);
 		// Add to parent event
-		List<IdmIdentityRoleDto> addedIdentityRoles = requestEvent
-				.getListProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, IdmIdentityRoleDto.class);
+		Set<IdmIdentityRoleDto> addedIdentityRoles = requestEvent
+				.getSetProperty(IdentityRoleEvent.PROPERTY_ASSIGNED_NEW_ROLES, IdmIdentityRoleDto.class);
 		addedIdentityRoles.addAll(subNewIdentityRoles);
 		addedIdentityRoles.add(identityRole);
 		

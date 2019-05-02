@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -14,6 +15,7 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -279,5 +281,17 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 		}
 
 		return Lists.newArrayList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> Set<T> getSetProperty(String property, Class<T> type) {
+		Assert.notNull(property, "Name of event property cannot be null!");
+		Serializable value = this.getProperties().get(property);
+		if (value instanceof Set) {
+			return (Set<T>) value;
+		}
+
+		return Sets.newHashSet();
 	}
 }

@@ -373,6 +373,20 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 	}
 	
 	/**
+	 * Return set of values from event properties. Returns null, if value doesn't
+	 * exists for given property or if value is not instance of Set.
+	 * 
+	 * @param property
+	 * @param event
+	 * @param type
+	 * @return
+	 */
+	protected <T> Set<T> getSetProperty(String property, EntityEvent<?> event, Class<T> type) {
+		Assert.notNull(property, "Name of event property cannot be null!");
+		return event.getSetProperty(property, type);
+	}
+	
+	/**
 	 * Method returns {@link Collection} of event types for this processor.
 	 *
 	 * @return Collection of event types configured in app config. Null if configurationService is not defined, or if

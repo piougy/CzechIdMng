@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -97,6 +98,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	private IdmRoleFormAttributeService roleFormAttributeService;
 	@Autowired
 	private AttachmentManager attachmentManager;
+	@Autowired
+	private IdmRoleCompositionService roleCompositionService;
 	//
 	private IdmRoleDto roleA;
 
@@ -734,6 +737,23 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		assertNotEquals(originalValue.getUuidValue(), copyValue.getUuidValue());
 
 		assertEquals(countBefore + 2, attachmentManager.find(null).getTotalElements());
+	}
+	
+	@Test
+	@Transactional
+	public void testBulkSubRolesInOneRequest() {
+		int subRolesCount = 5;
+		IdmRoleDto superior = getHelper().createRole();
+		for (int i = 1; i<= subRolesCount; i++) {
+			IdmRoleDto sub = getHelper().createRole();
+			getHelper().createRoleComposition(superior, sub);
+		}
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleRequestDto request = getHelper().assignRoles(getHelper().getPrimeContract(identity), false, superior);
+		//
+		Assert.assertEquals(1, request.getConceptRoles().size());
+		Assert.assertEquals(subRolesCount + 1, identityRoleService.findAllByIdentity(identity.getId()).size());
 	}
 
 	private IdmAttachmentDto prepareAttachment(String content) {

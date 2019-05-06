@@ -276,7 +276,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                       entityIdentifier={ entity.role }
                       entity={ entity._embedded.role }
                       face="popover"
-                      showIcon/>
+                      showIcon
+                      showEnvironment={ !_.includes(columns, 'environment') }/>
                   </div>
                 );
                 //
@@ -289,13 +290,13 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             }
             rendered={ _.includes(columns, 'role') }/>
           <Advanced.Column
-            header={this.i18n('entity.Role.environment.label')}
-            title={this.i18n('entity.Role.environment.help')}
+            header={ this.i18n('entity.Role.environment.label') }
+            title={ this.i18n('entity.Role.environment.help') }
             width={ 125 }
             face="text"
             sort
             sortProperty="role.environment"
-            rendered={_.includes(columns, 'environment')}
+            rendered={ _.includes(columns, 'environment') }
             cell={
               ({ rowIndex, data }) => {
                 return (

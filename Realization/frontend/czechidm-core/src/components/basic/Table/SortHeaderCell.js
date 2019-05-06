@@ -9,6 +9,8 @@ const DESC = 'DESC';
 
 /**
  * Header with sort action
+ *
+ * @author Radek Tomiška
  */
 class SortHeaderCell extends AbstractComponent {
 
@@ -33,12 +35,13 @@ class SortHeaderCell extends AbstractComponent {
     if (event) {
       event.preventDefault();
     }
+    const { shiftKey } = event;
     const { sortProperty, property, sortHandler } = this.props;
     if (!sortHandler) {
       // if handleSort is not set, then its nothing to do
       return null;
     }
-    sortHandler(sortProperty || property, order);
+    sortHandler(sortProperty || property, order, shiftKey);
   }
 
   render() {
@@ -88,6 +91,7 @@ SortHeaderCell.propTypes = {
 
    * @param string property
    * @param string order [ASC, DESC]
+   * @param bool shiftKey - append sort property, if whift is pressed.
    */
   sortHandler: React.PropTypes.func,
   /**

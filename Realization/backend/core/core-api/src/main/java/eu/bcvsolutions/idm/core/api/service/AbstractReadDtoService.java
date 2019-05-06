@@ -637,10 +637,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	    for (Field field : getEntityClass().getDeclaredFields()) {
 	    	ManyToOne relation = field.getAnnotation(ManyToOne.class);
 	        if (relation != null && relation.fetch() == FetchType.EAGER) {
-	        	LOG.trace("Set fetch strategy LEFT to field [{}] of entity [{}]", field.getName(), getEntityClass().getSimpleName());
+	        	String fieldName = field.getName();
+	        	LOG.trace("Set fetch strategy LEFT to field [{}] of entity [{}]", fieldName, getEntityClass().getSimpleName());
 	        	// include referenced entity in "master" select
 	        	// reduce number of sub selects
-        		root.fetch(field.getName(), JoinType.LEFT);
+        		root.fetch(fieldName, JoinType.LEFT);
 	        }
 	    }
 	}

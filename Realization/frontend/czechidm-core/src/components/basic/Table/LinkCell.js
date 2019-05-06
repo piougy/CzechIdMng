@@ -19,6 +19,8 @@ const TARGET_PARAMETER = '_target';
  * @param  {string} to href
  * @param  {object} rowData entity
  * @return {string} formated href
+ *
+ * @author Radek Tomiška
  */
 function _resolveToWithParameters(to, rowData, target) {
   const parameterNames = getParamNames(to);
@@ -55,6 +57,8 @@ function _linkFunction(to, rowIndex, data, event) {
  * @param target - optional entity property could be used as `_target` property in `to` property.
  * @param access - link could be accessed, if current user has access to target agenda. Otherwise propertyValue without link is rendered.
  * @param props other optional properties
+ *
+ * @author Radek Tomiška
  */
 const LinkCell = ({rowIndex, data, property, to, className, title, target, access, ...props}) => {
   const propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);

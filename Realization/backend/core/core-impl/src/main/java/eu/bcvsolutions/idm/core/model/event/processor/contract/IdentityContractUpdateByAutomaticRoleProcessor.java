@@ -214,9 +214,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			roleRequest.getConceptRoles().addAll(changeValidable(contract, identityRoleService.findAllByContract(contract.getId())));
 		}
 		// start request at end
-		if (!roleRequest.getConceptRoles().isEmpty()) {
-			roleRequestService.executeConceptsImmediate(contract.getIdentity(), roleRequest.getConceptRoles());
-		}
+		roleRequestService.executeConceptsImmediate(contract.getIdentity(), roleRequest.getConceptRoles());
 		//
 		return new DefaultEventResult<>(event, this);
 	}

@@ -37,6 +37,17 @@ export default class RoleManager extends AbstractRequestFormableManager {
   }
 
   /**
+   * Extended nice label
+   *
+   * @param  {entity} entity
+   * @param  {boolean} showEnvironment identity will be rendered.
+   * @return {string}
+   */
+  getNiceLabel(entity, showEnvironment = true) {
+    return this.getService().getNiceLabel(entity, showEnvironment);
+  }
+
+  /**
    * Load available authorities from BE if needed. Available authorities can be changed, when some module is enabled / disabled.
    *
    * @param  {string} uiKey

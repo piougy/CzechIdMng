@@ -896,11 +896,16 @@ export default class EntityManager {
   /**
   * Data sorting
   */
-  handleSort(property, order, uiKey = null) {
+  handleSort(property, order, uiKey = null, shiftKey = false) {
     uiKey = this.resolveUiKey(uiKey);
     return (dispatch, getState) => {
       let searchParameters = this.getSearchParameters(getState().data.ui[uiKey].searchParameters);
-      searchParameters = searchParameters.clearSort().setSort(property, order !== 'DESC');
+      //
+      if (!shiftKey) {
+        searchParameters = searchParameters.clearSort();
+      }
+      searchParameters = searchParameters.setSort(property, order !== 'DESC');
+      //
       dispatch(this.fetchEntities(searchParameters, uiKey));
     };
   }

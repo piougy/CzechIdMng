@@ -7,6 +7,8 @@ import DefaultCell from './DefaultCell';
  * Component that renders the cell for <Table />.
  * This component should not be used directly by developer. Instead,
  * only <Row /> should use the component internally.
+ *
+ * @author Radek Tomiška
  */
 class Cell extends AbstractComponent {
 

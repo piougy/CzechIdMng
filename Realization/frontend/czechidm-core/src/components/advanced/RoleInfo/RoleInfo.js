@@ -25,6 +25,13 @@ export class RoleInfo extends AbstractEntityInfo {
     return manager;
   }
 
+  getNiceLabel() {
+    const _entity = this.getEntity();
+    const { showEnvironment } = this.props;
+    //
+    return this.getManager().getNiceLabel(_entity, showEnvironment);
+  }
+
   showLink() {
     if (!super.showLink()) {
       return false;
@@ -124,10 +131,20 @@ export class RoleInfo extends AbstractEntityInfo {
         value: (<CodeListValue code="environment" value={ entity.environment }/>)
       });
     }
+    //
     content.push({
       label: this.i18n('entity.Role.priorityEnum'),
       value: (<Basic.EnumValue enum={ RolePriorityEnum } value={ RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(entity.priority)) } />)
     });
+    //
+    if (entity.description) {
+      content.push({
+        label: this.i18n('entity.Role.description'),
+        value: (
+          <Basic.ShortText value={ entity.description } maxLength={ 100 }/>
+        )
+      });
+    }
     //
     return content;
   }

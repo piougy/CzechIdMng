@@ -206,7 +206,15 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     if (identityRole && identityRole._embedded) {
       const role = identityRole._embedded.role;
       const identityContract = identityRole._embedded.identityContract;
-      return `${this.roleManager.getNiceLabel(role)} - (${this.identityContractManager.getNiceLabel(identityContract, false)})`;
+      return (
+        <span>
+          { `${this.roleManager.getNiceLabel(role)} - (${this.identityContractManager.getNiceLabel(identityContract, false)})` }
+          <Basic.ShortText
+            value={ role.description }
+            maxLength={ 100 }
+            style={{ display: 'block', marginLeft: 15, fontSize: '0.95em', fontStyle: 'italic' }}/>
+        </span>
+      );
     }
   }
 

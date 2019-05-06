@@ -13,6 +13,8 @@ import Icon from '../Icon/Icon';
  * @param array[json] input data
  * @param property column key
  * @param props other optional properties
+ *
+ * @author Radek Tomiška
  */
 const BooleanCell = ({rowIndex, data, property, propertyValue, ...props}) => {
   let _propertyValue = propertyValue;

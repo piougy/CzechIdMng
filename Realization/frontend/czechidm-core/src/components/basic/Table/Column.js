@@ -3,6 +3,8 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 /**
  * Component that defines the attributes of table column.
+ *
+ * @author Radek Tomiška
  */
 class Column extends AbstractComponent {
 

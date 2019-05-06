@@ -7,6 +7,7 @@ import * as Utils from '../../../utils';
 import { RoleManager, RoleCatalogueManager, SecurityManager } from '../../../redux';
 //
 import EntitySelectBox from '../EntitySelectBox/EntitySelectBox';
+import EntityInfo from '../EntityInfo/EntityInfo';
 import Table from '../Table/Table';
 import Column from '../Table/Column';
 import Tree from '../Tree/Tree';
@@ -382,7 +383,6 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
 
   render() {
     const {
-      columns,
       multiSelect,
       showActionButtons,
       selectRowClass,
@@ -406,10 +406,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     //
     const showTree = SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
     //
-    const forceSearchParameters = this.getManager()
-      .getDefaultSearchParameters()
-      .setName(SearchParameters.NAME_AUTOCOMPLETE)
-      .setFilter('roleCatalogue', roleCatalogue);
+    const forceSearchParameters = new SearchParameters() .setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('roleCatalogue', roleCatalogue);
     //
     // TODO: add onRowClick={this._onRowClick.bind(this)}
     return (
@@ -506,13 +503,31 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                         );
                       }
                     }/>
-                  <Column property="name" sort={false} face="text" rendered={_.includes(columns, 'name')}/>
-                  <Column property="baseCode" sort={false} face="text" rendered={_.includes(columns, 'baseCode')}/>
+                  <Column
+                    property="name"
+                    header={ this.i18n('entity.Role._type') }
+                    sort
+                    face="text"
+                    cell={
+                      ({ rowIndex, data }) => {
+                        const entity = data[rowIndex];
+                        //
+                        return (
+                          <EntityInfo
+                            entityType="role"
+                            entityIdentifier={ entity.id }
+                            entity={ entity }
+                            face="popover"
+                            showIcon
+                            showEnvironment={ false }/>
+                        );
+                      }
+                    }/>
                   <Column
                     property="environment"
-                    sort={ false }
+                    width={ 125 }
+                    sort
                     face="text"
-                    rendered={ _.includes(columns, 'environment') }
                     cell={
                       ({ rowIndex, data, property }) => {
                         return (
@@ -520,6 +535,12 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                         );
                       }
                     }/>
+                  <Column
+                    property="description"
+                    sort
+                    face="text"
+                    width={ 175 }
+                    maxLength={ 100 }/>
                 </Table>
               </Basic.Col>
             </Basic.Row>
@@ -568,7 +589,6 @@ RoleSelect.defaultProps = {
   uiKey: 'role-table-select',
   manager,
   roleCatalogueManager,
-  columns: ['name', 'baseCode', 'environment'],
   multiSelect: false,
   showActionButtons: true,
   selectRowClass: 'success'

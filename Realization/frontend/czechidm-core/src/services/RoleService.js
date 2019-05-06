@@ -17,7 +17,14 @@ export default class RoleService extends AbstractRequestFormableService {
     return '/roles';
   }
 
-  getNiceLabel(role) {
+  /**
+   * Extended nice label
+   *
+   * @param  {entity} entity
+   * @param  {boolean} showEnvironment environment will be rendered.
+   * @return {string}
+   */
+  getNiceLabel(role, showEnvironment = true) {
     if (!role) {
       return '';
     }
@@ -25,7 +32,7 @@ export default class RoleService extends AbstractRequestFormableService {
     if (role.name !== role.baseCode) {
       code = role.baseCode;
     }
-    if (role.environment) {
+    if (role.environment && showEnvironment) {
       if (code) {
         code = role.code;
       } else {
@@ -60,7 +67,7 @@ export default class RoleService extends AbstractRequestFormableService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('code');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('name').setSort('environment');
   }
 
   /**
@@ -68,7 +75,7 @@ export default class RoleService extends AbstractRequestFormableService {
    */
   getRootSearchParameters() {
     // root search - all roles can be roots
-    return this.getDefaultSearchParameters().clearSort().setSort('childrenCount', 'desc').setSort('code').setSize(50);
+    return this.getDefaultSearchParameters().clearSort().setSort('childrenCount', 'desc').setSort('name').setSort('environment').setSize(50);
   }
 
   /**

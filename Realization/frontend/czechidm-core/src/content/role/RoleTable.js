@@ -295,10 +295,15 @@ class RoleTable extends Advanced.AbstractTableContent {
                 }
               }
               />
-            <Advanced.Column property="roleType" width="75px" sort face="enum" enumClass={RoleTypeEnum} rendered={false && _.includes(columns, 'roleType')}/>
-            <Advanced.Column property="roleCatalogue.name" width="75px" face="text" rendered={_.includes(columns, 'roleCatalogue')}/>
-            <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
-            <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
+            <Advanced.Column property="roleType" width={ 75 } sort face="enum" enumClass={ RoleTypeEnum } rendered={ false && _.includes(columns, 'roleType') }/>
+            <Advanced.Column property="roleCatalogue.name" width={ 75 } face="text" rendered={ _.includes(columns, 'roleCatalogue') }/>
+            <Advanced.Column
+              property="description"
+              sort
+              face="text"
+              rendered={ _.includes(columns, 'description') }
+              maxLength={ 100 }/>
+            <Advanced.Column property="disabled" sort face="bool" width={ 75 } rendered={ _.includes(columns, 'disabled') }/>
           </Advanced.Table>
         </Basic.Col>
       </Basic.Row>

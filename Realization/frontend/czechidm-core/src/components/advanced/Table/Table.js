@@ -345,9 +345,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     this.context.store.dispatch(manager.handlePagination(page, size, uiKey));
   }
 
-  _handleSort(property, order) {
+  _handleSort(property, order, shiftKey) {
     const { uiKey, manager } = this.props;
-    this.context.store.dispatch(manager.handleSort(property, order, uiKey));
+    //
+    this.context.store.dispatch(manager.handleSort(property, order, uiKey, shiftKey));
   }
 
   _resolveColumns() {

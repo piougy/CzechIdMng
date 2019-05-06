@@ -14,6 +14,8 @@ import EnumValue from '../EnumValue/EnumValue';
  * @param className className
  * @param title - html title
  * @param props other optional properties
+ *
+ * @author Radek Tomiška
  */
 const EnumCell = ({rowIndex, data, property, enumClass, ...props}) => {
   const propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);

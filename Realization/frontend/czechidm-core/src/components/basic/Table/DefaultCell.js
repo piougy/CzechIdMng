@@ -18,6 +18,8 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
  *   />
  * );
  * ```
+ *
+ * @author Radek Tomiška
  */
 class DefaultCell extends AbstractComponent {
 

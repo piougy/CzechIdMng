@@ -14,11 +14,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -28,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -54,6 +57,7 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmRoleRequestService roleRequestService;
 	//
 	private UUID roleTreeNodeId = null;
 	private IdmRoleTreeNodeDto roleTreeNode = null;
@@ -80,10 +84,10 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	}
 	
 	@Override
-	public Optional<OperationResult> processItem(IdmIdentityContractDto identityContract) {
+	public Optional<OperationResult> processItem(IdmIdentityContractDto contract) {
 		try {
-			if (!identityContract.isValidNowOrInFuture()) {
-				IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
+			if (!contract.isValidNowOrInFuture()) {
+				IdmIdentityDto identity = DtoUtils.getEmbedded(contract, IdmIdentityContract_.identity);
 				IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role);
 				return Optional.of(new OperationResult
 						.Builder(OperationState.NOT_EXECUTED)
@@ -95,12 +99,12 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 										"identity", identity.getUsername())))
 						.build());
 			}
-			List<IdmIdentityRoleDto> allByContract = identityRoleService.findAllByContract(identityContract.getId());
+			List<IdmIdentityRoleDto> allByContract = identityRoleService.findAllByContract(contract.getId());
 			//
 			// skip already assigned automatic roles
 			for (IdmIdentityRoleDto roleByContract : allByContract) {
 				if (ObjectUtils.equals(roleByContract.getAutomaticRole(), getRoleTreeNode().getId())) {
-					IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
+					IdmIdentityDto identity = DtoUtils.getEmbedded(contract, IdmIdentityContract_.identity);
 					IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role);
 					return Optional.of(new OperationResult
 							.Builder(OperationState.NOT_EXECUTED)
@@ -116,11 +120,19 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			}
 			//
 			// automatic role by tree node is added directly trough identity role
-			roleTreeNodeService.addAutomaticRoles(identityContract, Sets.newHashSet(getRoleTreeNode()));
+			IdmRoleTreeNodeDto autoRole = getRoleTreeNode();
+			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+			conceptRoleRequest.setIdentityContract(contract.getId());
+			conceptRoleRequest.setValidFrom(contract.getValidFrom());
+			conceptRoleRequest.setValidTill(contract.getValidTill());
+			conceptRoleRequest.setRole(autoRole.getRole());
+			conceptRoleRequest.setAutomaticRole(autoRole.getId());
+			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
+			roleRequestService.executeConceptsImmediate(contract.getIdentity(), Lists.newArrayList(conceptRoleRequest));
 			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch(Exception ex) {
-			IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
+			IdmIdentityDto identity = DtoUtils.getEmbedded(contract, IdmIdentityContract_.identity);
 			IdmRoleDto role = DtoUtils.getEmbedded(getRoleTreeNode(), IdmRoleTreeNode_.role);
 			//
 			LOG.error("Adding role [{}] by automatic role [{}] for identity [{}] failed",

@@ -14,11 +14,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -29,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -58,6 +61,7 @@ public class AddNewAutomaticRoleForPositionTaskExecutor extends AbstractSchedula
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private LookupService lookupService;
+	@Autowired private IdmRoleRequestService roleRequestService;
 	//
 	private UUID roleTreeNodeId = null;
 	private IdmRoleTreeNodeDto roleTreeNode = null;
@@ -122,7 +126,16 @@ public class AddNewAutomaticRoleForPositionTaskExecutor extends AbstractSchedula
 			}
 			//
 			// automatic role by tree node is added directly trough identity role
-			roleTreeNodeService.addAutomaticRoles(contractPosition, Sets.newHashSet(getRoleTreeNode()));
+			IdmRoleTreeNodeDto autoRole = getRoleTreeNode();
+			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+			conceptRoleRequest.setIdentityContract(contract.getId());
+			conceptRoleRequest.setContractPosition(contractPosition.getId());
+			conceptRoleRequest.setValidFrom(contract.getValidFrom());
+			conceptRoleRequest.setValidTill(contract.getValidTill());
+			conceptRoleRequest.setRole(autoRole.getRole());
+			conceptRoleRequest.setAutomaticRole(autoRole.getId());
+			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
+			roleRequestService.executeConceptsImmediate(contract.getIdentity(), Lists.newArrayList(conceptRoleRequest));
 			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch(Exception ex) {

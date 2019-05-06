@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
@@ -30,6 +32,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Entity
 @Table(name = "idm_concept_role_request", indexes = {
 		@Index(name = "idx_idm_conc_role_ident_c", columnList = "identity_contract_id"),
+		@Index(name = "idx_idm_conc_role_c_p", columnList = "contract_position_id"),
 		@Index(name = "idx_idm_conc_role_request", columnList = "request_role_id"),
 		@Index(name = "idx_idm_conc_role_role", columnList = "role_id")
 })
@@ -52,6 +55,9 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityContract identityContract;
+	
+	@Column(name = "contract_position_id", length = 16, nullable = true)
+	private UUID contractPosition;
 	
 	@Audited
 	@ManyToOne(optional = true)
@@ -187,6 +193,26 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 
 	public void setAutomaticRole(IdmAutomaticRole automaticRole) {
 		this.automaticRole = automaticRole;
+	}
+	
+	/**
+	 * Other contract position - identifier only
+	 * 
+	 * @return
+	 * @since 9.6.0
+	 */
+	public UUID getContractPosition() {
+		return contractPosition;
+	}
+	
+	/**
+	 * Other contract position - identifier only
+	 * 
+	 * @param contractPosition
+	 * @since 9.6.0
+	 */
+	public void setContractPosition(UUID contractPosition) {
+		this.contractPosition = contractPosition;
 	}
 	
 }

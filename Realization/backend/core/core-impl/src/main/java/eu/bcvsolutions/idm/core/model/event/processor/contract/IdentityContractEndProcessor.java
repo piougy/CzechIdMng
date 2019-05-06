@@ -1,12 +1,17 @@
 package eu.bcvsolutions.idm.core.model.event.processor.contract;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -19,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
@@ -44,6 +50,7 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 	//
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmRoleRequestService roleRequestService;
 
 	public IdentityContractEndProcessor() {
 		super(IdentityContractEventType.UPDATE, IdentityContractEventType.DELETE);
@@ -114,11 +121,19 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 		// remove all contract roles
 		// TODO: remove? It's solved by different process
 		if(!contract.isValidNowOrInFuture()) {
-			identityRoleService.findAllByContract(contract.getId()).forEach(role -> {
-				if (role.getDirectRole() == null) {
-					identityRoleService.delete(role);
+			List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
+			identityRoleService.findAllByContract(contract.getId()).forEach(identityRole -> {
+				if (identityRole.getDirectRole() == null) {
+					IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+					conceptRoleRequest.setIdentityRole(identityRole.getId());
+					conceptRoleRequest.setRole(identityRole.getRole());
+					conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+					conceptRoleRequest.setIdentityContract(contract.getId());
+					//
+					concepts.add(conceptRoleRequest);
 				}
 			});
+			roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
 		}
 		return new OperationResult.Builder(OperationState.EXECUTED).build();
 	}

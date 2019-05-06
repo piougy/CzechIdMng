@@ -61,7 +61,9 @@ public interface IdmRoleTreeNodeService extends
 	 
 	 * @param contract
 	 * @param automaticRoles
+	 * @deprecated @since 9.6.0 use {@link IdmRoleRequestService#executeConceptsImmediate(UUID, java.util.List)}
 	 */
+	@Deprecated
 	void addAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles);
 	
 	/**
@@ -71,7 +73,9 @@ public interface IdmRoleTreeNodeService extends
 	 * 
 	 * @param contractPosition
 	 * @param automaticRoles
+	 * @deprecated @since 9.6.0 use {@link IdmRoleRequestService#executeConceptsImmediate(UUID, java.util.List)}
 	 */
+	@Deprecated
 	void addAutomaticRoles(IdmContractPositionDto contractPosition, Set<IdmRoleTreeNodeDto> automaticRoles);
 	
 	/**
@@ -81,7 +85,7 @@ public interface IdmRoleTreeNodeService extends
 	 * @param identityRole
 	 * @param automaticRoles
 	 * @return
-	 * @deprecated Role request was removed from automatic roles, please use {@link IdmRoleTreeNodeService#removeAutomaticRoles(IdmIdentityContractDto, Set)}
+	 * @deprecated @since 9.5.0 Role request was removed from automatic roles, please use {@link IdmRoleTreeNodeService#removeAutomaticRoles(IdmIdentityContractDto, Set)}
 	 */
 	@Deprecated
 	IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles);
@@ -93,6 +97,8 @@ public interface IdmRoleTreeNodeService extends
 	 * 
 	 * @param identityRole
 	 * @param automaticRoles
+	 * @deprecated @since 9.6.0 use {@link IdmRoleRequestService#executeConceptsImmediate(UUID, java.util.List)}
 	 */
+	@Deprecated
 	void removeAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles);
 }

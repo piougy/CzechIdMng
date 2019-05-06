@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.model.event.processor.contract;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -9,7 +11,9 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
@@ -68,11 +72,19 @@ public class IdentityContractDeleteProcessor
 		Assert.notNull(contract.getId(), "Contract must have a ID!");
 		//
 		// delete referenced roles
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
 		identityRoleService.findAllByContract(contract.getId()).forEach(identityRole -> {
-			if (identityRole.getDirectRole() == null) { // sub roles are removed different way (processor on direct identity role)
-				identityRoleService.delete(identityRole);
+			if (identityRole.getDirectRole() == null) { // sub roles are removed different way (processor on direct identity role)				
+				IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+				conceptRoleRequest.setIdentityRole(identityRole.getId());
+				conceptRoleRequest.setRole(identityRole.getRole());
+				conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+				conceptRoleRequest.setIdentityContract(contract.getId());
+				//
+				concepts.add(conceptRoleRequest);
 			}
 		});
+		roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
 		//
 		// Find all concepts and remove relation on role
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
@@ -97,7 +109,7 @@ public class IdentityContractDeleteProcessor
 
 			roleRequestService.save(request);
 			conceptRequestService.save(concept);
-		});		
+		});
 		// delete contract guarantees
 		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setIdentityContractId(contract.getId());

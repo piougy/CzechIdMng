@@ -849,6 +849,37 @@ public class DefaultIdmRoleRequestService
 			}).collect(Collectors.toSet());
 	}
 	
+	@Override
+	@Transactional
+	public IdmRoleRequestDto executeConceptsImmediate(UUID applicant, List<IdmConceptRoleRequestDto> concepts) {
+		Assert.notNull(applicant);
+		Assert.notNull(concepts);
+		//
+		if (concepts.isEmpty()) {
+			LOG.debug("No concepts are given, request will be not executed, return null.");
+			return null;
+		}
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setState(RoleRequestState.CONCEPT);
+		roleRequest.setExecuteImmediately(true); // without approval
+		roleRequest.setApplicant(applicant);
+		roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
+		roleRequest = save(roleRequest);
+		//
+		for (IdmConceptRoleRequestDto concept : concepts) {
+			concept.setRoleRequest(roleRequest.getId());
+			//
+			conceptRoleRequestService.save(concept);
+		}
+		//
+		// start event with skip check authorities
+		RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+		requestEvent.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
+		requestEvent.setPriority(PriorityType.IMMEDIATE); // execute request synchronously (asynchronicity schould be added from outside).
+		//
+		return startRequestInternal(requestEvent);
+	}
+	
 	/**
 	 * Flush Hibernate session
 	 */
@@ -1027,6 +1058,7 @@ public class DefaultIdmRoleRequestService
 		
 		identityRole.setRole(conceptRole.getRole());
 		identityRole.setIdentityContract(conceptRole.getIdentityContract());
+		identityRole.setContractPosition(conceptRole.getContractPosition());
 		identityRole.setValidFrom(conceptRole.getValidFrom());
 		identityRole.setValidTill(conceptRole.getValidTill());
 		identityRole.setOriginalCreator(conceptRole.getOriginalCreator());

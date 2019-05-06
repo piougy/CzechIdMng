@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.event;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -290,4 +291,14 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	 * @return
 	 */
 	boolean getBooleanProperty(String property);
+
+	/**
+	 * Return set of values from event properties. Returns null, if value doesn't
+	 * exists for given property or if value is not instance of Set.
+	 * 
+	 * @param property
+	 * @param type
+	 * @return
+	 */
+	<T> Set<T> getSetProperty(String property, Class<T> type);
 }

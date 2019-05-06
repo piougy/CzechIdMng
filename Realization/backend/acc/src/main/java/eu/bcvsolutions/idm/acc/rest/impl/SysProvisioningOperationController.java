@@ -33,7 +33,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
@@ -125,12 +124,10 @@ public class SysProvisioningOperationController
 		// fill entity embedded for FE
 		Map<UUID, BaseDto> loadedDtos = new HashMap<>();
 		results.getContent().forEach(operation -> {
-			if (operation.getOperationType() != ProvisioningEventType.DELETE) {
-				if (!loadedDtos.containsKey(operation.getEntityIdentifier())) {
-					loadedDtos.put(operation.getEntityIdentifier(), getLookupService().lookupDto(operation.getEntityType().getEntityType(), operation.getEntityIdentifier()));
-				}
-				operation.getEmbedded().put("entity", loadedDtos.get(operation.getEntityIdentifier()));
+			if (!loadedDtos.containsKey(operation.getEntityIdentifier())) {
+				loadedDtos.put(operation.getEntityIdentifier(), getLookupService().lookupDto(operation.getEntityType().getEntityType(), operation.getEntityIdentifier()));
 			}
+			operation.getEmbedded().put("entity", loadedDtos.get(operation.getEntityIdentifier()));
 		});
 		return results;
 	}

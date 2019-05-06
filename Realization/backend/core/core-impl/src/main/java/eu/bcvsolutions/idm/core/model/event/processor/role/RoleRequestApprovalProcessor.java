@@ -51,7 +51,8 @@ public class RoleRequestApprovalProcessor extends CoreEventProcessor<IdmRoleRequ
 	@Override
 	public EventResult<IdmRoleRequestDto> process(EntityEvent<IdmRoleRequestDto> event) {
 		IdmRoleRequestDto dto = event.getContent();
-		boolean checkRight = (boolean) event.getProperties().get(CHECK_RIGHT_PROPERTY);
+		
+		boolean checkRight = event.getBooleanProperty(CHECK_RIGHT_PROPERTY);
 		//
 		String wfDefinition = getConfigurationValue(PROPERTY_WF);
 		if(Strings.isNullOrEmpty(wfDefinition)){

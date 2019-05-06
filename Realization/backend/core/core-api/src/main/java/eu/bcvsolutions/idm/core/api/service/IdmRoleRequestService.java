@@ -25,8 +25,9 @@ import eu.bcvsolutions.idm.core.security.api.service.ExceptionProcessable;
  * @author svandav
  * 
  */
-public interface IdmRoleRequestService
-		extends ReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequestFilter>, AuthorizableService<IdmRoleRequestDto>, ExceptionProcessable<IdmRoleRequestDto> {
+public interface IdmRoleRequestService extends 
+		ReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequestFilter>, AuthorizableService<IdmRoleRequestDto>,
+		ExceptionProcessable<IdmRoleRequestDto> {
 
 
 	/**
@@ -100,6 +101,16 @@ public interface IdmRoleRequestService
 	 * @return
 	 */
 	IdmRoleRequestDto executeRequest(EntityEvent<IdmRoleRequestDto> requestEvent);
+	
+	/**
+	 * Execute concepts via request - usable programmatically, where identity roles are added / updated / removed.
+	 * 
+	 * @param applicant
+	 * @param concepts
+	 * @return
+	 * @since 9.6.0
+	 */
+	IdmRoleRequestDto executeConceptsImmediate(UUID applicant, List<IdmConceptRoleRequestDto> concepts);
 
 	/**
 	 * Start approval procces for this request.

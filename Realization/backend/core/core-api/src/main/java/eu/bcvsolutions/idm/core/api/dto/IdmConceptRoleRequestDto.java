@@ -28,6 +28,7 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
     private UUID roleRequest;
     @Embedded(dtoClass = IdmIdentityContractDto.class)
     private UUID identityContract;
+    private UUID contractPosition;
     @Embedded(dtoClass = IdmRoleDto.class)
     private UUID role;
     @Embedded(dtoClass = IdmIdentityRoleDto.class)
@@ -152,6 +153,26 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
         }
         return this.getLog();
     }
+	
+	/**
+	 * Relation only without embedded.
+	 * 
+	 * @return
+	 * @since 9.6.0
+	 */
+	public UUID getContractPosition() {
+		return contractPosition;
+	}
+	
+	/**
+	 * Relation only without embedded.
+	 * 
+	 * @param contractPosition
+	 * @since 9.6.0
+	 */
+	public void setContractPosition(UUID contractPosition) {
+		this.contractPosition = contractPosition;
+	}
 
     @Override
     public int hashCode() {

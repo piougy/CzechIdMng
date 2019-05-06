@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -656,11 +658,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 		if (!event.getProperties().containsKey(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM)) {
 			event.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM,
-					new ArrayList<UUID>());
+					new HashSet<UUID>());
 		}
 
 		@SuppressWarnings("unchecked")
-		List<UUID> identityAccounts = (List<UUID>) event.getProperties()
+		Set<UUID> identityAccounts = (Set<UUID>) event.getProperties()
 				.get(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM);
 
 		// Add single identity-account to parent event

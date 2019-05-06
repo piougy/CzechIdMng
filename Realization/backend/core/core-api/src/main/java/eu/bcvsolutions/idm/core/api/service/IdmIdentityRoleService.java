@@ -117,6 +117,9 @@ public interface IdmIdentityRoleService extends
 	 * - If role <b>ONE</b> is duplicity with validity to role <b>TWO</b>. When are both roles manually added is also check if
 	 * role <b>TWO</b> is duplicity with validity to role <b>ONE</b>
 	 * - If {@link IdmIdentityRoleDto} has same definition and values (this can be skipped by parameter @param <b>skipSubdefinition</b>)</br>
+	 * </br>
+	 * <b>Beware,</b> for check subdefinition is needed that given identity role has filled <b>_eavs</b> attribute with form instance. Form
+	 * definition with values is not get by database.
 	 * 
 	 * @param one
 	 * @param two

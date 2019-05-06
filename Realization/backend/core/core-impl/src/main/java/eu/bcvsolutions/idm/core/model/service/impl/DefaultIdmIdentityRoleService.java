@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -371,11 +372,6 @@ public class DefaultIdmIdentityRoleService
 			return null;
 		}
 		
-		IdmRoleDto role = DtoUtils.getEmbedded(one, IdmIdentityRole_.role, IdmRoleDto.class, null);
-		if (role == null) {
-			role = roleService.get(one.getRole());
-		}
-
 		IdmIdentityRoleDto manually = null;
 		IdmIdentityRoleDto automatic = null;
 		
@@ -423,7 +419,7 @@ public class DefaultIdmIdentityRoleService
 		if (BooleanUtils.isNotTrue(skipSubdefinition)) {
 			// Validity must be same and subdefinition also. Then is possible remove role.
 			// Subdefinition must be exactly same and isn't different between manually and automatic identity role
-			if (validityDuplicity != null && equalsSubdefinitions(role, one, two)) {
+			if (validityDuplicity != null && equalsSubdefinitions(one, two)) {
 				return validityDuplicity;
 			}
 		} else {
@@ -548,32 +544,49 @@ public class DefaultIdmIdentityRoleService
 	}
 
 	/**
-	 * Compare subdefinition. Return true if subdefinition are same. If Role doesn't contain subdefinition
+	 * Compare subdefinition. Return true if subdefinition are same. If {@link IdmIdentityRoleDto} doesn't contain subdefinition
 	 * return true.
 	 *
-	 * @param role
 	 * @param one
 	 * @param two
 	 * @return
 	 */
-	private boolean equalsSubdefinitions(IdmRoleDto role, IdmIdentityRoleDto one, IdmIdentityRoleDto two) {
-		IdmFormDefinitionDto subdefinition = roleService.getFormAttributeSubdefinition(role);
+	private boolean equalsSubdefinitions(IdmIdentityRoleDto one, IdmIdentityRoleDto two) {
+		
+		List<IdmFormInstanceDto> eavsOne = one.getEavs();
+		List<IdmFormInstanceDto> eavsTwo = two.getEavs();
 
-		// Role hasn't subdefintion, role are same
-		if (subdefinition == null) {
-			return true;
+		// Size of form instance doesn't match
+		if (eavsOne.size() != eavsTwo.size()) {
+			return false;
 		}
 
+		// Form instances are empty, subdefiniton are equals
+		if (eavsOne.isEmpty() && eavsTwo.isEmpty()) {
+			return true;
+		}
+		
+		// Now is possible only one form instance for identity role
 		// Get form instance from both identity roles
-		List<Serializable> oneValues = getFormService().getFormInstance(one, subdefinition).getValues() //
-				.stream() //
-				.map(IdmFormValueDto::getValue) //
-				.collect(Collectors.toList());
+		IdmFormInstanceDto formInstanceOne = eavsOne.get(0);
+		IdmFormInstanceDto formInstanceTwo = eavsTwo.get(0);
 
-		List<Serializable> twoValues = getFormService().getFormInstance(two, subdefinition).getValues() //
-				.stream() //
-				.map(IdmFormValueDto::getValue) //
-				.collect(Collectors.toList());
+		List<Serializable> oneValues = Collections.emptyList();
+		List<Serializable> twoValues = Collections.emptyList();
+		if (formInstanceOne != null) {
+			oneValues = eavsOne.get(0) //
+					.getValues() //
+					.stream() //
+					.map(IdmFormValueDto::getValue) //
+					.collect(Collectors.toList()); //
+		}
+		if (formInstanceTwo != null) {
+			twoValues = eavsTwo.get(0) //
+					.getValues() //
+					.stream() //
+					.map(IdmFormValueDto::getValue) //
+					.collect(Collectors.toList()); //
+		}
 
 		// Values doesn't match
 		if (oneValues.size() != twoValues.size()) {

@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -248,8 +249,16 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 			
 			for (IdmIdentityRoleDto manuallyAdded : manuallyAddedRoles) {
 				IdmIdentityRoleDto duplicit = null;
+				// Add identity form attributes with value into eavs
+				if (BooleanUtils.isFalse(skipSubdefinition)) {
+					manuallyAdded.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(manuallyAdded)));
+				}
 				
 				for (IdmIdentityRoleDto duplicitIdentityRole : duplicitIdentityRoles) {
+					// Add identity form attributes with value into eavs
+					if (BooleanUtils.isFalse(skipSubdefinition)) {
+						duplicitIdentityRole.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(duplicitIdentityRole)));
+					}
 					duplicit = identityRoleService.getDuplicated(manuallyAdded, duplicitIdentityRole, skipSubdefinition);
 
 					if (duplicit != null) {
@@ -265,6 +274,12 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 						if (manuallyAdded.getId().equals(manuallyAddedSecond.getId())) {
 							continue;
 						}
+
+						// Add identity form attributes with value into eavs
+						if (BooleanUtils.isFalse(skipSubdefinition)) {
+							manuallyAddedSecond.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(manuallyAddedSecond)));
+						}
+
 						duplicit = identityRoleService.getDuplicated(manuallyAdded, manuallyAddedSecond, skipSubdefinition);
 
 						if (duplicit != null) {

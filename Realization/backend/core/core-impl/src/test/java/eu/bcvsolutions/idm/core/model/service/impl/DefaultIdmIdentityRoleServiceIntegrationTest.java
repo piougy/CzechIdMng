@@ -1,16 +1,21 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,7 +29,10 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -32,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -40,6 +49,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue_;
+import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
@@ -72,6 +83,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmRoleRequestService roleRequestService;
 	//
 	private DefaultIdmIdentityRoleService service;
 
@@ -988,6 +1000,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		assertNotNull(automatic);
 		assertNotNull(manually);
 		assertNotEquals(manually.getId(), automatic.getId());
+		automatic = fillEavs(automatic);
+		manually = fillEavs(manually);
 
 		IdmIdentityRoleDto duplicated = service.getDuplicated(manually, automatic, null);
 		assertNotNull(duplicated);
@@ -1092,6 +1106,266 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		assertNull(duplicated);
 	}
 
+	@Test
+	public void testDuplicatedWithFakeIdentityRolesWithId() {
+		IdmRoleDto role = getHelper().createRole();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString)null);
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+
+		IdmIdentityRoleDto one = new IdmIdentityRoleDto(UUID.randomUUID());
+		one.setIdentityContract(contract.getId());
+		one.setIdentityContractDto(contract);
+		one.setRole(role.getId());
+		one.setCreated(DateTime.now().minusDays(5));
+
+		IdmIdentityRoleDto two = new IdmIdentityRoleDto(UUID.randomUUID());
+		two.setIdentityContract(contract.getId());
+		two.setIdentityContractDto(contract);
+		two.setRole(role.getId());
+		two.setCreated(DateTime.now().minusDays(10));
+
+		IdmIdentityRoleDto duplicated = service.getDuplicated(one, two, null);
+		assertNotNull(duplicated);
+		assertEquals(one, duplicated);
+	}
+
+	@Test
+	public void testDuplicatedWithFakeIdentityRolesWithoutId() {
+		IdmRoleDto role = getHelper().createRole();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString)null);
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+
+		IdmIdentityRoleDto one = new IdmIdentityRoleDto();
+		one.setIdentityContract(contract.getId());
+		one.setIdentityContractDto(contract);
+		one.setRole(role.getId());
+		one.setCreated(DateTime.now().minusDays(5));
+
+		IdmIdentityRoleDto two = new IdmIdentityRoleDto();
+		two.setIdentityContract(contract.getId());
+		two.setIdentityContractDto(contract);
+		two.setRole(role.getId());
+		two.setCreated(DateTime.now().minusDays(10));
+
+		IdmIdentityRoleDto duplicated = service.getDuplicated(one, two, null);
+		assertNotNull(duplicated);
+	}
+
+	@Test
+	public void testDuplicatedWithFakeIdentityRolesWithValid() {
+		IdmRoleDto role = getHelper().createRole();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString)null);
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+
+		IdmIdentityRoleDto one = new IdmIdentityRoleDto();
+		one.setIdentityContract(contract.getId());
+		one.setIdentityContractDto(contract);
+		one.setRole(role.getId());
+		one.setValidFrom(LocalDate.now().plusDays(10));
+		one.setCreated(DateTime.now().minusDays(5));
+
+		IdmIdentityRoleDto two = new IdmIdentityRoleDto();
+		two.setIdentityContract(contract.getId());
+		two.setIdentityContractDto(contract);
+		two.setValidTill(LocalDate.now().plusDays(5));
+		two.setRole(role.getId());
+		two.setCreated(DateTime.now().minusDays(10));
+
+		IdmIdentityRoleDto duplicated = service.getDuplicated(one, two, null);
+		assertNull(duplicated);
+	}
+
+	@Test
+	public void testDeduplicationWithConceptAndEav() {
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+
+		IdmRoleDto role = createRoleWithAttributes(prepareAttributeOne());
+
+		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, new LocalDate().minusDays(10), new LocalDate().plusDays(10));
+		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, new LocalDate().plusDays(15), new LocalDate().plusDays(40));
+
+		one = fillEavs(one);
+		two = fillEavs(two);
+
+		List<IdmFormInstanceDto> formInstances = service.getFormInstances(one);
+		IdmFormValueDto valueFromOne = formInstances.get(0).getValues().get(0);
+		IdmFormAttributeDto formAttributeDto = DtoUtils.getEmbedded(valueFromOne, IdmFormValue_.formAttribute, IdmFormAttributeDto.class);
+
+		IdmIdentityRoleDto duplicated = service.getDuplicated(one, two, null);
+		assertNull(duplicated);
+
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
+		IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+		concept.setRole(role.getId());
+		concept.setIdentityContract(contract.getId());
+		concept.setValidFrom(new LocalDate().minusDays(9));
+		concept.setValidTill(new LocalDate().plusDays(9));
+		concept.setOperation(ConceptRoleRequestOperation.ADD);
+		Map<String, BaseDto> embedded = concept.getEmbedded();
+		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
+		concept.setEmbedded(embedded);
+		concepts.add(concept);
+		
+		List<IdmConceptRoleRequestDto> removeDuplicities = roleRequestService.removeDuplicities(concepts, identity.getId());
+		assertFalse(removeDuplicities.isEmpty()); // EAVs for concept missing
+
+		concepts = new ArrayList<IdmConceptRoleRequestDto>();
+
+		IdmFormInstanceDto instance = new IdmFormInstanceDto();
+		IdmFormValueDto value = new IdmFormValueDto(formAttributeDto);
+		value.setValue(Long.valueOf(System.currentTimeMillis()));
+		instance.setValues(Lists.newArrayList(value));
+		concept.setEavs(Lists.newArrayList(instance));
+		concepts.add(concept);
+
+		removeDuplicities = roleRequestService.removeDuplicities(concepts, identity.getId());
+		assertFalse(removeDuplicities.isEmpty()); // EAVs for concept is different
+
+		concepts = new ArrayList<IdmConceptRoleRequestDto>();
+		value = new IdmFormValueDto(formAttributeDto);
+		value.setValue(ATTRIBUTE_ONE_DEFAULT_VALUE);
+		instance.setValues(Lists.newArrayList(value));
+		concept.setEavs(Lists.newArrayList(instance));
+		concepts.add(concept);
+
+		removeDuplicities = roleRequestService.removeDuplicities(concepts, identity.getId());
+		assertTrue(removeDuplicities.isEmpty()); // EAVs are same
+	}
+
+	@Test
+	public void testDeduplicationWithConcept() {
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+
+		IdmRoleDto role = getHelper().createRole();
+
+		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, new LocalDate().minusDays(10), new LocalDate().plusDays(10));
+		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, new LocalDate().plusDays(15), new LocalDate().plusDays(40));
+
+		IdmIdentityRoleDto duplicated = service.getDuplicated(one, two, null);
+		assertNull(duplicated);
+
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
+		IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+		concept.setRole(role.getId());
+		concept.setIdentityContract(contract.getId());
+		concept.setValidFrom(new LocalDate().minusDays(9));
+		concept.setValidTill(new LocalDate().plusDays(9));
+		concept.setOperation(ConceptRoleRequestOperation.ADD);
+		Map<String, BaseDto> embedded = concept.getEmbedded();
+		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
+		concept.setEmbedded(embedded);
+		concepts.add(concept);
+
+		List<IdmConceptRoleRequestDto> removeDuplicities = roleRequestService.removeDuplicities(concepts, identity.getId());
+		assertTrue(removeDuplicities.isEmpty()); // concept is duplicit with one
+
+		concepts = new ArrayList<IdmConceptRoleRequestDto>();
+		concept.setRole(UUID.randomUUID());
+		concept.setDuplicit(null);
+		concepts.add(concept);
+
+		removeDuplicities = roleRequestService.removeDuplicities(concepts, identity.getId());
+		assertFalse(removeDuplicities.isEmpty()); // Role is different
+
+		concepts = new ArrayList<IdmConceptRoleRequestDto>();
+		concept.setRole(role.getId());
+		concept.setValidFrom(new LocalDate().plusDays(50));
+		concept.setValidTill(new LocalDate().plusDays(60));
+		concepts.add(concept);
+
+		removeDuplicities = roleRequestService.removeDuplicities(concepts, identity.getId());
+		assertFalse(removeDuplicities.isEmpty()); // validity different
+	}
+
+	@Test
+	public void testDeduplicationWithConceptWithRemovedRole() {
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+
+		IdmRoleDto role = getHelper().createRole();
+
+		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, null, null);
+
+
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
+		IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+		concept.setRole(role.getId());
+		concept.setIdentityContract(contract.getId());
+		concept.setOperation(ConceptRoleRequestOperation.ADD);
+		Map<String, BaseDto> embedded = concept.getEmbedded();
+		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
+		concept.setEmbedded(embedded);
+		concepts.add(concept);
+
+		List<IdmConceptRoleRequestDto> removeDuplicities = roleRequestService.removeDuplicities(concepts, identity.getId());
+		assertTrue(removeDuplicities.isEmpty()); // concept is duplicit with one
+
+		concepts = new ArrayList<IdmConceptRoleRequestDto>();
+		concept.setDuplicit(null);
+		concepts.add(concept);
+		
+		IdmConceptRoleRequestDto conceptWithremove = new IdmConceptRoleRequestDto();
+		conceptWithremove.setOperation(ConceptRoleRequestOperation.REMOVE);
+		conceptWithremove.setIdentityContract(contract.getId());
+		conceptWithremove.setIdentityRole(one.getId());
+		embedded = conceptWithremove.getEmbedded();
+		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
+		conceptWithremove.setEmbedded(embedded);
+		concepts.add(conceptWithremove);
+
+		removeDuplicities = roleRequestService.removeDuplicities(concepts, identity.getId());
+		assertFalse(removeDuplicities.isEmpty()); // role will be removed
+		assertEquals(2, removeDuplicities.size());
+	}
+
+	@Test
+	public void deduplicationConceptSameIdentityRole() {
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
+
+		IdmRoleDto role = createRoleWithAttributes();
+
+		getHelper().createIdentityRole(identity, role, null, null);
+		 getHelper().createIdentityRole(identity, role, null, null);
+
+		List<IdmConceptRoleRequestDto> duplicities = roleRequestService.removeDuplicities(new ArrayList<IdmConceptRoleRequestDto>(), identity.getId());
+		assertTrue(duplicities.isEmpty()); // Deduplication with concept doesn't check current identity roles
+	}
+
+	@Test
+	public void testDeduplicationConceptWithConcept() {
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+
+		IdmRoleDto role = getHelper().createRole();
+
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
+		IdmConceptRoleRequestDto conceptOne = new IdmConceptRoleRequestDto();
+		conceptOne.setRole(role.getId());
+		conceptOne.setIdentityContract(contract.getId());
+		conceptOne.setOperation(ConceptRoleRequestOperation.ADD);
+		Map<String, BaseDto> embedded = conceptOne.getEmbedded();
+		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
+		conceptOne.setEmbedded(embedded);
+		concepts.add(conceptOne);
+		
+		IdmConceptRoleRequestDto conceptTwo = new IdmConceptRoleRequestDto();
+		conceptTwo.setRole(role.getId());
+		conceptTwo.setIdentityContract(contract.getId());
+		conceptTwo.setOperation(ConceptRoleRequestOperation.ADD);
+		embedded = conceptTwo.getEmbedded();
+		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
+		conceptTwo.setEmbedded(embedded);
+		concepts.add(conceptTwo);
+
+		List<IdmConceptRoleRequestDto> removeDuplicities = roleRequestService.removeDuplicities(concepts, identity.getId());
+		assertFalse(removeDuplicities.isEmpty()); // concept is duplicit with another concept
+//		assertEquals(1, concepts.size());
+		// TODO: now isn't checked duplicities between concept.
+		assertEquals(2, concepts.size());
+	}
+
 	private IdmFormInstanceDto setValue(IdmIdentityRoleDto identityRole, IdmFormAttributeDto attribute, Serializable value) {
 		IdmRoleDto role = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role, IdmRoleDto.class);
 		IdmFormDefinitionDto subdefinition = roleService.getFormAttributeSubdefinition(role);
@@ -1100,6 +1374,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		// Remove current attribute
 		List<IdmFormValueDto> values = new ArrayList<>(formInstance.getValues());
 		values.removeIf(val -> val.getFormAttribute().equals(attribute.getId()));
+		formService.deleteValues(identityRole, attribute);
 
 		List<IdmFormValueDto> finalResult = new ArrayList<>();
 		if (attribute.isMultiple()) {
@@ -1124,7 +1399,12 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 
 		values.addAll(finalResult);
 		
-		return formService.saveFormInstance(identityRole, subdefinition, values);
+		IdmFormInstanceDto formInstanceDto = formService.saveFormInstance(identityRole, subdefinition, values);
+
+		// Set back to identity role eavs attributes
+		identityRole.setEavs(Lists.newArrayList(formInstanceDto));
+
+		return formInstanceDto;
 	}
 
 	private IdmRoleDto createRoleWithAttributes(IdmFormAttributeDto... attrs) {
@@ -1246,12 +1526,17 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		getHelper().recalculateAutomaticRoleByAttribute(automaticRole.getId());
 		
 		IdmIdentityRoleDto manually = getHelper().createIdentityRole(identity, role, validFromTwo, validTillTwo);
+		final UUID manuallyId = manually.getId();
 
 		List<IdmIdentityRoleDto> allByIdentity = service.findAllByIdentity(identity.getId());
 		assertEquals(2, allByIdentity.size());
-		IdmIdentityRoleDto automatic = allByIdentity.stream().filter(identityRole -> { return !identityRole.getId().equals(manually.getId());}).findFirst().orElse(null);
+		IdmIdentityRoleDto automatic = allByIdentity.stream().filter(identityRole -> { return !identityRole.getId().equals(manuallyId);}).findFirst().orElse(null);
 		assertNotNull(automatic);
 		assertNotEquals(automatic.getId(), manually.getId());
+
+		// Fill eavs (if exists)
+		automatic = fillEavs(automatic);
+		manually = fillEavs(manually);
 
 		IdmIdentityRoleDto duplicated = service.getDuplicated(manually, automatic, null);
 		if (manuallyDuplicit) {
@@ -1272,5 +1557,10 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		}
 
 		return identity;
+	}
+
+	private IdmIdentityRoleDto fillEavs(IdmIdentityRoleDto identityRole) {
+		identityRole.setEavs(service.getFormInstances(identityRole));
+		return identityRole;
 	}
 }

@@ -51,6 +51,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -69,8 +70,10 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -89,6 +92,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
@@ -141,6 +145,10 @@ public class DefaultIdmRoleRequestService
 	private IdmFormAttributeService formAttributeService;
 	@Autowired
 	private AttachmentManager attachmentManager;
+	@Autowired
+	private IdmRoleCompositionService roleCompositionService;
+	@Autowired
+	private ValueGeneratorManager valueGeneratorManager;
 
 	@Autowired
 	public DefaultIdmRoleRequestService(IdmRoleRequestRepository repository,
@@ -346,6 +354,8 @@ public class DefaultIdmRoleRequestService
 		if (request.getDuplicatedToRequest() != null) {
 			request.setDuplicatedToRequest(null);
 		}
+		
+		removeDuplicities(request.getConceptRoles(), request.getApplicant());
 
 		// Convert whole request to JSON and persist (without logs and embedded data)
 		// Original request was canceled (since 9.4.0)
@@ -847,6 +857,94 @@ public class DefaultIdmRoleRequestService
 					.isPresent(); //
 			}).collect(Collectors.toSet());
 	}
+
+	@Override
+	public List<IdmConceptRoleRequestDto> markDuplicities(List<IdmConceptRoleRequestDto> concepts, List<IdmIdentityRoleDto> allByIdentity) {
+		Assert.notNull(concepts);
+
+		// Split by role UUID
+		Map<UUID, List<IdmIdentityRoleDto>> identityRolesByRole = allByIdentity
+		.stream() //
+		.collect( //
+				Collectors.groupingBy( // Group identity roles by role
+						IdmIdentityRoleDto::getRole) //
+				); //
+		
+		// TODO: create hashMap with used roles (simple cache)
+		for (IdmConceptRoleRequestDto concept : concepts) {
+			// Only add or modification will be processed
+			if (concept.getOperation() != ConceptRoleRequestOperation.ADD &&
+					concept.getOperation() != ConceptRoleRequestOperation.UPDATE) {
+				continue;
+			}
+			UUID roleId = concept.getRole();
+
+			// Get all identity roles by role
+			List<IdmIdentityRoleDto> identityRoles = identityRolesByRole.get(roleId);
+			if (identityRoles == null) {
+				continue;
+			}
+
+			// Create temporary identity role
+			IdmIdentityRoleDto tempIdentityRole = createTempIdentityRole(concept);
+
+			// Iterate over all identity roles, but only with same roles.
+			for (IdmIdentityRoleDto identityRole : identityRoles) {
+				// We must get eavs by service. This is expensive operation. But we need it.
+				IdmFormInstanceDto instanceDto = identityRoleService.getRoleAttributeValues(identityRole);
+				if (instanceDto != null) {
+					identityRole.setEavs(Lists.newArrayList(instanceDto));
+				}
+				IdmIdentityRoleDto duplicated = identityRoleService.getDuplicated(tempIdentityRole, identityRole, Boolean.FALSE);
+
+				// Duplicated founded. Add UUID from identity role
+				if (duplicated != null || (duplicated != null && duplicated.getId() == null)) {
+					concept.setDuplicit(identityRole.getId());
+					break;
+				}
+			}
+		}
+
+		return concepts;
+	}
+
+	@Override
+	public List<IdmConceptRoleRequestDto> removeDuplicities(List<IdmConceptRoleRequestDto> concepts, UUID identityId) {
+		Assert.notNull(identityId);
+		Assert.notNull(concepts);
+
+		// TODO: check duplicity between concepts
+
+		// List of uuid's identity roles that will be removed in this concept
+		List<UUID> identityRolesForRemove = concepts //
+				.stream() //
+				.filter(concept -> {
+					return concept.getOperation() == ConceptRoleRequestOperation.REMOVE;
+				})
+				.map(IdmConceptRoleRequestDto::getIdentityRole) //
+				.collect(Collectors.toList()); //
+
+		// Filter identity roles for that exists concept for removing
+		List<IdmIdentityRoleDto> identityRoles = new ArrayList<>(identityRoleService.findAllByIdentity(identityId));
+		identityRoles.removeIf(identityRole -> {
+			return identityRolesForRemove.contains(identityRole.getId());
+		});
+
+		// Just mark duplicities
+		concepts = this.markDuplicities(concepts, identityRoles);
+
+		// Remove duplicities with subroles
+		concepts = this.removeDuplicitiesSubRole(concepts, identityRoles);
+
+		// Create final concepts and add non duplicities
+		List<IdmConceptRoleRequestDto> conceptRolesFinal = new ArrayList<IdmConceptRoleRequestDto>();
+		for (IdmConceptRoleRequestDto concept : concepts) {
+			if (!concept.isDuplicit()) {
+				conceptRolesFinal.add(concept);
+			}
+		}
+		return conceptRolesFinal;
+	}
 	
 	/**
 	 * Flush Hibernate session
@@ -1131,5 +1229,95 @@ public class DefaultIdmRoleRequestService
 		conceptRoleRequest.setRole(roleId);
 		conceptRoleRequest.setOperation(operation);
 		return conceptRoleRequestService.save(conceptRoleRequest);
+	}
+
+	/**
+	 * Create concepts for removing duplicities with subroles.
+	 * This operation execute get to database and slows the whole process.
+	 *
+	 * @param concepts
+	 * @param identityId
+	 * @return
+	 */
+	private List<IdmConceptRoleRequestDto> removeDuplicitiesSubRole(List<IdmConceptRoleRequestDto> concepts, List<IdmIdentityRoleDto> allByIdentity) {
+		List<IdmConceptRoleRequestDto> conceptsToRemove = new ArrayList<IdmConceptRoleRequestDto>();
+		for (IdmConceptRoleRequestDto concept : concepts) {
+			// Only add or modification
+			if (concept.getOperation() != ConceptRoleRequestOperation.ADD &&
+					concept.getOperation() != ConceptRoleRequestOperation.UPDATE) {
+				continue;
+			}
+
+			if (concept.isDuplicit()) {
+				continue;
+			}
+
+			UUID roleId = concept.getRole();
+			IdmIdentityContractDto identityContract = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityContract, IdmIdentityContractDto.class, null);
+
+			// Find all subroles for role. This is expensive operation
+			List<IdmRoleCompositionDto> subRoles = roleCompositionService.findAllSubRoles(roleId);
+			for (IdmRoleCompositionDto subRoleComposition : subRoles) {
+				IdmRoleDto subRole = DtoUtils.getEmbedded(subRoleComposition, IdmRoleComposition_.sub, IdmRoleDto.class, null);
+				IdmIdentityRoleDto tempIdentityRoleSub = new IdmIdentityRoleDto();
+				tempIdentityRoleSub.setDirectRole(UUID.randomUUID());
+				tempIdentityRoleSub.setIdentityContract(concept.getIdentityContract());
+				tempIdentityRoleSub.setRole(subRole.getId());
+				tempIdentityRoleSub.setValidFrom(concept.getValidFrom());
+				tempIdentityRoleSub.setValidTill(concept.getValidTill());
+				tempIdentityRoleSub.setIdentityContractDto(identityContract);
+				tempIdentityRoleSub.setCreated(DateTime.now());
+				// This automatically add default values. This is also expensive operation.
+				tempIdentityRoleSub = valueGeneratorManager.generate(tempIdentityRoleSub);
+
+				for (IdmIdentityRoleDto identityRole : allByIdentity) {
+					// Get identity role eavs. This is also expensive operation.
+					identityRole.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(identityRole)));
+					IdmIdentityRoleDto duplicated = identityRoleService.getDuplicated(tempIdentityRoleSub, identityRole, Boolean.FALSE);
+
+					// Duplication founded, create request
+					if (duplicated != null && identityRole.getId().equals(duplicated.getId())) {
+						IdmConceptRoleRequestDto removeConcept = new IdmConceptRoleRequestDto();
+						removeConcept.setIdentityContract(identityRole.getIdentityContract());
+						removeConcept.setIdentityRole(identityRole.getId());
+						removeConcept.setOperation(ConceptRoleRequestOperation.REMOVE);
+						removeConcept.setRoleRequest(concept.getRoleRequest());
+						removeConcept.addToLog(MessageFormat.format("Removed by duplicates with subrole id [{}]", identityRole.getRoleComposition()));
+						removeConcept = conceptRoleRequestService.save(removeConcept);
+						conceptsToRemove.add(removeConcept);
+					}
+				}
+			}
+		}
+
+		// Add all concept to remove
+		concepts.addAll(conceptsToRemove);
+		return concepts;
+	}
+
+	/**
+	 * Create temporary identity role from {@link IdmConceptRoleRequestDto}.
+	 * Concept must contains identity contract in embedded and also EAV in _eavs.
+	 *
+	 * @param concept
+	 * @return
+	 */
+	private IdmIdentityRoleDto createTempIdentityRole(IdmConceptRoleRequestDto concept) {
+		IdmIdentityContractDto identityContract = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityContract, IdmIdentityContractDto.class, null);
+
+		IdmIdentityRoleDto temp = new IdmIdentityRoleDto();
+		temp.setIdentityContract(concept.getIdentityContract());
+		temp.setRole(concept.getRole());
+		temp.setValidFrom(concept.getValidFrom());
+		temp.setValidTill(concept.getValidTill());
+
+		temp.setEavs(concept.getEavs());
+		// Other way how to get eavs. But this way is to slow.
+//		tempIdentityRole.setEavs(Lists.newArrayList(conceptRoleRequestService.getRoleAttributeValues(concept, false)));
+
+		temp.setIdentityContractDto(identityContract);
+		// Created is set to now (with founded duplicity, this will be marked as duplicated)
+		temp.setCreated(DateTime.now());
+		return temp;
 	}
 }

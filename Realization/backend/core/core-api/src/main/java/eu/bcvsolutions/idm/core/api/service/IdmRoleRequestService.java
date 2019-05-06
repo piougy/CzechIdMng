@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -164,5 +165,30 @@ public interface IdmRoleRequestService extends
 	 * @return
 	 */
 	Set<ResolvedIncompatibleRoleDto> getIncompatibleRoles(IdmRoleRequestDto request, IdmBasePermission... permissions);
+
+	/**
+	 * Remove founded duplicities with given {@link IdmConceptRoleRequestDto} and between {@link IdmIdentityRoleDto}.
+	 * This operation return new list of {@link IdmConceptRoleRequestDto} without duplicities.<br />
+	 * <br />
+	 * Duplicities will be removed with duplicities founded in concept and with all another identity roles (except automatic and subroles).
+	 * <br />
+	 * Given concepts must not be immutable.
+	 *
+	 * @param concepts
+	 * @param identityId
+	 * @return
+	 */
+	List<IdmConceptRoleRequestDto> removeDuplicities(List<IdmConceptRoleRequestDto> concepts, UUID identityId);
+
+	/**
+	 * Mark all returned {@link IdmConceptRoleRequestDto} with {@link IdmConceptRoleRequestDto#isDuplicit()}.
+	 * This operation expect that for given concept will be exists eavs as subdefinition (if role supports this).
+	 *
+	 * @param concepts
+	 * @param allByIdentity
+	 * @return
+	 */
+	List<IdmConceptRoleRequestDto> markDuplicities(List<IdmConceptRoleRequestDto> concepts,
+			List<IdmIdentityRoleDto> allByIdentity);
 
 }

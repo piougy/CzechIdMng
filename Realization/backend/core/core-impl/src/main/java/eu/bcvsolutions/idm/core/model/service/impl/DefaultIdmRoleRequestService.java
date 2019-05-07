@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -124,7 +123,6 @@ public class DefaultIdmRoleRequestService
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
 	private IdmRoleRequestService roleRequestService;
-	private final IdmRoleRequestRepository repository;
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmIdentityService identityService;
@@ -167,7 +165,6 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
 		Assert.notNull(entityEventManager, "Entity event manager is required!");
 		//
-		this.repository = repository;
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.identityRoleService = identityRoleService;
 		this.identityService = identityService;
@@ -339,24 +336,8 @@ public class DefaultIdmRoleRequestService
 		
 		// Request and concepts validation
 		this.validate(request);
-
-		IdmRoleRequestDto duplicant = validateOnDuplicity(request);
-
-		if (duplicant != null) {
-			request.setState(RoleRequestState.DUPLICATED);
-			request.setDuplicatedToRequest(duplicant.getId());
-			this.addToLog(request,
-					MessageFormat.format("This request [{0}] is duplicated to another change permissions request [{1}]",
-							request.getId(), duplicant.getId()));
-			return this.save(request);
-		}
-
-		// Duplicant is fill, but request is not duplicated (maybe in past)
-		if (request.getDuplicatedToRequest() != null) {
-			request.setDuplicatedToRequest(null);
-		}
 		
-		removeDuplicities(request.getConceptRoles(), request.getApplicant());
+		// VS: Check on the duplicate request was removed - does not work for role attributes and is slow.
 
 		// Convert whole request to JSON and persist (without logs and embedded data)
 		// Original request was canceled (since 9.4.0)
@@ -602,36 +583,6 @@ public class DefaultIdmRoleRequestService
 		}
 		
 		return super.toEntity(dto, entity);
-	}
-
-	private boolean isDuplicated(IdmRoleRequestDto request, IdmRoleRequestDto duplicant) {
-
-		if (request == duplicant) {
-			return true;
-		}
-		if (request.getDescription() == null) {
-			if (duplicant.getDescription() != null) {
-				return false;
-			}
-		} else if (!request.getDescription().equals(duplicant.getDescription())) {
-			return false;
-		}
-
-		if (request.getConceptRoles() == null) {
-			if (duplicant.getConceptRoles() != null) {
-				return false;
-			}
-		} else if (!request.getConceptRoles().equals(duplicant.getConceptRoles())) {
-			return false;
-		}
-		if (request.getApplicant() == null) {
-			if (duplicant.getApplicant() != null) {
-				return false;
-			}
-		} else if (!request.getApplicant().equals(duplicant.getApplicant())) {
-			return false;
-		}
-		return true;
 	}
 
 	@Override
@@ -1206,26 +1157,6 @@ public class DefaultIdmRoleRequestService
 			this.roleRequestService = applicationContext.getBean(IdmRoleRequestService.class);
 		}
 		return this.roleRequestService;
-	}
-
-	private IdmRoleRequestDto validateOnDuplicity(IdmRoleRequestDto request) {
-		List<IdmRoleRequestDto> potentialDuplicatedRequests = new ArrayList<>();
-
-		potentialDuplicatedRequests.addAll(toDtos(
-				repository.findAllByApplicant_IdAndState(request.getApplicant(), RoleRequestState.IN_PROGRESS), false));
-		potentialDuplicatedRequests.addAll(toDtos(
-				repository.findAllByApplicant_IdAndState(request.getApplicant(), RoleRequestState.APPROVED), false));
-
-		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
-				.filter(requestDuplicate -> {
-					return isDuplicated(request, requestDuplicate) && !(request.getId() != null
-							&& requestDuplicate.getId() != null && request.getId().equals(requestDuplicate.getId()));
-				}).findFirst();
-
-		if (duplicatedRequestOptional.isPresent()) {
-			return duplicatedRequestOptional.get();
-		}
-		return null;
 	}
 
 	/**

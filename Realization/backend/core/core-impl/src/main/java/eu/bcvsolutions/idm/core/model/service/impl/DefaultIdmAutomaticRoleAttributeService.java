@@ -26,6 +26,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -38,12 +39,14 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -61,6 +64,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -102,7 +106,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * Automatic role by attribute service
  * 
  * @author Radek Tomiška
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 public class DefaultIdmAutomaticRoleAttributeService
@@ -125,6 +129,8 @@ public class DefaultIdmAutomaticRoleAttributeService
 	private final EntityManager entityManager;
 	private final IdmIdentityContractRepository identityContractRepository;
 	private final LongRunningTaskManager longRunningTaskManager;
+	@Autowired
+	private IdmRoleRequestService roleRequestService;
 	
 	@Autowired
 	public DefaultIdmAutomaticRoleAttributeService(
@@ -232,6 +238,11 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Override
 	@Transactional
 	public void removeAutomaticRolesInternal(UUID contractId, Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
+
+		// Identity id is get from embedded identity role. This is little speedup.
+		UUID identityId = null;
+
 		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
 			IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
 			identityRoleFilter.setIdentityContractId(contractId);
@@ -239,11 +250,24 @@ public class DefaultIdmAutomaticRoleAttributeService
 			//
 			// TODO: possible performance update with pageable
 			for (IdmIdentityRoleDto identityRole : identityRoleService.find(identityRoleFilter, null).getContent()) {
-				// skip check granted authorities
-				IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole);
-				event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
-				identityRoleService.publish(event);
+				IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+				concept.setIdentityContract(contractId);
+				concept.setRole(autoRole.getRole());
+				concept.setAutomaticRole(autoRole.getId());
+				concept.setIdentityRole(identityRole.getId());
+				concept.setOperation(ConceptRoleRequestOperation.REMOVE);
+				concepts.add(concept);
+
+				if (identityId == null) {
+					IdmIdentityContractDto contractDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract, IdmIdentityContractDto.class);
+					identityId = contractDto.getIdentity();
+				}
 			}
+		}
+		
+		// Execute concepts
+		if (!concepts.isEmpty()) {
+			roleRequestService.executeConceptsImmediate(identityId, concepts);
 		}
 	}
 	
@@ -479,6 +503,18 @@ public class DefaultIdmAutomaticRoleAttributeService
 				//
 				if (contractId != null) {
 					predicates.add(cb.equal(root.get(AbstractEntity_.id), contractId));
+				}
+				//
+				// If passed add condition for valid now or in future and disabled false
+				if (passed) {
+					predicates.add( //
+								cb.and( //
+									cb.or( //
+										cb.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), LocalDate.now()), //
+										cb.isNull(root.get(IdmIdentityContract_.validTill)) //
+										), //
+									cb.equal(root.get(IdmIdentityContract_.disabled), Boolean.FALSE) //
+									)); //
 				}
 				//
 				Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
@@ -782,22 +818,30 @@ public class DefaultIdmAutomaticRoleAttributeService
 			return value;
 		}
 	}
-	
+
+	/**
+	 * Create identity roles by request and concepts.
+	 *
+	 * @param contract
+	 * @param contractPosition
+	 * @param automaticRoles
+	 */
 	private void createIdentityRoles(IdmIdentityContractDto contract, IdmContractPositionDto contractPosition, Set<AbstractIdmAutomaticRoleDto> automaticRoles) {		
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
+
 		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
-			// create identity role directly
-			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-			identityRole.setAutomaticRole(autoRole.getId());
-			identityRole.setIdentityContract(contract.getId());
-			identityRole.setContractPosition(contractPosition == null ? null : contractPosition.getId());
-			identityRole.setRole(autoRole.getRole());
-			identityRole.setValidFrom(contract.getValidFrom());
-			identityRole.setValidTill(contract.getValidTill());
-			//
-			// start event with skip check authorities
-			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole);
-			event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
-			identityRoleService.publish(event);
+			IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+			concept.setIdentityContract(contract.getId());
+			concept.setValidFrom(contract.getValidFrom());
+			concept.setValidTill(contract.getValidTill());
+			concept.setRole(autoRole.getRole());
+			concept.setAutomaticRole(autoRole.getId());
+			concept.setOperation(ConceptRoleRequestOperation.ADD);
+			concepts.add(concept);
+		}
+
+		if (!concepts.isEmpty()) {
+			roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
 		}
 	}
 	

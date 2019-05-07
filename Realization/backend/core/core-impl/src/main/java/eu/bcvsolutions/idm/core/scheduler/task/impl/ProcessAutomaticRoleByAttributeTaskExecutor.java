@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
-import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
@@ -28,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 /**
  * Process all contracts that passed and not passed given automatic role
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 
@@ -79,11 +78,6 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     	while (canContinue) {
     		for(UUID contractId : newPassedContracts) {
     			IdmIdentityContractDto contract = identityContractService.get(contractId);
-    			//
-    			// check for contract validity
-    			if (contract.getState() == ContractState.DISABLED || !contract.isValidNowOrInFuture()) {
-    				continue;
-    			}
     			//
     			try {
     				if (async) {
@@ -147,7 +141,7 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 		//
 		return Boolean.TRUE;
 	}
-	
+
 	public void setAsync(boolean async) {
 		this.async = async;
 	}

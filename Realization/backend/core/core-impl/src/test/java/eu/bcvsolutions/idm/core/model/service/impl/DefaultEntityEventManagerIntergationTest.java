@@ -395,7 +395,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			//
 			// root
 			IdmEntityEventDto eventDto = manager.prepareEvent(mockOwner, null);
-			eventDto.setResult(new OperationResultDto.Builder(OperationState.RUNNING).build());
+			eventDto.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
 			eventDto.setEventType(CoreEventType.CREATE.name());
 			eventDto.setPriority(PriorityType.HIGH);
 			final IdmEntityEventDto rootEventDto = manager.saveEvent(eventDto);
@@ -411,11 +411,10 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			filter.setOwnerType(manager.getOwnerType(mockOwner));
 			filter.setOwnerId(mockOwner.getId());
 			List<IdmEntityEventDto> content = entityEventService.find(filter, null).getContent();
-			Assert.assertEquals(3, content.size());
+			Assert.assertEquals(2, content.size());
 			Assert.assertTrue(content.stream().allMatch(e -> e.getResult().getState() == OperationState.EXECUTED));
 			Assert.assertTrue(content.stream().anyMatch(e -> e.getRootId() == null));
 			Assert.assertTrue(content.stream().anyMatch(e -> rootEventDto.getId().equals(e.getRootId()) && e.getEventType().equals(CoreEventType.CREATE.name())));
-			Assert.assertTrue(content.stream().anyMatch(e -> rootEventDto.getId().equals(e.getRootId()) && e.getEventType().equals(CoreEventType.NOTIFY.name())));
 			// check child event
 			IdmEntityEventDto childEventDto = content
 					.stream()

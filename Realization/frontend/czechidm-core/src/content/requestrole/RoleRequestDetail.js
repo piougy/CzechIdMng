@@ -87,8 +87,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
           requestedByType: 'MANUALLY'
         }
-      }, () => {
-        this.save(this, false);
       });
     } else {
       this.context.store.dispatch(roleRequestManager.fetchEntity(_entityId));
@@ -105,11 +103,12 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   }
 
   _initComponentCurrentRoles(props) {
-    const { _request } = props;
+    const { _request, location} = props;
+
+    const applicantFromUrl = location ? location.query.applicantId : null;
+    const identityId = _request ? _request.applicant : applicantFromUrl;
     //
-    if (!this._getIsNew(props) && _request) {
-      this.context.store.dispatch(identityRoleManager.fetchRoles(_request.applicant, `${uiKey}-${_request.applicant}`, () => {}));
-    }
+    this.context.store.dispatch(identityRoleManager.fetchRoles(identityId, `${uiKey}-${identityId}`, () => {}));
   }
 
   /**
@@ -241,7 +240,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       concept = {
         'id': data.id,
         'operation': type,
-        'roleRequest': _request.id,
+        'roleRequest': data.roleRequest,
         'identityContract': data.identityContract,
         'role': data.role,
         'identityRole': data.identityRole,
@@ -255,7 +254,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       concept = {
         'id': data.id,
         'operation': type,
-        'roleRequest': _request.id,
+        'roleRequest': data.roleRequest,
         'identityContract': data.identityContract.id,
         'role': data.role,
         'identityRole': data.identityRole,
@@ -283,11 +282,43 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     }));
   }
 
+  /**
+   * If request does not exists yet, then will be created and given method will executed.
+   * If request already exists, then given method will be executed immediately.
+   *
+   * @param saveMethod Method for execute after createion of the request
+   * @param  roleConceptTable
+   * @param  data
+   */
+  _getOrCreateRequest(saveMethod, roleConceptTable, data) {
+    const {_request} = this.props;
+    if (_request) {
+      saveMethod.bind(roleConceptTable)(_request.id, data);
+      return;
+    }
+
+    if (!this.refs.form.isFormValid()) {
+      return;
+    }
+    const formEntity = this.refs.form.getData();
+    this.context.store.dispatch(roleRequestManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
+      if (!error) {
+        if (this._getIsNew()) {
+          saveMethod.bind(roleConceptTable, createdEntity.id, data, () => {
+            this.context.router.replace(`/role-requests/${createdEntity.id}/detail`);
+          })();
+        }
+      } else {
+        this.addError(error);
+      }
+    }));
+  }
+
   _createConcept(data, type, formInstance, cb = null) {
     const {_request} = this.props;
     const concept = {
       'operation': type,
-      'roleRequest': _request.id,
+      'roleRequest': data.roleRequest,
       'identityContract': data.identityContract.id,
       'role': data._embedded.role.id,
       'identityRole': data.id,
@@ -299,7 +330,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
     conceptRoleRequestManager.getService().create(concept)
     .then(json => {
-      _request.conceptRoles.push(json);
+      if (_request) {
+        _request.conceptRoles.push(json);
+      }
       if (cb) {
         cb();
       }
@@ -507,6 +540,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           removeConceptFunc={this._removeConcept.bind(this)}
           createConceptFunc={this._createConcept.bind(this)}
           updateConceptFunc={this._updateConcept.bind(this)}
+          getRequest={this._getOrCreateRequest.bind(this)}
           conceptRoleRequestManager={conceptRoleRequestManager}
           reloadComponent={ this.reloadComponent.bind(this) }
           _incompatibleRoles={ _incompatibleRoles }
@@ -537,7 +571,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     // We want show audit fields only for Admin, but not in concept state.
     const hasAdminRights = Utils.Permission.hasPermission(_permissions, 'ADMIN');
     const _adminMode = hasAdminRights && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
-    const showLoading = !request || _showLoading || this.state.showLoading || this.props.showLoading;
+    const showLoading = !request || (_showLoading && !isNew) || this.state.showLoading || this.props.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
     const showLoadingButtonRemove = this.state.showLoadingButtonRemove;
     if (this.state.showLoading || !request) {

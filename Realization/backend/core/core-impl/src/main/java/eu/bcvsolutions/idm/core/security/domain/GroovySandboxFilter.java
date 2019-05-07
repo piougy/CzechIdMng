@@ -33,6 +33,7 @@ import org.springframework.aop.support.AopUtils;
 
 import com.google.common.collect.Sets;
 
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import groovy.lang.Closure;
 import groovy.lang.GString;
@@ -55,7 +56,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 			org.joda.time.LocalDate.class, OffsetTime.class, OffsetDateTime.class, Map.class, HashMap.class, List.class,
 			ArrayList.class, Set.class, HashSet.class, LoggerFactory.class, Logger.class,
 			ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class, MessageFormat.class, Arrays.class,
-			Collections.class);
+			Collections.class, DtoUtils.class);
 
 	private final LinkedList<Set<Class<?>>> allowedCustomTypes = new LinkedList<>();
 

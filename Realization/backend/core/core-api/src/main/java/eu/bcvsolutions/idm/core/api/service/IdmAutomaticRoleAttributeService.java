@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * Automatic role by attribute
  * 
  * @author Radek Tomiška
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 
@@ -52,12 +52,13 @@ public interface IdmAutomaticRoleAttributeService
 	 * In this method skip check changed authorities by processor {@link IdentityRoleDeleteAuthoritiesProcessor}.
 	 *
 	 * @param contract
+	 * @deprecated @since 9.6.0
 	 */
+	@Deprecated
 	void removeAutomaticRoles(IdmIdentityRoleDto identityRole);
 	
 	/**
-	 * Remove automatic role from contract. This method doesn't use standard role request 
-	 * and remove {@link IdmIdentityRoleDto} directly.
+	 * Remove automatic role from contract. This method uses standard role request.
 	 * In this method skip check changed authorities by processor {@link IdentityRoleDeleteAuthoritiesProcessor}.
 	 * 
 	 * @param contractId

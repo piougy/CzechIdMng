@@ -66,7 +66,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 		return super.conditional(event)
 				// Skip provisioning
 				&& (!this.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE, event.getProperties()))
-				&& 	(!this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties()))
+				&& (!this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties()))
 				&& (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) ;
 	}
 

@@ -73,7 +73,7 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 	public boolean conditional(EntityEvent<IdmIdentityRoleDto> event) {
 		return super.conditional(event)
 				// Skip account management
-				&& 	(!this.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE, event.getProperties()))
+				&& (!this.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE, event.getProperties()))
 				&& (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) ;
 	}
  

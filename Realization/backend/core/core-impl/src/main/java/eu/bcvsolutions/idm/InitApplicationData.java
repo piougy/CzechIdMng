@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
@@ -29,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmGenerateValueService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
@@ -92,6 +94,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private IdmGenerateValueService generateValueService;
 	@Autowired private CodeListManager codeListManager;
+	@Autowired private IdmPasswordService passwordService;
 	//
 	private static final UUID DEFAULT_FORM_GENERATE_VALUE_ID = UUID.fromString("61ae4b97-421d-4075-8911-8003989f30df"); // static system generate value uuid
 	private static final UUID DEFAULT_CONCEPT_ROLE_REQUEST_FORM_GENERATE_VALUE_ID = UUID.fromString("f1752a83-c496-4f94-8e5d-e1705cbd76ee"); // static system generate value uuid
@@ -183,6 +186,11 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				identityAdmin.setPassword(new GuardedString(ADMIN_PASSWORD));
 				identityAdmin.setLastName("Administrator");
 				identityAdmin = this.identityService.save(identityAdmin);
+				// set never expires to identity password
+				IdmPasswordDto adminPassword = passwordService.findOneByIdentity(identityAdmin.getId());
+				adminPassword.setPasswordNeverExpires(true);
+				passwordService.save(adminPassword);
+				//
 				LOG.info(MessageFormat.format("Super admin identity created [id: {0}]", identityAdmin.getId()));
 				//
 				// create prime contract

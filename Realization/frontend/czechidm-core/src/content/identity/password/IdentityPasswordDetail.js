@@ -4,10 +4,11 @@ import moment from 'moment';
 import Helmet from 'react-helmet';
 //
 import * as Basic from '../../../components/basic';
-import { PasswordManager, DataManager } from '../../../redux';
+import { PasswordManager, DataManager, IdentityManager } from '../../../redux';
 import * as Utils from '../../../utils';
 
 const manager = new PasswordManager();
+const identityManager = new IdentityManager();
 
 /**
  * Identity password tab with information about password metadata
@@ -32,7 +33,7 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
   componentDidMount() {
     const { entityId } = this.props.params;
     //
-    this.context.store.dispatch(manager.fetchPasswordByIdentity(entityId, `identity-${entityId}-password`));
+    this.context.store.dispatch(identityManager.fetchPassword(entityId, `identity-${entityId}-password`));
     this.selectNavigationItems(['identities', 'identity-profile', 'profile-password', 'profile-password-metadata']);
   }
 
@@ -77,7 +78,7 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
     }, this.refs.form.processEnded());
     this.addMessage({ message: this.i18n('save.success')});
 
-    this.context.store.dispatch(manager.fetchPasswordByIdentity(entityId, `identity-${entityId}-password`));
+    this.context.store.dispatch(identityManager.fetchPassword(entityId, `identity-${entityId}-password`));
   }
 
   onChangePasswordNeverExpires(event) {

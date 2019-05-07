@@ -4997,8 +4997,8 @@
       "message": "Invalid login or password."
     },
     "AUTH_BLOCKED": {
-      "title": "Login is for user [{{username}}] blocked",
-      "message": "Login is blocked due {{date}}. Remaining seconds to unblock: {{seconds}}."
+      "title": "Login is blocked",
+      "message": "Login for user [{{username}}] is blocked due [{{date}}]. Remaining seconds to unblock: [{{seconds}}]."
     },
     "AUTHORITIES_CHANGED": {
       "title": "Your application permissions have been modified",

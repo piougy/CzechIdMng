@@ -1,8 +1,11 @@
-import * as Utils from '../utils';
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
-import RestApiService from './RestApiService';
 
+/**
+ * @author Ondřej Kopr
+ *
+ * @since 9.6.0
+ */
 export default class PasswordService extends AbstractService {
 
 
@@ -33,25 +36,5 @@ export default class PasswordService extends AbstractService {
    */
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('created');
-  }
-
-  /**
-   * Get password by given identity identifier
-   *
-   * @param identityId {string} - identity identifier
-   * @return {Promise}
-   */
-  getPassword(identityIdentifier) {
-    return RestApiService
-    .get(this.getApiPath() + `/search/identity/${encodeURIComponent(identityIdentifier)}`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
   }
 }

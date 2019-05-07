@@ -317,6 +317,27 @@ export default class IdentityManager extends FormableEntityManager {
   preValidate(requestData) {
     return this.identityService.preValidate(requestData);
   }
+
+  /**
+   * Load password by identity id from server
+   *
+   * @param  {string|number} identityId - Identity identifier
+   * @param  {string} uiKey = null - ui key for loading indicator etc
+   * @return {object} - action
+   * @
+   */
+  fetchPassword(identityId, uiKey = null) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getPassword(identityId)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
 }
 
 IdentityManager.PASSWORD_DISABLED = 'DISABLED';

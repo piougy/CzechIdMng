@@ -158,14 +158,11 @@ export class RoleConceptTable extends Basic.AbstractContent {
     });
   }
 
+
   /**
    * Save added or changed entities to arrays and recompile concept data.
    */
-  _saveConcept(event) {
-    if (event) {
-      event.preventDefault();
-    }
-
+  _saveConcept(requestId, data, roleRequestCb) {
     const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
     const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
     if (!form.isFormValid()) {
@@ -181,6 +178,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
       const { identityUsername, createConceptFunc, updateConceptFunc, reloadComponent } = this.props;
 
       const entity = form.getData();
+      entity.roleRequest = requestId;
       let eavValues = null;
       if (eavForm) {
         eavValues = {values: eavForm.getValues()};
@@ -194,6 +192,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
             showLoading: false
           });
         } else {
+          if (roleRequestCb) {
+            roleRequestCb();
+          }
           this.setState({
             conceptData: this._compileConceptData(this.props),
             showLoading: false
@@ -303,29 +304,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
    * changed (delete changes ... object from array changed entities),
    * removed (remove id from array of deleted entities)
    */
-  _deleteConcept(data) {
-    // let messageKey;
-    // if (data._added) {
-    //   messageKey = 'Added';
-    // } else if (data._removed) {
-    //   messageKey = 'Removed';
-    // } else if (data._changed) {
-    //   messageKey = 'Changed';
-    // } else {
-    //   this._internalDeleteConcept(data);
-    //   return;
-    // }
-    // this.refs['confirm-delete'].show(
-    //   this.i18n(`action.delete${messageKey}.message`),
-    //   this.i18n(`action.delete${messageKey}.header`)
-    // ).then(() => {
-    // }, () => {
-    //   // Rejected
-    // });
-    this._internalDeleteConcept(data);
-  }
-
-  _internalDeleteConcept(data) {
+  _internalDeleteConcept(requestId, data, roleRequestCb) {
     const { createConceptFunc, removeConceptFunc, reloadComponent } = this.props;
 
     if (data._added) {
@@ -335,9 +314,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
     } else if (data._changed) {
       removeConceptFunc(data.id, 'UPDATE');
     } else {
+      data.roleRequest = requestId;
       createConceptFunc(data, 'REMOVE', null, () => {
         if (reloadComponent) {
           reloadComponent();
+        }
+        if (roleRequestCb) {
+          roleRequestCb();
         }
       });
       return;
@@ -479,15 +462,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
     });
   }
 
-  _executeRoleRequestByIdentity(event) {
+  _executeRoleRequestByIdentity(requestId, data, roleRequestCb) {
     const { reloadComponent } = this.props;
-    if (event) {
-      event.preventDefault();
-    }
     this.setState({
       showLoading: true
     }, () => {
       const roleRequestByIdentity = this.refs.roleSelectByIdentity.getWrappedInstance().createRoleRequestByIdentity();
+      roleRequestByIdentity.roleRequest = requestId;
       this.context.store.dispatch(roleRequestManager.copyRolesByIdentity(roleRequestByIdentity, null, () => {
         // We also need fetch request for new form attributes
         this._hideRoleByIdentitySelect();
@@ -495,6 +476,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
         this.setState({
           showLoading: false
         });
+        if (roleRequestCb) {
+          roleRequestCb();
+        }
       }));
     });
   }
@@ -512,7 +496,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     actions.push(
       <Basic.Button
         level={'danger'}
-        onClick={this._deleteConcept.bind(this, data[rowIndex])}
+        onClick={this._removeConceptWithRequest.bind(this, data[rowIndex])}
         className="btn-xs"
         disabled={readOnly || !manualRole}
         showLoading={showLoadingButtonRemove}
@@ -579,7 +563,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     actions.push(
       <Basic.Button
         level={'danger'}
-        onClick={this._deleteConcept.bind(this, value)}
+        onClick={this._removeConceptWithRequest.bind(this, value)}
         className="btn-xs"
         disabled={readOnly || !manualRole}
         showLoading={showLoadingButtonRemove}
@@ -651,6 +635,37 @@ export class RoleConceptTable extends Basic.AbstractContent {
     this.setState({
       filterOpened: open
     });
+  }
+
+  /**
+   * Save concept. If request does not exist, the is created first.
+   */
+  _saveConceptWithRequest(event) {
+    if (event) {
+      event.preventDefault();
+    }
+
+    const {getRequest} = this.props;
+    getRequest(this._saveConcept, this);
+  }
+
+  /**
+   * Remove concept. If request does not exist, the is created first.
+   */
+  _removeConceptWithRequest(data) {
+    const {getRequest} = this.props;
+    getRequest(this._internalDeleteConcept, this, data);
+  }
+
+  /**
+   * Execute role request by identity. If request does not exist, the is created first.
+   */
+  _executeRoleRequestByIdentityWithRequest(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const {getRequest} = this.props;
+    getRequest(this._executeRoleRequestByIdentity, this);
   }
 
   render() {
@@ -911,7 +926,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
               type="submit"
               level="success"
               showLoading={ showLoading }
-              onClick={ this._executeRoleRequestByIdentity.bind(this) }
+              onClick={ this._executeRoleRequestByIdentityWithRequest.bind(this) }
               showLoadingIcon>
               { this.i18n('button.set') }
             </Basic.Button>
@@ -925,7 +940,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
           backdrop="static"
           keyboard={!showLoading}>
 
-          <form onSubmit={ this._saveConcept.bind(this) }>
+          <form onSubmit={ this._saveConceptWithRequest.bind(this) }>
             <Basic.Modal.Header
               closeButton={ !showLoading }
               text={ this.i18n('create.header') }

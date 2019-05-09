@@ -453,6 +453,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
   _showRoleByIdentitySelect() {
     this.setState({
       showRoleByIdentitySelect: true
+    }, () => {
+      this.refs.roleSelectByIdentity.getWrappedInstance().focus();
     });
   }
 

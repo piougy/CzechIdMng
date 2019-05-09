@@ -19,7 +19,9 @@ import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
  * 
  * @author Radek Tomiška
  * @since 8.0.0
+ * @deprecated @since 9.6.0 will be removed and LRT will be implemented (slows down event processing).
  */
+@Deprecated
 @Component(EntityEventDeleteExecutedProcessor.PROCESSOR_NAME)
 @Description("Delete successfully executed entity events.")
 public class EntityEventDeleteExecutedProcessor extends CoreEventProcessor<IdmEntityEventDto> {

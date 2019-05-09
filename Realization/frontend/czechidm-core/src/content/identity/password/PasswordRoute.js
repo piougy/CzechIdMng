@@ -21,8 +21,8 @@ export default class PasswordRoute extends Basic.AbstractContent {
         <Advanced.TabPanel
           position="top"
           parentId="profile-password"
-          params={this.props.params}>
-          {this.props.children}
+          params={ this.props.params }>
+          { this.props.children }
         </Advanced.TabPanel>
       </Basic.Div>
     );

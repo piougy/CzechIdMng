@@ -291,7 +291,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @param dto
 	 * @return
 	 */
-	protected ResourceSupport toResource(DTO dto) {
+	public ResourceSupport toResource(DTO dto) {
 		if(dto == null) { 
 			return null;
 		} 

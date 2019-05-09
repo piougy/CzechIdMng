@@ -42,8 +42,9 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
       return null;
     }
 
-    const options = [ ];
-    options.push({ value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`});
+    const options = [
+      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
+    ];
 
     accounts.forEach(acc => {
       // Skip account in protection
@@ -68,13 +69,15 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
       <div>
         {
           showLoading
-          ||
+          ?
+          <Basic.Loading isStatic show/>
+          :
           <PasswordChangeForm
-            userContext={userContext}
-            entityId={entityId}
-            passwordChangeType={passwordChangeType}
-            requireOldPassword={requireOldPassword}
-            accountOptions={options}/>
+            userContext={ userContext }
+            entityId={ entityId }
+            passwordChangeType={ passwordChangeType }
+            requireOldPassword={ requireOldPassword }
+            accountOptions={ options }/>
         }
     </div>
     );

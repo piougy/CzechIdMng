@@ -132,6 +132,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	@Autowired private IdmProfileController profileController;
 	@Autowired private FormService formService;
 	@Autowired private IdmPasswordService passwordService;
+	@Autowired private IdmPasswordController passwordController;
 	//
 	private final IdmIdentityService identityService;
 
@@ -1199,6 +1200,34 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		//
 		// profile can be null (create)
 		return profileController.getService().getPermissions(profile);
+	}
+	
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORD_READ + "')")
+	@RequestMapping(value = "/{backendId}/password", method = RequestMethod.GET)
+	@ApiOperation(
+			value = "Get password by identity", 
+			nickname = "getIdentityPassword",
+			response = IdmPasswordDto.class, 
+			tags = { IdmPasswordController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.PASSWORD_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.PASSWORD_READ, description = "") })
+				})
+	public ResponseEntity<?> getPassword(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId) {
+		IdmIdentityDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(dto.getId());
+		if (passwordDto == null) {
+			return new ResponseEntity<InputStreamResource>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(passwordController.toResource(passwordDto), HttpStatus.OK);
 	}
 	
 	@Override

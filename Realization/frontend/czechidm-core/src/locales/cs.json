@@ -5047,8 +5047,8 @@
       "message": "Zadány chybné přihlašovací údaje."
     },
     "AUTH_BLOCKED": {
-      "title": "Přihlášení je pro uživatele [{{username}}] blokováno",
-      "message": "Přihlášení je blokováno do {{date}}. Počet zbývajících vteřin do odblokování: {{seconds}}."
+      "title": "Přihlášení je blokováno",
+      "message": "Přihlášení pro uživatele [{{username}}] je blokováno do [{{date}}]. Počet zbývajících vteřin do odblokování: [{{seconds}}]."
     },
     "AUTHORITIES_CHANGED": {
       "title": "Došlo ke změně Vašich systémových oprávnění",

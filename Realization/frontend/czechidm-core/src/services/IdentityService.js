@@ -380,6 +380,27 @@ class IdentityService extends FormableEntityService {
       return json;
     });
   }
+
+  /**
+   * Get password by given identity identifier
+   *
+   * @param identityId {string} - identity identifier
+   * @return {Promise}
+   * @since 9.6.0
+   */
+  getPassword(identityId) {
+    return RestApiService
+    .get(this.getApiPath() + `/${ encodeURIComponent(identityId) }/password`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
 }
 
 export default IdentityService;

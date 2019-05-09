@@ -9,6 +9,11 @@ import ConfigLoader from '../../utils/ConfigLoader';
 const IDM_NAME = ConfigLoader.getConfig('app.name', 'CzechIdM');
 const RESOURCE_IDM = `0:${IDM_NAME}`;
 
+/**
+ * Password change on the identity detail - overidable content
+ *
+ * @author Ondřej Kopr
+ */
 class PasswordChangeContent extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -19,9 +24,10 @@ class PasswordChangeContent extends Basic.AbstractContent {
   render() {
     const { userContext, requireOldPassword } = this.props;
     const { entityId } = this.props.params;
-
-    const options = [ ];
-    options.push({ value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`});
+    //
+    const options = [
+      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
+    ];
 
     return (
       <PasswordChangeForm

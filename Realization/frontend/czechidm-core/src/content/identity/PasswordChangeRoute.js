@@ -18,7 +18,7 @@ export default class PasswordChange extends Basic.AbstractContent {
     const PasswordChangeContent = this.componentService.getComponent('password-change-content');
     //
     return (
-      <PasswordChangeContent params={this.props.params}/>
+      <PasswordChangeContent params={ this.props.params }/>
     );
   }
 }

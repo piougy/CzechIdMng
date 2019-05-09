@@ -91,7 +91,7 @@ SortHeaderCell.propTypes = {
 
    * @param string property
    * @param string order [ASC, DESC]
-   * @param bool shiftKey - append sort property, if whift is pressed.
+   * @param bool shiftKey - append sort property, if shift is pressed.
    */
   sortHandler: React.PropTypes.func,
   /**

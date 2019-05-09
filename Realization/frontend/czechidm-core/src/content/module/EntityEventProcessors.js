@@ -203,7 +203,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
               _entityTypes.map((entityType) => {
                 const entityProcessors = _processors.get(entityType);
                 entityProcessors.sort((one, two) => {
-                  return one.order > two.order;
+                  return parseInt(one.order, 10) > parseInt(two.order, 10);
                 });
                 return (
                   <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>

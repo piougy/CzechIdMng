@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Target system setting - is used for accont management and provisioning DTO
@@ -30,7 +31,10 @@ public class SysSystemDto extends FormableDto implements Codeable, Disableable {
 	private String name;
 	private String description;
 	private boolean readonly;
+	@ApiModelProperty(notes = "Just write operation is disabled on the system, ACM and wish is constructed, provisioning operation is available in queue.")
 	private boolean disabled;
+	@ApiModelProperty(notes = "Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created into quere, wish is not constructed.")
+	private boolean disabledProvisioning;  // @since 9.6.0
 	private boolean queue;
 	@JsonProperty(access = Access.READ_ONLY)
 	private boolean virtual;
@@ -157,5 +161,25 @@ public class SysSystemDto extends FormableDto implements Codeable, Disableable {
 
 	public void setBlockedOperation(SysBlockedOperationDto blockedOperation) {
 		this.blockedOperation = blockedOperation;
+	}
+	
+	/**
+	 * Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created.
+	 * 
+	 * @since 9.6.0 
+	 * @param disabledProvisioning
+	 */
+	public void setDisabledProvisioning(boolean disabledProvisioning) {
+		this.disabledProvisioning = disabledProvisioning;
+	}
+	
+	/**
+	 * Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created.
+	 * 
+	 * @since 9.6.0 
+	 * @return
+	 */
+	public boolean isDisabledProvisioning() {
+		return disabledProvisioning;
 	}
 }

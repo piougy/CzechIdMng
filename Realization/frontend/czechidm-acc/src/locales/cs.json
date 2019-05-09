@@ -646,7 +646,11 @@
       "_type": "Koncový systém",
       "name": "Název systému",
       "blockedOperation": "Blokované operace",
-      "disabled": "Neaktivní",
+      "disabled": {
+        "short": "$t(label.disabled)",
+        "label": "$t(label.disabled) - s frontou provisioningu",
+        "help": "Neaktivní systém (offline). <strong>Operace pro provisioning jsou vkládány do fronty</strong>. Až bude systám opět aktivní, budou moci být spuštěny."
+      },
       "description": "Popis",
       "virtual": "Virtuální",
       "passwordPolicyValidate": "Politika hesel pro validaci",
@@ -670,7 +674,11 @@
         "label": "Použít vzdálený konektor server",
         "help": "Po zaškrtnutí nebudou použity lokální konektory a zobrazí se nabídka s informacemi o vzdáleném konektor serveru."
       },
-      "connectorHost": "Server s konektory"
+      "connectorHost": "Server s konektory",
+      "disabledProvisioning": {
+        "label": "$t(label.disabled) - bez fronty provisioningu",
+        "help": "Neaktivní systém. <strong>Operace pro provisioning nebudou vkládány do fronty provisioningu, nebude je možné opakovat</strong>. Proběhne pouze konstrukce účtu s identifikátorem (uid) na straně IdM."
+      }
     },
     "ConnectorServer": {
       "name": "Jméno",
@@ -1467,6 +1475,10 @@
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
       "title": "Již existuje jiný unikátní identifikátor",
       "message": "Pro roli [{{role}}] a systém [{{system}}] byl již nalezen unikátní identifikátor."
+    },
+    "PROVISIONING_SYSTEM_DISABLED_PROVISIONING": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je nakonfigurován jako neaktivní - bey fronty provisioningu."
     },
     "PROVISIONING_SYSTEM_DISABLED": {
       "title": "Provisioning účtu [{{name}}] neproběhl",

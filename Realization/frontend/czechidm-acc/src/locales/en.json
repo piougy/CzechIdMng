@@ -645,7 +645,11 @@
     "_type": "System",
     "name": "System name",
     "blockedOperation": "Blocked operations",
-    "disabled": "Inactive",
+    "disabled": {
+      "short": "$t(label.disabled)",
+      "label": "$t(label.disabled) - provisioning queue is available",
+      "help": "Inactive system (offline). <strong>Provisioning operations are saved into queue</strong>. Operations can be executed, after the system will be available again."
+    },
     "description": "Description",
     "virtual": "Virtual",
     "passwordPolicyValidate": "Password policy for validation",
@@ -669,7 +673,11 @@
         "label": "Use remote connector server",
         "help": "After check, local connectors will not be used."
       },
-      "connectorHost": "Server with connectors"
+      "connectorHost": "Server with connectors",
+      "disabledProvisioning": {
+        "label": "$t(label.disabled) - without provisioning queue",
+        "help": "$t(label.disabled). <strong>Provisioning operations are not saved into queue, cannot be executed again</strong>. IdM account is created only (uid attribute only)."
+      }
     },
     "ConnectorServer": {
       "name": "Name",
@@ -1465,6 +1473,10 @@
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
       "title": "Unique identifier already exists",
       "message": "Role [{{role}}] and system [{{system}}] have already set unique identifier."
+    },
+    "PROVISIONING_SYSTEM_DISABLED_PROVISIONING": {
+      "title": "Provisioning of account [{{name}}] wasn't executed",
+      "message": "Provisioning of account [{{name}}] in system [{{system}}] wasn't executed. System is configured as inactive - without provisioning queue."
     },
     "PROVISIONING_SYSTEM_DISABLED": {
       "title": "Provisioning of account [{{name}}] wasn't executed",

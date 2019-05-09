@@ -63,8 +63,13 @@ public class SysSystem extends AbstractEntity implements Codeable, FormableEntit
 	
 	@Audited
 	@NotNull
+	@Column(name = "disabled_provisioning", nullable = false)
+	private boolean disabledProvisioning; // @since 9.6.0 - provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created.
+	
+	@Audited
+	@NotNull
 	@Column(name = "disabled", nullable = false)
-	private boolean disabled;
+	private boolean disabled; // just write operation is disabled on the system, ACM and wish is constructed, provisioning operation is available in queue.
 	
 	@Audited
 	@NotNull
@@ -228,5 +233,25 @@ public class SysSystem extends AbstractEntity implements Codeable, FormableEntit
 	@JsonIgnore
 	public IcConnectorInstance getConnectorInstance() {
 		return new IcConnectorInstanceImpl(this.getConnectorServer(), this.getConnectorKey(), this.isRemote());
+	}
+	
+	/**
+	 * Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created.
+	 * 
+	 * @since 9.6.0 
+	 * @param disabledProvisioning
+	 */
+	public void setDisabledProvisioning(boolean disabledProvisioning) {
+		this.disabledProvisioning = disabledProvisioning;
+	}
+	
+	/**
+	 * Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created.
+	 * 
+	 * @since 9.6.0 
+	 * @return
+	 */
+	public boolean isDisabledProvisioning() {
+		return disabledProvisioning;
 	}
 }

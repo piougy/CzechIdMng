@@ -70,16 +70,16 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
         value: this.getManager().getNiceLabel(entity)
       },
       {
+        label: this.i18n('acc:entity.System.queue.label'),
+        value: (entity.queue ? this.i18n('label.yes') : this.i18n('label.no'))
+      },
+      {
         label: this.i18n('acc:entity.System.readonly.label'),
         value: (entity.readonly ? this.i18n('label.yes') : this.i18n('label.no'))
       },
       {
-        label: this.i18n('acc:entity.System.disabled'),
-        value: (entity.disabled ? this.i18n('label.yes') : this.i18n('label.no'))
-      },
-      {
-        label: this.i18n('acc:entity.System.queue.label'),
-        value: (entity.queue ? this.i18n('label.yes') : this.i18n('label.no'))
+        label: this.i18n('acc:entity.System.disabled.short'),
+        value: (entity.disabledProvisioning ? this.i18n('acc:entity.System.disabledProvisioning.label') : this.i18n('acc:entity.System.disabled.label'))
       }
     ];
   }

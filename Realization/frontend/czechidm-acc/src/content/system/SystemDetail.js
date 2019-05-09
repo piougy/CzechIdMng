@@ -261,10 +261,6 @@ class SystemDetail extends Basic.AbstractContent {
                   label={this.i18n('acc:entity.System.queue.label')}
                   helpBlock={this.i18n('acc:entity.System.queue.help')}/>
                 <Basic.Checkbox
-                  ref="readonly"
-                  label={this.i18n('acc:entity.System.readonly.label')}
-                  helpBlock={this.i18n('acc:entity.System.readonly.help')}/>
-                <Basic.Checkbox
                   ref="createOperation"
                   label={this.i18n('acc:entity.BlockedOperation.createOperation.label')}
                   helpBlock={this.i18n('acc:entity.BlockedOperation.createOperation.help')}/>
@@ -277,8 +273,17 @@ class SystemDetail extends Basic.AbstractContent {
                   label={this.i18n('acc:entity.BlockedOperation.deleteOperation.label')}
                   helpBlock={this.i18n('acc:entity.BlockedOperation.deleteOperation.help')}/>
                 <Basic.Checkbox
+                  ref="readonly"
+                  label={ this.i18n('acc:entity.System.readonly.label') }
+                  helpBlock={ this.i18n('acc:entity.System.readonly.help') }/>
+                <Basic.Checkbox
                   ref="disabled"
-                  label={this.i18n('acc:entity.System.disabled')}/>
+                  label={ this.i18n('acc:entity.System.disabled.label', { escape: false }) }
+                  helpBlock={ this.i18n('acc:entity.System.disabled.help', { escape: false }) }/>
+                <Basic.Checkbox
+                  ref="disabledProvisioning"
+                  label={ this.i18n('acc:entity.System.disabledProvisioning.label', { escape: false }) }
+                  helpBlock={ this.i18n('acc:entity.System.disabledProvisioning.help', { escape: false }) }/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 

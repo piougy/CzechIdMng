@@ -25,11 +25,10 @@ export class RoleInfo extends AbstractEntityInfo {
     return manager;
   }
 
-  getNiceLabel() {
-    const _entity = this.getEntity();
+  getNiceLabel(entity) {
     const { showEnvironment } = this.props;
     //
-    return this.getManager().getNiceLabel(_entity, showEnvironment);
+    return this.getManager().getNiceLabel(entity, showEnvironment);
   }
 
   showLink() {

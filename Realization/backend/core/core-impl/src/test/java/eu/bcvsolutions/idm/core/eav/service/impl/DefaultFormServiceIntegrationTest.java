@@ -1090,7 +1090,17 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 			IdmFormValueDto value = new IdmFormValueDto(attribute);
 			value.setValue(FORM_VALUE_ONE);
 			owner.getEavs().add(new IdmFormInstanceDto(owner, formDefinitionOne, Lists.newArrayList(value)));
-			((AbstractFormableService) lookupService.getDtoService(owner.getClass())).save(owner);
+			owner = (FormableDto) ((AbstractFormableService) lookupService.getDtoService(owner.getClass())).save(owner);
+			// check form instance values were saved
+			owner
+				.getEavs()
+				.forEach(formInstance -> {
+					Assert.assertFalse(formInstance.getValues().isEmpty());
+					formInstance.getValues().forEach(formValue -> {
+						Assert.assertNotNull(formValue.getId());
+						Assert.assertNotNull(formValue.getCreated());
+					});
+				});
 			//
 			// load saved
 			Map<String, List<IdmFormValueDto>> m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();

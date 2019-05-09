@@ -293,59 +293,6 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 
 	}
 
-	@Test()
-	@Transactional()
-	public void duplicatedRequestExceptionTest() {
-		loginAsAdmin(USER_TEST_A);
-
-		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
-		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
-
-		IdmRoleRequestDto request = new IdmRoleRequestDto();
-		request.setApplicant(testA.getId());
-		request.setExecuteImmediately(false);
-		request.setRequestedByType(RoleRequestedByType.MANUALLY);
-		IdmRoleRequestDto requestA = roleRequestService.save(request);
-
-		Assert.assertEquals(RoleRequestState.CONCEPT, requestA.getState());
-
-		LocalDate validFrom = new LocalDate().minusDays(1);
-		LocalDate validTill = new LocalDate().plusMonths(1);
-		IdmConceptRoleRequestDto conceptA = new IdmConceptRoleRequestDto();
-		conceptA.setRoleRequest(requestA.getId());
-		conceptA.setOperation(ConceptRoleRequestOperation.ADD);
-		conceptA.setRole(roleA.getId());
-		conceptA.setValidFrom(validFrom);
-		conceptA.setValidTill(validTill);
-		conceptA.setIdentityContract(contractA.getId());
-		conceptRoleRequestService.save(conceptA);
-
-		roleRequestService.startRequestInternal(requestA.getId(), true, true);
-		requestA = roleRequestService.get(requestA.getId());
-		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestA.getState());
-
-		IdmRoleRequestDto requestB = roleRequestService.save(request);
-		conceptA.setRoleRequest(requestB.getId());
-		conceptRoleRequestService.save(conceptA);
-
-		// We expect duplication exception
-		roleRequestService.startRequestInternal(requestB.getId(), true, true);
-		requestB = roleRequestService.get(requestB.getId());
-		Assert.assertEquals(RoleRequestState.DUPLICATED, requestB.getState());
-		Assert.assertEquals(requestA.getId(), requestB.getDuplicatedToRequest());
-
-		// We change only description (remove duplicity)
-		requestB.setDescription("-----");
-		roleRequestService.save(requestB);
-
-		// We expect correct start
-		roleRequestService.startRequestInternal(requestB.getId(), true, true);
-		requestB = roleRequestService.get(requestB.getId());
-		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestB.getState());
-		Assert.assertEquals(null, requestB.getDuplicatedToRequest());
-
-	}
-
 	@Test(expected = RoleRequestException.class)
 	@Transactional()
 	public void notRightForExecuteImmediatelyExceptionTest() {

@@ -32,16 +32,6 @@ public interface IdmNotificationTemplateService extends
 	String TEMPLATE_FOLDER = "idm.sec.core.notification.template.folder";
 
 	/**
-	 * Return {@link IdmNotificationTemplateDto} by given code.
-	 * 
-	 * @param code
-	 * @return
-	 * @deprecated @since 7.7.0, use {@link #getByCode(String)}
-	 */
-	@Deprecated
-	IdmNotificationTemplateDto getTemplateByCode(String code);
-
-	/**
 	 * Return {@link IdmMessageDto}, generate by {@link IdmNotificationTemplateDto}
 	 * from {@link IdmMessageDto}. For generate new message will be used parameters
 	 * given in {@link IdmMessageDto}. Object instance of {@link GuardedString} is

@@ -368,17 +368,6 @@ public class JwtAuthenticationMapper {
 		//
 		return authenticationDto;
 	}
-	
-	/**
-	 * 
-	 * @param authentication
-	 * @return
-	 * @deprecated @since 7.8.0 use {@link #getDtoAuthorities(Authentication)}
-	 */
-	@Deprecated
-	public List<DefaultGrantedAuthorityDto> getDTOAuthorities(Authentication authentication) {
-		return getDtoAuthorities(authentication);
-	}
 
 	/**
 	 * Transforms authentication authorities to list of dtos

@@ -95,12 +95,6 @@ public class DefaultSysProvisioningBatchService
 	
 	@Override
 	@Transactional
-	public SysProvisioningBatchDto findBatch(UUID systemId, UUID entityIdentifier, UUID systemEntity) {
-		return findBatch(systemEntity);
-	}
-	
-	@Override
-	@Transactional
 	public SysProvisioningBatchDto findBatch(UUID systemEntity) {
 		List<SysProvisioningBatch> batches = repository.findAllBySystemEntity_IdOrderByCreatedAsc(systemEntity);
 		//

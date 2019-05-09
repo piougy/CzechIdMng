@@ -1263,7 +1263,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 
 		concepts = new ArrayList<IdmConceptRoleRequestDto>();
 		concept.setRole(UUID.randomUUID());
-		concept.setDuplicit(null);
+		concept.setDuplicate(null);
 		concepts.add(concept);
 
 		removeDuplicities = roleRequestService.removeDuplicities(concepts, identity.getId());
@@ -1303,7 +1303,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		assertTrue(removeDuplicities.isEmpty()); // concept is duplicit with one
 
 		concepts = new ArrayList<IdmConceptRoleRequestDto>();
-		concept.setDuplicit(null);
+		concept.setDuplicate(null);
 		concepts.add(concept);
 		
 		IdmConceptRoleRequestDto conceptWithremove = new IdmConceptRoleRequestDto();

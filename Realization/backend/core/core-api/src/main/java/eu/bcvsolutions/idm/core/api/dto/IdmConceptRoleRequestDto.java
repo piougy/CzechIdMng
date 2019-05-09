@@ -5,9 +5,6 @@ import java.util.UUID;
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
@@ -41,8 +38,7 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
     private String wfProcessId;
     private String log;
     private boolean valid = true; // Is concept valid?
-    @JsonProperty(access = Access.READ_ONLY)
-    private UUID duplicit; // Is concept duplicit and with identity role
+    private UUID duplicate; // Is concept duplicate and with identity role
 
 	public UUID getRoleRequest() {
         return roleRequest;
@@ -249,15 +245,11 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
         return true;
     }
 
-	public boolean isDuplicit() {
-		return duplicit != null;
+	public UUID getDuplicate() {
+		return duplicate;
 	}
-
-	public UUID getDuplicit() {
-		return duplicit;
-	}
-
-	public void setDuplicit(UUID duplicit) {
-		this.duplicit = duplicit;
+	
+	public void setDuplicate(UUID duplicate) {
+		this.duplicate = duplicate;
 	}
  }

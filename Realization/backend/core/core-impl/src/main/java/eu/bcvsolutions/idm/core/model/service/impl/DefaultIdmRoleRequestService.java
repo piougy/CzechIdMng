@@ -851,7 +851,7 @@ public class DefaultIdmRoleRequestService
 
 				// Duplicated founded. Add UUID from identity role
 				if (duplicated != null || (duplicated != null && duplicated.getId() == null)) {
-					concept.setDuplicit(identityRole.getId());
+					concept.setDuplicate(identityRole.getId());
 					break;
 				}
 			}
@@ -891,7 +891,7 @@ public class DefaultIdmRoleRequestService
 		// Create final concepts and add non duplicities
 		List<IdmConceptRoleRequestDto> conceptRolesFinal = new ArrayList<IdmConceptRoleRequestDto>();
 		for (IdmConceptRoleRequestDto concept : concepts) {
-			if (!concept.isDuplicit()) {
+			if (concept.getDuplicate() == null) {
 				conceptRolesFinal.add(concept);
 			}
 		}
@@ -1212,7 +1212,7 @@ public class DefaultIdmRoleRequestService
 				continue;
 			}
 
-			if (concept.isDuplicit()) {
+			if (concept.getDuplicate() != null) {
 				continue;
 			}
 

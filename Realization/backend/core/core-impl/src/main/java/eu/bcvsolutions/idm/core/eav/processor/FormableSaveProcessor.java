@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.eav.processor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -46,6 +49,7 @@ public class FormableSaveProcessor extends CoreEventProcessor<FormableDto> {
 		//
 		// save filled eavs as "PATCH" - access is evaluated before - check {@link #publish} method in {@link AbstractFormableService}
 		// the same behavior as saving form values separately
+		List<IdmFormInstanceDto> processedInstances = new ArrayList<>();
 		savedDto.getEavs().forEach(formInstance -> {
 			// find definition by id or code -  loaded form definition is needed (with attributes)
 			IdmFormDefinitionDto formDefinition = null;
@@ -62,8 +66,11 @@ public class FormableSaveProcessor extends CoreEventProcessor<FormableDto> {
 			// We don't need to propagate other "NOTIFY" event on all form instances (duplicate to owner event)
 			formInstanceEvent.getProperties().put(EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFY, Boolean.TRUE);
 			// we don't need to evaluate access on values again - see above publish method
-			entityEventManager.process(formInstanceEvent, event).getContent();
+			processedInstances.add(entityEventManager.process(formInstanceEvent, event).getContent());
 		});
+		// set processed instances and content into event => can be used for another processing
+		savedDto.setEavs(processedInstances);
+		event.setContent(savedDto);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

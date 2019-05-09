@@ -1,9 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.quartz.DisallowConcurrentExecution;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
-import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -101,8 +98,6 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 	 */
 	private void processAutomaticRoleForContract(IdmAutomaticRoleAttributeDto automaticRolAttributeDto) {
 		UUID automaticRoleId = automaticRolAttributeDto.getId();
-		Set<AbstractIdmAutomaticRoleDto> automaticRoleSet = new HashSet<AbstractIdmAutomaticRoleDto>();
-		automaticRoleSet.add(automaticRolAttributeDto);
 		//
     	// process contracts
     	Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, new PageRequest(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES));

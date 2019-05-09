@@ -3,6 +3,9 @@ import React from 'react';
 import * as Basic from '../../components/basic';
 import ComponentService from '../../services/ComponentService';
 
+/**
+ * @author Ondřej Kopr
+ */
 export default class PasswordChange extends Basic.AbstractContent {
 
   constructor(props, context) {

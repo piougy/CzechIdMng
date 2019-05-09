@@ -34,6 +34,13 @@ import packageDescriptor from './package.json';
 
 require('babel/register');
 
+/**
+ * App build script
+ *
+ * @author Vít Švanda
+ * @author Radek Tomiška
+ */
+
 const paths = {
   bundle: 'app.js',
   srcJs: ['node_modules/bootstrap-less/js/bootstrap.min.js', 'node_modules/jquery/dist/jquery.min.js'],

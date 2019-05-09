@@ -12,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
-import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -103,7 +102,6 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     	Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, new PageRequest(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES));
     	Page<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, new PageRequest(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES));
     	//
-    	//
     	boolean canContinue = true;
     	while (canContinue) {
     		for(UUID contractId : newPassedContracts) {
@@ -112,10 +110,6 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     			//
     			IdmIdentityContractDto contract = identityContractService.get(contractId);
     			//
-    			// check for contract validity
-    			if (contract.getState() == ContractState.DISABLED || !contract.isValidNowOrInFuture()) {
-    				continue;
-    			}
     			IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
     			concept.setIdentityContract(contract.getId());
     			concept.setValidFrom(contract.getValidFrom());
@@ -123,11 +117,9 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     			concept.setRole(automaticRolAttributeDto.getRole());
     			concept.setAutomaticRole(automaticRoleId);
 				concept.setOperation(ConceptRoleRequestOperation.ADD);
-				concepts.add(concept);
+				concepts.add(concept);	
 
-				if (!concepts.isEmpty()) {
-    				roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
-    			}
+    			roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
  
 				canContinue = updateState();
 				if (!canContinue) {
@@ -167,9 +159,7 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     				}
     			}
 
-    			if (!concepts.isEmpty()) {
-    				roleRequestService.executeConceptsImmediate(identityId, concepts);
-    			}
+    			roleRequestService.executeConceptsImmediate(identityId, concepts);
 
     			canContinue = updateState();
     			if (!canContinue) {

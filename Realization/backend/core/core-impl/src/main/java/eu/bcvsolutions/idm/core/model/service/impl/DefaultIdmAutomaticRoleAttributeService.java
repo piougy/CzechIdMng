@@ -266,9 +266,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 		}
 		
 		// Execute concepts
-		if (!concepts.isEmpty()) {
-			roleRequestService.executeConceptsImmediate(identityId, concepts);
-		}
+		roleRequestService.executeConceptsImmediate(identityId, concepts);
 	}
 	
 	@Override
@@ -840,9 +838,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			concepts.add(concept);
 		}
 
-		if (!concepts.isEmpty()) {
-			roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
-		}
+		roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
 	}
 	
 }

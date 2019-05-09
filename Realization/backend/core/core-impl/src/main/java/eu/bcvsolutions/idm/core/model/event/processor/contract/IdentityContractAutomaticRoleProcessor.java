@@ -109,9 +109,7 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 		}
 		//
 		// Execute concepts
-		if (!concepts.isEmpty()) {
-			roleRequestService.executeConceptsImmediate(identityContract.getIdentity(), concepts);
-		}
+		roleRequestService.executeConceptsImmediate(identityContract.getIdentity(), concepts);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

@@ -123,9 +123,7 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 			//
 		}
 		// Execute concepts
-		if (!concepts.isEmpty()) {
-			roleRequestService.executeConceptsImmediate(identityId, concepts);
-		}
+		roleRequestService.executeConceptsImmediate(identityId, concepts);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

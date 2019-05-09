@@ -66,7 +66,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     //
     this._initComponent(this.props);
     //
-    this._initComponentCurrentRoles(this.props);
+    this._initComponentCurrentRoles(this.props, true);
     if (this.refs.description) {
       this.refs.description.focus();
     }
@@ -77,7 +77,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { entityId} = props;
+    const { entityId } = props;
     const _entityId = entityId ? entityId : props.params.entityId;
     if (this._getIsNew(props)) {
       this.setState({
@@ -102,13 +102,21 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     this._initComponent(this.props);
   }
 
-  _initComponentCurrentRoles(props) {
+  _initComponentCurrentRoles(props, force) {
     const { _request, location} = props;
+    const {context} = this;
 
     const applicantFromUrl = location ? location.query.applicantId : null;
     const identityId = _request ? _request.applicant : applicantFromUrl;
-    //
-    this.context.store.dispatch(identityRoleManager.fetchRoles(identityId, `${uiKey}-${identityId}`, () => {}));
+    const state = context.store.getState();
+    let identityRoles = null;
+    if (identityId) {
+      identityRoles = identityRoleManager.getEntities(state, `${uiKey}-${identityId}`);
+    }
+    // Identity-roles are loaded only if not exists in the redux state or if force parameter is used (from didmount method).
+    if (identityId && (force || !identityRoles || identityRoles.length === 0)) {
+      this.context.store.dispatch(identityRoleManager.fetchRoles(identityId, `${uiKey}-${identityId}`));
+    }
   }
 
   /**
@@ -488,7 +496,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     return (
       <div>
         <Basic.LabelWrapper
-          rendered={ request !== null && request.applicant !== null }
+          rendered={ request !== null && !_.isNil(request.applicant) }
           readOnly
           ref="applicant"
           label={this.i18n('entity.RoleRequest.applicant')}>
@@ -498,7 +506,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         </Basic.LabelWrapper>
 
         <Basic.LabelWrapper
-          rendered={ request !== null && request.creatorId !== null }
+          rendered={ request !== null && !_.isNil(request.creatorId) }
           readOnly
           ref="implementer"
           label={this.i18n('entity.RoleRequest.implementer')}>

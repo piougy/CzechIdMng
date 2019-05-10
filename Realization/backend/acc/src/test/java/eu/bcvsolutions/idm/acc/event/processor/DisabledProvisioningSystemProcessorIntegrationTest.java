@@ -24,9 +24,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Execute role request
- * - one provisioning operation schould be ececuted
- * - prevent to drop and create target account, if one assigned role is deleted 
+ * Tests for provisioning disable of system
  * 
  * @author Radek Tomiška
  *

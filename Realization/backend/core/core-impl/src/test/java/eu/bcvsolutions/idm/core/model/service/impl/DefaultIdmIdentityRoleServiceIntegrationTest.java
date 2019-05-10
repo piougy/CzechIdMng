@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -1511,7 +1512,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 
 		for (IdmConceptRoleRequestDto concept : duplicates) {
 			if (concept.getId().equals(conceptOne.getId())) {
-				assertTrue(BooleanUtils.isNotTrue(concept.getDuplicate()));
+				assertFalse(concept.getDuplicate());
 			} else if (concept.getId().equals(conceptTwo.getId())) {
 				DuplicateWithRoles duplicateWithRoles = concept.getDuplicates();
 				assertTrue(concept.getDuplicate());
@@ -1521,17 +1522,112 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 				UUID duplicatedId = duplicateWithRoles.getConcepts().get(0);
 				assertEquals(conceptOne.getId(), duplicatedId);
 			} else if (concept.getId().equals(conceptThrid.getId())) {
-				assertTrue(BooleanUtils.isNotTrue(concept.getDuplicate()));
-			} else if (concept.getId().equals(conceptThrid.getId())) {
+				assertFalse(concept.getDuplicate());
+			} else if (concept.getId().equals(conceptFour.getId())) {
+				assertFalse(concept.getDuplicate());
+			} else  {
+				fail();
+			}
+		}
+	}
+
+	@Test
+	public void testMarkDuplicatesBetweenConceptsWithDelete() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString)null);
+		IdmRoleDto role = getHelper().createRole();
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		UUID roleId = role.getId();
+		UUID contractId = contract.getId();
+
+		IdmConceptRoleRequestDto conceptOne = new IdmConceptRoleRequestDto();
+		conceptOne.setId(UUID.randomUUID());
+		conceptOne.setRole(roleId);
+		conceptOne.setIdentityContract(contractId);
+		Map<String, BaseDto> embedded = conceptOne.getEmbedded();
+		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
+		conceptOne.setEmbedded(embedded);
+		conceptOne.setOperation(ConceptRoleRequestOperation.REMOVE);
+
+		IdmConceptRoleRequestDto conceptTwo = new IdmConceptRoleRequestDto();
+		conceptTwo.setId(UUID.randomUUID());
+		conceptTwo.setRole(roleId);
+		embedded = conceptTwo.getEmbedded();
+		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
+		conceptTwo.setEmbedded(embedded);
+		conceptTwo.setIdentityContract(contractId);
+		conceptTwo.setOperation(ConceptRoleRequestOperation.ADD);
+
+		List<IdmConceptRoleRequestDto> duplicates = roleRequestService.markDuplicates(
+				Lists.newArrayList(conceptOne, conceptTwo),
+				Lists.newArrayList());
+		assertEquals(2, duplicates.size());
+
+		for (IdmConceptRoleRequestDto concept : duplicates) {
+			if (concept.getId().equals(conceptOne.getId())) {
+				assertFalse(concept.getDuplicate());
+			} else if (concept.getId().equals(conceptTwo.getId())) {
+				assertFalse(concept.getDuplicate());
+			} else  {
+				fail();
+			}
+		}
+	}
+
+	@Test
+	public void testMarkDuplicatesBothSame() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString)null);
+		IdmRoleDto role = getHelper().createRole();
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		UUID roleId = role.getId();
+		UUID contractId = contract.getId();
+
+		IdmConceptRoleRequestDto conceptOne = new IdmConceptRoleRequestDto();
+		conceptOne.setId(UUID.randomUUID());
+		conceptOne.setRole(roleId);
+		conceptOne.setIdentityContract(contractId);
+		Map<String, BaseDto> embedded = conceptOne.getEmbedded();
+		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
+		conceptOne.setEmbedded(embedded);
+		conceptOne.setOperation(ConceptRoleRequestOperation.ADD);
+
+		IdmConceptRoleRequestDto conceptTwo = new IdmConceptRoleRequestDto();
+		conceptTwo.setId(UUID.randomUUID());
+		conceptTwo.setRole(roleId);
+		embedded = conceptTwo.getEmbedded();
+		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
+		conceptTwo.setEmbedded(embedded);
+		conceptTwo.setIdentityContract(contractId);
+		conceptTwo.setOperation(ConceptRoleRequestOperation.ADD);
+
+		List<IdmConceptRoleRequestDto> duplicates = roleRequestService.markDuplicates(
+				Lists.newArrayList(conceptOne, conceptTwo),
+				Lists.newArrayList());
+		assertEquals(2, duplicates.size());
+
+		// Both concepts are same. Duplicates is controlled by order in list
+		for (IdmConceptRoleRequestDto concept : duplicates) {
+			if (concept.getId().equals(conceptOne.getId())) {
+				assertFalse(concept.getDuplicate());
+			} else if (concept.getId().equals(conceptTwo.getId())) {
 				DuplicateWithRoles duplicateWithRoles = concept.getDuplicates();
 				assertTrue(concept.getDuplicate());
 				assertTrue(duplicateWithRoles.getIdentityRoles().isEmpty());
 				assertFalse(duplicateWithRoles.getConcepts().isEmpty());
 				assertEquals(1, duplicateWithRoles.getConcepts().size());
 				UUID duplicatedId = duplicateWithRoles.getConcepts().get(0);
-				assertEquals(conceptTwo.getId(), duplicatedId);
+				assertEquals(conceptOne.getId(), duplicatedId);
+			} else  {
+				fail();
 			}
 		}
+	}
+
+	@Test
+	public void testMarkDuplicatesBetweenConceptsEmpty() {
+		List<IdmConceptRoleRequestDto> duplicates = roleRequestService.markDuplicates(
+				Lists.newArrayList(),
+				Lists.newArrayList());
+		assertEquals(0, duplicates.size());
 	}
 
 	private IdmFormInstanceDto setValue(IdmIdentityRoleDto identityRole, IdmFormAttributeDto attribute, Serializable value) {

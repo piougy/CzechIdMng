@@ -815,51 +815,10 @@ public class DefaultIdmRoleRequestService
 	@Override
 	public List<IdmConceptRoleRequestDto> markDuplicates(List<IdmConceptRoleRequestDto> concepts, List<IdmIdentityRoleDto> allByIdentity) {
 		Assert.notNull(concepts);
+
+		// Check duplicates between concepts
+		markDuplicatesInConcepts(concepts);
 		
-		// Mark duplicates with concepts
-		for (IdmConceptRoleRequestDto conceptOne : concepts) {
-			// Only add or modification will be processed
-			if (conceptOne.getOperation() != ConceptRoleRequestOperation.ADD &&
-					conceptOne.getOperation() != ConceptRoleRequestOperation.UPDATE) {
-				continue;
-			}
-
-			if (BooleanUtils.isTrue(conceptOne.getDuplicate())) {
-				continue;
-			}
-
-			IdmIdentityRoleDto one = this.createTempIdentityRole(conceptOne);
-
-			// check duplicates for concept
-			for (IdmConceptRoleRequestDto conceptTwo : concepts) {
-				if (BooleanUtils.isTrue(conceptTwo.getDuplicate())) {
-					continue;
-				}
-
-				// There must be compare by == not by equals. Because equals is overridden in
-				// concept.
-				if (conceptOne == conceptTwo) {
-					continue;
-				}
-				IdmIdentityRoleDto two = this.createTempIdentityRole(conceptTwo);
-
-				// Get duplicated must be quick, because the method doesn't made query to database
-				IdmIdentityRoleDto duplicated = identityRoleService.getDuplicated(one, two, Boolean.FALSE);
-				if (duplicated == one) {
-					DuplicateWithRoles duplicates = conceptOne.getDuplicates();
-					duplicates.addConcept(conceptOne.getId());
-					conceptOne.setDuplicate(Boolean.TRUE);
-					conceptOne.setDuplicates(duplicates);
-				} else if (duplicated == two) {
-					DuplicateWithRoles duplicates = conceptTwo.getDuplicates();
-					duplicates.addConcept(conceptTwo.getId());
-					conceptTwo.setDuplicate(Boolean.TRUE);
-					conceptTwo.setDuplicates(duplicates);
-				}
-			}
-			
-		}
-
 		// Split by role UUID
 		Map<UUID, List<IdmIdentityRoleDto>> identityRolesByRole = allByIdentity
 		.stream() //
@@ -1335,5 +1294,65 @@ public class DefaultIdmRoleRequestService
 		// Created is set to now (with founded duplicity, this will be marked as duplicated)
 		temp.setCreated(DateTime.now());
 		return temp;
+	}
+
+	private void markDuplicatesInConcepts(List<IdmConceptRoleRequestDto> concepts) {
+		// Mark duplicates with concepts
+		// Compare conceptOne with conceptTwo
+		for (IdmConceptRoleRequestDto conceptOne : concepts) {
+			// Only add or modification will be processed
+			if (conceptOne.getOperation() == ConceptRoleRequestOperation.REMOVE) {
+				conceptOne.setDuplicate(Boolean.FALSE); // REMOVE concept can be duplicated
+				continue;
+			}
+
+			if (BooleanUtils.isTrue(conceptOne.getDuplicate())) {
+				continue;
+			}
+
+			IdmIdentityRoleDto identityRoleOne = this.createTempIdentityRole(conceptOne);
+
+			// check duplicates for concept
+			for (IdmConceptRoleRequestDto conceptTwo : concepts) {
+				// Only add or modification will be processed
+				if (conceptTwo.getOperation() == ConceptRoleRequestOperation.REMOVE) {
+					conceptTwo.setDuplicate(Boolean.FALSE); // REMOVE concept can be duplicated
+					continue;
+				}
+
+				if (BooleanUtils.isTrue(conceptTwo.getDuplicate())) {
+					continue;
+				}
+
+				// There must be compare by == not by equals. Because equals is overridden in
+				// concept.
+				if (conceptOne == conceptTwo) {
+					continue;
+				}
+				IdmIdentityRoleDto identityRoleTwo = this.createTempIdentityRole(conceptTwo);
+
+				// Get duplicated must be quick, because the method doesn't made query to
+				// database
+				IdmIdentityRoleDto duplicated = identityRoleService.getDuplicated(identityRoleOne, identityRoleTwo, Boolean.FALSE);
+				if (duplicated == identityRoleOne) {
+					// When is duplicate same as identityRoleOne set ID of concept two
+					DuplicateWithRoles duplicates = conceptOne.getDuplicates();
+					duplicates.addConcept(conceptTwo.getId());
+					conceptOne.setDuplicate(Boolean.TRUE);
+					conceptOne.setDuplicates(duplicates);
+				} else if (duplicated == identityRoleTwo) {
+					// When is duplicate same as identityRoleTwo set ID of concept one
+					DuplicateWithRoles duplicates = conceptTwo.getDuplicates();
+					duplicates.addConcept(conceptOne.getId());
+					conceptTwo.setDuplicate(Boolean.TRUE);
+					conceptTwo.setDuplicates(duplicates);
+				}
+			}
+
+			// If concept isn't marked as duplicated set him false
+			if (BooleanUtils.isNotTrue(conceptOne.getDuplicate())) {
+				conceptOne.setDuplicate(Boolean.FALSE);
+			}
+		}
 	}
 }

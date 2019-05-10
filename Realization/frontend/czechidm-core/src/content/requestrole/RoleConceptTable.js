@@ -539,18 +539,20 @@ export class RoleConceptTable extends Basic.AbstractContent {
       const formInstance = value._eav[0];
       const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values);
       result.push(
+        <div onClick={ !value._removed ? this._showDetail.bind(this, value, true, false) : null }>
           <Advanced.EavForm
             key={ _.uniqueId(`${rowIndex}-${value.id}`) }
             ref="eavForm"
             formInstance={ _formInstance }
             validationErrors={ formInstance.validationErrors }
             readOnly
-            useDefaultValue={false}/>
-        );
+            useDefaultValue={ false }/>
+        </div>
+      );
     }
     return (
       <Basic.Div className="abstract-form condensed" style={{minWidth: 150, padding: 0}}>
-        {result}
+        { result }
       </Basic.Div>
     );
   }
@@ -670,13 +672,36 @@ export class RoleConceptTable extends Basic.AbstractContent {
     getRequest(this._executeRoleRequestByIdentity, this);
   }
 
+  /**
+   * Gets duplicated concept or identity role for the given concept
+   */
+  _getOriginalForDuplicate(conceptData, concept) {
+    if (!conceptData || !concept.duplicate || !concept._embedded || !concept._embedded.duplicates) {
+      return null;
+    }
+    const duplicates = concept._embedded.duplicates;
+    if (duplicates.identityRoles.length > 0) {
+      return conceptData.find(c => {
+        return c.id === duplicates.identityRoles[0];
+      });
+    }
+    if (duplicates.concepts.length > 0) {
+      return conceptData.find(c => {
+        return c.id === duplicates.concepts[0];
+      });
+    }
+    //
+    return null;
+  }
+
   render() {
     const {
       identityUsername,
       readOnly,
       className,
       _currentIdentityRoles,
-      request
+      request,
+      showLoadingButtonRemove
     } = this.props;
     const {
       conceptData,
@@ -793,7 +818,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
               cell={
                 /* eslint-disable react/no-multi-comp */
                 ({ rowIndex, data }) => {
-                  const role = data[rowIndex]._embedded.role;
+                  const conceptOrIdentityRole = data[rowIndex];
+                  const role = conceptOrIdentityRole._embedded.role;
                   if (!role) {
                     return '';
                   }
@@ -802,6 +828,98 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   content.push(
                     <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(role) }/>
                   );
+                  if (conceptOrIdentityRole.duplicate) {
+                    const original = this._getOriginalForDuplicate(conceptData, conceptOrIdentityRole);
+                    //
+                    content.push(
+                      <Basic.Popover
+                        trigger={['click']}
+                        value={
+                          <Basic.Panel level="warning">
+                            <Basic.PanelHeader level="warning">
+                              {
+                                original
+                                ?
+                                this.i18n('entity.IdentityRole.duplicate.header')
+                                :
+                                this.i18n('entity.IdentityRole.duplicate.label')
+                              }
+                            </Basic.PanelHeader>
+                            {
+                              !original
+                              ||
+                              <Basic.Table
+                                condensed
+                                hover={ false }
+                                noHeader
+                                data={
+                                  [
+                                    {
+                                      label: this.i18n('entity.IdentityRole.role'),
+                                      value: (
+                                        <Advanced.EntityInfo
+                                          entityType="role"
+                                          entityIdentifier={ original.role }
+                                          entity={ original._embedded.role }
+                                          face="popover"
+                                          showIcon/>
+                                      )
+                                    },
+                                    {
+                                      label: this.i18n('entity.IdentityRole.identityContract.title'),
+                                      value: (
+                                        <Advanced.EntityInfo
+                                          entityType="contract"
+                                          entityIdentifier={ original.identityContract }
+                                          entity={ original._embedded.identityContract }
+                                          showIdentity={ false }
+                                          showIcon
+                                          face="popover" />
+                                      )
+                                    },
+                                    {
+                                      label: this.i18n('label.validFrom'),
+                                      value: (<Advanced.DateValue value={ original.validFrom }/>)
+                                    },
+                                    {
+                                      label: this.i18n('label.validTill'),
+                                      value: (<Advanced.DateValue value={ original.validTill }/>)
+                                    },
+                                    {
+                                      label: this.i18n('entity.IdentityRole.automaticRole.label'),
+                                      value: (original.automaticRole !== null ? this.i18n('label.yes') : this.i18n('label.no'))
+                                    }
+                                  ]
+                                }>
+                                <Basic.Column property="label"/>
+                                <Basic.Column property="value"/>
+                              </Basic.Table>
+                            }
+                            <Basic.PanelFooter>
+                              <Basic.Button
+                                level="danger"
+                                className="btn-xs"
+                                icon="remove"
+                                text={ this.i18n('duplicate.button.remove.label') }
+                                showLoading={ showLoadingButtonRemove }
+                                onClick={ this._removeConceptWithRequest.bind(this, conceptOrIdentityRole) }/>
+                            </Basic.PanelFooter>
+                          </Basic.Panel>
+                        }
+                        className="abstract-entity-info-popover">
+                        {
+                          <span>
+                            <Basic.Button
+                              level="inverse"
+                              icon="fa:warning"
+                              className="btn-xs"
+                              style={{ marginRight: 3 }}
+                              title={ this.i18n('entity.IdentityRole.duplicate.label') }/>
+                          </span>
+                        }
+                      </Basic.Popover>
+                    );
+                  }
                   content.push(
                     <div style={{ flex: 1 }}>
                       <Advanced.EntityInfo
@@ -837,7 +955,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                 }
               }/>
             <Basic.Column
-              header={this.i18n('entity.IdentityRole.identityContract.title')}
+              header={ this.i18n('entity.IdentityRole.identityContract.title') }
               cell={
                 ({rowIndex, data}) => {
                   const contract = data[rowIndex]._embedded.identityContract;
@@ -856,12 +974,12 @@ export class RoleConceptTable extends Basic.AbstractContent {
               />
             <Basic.Column
               property="validFrom"
-              header={this.i18n('label.validFrom')}
-              cell={this._conceptDateCell.bind(this)}/>
+              header={ this.i18n('label.validFrom') }
+              cell={ this._conceptDateCell.bind(this) }/>
             <Basic.Column
               property="validTill"
-              header={this.i18n('label.validTill')}
-              cell={this._conceptDateCell.bind(this)}/>
+              header={ this.i18n('label.validTill') }
+              cell={ this._conceptDateCell.bind(this) }/>
             <Basic.Column
               property="directRole"
               header={this.i18n('entity.IdentityRole.directRole.label')}
@@ -885,7 +1003,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
               width={ 150 }/>
             <Basic.Column
               property="automaticRole"
-              header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.automaticRole.label')}</Basic.Cell>}
+              header={<Basic.Cell className="column-face-bool">{ this.i18n('entity.IdentityRole.automaticRole.label') }</Basic.Cell>}
               cell={
                 /* eslint-disable react/no-multi-comp */
                 ({ rowIndex, data }) => {

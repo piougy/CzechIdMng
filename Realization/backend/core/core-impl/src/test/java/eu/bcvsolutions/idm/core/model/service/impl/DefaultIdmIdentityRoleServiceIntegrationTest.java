@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.DuplicateWithRoles;
+import eu.bcvsolutions.idm.core.api.dto.DuplicateRolesDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -1514,7 +1514,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 			if (concept.getId().equals(conceptOne.getId())) {
 				assertFalse(concept.getDuplicate());
 			} else if (concept.getId().equals(conceptTwo.getId())) {
-				DuplicateWithRoles duplicateWithRoles = concept.getDuplicates();
+				DuplicateRolesDto duplicateWithRoles = concept.getDuplicates();
 				assertTrue(concept.getDuplicate());
 				assertTrue(duplicateWithRoles.getIdentityRoles().isEmpty());
 				assertFalse(duplicateWithRoles.getConcepts().isEmpty());
@@ -1609,7 +1609,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 			if (concept.getId().equals(conceptOne.getId())) {
 				assertFalse(concept.getDuplicate());
 			} else if (concept.getId().equals(conceptTwo.getId())) {
-				DuplicateWithRoles duplicateWithRoles = concept.getDuplicates();
+				DuplicateRolesDto duplicateWithRoles = concept.getDuplicates();
 				assertTrue(concept.getDuplicate());
 				assertTrue(duplicateWithRoles.getIdentityRoles().isEmpty());
 				assertFalse(duplicateWithRoles.getConcepts().isEmpty());

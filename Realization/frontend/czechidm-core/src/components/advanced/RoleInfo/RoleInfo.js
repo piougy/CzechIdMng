@@ -87,13 +87,15 @@ export class RoleInfo extends AbstractEntityInfo {
   }
 
   _renderPopover() {
+    const _entity = this.getEntity();
+    //
     return (
       <Tree
         uiKey={ `role-info-${ this.getEntityId() }` }
         manager={ this.getManager() }
-        roots={[ this.getEntity() ]}
+        roots={[ _entity ]}
         header={ null }
-        style={{ display: 'inline' }}
+        style={{ display: 'inline-block' }}
         bodyStyle={{ padding: 0, overflowX: 'hidden' }}
         onChange={ () => false }
         nodeIcon={ ({ node }) => this.props.showIcon ? this.getEntityIcon(node) : null }

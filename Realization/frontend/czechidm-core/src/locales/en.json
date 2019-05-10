@@ -1006,6 +1006,7 @@
       "header": "Information about password",
       "label": "$t(content.password.header)",
       "title": "$t(content.password.header)",
+      "noData": "Selected user doesn't have a password. Password will be created after is changed on the first time.",
       "created": {
         "label": "Created",
         "help": "Date of created password"

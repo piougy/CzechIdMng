@@ -392,6 +392,9 @@ class IdentityService extends FormableEntityService {
     return RestApiService
     .get(this.getApiPath() + `/${ encodeURIComponent(identityId) }/password`)
     .then(response => {
+      if (response.status === 204) { // no content - ok
+        return false;
+      }
       return response.json();
     })
     .then(json => {

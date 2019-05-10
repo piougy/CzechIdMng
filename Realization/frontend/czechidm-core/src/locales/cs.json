@@ -1037,6 +1037,7 @@
       "header": "Informace o hesle",
       "label": "$t(content.password.header)",
       "title": "$t(content.password.header)",
+      "noData": "Uživatel nemá heslo. Heslo bude vytvořeno při první změně hesla.",
       "created": {
         "label": "Vytvořeno",
         "help": "Datum vytvoření hesla"

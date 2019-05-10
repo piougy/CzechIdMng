@@ -106,6 +106,14 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
     const canSave = Utils.Permission.hasPermission(_permissions, 'UPDATE');
     const showLoadingFinal = showLoading || !_permissions || _showLoading;
 
+    if (entity === false) {
+      return (
+        <div style={{ padding: 15 }}>
+          <Basic.Alert level="info" text={ this.i18n('noData') } style={{ margin: 0 }}/>
+        </div>
+      );
+    }
+    //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -161,11 +169,15 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
               </Basic.Col>
             </Basic.Row>
 
-            <Basic.TextField
-              readOnly
-              ref="unsuccessfulAttempts"
-              helpBlock={ this.i18n('unsuccessfulAttempts.help') }
-              label={ this.i18n('unsuccessfulAttempts.label') }/>
+            <Basic.Row>
+              <Basic.Col lg={ 6 }>
+                <Basic.TextField
+                  readOnly
+                  ref="unsuccessfulAttempts"
+                  helpBlock={ this.i18n('unsuccessfulAttempts.help') }
+                  label={ this.i18n('unsuccessfulAttempts.label') }/>
+              </Basic.Col>
+            </Basic.Row>
 
             <Basic.Row>
               <Basic.Col lg={ 6 }>

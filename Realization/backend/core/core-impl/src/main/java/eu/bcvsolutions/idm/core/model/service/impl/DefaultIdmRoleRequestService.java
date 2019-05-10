@@ -955,7 +955,10 @@ public class DefaultIdmRoleRequestService
 	private void removeAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
 			EntityEvent<IdmRoleRequestDto> requestEvent) {
 		Assert.notNull(concept.getIdentityRole(), "IdentityRole is mandatory for delete!");
-		IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
+		IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole.getName(), IdmIdentityRoleDto.class, (IdmIdentityRoleDto)null);
+		if (identityRole == null) {
+			identityRole = identityRoleService.get(concept.getIdentityRole());
+		}
 		
 		if (identityRole != null) {
 			concept.setState(RoleRequestState.EXECUTED);
@@ -999,7 +1002,7 @@ public class DefaultIdmRoleRequestService
 	private void updateAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
 			EntityEvent<IdmRoleRequestDto> requestEvent) {
 		IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-		identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
+		identityRole = convertConceptRoleToIdentityRole(concept, identityRole);
 		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.UPDATE, identityRole, ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE));
 		event.setPriority(PriorityType.IMMEDIATE);
 		
@@ -1035,7 +1038,7 @@ public class DefaultIdmRoleRequestService
 	 */
 	private void createAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request, EntityEvent<IdmRoleRequestDto> requestEvent) {
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-		identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
+		identityRole = convertConceptRoleToIdentityRole(concept, identityRole);
 		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole,
 				ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE)); // I can't use the NOTIFY skip, because I
 																				// don't want skip recalculation of

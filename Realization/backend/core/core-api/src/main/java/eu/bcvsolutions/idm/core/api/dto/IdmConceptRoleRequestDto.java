@@ -20,6 +20,7 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
 
     private static final long serialVersionUID = 1L;
     public static final String WF_PROCESS_FIELD = "wfProcessId";
+    public static final String DUPLICATES = "duplicates";
 
     @Embedded(dtoClass = IdmRoleRequestDto.class)
     private UUID roleRequest;
@@ -38,7 +39,13 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
     private String wfProcessId;
     private String log;
     private boolean valid = true; // Is concept valid?
-    private UUID duplicate; // Is concept duplicate and with identity role
+    /*
+     *  Is concept duplicate and with identity role or another concept,
+     *  if boolean is null. Duplicated wasn't processed. Duplicates can be
+     *  filled by IdmRoleRequestService#markDuplicates
+     *  @since 9.6.0
+     */
+    private Boolean duplicate = null;
 
 	public UUID getRoleRequest() {
         return roleRequest;
@@ -245,11 +252,23 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
         return true;
     }
 
-	public UUID getDuplicate() {
+	public Boolean getDuplicate() {
 		return duplicate;
 	}
-	
-	public void setDuplicate(UUID duplicate) {
+
+	public void setDuplicate(Boolean duplicate) {
 		this.duplicate = duplicate;
+	}
+
+	public DuplicateWithRoles getDuplicates() {
+		DuplicateWithRoles duplicates = (DuplicateWithRoles) this.getEmbedded().get(DUPLICATES);
+		if (duplicates == null) {
+			return new DuplicateWithRoles();
+		}
+		return duplicates;
+	}
+
+	public void setDuplicates(DuplicateWithRoles duplicates) {
+		this.getEmbedded().put(DUPLICATES, duplicates);
 	}
  }

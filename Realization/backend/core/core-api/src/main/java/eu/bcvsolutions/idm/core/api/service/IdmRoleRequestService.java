@@ -167,10 +167,10 @@ public interface IdmRoleRequestService extends
 	Set<ResolvedIncompatibleRoleDto> getIncompatibleRoles(IdmRoleRequestDto request, IdmBasePermission... permissions);
 
 	/**
-	 * Remove founded duplicities with given {@link IdmConceptRoleRequestDto} and between {@link IdmIdentityRoleDto}.
-	 * This operation return new list of {@link IdmConceptRoleRequestDto} without duplicities.<br />
+	 * Remove founded duplicates with given {@link IdmConceptRoleRequestDto} and between {@link IdmIdentityRoleDto}.
+	 * This operation return new list of {@link IdmConceptRoleRequestDto} without duplicates.<br />
 	 * <br />
-	 * Duplicities will be removed with duplicities founded in concept and with all another identity roles (except automatic and subroles).
+	 * Duplicates will be removed with duplicates founded in concept and with all another identity roles (except automatic and subroles).
 	 * <br />
 	 * Given concepts must not be immutable.
 	 *
@@ -188,7 +188,7 @@ public interface IdmRoleRequestService extends
 	 * @param allByIdentity
 	 * @return
 	 */
-	List<IdmConceptRoleRequestDto> markDuplicities(List<IdmConceptRoleRequestDto> concepts,
+	List<IdmConceptRoleRequestDto> markDuplicates(List<IdmConceptRoleRequestDto> concepts,
 			List<IdmIdentityRoleDto> allByIdentity);
 
 }

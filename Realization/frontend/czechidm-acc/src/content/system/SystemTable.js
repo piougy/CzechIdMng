@@ -205,16 +205,17 @@ export class SystemTable extends Advanced.AbstractTableContent {
             property="disabled"
             header={ this.i18n('acc:entity.System.disabled.short')}
             face="bool"
+            sort
             width={ 75 }
             rendered={ _.includes(columns, 'disabled') }
             cell={
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
-                if (entity.disabled) {
-                  return this.i18n('acc:entity.System.disabled.label');
-                }
                 if (entity.disabledProvisioning) {
                   return this.i18n('acc:entity.System.disabledProvisioning.label');
+                }
+                if (entity.disabled) {
+                  return this.i18n('acc:entity.System.disabled.label');
                 }
                 return null;
               }
@@ -255,6 +256,7 @@ SystemTable.defaultProps = {
 
 function select(state, component) {
   return {
+    i18nReady: state.config.get('i18nReady'),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _showLoading: component.manager.isShowLoading(state, `${component.uiKey}-detail`)
   };

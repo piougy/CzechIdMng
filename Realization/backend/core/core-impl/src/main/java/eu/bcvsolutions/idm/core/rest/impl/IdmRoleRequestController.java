@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -37,7 +38,9 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
@@ -51,6 +54,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
@@ -88,6 +92,8 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	private FormService formService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	public IdmRoleRequestController(IdmRoleRequestService service,
@@ -380,10 +386,18 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 			this.addMetadataToConcepts(resource.getContent());
 		}
 	}
-	
+
+	/**
+	 * Fill each {@link IdmConceptRoleRequestDto} with metadata abou EAV's values and changes.
+	 * And also set duplicates for each concept and another concepts or identity role.
+	 *
+	 * @param dto
+	 * @return
+	 */
 	private IdmRoleRequestDto addMetadataToConcepts(IdmRoleRequestDto dto) {
-		// Add EAV values and evaluate changes on EAV values for concepts 
 		if (dto != null) {
+			// TODO: concepts will be removed from request
+			// Add EAV values and evaluate changes on EAV values for concepts 
 			dto.getConceptRoles().stream() //
 			.filter(concept -> ConceptRoleRequestOperation.REMOVE != concept.getOperation()) //
 			.forEach(concept -> { //
@@ -401,6 +415,17 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 					}
 				}
 			});
+
+			// Mark duplicates
+			UUID identityId = dto.getApplicant();
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService.findValidRoles(identityId, null).getContent();
+			// Add to all identity roles form instance. For identity role can exists only one form instance.
+			identityRoles.forEach(identityRole -> {
+				identityRole.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(identityRole)));
+			});
+			List<IdmConceptRoleRequestDto> concepts = dto.getConceptRoles();
+			concepts = this.service.markDuplicates(concepts, identityRoles);
+			dto.setConceptRoles(concepts);
 		}
 		return dto;
 	}

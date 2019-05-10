@@ -22,6 +22,7 @@ import javax.persistence.criteria.Root;
 
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fusesource.hawtbuf.ByteArrayInputStream;
 import org.hibernate.Session;
@@ -46,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.DuplicateWithRoles;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -811,8 +813,52 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
-	public List<IdmConceptRoleRequestDto> markDuplicities(List<IdmConceptRoleRequestDto> concepts, List<IdmIdentityRoleDto> allByIdentity) {
+	public List<IdmConceptRoleRequestDto> markDuplicates(List<IdmConceptRoleRequestDto> concepts, List<IdmIdentityRoleDto> allByIdentity) {
 		Assert.notNull(concepts);
+		
+		// Mark duplicates with concepts
+		for (IdmConceptRoleRequestDto conceptOne : concepts) {
+			// Only add or modification will be processed
+			if (conceptOne.getOperation() != ConceptRoleRequestOperation.ADD &&
+					conceptOne.getOperation() != ConceptRoleRequestOperation.UPDATE) {
+				continue;
+			}
+
+			if (BooleanUtils.isTrue(conceptOne.getDuplicate())) {
+				continue;
+			}
+
+			IdmIdentityRoleDto one = this.createTempIdentityRole(conceptOne);
+
+			// check duplicates for concept
+			for (IdmConceptRoleRequestDto conceptTwo : concepts) {
+				if (BooleanUtils.isTrue(conceptTwo.getDuplicate())) {
+					continue;
+				}
+
+				// There must be compare by == not by equals. Because equals is overridden in
+				// concept.
+				if (conceptOne == conceptTwo) {
+					continue;
+				}
+				IdmIdentityRoleDto two = this.createTempIdentityRole(conceptTwo);
+
+				// Get duplicated must be quick, because the method doesn't made query to database
+				IdmIdentityRoleDto duplicated = identityRoleService.getDuplicated(one, two, Boolean.FALSE);
+				if (duplicated == one) {
+					DuplicateWithRoles duplicates = conceptOne.getDuplicates();
+					duplicates.addConcept(conceptOne.getId());
+					conceptOne.setDuplicate(Boolean.TRUE);
+					conceptOne.setDuplicates(duplicates);
+				} else if (duplicated == two) {
+					DuplicateWithRoles duplicates = conceptTwo.getDuplicates();
+					duplicates.addConcept(conceptTwo.getId());
+					conceptTwo.setDuplicate(Boolean.TRUE);
+					conceptTwo.setDuplicates(duplicates);
+				}
+			}
+			
+		}
 
 		// Split by role UUID
 		Map<UUID, List<IdmIdentityRoleDto>> identityRolesByRole = allByIdentity
@@ -851,12 +897,15 @@ public class DefaultIdmRoleRequestService
 
 				// Duplicated founded. Add UUID from identity role
 				if (duplicated != null || (duplicated != null && duplicated.getId() == null)) {
-					concept.setDuplicate(identityRole.getId());
-					break;
+					DuplicateWithRoles duplicates = concept.getDuplicates();
+					duplicates.addIdentityRole(identityRole.getId());
+					concept.setDuplicates(duplicates);
+					concept.setDuplicate(Boolean.TRUE);
 				}
 			}
-		}
 
+		}
+		
 		return concepts;
 	}
 
@@ -883,7 +932,7 @@ public class DefaultIdmRoleRequestService
 		});
 
 		// Just mark duplicities
-		concepts = this.markDuplicities(concepts, identityRoles);
+		concepts = this.markDuplicates(concepts, identityRoles);
 
 		// Remove duplicities with subroles
 		concepts = this.removeDuplicitiesSubRole(concepts, identityRoles);
@@ -891,7 +940,7 @@ public class DefaultIdmRoleRequestService
 		// Create final concepts and add non duplicities
 		List<IdmConceptRoleRequestDto> conceptRolesFinal = new ArrayList<IdmConceptRoleRequestDto>();
 		for (IdmConceptRoleRequestDto concept : concepts) {
-			if (concept.getDuplicate() == null) {
+			if (BooleanUtils.isNotTrue(concept.getDuplicate())) {
 				conceptRolesFinal.add(concept);
 			}
 		}
@@ -955,7 +1004,10 @@ public class DefaultIdmRoleRequestService
 	private void removeAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
 			EntityEvent<IdmRoleRequestDto> requestEvent) {
 		Assert.notNull(concept.getIdentityRole(), "IdentityRole is mandatory for delete!");
-		IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
+		IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole.getName(), IdmIdentityRoleDto.class, (IdmIdentityRoleDto)null);
+		if (identityRole == null) {
+			identityRole = identityRoleService.get(concept.getIdentityRole());
+		}
 		
 		if (identityRole != null) {
 			concept.setState(RoleRequestState.EXECUTED);
@@ -999,7 +1051,7 @@ public class DefaultIdmRoleRequestService
 	private void updateAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
 			EntityEvent<IdmRoleRequestDto> requestEvent) {
 		IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-		identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
+		identityRole = convertConceptRoleToIdentityRole(concept, identityRole);
 		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.UPDATE, identityRole, ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE));
 		event.setPriority(PriorityType.IMMEDIATE);
 		
@@ -1035,7 +1087,7 @@ public class DefaultIdmRoleRequestService
 	 */
 	private void createAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request, EntityEvent<IdmRoleRequestDto> requestEvent) {
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-		identityRole = convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole);
+		identityRole = convertConceptRoleToIdentityRole(concept, identityRole);
 		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole,
 				ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE)); // I can't use the NOTIFY skip, because I
 																				// don't want skip recalculation of

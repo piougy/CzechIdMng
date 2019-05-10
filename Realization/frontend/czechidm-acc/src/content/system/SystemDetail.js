@@ -60,6 +60,13 @@ class SystemDetail extends Basic.AbstractContent {
     if (entity && entity._embedded && entity._embedded.passwordPolicyValidate) {
       data.passwordPolicyValidate = entity._embedded.passwordPolicyValidate;
     }
+    if (entity.disabledProvisioning) {
+      data.disabledEnum = 'disabledProvisioning';
+    } else if (entity.disabled) {
+      data.disabledEnum = 'disabled';
+    } else {
+      data.disabledEnum = null;
+    }
 
     // connector is part of entity, not embedded
     if (entity && entity.connectorServer) {
@@ -119,9 +126,11 @@ class SystemDetail extends Basic.AbstractContent {
           createOperation: entity.createOperation,
           updateOperation: entity.updateOperation,
           deleteOperation: entity.deleteOperation
-        }
+        },
+        disabled: entity.disabledEnum === 'disabledProvisioning' || entity.disabledEnum === 'disabled',
+        disabledProvisioning: entity.disabledEnum === 'disabledProvisioning'
       };
-
+      //
       if (Utils.Entity.isNew(saveEntity)) {
         this.context.store.dispatch(systemManager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, newError) => {
           this._afterSave(createdEntity, newError, afterAction);
@@ -190,7 +199,7 @@ class SystemDetail extends Basic.AbstractContent {
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
-            <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} showLoading={_showLoading} >
+            <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } } showLoading={ _showLoading } >
               <Basic.AbstractForm
                 ref="form"
                 uiKey={ uiKey}
@@ -276,14 +285,23 @@ class SystemDetail extends Basic.AbstractContent {
                   ref="readonly"
                   label={ this.i18n('acc:entity.System.readonly.label') }
                   helpBlock={ this.i18n('acc:entity.System.readonly.help') }/>
-                <Basic.Checkbox
-                  ref="disabled"
-                  label={ this.i18n('acc:entity.System.disabled.label', { escape: false }) }
-                  helpBlock={ this.i18n('acc:entity.System.disabled.help', { escape: false }) }/>
-                <Basic.Checkbox
-                  ref="disabledProvisioning"
-                  label={ this.i18n('acc:entity.System.disabledProvisioning.label', { escape: false }) }
-                  helpBlock={ this.i18n('acc:entity.System.disabledProvisioning.help', { escape: false }) }/>
+                <Basic.EnumSelectBox
+                  ref="disabledEnum"
+                  label={ this.i18n('acc:entity.System.disabled.short', { escape: false }) }
+                  options={[
+                    {
+                      value: 'disabled',
+                      niceLabel:
+                      this.i18n('acc:entity.System.disabled.label', { escape: false }),
+                      description: this.i18n('acc:entity.System.disabled.help', { escape: false })
+                    },
+                    {
+                      value: 'disabledProvisioning',
+                      niceLabel:
+                      this.i18n('acc:entity.System.disabledProvisioning.label', { escape: false }),
+                      description: this.i18n('acc:entity.System.disabledProvisioning.help', { escape: false })
+                    },
+                  ]}/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 

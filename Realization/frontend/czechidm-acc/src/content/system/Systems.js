@@ -1,5 +1,6 @@
 import React from 'react';
 import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 //
 import { Basic } from 'czechidm-core';
 import { SystemManager } from '../../redux';
@@ -10,7 +11,7 @@ import SystemTable from './SystemTable';
  *
  * @author Radek Tomiška
  */
-export default class Systems extends Basic.AbstractContent {
+class Systems extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -32,23 +33,26 @@ export default class Systems extends Basic.AbstractContent {
   render() {
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={ this.i18n('title') } />
 
         <Basic.PageHeader>
           <Basic.Icon value="link"/>
           {' '}
-          {this.i18n('header')}
+          { this.i18n('header') }
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <SystemTable uiKey="system_table" manager={this.systemManager} filterOpened/>
+          <SystemTable uiKey="system_table" manager={ this.systemManager } filterOpened/>
         </Basic.Panel>
       </div>
     );
   }
 }
 
-Systems.propTypes = {
-};
-Systems.defaultProps = {
-};
+function select(state) {
+  return {
+    i18nReady: state.config.get('i18nReady')
+  };
+}
+
+export default connect(select, null, null, { withRef: true })(Systems);

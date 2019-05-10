@@ -69,7 +69,8 @@ class EnumSelectBox extends SelectBox {
       item = _.merge({}, enumItem, {
         [SelectBox.NICE_LABEL]: enumItem.niceLabel ? enumItem.niceLabel : this._findNiceLabel(enumItem.value),
         [SelectBox.ITEM_FULL_KEY]: enumItem.value,
-        disabled: this._isDisabled(enumItem.value)
+        disabled: this._isDisabled(enumItem.value),
+        description: enumItem.description
       });
     } else { // item is rendered already
       item = _.merge({}, enumItem);
@@ -91,7 +92,8 @@ class EnumSelectBox extends SelectBox {
         [SelectBox.NICE_LABEL]: niceLabel,
         [SelectBox.ITEM_FULL_KEY]: itemFullKey,
         value: key,
-        disabled: this._isDisabled(key)
+        disabled: this._isDisabled(key),
+        description: (typeof item === 'object' ? item.description : null)
       });
     }
     return item;
@@ -289,32 +291,44 @@ class EnumSelectBox extends SelectBox {
   }
 
   getSelectComponent() {
-    const { placeholder, multiSelect, fieldLabel, searchable, clearable, showLoading } = this.props;
+    const {
+      placeholder,
+      multiSelect,
+      fieldLabel,
+      searchable,
+      clearable,
+      showLoading,
+      title,
+      optionComponent,
+      valueComponent
+    } = this.props;
     const { value, readOnly, disabled } = this.state;
     //
     return (
       <span>
         <Select
           ref="selectComponent"
-          title={"title"}
-          value={value}
+          title={ title }
+          value={ value }
           onChange={ this.onChange }
-          disabled={readOnly || disabled}
+          disabled={ readOnly || disabled }
           ignoreCase
-          clearable={clearable}
-          ignoreAccents={false}
-          multi={multiSelect}
-          onValueClick={this.gotoContributor}
-          valueKey={SelectBox.ITEM_VALUE}
-          labelKey={fieldLabel}
-          noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
-          placeholder={this.getPlaceholder(placeholder)}
-          searchingText={this.i18n('component.basic.SelectBox.searchingText')}
-          searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-          onInputChange={this.onInputChange.bind(this)}
-          options={this.getOptions()}
-          searchable={searchable}
-          isLoading={ showLoading }/>
+          clearable={ clearable }
+          ignoreAccents={ false }
+          multi={ multiSelect }
+          onValueClick={ this.gotoContributor }
+          valueKey={ SelectBox.ITEM_VALUE }
+          labelKey={ fieldLabel }
+          noResultsText={ this.i18n('component.basic.SelectBox.noResultsText') }
+          placeholder={ this.getPlaceholder(placeholder) }
+          searchingText={ this.i18n('component.basic.SelectBox.searchingText') }
+          searchPromptText={ this.i18n('component.basic.SelectBox.searchPromptText') }
+          onInputChange={ this.onInputChange.bind(this) }
+          options={ this.getOptions() }
+          searchable={ searchable }
+          isLoading={ showLoading }
+          optionComponent={ optionComponent }
+          valueComponent={ valueComponent }/>
       </span>
     );
   }
@@ -338,7 +352,15 @@ EnumSelectBox.propTypes = {
   searchable: PropTypes.bool,
   useSymbol: PropTypes.bool,
   useObject: PropTypes.bool,
-  clearable: PropTypes.bool
+  clearable: PropTypes.bool,
+  /**
+   * Option decorator - generalize OptionDecorator
+   */
+  optionComponent: PropTypes.func,
+  /**
+   * Value decorator - generalize ValueDecorator
+   */
+  valueComponent: PropTypes.func
 };
 
 EnumSelectBox.defaultProps = {
@@ -346,7 +368,9 @@ EnumSelectBox.defaultProps = {
   searchable: false,
   useSymbol: null,
   useObject: false,
-  clearable: true
+  clearable: true,
+  optionComponent: SelectBox.OptionDecorator,
+  valueComponent: SelectBox.ValueDecorator
 };
 
 export default EnumSelectBox;

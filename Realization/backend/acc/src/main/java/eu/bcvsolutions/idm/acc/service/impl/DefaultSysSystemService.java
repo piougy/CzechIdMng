@@ -182,6 +182,18 @@ public class DefaultSysSystemService
 		//
 		return entity;
 	}
+	
+	@Override
+	@Transactional
+	public SysSystemDto saveInternal(SysSystemDto dto) {
+		if (dto != null) {
+			if (dto.isDisabledProvisioning()) {
+				// when provisioning is disabled, then system is disabled too (prevent to execute already created provisioning operations).
+				dto.setDisabled(true);
+			}
+		}
+		return super.saveInternal(dto);
+	}
 
 	@Override
 	@Transactional(readOnly = true)

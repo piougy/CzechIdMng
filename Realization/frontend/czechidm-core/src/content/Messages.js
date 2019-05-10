@@ -118,6 +118,7 @@ Messages.defaultProps = {
 
 function select(state) {
   return {
+    i18nReady: state.config.get('i18nReady'),
     maxHistory: state.messages.maxHistory,
     messages: state.messages.messages.reverse().toArray()
   };

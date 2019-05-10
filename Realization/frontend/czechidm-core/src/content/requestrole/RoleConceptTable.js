@@ -910,7 +910,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                         {
                           <span>
                             <Basic.Button
-                              level="inverse"
+                              level="primary"
                               icon="fa:warning"
                               className="btn-xs"
                               style={{ marginRight: 3 }}

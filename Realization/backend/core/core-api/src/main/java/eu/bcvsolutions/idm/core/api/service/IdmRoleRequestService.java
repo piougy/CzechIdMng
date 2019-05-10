@@ -106,7 +106,7 @@ public interface IdmRoleRequestService extends
 	 * Execute concepts via request - usable programmatically, where identity roles are added / updated / removed.
 	 * 
 	 * @param applicant
-	 * @param concepts
+	 * @param concepts [optional] - if empty concepts are given, then no request will be executed.
 	 * @return
 	 * @since 9.6.0
 	 */

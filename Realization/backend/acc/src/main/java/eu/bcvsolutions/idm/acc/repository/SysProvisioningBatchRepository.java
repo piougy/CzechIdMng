@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -22,45 +21,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  *
  */
 public interface SysProvisioningBatchRepository extends AbstractEntityRepository<SysProvisioningBatch> {
-	
-	/**
-	 * Finds batch for given operation.
-	 * 
-	 * @param operation
-	 * @return
-	 * @deprecated @since 7.7.0 use {@link #findAllBySystemEntity_IdOrderByCreatedAsc(UUID)}
-	 */
-	@Deprecated
-	@Query(value = "select distinct(o.batch) from SysProvisioningOperation o"
-			+ " where"
-			+ " o.system = ?#{[0].system}"
-			+ " and"
-			+ " (o.entityIdentifier = ?#{[0].entityIdentifier} or ?#{[0].entityIdentifier} is null)"
-			+ " and"
-			+ " o.systemEntity = ?#{[0].systemEntity}")
-	SysProvisioningBatch findBatch(SysProvisioningOperation operation);
-	
-	/**
-	 * Finds batch for given operation.
-	 * 
-	 * @param systemId
-	 * @param entityIdentifier
-	 * @param systemEntity
-	 * @return
-	 * 
-	 * @deprecated @since 8.2.0 use {@link #findAllBySystemEntity_IdOrderByCreatedAsc(UUID)}
-	 */
-	@Query(value = "select distinct(o.batch) from SysProvisioningOperation o"
-			+ " where"
-			+ " o.system.id = :systemId"
-			+ " and"
-			+ " (o.entityIdentifier = :entityIdentifier or :entityIdentifier is null)"
-			+ " and"
-			+ " o.systemEntity.id = :systemEntity")
-	SysProvisioningBatch findBatch(
-			@Param("systemId") UUID systemId,
-			@Param("entityIdentifier") UUID entityIdentifier, 
-			@Param("systemEntity") UUID systemEntity);
 	
 	/**
 	 * Returns all batches for given system entity

@@ -67,7 +67,8 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_DUPLICATE_ROLE_MAPPING(HttpStatus.CONFLICT, "Was found more attribute definitions for same role %s, system %s and entity type %s!"),
 	PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR(HttpStatus.BAD_REQUEST, "After provisioning for UID %s, connector returned more UID "
 			+ "(for more object classes). This returned UIDs but isn't same [%s]. This is inconsistent state."),
-	PROVISIONING_SYSTEM_DISABLED(HttpStatus.LOCKED, "Provisioning operation for object with uid [%s] on system [%s] is canceled. System is disabled."),
+	PROVISIONING_SYSTEM_DISABLED(HttpStatus.LOCKED, "Provisioning operation for object with uid [%s] on system [%s] is canceled. System is disabled. Operation will be available in the queue."),
+	PROVISIONING_SYSTEM_DISABLED_PROVISIONING(HttpStatus.LOCKED, "Provisioning operation for object with uid [%s] on system [%s] is canceled. System has disabled provisioning configured."),
 	PROVISIONING_SYSTEM_BLOCKED(HttpStatus.LOCKED, "Provisioning operation for object with uid [%s] on system [%s] is blocked due to provisioning break configuration."),
 	PROVISIONING_SYSTEM_READONLY(HttpStatus.LOCKED, "Provisioning operation for object with uid [%s] on system [%s] is canceled. System is readonly."),
 	PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Preparing attribubes for object with uid [%s] on system [%s] (operation type [%s], object class [%s]) failed."),

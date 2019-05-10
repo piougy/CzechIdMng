@@ -950,13 +950,13 @@ public class DefaultIdmRoleRequestService
 	@Override
 	@Transactional
 	public IdmRoleRequestDto executeConceptsImmediate(UUID applicant, List<IdmConceptRoleRequestDto> concepts) {
-		Assert.notNull(applicant);
-		Assert.notNull(concepts);
-		//
-		if (concepts.isEmpty()) {
-			LOG.debug("No concepts are given, request will be not executed, return null.");
+		if (concepts == null || concepts.isEmpty()) {
+			LOG.debug("No concepts are given, request for applicant [{}] will be not executed, returning null.", applicant);
+			//
 			return null;
 		}
+		Assert.notNull(applicant);
+		//
 		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 		roleRequest.setState(RoleRequestState.CONCEPT);
 		roleRequest.setExecuteImmediately(true); // without approval

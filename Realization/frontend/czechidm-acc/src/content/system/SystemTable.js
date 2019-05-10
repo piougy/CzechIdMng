@@ -163,6 +163,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
           filterOpened={ filterOpened }
           forceSearchParameters={ forceSearchParameters }
           showRowSelection={ showRowSelection }
+          rowClass={({rowIndex, data}) => { return data[rowIndex].disabledProvisioning === true ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -200,7 +201,24 @@ export class SystemTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column property="queue" sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
           <Advanced.Column property="readonly" header={this.i18n('acc:entity.System.readonly.label')} sort face="bool" width="75px" rendered={_.includes(columns, 'readonly')}/>
-          <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
+          <Advanced.Column
+            property="disabled"
+            header={ this.i18n('acc:entity.System.disabled.short')}
+            face="bool"
+            width={ 75 }
+            rendered={ _.includes(columns, 'disabled') }
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                if (entity.disabled) {
+                  return this.i18n('acc:entity.System.disabled.label');
+                }
+                if (entity.disabledProvisioning) {
+                  return this.i18n('acc:entity.System.disabledProvisioning.label');
+                }
+                return null;
+              }
+            }/>
           <Advanced.Column
             property="blockedOperation"
             width="12%"

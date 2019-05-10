@@ -8,18 +8,17 @@ import { RoleManager, IdentityManager, IdentityRoleManager, IdentityContractMana
 //
 import SearchParameters from '../../domain/SearchParameters';
 
-/**
-* Component for select roles by identity.
-*
-* @author Ondrej Kopr
-*/
-
 const identityRoleManager = new IdentityRoleManager();
 
 const TREE_COMPONENT_HEIGHT = 400;
 
 const IDENTITY_ROLE_BY_IDENTITY_UIKEY = 'identity-role-by-identity';
 
+/**
+* Component for select roles by identity.
+*
+* @author Ondrej Kopr
+*/
 class RoleSelectByIdentity extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
@@ -56,6 +55,10 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
   getValue() {
     const { selectedIdentityRoles } = this.state;
     return selectedIdentityRoles;
+  }
+
+  focus() {
+    this.refs.select.focus();
   }
 
   /**
@@ -275,7 +278,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     } = this.state;
 
     const existIdentityRoles = identityRoles && identityRoles.length > 0;
-    const buttonsStyle = { width: '34px', height: '34px', fontSize: '8px', marginTop: '5px' };
+    const buttonsStyle = { width: 34, height: 34, fontSize: 8, marginTop: 5 };
     return (
       <div>
         <Basic.AbstractForm

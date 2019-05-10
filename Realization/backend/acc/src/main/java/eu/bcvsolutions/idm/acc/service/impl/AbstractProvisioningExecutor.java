@@ -214,8 +214,11 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		});
 
 		accounts.stream().forEach(account -> {
-			EntityAccountDto entityAccountDto = entityAccoutnList.stream()
-					.filter(entityAccount -> account.equals(entityAccount.getAccount())).findFirst().get();
+			EntityAccountDto entityAccountDto = entityAccoutnList
+					.stream()
+					.filter(entityAccount -> account.equals(entityAccount.getAccount()))
+					.findFirst()
+					.get();
 			AccAccountDto accountDto = DtoUtils.getEmbedded((AbstractDto) entityAccountDto,
 					AccIdentityAccount_.account.getName(), AccAccountDto.class, null);
 			if (accountDto == null) {

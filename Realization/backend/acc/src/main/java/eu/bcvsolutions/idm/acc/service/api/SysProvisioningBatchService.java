@@ -47,18 +47,6 @@ public interface SysProvisioningBatchService extends ReadWriteDtoService<SysProv
 	Page<SysProvisioningBatchDto> findBatchesToRetry(DateTime date, Pageable pageable);
 	
 	/**
-	 * Find batch by operation
-	 * 
-	 * @param systemId
-	 * @param entityIdentifier
-	 * @param systemEntity
-	 * @return
-	 * @deprecated @since 8.2.0 use {@link #findBatch(UUID)}
-	 */
-	@Deprecated
-	SysProvisioningBatchDto findBatch(UUID systemId, UUID entityIdentifier, UUID systemEntity);
-	
-	/**
 	 * Finds batch for given system entity
 	 * 
 	 * @param systemEntity

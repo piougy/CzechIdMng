@@ -148,12 +148,6 @@ public class DefaultIdmNotificationTemplateService extends
 		super.delete(entity);
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public IdmNotificationTemplateDto getTemplateByCode(String code) {
-		return getByCode(code);
-	}
-
 	/**
 	 * Return {@link VelocityContext} for create templates
 	 * 

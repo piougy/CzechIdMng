@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -44,6 +45,7 @@ import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
@@ -324,17 +326,21 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 					.from(SysSystemAttributeMapping.class);
 			systemAttributeMappingSubquery.select(subRootSystemAttributeMapping);
 
-			Predicate predicate = builder.and(builder.equal(subRootSystemAttributeMapping//
-					.get(SysSystemAttributeMapping_.schemaAttribute)//
-					.get(SysSchemaAttribute_.objectClass)//
-					.get(SysSchemaObjectClass_.system), //
-					root.get(AccAccount_.system)),
+			Path<SysSystem> systemPath = root.get(AccAccount_.system);
+			Predicate predicate = builder.and(
+					builder.isFalse(systemPath.get(SysSystem_.disabledProvisioning)),
+					builder.equal(subRootSystemAttributeMapping//
+						.get(SysSystemAttributeMapping_.schemaAttribute)//
+						.get(SysSchemaAttribute_.objectClass)//
+						.get(SysSchemaObjectClass_.system), //
+						systemPath),
 					builder.equal(subRootSystemAttributeMapping//
 							.get(SysSystemAttributeMapping_.systemMapping)//
 							.get(SysSystemMapping_.operationType), SystemOperationType.PROVISIONING),
 					builder.equal(subRootSystemAttributeMapping//
 							.get(SysSystemAttributeMapping_.schemaAttribute)//
-							.get(SysSchemaAttribute_.name), ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME));
+							.get(SysSchemaAttribute_.name), ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)
+					);
 
 			systemAttributeMappingSubquery.where(predicate);
 			predicates.add(builder.exists(systemAttributeMappingSubquery));

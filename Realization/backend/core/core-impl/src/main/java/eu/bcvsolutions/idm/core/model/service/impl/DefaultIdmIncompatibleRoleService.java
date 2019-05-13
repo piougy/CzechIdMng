@@ -66,37 +66,44 @@ public class DefaultIdmIncompatibleRoleService
 	}
 	
 	@Override
-	public Set<ResolvedIncompatibleRoleDto> resolveIncompatibleRoles(List<Serializable> roleIdentifiers) {
+	public Set<ResolvedIncompatibleRoleDto> resolveIncompatibleRoles(List<Serializable> rolesOrIdentifiers) {
 		// search all defined incompatible roles for given roles - business roles can be given
 		Set<ResolvedIncompatibleRoleDto> incompatibleRoles = new HashSet<>();
-		if(CollectionUtils.isEmpty(roleIdentifiers)) {
+		if(CollectionUtils.isEmpty(rolesOrIdentifiers)) {
 			return incompatibleRoles;
 		}
 		Set<UUID> allRoleIds = new HashSet<>();
-		Set<UUID> roleIds = new HashSet<>();
+		Set<IdmRoleDto> roles = new HashSet<>();
 		// search all sub roles
-		for (Serializable roleIdentifier : roleIdentifiers) {
-			if (roleIdentifier == null) {
+		for (Serializable roleOrIdentifier : rolesOrIdentifiers) {
+			if (roleOrIdentifier == null) {
 				continue;
 			}
-			roleIds.clear();
-			IdmRoleDto role = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleIdentifier);
-			if (role == null) {
-				throw new EntityNotFoundException(IdmRole.class, roleIdentifier);
+			roles.clear();
+			//
+			IdmRoleDto directRole = null;
+			if (roleOrIdentifier instanceof IdmRoleDto) {
+				directRole = (IdmRoleDto) roleOrIdentifier;
+			} else {
+				directRole = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleOrIdentifier);
+			}
+			if (directRole == null) {
+				throw new EntityNotFoundException(IdmRole.class, roleOrIdentifier);
 			}
 			//
-			roleIds.add(role.getId());
-			roleIds.addAll(roleCompositionService.getDistinctRoles(roleCompositionService.findAllSubRoles(role.getId())));
+			roles.add(directRole);
+			if (directRole.getChildrenCount() > 0) {
+				roles.addAll(roleCompositionService.resolveDistinctRoles(roleCompositionService.findAllSubRoles(directRole.getId())));
+			}
 			//
 			// resolve incompatible roles 
-			roleIds.forEach(roleId -> {
+			for(IdmRoleDto r : roles) {
 				// find incompatible roles - we need to know, which from the given role is incompatible => ResolvedIncompatibleRoleDto
-				findAllByRole(roleId).forEach(ir -> {
-					incompatibleRoles.add(new ResolvedIncompatibleRoleDto(role, ir));
-				});
-			});
-			//
-			allRoleIds.addAll(roleIds);
+				for(IdmIncompatibleRoleDto incompatibleRole : findAllByRole(r.getId())) {
+					incompatibleRoles.add(new ResolvedIncompatibleRoleDto(directRole, incompatibleRole));
+				}
+				allRoleIds.add(r.getId());
+			};
 		}
 		//
 		// both sides of incompatible roles should be in the allRoleIds and superior vs. sub role has to be different.

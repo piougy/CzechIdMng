@@ -35,8 +35,8 @@ public interface IdmIncompatibleRoleService extends
 	 * Load all defined incompatible roles for the given.
 	 * Given roles can be defined as superior or sub for the incompatible role (both sides).
 	 * 
-	 * @param roleIdentifiers {@link Codeable} identifiers
+	 * @param rolesOrIdentifiers role dtos or {@link Codeable} identifiers
 	 * @return
 	 */
-	Set<ResolvedIncompatibleRoleDto> resolveIncompatibleRoles(List<Serializable> roleIdentifiers);
+	Set<ResolvedIncompatibleRoleDto> resolveIncompatibleRoles(List<Serializable> rolesOrIdentifiers);
 }

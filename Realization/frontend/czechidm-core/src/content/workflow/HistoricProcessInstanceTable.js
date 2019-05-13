@@ -4,8 +4,7 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import SearchParameters from '../../domain/SearchParameters';
-import {WorkflowProcessDefinitionManager} from '../../redux';
+import { WorkflowProcessDefinitionManager } from '../../redux';
 
 
 const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();

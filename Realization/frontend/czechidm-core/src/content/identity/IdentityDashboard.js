@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { IdentityManager, DataManager, ConfigurationManager } from '../../redux';
 import ComponentService from '../../services/ComponentService';
@@ -152,14 +151,6 @@ class IdentityDashboard extends Basic.AbstractContent {
                 );
               })
           }
-
-          <Basic.Button
-            level="info"
-            icon="link"
-            className="btn-large hidden"
-            onClick={ () => alert('not implemented') }
-            style={{ height: 50, marginRight: 3, minWidth: 150 }}
-            text="Přepočet účtů a provisioning"/>
         </div>
         {
           componentService

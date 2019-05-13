@@ -688,8 +688,7 @@ public class DefaultIdmRoleRequestService
 			if (copyRoleParameters) {
 				// For copy must exist identity role attribute definition
 				if (roleDto.getIdentityRoleAttributeDefinition() != null) {
-					IdmFormDefinitionDto formDefinition = formService.getDefinition(roleDto.getIdentityRoleAttributeDefinition());
-					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinition);
+					IdmFormInstanceDto formInstance = identityRoleService.getRoleAttributeValues(identityRoleDto);
 
 					List<IdmFormValueDto> values = formInstance.getValues();
 					List<IdmFormValueDto> finalValues = new ArrayList<IdmFormValueDto>(values);

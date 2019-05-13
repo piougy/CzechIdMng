@@ -132,7 +132,8 @@ export class IncompatibleRoleTable extends Advanced.AbstractTableContent {
                     entityType="role"
                     entityIdentifier={ entity.superior }
                     entity={ entity._embedded.superior }
-                    face="popover"/>
+                    face="popover"
+                    showIcon/>
                 );
               }
             }
@@ -151,7 +152,8 @@ export class IncompatibleRoleTable extends Advanced.AbstractTableContent {
                       entityType="role"
                       entityIdentifier={ entity.sub }
                       entity={ entity._embedded.sub }
-                      face="popover"/>
+                      face="popover"
+                      showIcon/>
                   );
                 }
               }

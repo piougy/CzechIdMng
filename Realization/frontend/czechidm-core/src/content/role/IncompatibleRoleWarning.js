@@ -49,7 +49,8 @@ export default class IncompatibleRoleWarning extends Basic.AbstractContextCompon
                       entityType="role"
                       entityIdentifier={ incompatibleRole.incompatibleRole.superior }
                       entity={ incompatibleRole.incompatibleRole._embedded.superior }
-                      face="popover" />
+                      face="popover"
+                      showIcon/>
                   )
                 },
                 {
@@ -59,7 +60,8 @@ export default class IncompatibleRoleWarning extends Basic.AbstractContextCompon
                       entityType="role"
                       entityIdentifier={ incompatibleRole.incompatibleRole.sub }
                       entity={ incompatibleRole.incompatibleRole._embedded.sub }
-                      face="popover" />
+                      face="popover"
+                      showIcon/>
                   )
                 }
               ]

@@ -192,7 +192,8 @@ export class AuditIdentityRolesTable extends Advanced.AbstractTableContent {
                   entityIdentifier={ entity.ownerId }
                   entity={identity}
                   face="popover"
-                  showIdentity={ false }/>
+                  showIdentity={ false }
+                  showIcon/>
               );
             }
           }/>
@@ -214,7 +215,8 @@ export class AuditIdentityRolesTable extends Advanced.AbstractTableContent {
                   entityIdentifier={ entity.role }
                   face="popover"
                   entity={role}
-                  showIdentity={ false }/>
+                  showIdentity={ false }
+                  showIcon/>
               );
             }
           }/>
@@ -228,7 +230,7 @@ export class AuditIdentityRolesTable extends Advanced.AbstractTableContent {
                 return null;
               }
 
-              // For deleted operation isn't filled embedded
+              // For deleted operation is not filled embedded
               const embeddedEntity = data[rowIndex]._embedded.entityId;
               let identityContract = {
                 id: entity.identityContract,
@@ -249,7 +251,8 @@ export class AuditIdentityRolesTable extends Advanced.AbstractTableContent {
                   entityIdentifier={ entity.identityContract }
                   entity={identityContract}
                   face="popover"
-                  showIdentity={ false }/>
+                  showIdentity={ false }
+                  showIcon/>
               );
             }
           }/>

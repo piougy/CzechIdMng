@@ -1,6 +1,7 @@
 import EntityManager from './EntityManager';
 import { AuditService } from '../../services';
 import DataManager from './DataManager';
+import * as Utils from '../../utils';
 
 /**
  * Uikey can be for all details same, beacuse result is also same.
@@ -99,7 +100,12 @@ export default class AuditManager extends EntityManager {
 
   prepareOptionsFromAuditedEntitiesNames(entities) {
     if (entities !== null) {
-      return entities._embedded.strings.map(item => { return {value: item.content, niceLabel: item.content }; });
+      return entities._embedded.strings.map(item => {
+        return {
+          value: item.content,
+          niceLabel: Utils.Ui.getSimpleJavaType(item.content) // simple name only - unique entity name is required by dev stack (~hibernate).
+        };
+      });
     }
   }
 }

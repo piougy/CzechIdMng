@@ -707,35 +707,37 @@ class Tree extends Basic.AbstractContextComponent {
                     style={{ marginLeft: 2 + (level * BASE_ICON_WIDTH) }}/> {/* dynamic margin by node level */}
 
                   {/* Node icon + label */}
-                  {
-                    nodeContent
-                    ?
-                    <span>
-                      <Basic.Icon
-                        value={ icon }
-                        className={ iconClassNames }
-                        showLoading={ uiState && uiState.showLoading }
-                        style={{ width: 14 }}/>
-                      { nodeContent({ node }) }
-                    </span>
-                    :
-                    <Basic.Button
-                      level="link"
-                      className="embedded"
-                      onClick={ this.onSelect.bind(this, node.id) }
-                      onDoubleClick={ this.onDoubleClick.bind(this, node.id) }>
-                      <Basic.Icon
-                        value={ icon }
-                        className={ iconClassNames }
-                        showLoading={ uiState && uiState.showLoading }/>
-                      { this._getNodeNiceLabel(node) }
-                    </Basic.Button>
-                  }
-                  {
-                    !node.childrenCount
-                    ||
-                    <small style={{ marginLeft: 3 }}>({ node.childrenCount })</small>
-                  }
+                  <span>
+                    {
+                      nodeContent
+                      ?
+                      <span>
+                        <Basic.Icon
+                          value={ icon }
+                          className={ iconClassNames }
+                          showLoading={ uiState && uiState.showLoading }
+                          style={{ width: 14 }}/>
+                        { nodeContent({ node }) }
+                      </span>
+                      :
+                      <Basic.Button
+                        level="link"
+                        className="embedded"
+                        onClick={ this.onSelect.bind(this, node.id) }
+                        onDoubleClick={ this.onDoubleClick.bind(this, node.id) }>
+                        <Basic.Icon
+                          value={ icon }
+                          className={ iconClassNames }
+                          showLoading={ uiState && uiState.showLoading }/>
+                        { this._getNodeNiceLabel(node) }
+                      </Basic.Button>
+                    }
+                    {
+                      !node.childrenCount
+                      ||
+                      <small style={{ marginLeft: 3 }}>({ node.childrenCount })</small>
+                    }
+                  </span>
                 </div>
                 {
                   traverse

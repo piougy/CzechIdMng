@@ -225,6 +225,22 @@ public class DefaultIdmRoleCompositionService
 	}
 	
 	@Override
+	public Set<IdmRoleDto> resolveDistinctRoles(List<IdmRoleCompositionDto> compositions) {
+		Set<IdmRoleDto> results = new HashSet<>();
+		//
+		if (CollectionUtils.isEmpty(compositions)) {
+			return results;
+		}
+		//
+		compositions.forEach(composition -> {
+			results.add(DtoUtils.getEmbedded(composition, IdmRoleComposition_.superior));
+			results.add(DtoUtils.getEmbedded(composition, IdmRoleComposition_.sub));
+		});
+		//
+		return results;
+	}
+	
+	@Override
 	protected List<Predicate> toPredicates(Root<IdmRoleComposition> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			IdmRoleCompositionFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);

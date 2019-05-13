@@ -774,7 +774,7 @@ public class DefaultIdmRoleRequestService
 						|| RoleRequestState.EXECUTED == concept.getState()) //
 				.collect(Collectors.toList());
 
-		Set<UUID> roleIds = new HashSet<>(); 
+		Set<IdmRoleDto> roles = new HashSet<>(); 
 		conceptsForCheck
 			.stream()
 			.filter(concept -> {
@@ -786,7 +786,7 @@ public class DefaultIdmRoleRequestService
 				return !isDelete;
 			})
 			.forEach(concept -> {
-				roleIds.add(concept.getRole());
+				roles.add(DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role));
 			});
 		identityRoles
 			.stream()
@@ -794,11 +794,11 @@ public class DefaultIdmRoleRequestService
 				return !removedIdentityRoleIds.contains(identityRole.getId());
 			})
 			.forEach(identityRole -> {
-				roleIds.add(identityRole.getRole());
+				roles.add(DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role));
 			});
 		
 		// We want to returns only incompatibilities caused by new added roles
-	 	Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(Lists.newArrayList(roleIds));
+	 	Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(Lists.newArrayList(roles));
 		return incompatibleRoles.stream() //
 			.filter(incompatibleRole -> {
 				return conceptsForCheck.stream() //

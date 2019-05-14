@@ -50,7 +50,16 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
   }
 
   reload() {
-    this.refs.table.getWrappedInstance().reload();
+    if (this.refs.table) {
+      this.refs.table.getWrappedInstance().reload();
+    }
+  }
+
+  afterDelete() {
+    const {externalRefresh} = this.props;
+    if (externalRefresh) {
+      externalRefresh();
+    }
   }
 
   _getCandidatesCell({ rowIndex, data, property}) {
@@ -103,6 +112,7 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
           ref="table"
           header={ header }
           uiKey={uiKey}
+          showRefreshButton={false}
           showLoading={innerShowLoading}
           forceSearchParameters={forceSearchParameters}
           manager={this.getManager()}
@@ -285,6 +295,7 @@ RoleRequestTable.propTypes = {
   startRequestFunc: PropTypes.func,
   createNewRequestFunc: PropTypes.func,
   columns: PropTypes.arrayOf(PropTypes.string),
+  externalRefresh: PropTypes.func,
   /**
    * Css
    */

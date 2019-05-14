@@ -766,6 +766,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
           </Basic.Toolbar>
           {/* this.generateTable(conceptData)*/}
           <Basic.Table
+            ref="table"
             rendered={!detail.show && !showRoleByIdentitySelect}
             hover={ false }
             showLoading={ showLoading }

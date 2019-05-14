@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { IdentityManager, DataManager, ConfigurationManager } from '../../redux';
 import ComponentService from '../../services/ComponentService';

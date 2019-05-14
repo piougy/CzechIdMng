@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
@@ -260,15 +262,16 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
 		this.duplicate = duplicate;
 	}
 
-	public DuplicateWithRoles getDuplicates() {
-		DuplicateWithRoles duplicates = (DuplicateWithRoles) this.getEmbedded().get(DUPLICATES);
+	@JsonIgnore
+	public DuplicateRolesDto getDuplicates() {
+		DuplicateRolesDto duplicates = (DuplicateRolesDto) this.getEmbedded().get(DUPLICATES);
 		if (duplicates == null) {
-			return new DuplicateWithRoles();
+			return new DuplicateRolesDto();
 		}
 		return duplicates;
 	}
 
-	public void setDuplicates(DuplicateWithRoles duplicates) {
+	public void setDuplicates(DuplicateRolesDto duplicates) {
 		this.getEmbedded().put(DUPLICATES, duplicates);
 	}
  }

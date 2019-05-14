@@ -173,14 +173,21 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
                   <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity._embedded.superior) }/>
                 );
                 content.push(
-                  <Advanced.EntityInfo
-                    entityType="role"
-                    entityIdentifier={ entity.superior }
-                    entity={ entity._embedded.superior }
-                    face="popover"/>
+                  <div style={{ flex: 1 }}>
+                    <Advanced.EntityInfo
+                      entityType="role"
+                      entityIdentifier={ entity.superior }
+                      entity={ entity._embedded.superior }
+                      face="popover"
+                      showIcon/>
+                  </div>
                 );
                 //
-                return content;
+                return (
+                  <div style={{ display: 'flex' }}>
+                    { content }
+                  </div>
+                );
               }
             }
             rendered={ subId !== null }/>
@@ -199,14 +206,21 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
                     <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity._embedded.sub) }/>
                   );
                   content.push(
-                    <Advanced.EntityInfo
-                      entityType="role"
-                      entityIdentifier={ entity.sub }
-                      entity={ entity._embedded.sub }
-                      face="popover"/>
+                    <div style={{ flex: 1 }}>
+                      <Advanced.EntityInfo
+                        entityType="role"
+                        entityIdentifier={ entity.sub }
+                        entity={ entity._embedded.sub }
+                        face="popover"
+                        showIcon/>
+                    </div>
                   );
                   //
-                  return content;
+                  return (
+                    <div style={{ display: 'flex' }}>
+                      { content }
+                    </div>
+                  );
                 }
               }
               rendered={ superiorId !== null }/>

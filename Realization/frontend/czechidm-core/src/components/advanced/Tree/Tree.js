@@ -608,6 +608,26 @@ class Tree extends Basic.AbstractContextComponent {
   }
 
   /**
+   * True, when all nodes don't have a children.
+   *
+   * @param  {arrayOf(nodeIds)}  nodeIds
+   * @return {Boolean}
+   */
+  isLeafs(nodeIds) {
+    if (!nodeIds || nodeIds.length === 0) {
+      return true;
+    }
+    const nodeWithChildren = nodeIds.find(nodeId => {
+      const node = this._getNode(nodeId);
+      if (!node) {
+        return false;
+      }
+      return node.childrenCount > 0;
+    });
+    return nodeWithChildren === null || nodeWithChildren === undefined;
+  }
+
+  /**
    * Render parent's child nodes
    *
    * @param  {[type]} parentId node id (null is root)
@@ -623,17 +643,19 @@ class Tree extends Basic.AbstractContextComponent {
     if (ui.has(parentId)) {
       parentUiState = ui.get(parentId);
     }
+    const levelNodeIds = nodes.get(parentId);
     //
-    if (nodes.get(parentId).length === 0) {
+    if (levelNodeIds.length === 0) {
       return (
         <Basic.Alert text={ this._getNoData() } className="no-data"/>
       );
     }
+    const allRootLeafs = level === 0 ? this.isLeafs(levelNodeIds) : false;
     //
     return (
       <div>
         {
-          nodes.get(parentId).map(nodeId => {
+          levelNodeIds.map(nodeId => {
             const node = this._getNode(nodeId);
             if (!node) {
               return true;
@@ -663,7 +685,7 @@ class Tree extends Basic.AbstractContextComponent {
                   {/* Expand button */}
                   {/* - expand button is shown, when children count is higher than zero or undefinid (children is unknown and has to be loaded at first) */}
                   <Basic.Icon
-                    rendered={ !traverse }
+                    rendered={ !traverse && !allRootLeafs }
                     value={
                       !nodes.has(node.id)
                       ?
@@ -685,35 +707,37 @@ class Tree extends Basic.AbstractContextComponent {
                     style={{ marginLeft: 2 + (level * BASE_ICON_WIDTH) }}/> {/* dynamic margin by node level */}
 
                   {/* Node icon + label */}
-                  {
-                    nodeContent
-                    ?
-                    <span>
-                      <Basic.Icon
-                        value={ icon }
-                        className={ iconClassNames }
-                        showLoading={ uiState && uiState.showLoading }
-                        style={{ width: 14 }}/>
-                      { nodeContent({ node }) }
-                    </span>
-                    :
-                    <Basic.Button
-                      level="link"
-                      className="embedded"
-                      onClick={ this.onSelect.bind(this, node.id) }
-                      onDoubleClick={ this.onDoubleClick.bind(this, node.id) }>
-                      <Basic.Icon
-                        value={ icon }
-                        className={ iconClassNames }
-                        showLoading={ uiState && uiState.showLoading }/>
-                      { this._getNodeNiceLabel(node) }
-                    </Basic.Button>
-                  }
-                  {
-                    !node.childrenCount
-                    ||
-                    <small style={{ marginLeft: 3 }}>({ node.childrenCount })</small>
-                  }
+                  <span>
+                    {
+                      nodeContent
+                      ?
+                      <span>
+                        <Basic.Icon
+                          value={ icon }
+                          className={ iconClassNames }
+                          showLoading={ uiState && uiState.showLoading }
+                          style={{ width: 14 }}/>
+                        { nodeContent({ node }) }
+                      </span>
+                      :
+                      <Basic.Button
+                        level="link"
+                        className="embedded"
+                        onClick={ this.onSelect.bind(this, node.id) }
+                        onDoubleClick={ this.onDoubleClick.bind(this, node.id) }>
+                        <Basic.Icon
+                          value={ icon }
+                          className={ iconClassNames }
+                          showLoading={ uiState && uiState.showLoading }/>
+                        { this._getNodeNiceLabel(node) }
+                      </Basic.Button>
+                    }
+                    {
+                      !node.childrenCount
+                      ||
+                      <small style={{ marginLeft: 3 }}>({ node.childrenCount })</small>
+                    }
+                  </span>
                 </div>
                 {
                   traverse
@@ -727,7 +751,7 @@ class Tree extends Basic.AbstractContextComponent {
         {
           !parentUiState.total
           ||
-          nodes.get(parentId).length >= parentUiState.total
+          levelNodeIds.length >= parentUiState.total
           ||
           <Basic.Button
             level="link"
@@ -739,7 +763,7 @@ class Tree extends Basic.AbstractContextComponent {
             showLoadingIcon
             onClick={ this.onNextPage.bind(this, parentId) }>
             <small>
-              { this.i18n('component.advanced.Tree.moreRecords', { counter: nodes.get(parentId).length, total: parentUiState.total, escape: false } ) }
+              { this.i18n('component.advanced.Tree.moreRecords', { counter: levelNodeIds.length, total: parentUiState.total, escape: false } ) }
             </small>
           </Basic.Button>
         }

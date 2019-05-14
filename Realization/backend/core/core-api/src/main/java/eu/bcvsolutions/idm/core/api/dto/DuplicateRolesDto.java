@@ -10,9 +10,9 @@ import java.util.UUID;
  * {@link IdmIdentityRoleDto} or another {@link IdmConceptRoleRequestDto}
  *
  * @author Ondrej Kopr
- *
+ * @since 9.6.0
  */
-public class DuplicateWithRoles implements BaseDto {
+public class DuplicateRolesDto implements BaseDto {
 
 	private static final long serialVersionUID = 1L;
 
@@ -31,7 +31,7 @@ public class DuplicateWithRoles implements BaseDto {
 
 	public List<UUID> getConcepts() {
 		if (concepts == null) {
-			return new ArrayList<UUID>();
+			concepts = new ArrayList<UUID>();
 		}
 		return concepts;
 	}
@@ -42,24 +42,12 @@ public class DuplicateWithRoles implements BaseDto {
 
 	public List<UUID> getIdentityRoles() {
 		if (identityRoles == null) {
-			return new ArrayList<UUID>();
+			identityRoles = new ArrayList<UUID>();
 		}
 		return identityRoles;
 	}
 
 	public void setIdentityRoles(List<UUID> identityRoles) {
 		this.identityRoles = identityRoles;
-	}
-
-	public void addIdentityRole(UUID id) {
-		List<UUID> duplicates = this.getIdentityRoles();
-		duplicates.add(id);
-		this.setIdentityRoles(duplicates);
-	}
-
-	public void addConcept(UUID id) {
-		List<UUID> duplicates = this.getConcepts();
-		duplicates.add(id);
-		this.setConcepts(duplicates);
 	}
 }

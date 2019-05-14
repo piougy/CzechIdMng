@@ -201,16 +201,12 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
           <div>
             {
               _entityTypes.map((entityType) => {
-                const entityProcessors = _processors.get(entityType);
-                entityProcessors.sort((one, two) => {
-                  return parseInt(one.order, 10) > parseInt(two.order, 10);
-                });
                 return (
                   <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>
                     <Basic.ContentHeader text={entityType}/>
 
                     <Basic.Table
-                      data={ entityProcessors }
+                      data={ _processors.get(entityType) }
                       showLoading={ showLoading }
                       noData={ this.i18n('component.basic.Table.noData') }
                       rowClass={({ rowIndex, data }) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>

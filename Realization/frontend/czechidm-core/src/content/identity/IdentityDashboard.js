@@ -151,14 +151,6 @@ class IdentityDashboard extends Basic.AbstractContent {
                 );
               })
           }
-
-          <Basic.Button
-            level="info"
-            icon="link"
-            className="btn-large hidden"
-            onClick={ () => alert('not implemented') }
-            style={{ height: 50, marginRight: 3, minWidth: 150 }}
-            text="Přepočet účtů a provisioning"/>
         </div>
         {
           componentService

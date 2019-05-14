@@ -198,7 +198,8 @@ export class AuditTable extends Advanced.AbstractTableContent {
                     entityIdentifier={ value }
                     entity={ data[rowIndex]._embedded[property] }
                     face="popover"
-                    showEntityType={ false }/>
+                    showEntityType={ false }
+                    showIcon/>
                 );
               }
             }/>

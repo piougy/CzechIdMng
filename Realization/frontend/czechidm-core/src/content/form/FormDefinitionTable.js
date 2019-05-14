@@ -68,26 +68,26 @@ export class FormDefinitionTable extends Advanced.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
-          manager={definitionManager}
-          showRowSelection={SecurityManager.hasAuthority('FORMDEFINITION_DELETE')}
-          rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+          uiKey={ uiKey }
+          manager={ definitionManager }
+          showRowSelection={ SecurityManager.hasAuthority('FORMDEFINITION_DELETE') }
+          rowClass={ ({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; } }
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
             ]
           }
           filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className="last">
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('filter.text')}/>
+                      placeholder={ this.i18n('filter.text') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 } className="text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -99,8 +99,8 @@ export class FormDefinitionTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={this.showDetail.bind(this, { })}
-                rendered={SecurityManager.hasAuthority('FORMDEFINITION_CREATE')}
+                onClick={ this.showDetail.bind(this, { }) }
+                rendered={ SecurityManager.hasAuthority('FORMDEFINITION_CREATE') }
                 icon="fa:plus">
                 { this.i18n('button.add') }
               </Basic.Button>
@@ -127,11 +127,11 @@ export class FormDefinitionTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data, property }) => {
                 return Utils.Ui.getSimpleJavaType(data[rowIndex][property]);
               }}/>
-          <Advanced.Column property="main" header={this.i18n('entity.FormDefinition.main.label')} face="bool" sort />
+          <Advanced.Column property="main" header={ this.i18n('entity.FormDefinition.main.label') } face="bool" sort />
           <Advanced.Column property="code" sort/>
           <Advanced.Column property="name" sort/>
           <Advanced.Column property="module" sort/>
-          <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormDefinition.unmodifiable.label')} face="bool" sort />
+          <Advanced.Column property="unmodifiable" header={ this.i18n('entity.FormDefinition.unmodifiable.label') } face="bool" sort />
         </Advanced.Table>
       </div>
     );

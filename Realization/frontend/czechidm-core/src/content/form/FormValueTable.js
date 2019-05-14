@@ -53,7 +53,7 @@ export class FormValueTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, forceSearchParameters, showFilter, columns } = this.props;
+    const { uiKey, forceSearchParameters, showFilter, columns, className } = this.props;
     const { filterOpened } = this.state;
     //
     return (
@@ -61,9 +61,9 @@ export class FormValueTable extends Advanced.AbstractTableContent {
         ref="table"
         uiKey={ uiKey }
         manager={ manager }
-        _searchParameters={ this.getSearchParameters() }
         forceSearchParameters={ forceSearchParameters }
         showFilter={ showFilter }
+        className={ className }
         filter={
           <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
             <Basic.AbstractForm ref="filterForm">
@@ -89,7 +89,8 @@ export class FormValueTable extends Advanced.AbstractTableContent {
             </Basic.AbstractForm>
           </Advanced.Filter>
         }
-        filterOpened={ filterOpened }>
+        filterOpened={ filterOpened }
+        _searchParameters={ this.getSearchParameters() }>
 
         <Advanced.Column
           property="ownerId"
@@ -105,22 +106,22 @@ export class FormValueTable extends Advanced.AbstractTableContent {
               );
             }
           }
-          rendered={_.includes(columns, 'owner')}/>
+          rendered={ _.includes(columns, 'owner') }/>
         <Advanced.Column
           property="_embedded.formAttribute.code"
           header={ this.i18n('entity.FormAttribute.code.label')}
           sort
           sortProperty="formAttribute.code"
-          rendered={_.includes(columns, 'code')}/>
+          rendered={ _.includes(columns, 'code') }/>
         <Advanced.Column
           property="_embedded.formAttribute.name"
           header={ this.i18n('entity.FormAttribute.name.label') }
           sort
           sortProperty="formAttribute.name"
-          rendered={_.includes(columns, 'name')}/>
+          rendered={ _.includes(columns, 'name') }/>
         <Advanced.Column
           property="value"
-          rendered={_.includes(columns, 'value')}/>
+          rendered={ _.includes(columns, 'value') }/>
         <Advanced.Column
           property="persistentType"
           face="enum"
@@ -132,13 +133,13 @@ export class FormValueTable extends Advanced.AbstractTableContent {
           header={ this.i18n('entity.FormAttribute.defaultValue')}
           sort
           sortProperty="formAttribute.defaultValue"
-          rendered={_.includes(columns, 'defaultValue')}/>
+          rendered={ _.includes(columns, 'defaultValue') }/>
         <Advanced.Column
           property="_embedded.formAttribute.faceType"
-          header={ this.i18n('entity.FormAttribute.faceType.label')}
+          header={ this.i18n('entity.FormAttribute.faceType.label') }
           sort
           sortProperty="formAttribute.faceType"
-          rendered={_.includes(columns, 'faceType')}/>
+          rendered={ _.includes(columns, 'faceType') }/>
       </Advanced.Table>
     );
   }

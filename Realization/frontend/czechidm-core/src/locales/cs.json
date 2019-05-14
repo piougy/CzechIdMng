@@ -1375,6 +1375,13 @@
           "selectRoleCatalogue": {
             "header": "Výběr rolí ze složek katalogu"
           },
+          "duplicate": {
+            "button": {
+              "remove": {
+                "label": "Odebrat duplicitní roli"
+              }
+            }
+          },
           "action": {
             "deleteAdded": {
               "header": "Odebrání role",
@@ -3647,6 +3654,10 @@
         "label": "Přiděleno díky roli",
         "title": "Napřímo přidělená role, díky které je přidělena i tato role. Napřímo přidělená role zahrnuje tuto roli.",
         "help": "$t(entity.IdentityRole.directRole.title)"
+      },
+      "duplicate": {
+        "label": "Duplicitní role",
+        "header": "Požadovaná role je duplicitní k roli:"
       }
     },
     "IdentityAccount": {

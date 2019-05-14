@@ -1331,6 +1331,13 @@
         "selectRoleCatalogue": {
           "header": "Selection roles from folders of catalog"
         },
+        "duplicate": {
+          "button": {
+            "remove": {
+              "label": "Remove duplicate"
+            }
+          }
+        },
         "action": {
           "deleteAdded": {
             "header": "Delete added roles",
@@ -3596,6 +3603,10 @@
         "label": "Assigned by role",
         "title": "Directly assigned role, which assigned this role as well (business role).",
         "help": "$t(entity.IdentityRole.directRole.title)"
+      },
+      "duplicate": {
+        "label": "Requested role is duplicate",
+        "header": "Requested role is duplicate with role:"
       }
     },
     "IdentityAccount": {

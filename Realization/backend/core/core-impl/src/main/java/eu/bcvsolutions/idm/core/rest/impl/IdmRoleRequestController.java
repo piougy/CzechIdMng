@@ -421,7 +421,10 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 			List<IdmIdentityRoleDto> identityRoles = identityRoleService.findValidRoles(identityId, null).getContent();
 			// Add to all identity roles form instance. For identity role can exists only one form instance.
 			identityRoles.forEach(identityRole -> {
-				identityRole.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(identityRole)));
+				IdmFormInstanceDto formInstance = identityRoleService.getRoleAttributeValues(identityRole);
+				if (formInstance != null) {
+					identityRole.setEavs(Lists.newArrayList(formInstance));
+				}
 			});
 			List<IdmConceptRoleRequestDto> concepts = dto.getConceptRoles();
 			concepts = this.service.markDuplicates(concepts, identityRoles);

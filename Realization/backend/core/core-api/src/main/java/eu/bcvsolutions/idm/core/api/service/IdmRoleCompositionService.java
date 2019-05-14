@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCompositionFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -81,11 +82,21 @@ public interface IdmRoleCompositionService extends
 	void updateSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission);
 	
 	/**
-	 * Returns all roles used by given compositions (used as superior or sub).
+	 * Returns all roles used by given compositions (used as superior or sub). Use {@link #resolveDistinctRoles(List)} is dtos should be returned.
 	 * 
 	 * @param compositions
 	 * @return
+	 * @see #resolveDistinctRoles(List)
 	 */
 	Set<UUID> getDistinctRoles(List<IdmRoleCompositionDto> compositions);
+	
+	/**
+	 * Returns all roles used by given compositions (used as superior or sub).
+	 * 
+	 * @param compositions - fully loaded role composition with embedded objects.
+	 * @return
+	 * @throws IllegalArrgumentException if role composition's embedded object doesn't contain referenced superior and sub role. 
+	 */
+	Set<IdmRoleDto> resolveDistinctRoles(List<IdmRoleCompositionDto> compositions);
 	
 }

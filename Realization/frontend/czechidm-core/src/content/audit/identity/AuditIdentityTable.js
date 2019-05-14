@@ -201,7 +201,8 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
                     entityIdentifier={ value }
                     face="popover"
                     entity={ data[rowIndex]._embedded[property] }
-                    showEntityType={ false }/>
+                    showEntityType={ false }
+                    showIcon/>
                 );
               }
             }/>

@@ -139,16 +139,17 @@ export class AuditIdentityLoginTable extends Advanced.AbstractTableContent {
                   <Advanced.EntityInfo
                     entityType="identity"
                     entityIdentifier={ identity.id }
-                    entity={identity}
+                    entity={ identity }
                     face="popover"
-                    showIdentity={ false }/>
+                    showIdentity={ false }
+                    showIcon/>
                 );
               }
             }/>
           <Advanced.Column
-            header={this.i18n('loginType')}
+            header={ this.i18n('loginType') }
             property="modification"
-            width={ 200 }
+            width={ 100 }
             cell={
               ({ rowIndex, data, property }) => {
                 const modification = data[rowIndex][property];
@@ -169,12 +170,12 @@ export class AuditIdentityLoginTable extends Advanced.AbstractTableContent {
               }}/>
           <Advanced.Column
             property="timestamp"
-            header={this.i18n('entity.Audit.revisionDate')}
+            header={ this.i18n('entity.Audit.revisionDate') }
             width={ 250 }
             face="datetime"/>
           <Advanced.Column
             property="unsuccessfulAttempts"
-            header={this.i18n('unsuccessfulAttempts')}
+            header={ this.i18n('unsuccessfulAttempts') }
             width={ 200 }
             cell={
               ({ rowIndex, data }) => {
@@ -186,7 +187,7 @@ export class AuditIdentityLoginTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="mustChange"
-            header={this.i18n('mustChange')}
+            header={ this.i18n('mustChange') }
             face="boolean"
             width={ 200 }
             cell={
@@ -200,8 +201,8 @@ export class AuditIdentityLoginTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="validFrom"
-            header={this.i18n('validFrom')}
-            width={ 250 }
+            header={ this.i18n('validFrom') }
+            width={ 175 }
             face="datetime"
             cell={
               ({ rowIndex, data }) => {
@@ -214,8 +215,8 @@ export class AuditIdentityLoginTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="validTill"
-            header={this.i18n('validTill')}
-            width={ 250 }
+            header={ this.i18n('validTill') }
+            width={ 175 }
             face="datetime"
             cell={
               ({ rowIndex, data }) => {
@@ -228,8 +229,8 @@ export class AuditIdentityLoginTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="blockLoginDate"
-            header={this.i18n('blockLoginDate')}
-            width={ 250 }
+            header={ this.i18n('blockLoginDate') }
+            width={ 175 }
             face="datetime"
             cell={
               ({ rowIndex, data }) => {

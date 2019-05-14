@@ -92,14 +92,14 @@ export class AuditIdentityPasswordChangeTable extends Advanced.AbstractTableCont
           ref="table"
           filterOpened
           uiKey={ uiKey }
-          manager={passwordHistoryManager}
-          forceSearchParameters={this._getForceSearchParameters()}
+          manager={ passwordHistoryManager }
+          forceSearchParameters={ this._getForceSearchParameters() }
           filter={ this._getAdvancedFilter() }
           _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
-            header={this.i18n('entity.Identity._type')}
+            header={ this.i18n('entity.Identity._type') }
             property="identity"
-            rendered={!singleUserMod}
+            rendered={ !singleUserMod }
             width={ 250 }
             cell={
               ({ rowIndex, data }) => {
@@ -109,23 +109,24 @@ export class AuditIdentityPasswordChangeTable extends Advanced.AbstractTableCont
                 }
                 return (
                   <Advanced.EntityInfo
-                  entityType="identity"
-                  entityIdentifier={ identity.id }
-                  entity={ identity }
-                  face="popover"
-                  showIdentity={ false }/>
+                    entityType="identity"
+                    entityIdentifier={ identity.id }
+                    entity={ identity }
+                    face="popover"
+                    showIdentity={ false }
+                    showIcon/>
                 );
               }
             }/>
           <Advanced.Column
             property="created"
-            header={this.i18n('content.audit.identityPasswordChange.created')}
+            header={ this.i18n('content.audit.identityPasswordChange.created') }
             width={ 200 }
             sort
             face="datetime"/>
           <Advanced.Column
             property="creator"
-            header={this.i18n('content.audit.identityPasswordChange.creator')}
+            header={ this.i18n('content.audit.identityPasswordChange.creator') }
             cell={
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
@@ -142,7 +143,8 @@ export class AuditIdentityPasswordChangeTable extends Advanced.AbstractTableCont
                     entityIdentifier={ identity.id }
                     entity={ identity }
                     face="popover"
-                    showIdentity={ false }/>
+                    showIdentity={ false }
+                    showIcon/>
                 );
               }
             }/>

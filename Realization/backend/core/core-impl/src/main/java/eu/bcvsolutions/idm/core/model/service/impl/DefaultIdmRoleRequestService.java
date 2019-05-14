@@ -47,7 +47,7 @@ import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
-import eu.bcvsolutions.idm.core.api.dto.DuplicateWithRoles;
+import eu.bcvsolutions.idm.core.api.dto.DuplicateRolesDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -688,8 +688,7 @@ public class DefaultIdmRoleRequestService
 			if (copyRoleParameters) {
 				// For copy must exist identity role attribute definition
 				if (roleDto.getIdentityRoleAttributeDefinition() != null) {
-					IdmFormDefinitionDto formDefinition = formService.getDefinition(roleDto.getIdentityRoleAttributeDefinition());
-					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinition);
+					IdmFormInstanceDto formInstance = identityRoleService.getRoleAttributeValues(identityRoleDto);
 
 					List<IdmFormValueDto> values = formInstance.getValues();
 					List<IdmFormValueDto> finalValues = new ArrayList<IdmFormValueDto>(values);
@@ -774,7 +773,7 @@ public class DefaultIdmRoleRequestService
 						|| RoleRequestState.EXECUTED == concept.getState()) //
 				.collect(Collectors.toList());
 
-		Set<UUID> roleIds = new HashSet<>(); 
+		Set<IdmRoleDto> roles = new HashSet<>(); 
 		conceptsForCheck
 			.stream()
 			.filter(concept -> {
@@ -786,7 +785,7 @@ public class DefaultIdmRoleRequestService
 				return !isDelete;
 			})
 			.forEach(concept -> {
-				roleIds.add(concept.getRole());
+				roles.add(DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role));
 			});
 		identityRoles
 			.stream()
@@ -794,11 +793,11 @@ public class DefaultIdmRoleRequestService
 				return !removedIdentityRoleIds.contains(identityRole.getId());
 			})
 			.forEach(identityRole -> {
-				roleIds.add(identityRole.getRole());
+				roles.add(DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role));
 			});
 		
 		// We want to returns only incompatibilities caused by new added roles
-	 	Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(Lists.newArrayList(roleIds));
+	 	Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(Lists.newArrayList(roles));
 		return incompatibleRoles.stream() //
 			.filter(incompatibleRole -> {
 				return conceptsForCheck.stream() //
@@ -830,8 +829,7 @@ public class DefaultIdmRoleRequestService
 		// TODO: create hashMap with used roles (simple cache)
 		for (IdmConceptRoleRequestDto concept : concepts) {
 			// Only add or modification will be processed
-			if (concept.getOperation() != ConceptRoleRequestOperation.ADD &&
-					concept.getOperation() != ConceptRoleRequestOperation.UPDATE) {
+			if (concept.getOperation() == ConceptRoleRequestOperation.REMOVE) {
 				continue;
 			}
 			UUID roleId = concept.getRole();
@@ -856,8 +854,8 @@ public class DefaultIdmRoleRequestService
 
 				// Duplicated founded. Add UUID from identity role
 				if (duplicated != null || (duplicated != null && duplicated.getId() == null)) {
-					DuplicateWithRoles duplicates = concept.getDuplicates();
-					duplicates.addIdentityRole(identityRole.getId());
+					DuplicateRolesDto duplicates = concept.getDuplicates();
+					duplicates.getIdentityRoles().add(identityRole.getId());
 					concept.setDuplicates(duplicates);
 					concept.setDuplicate(Boolean.TRUE);
 				}
@@ -1336,14 +1334,14 @@ public class DefaultIdmRoleRequestService
 				IdmIdentityRoleDto duplicated = identityRoleService.getDuplicated(identityRoleOne, identityRoleTwo, Boolean.FALSE);
 				if (duplicated == identityRoleOne) {
 					// When is duplicate same as identityRoleOne set ID of concept two
-					DuplicateWithRoles duplicates = conceptOne.getDuplicates();
-					duplicates.addConcept(conceptTwo.getId());
+					DuplicateRolesDto duplicates = conceptOne.getDuplicates();
+					duplicates.getConcepts().add(conceptTwo.getId());
 					conceptOne.setDuplicate(Boolean.TRUE);
 					conceptOne.setDuplicates(duplicates);
 				} else if (duplicated == identityRoleTwo) {
 					// When is duplicate same as identityRoleTwo set ID of concept one
-					DuplicateWithRoles duplicates = conceptTwo.getDuplicates();
-					duplicates.addConcept(conceptOne.getId());
+					DuplicateRolesDto duplicates = conceptTwo.getDuplicates();
+					duplicates.getConcepts().add(conceptOne.getId());
 					conceptTwo.setDuplicate(Boolean.TRUE);
 					conceptTwo.setDuplicates(duplicates);
 				}

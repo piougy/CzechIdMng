@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -252,7 +254,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		for(Entry<String, EntityEventProcessor> entry : processors.entrySet()) {
 			EntityEventProcessor<?> processor = entry.getValue();
 			// entity event processor depends on module - we could not call any processor method
-			// TODO: all processor should be returned - disbaled by filter
+			// TODO: all processor should be returned - disabled controlled by filter
 			if (!enabledEvaluator.isEnabled(processor)) {
 				continue;
 			}
@@ -261,9 +263,19 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			if (passFilter(dto, filter)) {
 				dtos.add(dto);
 			}
-
 		}
+		// sort by order
+		Collections.sort(dtos, new Comparator<EntityEventProcessorDto>() {
+
+			@Override
+			public int compare(EntityEventProcessorDto one, EntityEventProcessorDto two) {
+				return Integer.compare(one.getOrder(),two.getOrder());
+			}
+			
+		});
+		//
 		LOG.debug("Returning [{}] registered entity event processors", dtos.size());
+		//
 		return dtos;
 	}
 	

@@ -88,15 +88,16 @@ public class DefaultIdmIncompatibleRoleServiceIntegrationTest extends AbstractIn
 		getHelper().createIncompatibleRole(subTwo, threeSub);
 		getHelper().createIncompatibleRole(subOne, subOne);
 		//
-		Set<ResolvedIncompatibleRoleDto> resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subTwo));
+		Set<ResolvedIncompatibleRoleDto> resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subTwo.getId()));
 		Assert.assertTrue(resolvedIncompatibleRoles.isEmpty());
 		//
-		resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subTwo, superiorTwo));
+		resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subTwo.getId(), superiorTwo.getId()));
 		Assert.assertTrue(resolvedIncompatibleRoles.isEmpty());
 		//
-		resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subOne)); // wrong definition. TODO: add validation
+		resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subOne.getId())); // wrong definition. TODO: add validation
 		Assert.assertTrue(resolvedIncompatibleRoles.isEmpty());
 		//
+		superior = getHelper().getService(IdmRoleService.class).get(superior); // preloaded role is used
 		resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(superior)); // incompatible roles inside business role definition
 		Assert.assertEquals(1, resolvedIncompatibleRoles.size());
 		Assert.assertTrue(resolvedIncompatibleRoles
@@ -105,7 +106,7 @@ public class DefaultIdmIncompatibleRoleServiceIntegrationTest extends AbstractIn
 					return ir.getIncompatibleRole().getSuperior().equals(subOne.getId()) && ir.getIncompatibleRole().getSub().equals(subTwo.getId());
 				}));
 		//
-		resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subOne, subTwo));
+		resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subOne.getId(), subTwo.getId()));
 		Assert.assertEquals(2, resolvedIncompatibleRoles.size());
 		Assert.assertTrue(resolvedIncompatibleRoles
 				.stream()
@@ -123,7 +124,7 @@ public class DefaultIdmIncompatibleRoleServiceIntegrationTest extends AbstractIn
 				}));
 		//
 		// 
-		resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subOne, three));
+		resolvedIncompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subOne.getId(), three.getId()));
 		Assert.assertEquals(2, resolvedIncompatibleRoles.size());
 		Assert.assertTrue(resolvedIncompatibleRoles
 				.stream()
@@ -140,7 +141,7 @@ public class DefaultIdmIncompatibleRoleServiceIntegrationTest extends AbstractIn
 							&& ir.getDirectRole().equals(three);
 				}));
 		//
-		Set<IdmIncompatibleRoleDto> incompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subOneSub, subTwo, three))
+		Set<IdmIncompatibleRoleDto> incompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subOneSub.getId(), subTwo.getId(), three.getId()))
 				.stream()
 				.map(ResolvedIncompatibleRoleDto::getIncompatibleRole)
 				.collect(Collectors.toSet());
@@ -156,7 +157,7 @@ public class DefaultIdmIncompatibleRoleServiceIntegrationTest extends AbstractIn
 					return ir.getSuperior().equals(subTwo.getId()) && ir.getSub().equals(threeSub.getId());
 				}));
 		//
-		incompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subTwo, three, subOne))
+		incompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(subTwo.getId(), three.getId(), subOne.getId()))
 				.stream()
 				.map(ResolvedIncompatibleRoleDto::getIncompatibleRole)
 				.collect(Collectors.toSet());
@@ -177,7 +178,7 @@ public class DefaultIdmIncompatibleRoleServiceIntegrationTest extends AbstractIn
 					return ir.getSuperior().equals(subTwo.getId()) && ir.getSub().equals(threeSub.getId());
 				}));
 		//
-		incompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(three, subTwo))
+		incompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(three.getId(), subTwo.getId()))
 				.stream()
 				.map(ResolvedIncompatibleRoleDto::getIncompatibleRole)
 				.collect(Collectors.toSet());
@@ -188,7 +189,7 @@ public class DefaultIdmIncompatibleRoleServiceIntegrationTest extends AbstractIn
 					return ir.getSuperior().equals(subTwo.getId()) && ir.getSub().equals(threeSub.getId());
 				}));
 		//
-		incompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(three, superior, superiorTwo))
+		incompatibleRoles = service.resolveIncompatibleRoles(Lists.newArrayList(three.getId(), superior.getId(), superiorTwo.getId()))
 				.stream()
 				.map(ResolvedIncompatibleRoleDto::getIncompatibleRole)
 				.collect(Collectors.toSet());

@@ -254,7 +254,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		for(Entry<String, EntityEventProcessor> entry : processors.entrySet()) {
 			EntityEventProcessor<?> processor = entry.getValue();
 			// entity event processor depends on module - we could not call any processor method
-			// TODO: all processor should be returned - disbaled by filter
+			// TODO: all processor should be returned - disabled controlled by filter
 			if (!enabledEvaluator.isEnabled(processor)) {
 				continue;
 			}
@@ -269,7 +269,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 
 			@Override
 			public int compare(EntityEventProcessorDto one, EntityEventProcessorDto two) {
-				return ((Integer) one.getOrder()).compareTo(two.getOrder());
+				return Integer.compare(one.getOrder(),two.getOrder());
 			}
 			
 		});

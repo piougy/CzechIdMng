@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
 - Deprecated method (since 7.7.0) ``IdmNotificationTemplateService#getTemplateByCode`` was removed. Use method ``IdmNotificationTemplateService#getByCode`` instead.
 - Deprecated method (since 7.8.0) ``IdmIdentityRepository#findAllByRole`` was removed. Use method ``IdmIdentityService#findAllByRole`` instead.
 - Deprecated method (since 7.8.0) ``JwtAuthenticationMapper#getDTOAuthorities`` was removed. Use method ``JwtAuthenticationMapper#getDtoAuthorities`` instead.
-- Deprecated method (since 8.2.0) ``SysProvisioningBatchService#getDTOAuthorities`` was removed. Use method ``SysProvisioningBatchService#findBatch()`` instead.
+- Deprecated method (since 8.2.0) ``SysProvisioningBatchService#findBatch(UUID, UUID, UUID)`` was removed. Use method ``SysProvisioningBatchService#findBatch(UUID)`` instead.
 
 
 ## [9.4.0]

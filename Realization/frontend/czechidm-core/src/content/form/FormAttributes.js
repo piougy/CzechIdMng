@@ -5,16 +5,14 @@ import FormAttributeTable from './FormAttributeTable';
 
 /**
 * Attributes content for forms (table)
+*
+* @author Roman Kučera
+* @author Radek Tomiška
 */
-
 export default class FormAttributes extends Basic.AbstractContent {
 
   getContentKey() {
     return 'content.formAttributes';
-  }
-
-  componentDidMount() {
-    super.componentDidMount();
   }
 
   getNavigationKey() {
@@ -24,17 +22,11 @@ export default class FormAttributes extends Basic.AbstractContent {
   render() {
     const { entityId } = this.props.params;
     return (
-      <Basic.Panel className={'no-border last'}>
-        <Basic.PanelHeader text={this.i18n('content.formDefinitions.attributes.title')} />
-        <Basic.PanelBody style={{ padding: 0 }}>
-          <FormAttributeTable uiKey="form-attributes-table" definitionId={ entityId } className="no-margin" />
-        </Basic.PanelBody>
-      </Basic.Panel>
+      <div className="tab-pane-table-body">
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
+
+        <FormAttributeTable uiKey="form-attributes-table" definitionId={ entityId } className="no-margin" />
+      </div>
     );
   }
 }
-
-FormAttributes.propTypes = {
-};
-FormAttributes.defaultProps = {
-};

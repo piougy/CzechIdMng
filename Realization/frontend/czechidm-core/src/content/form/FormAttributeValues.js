@@ -25,16 +25,16 @@ export default class FormAttributeValues extends Basic.AbstractContent {
     const forceSearchParameters = new SearchParameters().setFilter('attributeId', this.props.params.entityId);
     //
     return (
-      <Basic.Panel className={'no-border last'}>
-        <Basic.PanelHeader text={this.i18n('title')} />
-        <Basic.PanelBody style={{ padding: 0 }}>
-          <FormValueTableComponent
-            uiKey="form-attribute-values-table"
-            forceSearchParameters={ forceSearchParameters }
-            showFilter={ false }
-            columns={ _.difference(FormValueTable.defaultProps.columns, ['code', 'name']) }/>
-        </Basic.PanelBody>
-      </Basic.Panel>
+      <div className="tab-pane-table-body">
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
+
+        <FormValueTableComponent
+          uiKey="form-attribute-values-table"
+          forceSearchParameters={ forceSearchParameters }
+          showFilter={ false }
+          columns={ _.difference(FormValueTable.defaultProps.columns, ['code', 'name']) }
+          className="no-margin"/>
+      </div>
     );
   }
 }

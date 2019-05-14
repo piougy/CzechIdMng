@@ -23,12 +23,14 @@ export default class FormValues extends Basic.AbstractContent {
     const forceSearchParameters = new SearchParameters().setFilter('definitionId', this.props.params.entityId);
     //
     return (
-      <Basic.Panel className={ 'no-border last' }>
-        <Basic.PanelHeader text={ this.i18n('title')} />
-        <Basic.PanelBody style={{ padding: 0 }}>
-          <FormValueTable uiKey="form-definition-values-table" forceSearchParameters={ forceSearchParameters } />
-        </Basic.PanelBody>
-      </Basic.Panel>
+      <div className="tab-pane-table-body">
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
+
+        <FormValueTable
+          uiKey="form-definition-values-table"
+          forceSearchParameters={ forceSearchParameters }
+          className="no-margin" />
+      </div>
     );
   }
 }

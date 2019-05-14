@@ -134,7 +134,6 @@ class NodeDetail extends Basic.AbstractContent {
                     <Basic.TextField
                       ref="code"
                       label={this.i18n('entity.TreeType.code')}
-                      required
                       max={255}/>
                   </Basic.Col>
                   <Basic.Col lg={ 10 }>

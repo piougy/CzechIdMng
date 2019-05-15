@@ -61,13 +61,14 @@ export class IdentityTable extends Advanced.AbstractTableContent {
   /**
   * Redirect to user form
   */
-  showDetail(entity) {
+  showDetail(entity, event) {
     const { skipDashboard } = this.props;
+    const shiftKey = !event || event.shiftKey;
     //
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
       this.context.router.push(`/identity/new?id=${uuidId}`);
-    } else if (!skipDashboard) {
+    } else if (!skipDashboard && !shiftKey) {
       this.context.router.push(`/identity/${encodeURIComponent(entity.username)}/dashboard`);
     } else {
       this.context.router.push(`/identity/${encodeURIComponent(entity.username)}/profile`);

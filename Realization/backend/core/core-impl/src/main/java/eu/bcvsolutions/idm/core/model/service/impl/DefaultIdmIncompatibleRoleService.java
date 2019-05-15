@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +15,9 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -43,6 +47,8 @@ public class DefaultIdmIncompatibleRoleService
 		extends AbstractEventableDtoService<IdmIncompatibleRoleDto, IdmIncompatibleRole, IdmIncompatibleRoleFilter> 
 		implements IdmIncompatibleRoleService {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIncompatibleRoleService.class);
+	//
 	private final IdmIncompatibleRoleRepository repository;
 	//
 	@Autowired private IdmRoleCompositionService roleCompositionService;
@@ -66,12 +72,31 @@ public class DefaultIdmIncompatibleRoleService
 	}
 	
 	@Override
+	public List<IdmIncompatibleRoleDto> findAllByRoles(List<UUID> roleIds) {
+		List<IdmIncompatibleRole> results = new ArrayList<>();
+		//
+		int pageSize = 500; // prevent to exceed IN limit sql clause
+		Page<UUID> roleIdPages = new PageImpl<UUID>(roleIds, new PageRequest(0, pageSize), roleIds.size());
+		for(int page = 0; page < roleIdPages.getTotalPages(); page++) {
+			int end = (page + 1) * pageSize;
+			if (end > roleIds.size()) {
+				end = roleIds.size();
+			}
+			results.addAll(repository.findAllByRoles(roleIds.subList(page * pageSize, end)));
+		}
+		//
+		return toDtos(results, false);
+	}
+	
+	@Override
 	public Set<ResolvedIncompatibleRoleDto> resolveIncompatibleRoles(List<Serializable> rolesOrIdentifiers) {
 		// search all defined incompatible roles for given roles - business roles can be given
 		Set<ResolvedIncompatibleRoleDto> incompatibleRoles = new HashSet<>();
 		if(CollectionUtils.isEmpty(rolesOrIdentifiers)) {
 			return incompatibleRoles;
 		}
+		LOG.warn("Start resolving incompabible roles [{}]", rolesOrIdentifiers);
+		//
 		Set<UUID> allRoleIds = new HashSet<>();
 		Set<IdmRoleDto> roles = new HashSet<>();
 		// search all sub roles
@@ -97,17 +122,17 @@ public class DefaultIdmIncompatibleRoleService
 			}
 			//
 			// resolve incompatible roles 
-			for(IdmRoleDto r : roles) {
+			List<UUID> roleIds = roles.stream().map(IdmRoleDto::getId).collect(Collectors.toList());
+			//
+			for (IdmIncompatibleRoleDto incompatibleRole : findAllByRoles(roleIds)) {
 				// find incompatible roles - we need to know, which from the given role is incompatible => ResolvedIncompatibleRoleDto
-				for(IdmIncompatibleRoleDto incompatibleRole : findAllByRole(r.getId())) {
-					incompatibleRoles.add(new ResolvedIncompatibleRoleDto(directRole, incompatibleRole));
-				}
-				allRoleIds.add(r.getId());
-			};
+				incompatibleRoles.add(new ResolvedIncompatibleRoleDto(directRole, incompatibleRole));
+			}
+			allRoleIds.addAll(roleIds);
 		}
 		//
 		// both sides of incompatible roles should be in the allRoleIds and superior vs. sub role has to be different.
-		return incompatibleRoles
+		Set<ResolvedIncompatibleRoleDto> resolvedRoles = incompatibleRoles
 				.stream()
 				.filter(ir -> { // superior vs. sub role has to be different.
 					return !ir.getIncompatibleRole().getSuperior().equals(ir.getIncompatibleRole().getSub());
@@ -116,6 +141,9 @@ public class DefaultIdmIncompatibleRoleService
 					return allRoleIds.contains(ir.getIncompatibleRole().getSuperior()) && allRoleIds.contains(ir.getIncompatibleRole().getSub());
 				})
 				.collect(Collectors.toSet());
+		//
+		LOG.warn("Resolved incompabible roles [{}]", resolvedRoles.size());
+		return resolvedRoles;
 	}
 	
 	@Override

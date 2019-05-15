@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -416,8 +415,8 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 		//
 		// find all sub role composition
 		List<IdmRoleCompositionDto> subRoles = roleCompositionService.findAllSubRoles(role.getId(), IdmBasePermission.READ);
-		// extract all sub roles ids - role above is included thx to composition
-		Set<UUID> distinctRoles = roleCompositionService.getDistinctRoles(subRoles);
+		// extract all sub roles - role above is included thx to composition
+		Set<IdmRoleDto> distinctRoles = roleCompositionService.resolveDistinctRoles(subRoles);
 		// resolve incompatible roles defined by business role
 		Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(Lists.newArrayList(distinctRoles));
 		//

@@ -500,7 +500,6 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                   forceSearchParameters={ forceSearchParameters }
                   uiKey={ `${this.getUiKey()}-table` }
                   manager={ this.getManager() }
-                  initialReload={ false }
                   showPageSize={ false }
                   rowClass={({rowIndex, data}) => {
                     return _.includes(selectedRows, data[rowIndex].id) ? selectRowClass : Utils.Ui.getDisabledRowClass(data[rowIndex]);
@@ -532,6 +531,9 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                         </Basic.Row>
                       </Basic.AbstractForm>
                     </Filter>
+                  }
+                  defaultSearchParameters={
+                    this.getManager().getDefaultSearchParameters().setFilter('environment', ConfigLoader.getConfig('role.table.filter.environment', []))
                   }>
                   <Column
                     property=""
@@ -587,6 +589,12 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                         );
                       }
                     }/>
+                    <Column
+                      property="baseCode"
+                      header={ this.i18n('entity.Role.baseCode.label') }
+                      width={ 100 }
+                      sort
+                      face="text"/>
                   <Column
                     property="environment"
                     width={ 125 }

@@ -303,6 +303,20 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             }
             rendered={ _.includes(columns, 'role') }/>
           <Advanced.Column
+            header={ this.i18n('entity.Role.baseCode.label') }
+            title={ this.i18n('entity.Role.baseCode.help') }
+            width={ 125 }
+            face="text"
+            sort
+            sortProperty="role.baseCode"
+            rendered={ _.includes(columns, 'baseCode') }
+            cell={
+              ({ rowIndex, data }) => {
+                return data[rowIndex]._embedded.role.baseCode;
+              }
+            }
+            />
+          <Advanced.Column
             header={ this.i18n('entity.Role.environment.label') }
             title={ this.i18n('entity.Role.environment.help') }
             width={ 125 }
@@ -572,7 +586,7 @@ IdentityRoleTable.propTypes = {
 
 IdentityRoleTable.defaultProps = {
   rendered: true,
-  columns: ['role', 'environment', 'identityContract', 'contractPosition', 'validFrom', 'validTill', 'directRole', 'automaticRole'],
+  columns: ['role', 'baseCode', 'environment', 'identityContract', 'contractPosition', 'validFrom', 'validTill', 'directRole', 'automaticRole'],
   forceSearchParameters: null,
   showAddButton: true,
   showDetailButton: true,

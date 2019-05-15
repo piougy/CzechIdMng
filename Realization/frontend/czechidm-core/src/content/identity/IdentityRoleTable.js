@@ -142,6 +142,10 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     );
   }
 
+  reload() {
+    this.refs.table.getWrappedInstance().reload();
+  }
+
   render() {
     const {
       forceSearchParameters,
@@ -171,7 +175,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
           uiKey={ this.getUiKey() }
           manager={ manager }
           forceSearchParameters={ forceSearchParameters }
-          showRefreshButton
+          showRefreshButton={false}
           className={ className }
           buttons={[
             <Basic.Button

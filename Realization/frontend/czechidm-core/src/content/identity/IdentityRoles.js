@@ -218,16 +218,9 @@ class IdentityRoles extends Basic.AbstractContent {
             disabled={ !this._canChangePermissions() }
             title={ this._canChangePermissions() ? null : this.i18n('security.access.denied') }
             titlePlacement="bottom">
-            {' '}
             { this.i18n('changePermissions') }
           </Basic.Button>
-          <Basic.Button
-            className="btn-xs"
-            style={{ marginLeft: 3 }}
-            onClick={ this._refreshAll.bind(this) }
-            icon="fa:refresh"
-            titlePlacement="bottom">
-          </Basic.Button>
+          <Advanced.RefreshButton onClick={ this._refreshAll.bind(this) }/>
         </div>
       </Basic.Toolbar>
     );

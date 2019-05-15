@@ -97,36 +97,39 @@ class AbstractForm extends AbstractContextComponent {
     if (!this.props.rendered) {
       return;
     }
-    this.setState({allData: merge({}, json)});
-    if (json) {
-      for (const componentRef in this.state.componentsKeys) {
-        if (!this.state.componentsKeys.hasOwnProperty(componentRef)) {
-          continue;
-        }
-        const key = this.state.componentsKeys[componentRef];
-        const component = this.getComponent(key);
-        if (!component) {
-          // component could not be rendered
-          continue;
-        }
-        if (json.hasOwnProperty(key)) {
-          const value = json[key];
-          // Set new value to component
-          // If component using complex value and value in given json is primitive,
-          // then we try to use value from _embedded object (optimalization for prevent
-          // to many request and solving problem with rights (in WF tasks ...)).
-          const isPrimitive = Object(value) !== value;
-          if (component.isValueComplex() === true && isPrimitive === true && json._embedded && json._embedded[key]) {
-            component.setValue(json._embedded[key]);
-          } else {
-            component.setValue(value);
+    this.setState({
+      allData: merge({}, json)
+    }, () => {
+      if (json) {
+        for (const componentRef in this.state.componentsKeys) {
+          if (!this.state.componentsKeys.hasOwnProperty(componentRef)) {
+            continue;
           }
-        } else {
-          component.setValue(null);
+          const key = this.state.componentsKeys[componentRef];
+          const component = this.getComponent(key);
+          if (!component) {
+            // component could not be rendered
+            continue;
+          }
+          if (json.hasOwnProperty(key)) {
+            const value = json[key];
+            // Set new value to component
+            // If component using complex value and value in given json is primitive,
+            // then we try to use value from _embedded object (optimalization for prevent
+            // to many request and solving problem with rights (in WF tasks ...)).
+            const isPrimitive = Object(value) !== value;
+            if (component.isValueComplex() === true && isPrimitive === true && json._embedded && json._embedded[key]) {
+              component.setValue(json._embedded[key]);
+            } else {
+              component.setValue(value);
+            }
+          } else {
+            component.setValue(null);
+          }
         }
       }
-    }
-    this.processEnded(null, operationType);
+      this.processEnded(null, operationType);
+    });
   }
 
   isFormValid() {

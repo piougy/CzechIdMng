@@ -13,6 +13,7 @@ import RoleConceptDetail from './RoleConceptDetail';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import FormInstance from '../../domain/FormInstance';
+import ConfigLoader from '../../utils/ConfigLoader';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -43,7 +44,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
         entity: {},
         add: false
       },
-      filter: new SearchParameters(),
+      filter: {
+        roleEnvironment: ConfigLoader.getConfig('role.table.filter.environment', [])
+      },
       validationErrors: null
     };
   }
@@ -75,7 +78,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
       event.preventDefault();
     }
     this.setState({
-      filter: SearchParameters.getSearchParameters(SearchParameters.getFilterData(this.refs.filterForm))
+      filter: SearchParameters.getFilterData(this.refs.filterForm)
     });
   }
 
@@ -84,7 +87,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
       event.preventDefault();
     }
     this.setState({
-      filter: new SearchParameters()
+      filter: null
     }, () => {
       this.refs.filterForm.setData({
         roleEnvironment: []
@@ -93,15 +96,19 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   applyFilter(conceptData, filter) {
-    if (!filter || filter.getFilters().size === 0) {
+    if (!filter) {
+      return conceptData;
+    }
+    const _filterSearchParameters = SearchParameters.getSearchParameters(filter);
+    if (_filterSearchParameters.getFilters().size === 0) {
       return conceptData;
     }
     return conceptData
       .filter(concept => {
-        if (!filter.getFilters().has('roleEnvironment')) {
+        if (!_filterSearchParameters.getFilters().has('roleEnvironment')) {
           return true;
         }
-        const roleEnvironments = filter.getFilters().get('roleEnvironment');
+        const roleEnvironments = _filterSearchParameters.getFilters().get('roleEnvironment');
         if (roleEnvironments.length === 0) {
           return true;
         }
@@ -112,20 +119,20 @@ export class RoleConceptTable extends Basic.AbstractContent {
         return _.includes(roleEnvironments, concept._embedded.role.environment);
       })
       .filter(concept => {
-        if (!filter.getFilters().has('roleId')) {
+        if (!_filterSearchParameters.getFilters().has('roleId')) {
           return true;
         }
-        const roleId = filter.getFilters().get('roleId');
+        const roleId = _filterSearchParameters.getFilters().get('roleId');
         if (!roleId) {
           return true;
         }
         return roleId === concept.role;
       })
       .filter(concept => {
-        if (!filter.getFilters().has('identityContractId')) {
+        if (!_filterSearchParameters.getFilters().has('identityContractId')) {
           return true;
         }
-        const identityContractId = filter.getFilters().get('identityContractId');
+        const identityContractId = _filterSearchParameters.getFilters().get('identityContractId');
         if (!identityContractId) {
           return true;
         }
@@ -741,14 +748,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   filterOpen={ this._filterOpen.bind(this) }
                   filterOpened={ filterOpened }
                   style={{ marginLeft: 3 }}
-                  searchParameters={ filter }/>
+                  searchParameters={ SearchParameters.getSearchParameters(filter) }/>
               </div>
               <div className="clearfix"></div>
             </div>
             <Basic.Collapse in={ filterOpened }>
               <div>
                 <Basic.Div className="advanced-filter">
-                  <Basic.AbstractForm ref="filterForm">
+                  <Basic.AbstractForm ref="filterForm" data={ filter }>
                     <Basic.Row className="last">
                       <Basic.Col lg={ 3 }>
                         <Advanced.Filter.RoleSelect

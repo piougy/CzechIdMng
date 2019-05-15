@@ -15,6 +15,9 @@ import CodeListValue from '../CodeListValue/CodeListValue';
 import SearchParameters from '../../../domain/SearchParameters';
 import RoleOptionDecorator from './RoleOptionDecorator';
 import RoleValueDecorator from './RoleValueDecorator';
+import Filter from '../Filter/Filter';
+import CodeListSelect from '../CodeListSelect/CodeListSelect';
+import ConfigLoader from '../../../utils/ConfigLoader';
 
 const manager = new RoleManager();
 const roleCatalogueManager = new RoleCatalogueManager();
@@ -22,6 +25,7 @@ const roleCatalogueManager = new RoleCatalogueManager();
 /**
 * Component for select roles by role catalogue
 * TODO: allow return object instead of ids (selectedRoles)
+* FIXME: use RoleTable component
 *
 * @author Ondrej Kopr
 * @author Radek Tomiška
@@ -138,6 +142,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     this.setState({
       showRoleCatalogue: true,
       selectedRows
+    }, () => {
+      this.loadFilter();
     });
   }
 
@@ -245,6 +251,36 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     //
     this.refs.role.setValue(valueId);
     this.hideRoleCatalogue();
+  }
+
+  /**
+   * Loads filter from redux state or default
+   */
+  loadFilter() {
+    if (!this.refs.filterForm) {
+      return;
+    }
+    //  default filters only
+    const filterData = {
+      environment: ConfigLoader.getConfig('role.table.filter.environment', [])
+    };
+    // FIXME: use role table component instead with redux state access
+    this.refs.filterForm.setData(filterData);
+    this.refs.table.getWrappedInstance().useFilterData(filterData);
+  }
+
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
   _addRole(index, value, event) {
@@ -406,7 +442,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     //
     const showTree = SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
     //
-    const forceSearchParameters = new SearchParameters() .setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('roleCatalogue', roleCatalogue);
+    const forceSearchParameters = new SearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('roleCatalogue', roleCatalogue);
     //
     // TODO: add onRowClick={this._onRowClick.bind(this)}
     return (
@@ -462,13 +498,41 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                   className={ showTree ? '' : 'marginable' }
                   style={ showTree ? { borderLeft: '1px solid #ddd' } : {} }
                   forceSearchParameters={ forceSearchParameters }
-                  showToolbar={false}
                   uiKey={ `${this.getUiKey()}-table` }
                   manager={ this.getManager() }
-                  showPageSize={false}
+                  initialReload={ false }
+                  showPageSize={ false }
                   rowClass={({rowIndex, data}) => {
                     return _.includes(selectedRows, data[rowIndex].id) ? selectRowClass : Utils.Ui.getDisabledRowClass(data[rowIndex]);
-                  }}>
+                  }}
+                  filter={
+                    <Filter onSubmit={ this.useFilter.bind(this) }>
+                      <Basic.AbstractForm ref="filterForm">
+                        <Basic.Row className="last">
+                          <Basic.Col lg={ 4 }>
+                            <Filter.TextField
+                              ref="text"
+                              placeholder={this.i18n('content.roles.filter.text.placeholder')}
+                              help={ Filter.getTextHelp() }/>
+                          </Basic.Col>
+                          <Basic.Col lg={ 5 }>
+                            <CodeListSelect
+                              ref="environment"
+                              code="environment"
+                              label={ null }
+                              placeholder={ this.i18n('entity.Role.environment.label') }
+                              multiSelect/>
+                          </Basic.Col>
+                          <Basic.Col lg={ 3 } className="text-right">
+                            <Filter.FilterButtons
+                              cancelFilter={ this.cancelFilter.bind(this) }
+                              showIcon
+                              showText={ false }/>
+                          </Basic.Col>
+                        </Basic.Row>
+                      </Basic.AbstractForm>
+                    </Filter>
+                  }>
                   <Column
                     property=""
                     header=""

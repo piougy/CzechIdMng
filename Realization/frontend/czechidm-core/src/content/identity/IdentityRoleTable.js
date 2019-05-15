@@ -11,6 +11,7 @@ import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager,
 import IdentityRoleEav from './IdentityRoleEav';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 import FormInstance from '../../domain/FormInstance';
+import ConfigLoader from '../../utils/ConfigLoader';
 
 const manager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
@@ -54,6 +55,14 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
 
   getManager() {
     return manager;
+  }
+
+  getDefaultSearchParameters() {
+    let searchParameters = this.getManager().getDefaultSearchParameters();
+    //
+    searchParameters = searchParameters.setFilter('roleEnvironment', ConfigLoader.getConfig('role.table.filter.environment', []));
+    //
+    return searchParameters;
   }
 
   useFilter(event) {

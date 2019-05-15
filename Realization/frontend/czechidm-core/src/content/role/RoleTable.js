@@ -7,6 +7,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
+import ConfigLoader from '../../utils/ConfigLoader';
 //
 import { RoleManager, RequestManager, SecurityManager, RoleCatalogueManager, ConfigurationManager, CodeListManager } from '../../redux';
 
@@ -15,7 +16,9 @@ const requestManager = new RequestManager();
 const codeListManager = new CodeListManager();
 
 /**
-* Table of roles
+* Table of roles.
+*
+* FIXME: use default RoleManager and rename prop to 'manager'.
 *
 * @author Radek Tomiška
 */
@@ -38,6 +41,18 @@ class RoleTable extends Advanced.AbstractTableContent {
 
   getContentKey() {
     return 'content.roles';
+  }
+
+  getManager() {
+    return this.props.roleManager;
+  }
+
+  getDefaultSearchParameters() {
+    let searchParameters = this.getManager().getDefaultSearchParameters();
+    //
+    searchParameters = searchParameters.setFilter('environment', ConfigLoader.getConfig('role.table.filter.environment', []));
+    //
+    return searchParameters;
   }
 
   useFilter(event) {
@@ -165,9 +180,9 @@ class RoleTable extends Advanced.AbstractTableContent {
         <Basic.Confirm ref="confirm-new-request" level="success">
           <Basic.AbstractForm ref="new-request-form" uiKey="confirm-new-request" >
             <Basic.TextField
-              label={this.i18n('content.roles.action.createRequest.name')}
+              label={ this.i18n('content.roles.action.createRequest.name') }
               ref="role-name"
-              placeholder={this.i18n('content.roles.action.createRequest.message')}
+              placeholder={ this.i18n('content.roles.action.createRequest.message') }
               required/>
           </Basic.AbstractForm>
         </Basic.Confirm>
@@ -175,7 +190,7 @@ class RoleTable extends Advanced.AbstractTableContent {
         {/* FIXME: resposive design - wrong wrapping on mobile */}
         <Basic.Col
           lg={ 3 }
-          style={_showTree ? { paddingRight: 0 } : {} }
+          style={ _showTree ? { paddingRight: 0 } : {} }
           rendered={ _showTree }>
           <Advanced.Tree
             ref="roleCatalogueTree"
@@ -203,29 +218,11 @@ class RoleTable extends Advanced.AbstractTableContent {
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className={ _showTree ? '' : 'last'}>
-                    <Basic.Col lg={ 8 }>
+                    <Basic.Col lg={ 4 }>
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('content.roles.filter.text.placeholder')}
                         help={ Advanced.Filter.getTextHelp() }/>
-                    </Basic.Col>
-                    <Basic.Col lg={ 4 } rendered={ false }>
-                      <Advanced.Filter.EnumSelectBox
-                        ref="roleType"
-                        placeholder={ this.i18n('entity.Role.roleType') }
-                        enum={ RoleTypeEnum }/>
-                    </Basic.Col>
-                    <Basic.Col lg={ 4 } className="text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
-                    </Basic.Col>
-                  </Basic.Row>
-                  <Basic.Row className="last">
-                    <Basic.Col lg={ 4 } rendered={ _showTree }>
-                      <Advanced.Filter.RoleCatalogueSelect
-                        ref="roleCatalogue"
-                        label={ null }
-                        placeholder={ this.i18n('entity.Role.roleCatalogue.name') }
-                        header={ this.i18n('entity.Role.roleCatalogue.name') }/>
                     </Basic.Col>
                     <Basic.Col lg={ 4 }>
                       <Advanced.CodeListSelect
@@ -234,6 +231,18 @@ class RoleTable extends Advanced.AbstractTableContent {
                         label={ null }
                         placeholder={ this.i18n('entity.Role.environment.label') }
                         multiSelect/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 } className="text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
+                    </Basic.Col>
+                  </Basic.Row>
+                  <Basic.Row className="last" rendered={ _showTree }>
+                    <Basic.Col lg={ 4 }>
+                      <Advanced.Filter.RoleCatalogueSelect
+                        ref="roleCatalogue"
+                        label={ null }
+                        placeholder={ this.i18n('entity.Role.roleCatalogue.name') }
+                        header={ this.i18n('entity.Role.roleCatalogue.name') }/>
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>

@@ -64,6 +64,13 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
+    let disabledValue = this.i18n('label.no');
+    if (entity.disabledProvisioning) {
+      disabledValue = this.i18n('acc:entity.System.disabledProvisioning.label');
+    } else if (entity.disabled) {
+      disabledValue = this.i18n('acc:entity.System.disabled.label');
+    }
+    //
     return [
       {
         label: this.i18n('entity.name'),
@@ -79,7 +86,7 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
       },
       {
         label: this.i18n('acc:entity.System.disabled.short'),
-        value: (entity.disabledProvisioning ? this.i18n('acc:entity.System.disabledProvisioning.label') : this.i18n('acc:entity.System.disabled.label'))
+        value: disabledValue
       }
     ];
   }

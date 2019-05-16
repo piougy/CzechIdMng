@@ -214,7 +214,7 @@ module.exports = {
         {
           path: ':entityId/systems',
           component: require('./src/content/passwordpolicy/PasswordPolicySystems'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ', 'SYSTEM_READ'] } ]
         }
       ]
     },

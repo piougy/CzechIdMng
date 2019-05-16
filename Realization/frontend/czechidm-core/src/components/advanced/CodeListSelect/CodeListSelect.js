@@ -248,7 +248,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { hidden, required, rendered, validationErrors, multiSelect } = this.props;
+    const { hidden, required, rendered, validationErrors, multiSelect, onChange } = this.props;
     const { options, value, disabled, readOnly } = this.state;
     const showLoading = this.props.showLoading || this.state.showLoading;
     //
@@ -270,7 +270,8 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           hidden={ hidden || (options.length === 0 && !showLoading) }
           showLoading={ showLoading }
           options={ options }
-          multiSelect={ multiSelect }/>
+          multiSelect={ multiSelect }
+          onChange={ onChange }/>
         <Basic.TextField
           ref="inputText"
           value={ value }
@@ -280,7 +281,8 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           readOnly={ readOnly || disabled }
           required={ required }
           validationErrors={ validationErrors }
-          hidden={ showLoading || hidden || options.length > 0 }/>
+          hidden={ showLoading || hidden || options.length > 0 }
+          onChange={ onChange }/>
       </span>
     );
   }
@@ -323,7 +325,11 @@ CodeListSelect.propTypes = {
   /**
    * The component is in multi select mode - available just if code list definition is available (simple input is rendered otherwise).
    */
-  multiSelect: PropTypes.bool
+  multiSelect: PropTypes.bool,
+  /**
+   * On chage seleceted value callback
+   */
+  onChange: PropTypes.func
 };
 
 CodeListSelect.defaultProps = {

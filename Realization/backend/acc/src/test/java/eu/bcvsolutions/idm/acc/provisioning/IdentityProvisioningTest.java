@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.provisioning;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
@@ -30,12 +31,16 @@ import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.impl.IdentityProvisioningExecutor;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -65,6 +70,10 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 	private FormService formService;
 	@Autowired
 	private AttachmentManager attachmentManager;
+	@Autowired
+	private IdmIdentityService identityService;
+	@Autowired
+	private IdmContractPositionService contractPositionService;
 
 	@Before
 	public void init() {
@@ -277,5 +286,46 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 		} finally {
 			IOUtils.closeQuietly(inputStream);
 		}
+	}
+
+	@Test
+	public void testProvisioningOnChangeContractPosition() {
+		SysSystemDto systemDto = helper.createTestResourceSystem(true);
+
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(systemDto.getId());
+
+		IdmRoleDto roleWithSystem = helper.createRole();
+		helper.createRoleSystem(roleWithSystem, systemDto);
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto primeContract = helper.getPrimeContract(identity);
+		assertNotNull(primeContract);
+		IdmContractPositionDto contractPosition = helper.createContractPosition(primeContract);
+
+		helper.createIdentityRole(identity, roleWithSystem, null, null);
+
+		identity.setFirstName(helper.createName());
+		identityService.save(identity);
+
+		TestResource resource = helper.findResource(identity.getUsername());
+		assertNotNull(resource);
+		String valueOnResource = resource.getFirstname();
+		assertEquals(identity.getFirstName(), valueOnResource);
+
+		// Change first name without call provisioning
+		identity.setFirstName(helper.createName());
+		identityService.saveInternal(identity);
+
+		resource = helper.findResource(identity.getUsername());
+		assertNotNull(resource);
+		assertNotEquals(identity.getFirstName(), resource.getFirstname());
+
+		// Save of position -> must execute provisioning
+		contractPositionService.save(contractPosition);
+
+		resource = helper.findResource(identity.getUsername());
+		assertNotNull(resource);
+		assertEquals(identity.getFirstName(), resource.getFirstname());
+
 	}
 }

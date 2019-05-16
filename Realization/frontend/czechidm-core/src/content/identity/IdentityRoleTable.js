@@ -184,7 +184,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
           uiKey={ this.getUiKey() }
           manager={ manager }
           forceSearchParameters={ forceSearchParameters }
-          showRefreshButton={false}
+          showRefreshButton
           className={ className }
           buttons={[
             <Basic.Button

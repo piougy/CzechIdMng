@@ -277,6 +277,7 @@ class IdentityRoles extends Basic.AbstractContent {
                 .setFilter('directRole', true)
                 .setFilter('addEavMetadata', true) }
               showAddButton={ false }
+              showRefreshButton = { false }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole']) }
               _permissions={ _permissions }
@@ -296,6 +297,7 @@ class IdentityRoles extends Basic.AbstractContent {
                 .setFilter('directRole', false)
                 .setFilter('addEavMetadata', true) }
               showAddButton={ false }
+              showRefreshButton = { false }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['automaticRole']) }
               fetchIncompatibleRoles={ false }

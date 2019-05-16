@@ -164,7 +164,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
       columns,
       className,
       rendered,
-      environmentItems
+      environmentItems,
+      showRefreshButton
     } = this.props;
     const { detail, activeKey } = this.state;
     //
@@ -184,7 +185,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
           uiKey={ this.getUiKey() }
           manager={ manager }
           forceSearchParameters={ forceSearchParameters }
-          showRefreshButton
+          showRefreshButton={ showRefreshButton }
           className={ className }
           buttons={[
             <Basic.Button
@@ -592,6 +593,7 @@ IdentityRoleTable.defaultProps = {
   showDetailButton: true,
   fetchIncompatibleRoles: true,
   fetchCodeLists: true,
+  showRefreshButton: true,
   _permissions: null
 };
 

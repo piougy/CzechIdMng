@@ -426,7 +426,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       required,
       validationErrors,
       value,
-      rendered
+      rendered,
+      forceSearchParameters
     } = this.props;
     //
     const {
@@ -442,7 +443,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     //
     const showTree = SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
     //
-    const forceSearchParameters = new SearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('roleCatalogue', roleCatalogue);
+    // FIXME: merge force search parameters into catalogue table
+    const _tableForceSearchParameters = new SearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('roleCatalogue', roleCatalogue);
     //
     // TODO: add onRowClick={this._onRowClick.bind(this)}
     return (
@@ -463,7 +465,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               validationErrors={ validationErrors }
               value={ value }
               optionComponent={ RoleOptionDecorator }
-              valueComponent={ RoleValueDecorator }/>
+              valueComponent={ RoleValueDecorator }
+              forceSearchParameters={ forceSearchParameters }/>
           </div>
           { this._renderShowTreeIcon() }
         </div>
@@ -497,7 +500,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                   condensed
                   className={ showTree ? '' : 'marginable' }
                   style={ showTree ? { borderLeft: '1px solid #ddd' } : {} }
-                  forceSearchParameters={ forceSearchParameters }
+                  forceSearchParameters={ _tableForceSearchParameters }
                   uiKey={ `${this.getUiKey()}-table` }
                   manager={ this.getManager() }
                   showPageSize={ false }

@@ -284,17 +284,17 @@
     "development": {
       "short": "D",
       "label": "Development",
-      "title": "Vývojové prostředí"
+      "title": "Vývojové"
     },
     "test": {
       "short": "T",
       "label": "Test",
-      "title": "Testovací prostředí"
+      "title": "Testovací"
     },
     "production": {
       "short": "P",
       "label": "Produkce",
-      "title": "Produkční prostředí"
+      "title": "Produkční"
     }
   },
   "navigation" : {

@@ -61,11 +61,17 @@ class SystemDetail extends Basic.AbstractContent {
       data.passwordPolicyValidate = entity._embedded.passwordPolicyValidate;
     }
     if (entity.disabledProvisioning) {
-      data.disabledEnum = 'disabledProvisioning';
+      if (entity.disabled) {
+        data.stateEnum = 'disabledProvisioning';
+      } else {
+        data.stateEnum = 'readonlyDisabledProvisioning';
+      }
     } else if (entity.disabled) {
-      data.disabledEnum = 'disabled';
+      data.stateEnum = 'disabled';
+    } else if (entity.readonly) {
+      data.stateEnum = 'readonly';
     } else {
-      data.disabledEnum = null;
+      data.stateEnum = null;
     }
 
     // connector is part of entity, not embedded
@@ -127,8 +133,9 @@ class SystemDetail extends Basic.AbstractContent {
           updateOperation: entity.updateOperation,
           deleteOperation: entity.deleteOperation
         },
-        disabled: entity.disabledEnum === 'disabledProvisioning' || entity.disabledEnum === 'disabled',
-        disabledProvisioning: entity.disabledEnum === 'disabledProvisioning'
+        readonly: entity.stateEnum === 'readonlyDisabledProvisioning' || entity.stateEnum === 'readonly',
+        disabled: entity.stateEnum === 'disabledProvisioning' || entity.stateEnum === 'disabled',
+        disabledProvisioning: entity.stateEnum === 'readonlyDisabledProvisioning' || entity.stateEnum === 'disabledProvisioning'
       };
       //
       if (Utils.Entity.isNew(saveEntity)) {
@@ -265,30 +272,24 @@ class SystemDetail extends Basic.AbstractContent {
                   ref="description"
                   label={this.i18n('acc:entity.System.description')}
                   max={255}/>
-                <Basic.Checkbox
-                  ref="queue"
-                  label={this.i18n('acc:entity.System.queue.label')}
-                  helpBlock={this.i18n('acc:entity.System.queue.help')}/>
-                <Basic.Checkbox
-                  ref="createOperation"
-                  label={this.i18n('acc:entity.BlockedOperation.createOperation.label')}
-                  helpBlock={this.i18n('acc:entity.BlockedOperation.createOperation.help')}/>
-                <Basic.Checkbox
-                  ref="updateOperation"
-                  label={this.i18n('acc:entity.BlockedOperation.updateOperation.label')}
-                  helpBlock={this.i18n('acc:entity.BlockedOperation.updateOperation.help')}/>
-                <Basic.Checkbox
-                  ref="deleteOperation"
-                  label={this.i18n('acc:entity.BlockedOperation.deleteOperation.label')}
-                  helpBlock={this.i18n('acc:entity.BlockedOperation.deleteOperation.help')}/>
-                <Basic.Checkbox
-                  ref="readonly"
-                  label={ this.i18n('acc:entity.System.readonly.label') }
-                  helpBlock={ this.i18n('acc:entity.System.readonly.help') }/>
                 <Basic.EnumSelectBox
-                  ref="disabledEnum"
-                  label={ this.i18n('acc:entity.System.disabled.short', { escape: false }) }
+                  ref="stateEnum"
+                  label={ this.i18n('acc:entity.System.state.label', { escape: false }) }
+                  placeholder={ this.i18n('acc:entity.System.state.placeholder') }
+                  helpBlock={ this.i18n('acc:entity.System.state.help') }
                   options={[
+                    {
+                      value: 'readonly',
+                      niceLabel:
+                      this.i18n('acc:entity.System.readonly.label', { escape: false }),
+                      description: this.i18n('acc:entity.System.readonly.help', { escape: false })
+                    },
+                    {
+                      value: 'readonlyDisabledProvisioning',
+                      niceLabel:
+                      this.i18n('acc:entity.System.readonlyDisabledProvisioning.label', { escape: false }),
+                      description: this.i18n('acc:entity.System.readonlyDisabledProvisioning.help', { escape: false })
+                    },
                     {
                       value: 'disabled',
                       niceLabel:
@@ -302,6 +303,22 @@ class SystemDetail extends Basic.AbstractContent {
                       description: this.i18n('acc:entity.System.disabledProvisioning.help', { escape: false })
                     },
                   ]}/>
+                <Basic.Checkbox
+                  ref="queue"
+                  label={this.i18n('acc:entity.System.queue.label')}
+                  helpBlock={this.i18n('acc:entity.System.queue.help')}/>
+                <Basic.Checkbox
+                  ref="createOperation"
+                  label={this.i18n('acc:entity.BlockedOperation.createOperation.label')}
+                  helpBlock={this.i18n('acc:entity.BlockedOperation.createOperation.help')}/>
+                <Basic.Checkbox
+                  ref="updateOperation"
+                  label={ this.i18n('acc:entity.BlockedOperation.updateOperation.label') }
+                  helpBlock={ this.i18n('acc:entity.BlockedOperation.updateOperation.help') }/>
+                <Basic.Checkbox
+                  ref="deleteOperation"
+                  label={ this.i18n('acc:entity.BlockedOperation.deleteOperation.label') }
+                  helpBlock={ this.i18n('acc:entity.BlockedOperation.deleteOperation.help') }/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 

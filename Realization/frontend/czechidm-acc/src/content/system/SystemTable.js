@@ -163,7 +163,6 @@ export class SystemTable extends Advanced.AbstractTableContent {
           filterOpened={ filterOpened }
           forceSearchParameters={ forceSearchParameters }
           showRowSelection={ showRowSelection }
-          rowClass={({rowIndex, data}) => { return data[rowIndex].disabledProvisioning === true ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -200,22 +199,26 @@ export class SystemTable extends Advanced.AbstractTableContent {
           <Advanced.ColumnLink to="system/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column property="queue" sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
-          <Advanced.Column property="readonly" header={this.i18n('acc:entity.System.readonly.label')} sort face="bool" width="75px" rendered={_.includes(columns, 'readonly')}/>
           <Advanced.Column
-            property="disabled"
-            header={ this.i18n('acc:entity.System.disabled.short')}
+            property="state"
+            header={ this.i18n('acc:entity.System.state.label')}
             face="bool"
-            sort
             width={ 75 }
-            rendered={ _.includes(columns, 'disabled') }
+            rendered={ _.includes(columns, 'state') }
             cell={
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
                 if (entity.disabledProvisioning) {
-                  return this.i18n('acc:entity.System.disabledProvisioning.label');
+                  if (entity.disabled) {
+                    return this.i18n('acc:entity.System.disabledProvisioning.label');
+                  }
+                  return this.i18n('acc:entity.System.readonlyDisabledProvisioning.label');
                 }
                 if (entity.disabled) {
                   return this.i18n('acc:entity.System.disabled.label');
+                }
+                if (entity.readonly) {
+                  return this.i18n('acc:entity.System.readonly.label');
                 }
                 return null;
               }
@@ -246,7 +249,7 @@ SystemTable.propTypes = {
 };
 
 SystemTable.defaultProps = {
-  columns: ['name', 'description', 'disabled', 'virtual', 'readonly', 'queue', 'blockedOperation'],
+  columns: ['name', 'description', 'state', 'virtual', 'queue', 'blockedOperation'],
   filterOpened: false,
   _showLoading: false,
   forceSearchParameters: new Domain.SearchParameters(),

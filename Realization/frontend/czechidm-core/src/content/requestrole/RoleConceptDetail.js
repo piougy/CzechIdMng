@@ -9,6 +9,7 @@ import * as Utils from '../../utils';
 import { IdentityContractManager, RoleTreeNodeManager, RoleManager, DataManager, IdentityRoleManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import FormInstance from '../../domain/FormInstance';
+import ConfigLoader from '../../utils/ConfigLoader';
 
 const identityRoleManager = new IdentityRoleManager();
 const identityContractManager = new IdentityContractManager();
@@ -28,6 +29,9 @@ export class RoleConceptDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      environment: ConfigLoader.getConfig('role.table.filter.environment', [])
+    };
   }
 
   componentDidMount() {
@@ -135,6 +139,23 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     return true;
   }
 
+  _onEnvironmentChange(value) {
+    const codes = [];
+    if (value) {
+      if (_.isArray(value)) { // codelist is available - list of object
+        value.forEach(v => {
+          codes.push(v.value);
+        });
+      } else if (value.currentTarget) { // is event (~text field onchange)
+        codes.push(value.currentTarget.value);
+      }
+    }
+    //
+    this.setState({
+      environment: codes
+    });
+  }
+
   render() {
     const {
       showLoading,
@@ -147,8 +168,9 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       multiAdd,
       validationErrors
     } = this.props;
+    const { environment } = this.state;
 
-    const entity = this.state && this.state.entity ? this.state.entity : this.props.entity;
+    const entity = this.state.entity ? this.state.entity : this.props.entity;
     if (!entity) {
       return null;
     }
@@ -176,10 +198,18 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     return (
       <Basic.AbstractForm
         ref="form"
-        data={entity}
-        style={style}
-        showLoading={showLoading}
-        readOnly={!isEdit || readOnly}>
+        data={ entity }
+        style={ style }
+        showLoading={ showLoading }
+        readOnly={ !isEdit || readOnly }>
+        <Advanced.CodeListSelect
+          code="environment"
+          label={ this.i18n('entity.Role.environment.label') }
+          placeholder={ this.i18n('entity.Role.environment.help') }
+          multiSelect
+          onChange={ this._onEnvironmentChange.bind(this) }
+          rendered={ entity._added && !readOnly && Utils.Entity.isNew(entity)}
+          value={ environment }/>
         <Advanced.RoleSelect
           required
           readOnly={ !entity._added || readOnly || !Utils.Entity.isNew(entity)}
@@ -188,7 +218,8 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           header={ this.i18n('selectRoleCatalogue.header') }
           onChange={this._onChangeSelectOfRole.bind(this)}
           label={ this.i18n('entity.IdentityRole.role') }
-          ref="role"/>
+          ref="role"
+          forceSearchParameters={ new SearchParameters().setFilter('environment', environment) }/>
         <Basic.SelectBox
           ref="identityContract"
           manager={ identityContractManager }

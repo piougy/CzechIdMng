@@ -64,11 +64,17 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    let disabledValue = this.i18n('label.no');
+    let state = this.i18n('label.enabled');
     if (entity.disabledProvisioning) {
-      disabledValue = this.i18n('acc:entity.System.disabledProvisioning.label');
+      if (entity.disabled) {
+        state = this.i18n('acc:entity.System.disabledProvisioning.label');
+      } else {
+        state = this.i18n('acc:entity.System.readonlyDisabledProvisioning.label');
+      }
     } else if (entity.disabled) {
-      disabledValue = this.i18n('acc:entity.System.disabled.label');
+      state = this.i18n('acc:entity.System.disabled.label');
+    } else if (entity.readonly) {
+      state = this.i18n('acc:entity.System.readonly.label');
     }
     //
     return [
@@ -81,12 +87,8 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
         value: (entity.queue ? this.i18n('label.yes') : this.i18n('label.no'))
       },
       {
-        label: this.i18n('acc:entity.System.readonly.label'),
-        value: (entity.readonly ? this.i18n('label.yes') : this.i18n('label.no'))
-      },
-      {
-        label: this.i18n('acc:entity.System.disabled.short'),
-        value: disabledValue
+        label: this.i18n('acc:entity.System.state.label'),
+        value: state
       }
     ];
   }

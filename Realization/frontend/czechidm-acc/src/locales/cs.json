@@ -656,8 +656,9 @@
       "passwordPolicyValidate": "Politika hesel pro validaci",
       "passwordPolicyGenerate": "Politika hesel pro generování",
       "readonly": {
-        "label": "Pouze pro čtení",
-        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
+        "short": "Pouze pro čtení",
+        "label": "$t(acc:entity.System.readonly.short) - s frontou provisioningu",
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny. <strong>Operace pro provisioning jsou vkládány do fronty</strong>. Až bude systám opět aktivní, budou moci být spuštěny."
       },
       "queue": {
         "label": "Asynchronní provisioning",
@@ -678,6 +679,15 @@
       "disabledProvisioning": {
         "label": "$t(label.disabled) - bez fronty provisioningu",
         "help": "Neaktivní systém. <strong>Operace pro provisioning nebudou vkládány do fronty provisioningu, nebude je možné opakovat</strong>. Proběhne pouze konstrukce účtu s identifikátorem (uid) na straně IdM."
+      },
+      "readonlyDisabledProvisioning": {
+        "label": "$t(acc:entity.System.readonly.short) - bez fronty provisioningu",
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny. <strong>Operace pro provisioning nebudou vkládány do fronty provisioningu, nebude je možné opakovat</strong>. Proběhne pouze konstrukce účtu s identifikátorem (uid) na straně IdM."
+      },
+      "state": {
+        "label": "Stav",
+        "help": "Stav systému",
+        "placeholder": "Systém je aktivní nebo vyberte jiný stav ..."
       }
     },
     "ConnectorServer": {

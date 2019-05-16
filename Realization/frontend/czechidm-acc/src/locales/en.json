@@ -639,25 +639,26 @@
       "title": "Systems utilizing this policy"
     }
   }
-},
-"entity": {
-  "System": {
-    "_type": "System",
-    "name": "System name",
-    "blockedOperation": "Blocked operations",
-    "disabled": {
-      "short": "$t(label.disabled)",
-      "label": "$t(label.disabled) - provisioning queue is available",
-      "help": "Inactive system (offline). <strong>Provisioning operations are saved into queue</strong>. Operations can be executed, after the system will be available again."
-    },
-    "description": "Description",
-    "virtual": "Virtual",
-    "passwordPolicyValidate": "Password policy for validation",
-    "passwordPolicyGenerate": "Password policy for generating",
-    "readonly": {
-      "label": "Read-only",
-      "help": "Active provisioning operations create, update and delete, will not be executed."
-    },
+  },
+  "entity": {
+    "System": {
+      "_type": "System",
+      "name": "System name",
+      "blockedOperation": "Blocked operations",
+      "disabled": {
+        "short": "$t(label.disabled)",
+        "label": "$t(label.disabled) - provisioning queue is available",
+        "help": "Inactive system (offline). <strong>Provisioning operations are saved into queue</strong>. Operations can be executed, after the system will be available again."
+      },
+      "description": "Description",
+      "virtual": "Virtual",
+      "passwordPolicyValidate": "Password policy for validation",
+      "passwordPolicyGenerate": "Password policy for generating",
+      "readonly": {
+        "short": "Read-only",
+        "label": "$t(acc:entity.System.readonly.short) - provisioning queue is available",
+        "help": "Active provisioning operations create, update and delete, will not be executed. <strong>Provisioning operations are saved into queue</strong>. Operations can be executed, after the system will be available again."
+      },
       "queue": {
         "label": "Asynchronous provisioning",
         "help": "Active provisioning operations (create, update, delete), will run through the queue asynchronously. Change password operation will be still synchronous. Queue processing interval is configurable by long running task (ProvisioningQueueTaskExecutor)."
@@ -677,6 +678,15 @@
       "disabledProvisioning": {
         "label": "$t(label.disabled) - without provisioning queue",
         "help": "$t(label.disabled). <strong>Provisioning operations are not saved into queue, cannot be executed again</strong>. IdM account is created only (uid attribute only)."
+      },
+      "readonlyDisabledProvisioning": {
+        "label": "$t(acc:entity.System.readonly.short) - without provisioning queue",
+        "help": "Active provisioning operations create, update and delete, will not be executed. <strong>Provisioning operations are not saved into queue, cannot be executed again</strong>. IdM account is created only (uid attribute only)."
+      },
+      "state": {
+        "label": "State",
+        "help": "System state",
+        "placeholder": "System is active or choose other state ..."
       }
     },
     "ConnectorServer": {

@@ -235,9 +235,13 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// Is role invalid in this moment
 		resolveIdentityAccountForDelete(identityAccountList, identityRolesList, identityAccountsToDelete);
 
-		// For this account should be executed provisioning
-		List<UUID> accounts = Lists.newArrayList();
-		
+		// For this accounts should be execute a provisioning. We have to execute provisioning for all changed accounts
+		// although identity-role was not changed (EAV attributes could have been changed).
+		List<UUID> accounts = identityAccountList.stream() //
+				.map(AccIdentityAccountDto::getAccount) //
+				.distinct() //
+				.collect(Collectors.toList());
+
 		// Create new identity accounts
 		identityAccountsToCreate.forEach(identityAccount -> {
 			// Check if this identity-account already exists, if yes then is his account ID
@@ -248,7 +252,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// Delete invalid identity accounts
 		identityAccountsToDelete.forEach(identityAccount -> {
 			identityAccountService.deleteById(identityAccount.getId());
-			accounts.add(identityAccount.getAccount());
 		});
 		
 		return accounts;

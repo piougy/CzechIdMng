@@ -31,13 +31,18 @@ import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.impl.IdentityProvisioningExecutor;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -74,6 +79,8 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 	private IdmIdentityService identityService;
 	@Autowired
 	private IdmContractPositionService contractPositionService;
+	@Autowired
+	private IdmConceptRoleRequestService conceptRoleRequestService;
 
 	@Before
 	public void init() {
@@ -326,6 +333,59 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 		resource = helper.findResource(identity.getUsername());
 		assertNotNull(resource);
 		assertEquals(identity.getFirstName(), resource.getFirstname());
+	}
 
+	@Test
+	public void testProvisioningOnChangeRoleAttributeValue() {
+		SysSystemDto systemDto = helper.createTestResourceSystem(true);
+
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(systemDto.getId());
+
+		IdmRoleDto roleWithSystem = helper.createRole();
+		helper.createRoleSystem(roleWithSystem, systemDto);
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityContractDto primeContract = helper.getPrimeContract(identity);
+		assertNotNull(primeContract);
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleWithSystem, null, null);
+
+		identity.setFirstName(helper.createName());
+		identityService.save(identity);
+
+		TestResource resource = helper.findResource(identity.getUsername());
+		assertNotNull(resource);
+		String valueOnResource = resource.getFirstname();
+		assertEquals(identity.getFirstName(), valueOnResource);
+
+		// Change first name without call provisioning
+		identity.setFirstName(helper.createName());
+		identityService.saveInternal(identity);
+
+		resource = helper.findResource(identity.getUsername());
+		assertNotNull(resource);
+		assertNotEquals(identity.getFirstName(), resource.getFirstname());
+
+		// Create request
+		IdmRoleRequestDto request = getHelper().createRoleRequest(identity);
+		// Create change role-concept
+		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+		conceptRoleRequest.setRoleRequest(request.getId());
+		conceptRoleRequest.setRole(identityRole.getRole());
+		conceptRoleRequest.setIdentityRole(identityRole.getId());
+		conceptRoleRequest.setValidFrom(identityRole.getValidFrom());
+		conceptRoleRequest.setValidTill(identityRole.getValidTill());
+		conceptRoleRequest.setOperation(ConceptRoleRequestOperation.UPDATE);
+		conceptRoleRequest = conceptRoleRequestService.save(conceptRoleRequest);
+		conceptRoleRequest.getEavs().clear();
+
+		// Execution of the request must execute provisioning
+		request = getHelper().executeRequest(request, false, true);
+		// Check request
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+
+		resource = helper.findResource(identity.getUsername());
+		assertNotNull(resource);
+		assertEquals(identity.getFirstName(), resource.getFirstname());
 	}
 }

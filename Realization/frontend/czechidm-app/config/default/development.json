@@ -41,5 +41,12 @@
     "dashboard": {
       "skip": false
     }
+  },
+  "role": {
+    "table": {
+      "filter": {
+        "environment": null
+      }
+    }
   }
 }

@@ -283,7 +283,10 @@ public class DefaultIdmRoleCompositionService
 				if (!results.contains(subRole)) {
 					results.add(subRole);
 					//
-					findAllSubRoles(results, subRole.getSub(), permission);
+					IdmRoleDto subRoleDto = DtoUtils.getEmbedded(subRole, IdmRoleComposition_.sub);
+					if (subRoleDto.getChildrenCount() > 0) {
+						findAllSubRoles(results, subRole.getSub(), permission);
+					}
 				}				
 			});
 	}

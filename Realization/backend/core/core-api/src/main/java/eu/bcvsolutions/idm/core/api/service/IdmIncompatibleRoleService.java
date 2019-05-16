@@ -32,6 +32,15 @@ public interface IdmIncompatibleRoleService extends
 	List<IdmIncompatibleRoleDto> findAllByRole(UUID roleId);
 	
 	/**
+	 * Returns all defined incompatible roles for the given role. Given role can be defined as superior or sub (both sides).
+	 * 
+	 * @param roleIds bulk role ids
+	 * @return
+	 * @since 9.7.0
+	 */
+	List<IdmIncompatibleRoleDto> findAllByRoles(List<UUID> roleIds);
+	
+	/**
 	 * Load all defined incompatible roles for the given.
 	 * Given roles can be defined as superior or sub for the incompatible role (both sides).
 	 * 

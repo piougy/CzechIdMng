@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -106,7 +107,6 @@ class IdentityRoles extends Basic.AbstractContent {
           this.addError(error);
         }
         this.refs.tableProcesses.getWrappedInstance().reload();
-        this.refs.tablePermissionProcesses.getWrappedInstance().reload();
       }));
     }, () => {
       // Rejected
@@ -180,6 +180,52 @@ class IdentityRoles extends Basic.AbstractContent {
     });
   }
 
+  /**
+   * Can change identity permission
+   *
+   * @return {[type]} [description]
+   */
+  _canChangePermissions() {
+    const { _permissions } = this.props;
+    //
+    return Utils.Permission.hasPermission(_permissions, 'CHANGEPERMISSION');
+  }
+  _changePermissions() {
+    const { entityId } = this.props.params;
+    const identity = identityManager.getEntity(this.context.store.getState(), entityId);
+    //
+    const uuidId = uuid.v1();
+    this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
+  }
+
+  _refreshAll() {
+    this.refs.direct_roles.getWrappedInstance().reload();
+    this.refs.sub_roles.getWrappedInstance().reload();
+    this.refs.requestTable.getWrappedInstance().reload();
+    this.refs.tableProcesses.getWrappedInstance().reload();
+  }
+
+  _getToolbar(contracts) {
+    return (
+      <Basic.Toolbar>
+        <div className="pull-right">
+          <Basic.Button
+            level="warning"
+            className="btn-xs"
+            icon="fa:key"
+            rendered={ contracts.length > 0 }
+            onClick={ this._changePermissions.bind(this) }
+            disabled={ !this._canChangePermissions() }
+            title={ this._canChangePermissions() ? null : this.i18n('security.access.denied') }
+            titlePlacement="bottom">
+            { this.i18n('changePermissions') }
+          </Basic.Button>
+          <Advanced.RefreshButton onClick={ this._refreshAll.bind(this) }/>
+        </div>
+      </Basic.Toolbar>
+    );
+  }
+
   render() {
     const { entityId } = this.props.params;
     const { _showLoadingContracts, _contracts, _permissions, _requestUi } = this.props;
@@ -190,17 +236,10 @@ class IdentityRoles extends Basic.AbstractContent {
     force = force.setFilter('category', 'eu.bcvsolutions.role.approve');
     let roleRequestsForceSearch = new SearchParameters();
     roleRequestsForceSearch = roleRequestsForceSearch.setFilter('applicant', entityId);
-    roleRequestsForceSearch = roleRequestsForceSearch.setFilter('states', ['IN_PROGRESS', 'DUPLICATED', 'EXCEPTION', 'APPROVED']);
+    roleRequestsForceSearch = roleRequestsForceSearch.setFilter('states', ['IN_PROGRESS', 'DUPLICATED', 'EXCEPTION', 'APPROVED', 'CONCEPT']);
     let conceptsForceSearch = new SearchParameters();
     conceptsForceSearch = conceptsForceSearch.setFilter('applicant', entityId);
     conceptsForceSearch = conceptsForceSearch.setFilter('state', 'CONCEPT');
-    let hasRoleConcepts = true;
-    const uiKeyConceptTable = `table-applicant-concepts-${entityId}`;
-
-    if (this.context.store.getState().data.ui[uiKeyConceptTable]
-      && !(this.context.store.getState().data.ui[uiKeyConceptTable].total > 0)) {
-      hasRoleConcepts = false;
-    }
     //
     return (
       <div style={{ paddingTop: 15 }}>
@@ -226,25 +265,31 @@ class IdentityRoles extends Basic.AbstractContent {
 
         <Basic.Tabs activeKey={ activeKey } onSelect={ this._onChangeSelectTabs.bind(this) }>
           <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
-
-            <Basic.ContentHeader icon="component:identity-roles" text={ this.i18n('directRoles.header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }} />
-
+            {this._getToolbar(_contracts)}
+            <Basic.ContentHeader
+              icon="component:identity-roles" text={ this.i18n('directRoles.header') }
+              style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}/>
             <IdentityRoleTableComponent
+              ref="direct_roles"
               uiKey={ `${uiKey}-${entityId}` }
               forceSearchParameters={ new SearchParameters()
                 .setFilter('identityId', entityId)
                 .setFilter('directRole', true)
                 .setFilter('addEavMetadata', true) }
-              showAddButton={ _contracts.length > 0 }
+              showAddButton={ false }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole']) }
               _permissions={ _permissions }
               fetchIncompatibleRoles={ false }
               fetchCodeLists={ false }/>
 
-            <Basic.ContentHeader icon="component:sub-roles" text={ this.i18n('subRoles.header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15 }}/>
+            <Basic.ContentHeader
+              icon="component:sub-roles"
+              text={ this.i18n('subRoles.header') }
+              style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15 }}/>
 
             <IdentityRoleTableComponent
+              ref="sub_roles"
               uiKey={ `${uiKey}-sub-${entityId}` }
               forceSearchParameters={ new SearchParameters()
                 .setFilter('identityId', entityId)
@@ -271,35 +316,22 @@ class IdentityRoles extends Basic.AbstractContent {
               </span>
             }
             className="bordered">
+            {this._getToolbar(_contracts)}
             {
               !SecurityManager.hasAuthority('ROLEREQUEST_READ')
               ||
               <div>
                 <Basic.ContentHeader
-                  icon="fa:sitemap"
-                  text={ this.i18n('conceptPermissionRequests.header') }
-                  style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}
-                  rendered={ activeKey === 2 && hasRoleConcepts }/>
-                <RoleRequestTable
-                  ref="conceptTable"
-                  uiKey={ uiKeyConceptTable }
-                  showFilter={ false }
-                  forceSearchParameters={ conceptsForceSearch }
-                  columns={ ['state', 'created', 'modified', 'detail'] }
-                  manager={ roleRequestManager }
-                  rendered={ activeKey === 2 }
-                  className={ hasRoleConcepts ? '' : 'hidden'}/>
-
-                <Basic.ContentHeader
-                  icon="fa:sitemap"
+                  icon="fa:key"
                   text={ this.i18n('changePermissionRequests.header') }
-                  style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: hasRoleConcepts ? 10 : 15 }}/>
+                  style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}/>
                 <RoleRequestTable
                   ref="requestTable"
                   uiKey={ 'table-applicant-requests' }
                   showFilter={ false }
                   forceSearchParameters={ roleRequestsForceSearch }
                   columns={ ['state', 'created', 'modified', 'wf', 'detail'] }
+                  externalRefresh={this._refreshAll.bind(this)}
                   manager={ roleRequestManager }/>
               </div>
             }

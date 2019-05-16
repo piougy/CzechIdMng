@@ -11,6 +11,7 @@ import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager,
 import IdentityRoleEav from './IdentityRoleEav';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 import FormInstance from '../../domain/FormInstance';
+import ConfigLoader from '../../utils/ConfigLoader';
 
 const manager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
@@ -54,6 +55,14 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
 
   getManager() {
     return manager;
+  }
+
+  getDefaultSearchParameters() {
+    let searchParameters = this.getManager().getDefaultSearchParameters();
+    //
+    searchParameters = searchParameters.setFilter('roleEnvironment', ConfigLoader.getConfig('role.table.filter.environment', []));
+    //
+    return searchParameters;
   }
 
   useFilter(event) {
@@ -140,6 +149,10 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
         {result}
       </Basic.Div>
     );
+  }
+
+  reload() {
+    this.refs.table.getWrappedInstance().reload();
   }
 
   render() {
@@ -289,6 +302,20 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               }
             }
             rendered={ _.includes(columns, 'role') }/>
+          <Advanced.Column
+            header={ this.i18n('entity.Role.baseCode.label') }
+            title={ this.i18n('entity.Role.baseCode.help') }
+            width={ 125 }
+            face="text"
+            sort
+            sortProperty="role.baseCode"
+            rendered={ _.includes(columns, 'baseCode') }
+            cell={
+              ({ rowIndex, data }) => {
+                return data[rowIndex]._embedded.role.baseCode;
+              }
+            }
+            />
           <Advanced.Column
             header={ this.i18n('entity.Role.environment.label') }
             title={ this.i18n('entity.Role.environment.help') }
@@ -559,7 +586,7 @@ IdentityRoleTable.propTypes = {
 
 IdentityRoleTable.defaultProps = {
   rendered: true,
-  columns: ['role', 'environment', 'identityContract', 'contractPosition', 'validFrom', 'validTill', 'directRole', 'automaticRole'],
+  columns: ['role', 'baseCode', 'environment', 'identityContract', 'contractPosition', 'validFrom', 'validTill', 'directRole', 'automaticRole'],
   forceSearchParameters: null,
   showAddButton: true,
   showDetailButton: true,

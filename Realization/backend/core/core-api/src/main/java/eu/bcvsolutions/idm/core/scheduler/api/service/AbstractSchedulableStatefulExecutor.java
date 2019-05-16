@@ -81,7 +81,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		//
 		if (this.getScheduledTaskId() == null) {
 			// manually executed task -> ignore stateful queue
-			LOG.warn("Running stateful tasks outside scheduler is not recommended.");
+			LOG.debug("Running stateful tasks outside scheduler programatically.");
+			//
 			return null;
 		}
 		return itemService.createQueueItem(dto, opResult, this.getScheduledTaskId());
@@ -90,7 +91,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	@Override
 	public Collection<UUID> getProcessedItemRefsFromQueue() {
 		if (this.getScheduledTaskId() == null) {
-			LOG.warn("Running stateful tasks outside scheduler is not recommended.");
+			LOG.debug("Running stateful tasks outside scheduler programatically.");
+			//
 			return new ArrayList<>();
 		}
 		return itemService.findAllRefEntityIdsInQueueByScheduledTaskId(this.getScheduledTaskId());

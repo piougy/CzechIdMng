@@ -5807,7 +5807,7 @@
       "message": "Form definition id [{{formDefinitionId}}], has not type. Correct type: [{{dtoType}}]."
     },
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
-      "title": "Login cann't be empty",
+      "title": "Login cannot be empty",
       "message": "Login has not been filled. Please fill the login or enable the login generator."
     },
     "DTO_CANNOT_BE_CONVERT_TO_JSON": {
@@ -5901,6 +5901,10 @@
     "PASSWORD_CANNOT_BE_CREATED": {
       "title": "Password cannot be created",
       "message": "Password for users can be create only by internal IdM process."
+    },
+    "IDMTREENODEDTO_CODE_NOTEMPTY": {
+      "title": "Code cannot be empty",
+      "message": "Code of node has not been filled. Please fill the code or enable the code generator."
     }
   },
   "validationError": {

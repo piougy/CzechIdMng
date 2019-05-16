@@ -11,7 +11,9 @@ import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
@@ -21,7 +23,10 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
  * @author Radek Tomiška
  *
  */
-public interface SysProvisioningOperationService extends ReadWriteDtoService<SysProvisioningOperationDto, SysProvisioningOperationFilter> {
+public interface SysProvisioningOperationService extends 
+		ReadWriteDtoService<SysProvisioningOperationDto, SysProvisioningOperationFilter>,
+		AuthorizableService<SysProvisioningOperationDto>,
+		ScriptEnabled {
 
 	/**
 	 * Returns fully loaded AccountObject with guarded string.

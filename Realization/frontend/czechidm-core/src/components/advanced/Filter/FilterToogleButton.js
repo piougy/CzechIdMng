@@ -42,10 +42,12 @@ export default class FilterToogleButton extends AbstractContextComponent {
       return false;
     }
     if (!forceSearchParameters || forceSearchParameters.getFilters().size === 0) {
-      return searchParameters.getFilters().size === 0;
+      return searchParameters.getFilters().reduce((result, filter) => {
+        return filter === null;
+      }, true);
     }
     return searchParameters.getFilters().reduce((result, filter, key) => {
-      return result && forceSearchParameters.getFilters().has(key);
+      return result && (forceSearchParameters.getFilters().has(key) || filter === null);
     }, true);
   }
 

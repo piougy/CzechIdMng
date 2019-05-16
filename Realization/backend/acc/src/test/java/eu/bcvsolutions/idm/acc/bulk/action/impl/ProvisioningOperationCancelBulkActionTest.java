@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -343,7 +344,7 @@ public class ProvisioningOperationCancelBulkActionTest extends AbstractBulkActio
 	}
 
 	@Test
-	public void testProcessBulkActionWithoutPermissions() {
+	public void testProcessBulkActionWithoutPermissions() {		
 		IdmRoleDto role = getHelper().createRole();
 		IdmIdentityDto identity = getHelper().createIdentity();
 
@@ -352,9 +353,9 @@ public class ProvisioningOperationCancelBulkActionTest extends AbstractBulkActio
 		system = systemService.save(system);
 
 		helper.createRoleSystem(role, system);
-		getHelper().createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, role); // create provisioning
 
-		identityService.save(identity);
+		identityService.save(identity); // update provisioning
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setEntityIdentifier(identity.getId());
@@ -367,8 +368,7 @@ public class ProvisioningOperationCancelBulkActionTest extends AbstractBulkActio
 		loginAsNoAdmin(adminIdentity.getUsername());
 
 		IdmBulkActionDto bulkAction = this.findBulkAction(SysProvisioningOperation.class, ProvisioningOperationCancelBulkAction.NAME);
-		bulkAction.setTransformedFilter(filter);
-		bulkAction.setFilter(toMap(filter));
+		bulkAction.setIdentifiers(operations.stream().map(SysProvisioningOperationDto::getId).collect(Collectors.toSet()));
 		int allOperations = operations.size();
 
 		Map<String, Object> properties = new HashMap<>();

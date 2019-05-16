@@ -38,7 +38,17 @@ public enum AccGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE);
+			IdmBasePermission.DELETE),
+	PROVISIONINGOPERATION(
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
+			IdmBasePermission.READ, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	PROVISIONINGARCHIVE(
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
+			IdmBasePermission.READ);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -99,6 +109,17 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String IDENTITY_ROLE_ACCOUNT_CREATE = "IDENTITYROLEACCOUNT" + BasePermission.SEPARATOR + "CREATE";
 	public static final String IDENTITY_ROLE_ACCOUNT_UPDATE = "IDENTITYROLEACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITY_ROLE_ACCOUNT_DELETE = "IDENTITYROLEACCOUNT" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String PROVISIONING_OPERATION_ADMIN = "PROVISIONINGOPERATION" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String PROVISIONING_OPERATION_COUNT = "PROVISIONINGOPERATION" + BasePermission.SEPARATOR + "COUNT";
+	public static final String PROVISIONING_OPERATION_READ = "PROVISIONINGOPERATION" + BasePermission.SEPARATOR + "READ";
+	public static final String PROVISIONING_OPERATION_UPDATE = "PROVISIONINGOPERATION" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String PROVISIONING_OPERATION_DELETE = "PROVISIONINGOPERATION" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String PROVISIONING_ARCHIVE_ADMIN = "PROVISIONINGARCHIVE" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String PROVISIONING_ARCHIVE_COUNT = "PROVISIONINGARCHIVE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String PROVISIONING_ARCHIVE_READ = "PROVISIONINGARCHIVE" + BasePermission.SEPARATOR + "READ";
+	public static final String PROVISIONING_ARCHIVE_DELETE = "PROVISIONINGARCHIVE" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

@@ -56,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
@@ -620,7 +621,11 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(
 				identityRoles
 					.stream()
-					.map(ir -> ir.getRole())
+					.map(ir -> {
+						IdmRoleDto role = DtoUtils.getEmbedded(ir, IdmIdentityRole_.role);
+						//
+						return role;
+					})
 					.collect(Collectors.toList())
 				);
 		//

@@ -5951,6 +5951,10 @@
     "PASSWORD_CANNOT_BE_CREATED": {
       "title": "Heslo nemůže být vytvořeno",
       "message": "Heslo pro uživatele může být vytvořeno pouze interními procesy IdM."
+    },
+    "IDMTREENODEDTO_CODE_NOTEMPTY": {
+      "title": "Kód nemůže být prázdný",
+      "message": "Kód nebyl vyplněn. Vyplňte prosím kód uzlu, nebo zapněte generátor kódů."
     }
   },
   "validationError": {

@@ -17,7 +17,9 @@ import FilterRoleCatalogueSelect from './FilterRoleCatalogueSelect';
 import FilterRoleSelect from './FilterRoleSelect';
 
 /**
- * Filter mainly for advanced table
+ * Filter mainly for advanced table.
+ *
+ * TODO: add condensed style - use in RoleSelect
  *
  * @author Radek Tomiška
  */

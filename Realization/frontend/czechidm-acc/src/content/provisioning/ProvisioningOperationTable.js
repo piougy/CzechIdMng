@@ -92,7 +92,6 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
       uiKey,
       manager,
       showRowSelection,
-      actions,
       showDetail,
       forceSearchParameters,
       columns,
@@ -126,7 +125,6 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
           uiKey={uiKey}
           manager={ manager }
           showRowSelection={ showRowSelection }
-          actions={ actions }
           forceSearchParameters={ forceSearchParameters }
           filterOpened={ filterOpened }
           filter={
@@ -195,7 +193,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 key="delete-all-button"
                 className="btn-xs"
                 onClick={ this._deleteAll.bind(this) }
-                rendered={ showDeleteAllButton && Managers.SecurityManager.hasAnyAuthority(['APP_ADMIN']) && !isArchive }
+                rendered={ showDeleteAllButton && Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGOPERATION_DELETE']) && !isArchive }
                 title={ this.i18n('action.deleteAll.button.title') }
                 titlePlacement="bottom"
                 icon="fa:trash">
@@ -344,7 +342,6 @@ ProvisioningOperationTable.propTypes = {
 };
 ProvisioningOperationTable.defaultProps = {
   showRowSelection: false,
-  actions: [],
   forceSearchParameters: null,
   columns: ['resultState', 'created', 'operationType', 'entityType', 'entityIdentifier', 'system', 'systemEntityUid'],
   showDeleteAllButton: true

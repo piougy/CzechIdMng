@@ -27,4 +27,15 @@ public interface IdmIncompatibleRoleRepository extends AbstractEntityRepository<
 	        + "WHERE "
 	        + "e.superior.id = :roleId OR e.sub.id = :roleId")
 	List<IdmIncompatibleRole> findAllByRole(@Param("roleId") UUID roleId);
+	
+	/**
+	 * Returns all defined incompatible roles for the given role. Given role can be defined as superior or sub (both sides).
+	 * 
+	 * @param roleIds
+	 * @return
+	 */
+	@Query(value = "SELECT e FROM #{#entityName} e "
+	        + "WHERE "
+	        + "e.superior.id IN :roleIds OR e.sub.id IN :roleIds")
+	List<IdmIncompatibleRole> findAllByRoles(@Param("roleIds") List<UUID> roleIds);
 }

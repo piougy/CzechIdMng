@@ -177,8 +177,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
    *
    * @return {arrayOf(SelectBox.option)}
    */
-  getFaceTypes() {
-    const { persistentType } = this.state;
+  getFaceTypes(persistentType) {
     if (!persistentType) {
       return [];
     }
@@ -216,7 +215,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
               <Basic.AbstractForm
                 ref="form"
                 data={ entity }
-                showLoading={showLoading || _showLoading}
+                showLoading={ showLoading || _showLoading }
                 readOnly={ !manager.canSave(entity, _permissions) }>
                 <Basic.Row>
                   <Basic.Col lg={ 4 }>
@@ -269,7 +268,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   <Basic.Col lg={ 4 }>
                     <Basic.EnumSelectBox
                       ref="faceType"
-                      options={ this.getFaceTypes() }
+                      options={ this.getFaceTypes(persistentType || (entity ? entity.persistentType : null)) }
                       label={ this.i18n('entity.FormAttribute.faceType.label') }
                       helpBlock={ this.i18n('entity.FormAttribute.faceType.help') }
                       placeholder={ this.i18n('entity.FormAttribute.faceType.placeholder') }
@@ -288,23 +287,23 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   <Basic.Col lg={ 8 }>
                     <Basic.TextField
                       ref="seq"
-                      label={this.i18n('entity.FormAttribute.seq.label')}
-                      helpBlock={this.i18n('entity.FormAttribute.seq.help')}
-                      validation={Joi.number().required().integer().min(0).max(99999)}/>
+                      label={ this.i18n('entity.FormAttribute.seq.label') }
+                      helpBlock={ this.i18n('entity.FormAttribute.seq.help') }
+                      validation={ Joi.number().required().integer().min(0).max(99999) }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
                   <Basic.Col lg={ 12 }>
                     <Basic.TextArea
                       ref="description"
-                      label={this.i18n('entity.FormAttribute.description')}
-                      max={2000}/>
+                      label={ this.i18n('entity.FormAttribute.description') }
+                      max={ 2000 }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Checkbox
                   ref="required"
-                  readOnly={this._isUnmodifiable()}
-                  label={this.i18n('entity.FormAttribute.required')}/>
+                  readOnly={ this._isUnmodifiable() }
+                  label={ this.i18n('entity.FormAttribute.required') }/>
                 <Basic.Checkbox
                   ref="unique"
                   label={ this.i18n('entity.FormAttribute.unique.label') }
@@ -332,32 +331,34 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   max={ 2000 } />
                 <Basic.Checkbox
                   ref="readonly"
-                  readOnly={this._isUnmodifiable()}
-                  label={this.i18n('entity.FormAttribute.readonly')}/>
+                  readOnly={ this._isUnmodifiable() }
+                  label={ this.i18n('entity.FormAttribute.readonly') }/>
                 <Basic.Checkbox
                   ref="confidential"
-                  readOnly={this._isUnmodifiable()}
-                  label={this.i18n('entity.FormAttribute.confidential')}/>
+                  readOnly={ this._isUnmodifiable() }
+                  label={ this.i18n('entity.FormAttribute.confidential') }/>
                 <Basic.Checkbox
                   ref="multiple"
-                  readOnly={this._isUnmodifiable()}
-                  label={this.i18n('entity.FormAttribute.multiple')}/>
+                  readOnly={ this._isUnmodifiable() }
+                  label={ this.i18n('entity.FormAttribute.multiple') }/>
                 <Basic.Checkbox
                   ref="unmodifiable"
                   readOnly
-                  label={this.i18n('entity.FormAttribute.unmodifiable.label')}
-                  helpBlock={this.i18n('entity.FormAttribute.unmodifiable.help')}/>
+                  label={ this.i18n('entity.FormAttribute.unmodifiable.label') }
+                  helpBlock={ this.i18n('entity.FormAttribute.unmodifiable.help') }/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
-            <Basic.PanelFooter showLoading={showLoading || _showLoading} >
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.PanelFooter showLoading={ showLoading || _showLoading } >
+              <Basic.Button type="button" level="link" onClick={ this.context.router.goBack }>
+                { this.i18n('button.back') }
+              </Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
+                showLoadingText={ this.i18n('button.saving') }
                 rendered={ manager.canSave(entity, _permissions) }>
-                {this.i18n('button.save')}
+                { this.i18n('button.save') }
               </Basic.Button>
             </Basic.PanelFooter>
           </Basic.Panel>

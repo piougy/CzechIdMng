@@ -63,8 +63,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   componentDidMount() {
-    const { manager } = this.props;
-    this.reload();
+    const { manager, initialReload } = this.props;
+    if (initialReload) {
+      this.reload();
+    }
     //
     if (manager.supportsBulkAction() && manager.canRead()) {
       this.context.store.dispatch(manager.fetchAvailableBulkActions((actions, error) => {
@@ -1060,6 +1062,10 @@ AdvancedTable.propTypes = {
    * Shows ending uuid characters in shorten label.
    */
   uuidEnd: PropTypes.bool,
+  /**
+   * Data are loaded automatically, after component is mounted. Set to false, if initial load will be controlled programatically.
+   */
+  initialReload: PropTypes.bool,
   //
   // Private properties, which are used internally for async data fetching
   //
@@ -1095,7 +1101,8 @@ AdvancedTable.defaultProps = {
   showPageSize: true,
   showToolbar: true,
   showRefreshButton: true,
-  uuidEnd: false
+  uuidEnd: false,
+  initialReload: true
 };
 
 function select(state, component) {

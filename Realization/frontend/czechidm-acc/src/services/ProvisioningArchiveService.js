@@ -17,6 +17,10 @@ export default class ProvisioningArchiveService extends Services.AbstractService
     return '/provisioning-archives';
   }
 
+  getGroupPermission() {
+    return 'PROVISIONINGARCHIVE';
+  }
+
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('created', 'desc');
   }

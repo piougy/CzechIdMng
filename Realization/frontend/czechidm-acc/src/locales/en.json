@@ -1252,7 +1252,9 @@
       "IDENTITYACCOUNT": "Identity accounts",
       "CONTRACTACCOUNT": "Accounts for contractual relationships",
       "CONTRACTSLICEACCOUNT": "Accounts for time slices of contractual relationships",
-      "PROVISIONINGBREAK": "Provisioning brake"
+      "PROVISIONINGBREAK": "Provisioning - brake",
+      "PROVISIONINGOPERATION": "Provisioning - operations in queue",
+      "PROVISIONINGARCHIVE": "Provisioning - archive"
     }
   },
   "eav": {

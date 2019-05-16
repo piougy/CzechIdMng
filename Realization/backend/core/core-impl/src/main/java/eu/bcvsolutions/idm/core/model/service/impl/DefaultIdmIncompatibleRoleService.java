@@ -95,7 +95,7 @@ public class DefaultIdmIncompatibleRoleService
 		if(CollectionUtils.isEmpty(rolesOrIdentifiers)) {
 			return incompatibleRoles;
 		}
-		LOG.warn("Start resolving incompabible roles [{}]", rolesOrIdentifiers);
+		LOG.debug("Start resolving incompabible roles [{}]", rolesOrIdentifiers);
 		//
 		Set<UUID> allRoleIds = new HashSet<>();
 		Set<IdmRoleDto> roles = new HashSet<>();
@@ -142,7 +142,7 @@ public class DefaultIdmIncompatibleRoleService
 				})
 				.collect(Collectors.toSet());
 		//
-		LOG.warn("Resolved incompabible roles [{}]", resolvedRoles.size());
+		LOG.debug("Resolved incompabible roles [{}]", resolvedRoles.size());
 		return resolvedRoles;
 	}
 	

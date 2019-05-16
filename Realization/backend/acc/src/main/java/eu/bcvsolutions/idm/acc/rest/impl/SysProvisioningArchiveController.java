@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.rest.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -30,7 +31,7 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -56,7 +57,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Archived provisioning operations (completed, canceled)",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysProvisioningArchiveController extends AbstractReadDtoController<SysProvisioningArchiveDto, SysProvisioningOperationFilter> {
+public class SysProvisioningArchiveController extends AbstractReadWriteDtoController<SysProvisioningArchiveDto, SysProvisioningOperationFilter> {
 
 	protected static final String TAG = "Provisioning - archive";
 	
@@ -68,16 +69,16 @@ public class SysProvisioningArchiveController extends AbstractReadDtoController<
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.PROVISIONING_ARCHIVE_READ + "')")
 	@ApiOperation(
 			value = "Search provisioning archive items (/search/quick alias)", 
 			nickname = "searchProvisioningArchives",
 			tags = { SysProvisioningArchiveController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") }),
+						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_ARCHIVE_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") })
+						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_ARCHIVE_READ, description = "") })
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
@@ -86,7 +87,7 @@ public class SysProvisioningArchiveController extends AbstractReadDtoController<
 	}
 
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.PROVISIONING_ARCHIVE_READ + "')")
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "Search provisioning archive items", 
@@ -94,9 +95,9 @@ public class SysProvisioningArchiveController extends AbstractReadDtoController<
 			tags = { SysProvisioningArchiveController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") }),
+						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_ARCHIVE_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") })
+						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_ARCHIVE_READ, description = "") })
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
@@ -105,8 +106,28 @@ public class SysProvisioningArchiveController extends AbstractReadDtoController<
 	}
 	
 	@Override
-	public Page<SysProvisioningArchiveDto> find(SysProvisioningOperationFilter filter, Pageable pageable,
-			BasePermission permission) {
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.PROVISIONING_ARCHIVE_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countProvisioningArchives", 
+			tags = { SysProvisioningArchiveController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_ARCHIVE_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_ARCHIVE_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
+	
+	/**
+	 * Adds embedded objects.
+	 */
+	@Override
+	public Page<SysProvisioningArchiveDto> find(SysProvisioningOperationFilter filter, Pageable pageable, BasePermission permission) {
 		Page<SysProvisioningArchiveDto> results = super.find(filter, pageable, permission);
 		// fill entity embedded for FE
 		Map<UUID, BaseDto> loadedDtos = new HashMap<>();
@@ -121,7 +142,7 @@ public class SysProvisioningArchiveController extends AbstractReadDtoController<
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.PROVISIONING_ARCHIVE_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "Provisioning archive item detail", 
@@ -130,13 +151,33 @@ public class SysProvisioningArchiveController extends AbstractReadDtoController<
 			tags = { SysProvisioningArchiveController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") }),
+						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_ARCHIVE_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") })
+						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_ARCHIVE_READ, description = "") })
 				})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Provisioning archive item's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.PROVISIONING_ARCHIVE_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnProvisioningArchive", 
+			tags = { SysProvisioningArchiveController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_ARCHIVE_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_ARCHIVE_READ, description = "")})
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Archive's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 }

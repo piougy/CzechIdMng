@@ -106,20 +106,20 @@ class ProvisioningOperations extends Basic.AbstractContent {
         <Helmet title={this.i18n('title')} />
 
         <Basic.Tabs>
-          <Basic.Tab eventKey={1} title={this.i18n('tabs.active.label')}>
+          <Basic.Tab eventKey={ 1 } title={ this.i18n('tabs.active.label') }>
             <ProvisioningOperationTableComponent
               ref="table"
               uiKey={ uiKey }
-              manager={manager}
-              isArchive={false}
-              showDetail={this.showDetail.bind(this)}
-              showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_ADMIN'])}
-              forceSearchParameters={forceSearchParameters}
-              columns={columns}
+              manager={ manager }
+              isArchive={ false }
+              showDetail={ this.showDetail.bind(this) }
+              showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGOPERATION_UPDATE']) }
+              forceSearchParameters={ forceSearchParameters }
+              columns={ columns }
               showDeleteAllButton={ showDeleteAllButton }/>
           </Basic.Tab>
 
-          <Basic.Tab eventKey={2} title={this.i18n('tabs.archive.label')}>
+          <Basic.Tab eventKey={ 2 } title={ this.i18n('tabs.archive.label') } rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGARCHIVE_READ']) }>
             <ProvisioningOperationTableComponent
               ref="archiveTable"
               uiKey={ `archive-${uiKey}` }
@@ -127,7 +127,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
               isArchive
               showDetail={ this.showDetail.bind(this) }
               forceSearchParameters={ forceSearchParameters }
-              columns={columns}/>
+              columns={ columns }/>
           </Basic.Tab>
         </Basic.Tabs>
 
@@ -146,29 +146,34 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
                   <Basic.Row>
                     <Basic.Col lg={ 4 }>
-                      <Basic.LabelWrapper label={this.i18n('entity.created')}>
+                      <Basic.LabelWrapper label={ this.i18n('entity.created') }>
                         <div style={{ margin: '7px 0' }}>
-                          <Advanced.DateValue value={detail.entity.created} showTime/>
+                          <Advanced.DateValue value={ detail.entity.created } showTime/>
                         </div>
                       </Basic.LabelWrapper>
                     </Basic.Col>
                     <Basic.Col lg={ 8 }>
-                      <Basic.EnumLabel ref="operationType" label={this.i18n('acc:entity.ProvisioningOperation.operationType')} enum={ProvisioningOperationTypeEnum}/>
+                      <Basic.EnumLabel ref="operationType" label={ this.i18n('acc:entity.ProvisioningOperation.operationType') } enum={ ProvisioningOperationTypeEnum }/>
                     </Basic.Col>
                   </Basic.Row>
 
                   <Basic.Row>
                     <Basic.Col lg={ 4 }>
-                      <Basic.EnumLabel ref="entityType" label={this.i18n('acc:entity.SystemEntity.entityType')} enum={SystemEntityTypeEnum}/>
+                      <Basic.EnumLabel ref="entityType" label={ this.i18n('acc:entity.SystemEntity.entityType') } enum={ SystemEntityTypeEnum }/>
                     </Basic.Col>
                     <Basic.Col lg={ 8 }>
-                      <Basic.LabelWrapper label={this.i18n('acc:entity.ProvisioningOperation.entity')}>
+                      <Basic.LabelWrapper label={ this.i18n('acc:entity.ProvisioningOperation.entity') }>
                         {
                           !detail.entity.entityIdentifier
                           ?
                           <span>N/A</span>
                           :
-                          <Advanced.EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }} face="popover"/>
+                          <Advanced.EntityInfo
+                            entityType={ detail.entity.entityType }
+                            entityIdentifier={ detail.entity.entityIdentifier }
+                            style={{ margin: 0 }}
+                            face="popover"
+                            showIcon/>
                         }
                       </Basic.LabelWrapper>
                     </Basic.Col>
@@ -176,7 +181,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
                   <Basic.Row>
                     <Basic.Col lg={ 4 }>
-                      <Basic.LabelWrapper label={this.i18n('acc:entity.System.name')}>
+                      <Basic.LabelWrapper label={ this.i18n('acc:entity.System.name') }>
                         <Advanced.EntityInfo
                           entityType="system"
                           entityIdentifier={ detail.entity.system }
@@ -186,9 +191,9 @@ class ProvisioningOperations extends Basic.AbstractContent {
                       </Basic.LabelWrapper>
                     </Basic.Col>
                     <Basic.Col lg={ 8 }>
-                      <Basic.LabelWrapper label={this.i18n('acc:entity.SystemEntity.uid')}>
+                      <Basic.LabelWrapper label={ this.i18n('acc:entity.SystemEntity.uid') }>
                         <div style={{ margin: '7px 0' }}>
-                          {detail.isArchive ? detail.entity.systemEntityUid : detail.entity._embedded.systemEntity.uid}
+                          { detail.isArchive ? detail.entity.systemEntityUid : detail.entity._embedded.systemEntity.uid }
                         </div>
                       </Basic.LabelWrapper>
                     </Basic.Col>
@@ -214,22 +219,22 @@ class ProvisioningOperations extends Basic.AbstractContent {
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Basic.Table
-                      data={accountData}
-                      noData={this.i18n('component.basic.Table.noData')}
+                      data={ accountData }
+                      noData={ this.i18n('component.basic.Table.noData') }
                       className="table-bordered"
                       header={ this.i18n('detail.accountObject') }>
-                      <Basic.Column property="property" header={this.i18n('label.property')}/>
-                      <Basic.Column property="value" header={this.i18n('label.value')}/>
+                      <Basic.Column property="property" header={ this.i18n('label.property') }/>
+                      <Basic.Column property="value" header={ this.i18n('label.value') }/>
                     </Basic.Table>
                   </Basic.Col>
                   <Basic.Col lg={ 6 }>
                     <Basic.Table
-                      data={connectorData}
-                      noData={this.i18n('component.basic.Table.noData')}
+                      data={ connectorData }
+                      noData={ this.i18n('component.basic.Table.noData') }
                       className="table-bordered"
                       header={ this.i18n('detail.connectorObject') }>
-                      <Basic.Column property="property" header={this.i18n('label.property')}/>
-                      <Basic.Column property="value" header={this.i18n('label.value')}/>
+                      <Basic.Column property="property" header={ this.i18n('label.property') }/>
+                      <Basic.Column property="value" header={ this.i18n('label.value') }/>
                     </Basic.Table>
                   </Basic.Col>
                 </Basic.Row>
@@ -240,8 +245,8 @@ class ProvisioningOperations extends Basic.AbstractContent {
           <Basic.Modal.Footer>
             <Basic.Button
               level="link"
-              onClick={this.closeDetail.bind(this)}>
-              {this.i18n('button.close')}
+              onClick={ this.closeDetail.bind(this) }>
+              { this.i18n('button.close') }
             </Basic.Button>
           </Basic.Modal.Footer>
         </Basic.Modal>

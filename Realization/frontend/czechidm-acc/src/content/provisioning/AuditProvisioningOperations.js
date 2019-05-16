@@ -18,16 +18,14 @@ export default class AuditProvisioningOperations extends Basic.AbstractContent {
     return 'acc:content.provisioningOperations';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['audit', 'provisioning-operations']);
+  getNavigationKey() {
+    return 'provisioning-operations';
   }
 
   render() {
     return (
       <div>
-        <Basic.PageHeader>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-        </Basic.PageHeader>
+        <Basic.PageHeader text={ this.i18n('header', { escape: false }) }/>
 
         <ProvisioningOperations uiKey="provisioning-operation-audit-table"/>
       </div>

@@ -21,6 +21,10 @@ export default class ProvisioningOperationService extends Services.AbstractServi
     return '/provisioning-operations';
   }
 
+  getGroupPermission() {
+    return 'PROVISIONINGOPERATION';
+  }
+
   supportsBulkAction() {
     return true;
   }

@@ -1254,7 +1254,9 @@
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
       "CONTRACTSLICEACCOUNT": "Účty pro časové řezy vztahů identity",
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
-      "PROVISIONINGBREAK": "Brzda provisioningu"
+      "PROVISIONINGBREAK": "Provisioning - brzda",
+      "PROVISIONINGOPERATION": "Provisioning - operace ve frontě",
+      "PROVISIONINGARCHIVE": "Provisioning - archív"
     }
   },
   "eav": {

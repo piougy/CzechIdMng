@@ -95,7 +95,7 @@ public abstract class AbstractProvisioningOperationRetryCancelBulkAction extends
 
 	@Override
 	protected List<String> getAuthoritiesForEntity() {
-		return Lists.newArrayList(AccGroupPermission.SYSTEM_ADMIN);
+		return Lists.newArrayList(AccGroupPermission.PROVISIONING_OPERATION_UPDATE);
 	}
 
 	/**

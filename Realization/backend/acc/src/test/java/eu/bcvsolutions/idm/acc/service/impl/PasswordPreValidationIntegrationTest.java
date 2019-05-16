@@ -243,6 +243,7 @@ public class PasswordPreValidationIntegrationTest extends AbstractIntegrationTes
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testAdvancedEnabled() {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername("test" + System.currentTimeMillis());

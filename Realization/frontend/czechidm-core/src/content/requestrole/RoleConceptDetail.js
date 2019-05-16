@@ -150,13 +150,9 @@ export class RoleConceptDetail extends Basic.AbstractContent {
         codes.push(value.currentTarget.value);
       }
     }
-    selectedRole = null;
     //
     this.setState({
-      environment: codes,
-      selectedRole: null
-    }, () => {
-      this.refs.role.setValue(null);
+      environment: codes
     });
   }
 

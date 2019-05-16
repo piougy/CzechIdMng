@@ -2242,6 +2242,11 @@
         "header": "Permissions",
         "title": "Permissions",
         "label": "Permissions",
+        "filter": {
+          "text": {
+            "placeholder": "Entity type, evaluator type or description"
+          }
+        },
         "edit": {
           "header": "{{name}} <small>permission detail</small>"
         },

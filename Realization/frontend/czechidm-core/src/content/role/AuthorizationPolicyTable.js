@@ -56,6 +56,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     this.context.store.dispatch(this.getManager().fetchAuthorizableTypes());
     this.context.store.dispatch(roleManager.fetchAllAuthorities());
     this.context.store.dispatch(roleManager.fetchAvailableAuthorities());
+    //
+    this.refs.filterForm.focus();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -344,6 +346,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
           forceSearchParameters={ forceSearchParameters }
           showRowSelection={ manager.canDelete() }
           className={ className }
+          filterOpened
           rowClass={
             ({rowIndex, data}) => {
               // installed vs. available authorities - authority from disabled module

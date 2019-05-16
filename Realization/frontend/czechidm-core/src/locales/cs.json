@@ -2293,6 +2293,11 @@
         "header": "Přidělená oprávnění",
         "title": "Oprávnění",
         "label": "Oprávnění",
+        "filter": {
+          "text": {
+            "placeholder": "Agenda, typ entity, typ vyhodnocení či popis"
+          }
+        },
         "edit": {
           "header": "{{name}} <small>detail oprávnění</small>"
         },

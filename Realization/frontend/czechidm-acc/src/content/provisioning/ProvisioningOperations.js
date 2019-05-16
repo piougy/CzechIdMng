@@ -106,7 +106,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
         <Helmet title={this.i18n('title')} />
 
         <Basic.Tabs>
-          <Basic.Tab eventKey={ 1 } title={ this.i18n('tabs.active.label') }>
+          <Basic.Tab eventKey={ 1 } title={ this.i18n('tabs.active.label') } rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGOPERATION_READ']) }>
             <ProvisioningOperationTableComponent
               ref="table"
               uiKey={ uiKey }

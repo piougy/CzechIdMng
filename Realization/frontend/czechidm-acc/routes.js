@@ -114,7 +114,7 @@ module.exports = {
         {
           path: 'provisioning',
           component: require('./src/content/system/SystemProvisioningOperations'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ', 'PROVISIONINGARCHIVE_READ'] } ]
         },
         {
           path: 'break-configs',
@@ -175,7 +175,7 @@ module.exports = {
         {
           path: 'provisioning',
           component: require('./src/content/identity/IdentityProvisioningOperations'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ', 'PROVISIONINGARCHIVE_READ'] } ]
         }
       ]
     },
@@ -191,7 +191,7 @@ module.exports = {
         {
           path: 'provisioning',
           component: require('./src/content/contract/ContractProvisioningOperations'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ', 'PROVISIONINGARCHIVE_READ'] } ]
         }
       ]
     },
@@ -331,7 +331,7 @@ module.exports = {
     {
       path: 'provisioning',
       component: require('./src/content/provisioning/AuditProvisioningOperations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ', 'PROVISIONINGARCHIVE_READ'] } ],
     }
   ]
 };

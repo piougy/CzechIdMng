@@ -109,7 +109,7 @@ module.exports = {
             'titleKey': 'acc:content.provisioningOperations.title',
             'order': 70,
             'path': '/system/:entityId/provisioning',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ', 'PROVISIONINGARCHIVE_READ'] } ]
           }
         ]
       },
@@ -132,7 +132,7 @@ module.exports = {
         'titleKey': 'acc:content.provisioningOperations.title',
         'order': 110,
         'path': '/identity/:entityId/provisioning',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ'] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PROVISIONINGOPERATION_READ', 'PROVISIONINGARCHIVE_READ'] } ]
       },
       {
         'id': 'identity-contract-accounts',
@@ -210,7 +210,7 @@ module.exports = {
         'access': [
           {
             'type': 'HAS_ANY_AUTHORITY',
-            'authorities': ['PROVISIONINGOPERATION_READ']
+            'authorities': ['PROVISIONINGOPERATION_READ', 'PROVISIONINGARCHIVE_READ']
           }
         ]
       },

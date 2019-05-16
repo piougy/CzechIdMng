@@ -48,5 +48,19 @@
         "environment": null
       }
     }
+  },
+  "identity-role": {
+    "table": {
+      "filter": {
+        "environment": null
+      }
+    }
+  },
+  "concept-role": {
+    "table": {
+      "filter": {
+        "environment": null
+      }
+    }
   }
 }

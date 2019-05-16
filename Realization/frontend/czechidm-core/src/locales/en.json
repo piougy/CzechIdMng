@@ -254,17 +254,17 @@
     "development": {
       "short": "D",
       "label": "Development",
-      "title": "Development environment"
+      "title": "Development"
     },
     "test": {
       "short": "T",
       "label": "Test",
-      "title": "Test environment"
+      "title": "Test"
     },
     "production": {
       "short": "P",
       "label": "Production",
-      "title": "Production environment"
+      "title": "Production"
     }
   },
   "navigation" : {

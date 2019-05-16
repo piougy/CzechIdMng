@@ -45,7 +45,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
         add: false
       },
       filter: {
-        roleEnvironment: ConfigLoader.getConfig('role.table.filter.environment', [])
+        roleEnvironment: ConfigLoader.getConfig('concept-role.table.filter.environment', [])
       },
       validationErrors: null
     };

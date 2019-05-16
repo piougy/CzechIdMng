@@ -60,7 +60,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
   getDefaultSearchParameters() {
     let searchParameters = this.getManager().getDefaultSearchParameters();
     //
-    searchParameters = searchParameters.setFilter('roleEnvironment', ConfigLoader.getConfig('role.table.filter.environment', []));
+    searchParameters = searchParameters.setFilter('roleEnvironment', ConfigLoader.getConfig('identity-role.table.filter.environment', []));
     //
     return searchParameters;
   }

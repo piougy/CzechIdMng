@@ -853,7 +853,8 @@ public class DefaultIdmRoleRequestService
 				IdmIdentityRoleDto duplicated = identityRoleService.getDuplicated(tempIdentityRole, identityRole, Boolean.FALSE);
 
 				// Duplicated founded. Add UUID from identity role
-				if (duplicated != null || (duplicated != null && duplicated.getId() == null)) {
+				// Duplicated is only when is object not null and hasn't filled ID. Identity role can't be duplicated with concept.
+				if (duplicated != null && duplicated.getId() == null) {
 					DuplicateRolesDto duplicates = concept.getDuplicates();
 					duplicates.getIdentityRoles().add(identityRole.getId());
 					concept.setDuplicates(duplicates);

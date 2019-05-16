@@ -451,7 +451,7 @@ public class DefaultIdmIdentityRoleService
 	/**
 	 * Check if role ONE is duplicit by date with role TWO. For example if is role ONE fully in interval of validite the
 	 * role TWO.
-	 * =
+	 *
 	 * @param one
 	 * @param two
 	 * @return
@@ -465,11 +465,16 @@ public class DefaultIdmIdentityRoleService
 		
 		// Both role are valid
 		if (one.isValid() && two.isValid()) {
-			if ((validTillForFirst == null && two.getValidTill() == null) ||
-					(validTillForFirst != null && two.getValidTill() != null &&	validTillForFirst.isEqual(two.getValidTill()))) {
+			LocalDate validTillForTwo = two.getValidTill();
+			if ((validTillForFirst == null && validTillForTwo == null) ||
+					(validTillForFirst != null && validTillForTwo != null && validTillForFirst.isEqual(validTillForTwo))) {
 				// Valid tills from both identity roles are same
 				return true;
-			} else if (validTillForFirst != null && validTillForFirst.isBefore(two.getValidTill())) {
+			} else if (validTillForFirst != null && validTillForTwo == null) {
+				// Second identity role has filled valid till but first not.
+				// This mean that role TWO has bigger validity till than ONE
+				return false;
+			} else if (validTillForFirst != null && validTillForFirst.isBefore(validTillForTwo)) {
 				// Valid till from manually role is before automatic, manually role could be removed
 				return true;
 			}

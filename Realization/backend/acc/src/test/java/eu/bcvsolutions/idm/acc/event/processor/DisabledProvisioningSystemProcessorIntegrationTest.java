@@ -38,12 +38,53 @@ public class DisabledProvisioningSystemProcessorIntegrationTest extends Abstract
 	@Autowired private SysSystemService systemService;
 	
 	@Test
-	public void testDontCreateProvisioningOperation() {
+	public void testDontCreateProvisioningOperationWithDisabledSystem() {
 		// prepare role
 		IdmRoleDto role = getHelper().createRole();
 		//
 		// create test system with mapping and link her to the sub roles
 		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		system.setDisabledProvisioning(true);
+		system = systemService.save(system);
+		getHelper().createRoleSystem(role, system);
+		//
+		// assign role
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		final IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, role);
+		//
+		getHelper().executeRequest(roleRequestOne, false);
+		//
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		IdmIdentityRoleDto directRole = assignedRoles.stream().filter(ir -> ir.getDirectRole() == null).findFirst().get();
+		Assert.assertEquals(role.getId(), directRole.getRole());
+		//
+		// check created account
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+		Assert.assertNotNull(account);
+		// empty provisioning
+		Assert.assertNull(getHelper().findResource(account.getRealUid()));
+		//
+		// check provisioning archive
+		SysProvisioningOperationFilter archiveFilter = new SysProvisioningOperationFilter();
+		archiveFilter.setEntityIdentifier(identity.getId());
+		//
+		List<SysProvisioningOperationDto> activeOperations = provisioningOperationService.find(archiveFilter, null).getContent();
+		Assert.assertTrue(activeOperations.isEmpty());
+		List<SysProvisioningArchiveDto> executedOperations = provisioningArchiveService.find(archiveFilter, null).getContent();
+		Assert.assertTrue(executedOperations.isEmpty());
+	}
+	
+	@Test
+	public void testDontCreateProvisioningOperationWithReadOnlySystem() {
+		// prepare role
+		IdmRoleDto role = getHelper().createRole();
+		//
+		// create test system with mapping and link her to the sub roles
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		system.setReadonly(true);
 		system.setDisabledProvisioning(true);
 		system = systemService.save(system);
 		getHelper().createRoleSystem(role, system);

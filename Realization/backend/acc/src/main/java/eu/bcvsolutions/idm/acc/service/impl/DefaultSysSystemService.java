@@ -187,8 +187,8 @@ public class DefaultSysSystemService
 	@Transactional
 	public SysSystemDto saveInternal(SysSystemDto dto) {
 		if (dto != null) {
-			if (dto.isDisabledProvisioning()) {
-				// when provisioning is disabled, then system is disabled too (prevent to execute already created provisioning operations).
+			if (dto.isDisabledProvisioning() && !dto.isReadonly() && !dto.isDisabled()) {
+				// when provisioning is disabled (~super disabled), then system is disabled too (prevent to execute already created provisioning operations)
 				dto.setDisabled(true);
 			}
 		}

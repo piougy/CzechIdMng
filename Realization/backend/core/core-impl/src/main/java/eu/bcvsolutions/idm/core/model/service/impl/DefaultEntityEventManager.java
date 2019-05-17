@@ -50,6 +50,7 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
@@ -78,9 +79,11 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.ExceptionProcessable;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 
 /**
  * Entity (dto) processing based on event publishing.
@@ -382,9 +385,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 * @return
 	 */
 	protected int processCreated() {
-		// run as system - called from scheduler internally
-		securityService.setSystemAuthentication();
-		//
 		// calculate events to process
 		String instanceId = configurationService.getInstanceId();
 		List<IdmEntityEventDto> events = getCreatedEvents(instanceId);
@@ -517,6 +517,13 @@ public class DefaultEntityEventManager implements EntityEventManager {
 				@Override
 				@SuppressWarnings("unchecked")
 				public void run() {
+					// run as event creator
+					securityService.setAuthentication(new IdmJwtAuthentication(
+							new IdmIdentityDto(event.getCreatorId(), event.getCreator()), 
+							null, 
+							Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()),
+							null));
+					//
 					try {
 						process(new CoreEvent<>(EntityEventType.EXECUTE, event));
 					} catch (Exception ex) {

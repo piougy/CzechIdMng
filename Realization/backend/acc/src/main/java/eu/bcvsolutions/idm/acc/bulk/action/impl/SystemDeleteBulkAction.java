@@ -74,7 +74,7 @@ public class SystemDeleteBulkAction extends AbstractRemoveBulkAction<SysSystemDt
 			
 			SysSystemDto system = getService().get(systemId);
 			
-			long count = accountService.find(accountFilter, new PageRequest(0, 1)).getTotalElements();
+			long count = accountService.count(accountFilter);
 			if (count > 0) {
 				models.put(new DefaultResultModel(AccResultCode.SYSTEM_DELETE_BULK_ACTION_NUMBER_OF_ACCOUNTS,
 						ImmutableMap.of("system", system.getCode(), "count", count)), count);
@@ -82,7 +82,7 @@ public class SystemDeleteBulkAction extends AbstractRemoveBulkAction<SysSystemDt
 			
 			SysProvisioningOperationFilter operationFilter = new SysProvisioningOperationFilter();
 			operationFilter.setSystemId(system.getId());
-			long countEntities = provisioningOperationService.find(operationFilter, new PageRequest(0, 1)).getTotalElements();
+			long countEntities = provisioningOperationService.count(operationFilter);
 			if (countEntities > 0) {
 				models.put(new DefaultResultModel(AccResultCode.SYSTEM_DELETE_BULK_ACTION_NUMBER_OF_PROVISIONINGS,
 						ImmutableMap.of("system", system.getCode(), "count", countEntities)), countEntities);

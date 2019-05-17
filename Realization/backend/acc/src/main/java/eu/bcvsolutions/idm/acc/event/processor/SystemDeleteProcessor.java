@@ -100,7 +100,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		// system
 		SysProvisioningOperationFilter operationFilter = new SysProvisioningOperationFilter();
 		operationFilter.setSystemId(system.getId());
-		if (provisioningOperationService.find(operationFilter, null).getTotalElements() > 0) {
+		if (provisioningOperationService.count(operationFilter) > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_OPERATIONS,
 					ImmutableMap.of("system", system.getName()));
 		}

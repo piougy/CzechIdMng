@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 //
 import * as Basic from '../../basic';
 import * as Domain from '../../../domain';
@@ -213,27 +214,32 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
 
   _setOptions(options, useFirst) {
     let value = this.state.value;
+    const values = _.concat([], value).filter(v => v !== null && v !== undefined && v !== '');
     const _options = [];
     //
-    let valueIsPresent = false;
+    const presentValues = [];
     // constuct operation
     options.forEach(item => {
-      if (value && item.code === value) {
-        valueIsPresent = true;
-      }
+      values.forEach(v => {
+        if (v && item.code === v) {
+          presentValues.push(v);
+        }
+      });
       _options.push({
         value: item.code,
         niceLabel: codeListItemManager.getNiceLabel(item)
       });
     });
-    // filled value is not in the code list - append ar start
-    if (value && !valueIsPresent) {
-      _options.unshift({
-        value,
-        niceLabel: this.i18n(value)
-      });
-    }
-    if (!value && useFirst && _options.length > 0) {
+    // filled value is not in the code list - append at start
+    values.forEach(v => {
+      if (v && !_.includes(presentValues, v)) {
+        _options.unshift({
+          v,
+          niceLabel: this.i18n(v)
+        });
+      }
+    });
+    if (values.length === 0 && useFirst && _options.length > 0) {
       value = _options[0].value;
     }
     //

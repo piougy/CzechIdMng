@@ -392,7 +392,11 @@ export default class UiUtils {
    */
   static toStringValue(objectValue) {
     if (_.isArray(objectValue)) {
-      return objectValue.join(', ');
+      return objectValue
+        .map(singleValue => {
+          return UiUtils.toStringValue(singleValue);
+        })
+        .join(', ');
     } else if (_.isObject(objectValue)) {
       return JSON.stringify(objectValue);
     }

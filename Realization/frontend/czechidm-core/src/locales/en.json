@@ -4993,6 +4993,10 @@
             "help": "If the attribute is multi-valued and the default value contains multiple values, write character(s) that seperate values. If left blank, a default character will be used ','."
           }
         }
+      },
+      "core-tree-node-code-value-generator": {
+        "label": "Generating standard code using element name",
+        "help": "Generates the element code. The element code will be generated from a name that will be converted to small characters, all white spaces and diacritics will be removed."
       }
     },
     "long-running-task": {
@@ -5907,7 +5911,7 @@
       "title": "Password cannot be created",
       "message": "Password for users can be create only by internal IdM process."
     },
-    "IDMTREENODEDTO_CODE_NOTEMPTY": {
+    "TREE_NODE_EMPTY_CODE": {
       "title": "Code cannot be empty",
       "message": "Code of node has not been filled. Please fill the code or enable the code generator."
     }

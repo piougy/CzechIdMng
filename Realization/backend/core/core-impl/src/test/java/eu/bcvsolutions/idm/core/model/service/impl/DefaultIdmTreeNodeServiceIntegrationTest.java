@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -279,5 +280,27 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		Assert.assertEquals(2, results.size());
 		Assert.assertTrue(results.stream().anyMatch(n -> n.equals(node3)));
 		Assert.assertTrue(results.stream().anyMatch(n -> n.equals(node4)));
+	}
+
+	@Test(expected = ResultCodeException.class)
+	public void testNullCode() {
+		IdmTreeTypeDto treeType = getHelper().createTreeType();
+		IdmTreeNodeDto node = new IdmTreeNodeDto();
+		node.setTreeType(treeType.getId());
+		node.setName("test-" + System.currentTimeMillis());
+		node.setCode(null);
+		
+		service.save(node);
+	}
+
+	@Test(expected = ResultCodeException.class)
+	public void testEmptyCode() {
+		IdmTreeTypeDto treeType = getHelper().createTreeType();
+		IdmTreeNodeDto node = new IdmTreeNodeDto();
+		node.setTreeType(treeType.getId());
+		node.setName("test-" + System.currentTimeMillis());
+		node.setCode("    ");
+		
+		service.save(node);
 	}
 }

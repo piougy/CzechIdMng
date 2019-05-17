@@ -5043,6 +5043,10 @@
             "help": "Pokud je atribut vícehodnotový a standardní hodnota obsahuje více hodnot, napište znak/y, kterým jsou odděleny. Pokud necháte prázdné, bude použit znak ','."
           }
         }
+      },
+      "core-tree-node-code-value-generator": {
+        "label": "Generování standardního kódu pomocí jména prvku",
+        "help": "Generátor vygeneruje kód prvku. Kód prvku bude vygenerován ze jména, které bude převedeno na malé znaky, odstraněny všechny bílé znaky a diakritiku."
       }
     },
     "long-running-task": {
@@ -5957,7 +5961,7 @@
       "title": "Heslo nemůže být vytvořeno",
       "message": "Heslo pro uživatele může být vytvořeno pouze interními procesy IdM."
     },
-    "IDMTREENODEDTO_CODE_NOTEMPTY": {
+    "TREE_NODE_EMPTY_CODE": {
       "title": "Kód nemůže být prázdný",
       "message": "Kód nebyl vyplněn. Vyplňte prosím kód uzlu, nebo zapněte generátor kódů."
     }

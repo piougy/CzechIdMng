@@ -27,7 +27,6 @@ public class IdmTreeNodeDto extends FormableDto implements Disableable, External
     @Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(notes = "Unique external identifier.")
 	private String externalId;
-    @NotEmpty
     @Size(min = 1, max = DefaultFieldLengths.NAME)
     private String code;
     @NotEmpty

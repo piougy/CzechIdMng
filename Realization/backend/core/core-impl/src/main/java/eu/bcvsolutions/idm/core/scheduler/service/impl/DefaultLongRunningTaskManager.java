@@ -175,7 +175,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);	
 		// persist LRT
-		taskExecutor.validate(persistTask(taskExecutor));
+		taskExecutor.validate(persistTask(taskExecutor, OperationState.CREATED));
 		//
 		LongRunningFutureTask<V> longRunnigFutureTask = new LongRunningFutureTask<>(taskExecutor, new FutureTask<>(taskExecutor));
 		// execute - after original transaction is commited
@@ -220,8 +220,8 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	public <V> V executeSync(LongRunningTaskExecutor<V> taskExecutor) {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
-		// persist LRT
-		IdmLongRunningTaskDto task = persistTask(taskExecutor);
+		// persist LRT - set state to running - prevent to execute task twice asynchronously by processCreated
+		IdmLongRunningTaskDto task = persistTask(taskExecutor, OperationState.RUNNING);
 		//
 		markTaskAsRunning(getValidTask(taskExecutor));
 		//
@@ -378,9 +378,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 * Prepares executor's LRT
 	 * 
 	 * @param taskExecutor
+	 * @parem state - sync - RUNNING, async - CREATED => prevent to execute synchronous task twice by asynchronous processing
 	 * @return
 	 */
-	private IdmLongRunningTaskDto persistTask(LongRunningTaskExecutor<?> taskExecutor) {
+	private IdmLongRunningTaskDto persistTask(LongRunningTaskExecutor<?> taskExecutor, OperationState state) {
 		// prepare task
 		IdmLongRunningTaskDto task;
 		if (taskExecutor.getLongRunningTaskId() == null) {
@@ -389,7 +390,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			task.setTaskProperties(taskExecutor.getProperties());
 			task.setTaskDescription(taskExecutor.getDescription());	
 			task.setInstanceId(configurationService.getInstanceId());
-			task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
+			task.setResult(new OperationResult.Builder(state).build());
 			// LRT is saved in new transaction implicitly.
 			task = service.save(task);
 			taskExecutor.setLongRunningTaskId(task.getId());

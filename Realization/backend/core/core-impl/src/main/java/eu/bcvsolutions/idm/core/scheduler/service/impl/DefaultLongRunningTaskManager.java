@@ -223,7 +223,14 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// persist LRT - set state to running - prevent to execute task twice asynchronously by processCreated
 		IdmLongRunningTaskDto task = persistTask(taskExecutor, OperationState.RUNNING);
 		//
-		markTaskAsRunning(getValidTask(taskExecutor));
+		try {
+			task = getValidTask(taskExecutor);
+		} catch (Exception ex) {
+			// task can be executed later, e.g. after previous task ends
+			markTaskAsCreated(task);
+			//
+			throw ex;
+		}
 		//
 		LOG.debug("Execute task [{}] synchronously", task.getId());
 		// execute

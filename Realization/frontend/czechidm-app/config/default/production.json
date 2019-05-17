@@ -18,5 +18,37 @@
   },
   "pagination": {
     "size": 10
+  },
+  "identity": {
+    "table": {
+      "filter": {
+        "disabled": "false",
+        "recursively": "true"
+      }
+    },
+    "dashboard": {
+      "skip": false
+    }
+  },
+  "role": {
+    "table": {
+      "filter": {
+        "environment": null
+      }
+    }
+  },
+  "identity-role": {
+    "table": {
+      "filter": {
+        "environment": null
+      }
+    }
+  },
+  "concept-role": {
+    "table": {
+      "filter": {
+        "environment": null
+      }
+    }
   }
 }

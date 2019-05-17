@@ -255,8 +255,13 @@ public class DefaultSysProvisioningOperationService
 	@Transactional(readOnly = true)
 	public List<SysProvisioningOperationDto> getByTimelineAndBatchId(UUID batchId) {
 		// sort from higher created
-		List<SysProvisioningOperationDto> sortedList = this.findByBatchId(batchId, new PageRequest(0, Integer.MAX_VALUE,
-				new Sort(Direction.ASC, SysProvisioningOperation_.created.getName()))).getContent();
+		List<SysProvisioningOperationDto> sortedList = this
+				.findByBatchId(
+					batchId, 
+					new PageRequest(0, Integer.MAX_VALUE, new Sort(Direction.ASC, SysProvisioningOperation_.created.getName()))
+				)
+				.getContent();
+		
 		return Collections.unmodifiableList(sortedList);
 	}
 

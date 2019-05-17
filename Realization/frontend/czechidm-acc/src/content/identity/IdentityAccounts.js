@@ -186,7 +186,8 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
                         entityType="role"
                         entityIdentifier={ data[rowIndex]._embedded.identityRole.role }
                         entity={ data[rowIndex]._embedded.identityRole._embedded.role}
-                        face="popover" />
+                        face="popover"
+                        showIcon/>
                     );
                   }
                 } />

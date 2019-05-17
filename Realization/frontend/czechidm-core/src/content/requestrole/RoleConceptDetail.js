@@ -208,7 +208,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           placeholder={ this.i18n('entity.Role.environment.help') }
           multiSelect
           onChange={ this._onEnvironmentChange.bind(this) }
-          rendered={ entity._added && !readOnly && Utils.Entity.isNew(entity)}
+          rendered={ (!entity._added || readOnly || !Utils.Entity.isNew(entity)) === false }
           value={ environment }/>
         <Advanced.RoleSelect
           required
@@ -216,7 +216,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           multiSelect={ entity._added && multiAdd }
           showActionButtons
           header={ this.i18n('selectRoleCatalogue.header') }
-          onChange={this._onChangeSelectOfRole.bind(this)}
+          onChange={ this._onChangeSelectOfRole.bind(this) }
           label={ this.i18n('entity.IdentityRole.role') }
           ref="role"
           forceSearchParameters={ new SearchParameters().setFilter('environment', environment) }/>

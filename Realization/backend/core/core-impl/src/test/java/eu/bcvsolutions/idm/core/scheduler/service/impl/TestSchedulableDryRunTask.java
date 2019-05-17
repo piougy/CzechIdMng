@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.scheduler;
+package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
 /**
  * Test task for {@link DefaultSchedulerManagerIntegrationTest}.

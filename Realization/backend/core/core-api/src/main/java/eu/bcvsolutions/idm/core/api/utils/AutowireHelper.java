@@ -44,12 +44,16 @@ public final class AutowireHelper implements ApplicationContextAware {
 	 * @return autowired object
 	 */
 	public static <T> T autowireBean(T objectToAutowire, Object... beansToAutowireInClass) {
+		if (applicationContext == null) {
+			return objectToAutowire;
+		}
+		//
 		if(beansToAutowireInClass == null || beansToAutowireInClass.length == 0) {
 			applicationContext.getAutowireCapableBeanFactory().autowireBean(objectToAutowire);
 			return objectToAutowire;
 		}
 		for (Object bean : beansToAutowireInClass) {
-			if (bean == null && applicationContext != null) {
+			if (bean == null) {
 				applicationContext.getAutowireCapableBeanFactory().autowireBean(objectToAutowire);
 				return objectToAutowire;
 			}

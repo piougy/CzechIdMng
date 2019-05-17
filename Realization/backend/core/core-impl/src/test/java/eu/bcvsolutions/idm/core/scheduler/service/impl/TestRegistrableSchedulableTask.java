@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.scheduler;
+package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
 import java.util.List;
 

@@ -1,7 +1,8 @@
-package eu.bcvsolutions.idm.core.scheduler;
+package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
 import java.util.Map;
 
+import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**

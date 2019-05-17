@@ -388,7 +388,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 * @parem state - sync - RUNNING, async - CREATED => prevent to execute synchronous task twice by asynchronous processing
 	 * @return
 	 */
-	private IdmLongRunningTaskDto persistTask(LongRunningTaskExecutor<?> taskExecutor, OperationState state) {
+	protected IdmLongRunningTaskDto persistTask(LongRunningTaskExecutor<?> taskExecutor, OperationState state) {
 		// prepare task
 		IdmLongRunningTaskDto task;
 		if (taskExecutor.getLongRunningTaskId() == null) {

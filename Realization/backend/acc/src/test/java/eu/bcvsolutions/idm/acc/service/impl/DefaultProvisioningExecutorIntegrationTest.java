@@ -21,6 +21,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
@@ -37,6 +40,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive_;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
@@ -439,7 +443,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			provisioningExecutor.execute(provisioningOperation); // 1 - create
 			// is necessary to get again operation from service
 			SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-			filter.setSystemEntity(provisioningOperation.getSystemEntity());
+			filter.setSystemEntityUid(provisioningOperation.getSystemEntityUid());
 			filter.setSystemId(system.getId());
 			SysProvisioningOperationDto operation = provisioningOperationService.find(filter, null).getContent().get(0);
 			SysProvisioningBatchDto batch = provisioningBatchService.findBatch(operation.getSystemEntity());
@@ -451,6 +455,16 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 			Assert.assertTrue(systemEntity.isWish());
 			Assert.assertNull(helper.findResource(uid));
+			// check failed operation is in archive too
+			List<SysProvisioningArchiveDto> archived = provisioningArchiveService
+					.find(
+						filter, 
+						new PageRequest(0, 10, new Sort(Direction.DESC, SysProvisioningArchive_.created.getName()))
+					)
+					.getContent();
+			Assert.assertEquals(1, archived.size());
+			Assert.assertEquals(OperationState.EXCEPTION, archived.get(0).getResultState());
+			Assert.assertEquals(AccResultCode.PROVISIONING_FAILED.name(), archived.get(0).getResult().getModel().getStatusEnum());
 			//
 			batch.setNextAttempt(new DateTime());
 			provisioningBatchService.save(batch);
@@ -464,6 +478,15 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			Assert.assertEquals(2, operation.getCurrentAttempt());
 			Assert.assertNotNull(batch.getNextAttempt());
 			Assert.assertTrue(batch.getNextAttempt().isAfter(now));
+			archived = provisioningArchiveService
+					.find(
+						filter, 
+						new PageRequest(0, 10, new Sort(Direction.DESC, SysProvisioningArchive_.created.getName()))
+					)
+					.getContent();
+			Assert.assertEquals(2, archived.size());
+			Assert.assertEquals(OperationState.EXCEPTION, archived.get(0).getResultState());
+			Assert.assertEquals(AccResultCode.PROVISIONING_FAILED.name(), archived.get(0).getResult().getModel().getStatusEnum());
 			//
 			batch.setNextAttempt(new DateTime());
 			provisioningBatchService.save(batch);
@@ -478,6 +501,14 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			Assert.assertNotNull(helper.findResource(uid));
 			batch = provisioningBatchService.get(batch.getId());
 			Assert.assertNull(batch.getNextAttempt());
+			archived = provisioningArchiveService
+					.find(
+						filter, 
+						new PageRequest(0, 10, new Sort(Direction.DESC, SysProvisioningArchive_.created.getName()))
+					)
+					.getContent();
+			Assert.assertEquals(3, archived.size());
+			Assert.assertEquals(OperationState.EXECUTED, archived.get(0).getResultState());
 		} finally {
 			testProvisioningExceptionProcessor.setDisabled(true);
 		}

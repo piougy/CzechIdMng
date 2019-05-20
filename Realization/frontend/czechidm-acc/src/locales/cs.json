@@ -1035,6 +1035,9 @@
     "ProvisioningOperation": {
       "_type": "Provisioning - operace",
       "creator": "Vytvořil",
+      "modified": {
+        "label": "$t(entity.modified.label) (poslední pokus)"
+      },
       "operationType": "Typ operace",
       "entityIdentifier": "Identifikátor entity (IdM)",
       "resultState": "Výsledek",

@@ -1034,6 +1034,9 @@
     "ProvisioningOperation": {
       "_type": "Provisioning - operation",
       "creator": "Creator",
+      "modified": {
+        "label": "$t(entity.modified.label) (last attempt)"
+      },
       "operationType": "Operation",
       "entityIdentifier": "Entity identifier (IdM)",
       "resultState": "Result",

@@ -452,6 +452,9 @@ public class DefaultSysProvisioningOperationService
 		//
 		operation = save(operation);
 		//
+		// create archive operation for the current attempt
+		provisioningArchiveService.archive(operation);	
+		//
 		// calculate next attempt
 		SysProvisioningOperationDto firstOperation = getFirstOperationByBatchId(operation.getBatch());
 		if (firstOperation.equals(operation)) {

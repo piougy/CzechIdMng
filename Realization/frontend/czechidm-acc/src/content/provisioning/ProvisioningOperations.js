@@ -142,7 +142,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
               !detail.entity
               ||
               <div>
-                <Basic.AbstractForm data={detail.entity} readOnly>
+                <Basic.AbstractForm data={ detail.entity } readOnly>
 
                   <Basic.Row>
                     <Basic.Col lg={ 4 }>
@@ -152,7 +152,17 @@ class ProvisioningOperations extends Basic.AbstractContent {
                         </div>
                       </Basic.LabelWrapper>
                     </Basic.Col>
-                    <Basic.Col lg={ 8 }>
+                    <Basic.Col lg={ 8 } rendered={ detail.isArchive === false }>
+                      <Basic.LabelWrapper label={ this.i18n('acc:entity.ProvisioningOperation.modified.label') }>
+                        <div style={{ margin: '7px 0' }}>
+                          <Advanced.DateValue value={ detail.entity.modified } showTime/>
+                        </div>
+                      </Basic.LabelWrapper>
+                    </Basic.Col>
+                  </Basic.Row>
+
+                  <Basic.Row>
+                    <Basic.Col lg={ 4 }>
                       <Basic.EnumLabel ref="operationType" label={ this.i18n('acc:entity.ProvisioningOperation.operationType') } enum={ ProvisioningOperationTypeEnum }/>
                     </Basic.Col>
                   </Basic.Row>

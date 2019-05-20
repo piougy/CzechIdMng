@@ -38,6 +38,26 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   }
 
   /**
+  * Defines if component works with complex value.
+  * That is using for correct set input value in form component.
+  * Complex value could be exist in _embedded map and we need to now if
+  * should be used value from field (UUID) or _embedded (entity).
+  *
+  * FIXME: Usage as base AbstractFormComponent is not implemented (see automatic role rule).
+  *
+  */
+  isValueComplex() {
+    return false;
+  }
+
+  /**
+   * FIXME: Usage as base AbstractFormComponent is not implemented (see automatic role rule).
+   */
+  setValue(value /* , cb*/) {
+    LOGGER.warn('AbstractFormAttributeRenderer: Set raw value for form attribute rendered is not supported. Use formInstance instead. GivenValue: [{}]', value);
+  }
+
+  /**
    * Returns array of filled form values (form value object).
    * Single value attribute - array with one form velue
    * Multiple value attribute - array with form values

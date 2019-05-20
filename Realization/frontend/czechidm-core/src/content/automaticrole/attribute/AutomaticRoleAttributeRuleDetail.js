@@ -24,6 +24,8 @@ const DEFINITION_TYPE_FILTER = 'definitionType';
  * Modified ContractAttributeEnum - singular properties
  *
  * TODO: DRY, but how to generalize enum + static methods ...
+ *
+ * @author Ondrej Kopr
  */
 class ContractAttributeEnum extends AbstractEnum {
 
@@ -401,21 +403,22 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     const FormValueComponent = component.component;
     //
     // override helpBlock, label and placeholder
-    formAttribute.description = this.i18n('entity.AutomaticRole.attribute.value.help');
-    formAttribute.name = this.i18n('entity.AutomaticRole.attribute.value.label');
-    formAttribute.placeholder = '';
-    formAttribute.defaultValue = null;
-    formAttribute.required = valueRequired;
-    formAttribute.readonly = readOnly; // readnOnly from props has prio, default value is false
+    const _formAttribute = _.merge({}, formAttribute); // immutable - form attribute is used twice on the form
+    _formAttribute.description = this.i18n('entity.AutomaticRole.attribute.value.help');
+    _formAttribute.name = this.i18n('entity.AutomaticRole.attribute.value.label');
+    _formAttribute.placeholder = '';
+    _formAttribute.defaultValue = null;
+    _formAttribute.required = valueRequired;
+    _formAttribute.readonly = readOnly; // readnOnly from props has prio, default value is false
     //
     // is neccessary transform value to array
     return (
       <FormValueComponent
         ref="value"
-        required={valueRequired}
-        attribute={formAttribute}
-        readOnly={readOnly}
-        values={[{value}]}/>
+        required={ valueRequired }
+        attribute={ _formAttribute }
+        readOnly={ readOnly }
+        values={[{ value }]}/>
     );
   }
 
@@ -488,9 +491,9 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       <div>
           <Basic.AbstractForm
             ref="form"
-            uiKey={uiKey}
-            data={data}
-            readOnly={ readOnly}>
+            uiKey={ uiKey }
+            data={ data }
+            readOnly={ readOnly }>
             <Basic.EnumSelectBox
               ref="type"
               required
@@ -500,8 +503,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
               onChange={this._typeChange.bind(this)}/>
             <Basic.EnumSelectBox
               ref="attributeName"
-              clearable={false}
-              label={this.i18n('entity.AutomaticRole.attribute.attributeName')}
+              clearable={ false }
+              label={ this.i18n('entity.AutomaticRole.attribute.attributeName') }
               enum={
                 type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)
                 ?
@@ -509,20 +512,20 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
                 :
                 ContractAttributeEnum
               }
-              hidden={typeForceSearchParameters !== null}
-              onChange={this._attributeNameChange.bind(this)}
-              required={!(typeForceSearchParameters !== null)}/>
+              hidden={ typeForceSearchParameters !== null }
+              onChange={ this._attributeNameChange.bind(this) }
+              required={ !(typeForceSearchParameters !== null) }/>
             <Basic.SelectBox
               ref="formAttribute"
               useFirst
-              clearable={false}
-              returnProperty={null}
-              onChange={this._formAttributeChange.bind(this)}
-              forceSearchParameters={typeForceSearchParameters}
-              label={this.i18n('entity.AutomaticRole.attribute.formAttribute')}
-              hidden={typeForceSearchParameters === null}
-              required={!(typeForceSearchParameters === null)}
-              manager={this.formAttributeManager}/>
+              clearable={ false }
+              returnProperty={ null }
+              onChange={ this._formAttributeChange.bind(this) }
+              forceSearchParameters={ typeForceSearchParameters }
+              label={ this.i18n('entity.AutomaticRole.attribute.formAttribute') }
+              hidden={ typeForceSearchParameters === null }
+              required={ !(typeForceSearchParameters === null) }
+              manager={ this.formAttributeManager }/>
             <Basic.Row>
               <div className="col-lg-4">
                 <Basic.EnumSelectBox

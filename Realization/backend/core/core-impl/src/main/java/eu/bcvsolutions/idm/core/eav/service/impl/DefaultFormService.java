@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -419,6 +420,23 @@ public class DefaultFormService implements FormService {
 		event.setPermission(permission);
 		// publish event for save form instance
 		return entityEventManager.process(event).getContent();
+	}
+	
+	@Override
+	@Transactional
+	public EventContext<IdmFormInstanceDto> publish(EntityEvent<IdmFormInstanceDto> event, BasePermission... permission) {
+		return publish(event, (EntityEvent<?>) null, permission);
+	}
+	
+	@Override
+	@Transactional
+	public EventContext<IdmFormInstanceDto> publish(EntityEvent<IdmFormInstanceDto> event, EntityEvent<?> parentEvent, BasePermission... permission) {
+		Assert.notNull(event, "Event must be not null!");
+		Assert.notNull(event.getContent(), "Content (dto) in event must be not null!");
+		// check permissions - check access to filled form values
+		event.setPermission(permission);
+		//
+		return entityEventManager.process(event, parentEvent);
 	}
 	
 	@Override

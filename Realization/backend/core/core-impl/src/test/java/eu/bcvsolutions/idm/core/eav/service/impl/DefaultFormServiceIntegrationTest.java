@@ -27,23 +27,32 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitDemoData;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.FormableDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -65,6 +74,7 @@ import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.ecm.service.impl.DefaultAttachmentManagerIntegrationTest;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -72,6 +82,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue_;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.event.EntityEventDeleteExecutedProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -99,6 +111,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	@Autowired private IdmRoleRepository roleRepository;
 	@Autowired private LookupService lookupService;
 	@Autowired private AttachmentManager attachmentManager;
+	@Autowired private IdmEntityEventService entityEventService;
 	//
 	private DefaultFormService formService;
 	
@@ -1679,6 +1692,50 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		attribute = formService.saveAttribute(attribute);
 		//
 		Assert.assertTrue(attribute.isRequired());
+	}
+	
+	@Test
+	public void testPropagateHighEventPriority() {
+		try {
+			getHelper().disable(EntityEventDeleteExecutedProcessor.class);
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			FormableDto owner = getHelper().createIdentity((GuardedString) null);
+			//
+			// create definition one		
+			IdmFormAttributeDto attributeDefinitionOne = new IdmFormAttributeDto();
+			attributeDefinitionOne.setCode("name_" + System.currentTimeMillis());
+			attributeDefinitionOne.setName(attributeDefinitionOne.getCode());
+			attributeDefinitionOne.setPersistentType(PersistentType.SHORTTEXT);
+			IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmIdentity.class.getCanonicalName(), "t_v1", Lists.newArrayList(attributeDefinitionOne));
+			attributeDefinitionOne = formDefinitionOne.getMappedAttributeByCode(attributeDefinitionOne.getCode());
+			//		
+			IdmFormValueDto value1 = new IdmFormValueDto(attributeDefinitionOne);
+			value1.setValue(FORM_VALUE_ONE);
+			
+			IdmFormInstanceDto formInstance = new IdmFormInstanceDto(owner, formDefinitionOne, Lists.newArrayList(value1));
+			// prepare event envelope
+			CoreEvent<IdmFormInstanceDto> event = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
+			// FE - high event priority
+			event.setPriority(PriorityType.HIGH);
+			// publish event for save form instance
+			formService.publish(event);
+			//
+			Assert.assertEquals(FORM_VALUE_ONE, formService.getValues(owner, formDefinitionOne).get(0).getShortTextValue());
+			//
+			IdmEntityEventFilter filter = new IdmEntityEventFilter();
+			filter.setOwnerId(owner.getId());
+			filter.setEventType(IdentityEventType.NOTIFY.name());
+			//
+			List<IdmEntityEventDto> events = entityEventService
+				.find(filter, new PageRequest(0, 1, new Sort(Direction.DESC, IdmEntityEvent_.created.getName())))
+				.getContent();
+			//
+			Assert.assertFalse(events.isEmpty());
+			Assert.assertEquals(PriorityType.HIGH, events.get(0).getPriority());
+		} finally {
+			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		}
 	}
 	
 	private long prepareDataAndFind(Class<? extends AbstractEntity> type, AbstractDto owner) {

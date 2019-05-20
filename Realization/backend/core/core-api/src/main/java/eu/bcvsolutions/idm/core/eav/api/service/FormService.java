@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -342,12 +343,39 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form definition. Only given form attributes by the given values will be saved ("PATCH").
+	 * Prevent to call this method programmatically - given event is not published, but processed - used in {@link FormInstanceSaveProcessor}.
+	 * Use {@link #publish(EntityEvent, BasePermission...)} method instead.
 	 * 
+	 * @see #publish(EntityEvent, BasePermission...)
+	 * @see #publish(EntityEvent, EntityEvent, BasePermission...)
 	 * @param event Previously published event. Given event is processed, not published anymore
 	 * @return 
 	 * @throws ForbiddenEntityException if authorization policies doesn't met (event permissions are evaluated)
 	 */
 	IdmFormInstanceDto saveFormInstance(EntityEvent<IdmFormInstanceDto> event);
+	
+	/**
+	 * Publish event. Event must have not null content (instance of E).
+	 * Before publish do permission check (by given event content).
+	 * 
+	 * @param event
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	EventContext<IdmFormInstanceDto> publish(EntityEvent<IdmFormInstanceDto> event, BasePermission... permission);
+	
+	/**
+	 * Publish event. Event must have not null content (instance of E).
+	 * Before publish do permission check (by given event content).
+	 * 
+	 * @param event
+	 * @param parentEvent event is based on parent event
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	EventContext<IdmFormInstanceDto> publish(EntityEvent<IdmFormInstanceDto> event, EntityEvent<?> parentEvent, BasePermission... permission);
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only.

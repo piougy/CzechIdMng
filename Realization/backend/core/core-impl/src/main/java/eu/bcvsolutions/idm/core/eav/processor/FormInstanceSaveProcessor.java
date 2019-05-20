@@ -50,7 +50,9 @@ public class FormInstanceSaveProcessor
 		//
 		// "EAV_SAVE" is the synonym for the "NOTIFY" event, but is too late to remove it ...
 		if(!getBooleanProperty(EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFY, event.getProperties())) {
-			entityEventManager.process(new CoreEvent<>(CoreEventType.EAV_SAVE, lookupService.lookupDto(formInstance.getOwnerType(), formInstance.getOwnerId())));
+			entityEventManager.process(
+					new CoreEvent<>(CoreEventType.EAV_SAVE, lookupService.lookupDto(formInstance.getOwnerType(), formInstance.getOwnerId())),
+					event);
 		}
 		//
 		return new DefaultEventResult<>(event, this);

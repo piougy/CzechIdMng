@@ -41,6 +41,9 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -470,7 +473,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	}
 	
 	/**
-	 * Saves owner's form values
+	 * Saves owner's form values.
 	 * 
 	 * @param owner
 	 * @param formDefinitionId
@@ -481,8 +484,14 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 */
 	public Resource<?> saveFormValues(Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> formValues, BasePermission... permission) {		
 		formDefinition = getDefinition(owner.getClass(), formDefinition); 
-		//
-		return new Resource<>(formService.saveFormInstance(owner, formDefinition, formValues, permission));
+		// construct form instance with given values
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(owner, formDefinition, formValues);
+		// prepare event envelope
+		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
+		// FE - high event priority
+		event.setPriority(PriorityType.HIGH);
+		// publish event for save form instance
+		return new Resource<>(formService.publish(event, permission).getContent());
 	}
 	
 	/**
@@ -503,9 +512,15 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 		if (attribute == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", formValue.getFormAttribute()));
 		}
-		IdmFormDefinitionDto formDefinition = formService.getDefinition(attribute.getFormDefinition());
-		//
-		return new Resource<>(formService.saveFormInstance(owner, formDefinition, Lists.newArrayList(formValue), permission));
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(attribute.getFormDefinition());		
+		// construct form instance with given values
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(owner, formDefinition, Lists.newArrayList(formValue));
+		// prepare event envelope
+		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
+		// FE - high event priority
+		event.setPriority(PriorityType.HIGH);
+		// publish event for save form instance
+		return new Resource<>(formService.publish(event, permission).getContent());
 	}
 	
 	

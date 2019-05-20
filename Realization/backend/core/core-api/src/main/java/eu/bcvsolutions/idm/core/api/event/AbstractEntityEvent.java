@@ -181,7 +181,11 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 	
 	@Override
 	public void setRootId(UUID rootId) {
-		getProperties().put(EVENT_PROPERTY_ROOT_EVENT_ID, rootId);
+		if (rootId == null) {
+			getProperties().remove(EVENT_PROPERTY_ROOT_EVENT_ID); // prevent to use null values stored in map (Immutable.copy not works anyway)
+		} else {
+			getProperties().put(EVENT_PROPERTY_ROOT_EVENT_ID, rootId);
+		}
 	}
 	
 	@Override
@@ -191,7 +195,11 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 	
 	@Override
 	public void setParentId(UUID parentId) {
-		getProperties().put(EVENT_PROPERTY_PARENT_EVENT_ID, parentId);
+		if (parentId == null) {
+			getProperties().remove(EVENT_PROPERTY_PARENT_EVENT_ID); // prevent to use null values stored in map (Immutable.copy not works anyway)
+		} else {
+			getProperties().put(EVENT_PROPERTY_PARENT_EVENT_ID, parentId);
+		}
 	}
 	
 	@Override

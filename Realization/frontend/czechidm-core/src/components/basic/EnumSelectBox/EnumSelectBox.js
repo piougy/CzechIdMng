@@ -23,6 +23,23 @@ class EnumSelectBox extends SelectBox {
     super.componentDidMount();
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.options && nextProps.options) {
+      // TODO: only init options is supported now ... implement update options and enum
+      const options = this.getOptions(nextProps);
+      const value = this.getValue();
+      if (value) { // only if input value is present (refresh is not needed otherwise)
+        let option = null;
+        if (options) {
+          option = options.find(o => { return o.value === value; });
+        }
+        if (option) { // only if option was found (refresh is not needed otherwise)
+          super.setValue(option);
+        }
+      }
+    }
+  }
+
   setValue(value) {
     if (this.props.useObject) {
       const options = this.getOptions();
@@ -36,9 +53,10 @@ class EnumSelectBox extends SelectBox {
     }
   }
 
-  getOptions() {
-    if (this.props.enum) {
-      const enumeration = this.props.enum;
+  getOptions(props = null) {
+    const _props = props || this.props;
+    if (_props.enum) {
+      const enumeration = _props.enum;
       const results = [];
       if (enumeration) {
         for (const enumItem in enumeration) {
@@ -50,8 +68,8 @@ class EnumSelectBox extends SelectBox {
         return results;
       }
     }
-    if (this.props.options) {
-      const options = this.props.options;
+    if (_props.options) {
+      const options = _props.options;
       const results = [];
       for (const item in options) {
         if (!options.hasOwnProperty(item)) {

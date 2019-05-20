@@ -179,7 +179,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
    */
   getFaceTypes(persistentType) {
     if (!persistentType) {
-      return [];
+      return null;
     }
     //
     const types = componentService.getComponentDefinitions(ComponentService.FORM_ATTRIBUTE_RENDERER)
@@ -268,7 +268,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   <Basic.Col lg={ 4 }>
                     <Basic.EnumSelectBox
                       ref="faceType"
-                      options={ this.getFaceTypes(persistentType || (entity ? entity.persistentType : null)) }
+                      options={ this.getFaceTypes(persistentType) }
                       label={ this.i18n('entity.FormAttribute.faceType.label') }
                       helpBlock={ this.i18n('entity.FormAttribute.faceType.help') }
                       placeholder={ this.i18n('entity.FormAttribute.faceType.placeholder') }

@@ -81,6 +81,13 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
     if (!error) {
       this.addMessage({ level: 'info', message: this.i18n('save.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
       this._loadIncompatibleRoles();
+      // reload parent in redux
+      const superior = entity._embedded.superior;
+      const sub = entity._embedded.sub;
+      //
+      this.context.store.dispatch(roleManager.clearEntities()); // sync
+      this.context.store.dispatch(roleManager.receiveEntity(superior.id, superior)); // sync
+      this.context.store.dispatch(roleManager.receiveEntity(sub.id, sub)); // sync
     }
     //
     super.afterSave(entity, error);

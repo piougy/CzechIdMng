@@ -28,6 +28,9 @@ import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
@@ -46,6 +49,7 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.event.ConditionalContent;
 import eu.bcvsolutions.idm.core.event.TestContent;
@@ -74,6 +78,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmEntityEventService entityEventService;
 	@Autowired private EntityStateManager entityStateManager;
+	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	@Qualifier("testTwoEntityEventProcessorOne")
 	private EntityEventProcessor<?> testTwoEntityEventProcessorOne;
@@ -678,6 +683,37 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
 			Assert.assertEquals(0, entityEventService.find(null).getTotalElements());
 		} finally {
+			manager.deleteAllEvents();
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
+		}
+	}
+	
+	@Test
+	public void testExecuteAsyncEventUnderEventCreatorAuthentication() {
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			getHelper().disable(EntityEventDeleteExecutedProcessor.class);
+			
+			// Create role request - identity roles has to be created under creators authority
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			loginAsAdmin(identity.getUsername());
+			IdmRoleDto role = getHelper().createRole();
+			//
+			IdmRoleRequestDto request = getHelper().createRoleRequest(getHelper().getPrimeContract(identity), role);
+			getHelper().executeRequest(request, false, false);
+			
+			getHelper().waitForResult(res -> {
+				return identityRoleService.findValidRoles(identity.getId(), null).getContent().isEmpty();
+			}, 500, Integer.MAX_VALUE);
+			
+			List<IdmIdentityRoleDto> roles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
+			//
+			Assert.assertEquals(1, roles.size());
+			Assert.assertEquals(identity.getUsername(), roles.get(0).getCreator());
+			Assert.assertEquals(identity.getId(), roles.get(0).getCreatorId());
+		} finally {
+			logout();
 			manager.deleteAllEvents();
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			getHelper().enable(EntityEventDeleteExecutedProcessor.class);

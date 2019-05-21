@@ -26,9 +26,9 @@ export class RoleInfo extends AbstractEntityInfo {
   }
 
   getNiceLabel(entity) {
-    const { showEnvironment } = this.props;
+    const { showEnvironment, showCode } = this.props;
     //
-    return this.getManager().getNiceLabel(entity, showEnvironment);
+    return this.getManager().getNiceLabel(entity, showEnvironment, showCode);
   }
 
   showLink() {
@@ -95,15 +95,17 @@ export class RoleInfo extends AbstractEntityInfo {
         manager={ this.getManager() }
         roots={[ _entity ]}
         header={ null }
-        style={{ display: 'inline-block' }}
-        bodyStyle={{ padding: 0, overflowX: 'hidden' }}
+        className="role-info-tree"
+        bodyClassName="role-info-tree-body"
         onChange={ () => false }
         nodeIcon={ ({ node }) => this.props.showIcon ? this.getEntityIcon(node) : null }
         nodeStyle={{ paddingLeft: 0 }}
         nodeIconClassName={ null }
         nodeContent={ ({ node }) => {
+          // FIXME: maxWidth + inline-block for IE - find a way, how to fix overflowX
+          // TODO: maxWidth configurable
           return (
-            <span>{ super._renderPopover(node) }</span>
+            <span style={{ whiteSpace: 'normal', maxWidth: 350, display: 'inline-block' }}>{ super._renderPopover(node) }</span>
           );
         }}
         />

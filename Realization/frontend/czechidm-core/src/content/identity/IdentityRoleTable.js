@@ -262,11 +262,17 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             className="detail-button"
             cell={
               ({ rowIndex, data }) => {
-                return (
+                const entity = data[rowIndex];
+                const content = [];
+                content.push(
                   <Advanced.DetailButton
                     title={ this.i18n('button.detail') }
                     onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
+                content.push(
+                  <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity) }/>
+                );
+                return content;
               }
             }
             rendered={ showDetailButton }/>
@@ -278,27 +284,16 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
-                const content = [];
-                //
-                content.push(
-                  <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity) }/>
-                );
-                content.push(
-                  <div style={{ flex: 1 }}>
-                    <Advanced.EntityInfo
-                      entityType="role"
-                      entityIdentifier={ entity.role }
-                      entity={ entity._embedded.role }
-                      face="popover"
-                      showIcon
-                      showEnvironment={ !_.includes(columns, 'environment') }/>
-                  </div>
-                );
                 //
                 return (
-                  <div style={{ display: 'flex' }}>
-                    { content }
-                  </div>
+                  <Advanced.EntityInfo
+                    entityType="role"
+                    entityIdentifier={ entity.role }
+                    entity={ entity._embedded.role }
+                    face="popover"
+                    showIcon
+                    showEnvironment={ !_.includes(columns, 'environment') }
+                    showCode={ !_.includes(columns, 'baseCode') }/>
                 );
               }
             }
@@ -343,6 +338,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
           <Advanced.Column
             header={this.i18n('entity.IdentityRole.identityContract.title')}
             property="identityContract"
+            width={ 175 }
             cell={
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data, property }) => {
@@ -361,6 +357,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
           <Advanced.Column
             header={this.i18n('entity.IdentityRole.contractPosition.label')}
             property="contractPosition"
+            width={ 150 }
             cell={
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data, property }) => {
@@ -382,12 +379,14 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             property="validFrom"
             header={this.i18n('label.validFrom')}
             face="date"
+            width={ 100 }
             sort
             rendered={ _.includes(columns, 'validFrom') }/>
           <Advanced.Column
             property="validTill"
             header={this.i18n('label.validTill')}
             face="date"
+            width={ 100 }
             sort
             rendered={ _.includes(columns, 'validTill') }/>
           <Advanced.Column

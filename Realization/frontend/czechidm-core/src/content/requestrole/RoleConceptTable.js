@@ -813,19 +813,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
               className="detail-button"
               cell={
                 ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false)}/>
-                  );
-                }
-              }
-              sort={false}/>
-            <Basic.Column
-              header={ this.i18n('entity.IdentityRole.role') }
-              cell={
-                /* eslint-disable react/no-multi-comp */
-                ({ rowIndex, data }) => {
                   const conceptOrIdentityRole = data[rowIndex];
                   const role = conceptOrIdentityRole._embedded.role;
                   if (!role) {
@@ -833,6 +820,11 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   }
                   const content = [];
                   //
+                  content.push(
+                    <Advanced.DetailButton
+                      title={this.i18n('button.detail')}
+                      onClick={this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false)}/>
+                  );
                   content.push(
                     <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(role) }/>
                   );
@@ -921,28 +913,35 @@ export class RoleConceptTable extends Basic.AbstractContent {
                               level="primary"
                               icon="fa:warning"
                               className="btn-xs"
-                              style={{ marginRight: 3 }}
+                              style={{ marginLeft: 3 }}
                               title={ this.i18n('entity.IdentityRole.duplicate.label') }/>
                           </span>
                         }
                       </Basic.Popover>
                     );
                   }
-                  content.push(
-                    <div style={{ flex: 1 }}>
-                      <Advanced.EntityInfo
-                        entityType="role"
-                        entityIdentifier={ role.id }
-                        entity={ role }
-                        face="popover"
-                        showIcon/>
-                    </div>
-                  );
+                  return content;
+                }
+              }
+              sort={false}/>
+            <Basic.Column
+              header={ this.i18n('entity.IdentityRole.role') }
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  const conceptOrIdentityRole = data[rowIndex];
+                  const role = conceptOrIdentityRole._embedded.role;
+                  if (!role) {
+                    return '';
+                  }
                   //
                   return (
-                    <div style={{ display: 'flex' }}>
-                      { content }
-                    </div>
+                    <Advanced.EntityInfo
+                      entityType="role"
+                      entityIdentifier={ role.id }
+                      entity={ role }
+                      face="popover"
+                      showIcon/>
                   );
                 }
               }

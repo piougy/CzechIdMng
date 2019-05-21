@@ -85,7 +85,7 @@ export default class IncompatibleRoleWarning extends Basic.AbstractContextCompon
                 level="warning"
                 icon="fa:warning"
                 className="btn-xs"
-                style={{ marginRight: 3 }}
+                style={{ marginLeft: 3 }}
                 title={ this.i18n('entity.IncompatibleRole.sub.label') }/>
             </span>
           }

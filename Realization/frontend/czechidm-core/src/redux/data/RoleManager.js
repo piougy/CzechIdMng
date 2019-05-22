@@ -43,8 +43,8 @@ export default class RoleManager extends AbstractRequestFormableManager {
    * @param  {boolean} showEnvironment identity will be rendered.
    * @return {string}
    */
-  getNiceLabel(entity, showEnvironment = true) {
-    return this.getService().getNiceLabel(entity, showEnvironment);
+  getNiceLabel(entity, showEnvironment = true, showCode = true) {
+    return this.getService().getNiceLabel(entity, showEnvironment, showCode);
   }
 
   /**

@@ -24,12 +24,12 @@ export default class RoleService extends AbstractRequestFormableService {
    * @param  {boolean} showEnvironment environment will be rendered.
    * @return {string}
    */
-  getNiceLabel(role, showEnvironment = true) {
+  getNiceLabel(role, showEnvironment = true, showCode = true) {
     if (!role) {
       return '';
     }
     let code = null;
-    if (role.name !== role.baseCode) {
+    if (role.name !== role.baseCode && showCode) {
       code = role.baseCode;
     }
     if (role.environment && showEnvironment) {

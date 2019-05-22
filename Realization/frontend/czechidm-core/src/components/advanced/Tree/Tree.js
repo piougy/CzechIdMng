@@ -781,6 +781,7 @@ class Tree extends Basic.AbstractContextComponent {
       className,
       style,
       bodyStyle,
+      bodyClassName,
       showRefreshButton
     } = this.props;
     const {
@@ -888,7 +889,7 @@ class Tree extends Basic.AbstractContextComponent {
             </Basic.Collapse>
           </div>
         }
-        <div className="tree-body" style={ bodyStyle }>
+        <div className={ classNames('tree-body', bodyClassName) } style={ bodyStyle }>
           {
             _showLoading
             ?

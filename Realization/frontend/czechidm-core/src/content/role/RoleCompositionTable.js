@@ -156,11 +156,18 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
             className="detail-button"
             cell={
               ({ rowIndex, data }) => {
-                return (
+                const entity = data[rowIndex];
+                const content = [];
+                //
+                content.push(
                   <Advanced.DetailButton
                     title={this.i18n('button.detail')}
                     onClick={this.showDetail.bind(this, data[rowIndex])}/>
                 );
+                content.push(
+                  <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity._embedded.superior) }/>
+                );
+                return content;
               }
             }
             sort={false}/>
@@ -174,26 +181,14 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
-                const content = [];
-                //
-                content.push(
-                  <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity._embedded.superior) }/>
-                );
-                content.push(
-                  <div style={{ flex: 1 }}>
-                    <Advanced.EntityInfo
-                      entityType="role"
-                      entityIdentifier={ entity.superior }
-                      entity={ entity._embedded.superior }
-                      face="popover"
-                      showIcon/>
-                  </div>
-                );
                 //
                 return (
-                  <div style={{ display: 'flex' }}>
-                    { content }
-                  </div>
+                  <Advanced.EntityInfo
+                    entityType="role"
+                    entityIdentifier={ entity.superior }
+                    entity={ entity._embedded.superior }
+                    face="popover"
+                    showIcon/>
                 );
               }
             }
@@ -207,26 +202,14 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
               cell={
                 ({ rowIndex, data }) => {
                   const entity = data[rowIndex];
-                  const content = [];
-                  //
-                  content.push(
-                    <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity._embedded.sub) }/>
-                  );
-                  content.push(
-                    <div style={{ flex: 1 }}>
-                      <Advanced.EntityInfo
-                        entityType="role"
-                        entityIdentifier={ entity.sub }
-                        entity={ entity._embedded.sub }
-                        face="popover"
-                        showIcon/>
-                    </div>
-                  );
                   //
                   return (
-                    <div style={{ display: 'flex' }}>
-                      { content }
-                    </div>
+                    <Advanced.EntityInfo
+                      entityType="role"
+                      entityIdentifier={ entity.sub }
+                      entity={ entity._embedded.sub }
+                      face="popover"
+                      showIcon/>
                   );
                 }
               }

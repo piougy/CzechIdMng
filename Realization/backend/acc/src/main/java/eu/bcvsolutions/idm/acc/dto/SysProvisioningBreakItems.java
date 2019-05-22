@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,9 +15,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
  * Class for cache processed items in provisioning. There is stored only
  * timestamp
  * 
- * TODO: Linked list isn't synchronized use Collections.synchronizedList(..
- * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 public class SysProvisioningBreakItems {
@@ -25,9 +24,9 @@ public class SysProvisioningBreakItems {
 
 	public SysProvisioningBreakItems() {
 		this.executedItems = new HashMap<>();
-		this.executedItems.put(ProvisioningEventType.CREATE, new LinkedList<Long>());
-		this.executedItems.put(ProvisioningEventType.DELETE, new LinkedList<Long>());
-		this.executedItems.put(ProvisioningEventType.UPDATE, new LinkedList<Long>());
+		this.executedItems.put(ProvisioningEventType.CREATE, Collections.synchronizedList(new LinkedList<Long>()));
+		this.executedItems.put(ProvisioningEventType.DELETE, Collections.synchronizedList(new LinkedList<Long>()));
+		this.executedItems.put(ProvisioningEventType.UPDATE, Collections.synchronizedList(new LinkedList<Long>()));
 	}
 
 	/**
@@ -46,7 +45,7 @@ public class SysProvisioningBreakItems {
 	 * @param provisioningType
 	 * @return
 	 */
-	public List<Long> getExecutedItems(ProvisioningEventType provisioningType) {
+	public synchronized List<Long> getExecutedItems(ProvisioningEventType provisioningType) {
 		return this.executedItems.get(provisioningType);
 	}
 

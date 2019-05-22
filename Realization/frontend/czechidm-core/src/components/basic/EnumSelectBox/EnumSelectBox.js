@@ -24,6 +24,8 @@ class EnumSelectBox extends SelectBox {
   }
 
   componentWillReceiveProps(nextProps) {
+    super.componentWillReceiveProps(nextProps);
+    //
     if (!this.props.options && nextProps.options) {
       // TODO: only init options is supported now ... implement update options and enum
       const options = this.getOptions(nextProps);

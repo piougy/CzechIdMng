@@ -45,16 +45,19 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Test for provisioning break
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 
@@ -62,42 +65,32 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private SysProvisioningBreakRecipientService provisioningBreakRecipient;
-
 	@Autowired
 	private SysProvisioningBreakConfigService provisioningBreakConfig;
-
 	@Autowired
 	private SysSystemService systemService;
-
 	@Autowired
 	private IdmIdentityService identityService;
-
 	@Autowired
 	private AccAccountService accountService;
-
 	@Autowired
 	private AccIdentityAccountService identityAccoutnService;
-
 	@Autowired
 	private ProvisioningService provisioningService;
-
 	@Autowired
 	private IdmNotificationLogService notificationLogService;
-
 	@Autowired
 	private SysProvisioningBatchService batchService;
-
 	@Autowired
 	private SysProvisioningOperationService provisioningOperationService;
-
 	@Autowired
 	private ProvisioningBreakConfiguration provisioningBreakConfiguration;
-
 	@Autowired
 	private ConfigurationService configurationService;
-	
 	@Autowired
 	private SysSystemEntityService systemEntityService;
+	@Autowired
+	private IdmNotificationTemplateService notificationTemplateService;
 
 	@Before
 	public void init() {
@@ -799,6 +792,114 @@ public class ProvisioningBreakProcessorTest extends AbstractIntegrationTest {
 		assertEquals(Boolean.TRUE, system.getBlockedOperation().getUpdateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getCreateOperation());
 		assertNotEquals(Boolean.TRUE, system.getBlockedOperation().getDeleteOperation());
+	}
+
+	@Test
+	public void testWarningTemplate() {
+		clearProvisioningBreakConfiguration();
+
+		String testText = "test-text-" + System.currentTimeMillis();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
+
+		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, null, 2, ProvisioningEventType.UPDATE,
+				system.getId());
+
+		createRecipient(breakConfig.getId(), recipient.getId(), null);
+		
+		breakConfig.setDisableTemplate(null);
+		breakConfig.setDisableTemplateEmbedded(null);
+		breakConfig.setWarningTemplate(null);
+		breakConfig.setWarningTemplateEmbedded(null);
+		
+		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
+		template.setBodyHtml(testText);
+		template.setBodyText(testText);
+		template.setCode(getHelper().createName());
+		template.setName(getHelper().createName());
+		template.setSubject(getHelper().createName());
+		template = notificationTemplateService.save(template);
+
+		breakConfig.setWarningTemplate(template.getId());
+		breakConfig.setWarningTemplateEmbedded(template);
+		
+		breakConfig = provisioningBreakConfig.save(breakConfig);
+		
+		IdmNotificationFilter filter = new IdmNotificationFilter();
+		filter.setRecipient(recipient.getUsername());
+		List<IdmNotificationLogDto> content = notificationLogService.find(filter, null).getContent();
+		assertEquals(0, content.size()); // two notification (notification + parent)
+		
+		this.createAccount(system, identity);
+
+		provisioningService.doProvisioning(identity); // create
+		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identity);
+
+		content = notificationLogService.find(filter, null).getContent();
+		assertEquals(2, content.size()); // two notification (notification + parent)
+		for (IdmNotificationLogDto notification :  content) {
+			IdmMessageDto message = notification.getMessage();
+			assertEquals(template.getId(), message.getTemplate().getId());
+			assertEquals(template.getBodyHtml(), message.getHtmlMessage());
+			assertEquals(template.getSubject(), message.getSubject());
+		}
+	}
+
+	@Test
+	public void testDisableTemplate() {
+		clearProvisioningBreakConfiguration();
+
+		String testText = "test-text-" + System.currentTimeMillis();
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto recipient = getHelper().createIdentity((GuardedString) null);
+
+		SysProvisioningBreakConfigDto breakConfig = createProvisioningBreak(20l, 2, null, ProvisioningEventType.UPDATE,
+				system.getId());
+
+		createRecipient(breakConfig.getId(), recipient.getId(), null);
+		
+		breakConfig.setDisableTemplate(null);
+		breakConfig.setDisableTemplateEmbedded(null);
+		breakConfig.setWarningTemplate(null);
+		breakConfig.setWarningTemplateEmbedded(null);
+		
+		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
+		template.setBodyHtml(testText);
+		template.setBodyText(testText);
+		template.setCode(getHelper().createName());
+		template.setName(getHelper().createName());
+		template.setSubject(getHelper().createName());
+		template = notificationTemplateService.save(template);
+
+		breakConfig.setDisableTemplate(template.getId());
+		breakConfig.setDisableTemplateEmbedded(template);
+		
+		breakConfig = provisioningBreakConfig.save(breakConfig);
+		
+		IdmNotificationFilter filter = new IdmNotificationFilter();
+		filter.setRecipient(recipient.getUsername());
+		List<IdmNotificationLogDto> content = notificationLogService.find(filter, null).getContent();
+		assertEquals(0, content.size()); // two notification (notification + parent)
+		
+		this.createAccount(system, identity);
+
+		provisioningService.doProvisioning(identity); // create
+		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identity);
+
+		content = notificationLogService.find(filter, null).getContent();
+		assertEquals(2, content.size()); // two notification (notification + parent)
+		for (IdmNotificationLogDto notification :  content) {
+			IdmMessageDto message = notification.getMessage();
+			assertEquals(template.getId(), message.getTemplate().getId());
+			assertEquals(template.getBodyHtml(), message.getHtmlMessage());
+			assertEquals(template.getSubject(), message.getSubject());
+		}
 	}
 
 	/**

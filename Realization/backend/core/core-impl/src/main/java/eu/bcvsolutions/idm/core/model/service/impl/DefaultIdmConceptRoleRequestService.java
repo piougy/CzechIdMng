@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +46,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue_;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole_;
@@ -313,7 +316,8 @@ public class DefaultIdmConceptRoleRequestService extends
 					}
 					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinitionDto);
 					if (formInstance != null && conceptFormInstance != null) {
-						List<IdmFormValueDto> conceptValues = conceptFormInstance.getValues();
+						IdmFormInstanceDto conceptFormInstanceFinal = conceptFormInstance;
+						List<IdmFormValueDto> conceptValues = conceptFormInstanceFinal.getValues();
 						List<IdmFormValueDto> values = formInstance.getValues();
 
 						conceptValues.forEach(conceptFormValue -> {
@@ -331,7 +335,31 @@ public class DefaultIdmConceptRoleRequestService extends
 								conceptFormValue.setChanged(true);
 								conceptFormValue.setOriginalValue(formValue);
 							}
-							// TODO check remove in multivalued attribute
+						});
+						
+						// Find deleted values in a concepts. If will be found, then new instance of
+						// IdmFormValue will be created with the value from original identity-role
+						// attribute.
+						values.forEach(formValue -> {
+							IdmFormValueDto missingConceptFormValue = conceptValues.stream() //
+									.filter(conceptFormValue -> conceptFormValue.getFormAttribute()
+											.equals(formValue.getFormAttribute())
+											&& conceptFormValue.getSeq() == formValue.getSeq()) //
+									.findFirst() //
+									.orElse(null); //
+							
+							if(missingConceptFormValue == null) {
+								IdmFormAttributeDto formAttributeDto = DtoUtils.getEmbedded(formValue,
+										IdmFormValue_.formAttribute.getName(), (IdmFormAttributeDto) null);
+								Assert.notNull(formAttributeDto);
+								
+								missingConceptFormValue = new IdmFormValueDto(formAttributeDto);
+								missingConceptFormValue.setChanged(true);
+								missingConceptFormValue.setOriginalValue(formValue);
+								List<IdmFormValueDto> newConceptValues = new ArrayList<IdmFormValueDto>(conceptValues);
+								newConceptValues.add(missingConceptFormValue);
+								conceptFormInstanceFinal.setValues(newConceptValues);
+							}
 						});
 					}
 				}

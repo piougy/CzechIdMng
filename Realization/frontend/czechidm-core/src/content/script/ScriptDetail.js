@@ -78,19 +78,21 @@ export default class ScriptDetail extends Basic.AbstractContent {
 
     this.setState({
       showLoading: true
-    }, this.refs.form.processStarted());
-
-    const entity = this.refs.form.getData();
-    // entity.category = AbstractEnum.findKeyBySymbol(ScriptCategoryEnum, entity.category);
-    if (entity.id === undefined) {
-      this.context.store.dispatch(this.scriptManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error, afterAction);
-      }));
-    } else {
-      this.context.store.dispatch(this.scriptManager.updateEntity(entity, `${uiKey}-detail`, (updateEntity, error) => {
-        this._afterSave(updateEntity, error, afterAction);
-      }));
-    }
+    }, () => {
+      this.refs.form.processStarted();
+      //
+      const entity = this.refs.form.getData();
+      // entity.category = AbstractEnum.findKeyBySymbol(ScriptCategoryEnum, entity.category);
+      if (entity.id === undefined) {
+        this.context.store.dispatch(this.scriptManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+          this._afterSave(createdEntity, error, afterAction);
+        }));
+      } else {
+        this.context.store.dispatch(this.scriptManager.updateEntity(entity, `${uiKey}-detail`, (updateEntity, error) => {
+          this._afterSave(updateEntity, error, afterAction);
+        }));
+      }
+    });
   }
 
   /**

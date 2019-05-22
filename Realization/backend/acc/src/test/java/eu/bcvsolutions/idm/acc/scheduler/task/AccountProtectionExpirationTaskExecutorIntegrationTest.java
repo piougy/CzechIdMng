@@ -1,9 +1,7 @@
 package eu.bcvsolutions.idm.acc.scheduler.task;
 
 import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,16 +33,6 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
-	
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-
-	@After
-	public void logout() {
-		super.logout();
-	}
 	
 	@Test
 	public void testRemoveExpiredAccount() {

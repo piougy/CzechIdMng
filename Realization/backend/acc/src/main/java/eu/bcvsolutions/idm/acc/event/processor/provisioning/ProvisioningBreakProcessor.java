@@ -276,7 +276,7 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 			blockSystemForOperation(operationType, system);
 			//
 			IdmNotificationTemplateDto template = null;
-			if (breakConfig.getWarningTemplate() == null) {
+			if (breakConfig.getDisableTemplate() == null) {
 				LOG.debug("Warning template for provisioning break id [{}] missing.", breakConfig.getId());
 			} else {
 				template = DtoUtils.getEmbedded(breakConfig, SysProvisioningBreakConfig_.disableTemplate);

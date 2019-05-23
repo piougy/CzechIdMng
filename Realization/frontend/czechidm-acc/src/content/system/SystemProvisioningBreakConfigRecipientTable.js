@@ -11,7 +11,7 @@ const IDENTITY_TYPE = 'identityType';
 * Table of provisioning break recipient
 *
 * @author Ondrej Kopr
-*
+* @author Radek Tomiška
 */
 export class SystemProvisioningBreakConfigRecipientTable extends Advanced.AbstractTableContent {
 
@@ -58,7 +58,7 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
     if (event) {
       event.preventDefault();
     }
-    const { detail } = this.state;
+    const detail = _.merge({}, this.state.detail);
     detail.show = true;
     if (entity) {
       detail.entity = entity;
@@ -73,7 +73,7 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
       };
     }
     this.setState({
-      ...detail
+      detail
     });
   }
 
@@ -81,35 +81,35 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
     if (event) {
       event.preventDefault();
     }
-    const { detail } = this.state;
+    const detail = _.merge({}, this.state.detail);
     const { provisioningBreakConfigId, uiKey, manager } = this.props;
     //
     detail.showLoading = true;
     this.setState({
-      ...detail
+      detail
+    }, () => {
+      const formEntity = this.refs.form.getData();
+      //
+      const savedEntity = {
+        ...formEntity,
+        breakConfig: provisioningBreakConfigId
+      };
+      //
+      // null unused value
+      if (formEntity.type === ROLE_TYPE) {
+        formEntity.identity = null;
+      } else {
+        formEntity.role = null;
+      }
+      //
+      if (savedEntity.id === undefined) {
+        this.context.store.dispatch(manager.createEntity(savedEntity, `${uiKey}-detail`, (createdEntity, error) => {
+          this.afterSave(createdEntity, error, true);
+        }));
+      } else {
+        this.context.store.dispatch(manager.updateEntity(savedEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+      }
     });
-    //
-    const formEntity = this.refs.form.getData();
-    //
-    const savedEntity = {
-      ...formEntity,
-      breakConfig: provisioningBreakConfigId
-    };
-    //
-    // null unused value
-    if (formEntity.type === ROLE_TYPE) {
-      formEntity.identity = null;
-    } else {
-      formEntity.role = null;
-    }
-    //
-    if (savedEntity.id === undefined) {
-      this.context.store.dispatch(manager.createEntity(savedEntity, `${uiKey}-detail`, (createdEntity, error) => {
-        this.afterSave(createdEntity, error, true);
-      }));
-    } else {
-      this.context.store.dispatch(manager.updateEntity(savedEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
-    }
   }
 
   afterSave(entity, error, newEntity) {
@@ -122,25 +122,26 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
     } else {
       this.addError(error);
     }
-    const { detail } = this.state;
+    const detail = _.merge({}, this.state.detail);
     //
     detail.show = false;
     detail.showLoading = false;
     this.setState({
-      ...detail
+      detail
+    }, () => {
+      this.refs.table.getWrappedInstance().reload();
+      super.afterSave();
     });
-    this.refs.table.getWrappedInstance().reload();
-    super.afterSave();
   }
 
   _closeModal(event) {
     if (event) {
       event.preventDefault();
     }
-    const { detail } = this.state;
+    const detail = _.merge({}, this.state.detail);
     detail.show = false;
     this.setState({
-      ...detail
+      detail
     });
   }
 
@@ -148,10 +149,10 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
     if (event) {
       event.preventDefault();
     }
-    const { detail } = this.state;
+    const detail = _.merge({}, this.state.detail);
     detail.entity.type = value.value;
     this.setState({
-      ...detail
+      detail
     });
   }
 
@@ -196,8 +197,8 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
           level="success"
           key="add_button"
           className="btn-xs"
-          onClick={this.showDetail.bind(this, null)}
-          rendered={Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') && showAddButton}>
+          onClick={ this.showDetail.bind(this, null) }
+          rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') && showAddButton }>
           <Basic.Icon type="fa" icon="plus"/>
           {' '}
           {this.i18n('button.add')}
@@ -206,46 +207,46 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
   }
 
   render() {
-    const { uiKey, manager, columns, forceSearchParameters, showAddButton, showRowSelection, rendered } = this.props;
+    const { uiKey, manager, columns, forceSearchParameters, showAddButton, showRowSelection, rendered, className } = this.props;
     const { filterOpened, detail } = this.state;
     const isNew = detail.entity.id === undefined || detail.entity.id === null;
-
     if (!rendered) {
       return null;
     }
+    //
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
-        <Basic.Modal show={detail.show} showLoading={detail.showLoading} onHide={this._closeModal.bind(this)}>
+        <Basic.Modal show={ detail.show } showLoading={ detail.showLoading } onHide={ this._closeModal.bind(this) }>
           <form onSubmit={this.saveDetail.bind(this)}>
             <Basic.Modal.Header text={this.i18n('acc:content.provisioningBreakConfigRecipient.new')} rendered={isNew} />
             <Basic.Modal.Header text={this.i18n('acc:content.provisioningBreakConfigRecipient.edit')} rendered={!isNew} />
             <Basic.Modal.Body>
-                <Basic.AbstractForm ref="form" data={detail.entity}>
-                  <Basic.EnumSelectBox
-                    ref="type"
-                    label={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.type.label')}
-                    value={detail.type}
-                    clearable={false}
-                    options={[
-                      { value: ROLE_TYPE, niceLabel: this.i18n('acc:entity.ProvisioningBreakConfigRecipient.type.role') },
-                      { value: IDENTITY_TYPE, niceLabel: this.i18n('acc:entity.ProvisioningBreakConfigRecipient.type.identity') }
-                    ]}
-                    onChange={this.changeRecipientType.bind(this)}
-                    required/>
-                  <Basic.SelectBox
-                    ref="identity"
-                    label={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.identity')}
-                    hidden={detail.entity.type === ROLE_TYPE}
-                    manager={this.identityManager}/>
-                  <Basic.SelectBox
-                    ref="role"
-                    label={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.role')}
-                    hidden={detail.entity.type === IDENTITY_TYPE}
-                    manager={this.roleManager}/>
-                </Basic.AbstractForm>
-                {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
-                <input type="submit" className="hidden"/>
+              <Basic.AbstractForm ref="form" data={ detail.entity }>
+                <Basic.EnumSelectBox
+                  ref="type"
+                  label={ this.i18n('acc:entity.ProvisioningBreakConfigRecipient.type.label') }
+                  value={ detail.type }
+                  clearable={ false }
+                  options={[
+                    { value: ROLE_TYPE, niceLabel: this.i18n('acc:entity.ProvisioningBreakConfigRecipient.type.role') },
+                    { value: IDENTITY_TYPE, niceLabel: this.i18n('acc:entity.ProvisioningBreakConfigRecipient.type.identity') }
+                  ]}
+                  onChange={ this.changeRecipientType.bind(this)}
+                  required/>
+                <Basic.SelectBox
+                  ref="identity"
+                  label={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.identity')}
+                  hidden={detail.entity.type === ROLE_TYPE}
+                  manager={this.identityManager}/>
+                <Basic.SelectBox
+                  ref="role"
+                  label={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.role')}
+                  hidden={detail.entity.type === IDENTITY_TYPE}
+                  manager={this.roleManager}/>
+              </Basic.AbstractForm>
+              {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+              <input type="submit" className="hidden"/>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button level="link" onClick={this._closeModal.bind(this)}>{this.i18n('button.cancel')}</Basic.Button>
@@ -253,7 +254,8 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
               <Basic.Button ref="yesButton" level="success" onClick={this.saveDetail.bind(this)} rendered={!isNew}>{this.i18n('button.save')}</Basic.Button>
             </Basic.Modal.Footer>
           </form>
-      </Basic.Modal>
+        </Basic.Modal>
+
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
@@ -261,6 +263,7 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
           filterOpened={filterOpened}
           forceSearchParameters={forceSearchParameters}
           showRowSelection={ Managers.SecurityManager.hasAuthority('SYSTEM_DELETE') && showRowSelection }
+          className={ className }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -299,7 +302,7 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
                 return (
                   <Advanced.DetailButton
                     title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
               }
             }

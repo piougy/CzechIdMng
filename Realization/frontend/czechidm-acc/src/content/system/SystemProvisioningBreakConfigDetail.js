@@ -234,7 +234,8 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
                 manager={ this.provisioningBreakRecipientManager }
                 forceSearchParameters={ this.provisioningBreakRecipientManager.getSearchParameters().setFilter('breakConfigId', configId) }
                 provisioningBreakConfigId={ configId }
-                rendered={ !isNew } />
+                rendered={ !isNew }
+                className="no-margin"/>
             </Basic.Panel>
 
           </Basic.Panel>

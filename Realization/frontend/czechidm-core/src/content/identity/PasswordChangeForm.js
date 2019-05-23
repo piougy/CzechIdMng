@@ -77,7 +77,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
     //
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={ this.i18n('title') } />
         {/* TODO: check span counter - the same alghoritm as on dashboard */}
         <Basic.Row>
           { components }

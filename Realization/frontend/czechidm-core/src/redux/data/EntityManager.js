@@ -1207,15 +1207,23 @@ export default class EntityManager {
    * @return {arrayOf(authority)} what logged user can do with ui key and underlying entity
    */
   getPermissions(state, uiKey = null, id = null) {
-    if (!_.isObject(id)) {
-      return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id));
+    let _entityOrId = id;
+    if (_entityOrId && !_.isObject(_entityOrId)) {
+      // try to fint entity from state
+      const entity = this.getEntity(state, _entityOrId);
+      if (entity) {
+        _entityOrId = entity;
+      }
     }
-    const permissionsById = Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id.id));
+    if (!_.isObject(_entityOrId)) {
+      return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, _entityOrId));
+    }
+    const permissionsById = Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, _entityOrId.id));
     if (permissionsById || !this.getIdentifierAlias()) {
       return permissionsById;
     }
     // permissions by alias
-    return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id[this.getIdentifierAlias()]));
+    return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, _entityOrId[this.getIdentifierAlias()]));
   }
 
   /**

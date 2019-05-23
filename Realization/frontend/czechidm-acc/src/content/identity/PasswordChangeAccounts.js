@@ -61,13 +61,14 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
   }
 
   render() {
-    const { passwordChangeType, userContext, requireOldPassword } = this.props;
+    const { passwordChangeType, userContext, requireOldPassword, showLoading } = this.props;
     const { entityId } = this.props.params;
     const options = this._getOptions();
+    //
     return (
       <div>
         {
-          options === null
+          showLoading
           ?
           <Basic.Loading isStatic show/>
           :
@@ -77,7 +78,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
             passwordChangeType={ passwordChangeType }
             requireOldPassword={ requireOldPassword }
             accountOptions={ options }/>
-        }
+          }
       </div>
     );
   }

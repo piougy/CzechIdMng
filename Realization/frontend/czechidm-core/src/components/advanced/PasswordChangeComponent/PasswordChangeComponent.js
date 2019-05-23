@@ -341,7 +341,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       <form onSubmit={this.save.bind(this)}>
         <Basic.ContentHeader icon="lock" text={ this.i18n('header') }/>
         <Basic.Panel className="no-border">
-          <Basic.Loading className="static" showLoading={preload && this._canPasswordChange(_permissions)}/>
+          <Basic.Loading className="static" showLoading={ preload && this._canPasswordChange(_permissions) }/>
           <Basic.Alert
             level="warning"
             icon="exclamation-sign"

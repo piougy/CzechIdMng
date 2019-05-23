@@ -10,6 +10,8 @@ import Immutable from 'immutable';
 /**
  * Modal window for result codes
  *
+ * FIXME: filter button takes normal searchparameters and is blue alltime => split force and user search parameters.
+ *
  * @author Roman Kučera
  * @author Radek Tomiška
 */
@@ -147,7 +149,7 @@ class ResultCodesModal extends Basic.AbstractContent {
                         searchable />
                     </Basic.Col>
                     <Basic.Col lg={ 6 } className="text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)} />
+                      <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) } />
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
@@ -189,7 +191,9 @@ class ResultCodesModal extends Basic.AbstractContent {
         </Basic.Table>
 
         <Basic.Modal.Footer>
-          <Basic.Button level="link" onClick={this._closeModal.bind(this)}>{this.i18n('button.cancel')}</Basic.Button>
+          <Basic.Button level="link" onClick={ this._closeModal.bind(this) }>
+            { this.i18n('button.close') }
+          </Basic.Button>
         </Basic.Modal.Footer>
       </Basic.Modal>
     );

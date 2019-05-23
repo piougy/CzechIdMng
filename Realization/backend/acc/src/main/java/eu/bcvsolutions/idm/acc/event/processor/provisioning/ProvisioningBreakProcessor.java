@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakItems;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
@@ -87,10 +88,10 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 
 	@Override
 	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
+		SysProvisioningOperationDto provisioningOperation = event.getContent();
+		ProvisioningEventType operationType = provisioningOperation.getOperationType();
+		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 		try {
-			SysProvisioningOperationDto provisioningOperation = event.getContent();
-			ProvisioningEventType operationType = provisioningOperation.getOperationType();
-			SysSystemDto system = systemService.get(provisioningOperation.getSystem());
 			// system may be blocked
 			boolean blocked = isSystemBlockedOperation(operationType, system);
 			//
@@ -128,8 +129,15 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 			event.setContent(provisioningOperation);
 			return new DefaultEventResult<>(event, this, blocked);
 		} catch (Exception ex) {
+			SysSystemEntityDto systemEntityDto = provisioningOperationService.getByProvisioningOperation(provisioningOperation);
 			LOG.error("Unexpect error while evaluate provisioning break.", ex);
-			throw new ProvisioningException(AccResultCode.PROVISIONING_FAILED, ex);
+			throw new ProvisioningException(AccResultCode.PROVISIONING_FAILED,
+					ImmutableMap.of(
+						"name", systemEntityDto.getUid(), 
+						"system", system.getName(),
+						"operationType", operationType,
+						"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass().getType()),
+					ex);
 		}
 	}
 

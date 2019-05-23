@@ -528,10 +528,15 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	public void testFindTreeNodesByNullAttributeValue() {
+	public void testFindTreeNodesByNullShortTextAttributeValue() {
 		IdmTreeNodeDto owner = getHelper().createTreeNode();
-		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmTreeNode.class);
-		IdmFormAttributeDto attribute = formDefinition.getFormAttributes().get(0);
+		//
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		attribute.setCode("name_" + System.currentTimeMillis());
+		attribute.setName(attribute.getCode());
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmTreeNode.class.getCanonicalName(), "t_v1", Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
 		// save values
 		formService.saveValues(owner.getId(), IdmTreeNode.class, attribute, Lists.newArrayList(FORM_VALUE_ONE));
 		//
@@ -540,7 +545,29 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(owner.getId(), owners.getContent().get(0).getId());
 		//
-		owners = formService.findOwners(IdmTreeNode.class, attribute.getCode(), null, null);
+		owners = formService.findOwners(IdmTreeNode.class, attribute, null, null);
+		assertEquals(0, owners.getTotalElements());
+	}
+	
+	@Test
+	public void testFindTreeNodesByNullTextAttributeValue() {
+		IdmTreeNodeDto owner = getHelper().createTreeNode();
+		//
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		attribute.setCode("name_" + System.currentTimeMillis());
+		attribute.setName(attribute.getCode());
+		attribute.setPersistentType(PersistentType.TEXT);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmTreeNode.class.getCanonicalName(), "t_v1", Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		// save values
+		formService.saveValues(owner.getId(), IdmTreeNode.class, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		//
+		Page<? extends Identifiable> owners = formService.findOwners(IdmTreeNode.class, attribute, FORM_VALUE_ONE, null);
+		//
+		assertEquals(1, owners.getTotalElements());
+		assertEquals(owner.getId(), owners.getContent().get(0).getId());
+		//
+		owners = formService.findOwners(IdmTreeNode.class, attribute, null, null);
 		assertEquals(0, owners.getTotalElements());
 	}
 	

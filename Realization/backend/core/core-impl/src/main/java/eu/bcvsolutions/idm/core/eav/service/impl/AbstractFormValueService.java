@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -344,6 +346,13 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@SuppressWarnings("deprecation")
 	public Page<O> findOwners(IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable) {
 		Assert.notNull(attribute);
+		//
+		if (persistentValue == null) {
+			LOG.debug("Null values are not stored (null form values are removed from repository). Owners cannot be found by 'null' persistent value.");
+			//
+			return new PageImpl<>(new ArrayList<>(), pageable, 0);
+		}
+		//
 		IdmFormValueDto value = new IdmFormValueDto(attribute);
 		value.setValue(persistentValue);
 		AbstractFormValueRepository<O, E> repository = getRepository();

@@ -173,7 +173,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		}
 		//
 		// autowire task properties
-		AutowireHelper.autowire(taskExecutor);	
+		AutowireHelper.autowire(taskExecutor);
 		// persist LRT
 		taskExecutor.validate(persistTask(taskExecutor, OperationState.CREATED));
 		//

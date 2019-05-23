@@ -1472,6 +1472,29 @@
           }
         }
       }
+    },
+    "long-running-task": {
+      "eu-bcvsolutions-idm-acc-scheduler-task-impl-deleteprovisioningarchivetaskexecutor": {
+        "label": "Smazat archivované operace pro provisioning",
+        "help": "Vymaže operace z archivu provisioningu starší, nežli zadaný počet dní.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Počet dní",
+            "help": "Smazat operace starší, než-li zadaný počet dní."
+          },
+          "operationstate": {
+            "label": "Stav operace",
+            "placeholder": "Všechny stavy či zadejte ...",
+            "help": "Smazat pouze operace se zadaným stavem. Možno zadat [CREATED, RUNNING, EXECUTED, NOT_EXECUTED, BLOCKED, EXCEPTION, CANCELED]."
+          },
+          "system": {
+            "label": "Systém",
+            "placeholder": "Všechny systémy či vyberte ...",
+            "help": "Smazat pouze operace na zadaném systému."
+          }
+        }
+      }
     }
   },
   "error": {

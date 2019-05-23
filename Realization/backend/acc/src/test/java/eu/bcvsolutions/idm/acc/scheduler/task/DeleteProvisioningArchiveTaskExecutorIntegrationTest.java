@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.scheduler.task.impl.DeleteProvisioningArchiveTask
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -41,6 +42,7 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 	public void testDeleteOldProvisioningArchives() {
 		// prepare provisioning operations
 		SysSystemDto system = getHelper().createTestResourceSystem(false);
+		SysSystemDto systemOther = getHelper().createTestResourceSystem(false);
 		DateTime createdOne = DateTime.now().minusDays(2);
 		SysProvisioningArchiveDto operationOne = createDto(system, DateTime.now().minusDays(2), OperationState.EXECUTED);
 		// all other variants for not removal
@@ -49,6 +51,7 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED);
 		createDto(system, DateTime.now().minusDays(2), OperationState.EXCEPTION);
 		createDto(system, DateTime.now().withTimeAtStartOfDay().minusHours(23), OperationState.EXECUTED);
+		SysProvisioningArchiveDto operationOther = createDto(systemOther, DateTime.now().minusDays(2), OperationState.EXECUTED);
 		//
 		Assert.assertEquals(createdOne, operationOne.getCreated());
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
@@ -60,6 +63,8 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 		Map<String, Object> properties = new HashMap<>();
 		properties.put(DeleteProvisioningArchiveTaskExecutor.PARAMETER_NUMBER_OF_DAYS, 1);
 		properties.put(DeleteProvisioningArchiveTaskExecutor.PARAMETER_OPERATION_STATE, OperationState.EXECUTED);
+		properties.put(DeleteProvisioningArchiveTaskExecutor.PARAMETER_SYSTEM, system.getId());
+		AutowireHelper.autowire(taskExecutor);
 		taskExecutor.init(properties);
 		//
 		longRunningTaskManager.execute(taskExecutor);
@@ -67,6 +72,27 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 		archives = service.find(filter, null).getContent();
 		Assert.assertEquals(5, archives.size());
 		Assert.assertTrue(archives.stream().allMatch(a -> !a.getId().equals(operationOne.getId())));
+		//
+		filter.setSystemId(systemOther.getId());
+		archives = service.find(filter, null).getContent();
+		Assert.assertEquals(1, archives.size());
+		Assert.assertTrue(archives.stream().allMatch(a -> a.getId().equals(operationOther.getId())));
+		//
+		taskExecutor = new DeleteProvisioningArchiveTaskExecutor();
+		properties = new HashMap<>();
+		properties.put(DeleteProvisioningArchiveTaskExecutor.PARAMETER_NUMBER_OF_DAYS, 1);
+		properties.put(DeleteProvisioningArchiveTaskExecutor.PARAMETER_OPERATION_STATE, OperationState.EXECUTED);
+		taskExecutor.init(properties);
+		//
+		filter.setSystemId(system.getId());
+		longRunningTaskManager.execute(taskExecutor);
+		archives = service.find(filter, null).getContent();
+		Assert.assertEquals(5, archives.size());
+		Assert.assertTrue(archives.stream().allMatch(a -> !a.getId().equals(operationOne.getId())));
+		//
+		filter.setSystemId(systemOther.getId());
+		archives = service.find(filter, null).getContent();
+		Assert.assertTrue(archives.isEmpty());
 	}
 	
 	private SysProvisioningArchiveDto createDto(SysSystemDto system, DateTime created, OperationState state) {

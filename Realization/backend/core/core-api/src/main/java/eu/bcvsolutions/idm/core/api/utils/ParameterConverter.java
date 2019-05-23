@@ -23,6 +23,8 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
  * Rest controller helpers
  * - parameters converters
  * 
+ * TODO: toDto, toDtoId
+ * 
  * @author Radek Tomiška
  */
 public class ParameterConverter {
@@ -370,6 +372,22 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public UUID toEntityUuid(MultiValueMap<String, Object> parameters, String parameterName, Class<? extends Identifiable> identifiableType) {
+		Assert.notNull(parameters);
+		//
+		return toEntityUuid(parameters.toSingleValueMap(), parameterName, identifiableType);
+	}
+	
+	/**
+	 * Converts parameter to entity id.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @param identifiableType
+	 * @return
+	 * 
+	 * @since 9.7.0
+	 */
+	public UUID toEntityUuid(Map<String, Object> parameters, String parameterName, Class<? extends Identifiable> identifiableType) {
 		return toEntityUuid(toString(parameters, parameterName), identifiableType);
 	}
 	

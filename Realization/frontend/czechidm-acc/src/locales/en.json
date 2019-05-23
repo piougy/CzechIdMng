@@ -1470,6 +1470,29 @@
           }
         }
       }
+    },
+    "long-running-task": {
+      "eu-bcvsolutions-idm-acc-scheduler-task-impl-deleteprovisioningarchivetaskexecutor": {
+        "label": "Delete archived provisioning operations",
+        "help": "Delete provisioning operations in archive older than given number of days.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Number of days",
+            "help": "Delete operations older than given number of days."
+          },
+          "operationstate": {
+            "label": "Operation state",
+            "placeholder": "All states or ...",
+            "help": "Delete operations in given state only. Available options [CREATED, RUNNING, EXECUTED, NOT_EXECUTED, BLOCKED, EXCEPTION, CANCELED]."
+          },
+          "system": {
+            "label": "System",
+            "placeholder": "All systems or select ...",
+            "help": "Delete operations with given systme only."
+          }
+        }
+      }
     }
   },
   "error": {

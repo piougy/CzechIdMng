@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.eav.domain.AccFaceType;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -38,6 +41,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DeleteProvisioningArchiveTaskExecutor.class);
 	public static final String PARAMETER_NUMBER_OF_DAYS = "numberOfDays"; // archive older than
 	public static final String PARAMETER_OPERATION_STATE = "operationState"; // archive state
+	public static final String PARAMETER_SYSTEM = "system"; // system
 	public static final int DEFAULT_NUMBER_OF_DAYS = 90;
 	public static final OperationState DEFAULT_OPERATION_STATE = OperationState.EXECUTED;
 	//
@@ -45,6 +49,8 @@ public class DeleteProvisioningArchiveTaskExecutor
 	//
 	private int numberOfDays = 0; // optional
 	private OperationState operationState; // optional
+	private UUID systemId = null;
+	
 	
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -57,6 +63,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 			numberOfDays = 0;
 		}
 		operationState = getParameterConverter().toEnum(properties, PARAMETER_OPERATION_STATE, OperationState.class);
+		systemId = getParameterConverter().toEntityUuid(properties, PARAMETER_SYSTEM, SysSystemDto.class);
 	}
 	
 	@Override
@@ -83,6 +90,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 	public Page<SysProvisioningArchiveDto> getItemsToProcess(Pageable pageable) {
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setResultState(operationState);
+		filter.setSystemId(systemId);
 		if (numberOfDays > 0) {
 			filter.setTill(DateTime.now().withTimeAtStartOfDay().minusDays(numberOfDays));
 		}
@@ -101,6 +109,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 		List<String> parameters = super.getPropertyNames();
 		parameters.add(PARAMETER_NUMBER_OF_DAYS);
 		parameters.add(PARAMETER_OPERATION_STATE);
+		parameters.add(PARAMETER_SYSTEM);
 		//
 		return parameters;
 	}
@@ -110,6 +119,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 		Map<String, Object> properties = super.getProperties();
 		properties.put(PARAMETER_NUMBER_OF_DAYS, numberOfDays);
 		properties.put(PARAMETER_OPERATION_STATE, operationState);
+		properties.put(PARAMETER_SYSTEM, systemId);
 		//
 		return properties;
 	}
@@ -121,8 +131,13 @@ public class DeleteProvisioningArchiveTaskExecutor
 		IdmFormAttributeDto operationStateAttribute = new IdmFormAttributeDto(PARAMETER_OPERATION_STATE, PARAMETER_OPERATION_STATE, PersistentType.SHORTTEXT);
 		operationStateAttribute.setDefaultValue(DEFAULT_OPERATION_STATE.name());
 		// TODO: enumeration state in forms
+		IdmFormAttributeDto system = new IdmFormAttributeDto(
+				PARAMETER_SYSTEM,
+				"System", 
+				PersistentType.UUID);
+		system.setFaceType(AccFaceType.SYSTEM_SELECT);
 		//
-		return Lists.newArrayList(numberOfDaysAttribute, operationStateAttribute);
+		return Lists.newArrayList(numberOfDaysAttribute, operationStateAttribute, system);
 	}
 	
     @Override

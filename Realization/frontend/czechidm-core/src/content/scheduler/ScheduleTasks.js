@@ -552,9 +552,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 readOnly={ !this.getManager().canSave(detail.entity) }>
                 <Basic.EnumSelectBox
                   ref="taskType"
-                  label={this.i18n('entity.SchedulerTask.taskType')}
-                  options={_supportedTasks}
-                  onChange={this.onChangeTaskType.bind(this)}
+                  label={ this.i18n('entity.SchedulerTask.taskType') }
+                  options={ _supportedTasks }
+                  onChange={ this.onChangeTaskType.bind(this) }
                   required
                   searchable
                   readOnly={ !Utils.Entity.isNew(detail.entity) }

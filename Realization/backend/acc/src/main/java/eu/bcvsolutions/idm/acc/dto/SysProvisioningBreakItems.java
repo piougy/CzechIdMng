@@ -67,10 +67,7 @@ public class SysProvisioningBreakItems {
 	 * @param timestamp
 	 */
 	public void removeOlderRecordsThan(ProvisioningEventType provisioningType, Long timestamp) {
-		this.getExecutedItems(provisioningType).
-		removeIf(
-				item -> item < timestamp
-				);
+		this.getExecutedItems(provisioningType).removeIf(item -> item < timestamp);
 	}
 	
 	/**

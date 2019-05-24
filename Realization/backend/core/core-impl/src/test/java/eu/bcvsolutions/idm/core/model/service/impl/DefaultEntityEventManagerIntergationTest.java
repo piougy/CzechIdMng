@@ -59,10 +59,10 @@ import eu.bcvsolutions.idm.core.event.domain.MockDto;
 import eu.bcvsolutions.idm.core.event.domain.MockOwner;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.EntityGenerateValuesProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.NeverEndingProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.ObserveDtoProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.TestIdentityNotifyProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.event.EntityEventDeleteExecutedProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -271,7 +271,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		List<IdmEntityEventDto> events = new ArrayList<>();
 		try {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
-			getHelper().disable(EntityEventDeleteExecutedProcessor.class);
 			int count = 250; // 15s 
 			//
 			// create events
@@ -309,7 +308,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		} finally {
 			events.forEach(e -> entityEventService.delete(e));
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
-			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
 		}
 	}
 	
@@ -318,7 +316,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		List<IdmEntityEventDto> events = new ArrayList<>();
 		MockOwner mockOwner = new MockOwner();
 		try {
-			manager.disable(EntityEventDeleteExecutedProcessor.PROCESSOR_NAME);
 			int count = 10;
 			//
 			// create events
@@ -347,7 +344,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			filter.setStates(Lists.newArrayList(OperationState.EXECUTED));
 			Assert.assertEquals(1, entityEventService.find(filter, new PageRequest(0, 1)).getTotalElements());
 		} finally {
-			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
 			entityEventService.delete(events.get(9)); // the last one
 			IdmEntityEventFilter filter = new IdmEntityEventFilter();
 			filter.setOwnerType(manager.getOwnerType(mockOwner));
@@ -359,7 +355,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testEnableDisableProcessorById() {
-		EntityEventProcessorDto processor = manager.get(EntityEventDeleteExecutedProcessor.PROCESSOR_NAME);
+		EntityEventProcessorDto processor = manager.get(EntityGenerateValuesProcessor.PROCESSOR_NAME);
 		//
 		try {
 			Assert.assertNotNull(processor);
@@ -369,7 +365,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			//
 			manager.disable(processor.getId());
 			//
-			processor = manager.get(EntityEventDeleteExecutedProcessor.PROCESSOR_NAME);
+			processor = manager.get(EntityGenerateValuesProcessor.PROCESSOR_NAME);
 			Assert.assertTrue(processor.isDisabled());
 		} finally {
 			manager.enable(processor.getId());
@@ -394,45 +390,40 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testPersistChildEventAutomatically() {
-		try {
-			manager.disable(EntityEventDeleteExecutedProcessor.PROCESSOR_NAME);
-			MockOwner mockOwner = new MockOwner();
-			//
-			// root
-			IdmEntityEventDto eventDto = manager.prepareEvent(mockOwner, null);
-			eventDto.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
-			eventDto.setEventType(CoreEventType.CREATE.name());
-			eventDto.setPriority(PriorityType.HIGH);
-			final IdmEntityEventDto rootEventDto = manager.saveEvent(eventDto);
-			//
-			// child
-			CoreEvent<MockOwner> childEvent = new CoreEvent<MockOwner>(CoreEventType.CREATE, mockOwner);
-			//
-			// process - sync
-			manager.process(childEvent, manager.toEvent(rootEventDto));
-			//
-			// two event should be persisted
-			IdmEntityEventFilter filter = new IdmEntityEventFilter();
-			filter.setOwnerType(manager.getOwnerType(mockOwner));
-			filter.setOwnerId(mockOwner.getId());
-			List<IdmEntityEventDto> content = entityEventService.find(filter, null).getContent();
-			Assert.assertEquals(2, content.size());
-			Assert.assertTrue(content.stream().allMatch(e -> e.getResult().getState() == OperationState.EXECUTED));
-			Assert.assertTrue(content.stream().anyMatch(e -> e.getRootId() == null));
-			Assert.assertTrue(content.stream().anyMatch(e -> rootEventDto.getId().equals(e.getRootId()) && e.getEventType().equals(CoreEventType.CREATE.name())));
-			// check child event
-			IdmEntityEventDto childEventDto = content
-					.stream()
-					.filter(e -> rootEventDto.getId().equals(e.getRootId()) && e.getEventType().equals(CoreEventType.CREATE.name()))
-					.findFirst()
-					.get();
-			
-			Assert.assertEquals(rootEventDto.getId(), childEventDto.getParent());
-			Assert.assertEquals(rootEventDto.getPriority(), childEventDto.getPriority());
-			Assert.assertEquals(rootEventDto.getEventType(), childEventDto.getParentEventType());
-		} finally {
-			manager.enable(EntityEventDeleteExecutedProcessor.PROCESSOR_NAME);
-		}
+		MockOwner mockOwner = new MockOwner();
+		//
+		// root
+		IdmEntityEventDto eventDto = manager.prepareEvent(mockOwner, null);
+		eventDto.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
+		eventDto.setEventType(CoreEventType.CREATE.name());
+		eventDto.setPriority(PriorityType.HIGH);
+		final IdmEntityEventDto rootEventDto = manager.saveEvent(eventDto);
+		//
+		// child
+		CoreEvent<MockOwner> childEvent = new CoreEvent<MockOwner>(CoreEventType.CREATE, mockOwner);
+		//
+		// process - sync
+		manager.process(childEvent, manager.toEvent(rootEventDto));
+		//
+		// two event should be persisted
+		IdmEntityEventFilter filter = new IdmEntityEventFilter();
+		filter.setOwnerType(manager.getOwnerType(mockOwner));
+		filter.setOwnerId(mockOwner.getId());
+		List<IdmEntityEventDto> content = entityEventService.find(filter, null).getContent();
+		Assert.assertEquals(2, content.size());
+		Assert.assertTrue(content.stream().allMatch(e -> e.getResult().getState() == OperationState.EXECUTED));
+		Assert.assertTrue(content.stream().anyMatch(e -> e.getRootId() == null));
+		Assert.assertTrue(content.stream().anyMatch(e -> rootEventDto.getId().equals(e.getRootId()) && e.getEventType().equals(CoreEventType.CREATE.name())));
+		// check child event
+		IdmEntityEventDto childEventDto = content
+				.stream()
+				.filter(e -> rootEventDto.getId().equals(e.getRootId()) && e.getEventType().equals(CoreEventType.CREATE.name()))
+				.findFirst()
+				.get();
+		
+		Assert.assertEquals(rootEventDto.getId(), childEventDto.getParent());
+		Assert.assertEquals(rootEventDto.getPriority(), childEventDto.getPriority());
+		Assert.assertEquals(rootEventDto.getEventType(), childEventDto.getParentEventType());
 	}
 	
 	@Test
@@ -599,7 +590,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	public void testRemoveRunningEvent() {
 		try {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
-			getHelper().disable(EntityEventDeleteExecutedProcessor.class);
 			
 			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
@@ -631,7 +621,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		} finally {
 			manager.deleteAllEvents();
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
-			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
 		}
 	}
 	
@@ -651,7 +640,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	public void testDeleteAll() {
 		try {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
-			getHelper().disable(EntityEventDeleteExecutedProcessor.class);
 			//
 			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
@@ -685,7 +673,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		} finally {
 			manager.deleteAllEvents();
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
-			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
 		}
 	}
 	
@@ -693,7 +680,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	public void testExecuteAsyncEventUnderEventCreatorAuthentication() {
 		try {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
-			getHelper().disable(EntityEventDeleteExecutedProcessor.class);
 			
 			// Create role request - identity roles has to be created under creators authority
 			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
@@ -716,7 +702,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			logout();
 			manager.deleteAllEvents();
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
-			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
 		}
 	}
 }

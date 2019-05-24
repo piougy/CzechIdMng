@@ -5009,6 +5009,17 @@
             "help": "Counts to given count, waits 300ms for every iteration."
           }
         }
+      },
+      "core-delete-executed-event-long-running-task": {
+        "label": "Delete executed entity events",
+        "help": "Delete sucessfully executed entity events (in the state 'EXECUTED') older than given number of days.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Number of days",
+            "help": "Delete events older than given number of days."
+          }
+        }
       }
     }
   },

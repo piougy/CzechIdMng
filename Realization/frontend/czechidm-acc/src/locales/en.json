@@ -1472,7 +1472,7 @@
       }
     },
     "long-running-task": {
-      "eu-bcvsolutions-idm-acc-scheduler-task-impl-deleteprovisioningarchivetaskexecutor": {
+      "acc-delete-provisioning-archive-long-running-task": {
         "label": "Delete archived provisioning operations",
         "help": "Delete provisioning operations in archive older than given number of days.",
         "icon": "fa:trash",

@@ -5059,6 +5059,17 @@
             "help": "Počítá do zadaného počtu, čeká 300ms pro každou iteraci."
           }
         }
+      },
+      "core-delete-executed-event-long-running-task": {
+        "label": "Smazat zpracované události",
+        "help": "Vymaže úspěšně zpracované události (ve stavu 'EXECUTED') starší, nežli zadaný počet dní.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Počet dní",
+            "help": "Smazat události starší, než-li zadaný počet dní."
+          }
+        }
       }
     }
   },

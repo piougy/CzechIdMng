@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.7.0]
+- [#1668](https://redmine.czechidm.com/issues/1668) - ``EntityEventDeleteExecutedProcessor`` was removed. LRT ``DeleteExecutedEventTaskExecutor`` was created and scheduled by default to cover this functionality (executed events older than 3 days will be removed by default schedule).
+
 ## [9.6.0]
 - [#1534](https://redmine.czechidm.com/issues/1534) - Incremental account management and provisioning:
   - Change/update/delete of the assigned roles (identity-roles) invoke account management only for changed identity-roles. No more for all identity-roles of the identity. If you need to execute account management for entire identity, then you can use bulk action "Recalculate accounts and provision".

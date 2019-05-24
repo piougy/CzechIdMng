@@ -121,5 +121,29 @@
 		<instanceId>idm-primary</instanceId>
 		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess</taskType>
 	</task>
+	
+	<task>
+		<description>Delete executed entity events.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.DeleteExecutedEventTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+			<parameter>
+				<key>numberOfDays</key>
+				<value>3</value>
+			</parameter>
+		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 0 2 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>		
+	</task>
 
 </tasks>

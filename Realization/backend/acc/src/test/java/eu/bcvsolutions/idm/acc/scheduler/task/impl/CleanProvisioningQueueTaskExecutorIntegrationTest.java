@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.scheduler.task;
+package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
 import static org.junit.Assert.assertNotNull;
 

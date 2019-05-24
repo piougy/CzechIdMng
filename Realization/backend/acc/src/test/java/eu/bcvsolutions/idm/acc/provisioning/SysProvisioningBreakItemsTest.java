@@ -22,13 +22,13 @@ public class SysProvisioningBreakItemsTest {
 	
 	@Test
 	public void testAdd() throws InterruptedException {
-		CountDownLatch readyCounter = new CountDownLatch(1000);
+		CountDownLatch readyCounter = new CountDownLatch(50);
 	    CountDownLatch lock = new CountDownLatch(1);
-	    CountDownLatch completeCounter = new CountDownLatch(1000);
+	    CountDownLatch completeCounter = new CountDownLatch(50);
 	    
 	    SysProvisioningBreakItems items = new SysProvisioningBreakItems();
 	    
-	    for (int index = 0; index < 1000; index++) {
+	    for (int index = 0; index < 50; index++) {
 			Thread thread = new Thread(new ItemsWorker(readyCounter, lock, completeCounter, new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
@@ -50,23 +50,23 @@ public class SysProvisioningBreakItemsTest {
 	    completeCounter.await(); 
 
 	    executedItems = items.getExecutedItems(ProvisioningEventType.UPDATE);
-	    assertEquals(1000, executedItems.size());
+	    assertEquals(50, executedItems.size());
 	    
 	}
 
 	@Test
 	public void testRemove() throws InterruptedException {
-		CountDownLatch readyCounter = new CountDownLatch(5000);
+		CountDownLatch readyCounter = new CountDownLatch(50);
 	    CountDownLatch lock = new CountDownLatch(1);
-	    CountDownLatch completeCounter = new CountDownLatch(5000);
+	    CountDownLatch completeCounter = new CountDownLatch(50);
 	    
 	    SysProvisioningBreakItems items = new SysProvisioningBreakItems();
 	    
-	    for (int index = 0; index < 5000; index++) {
+	    for (int index = 0; index < 50; index++) {
 	    	items.addItem(ProvisioningEventType.UPDATE, Long.valueOf(1000 + index));
 		}
 	    
-	    for (int index = 0; index < 5000; index++) {
+	    for (int index = 0; index < 50; index++) {
 			Thread thread = new Thread(new ItemsWorker(readyCounter, lock, completeCounter, new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
@@ -78,7 +78,7 @@ public class SysProvisioningBreakItemsTest {
 		}
 	    
 	    List<Long> executedItems = items.getExecutedItems(ProvisioningEventType.UPDATE);
-	    assertEquals(5000, executedItems.size());
+	    assertEquals(50, executedItems.size());
 
 	    // Wait on all thread
 	    readyCounter.await();
@@ -93,17 +93,17 @@ public class SysProvisioningBreakItemsTest {
 
 	@Test
 	public void testClear() throws InterruptedException {
-		CountDownLatch readyCounter = new CountDownLatch(1000);
+		CountDownLatch readyCounter = new CountDownLatch(50);
 	    CountDownLatch lock = new CountDownLatch(1);
-	    CountDownLatch completeCounter = new CountDownLatch(1000);
+	    CountDownLatch completeCounter = new CountDownLatch(50);
 	    
 	    SysProvisioningBreakItems items = new SysProvisioningBreakItems();
 	    
-	    for (int index = 0; index < 1000; index++) {
-	    	items.addItem(ProvisioningEventType.UPDATE, Long.valueOf(1000 + index));
+	    for (int index = 0; index < 50; index++) {
+	    	items.addItem(ProvisioningEventType.UPDATE, Long.valueOf(50 + index));
 		}
 	    
-	    for (int index = 0; index < 1000; index++) {
+	    for (int index = 0; index < 50; index++) {
 			Thread thread = new Thread(new ItemsWorker(readyCounter, lock, completeCounter, new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
@@ -115,7 +115,7 @@ public class SysProvisioningBreakItemsTest {
 		}
 	    
 	    List<Long> executedItems = items.getExecutedItems(ProvisioningEventType.UPDATE);
-	    assertEquals(1000, executedItems.size());
+	    assertEquals(50, executedItems.size());
 
 	    // Wait on all thread
 	    readyCounter.await();

@@ -1474,7 +1474,7 @@
       }
     },
     "long-running-task": {
-      "eu-bcvsolutions-idm-acc-scheduler-task-impl-deleteprovisioningarchivetaskexecutor": {
+      "acc-delete-provisioning-archive-long-running-task": {
         "label": "Smazat archivované operace pro provisioning",
         "help": "Vymaže operace z archivu provisioningu starší, nežli zadaný počet dní.",
         "icon": "fa:trash",

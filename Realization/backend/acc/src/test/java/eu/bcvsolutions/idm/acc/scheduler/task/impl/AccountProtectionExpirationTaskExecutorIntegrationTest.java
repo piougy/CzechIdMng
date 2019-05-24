@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.scheduler.task;
+package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
 import org.joda.time.DateTime;
 import org.junit.Assert;

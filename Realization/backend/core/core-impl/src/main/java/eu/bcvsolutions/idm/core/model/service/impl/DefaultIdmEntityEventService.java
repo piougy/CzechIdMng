@@ -110,21 +110,12 @@ public class DefaultIdmEntityEventService
 	@Override
 	@Transactional
 	public void deleteInternal(IdmEntityEventDto dto) {
-		// delete child events by root
-		IdmEntityEventFilter filter = new IdmEntityEventFilter();
-		filter.setRootId(dto.getId());
-		find(filter, null).forEach(childEvent -> {
-			// prevent to delete parent, when last child is removed => prevent to entity not found exception
-			super.deleteInternal(childEvent);
-		});
 		// delete child events - by parent
-	    filter = new IdmEntityEventFilter();
+		IdmEntityEventFilter filter = new IdmEntityEventFilter();
 		filter.setParentId(dto.getId());
 		find(filter, null).forEach(childEvent -> {
 			deleteInternal(childEvent);
 		});
-		//
-		// delete states
 		//
 		// delete states
 		IdmEntityStateFilter stateFilter = new IdmEntityStateFilter();

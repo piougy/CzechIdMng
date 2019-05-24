@@ -32,13 +32,14 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.7.0
  */
-@Service
+@Service(DeleteProvisioningArchiveTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Delete archived provisioning operations.")
 public class DeleteProvisioningArchiveTaskExecutor
 		extends AbstractSchedulableStatefulExecutor<SysProvisioningArchiveDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DeleteProvisioningArchiveTaskExecutor.class);
+	public static final String TASK_NAME = "acc-delete-provisioning-archive-long-running-task";
 	public static final String PARAMETER_NUMBER_OF_DAYS = "numberOfDays"; // archive older than
 	public static final String PARAMETER_OPERATION_STATE = "operationState"; // archive state
 	public static final String PARAMETER_SYSTEM = "system"; // system
@@ -51,6 +52,10 @@ public class DeleteProvisioningArchiveTaskExecutor
 	private OperationState operationState; // optional
 	private UUID systemId = null;
 	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -68,7 +73,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 	
 	@Override
 	protected boolean start() {
-		LOG.warn("Start deleting archived provisioning operations older than [{}] days in state [{}].", numberOfDays, operationState);
+		LOG.warn("Start deleting archived provisioning operations older than [{}] days in state [{}] with system [{}].", numberOfDays, operationState, systemId);
 		//
 		return super.start();
 	}
@@ -76,7 +81,8 @@ public class DeleteProvisioningArchiveTaskExecutor
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
 		result = super.end(result, ex);
-		LOG.warn("End deleting archived provisioning operations older than [{}] days in state [{}]. Processed operations [{}].", numberOfDays, operationState, counter);
+		LOG.warn("End deleting archived provisioning operations older than [{}] days in state [{}] with system [{}]. Processed operations [{}].", 
+				numberOfDays, operationState, systemId, counter);
 		return result;
 	}
 	

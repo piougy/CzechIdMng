@@ -83,7 +83,6 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.event.EntityEventDeleteExecutedProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -1724,7 +1723,6 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testPropagateHighEventPriority() {
 		try {
-			getHelper().disable(EntityEventDeleteExecutedProcessor.class);
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 			FormableDto owner = getHelper().createIdentity((GuardedString) null);
 			//
@@ -1760,7 +1758,6 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 			Assert.assertFalse(events.isEmpty());
 			Assert.assertEquals(PriorityType.HIGH, events.get(0).getPriority());
 		} finally {
-			getHelper().enable(EntityEventDeleteExecutedProcessor.class);
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 		}
 	}

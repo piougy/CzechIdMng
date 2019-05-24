@@ -21,12 +21,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent;
-import eu.bcvsolutions.idm.core.api.event.EntityEventEvent.EntityEventType;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.event.processor.event.EntityEventDeleteExecutedProcessor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.DeleteExecutedEventTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -45,7 +44,7 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 	@Autowired private IdmEntityStateService entityStateService;
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private IdmIdentityService identityService;
-	@Autowired private EntityEventDeleteExecutedProcessor entityEventDeleteExecutedProcessor;
+	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	//
 	private DefaultIdmEntityEventService entityEventService;
 
@@ -145,7 +144,7 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 	}	
 	
 	@Test
-	public void testReferentialIntegrityLastChildIsDeleted() {
+	public void testReferentialIntegrityParentIsDeletedByLrt() {
 		IdmEntityEventDto parentEvent = new IdmEntityEventDto();
 		parentEvent.setOwnerType("empty");
 		parentEvent.setEventType("empty");
@@ -181,13 +180,56 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 		Assert.assertNotNull(entityEventOne.getId());
 		Assert.assertNotNull(entityEventTwo.getId());
 		//
-		entityEventDeleteExecutedProcessor.process(new CoreEvent<IdmEntityEventDto>(EntityEventType.EXECUTE, entityEventTwo));
+		longRunningTaskManager.execute(new DeleteExecutedEventTaskExecutor());
 		//
-		Assert.assertNotNull(entityEventService.get(parentEvent.getId()));
-		Assert.assertNotNull(entityEventService.get(entityEventOne.getId()));
+		Assert.assertNull(entityEventService.get(parentEvent.getId()));
+		Assert.assertNull(entityEventService.get(entityEventOne.getId()));
 		Assert.assertNull(entityEventService.get(entityEventTwo.getId()));
+	}
+	
+	@Test
+	public void testReferentialIntegrityRootIsDeleted() {
+		IdmEntityEventDto parentEvent = new IdmEntityEventDto();
+		parentEvent.setId(UUID.randomUUID());
+		parentEvent.setRootId(parentEvent.getId());
+		parentEvent.setOwnerType("empty");
+		parentEvent.setEventType("empty");
+		parentEvent.setOwnerId(UUID.randomUUID());
+		parentEvent.setInstanceId("empty");
+		parentEvent.setResult(new OperationResultDto(OperationState.EXECUTED));
+		parentEvent.setPriority(PriorityType.NORMAL);
+		
+		parentEvent = entityEventService.save(parentEvent);
 		//
-		entityEventDeleteExecutedProcessor.process(new CoreEvent<IdmEntityEventDto>(EntityEventType.EXECUTE, entityEventOne));
+		IdmEntityEventDto entityEventOne = new IdmEntityEventDto();
+		entityEventOne.setRootId(parentEvent.getId());
+		entityEventOne.setOwnerType("empty");
+		entityEventOne.setEventType("empty");
+		entityEventOne.setOwnerId(UUID.randomUUID());
+		entityEventOne.setInstanceId("empty");
+		entityEventOne.setResult(new OperationResultDto(OperationState.EXECUTED));
+		entityEventOne.setPriority(PriorityType.NORMAL);
+		entityEventOne.setParent(parentEvent.getId());
+		entityEventOne.setRootId(parentEvent.getId());
+		entityEventOne = entityEventService.save(entityEventOne);
+		//
+		IdmEntityEventDto entityEventTwo = new IdmEntityEventDto();
+		entityEventTwo.setRootId(parentEvent.getId());
+		entityEventTwo.setOwnerType("empty");
+		entityEventTwo.setEventType("empty");
+		entityEventTwo.setOwnerId(UUID.randomUUID());
+		entityEventTwo.setInstanceId("empty");
+		entityEventTwo.setResult(new OperationResultDto(OperationState.EXECUTED));
+		entityEventTwo.setPriority(PriorityType.NORMAL);
+		entityEventTwo.setParent(parentEvent.getId());
+		entityEventTwo.setRootId(parentEvent.getId());
+		entityEventTwo = entityEventService.save(entityEventTwo);
+		//
+		Assert.assertNotNull(parentEvent.getId());
+		Assert.assertNotNull(entityEventOne.getId());
+		Assert.assertNotNull(entityEventTwo.getId());
+		//
+		entityEventService.delete(parentEvent);
 		//
 		Assert.assertNull(entityEventService.get(parentEvent.getId()));
 		Assert.assertNull(entityEventService.get(entityEventOne.getId()));

@@ -88,9 +88,11 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			// wait for executed events
 			final IdmEntityEventFilter eventFilter = new IdmEntityEventFilter();
 			eventFilter.setOwnerId(roleRequestOne.getId());
+			eventFilter.getStates().add(OperationState.RUNNING);
+			eventFilter.getStates().add(OperationState.CREATED);
 			getHelper().waitForResult(res -> {
 				return entityEventService.find(eventFilter, new PageRequest(0, 1)).getTotalElements() != 0;
-			}, 1000, Integer.MAX_VALUE);
+			}, 1000, 30);
 			//
 			// check after create
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
@@ -141,7 +143,7 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			eventFilter.setOwnerId(roleRequestTwo.getId());
 			getHelper().waitForResult(res -> {
 				return entityEventService.find(eventFilter, new PageRequest(0, 1)).getTotalElements() != 0;
-			}, 1000, Integer.MAX_VALUE);
+			}, 1000, 30);
 			//
 			// check after role request is executed
 			assignedRoles = identityRoleService.findAllByIdentity(identity.getId());

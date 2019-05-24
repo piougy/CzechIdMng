@@ -24,7 +24,7 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
     public static final String WF_PROCESS_FIELD = "wfProcessId";
     public static final String DUPLICATES = "duplicates";
 
-    @Embedded(dtoClass = IdmRoleRequestDto.class)
+    // @Embedded(dtoClass = IdmRoleRequestDto.class)
     private UUID roleRequest;
     @Embedded(dtoClass = IdmIdentityContractDto.class)
     private UUID identityContract;

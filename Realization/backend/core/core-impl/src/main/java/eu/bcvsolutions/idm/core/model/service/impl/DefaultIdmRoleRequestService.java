@@ -658,15 +658,19 @@ public class DefaultIdmRoleRequestService
 
 		UUID identityContractId = requestByIdentityDto.getIdentityContract();
 		UUID roleRequestId = requestByIdentityDto.getRoleRequest();
-		IdmRoleRequestDto requestDto = this.get(roleRequestId);
 		LocalDate validFrom = requestByIdentityDto.getValidFrom();
 		LocalDate validTill = requestByIdentityDto.getValidTill();
 		boolean copyRoleParameters = requestByIdentityDto.isCopyRoleParameters();
 
 		List<UUID> identityRoles = requestByIdentityDto.getIdentityRoles();
 		
-		for (UUID identityRoleId : identityRoles) {
-			IdmIdentityRoleDto identityRoleDto = identityRoleService.get(identityRoleId);
+		for (int i = 0; identityRoles.size() > i; i++) {
+			UUID identityRoleId = identityRoles.get(i);
+			// Flush Hibernate in batch - performance improving
+			if (i % 20 == 0 && i > 0) {
+				 flushHibernateSession();
+			}
+			IdmIdentityRoleDto identityRoleDto = identityRoleService.get(identityRoleId, IdmBasePermission.READ);
 			if (identityRoleDto == null) {
 				LOG.error("For given identity role id [{}] was not found entity. ", identityRoleId);
 				continue;
@@ -743,12 +747,9 @@ public class DefaultIdmRoleRequestService
 			}
 
 			conceptRoleRequestDto = conceptRoleRequestService.save(conceptRoleRequestDto);
-			requestDto.addToLog(MessageFormat.format(
-					"Concept with ID [{0}] for role [{1}] was added from the copy roles operation (includes identity-role attributes [{2}]).",
-					conceptRoleRequestDto.getId(), roleDto.getCode(), copyRoleParameters));
 		}
 
-		return this.save(requestDto);
+		return this.get(roleRequestId);
 	}
 	
 	@Override

@@ -56,6 +56,7 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityContract identityContract;
 	
+	@Audited
 	@Column(name = "contract_position_id", length = 16, nullable = true)
 	private UUID contractPosition;
 	

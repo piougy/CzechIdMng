@@ -3249,7 +3249,9 @@
     "name": "Name",
     "created": "Created",
     "modified": {
-      "label": "Last changed"
+      "short": "Changed",
+      "label": "Last changed",
+      "title": "Last changed"
     },
     "creator": "Creator",
     "validFrom": "Valid from",

@@ -3300,7 +3300,9 @@
     "name": "Název",
     "created": "Vytvořeno",
     "modified": {
-      "label": "Naposledy upraveno"
+      "short": "Upraveno",
+      "label": "Naposledy upraveno",
+      "title": "Naposledy upraveno"
     },
     "creator": "Vytvořil",
     "validFrom": "Platnost od",

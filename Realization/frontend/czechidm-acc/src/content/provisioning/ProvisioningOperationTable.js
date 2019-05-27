@@ -233,15 +233,30 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
               }
             }
             rendered={_.includes(columns, 'resultState')}/>
-          <Advanced.Column property="created" width="125px" header={this.i18n('entity.created')} sort face="datetime" rendered={_.includes(columns, 'created')}/>
+          <Advanced.Column
+            property="created"
+            width={ 100 }
+            header={ this.i18n('acc:entity.ProvisioningOperation.created.short') }
+            title={ this.i18n('acc:entity.ProvisioningOperation.created.title') }
+            sort
+            face="datetime"
+            rendered={ _.includes(columns, 'created') }/>
+          <Advanced.Column
+            property="modified"
+            width={ 100 }
+            header={ isArchive ? this.i18n('acc:entity.ProvisioningArchive.modified.short') : this.i18n('entity.modified.short') }
+            title={ isArchive ? this.i18n('acc:entity.ProvisioningArchive.modified.title') : this.i18n('acc:entity.ProvisioningOperation.modified.label') }
+            sort
+            face="datetime"
+            rendered={ _.includes(columns, 'modified') }/>
           <Advanced.Column
             property="operationType"
-            width={75}
-            header={this.i18n('acc:entity.ProvisioningOperation.operationType')}
+            width={ 75 }
+            header={ this.i18n('acc:entity.ProvisioningOperation.operationType') }
             sort
             face="enum"
-            enumClass={ProvisioningOperationTypeEnum}
-            rendered={_.includes(columns, 'operationType')}/>
+            enumClass={ ProvisioningOperationTypeEnum }
+            rendered={ _.includes(columns, 'operationType') }/>
           <Advanced.Column
             property="entityType"
             width={ 75 }
@@ -343,7 +358,7 @@ ProvisioningOperationTable.propTypes = {
 ProvisioningOperationTable.defaultProps = {
   showRowSelection: false,
   forceSearchParameters: null,
-  columns: ['resultState', 'created', 'operationType', 'entityType', 'entityIdentifier', 'system', 'systemEntityUid'],
+  columns: ['resultState', 'created', 'modified', 'operationType', 'entityType', 'entityIdentifier', 'system', 'systemEntityUid'],
   showDeleteAllButton: true
 };
 

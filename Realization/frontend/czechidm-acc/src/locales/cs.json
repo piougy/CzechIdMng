@@ -1035,13 +1035,29 @@
     "ProvisioningOperation": {
       "_type": "Provisioning - operace",
       "creator": "Vytvořil",
+      "created": {
+        "short": "Vytvořeno",
+        "label": "Vytvořeno",
+        "title": "Operace byla vytvořena",
+        "help": "Operace pro provisioning byla vytvořena (vložena do fronty)."
+      },
       "modified": {
-        "label": "$t(entity.modified.label) (poslední pokus)"
+        "label": "$t(entity.modified.label) (poslední pokus)",
+        "help": ""
       },
       "operationType": "Typ operace",
       "entityIdentifier": "Identifikátor entity (IdM)",
       "resultState": "Výsledek",
       "entity": "Entita (IdM)"
+    },
+    "ProvisioningArchive": {
+      "_type": "Provisioning - archív",
+      "modified": {
+        "short": "Archiváno",
+        "label": "Archiváno",
+        "title": "Operace byla archivována (provedena, zrušena)",
+        "help": "Operace byla archivována (provedena, zrušena)."
+      }
     },
     "ProvisioningBreakConfig": {
       "operationType": {

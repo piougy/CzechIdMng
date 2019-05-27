@@ -86,7 +86,6 @@ public class DefaultIdmConceptRoleRequestService extends
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultIdmConceptRoleRequestService.class);
-	private final IdmConceptRoleRequestRepository repository;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final LookupService lookupService;
 	private final IdmAutomaticRoleRepository automaticRoleRepository;
@@ -111,7 +110,6 @@ public class DefaultIdmConceptRoleRequestService extends
 		Assert.notNull(lookupService);
 		Assert.notNull(automaticRoleRepository);
 		//
-		this.repository = repository;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.lookupService = lookupService;
 		this.automaticRoleRepository = automaticRoleRepository;

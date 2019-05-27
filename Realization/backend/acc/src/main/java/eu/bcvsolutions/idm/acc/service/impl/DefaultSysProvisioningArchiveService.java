@@ -7,6 +7,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -74,6 +75,10 @@ public class DefaultSysProvisioningArchiveService
 		archive.setCreatorId(provisioningOperation.getCreatorId());
 		archive.setOriginalCreator(provisioningOperation.getOriginalCreator());
 		archive.setOriginalCreatorId(provisioningOperation.getOriginalCreatorId());
+		// preserve original created => operation was created
+		archive.setCreated(provisioningOperation.getCreated());
+		// archive modified is used as the executed / canceled 
+		archive.setModified(DateTime.now());
 		//
 		return save(archive);
 	}

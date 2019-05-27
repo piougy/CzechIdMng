@@ -22,6 +22,6 @@ export default class ProvisioningArchiveService extends Services.AbstractService
   }
 
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('created', 'desc');
+    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('modified', 'desc');
   }
 }

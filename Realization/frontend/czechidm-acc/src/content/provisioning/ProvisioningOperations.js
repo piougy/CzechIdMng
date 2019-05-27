@@ -146,14 +146,30 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
                   <Basic.Row>
                     <Basic.Col lg={ 4 }>
-                      <Basic.LabelWrapper label={ this.i18n('entity.created') }>
+                      <Basic.LabelWrapper
+                        label={ this.i18n('acc:entity.ProvisioningOperation.created.label') }
+                        helpBlock={ this.i18n('acc:entity.ProvisioningOperation.created.help') }>
                         <div style={{ margin: '7px 0' }}>
                           <Advanced.DateValue value={ detail.entity.created } showTime/>
                         </div>
                       </Basic.LabelWrapper>
                     </Basic.Col>
-                    <Basic.Col lg={ 8 } rendered={ detail.isArchive === false }>
-                      <Basic.LabelWrapper label={ this.i18n('acc:entity.ProvisioningOperation.modified.label') }>
+                    <Basic.Col lg={ 8 }>
+                      <Basic.LabelWrapper
+                        label={
+                          detail.isArchive === true
+                          ?
+                          this.i18n('acc:entity.ProvisioningArchive.modified.label')
+                          :
+                          this.i18n('acc:entity.ProvisioningOperation.modified.label')
+                        }
+                        helpBlock={
+                          detail.isArchive === true
+                          ?
+                          this.i18n('acc:entity.ProvisioningArchive.modified.help')
+                          :
+                          this.i18n('acc:entity.ProvisioningOperation.modified.help')
+                        }>
                         <div style={{ margin: '7px 0' }}>
                           <Advanced.DateValue value={ detail.entity.modified } showTime/>
                         </div>
@@ -282,8 +298,9 @@ ProvisioningOperations.defaultProps = {
   showDeleteAllButton: true
 };
 
-function select() {
+function select(state) {
   return {
+    i18nReady: state.config.get('i18nReady')
   };
 }
 

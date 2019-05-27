@@ -1034,13 +1034,29 @@
     "ProvisioningOperation": {
       "_type": "Provisioning - operation",
       "creator": "Creator",
+      "created": {
+        "short": "Created",
+        "label": "Created",
+        "title": "Operation was created",
+        "help": "Provisioning operation was created (inserted into queue)."
+      },
       "modified": {
-        "label": "$t(entity.modified.label) (last attempt)"
+        "label": "$t(entity.modified.label) (last attempt)",
+        "help": ""
       },
       "operationType": "Operation",
       "entityIdentifier": "Entity identifier (IdM)",
       "resultState": "Result",
       "entity": "IdM entity"
+    },
+    "ProvisioningArchive": {
+      "_type": "Provisioning - archive",
+      "modified": {
+        "short": "Archived",
+        "label": "Archived",
+        "title": "Operation was archived (executed, canceled)",
+        "help": "Operation was archived (executed, canceled)."
+      }
     },
     "ProvisioningBreakConfig": {
       "operationType": {

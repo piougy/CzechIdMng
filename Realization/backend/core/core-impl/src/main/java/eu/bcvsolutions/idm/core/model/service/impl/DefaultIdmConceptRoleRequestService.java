@@ -406,7 +406,12 @@ public class DefaultIdmConceptRoleRequestService extends
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmConceptRoleRequestDto> findAllByRoleRequest(UUID roleRequestId) {
-		return toDtos(repository.findAllByRoleRequest_Id(roleRequestId), false);
+		Assert.notNull(roleRequestId);
+		// find concepts by filter (fetch mode is applied)
+		IdmConceptRoleRequestFilter filter = new IdmConceptRoleRequestFilter();
+		filter.setRoleRequestId(roleRequestId);
+		// 
+		return find(filter, null).getContent();
 	}
 	
 	@Override

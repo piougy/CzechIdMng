@@ -15,19 +15,6 @@
 		<instanceId>idm-test</instanceId>
 		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor</taskType>
 		
-		<triggers>
-			<trigger>
-				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
-				<cron>0 0 1 ? * *</cron>
-				<state>ACTIVE</state>
-			</trigger>
-			<trigger>
-				<state>ACTIVE</state>
-				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger</type>
-				<fireTime>4102441200000</fireTime>
-			</trigger>
-		</triggers>
-		
 		<parameters>
 			<parameter>
 				<key>core:instanceId</key>
@@ -42,6 +29,19 @@
 				<value>test</value>
 			</parameter>
 		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 0 1 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger</type>
+				<state>ACTIVE</state>
+				<fireTime>4102441200000</fireTime>
+			</trigger>
+		</triggers>
 	</task>
 	<task>
 		<description>Start of contract's validity.</description>

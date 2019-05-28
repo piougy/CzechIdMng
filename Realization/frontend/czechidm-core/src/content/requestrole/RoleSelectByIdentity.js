@@ -426,9 +426,9 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
 
           <Basic.Checkbox
             ref="showOnlyDirectRoles"
-            value={showOnlyDirectRoles}
-            label={ this.i18n('showOnlyDirectRoles.label') }
-            helpBlock={ this.i18n('showOnlyDirectRoles.help') }
+            value={ showOnlyDirectRoles }
+            label={ this.i18n('showOnlyDirectRoles.label', { escape: false }) }
+            helpBlock={ this.i18n('showOnlyDirectRoles.help', { escape: false }) }
             onChange={ this._showDirectRoles.bind(this) }/>
 
           <Basic.Alert level="info" style={{ marginTop: 15 }}>

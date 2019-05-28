@@ -1386,7 +1386,7 @@
             "removeAllIdentityRoles": "Remove all roles"
           },
           "showOnlyDirectRoles": {
-            "label": "Show only roles assigned directly",
+            "label": "Display the list <strong>without sub roles</strong>, which are assigned indirectly by business role",
             "help": "After checked, only directly assigned roles will be displayed."
           },
           "legend": {

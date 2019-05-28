@@ -1430,7 +1430,7 @@
               "removeAllIdentityRoles": "Odebrat všechny role"
             },
             "showOnlyDirectRoles": {
-              "label": "Zobrazit pouze napřímo přiřazené role",
+              "label": "Zobrazit <strong>bez sub rolí</strong>, které jsou přidělovány na základě business rolí",
               "help": "Po zaškrtnutí zobrazí pouze napřímo přiřazené role."
             },
             "legend": {

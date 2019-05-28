@@ -29,8 +29,9 @@ class ContentHeader extends AbstractComponent {
       'content-header',
       className
     );
+    //
     return (
-      <div className={classNames} {...others}>
+      <div className={ classNames } { ...others }>
         <div className="pull-left">
           <h2>
             {
@@ -48,8 +49,8 @@ class ContentHeader extends AbstractComponent {
               null
             }
             <span>
-              {text}
-              {children}
+              { text }
+              { children }
             </span>
           </h2>
         </div>
@@ -64,7 +65,7 @@ class ContentHeader extends AbstractComponent {
           help
           ?
           <div className="pull-right">
-            <HelpIcon content={help}/>
+            <HelpIcon content={ help }/>
           </div>
           :
           null

@@ -1361,6 +1361,12 @@
         },
         "addByIdentity": {
           "header": "Add by user",
+          "source": {
+            "header": "Source user"
+          },
+          "target": {
+            "header": "Target user"
+          },
           "selectUser": {
             "label": "User select",
             "help": "Select the user from whom the roles will be copied."
@@ -1377,6 +1383,7 @@
           "roleSelectionHeader": "Selection of roles",
           "roleSelect": "Roles select from user {{username}}",
           "selectedIdentityRoles": "Selected roles",
+          "noIdentity": "Select source user.",
           "noIdentityRoles": "No assigned roles exist",
           "noSelectedIdentityRoles": "No newly assigned roles",
           "buttons": {

@@ -1405,6 +1405,12 @@
           },
           "addByIdentity": {
             "header": "Přidat podle uživatele",
+            "source": {
+              "header": "Zdrojový uživatel"
+            },
+            "target": {
+              "header": "Cílový uživatel"
+            },
             "selectUser": {
               "label": "Výběr uživatele",
               "help": "Výběr uživatele, od kterého budou kopírované role."
@@ -1421,6 +1427,7 @@
             "roleSelectionHeader": "Výběr rolí",
             "roleSelect": "Výběr rolí uživatele {{username}}",
             "selectedIdentityRoles": "Vybrané role",
+            "noIdentity": "Vyberte prosím zdrojového uživatele",
             "noIdentityRoles": "Neexistují žádné přiřazené role",
             "noSelectedIdentityRoles": "Žádné nově přiřazené role",
             "buttons": {

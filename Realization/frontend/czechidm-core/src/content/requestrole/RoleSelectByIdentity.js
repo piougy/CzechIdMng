@@ -5,10 +5,12 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { RoleManager, IdentityManager, IdentityRoleManager, IdentityContractManager } from '../../redux';
+import ConfigLoader from '../../utils/ConfigLoader';
 //
 import SearchParameters from '../../domain/SearchParameters';
 
 const identityRoleManager = new IdentityRoleManager();
+const identityManager = new IdentityManager();
 
 const TREE_COMPONENT_HEIGHT = 400;
 
@@ -23,7 +25,6 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
-    this.identityManger = new IdentityManager();
     this.roleManager = new RoleManager();
     this.identityContractManager = new IdentityContractManager();
 
@@ -32,7 +33,8 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
       identityRoleRoots: [],
       selectedIdentityRoles: [],
       showOnlyDirectRoles: true, // first initial value for show only directed roles
-      selectedIdentityContract: null
+      selectedIdentityContract: null,
+      environment: ConfigLoader.getConfig('role.table.filter.environment', [])
     };
   }
 
@@ -40,16 +42,12 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     return 'content.task.IdentityRoleConceptTable.addByIdentity';
   }
 
-  componentDidMount() {
-
-  }
-
   getUiKey() {
     return this.props.uiKey;
   }
 
   getIdentityManager() {
-    return this.identityManger;
+    return identityManager;
   }
 
   getValue() {
@@ -93,13 +91,14 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
   /**
    * Set change of identity or identity contract
    */
-  _changeIdentityOrContract(identity, identityContract = null, showOnlyDirectRoles) {
+  _changeIdentityOrContract(identity, identityContract, showOnlyDirectRoles, environment) {
     if (identity && identity.id) {
       const identityRoleRoots = [];
       const searchParameters = identityRoleManager.getSearchParameters()
             .setFilter('identityId', identity.id)
             .setFilter('identityContractId', identityContract ? identityContract.id : null)
             .setFilter('directRole', showOnlyDirectRoles === true ? true : null) // When is filter false we want all roles
+            .setFilter('roleEnvironment', environment)
             .setSize(100000);
       this.context.store.dispatch(identityRoleManager.fetchEntities(searchParameters, IDENTITY_ROLE_BY_IDENTITY_UIKEY, json => {
         // Returned json and inner embbeded with identity roles must exists
@@ -244,19 +243,19 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     }
 
     const currentTargetValue = event.currentTarget.checked;
-    const { selectedIdentity, selectedIdentityContract } = this.state;
-    this._changeIdentityOrContract(selectedIdentity, selectedIdentityContract, currentTargetValue);
+    const { selectedIdentity, selectedIdentityContract, environment } = this.state;
+    this._changeIdentityOrContract(selectedIdentity, selectedIdentityContract, currentTargetValue, environment);
   }
 
   _selectedIdentityContract(identityContract) {
-    const { selectedIdentity, showOnlyDirectRoles } = this.state;
-    this._changeIdentityOrContract(selectedIdentity, identityContract, showOnlyDirectRoles);
+    const { selectedIdentity, showOnlyDirectRoles, environment } = this.state;
+    this._changeIdentityOrContract(selectedIdentity, identityContract, showOnlyDirectRoles, environment);
   }
 
   _selectIdentity(identity) {
-    const { showOnlyDirectRoles } = this.state;
+    const { showOnlyDirectRoles, environment } = this.state;
     this.refs.selectedIdentityContract.setValue(null);
-    this._changeIdentityOrContract(identity, null, showOnlyDirectRoles);
+    this._changeIdentityOrContract(identity, null, showOnlyDirectRoles, environment);
   }
 
   /**
@@ -267,73 +266,131 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     this.refs.selectedIdentityRoles.getWrappedInstance().reload();
   }
 
+  _onEnvironmentChange(value) {
+    const codes = [];
+    if (value) {
+      if (_.isArray(value)) { // codelist is available - list of object
+        value.forEach(v => {
+          codes.push(v.value);
+        });
+      } else if (value.currentTarget) { // is event (~text field onchange)
+        codes.push(value.currentTarget.value);
+      }
+    }
+    //
+    const { selectedIdentity, selectedIdentityContract, showOnlyDirectRoles } = this.state;
+    this.setState({
+      environment: codes
+    }, () => {
+      this._changeIdentityOrContract(selectedIdentity, selectedIdentityContract, showOnlyDirectRoles, codes);
+    });
+  }
+
   render() {
-    const { identityRoles, identityRoleShowLoading, identityUsername } = this.props;
+    const { identityRoles, identityRoleShowLoading, identityUsername, identity } = this.props;
     const {
       selectedIdentity,
       identityRoleRoots,
       selectedIdentityRoles,
       showOnlyDirectRoles,
-      selectedIdentityContract
+      selectedIdentityContract,
+      environment
     } = this.state;
 
     const existIdentityRoles = identityRoles && identityRoles.length > 0;
     const buttonsStyle = { width: 34, height: 34, fontSize: 8, marginTop: 5 };
     return (
       <div>
-        <Basic.AbstractForm
-            ref="form">
-          <Basic.SelectBox
-            ref="select"
-            label={ this.i18n('selectUser.label') }
-            helpBlock={ this.i18n('selectUser.help') }
-            onChange={ this._selectIdentity.bind(this) }
-            manager={ this.getIdentityManager() }/>
-          <Basic.SelectBox
-            ref="selectedIdentityContract"
-            readOnly={!selectedIdentity}
-            manager={ this.identityContractManager }
-            forceSearchParameters={ new SearchParameters().setFilter('identity', selectedIdentity ? selectedIdentity.username : null) }
-            label={ this.i18n('selectIdentityContract.label') }
-            placeholder={ this.i18n('selectIdentityContract.placeholder') }
-            helpBlock={ this.i18n('selectIdentityContract.help') }
-            onChange={ this._selectedIdentityContract.bind(this) }
-            niceLabel={ (contract) => { return this.identityContractManager.getNiceLabel(contract, false); }}/>
-          <Basic.SelectBox
-            ref="identityContract"
-            manager={ this.identityContractManager }
-            forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername).setFilter('validNowOrInFuture', true) }
-            label={ this.i18n('entity.IdentityRole.identityContract.label') }
-            placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
-            helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
-            returnProperty={false}
-            niceLabel={ (contract) => { return this.identityContractManager.getNiceLabel(contract, false); }}
-            value={selectedIdentityContract}
-            required
-            useFirst/>
+        <Basic.AbstractForm ref="form">
           <Basic.Row>
             <Basic.Col lg={ 6 }>
+              <Basic.ContentHeader
+                text={
+                  <span>
+                    { this.i18n('source.header') }
+                    <small style={{ fontSize: '0.7em', marginLeft: 5 }}>
+                      <Basic.ShortText text={ identityManager.getNiceLabel(selectedIdentity) } maxLength={ 30 } cutChar={ '' }/>
+                    </small>
+                  </span>
+                }
+                className="marginable"
+                style={{ paddingTop: 0 }}
+                icon="component:identity"/>
+
+              <Basic.SelectBox
+                ref="select"
+                label={ this.i18n('selectUser.label') }
+                helpBlock={ this.i18n('selectUser.help') }
+                onChange={ this._selectIdentity.bind(this) }
+                manager={ this.getIdentityManager() }/>
+
+              <Basic.SelectBox
+                ref="selectedIdentityContract"
+                readOnly={ !selectedIdentity }
+                manager={ this.identityContractManager }
+                forceSearchParameters={ new SearchParameters().setFilter('identity', selectedIdentity ? selectedIdentity.username : null) }
+                label={ this.i18n('selectIdentityContract.label') }
+                placeholder={ this.i18n('selectIdentityContract.placeholder') }
+                helpBlock={ this.i18n('selectIdentityContract.help') }
+                onChange={ this._selectedIdentityContract.bind(this) }
+                niceLabel={ (contract) => { return this.identityContractManager.getNiceLabel(contract, false); }}/>
+
+              <Advanced.CodeListSelect
+                code="environment"
+                label={ this.i18n('entity.Role.environment.label') }
+                placeholder={ this.i18n('entity.Role.environment.help') }
+                multiSelect
+                onChange={ this._onEnvironmentChange.bind(this) }
+                value={ environment }/>
+            </Basic.Col>
+            <Basic.Col lg={ 6 }>
+              <Basic.ContentHeader
+                text={
+                  <span>
+                    { this.i18n('target.header') }
+                    <small style={{ fontSize: '0.7em', marginLeft: 5 }}>
+                      <Basic.ShortText text={ identityManager.getNiceLabel(identity) } maxLength={ 30 } cutChar={ '' }/>
+                    </small>
+                  </span>
+                }
+                className="marginable"
+                style={{ paddingTop: 0 }}
+                icon="fa:arrow-right"/>
+
+              <Basic.SelectBox
+                ref="identityContract"
+                manager={ this.identityContractManager }
+                forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername).setFilter('validNowOrInFuture', true) }
+                label={ this.i18n('entity.IdentityRole.identityContract.label') }
+                placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
+                helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
+                returnProperty={ false }
+                niceLabel={ (contract) => { return this.identityContractManager.getNiceLabel(contract, false); }}
+                value={ selectedIdentityContract }
+                required
+                useFirst/>
+
               <Basic.DateTimePicker
                 mode="date"
                 ref="validFrom"
                 label={ this.i18n('label.validFrom') }/>
-            </Basic.Col>
-            <Basic.Col lg={ 6 }>
+
               <Basic.DateTimePicker
                 mode="date"
                 ref="validTill"
                 label={ this.i18n('label.validTill') }/>
+
+              <Basic.Checkbox
+                ref="copyRoleParameters"
+                label={ this.i18n('copyRoleParameters.label') }
+                helpBlock={ this.i18n('copyRoleParameters.help') }/>
             </Basic.Col>
           </Basic.Row>
-          <Basic.Checkbox
-            ref="copyRoleParameters"
-            label={ this.i18n('copyRoleParameters.label') }
-            helpBlock={ this.i18n('copyRoleParameters.help') }/>
         </Basic.AbstractForm>
         <Basic.Alert
-          rendered={!(existIdentityRoles && selectedIdentity)}
+          rendered={ !existIdentityRoles }
           level="info"
-          text={this.i18n('noIdentityRoles')}/>
+          text={ selectedIdentity ? this.i18n('noIdentityRoles') : this.i18n('noIdentity') }/>
         <Basic.Div rendered={ existIdentityRoles && identityRoleRoots.length > 0 }>
           <Basic.Div style={{ marginLeft: -15, marginRight: -15 }}>
             <Basic.ContentHeader text={ this.i18n('roleSelectionHeader') } style={{ paddingRight: 15, paddingLeft: 15, marginBottom: 0 }}/>
@@ -351,7 +408,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                   nodeNiceLabel={ this._identityRoleNiceLabel.bind(this) }
                   nodeIcon={ this._identityRoleIcon.bind(this)}
                   nodeIconClassName={ null }
-                  header={ this.i18n('roleSelect', {'username': this.identityManger.getNiceLabel(selectedIdentity)}) }/>
+                  header={ this.i18n('roleSelect', {'username': identityManager.getNiceLabel(selectedIdentity)}) }/>
               </div>
 
               <div
@@ -445,8 +502,9 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
 
 }
 
-function select(state) {
+function select(state, component) {
   return {
+    identity: identityManager.getEntity(state, component.identityUsername),
     identityRoles: identityRoleManager.getEntities(state, IDENTITY_ROLE_BY_IDENTITY_UIKEY),
     identityRoleShowLoading: identityRoleManager.isShowLoading(state, IDENTITY_ROLE_BY_IDENTITY_UIKEY)
   };

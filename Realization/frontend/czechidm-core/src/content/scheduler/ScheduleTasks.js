@@ -408,15 +408,26 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 if (supportedTasks && supportedTasks.has(propertyValue)) {
                   _taskType = this._toOption(supportedTasks.get(propertyValue));
                 }
+                const simpleTaskType = Utils.Ui.getSimpleJavaType(propertyValue);
+                let _label = simpleTaskType;
+                if (_taskType) {
+                  _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', simpleTaskType);
+                }
+                if (_label !== simpleTaskType) {
+                  // append simple taks type name as new line
+                  _label = (
+                    <span>
+                      { _label }
+                      <small style={{ display: 'block' }}>
+                        ({ simpleTaskType })
+                      </small>
+                    </span>
+                  );
+                }
+
                 return (
                   <span title={propertyValue}>
-                    {
-                      _taskType
-                      ?
-                      formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', Utils.Ui.getSimpleJavaType(propertyValue))
-                      :
-                      Utils.Ui.getSimpleJavaType(propertyValue)
-                    }
+                    { _label }
                   </span>
                 );
               }

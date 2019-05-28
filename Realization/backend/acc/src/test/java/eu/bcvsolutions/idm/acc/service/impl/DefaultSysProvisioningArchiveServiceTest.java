@@ -200,6 +200,7 @@ public class DefaultSysProvisioningArchiveServiceTest extends AbstractIntegratio
 		Assert.assertEquals(mockIdentityId.toString(), operation.getOriginalCreator());
 		Assert.assertEquals(mockIdentityId, operation.getOriginalCreatorId());
 		//
+		getHelper().waitForResult(null, 30, 1);
 		SysProvisioningArchiveDto archive = archiveService.archive(operation);
 		//
 		Assert.assertEquals(operation.getCreated(), archive.getCreated());

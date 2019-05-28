@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -181,6 +182,26 @@ public class ExceptionControllerAdvice {
 		//
 		return handle((Exception) ex);
     }
+	
+	/**
+	 * Optimistic lock exception - convert to result code exception.
+	 * 
+	 * @param ex
+	 * @return
+	 * @since 9.7.0
+	 */
+	@ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+	ResponseEntity<ResultModels> handle(ObjectOptimisticLockingFailureException ex) {
+		ErrorModel errorModel = 
+				new DefaultErrorModel(
+						CoreResultCode.OPTIMISTIC_LOCK_ERROR,
+						ex.getMessage(),
+						ImmutableMap.of(
+								"entityType", String.valueOf(ex.getPersistentClassName()),
+								"entityId", ex.getIdentifier() != null ? ex.getIdentifier().toString() : ""));
+		LOG.warn("[" + errorModel.getId() + "] ", ex);
+        return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
+	}
 	
 	@ExceptionHandler(Exception.class)
 	ResponseEntity<ResultModels> handle(Exception ex) {

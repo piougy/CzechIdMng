@@ -2,6 +2,11 @@ import { Services } from 'czechidm-core';
 import { Domain } from 'czechidm-core';
 import ProvisioningOperationService from './ProvisioningOperationService';
 
+/**
+ * Archived provisioning operations.
+ *
+ * @author Radek Tomiška
+ */
 export default class ProvisioningArchiveService extends Services.AbstractService {
 
   constructor() {

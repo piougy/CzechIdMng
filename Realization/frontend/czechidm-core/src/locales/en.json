@@ -5927,6 +5927,10 @@
     "TREE_NODE_EMPTY_CODE": {
       "title": "Code cannot be empty",
       "message": "Code of node has not been filled. Please fill the code or enable the code generator."
+    },
+    "OPTIMISTIC_LOCK_ERROR": {
+      "title": "Record was modified",
+      "message": "Record was modified by other process or logged user. Try to reload the record and then retry the operation."
     }
   },
   "validationError": {

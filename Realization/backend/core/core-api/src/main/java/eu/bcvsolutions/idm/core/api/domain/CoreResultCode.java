@@ -39,6 +39,7 @@ public enum CoreResultCode implements ResultCode {
 	BAD_FILTER(HttpStatus.BAD_REQUEST, "The filter is wrong!"),
 	UNMODIFIABLE_ATTRIBUTE_CHANGE(HttpStatus.BAD_REQUEST, "Attribute %s for class %s can't be changed!"),
 	UNMODIFIABLE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "Unmodifiable record [%s] can't be deleted!"),
+	OPTIMISTIC_LOCK_ERROR(HttpStatus.CONFLICT, "Record was modified with the different process or identity. Try to reload the record and then retry the operation."),
 	// http
 	ENDPOINT_NOT_FOUND(HttpStatus.NOT_FOUND, "The given endpoint doesn't exist!"),
 	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method is not allowed!"),

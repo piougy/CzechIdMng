@@ -4,6 +4,11 @@ import { Services } from 'czechidm-core';
 import { Domain, Utils } from 'czechidm-core';
 import SystemEntityTypeEnum from '../domain/SystemEntityTypeEnum';
 
+/**
+ * Active provisioning operations in the queue.
+ *
+ * @author Radek Tomiška
+ */
 export default class ProvisioningOperationService extends Services.AbstractService {
 
   constructor() {

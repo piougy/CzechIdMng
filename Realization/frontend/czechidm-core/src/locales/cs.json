@@ -5977,6 +5977,10 @@
     "TREE_NODE_EMPTY_CODE": {
       "title": "Kód nemůže být prázdný",
       "message": "Kód nebyl vyplněn. Vyplňte prosím kód uzlu, nebo zapněte generátor kódů."
+    },
+    "OPTIMISTIC_LOCK_ERROR": {
+      "title": "Záznam byl upraven",
+      "message": "Záznam byl upraven jiným proceses či uživatelem. Zkuste záznam obnovit a akci opakovat."
     }
   },
   "validationError": {

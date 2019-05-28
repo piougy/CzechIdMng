@@ -20,17 +20,13 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 /**
  * Test optimististic lock exception
  * 
- * 
  * @author Radek Tomiška
  *
  */
 public class OptimisticLockIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private IdmIdentityRepository identityRepository;
-	
-	@PersistenceContext
-    private EntityManager entityManager;
+	@Autowired private IdmIdentityRepository identityRepository;
+	@PersistenceContext private EntityManager entityManager;
 	
 	@Transactional
 	@Test(expected = ObjectOptimisticLockingFailureException.class)

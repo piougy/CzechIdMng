@@ -111,11 +111,11 @@ class ExampleProductDetail extends Basic.AbstractContent {
     const { showLoading } = this.state;
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title') } />
 
-        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
-          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+        <form onSubmit={ this.save.bind(this, 'CONTINUE') }>
+          <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last' }>
             <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
 
             <Basic.PanelBody
@@ -182,7 +182,7 @@ class ExampleProductDetail extends Basic.AbstractContent {
           {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
           <input type="submit" className="hidden"/>
         </form>
-      </div>
+      </Basic.Div>
     );
   }
 }

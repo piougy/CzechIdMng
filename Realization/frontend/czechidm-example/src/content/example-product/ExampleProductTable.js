@@ -74,7 +74,7 @@ export class ExampleProductTable extends Advanced.AbstractTableContent {
     const { filterOpened } = this.state;
 
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Advanced.Table
@@ -150,7 +150,7 @@ export class ExampleProductTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="price" width={ 125 } sort rendered={_.includes(columns, 'price')}/>
           <Advanced.Column property="disabled" width={ 100 } sort face="bool" rendered={_.includes(columns, 'disabled')}/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

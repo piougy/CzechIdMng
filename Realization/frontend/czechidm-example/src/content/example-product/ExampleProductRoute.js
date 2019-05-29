@@ -23,17 +23,17 @@ class ExampleProductRoute extends Basic.AbstractContent {
     const { entity, showLoading } = this.props;
 
     return (
-      <div>
-        <Basic.PageHeader showLoading={!entity && showLoading}>
+      <Basic.Div>
+        <Basic.PageHeader showLoading={ !entity && showLoading }>
           <Basic.Icon value="link"/>
           {' '}
           { this.i18n('example:content.example-product.detail.edit.header', { name: manager.getNiceLabel(entity), escape: false }) }
         </Basic.PageHeader>
 
         <Advanced.TabPanel parentId="example-products" params={ this.props.params }>
-          {this.props.children}
+          { this.props.children }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

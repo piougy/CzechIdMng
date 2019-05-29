@@ -23,6 +23,7 @@ module.exports = {
             'id': 'example-content',
             'type': 'DYNAMIC',
             'section': 'main',
+            'icon': 'link',
             'labelKey': 'example:content.example.label',
             'titleKey': 'example:content.example.title',
             'order': 10,

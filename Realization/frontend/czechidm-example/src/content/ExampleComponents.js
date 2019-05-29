@@ -99,7 +99,7 @@ export default class ExampleComponents extends Basic.AbstractContent {
     const { selectedNodes, setting } = this.state;
     //
     return (
-      <div>
+      <Basic.Div>
         { this.renderPageHeader({ showTitle: true }) }
 
         <Basic.Panel>
@@ -176,7 +176,7 @@ export default class ExampleComponents extends Basic.AbstractContent {
             <Advanced.Icons />
           </Basic.PanelBody>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

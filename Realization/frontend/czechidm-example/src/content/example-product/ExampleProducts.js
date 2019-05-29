@@ -30,7 +30,7 @@ export default class ExampleProducts extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         { this.renderPageHeader() }
 
         <Basic.Alert text={ this.i18n('info') }/>
@@ -39,7 +39,7 @@ export default class ExampleProducts extends Basic.AbstractContent {
           <ExampleProductTable uiKey="example-product-table" filterOpened />
         </Basic.Panel>
 
-      </div>
+      </Basic.Div>
     );
   }
 }

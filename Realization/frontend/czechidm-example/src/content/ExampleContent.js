@@ -7,7 +7,7 @@ import { ExampleManager } from '../redux';
 const manager = new ExampleManager();
 
 /**
- * Example content (page)
+ * Example content (~page).
  *
  * @author Radek Tomiška
  */
@@ -33,14 +33,8 @@ export default class ExampleContent extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
-
-        <Basic.PageHeader>
-          <Basic.Icon value="link"/>
-          {' '}
-          {this.i18n('header')}
-        </Basic.PageHeader>
+      <Basic.Div>
+        { this.renderPageHeader() }
 
         <Basic.Panel>
           <Basic.PanelBody>
@@ -61,16 +55,16 @@ export default class ExampleContent extends Basic.AbstractContent {
               onClick={ () => { this.context.store.dispatch(manager.clientError(this.refs.parameter.getValue())); } }>
               { this.i18n('error.button.client') }
             </Basic.Button>
-            {' '}
             <Basic.Button
               level="danger"
-              onClick={ () => { this.context.store.dispatch(manager.serverError(this.refs.parameter.getValue())); } }>
+              onClick={ () => { this.context.store.dispatch(manager.serverError(this.refs.parameter.getValue())); } }
+              style={{ marginLeft: 3 }}>
               { this.i18n('error.button.server') }
             </Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
 
-      </div>
+      </Basic.Div>
     );
   }
 }

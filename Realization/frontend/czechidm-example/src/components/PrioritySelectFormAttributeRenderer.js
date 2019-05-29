@@ -95,7 +95,7 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
     return (
       <div className={ classNames(className, 'form-group') } style={ style }>
         <label className="control-label">{ this.getLabel(null, showOriginalValue) }</label>
-        <div className="radio" onChange={this.setValue.bind(this)}>
+        <div className="radio" onChange={ this.setValue.bind(this) }>
           { inputs }
         </div>
       </div>

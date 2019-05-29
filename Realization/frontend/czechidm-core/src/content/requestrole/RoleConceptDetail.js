@@ -234,8 +234,8 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           required
           useFirst/>
         <Basic.LabelWrapper
-          label={this.i18n('entity.IdentityRole.automaticRole.label')}
-          helpBlock={this.i18n('entity.IdentityRole.automaticRole.help')}
+          label={ this.i18n('entity.IdentityRole.automaticRole.label') }
+          helpBlock={ this.i18n('entity.IdentityRole.automaticRole.help') }
           rendered={ entity.automaticRole !== null }
           hidden={ entity._added }>
           { entity.automaticRole ? roleTreeNodeManager.getNiceLabel(entity._embedded.automaticRole) : null }

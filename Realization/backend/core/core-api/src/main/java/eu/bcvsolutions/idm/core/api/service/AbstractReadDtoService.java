@@ -270,21 +270,51 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			// dto or entity could be given
 			id = ((Identifiable) id).getId();
 		}
-		//
+		// resolve identifier
+		UUID identifier;
 		if (AbstractEntity.class.isAssignableFrom(getEntityClass()) && (id instanceof String)) {
 			// workflow / rest usage with string uuid variant
 			// EL does not recognize two methods with the same name and
 			// different argument type
 			try {
-				return checkAccess(getRepository().findOne(UUID.fromString((String) id)), permission);
+				identifier = UUID.fromString((String) id);
 			} catch (IllegalArgumentException ex) {
 				// simply not found
+				LOG.trace("Identity cannot be found by given identifier [{}]", id);
+				//
 				return null;
 			}
+		} else {
+			identifier = (UUID) id;
 		}
+		// find / get entity
+		E entity = null;
+		// TODO: preparation for #1643
+		/* if (DataFilter.class.isAssignableFrom(getFilterClass())) {
+			// optimization - find with fetches available
+			F filter;
+			try {
+				filter = getFilterClass().newInstance();
+				((DataFilter) filter).setId(identifier);
+				// permission are not checked here, see bellow => some agenda supports permission on concrete entity only (WF related)
+				List<E> entities = findEntities(filter, new PageRequest(0, 1)).getContent();
+				if (!entities.isEmpty()) {
+					entity = entities.get(0);
+				}
+			} catch (InstantiationException | IllegalAccessException e) {
+				// default
+				entity = getRepository().findOne(identifier);
+			}
+		} else { */
+			// default
+			entity = getRepository().findOne(identifier);
+		// }
 		//
-		E entity = getRepository().findOne((UUID) id);
-		return checkAccess(entity, permission);
+		LOG.trace("Entity found [{}]", entity);
+		entity = checkAccess(entity, permission);
+		//
+		LOG.trace("Entity [{}] passed permission check [{}]", entity, permission);
+		return entity;
 	}
 	
 	protected Page<E> findEntities(Pageable pageable, BasePermission... permission) {

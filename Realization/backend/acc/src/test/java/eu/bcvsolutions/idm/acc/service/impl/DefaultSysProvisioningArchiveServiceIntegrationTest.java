@@ -198,6 +198,7 @@ public class DefaultSysProvisioningArchiveServiceIntegrationTest extends Abstrac
 		service.save(provisioningArchive2);
 
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(system.getId());
 		filter.setResultState(OperationState.CREATED);
 
 		Page<SysProvisioningArchiveDto> result = service.find(filter, null);

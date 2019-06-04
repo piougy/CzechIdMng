@@ -171,7 +171,16 @@ class RoleTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, roleManager, columns, showCatalogue, forceSearchParameters, _requestsEnabled, className } = this.props;
+    const {
+      uiKey,
+      roleManager,
+      columns,
+      showCatalogue,
+      forceSearchParameters,
+      _requestsEnabled,
+      className,
+      showAddButton
+    } = this.props;
     const { filterOpened, showLoading } = this.state;
     const _showTree = showCatalogue && SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
     //
@@ -254,21 +263,19 @@ class RoleTable extends Advanced.AbstractTableContent {
                   level="success"
                   key="add_button"
                   className="btn-xs"
-                  onClick={this.showDetail.bind(this, { })}
-                  rendered={!_requestsEnabled && SecurityManager.hasAuthority('ROLE_CREATE')}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
+                  onClick={ this.showDetail.bind(this, { }) }
+                  rendered={ showAddButton && !_requestsEnabled && SecurityManager.hasAuthority('ROLE_CREATE') }
+                  icon="fa:plus">
+                  { this.i18n('button.add') }
                 </Basic.Button>
                 <Basic.Button
                   level="success"
                   key="add_request"
                   className="btn-xs"
-                  onClick={this.createRequest.bind(this)}
-                  rendered={_requestsEnabled && SecurityManager.hasAuthority('ROLE_CREATE')}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
+                  onClick={ this.createRequest.bind(this) }
+                  rendered={ showAddButton && _requestsEnabled && SecurityManager.hasAuthority('ROLE_CREATE') }
+                  icon="fa:plus">
+                  { this.i18n('button.add') }
                 </Basic.Button>
               </span>
             ]}
@@ -282,8 +289,8 @@ class RoleTable extends Advanced.AbstractTableContent {
                 ({ rowIndex, data }) => {
                   return (
                     <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                      title={ this.i18n('button.detail') }
+                      onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                   );
                 }
               }
@@ -336,14 +343,19 @@ RoleTable.propTypes = {
   /**
    * Css
    */
-  className: PropTypes.string
+  className: PropTypes.string,
+  /**
+   * Button for create user will be shown
+   */
+  showAddButton: PropTypes.bool
 };
 
 RoleTable.defaultProps = {
   columns: ['name', 'baseCode', 'environment', 'roleType', 'disabled', 'approvable', 'description'],
   filterOpened: true,
   showCatalogue: true,
-  forceSearchParameters: null
+  forceSearchParameters: null,
+  showAddButton: true
 };
 
 function select(state, component) {

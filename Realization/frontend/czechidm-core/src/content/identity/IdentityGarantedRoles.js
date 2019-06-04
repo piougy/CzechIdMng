@@ -41,7 +41,8 @@ export default class IdentityGarantedRoles extends Basic.AbstractContent {
           filterOpened={false}
           showCatalogue={false}
           forceSearchParameters={forceSearchParameters}
-          className="no-margin"/>
+          className="no-margin"
+          showAddButton={ false }/>
       </div>
     );
   }

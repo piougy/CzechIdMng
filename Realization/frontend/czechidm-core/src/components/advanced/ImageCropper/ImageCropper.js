@@ -63,7 +63,7 @@ class ImageCropper extends Basic.AbstractContextComponent {
       cb(formData);
     } else {
       // TODO: manually convert Data-URI to Blob for older browsers https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob#Browser_compatibility
-      LOGGER.error('[ImageCropper]: polyfill is not available');
+      LOGGER.error('[ImageCropper]: toBlog polyfill is not available');
     }
   }
 

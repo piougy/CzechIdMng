@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import classnames from 'classnames';
 //
 import { Basic, Advanced, Enums, Utils, Managers } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';

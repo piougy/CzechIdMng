@@ -47,14 +47,24 @@ class ImageCropper extends Basic.AbstractContextComponent {
   }
 
   crop(cb) {
-    this.refs.cropper.getCroppedCanvas({
+    const canvas = this.refs.cropper.getCroppedCanvas({
       width: 300, height: 300
-    })
-    .toBlob((blob) => {
-      const formData = new FormData();
-      formData.append('data', blob);
-      cb(formData);
     });
+    //
+    if (canvas.toBlob !== undefined) {
+      canvas.toBlob((blob) => {
+        const formData = new FormData();
+        formData.append('data', blob);
+        cb(formData);
+      });
+    } else if (canvas.msToBlob !== undefined) {
+      const formData = new FormData();
+      formData.append('data', canvas.msToBlob());
+      cb(formData);
+    } else {
+      // TODO: manually convert Data-URI to Blob for older browsers https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob#Browser_compatibility
+      LOGGER.error('[ImageCropper]: polyfill is not available');
+    }
   }
 
   render() {

@@ -17,6 +17,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +37,8 @@ import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
@@ -155,44 +158,54 @@ public class DefaultSysProvisioningOperationService
 			throw new ResultCodeException(CoreResultCode.BAD_FILTER, "Filter by text is not supported.");
 		}
 		// System Id
-		if (filter.getSystemId() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningOperation_.system).get(SysSystem_.id), filter.getSystemId()));
+		UUID systemId = filter.getSystemId();
+		if (systemId != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.system).get(SysSystem_.id), systemId));
 		}
 		// From
-		if (filter.getFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(SysProvisioningOperation_.created), filter.getFrom()));
+		DateTime from = filter.getFrom();
+		if (from != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(SysProvisioningOperation_.created), from));
 		}
 		// Till
-		if (filter.getTill() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(SysProvisioningOperation_.created), filter.getTill()));
+		DateTime till = filter.getTill();
+		if (till != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(SysProvisioningOperation_.created), till));
 		}
 		// Operation type
-		if (filter.getOperationType() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningOperation_.operationType), filter.getOperationType()));
+		ProvisioningEventType operationType = filter.getOperationType();
+		if (operationType != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.operationType), operationType));
 		}
 		// Entity type
-		if (filter.getEntityType() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningOperation_.entityType), filter.getEntityType()));
+		SystemEntityType entityType = filter.getEntityType();
+		if (entityType != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.entityType), entityType));
 		}
 		// Entity identifier
+		UUID entityIdentifier = filter.getEntityIdentifier();
 		if (filter.getEntityIdentifier() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningOperation_.entityIdentifier), filter.getEntityIdentifier()));
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.entityIdentifier), entityIdentifier));
 		}
 		// System entity
-		if (filter.getSystemEntity() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningOperation_.systemEntity).get(SysSystemEntity_.id), filter.getSystemEntity()));
+		UUID systemEntity = filter.getSystemEntity();
+		if (systemEntity != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.systemEntity).get(SysSystemEntity_.id), systemEntity));
 		}
 		// System entity UID
-		if (filter.getSystemEntityUid() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningOperation_.systemEntity).get(SysSystemEntity_.uid), filter.getSystemEntityUid()));
+		String systemEntityUid = filter.getSystemEntityUid();
+		if (StringUtils.isNotEmpty(systemEntityUid)) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.systemEntity).get(SysSystemEntity_.uid), systemEntityUid));
 		}
 		// Operation result and his state
-		if (filter.getResultState() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), filter.getResultState()));
+		OperationState resultState = filter.getResultState();
+		if (resultState != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), resultState));
 		}
 		// Batch ID
-		if (filter.getBatchId() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningOperation_.batch).get(SysProvisioningBatch_.id), filter.getBatchId()));
+		UUID batchId = filter.getBatchId();
+		if (batchId != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.batch).get(SysProvisioningBatch_.id), batchId));
 		}
 		// updated attributes
 		List<String> attributeUpdated = filter.getAttributeUpdated();

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -18,6 +19,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto.Builder;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
@@ -34,6 +37,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -114,40 +118,48 @@ public class DefaultSysProvisioningArchiveService
 			throw new ResultCodeException(CoreResultCode.BAD_FILTER, "Filter by text is not supported.");
 		}
 		// System Id
-		if (filter.getSystemId() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningArchive_.system).get(SysSystem_.id), filter.getSystemId()));
+		UUID systemId = filter.getSystemId();
+		if (systemId != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningArchive_.system).get(SysSystem_.id), systemId));
 		}
 		// From
-		if (filter.getFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(SysProvisioningArchive_.created), filter.getFrom()));
+		DateTime from = filter.getFrom();
+		if (from != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(SysProvisioningArchive_.created), from));
 		}
 		// Till
-		if (filter.getTill() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(SysProvisioningArchive_.created), filter.getTill()));
+		DateTime till = filter.getTill();
+		if (till != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(SysProvisioningArchive_.created), till));
 		}
 		// Operation type
-		if (filter.getOperationType() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningArchive_.operationType), filter.getOperationType()));
+		ProvisioningEventType operationType = filter.getOperationType();
+		if (operationType != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningArchive_.operationType), operationType));
 		}
 		// Entity type
-		if (filter.getEntityType() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningArchive_.entityType), filter.getEntityType()));
+		SystemEntityType entityType = filter.getEntityType();
+		if (entityType != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningArchive_.entityType), entityType));
 		}
 		// Entity identifier
-		if (filter.getEntityIdentifier() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningArchive_.entityIdentifier), filter.getEntityIdentifier()));
+		UUID entityIdentifier = filter.getEntityIdentifier();
+		if (entityIdentifier != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningArchive_.entityIdentifier), entityIdentifier));
 		}
 		// System entity
 		if (filter.getSystemEntity() != null) {
 			throw new ResultCodeException(CoreResultCode.BAD_FILTER, "Filter by system entity identifier is not supported. Use system entity uid filter.");
 		}
 		// System entity UID
-		if (filter.getSystemEntityUid() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningArchive_.systemEntityUid), filter.getSystemEntityUid()));
+		String systemEntityUid = filter.getSystemEntityUid();
+		if (StringUtils.isNotEmpty(systemEntityUid)) {
+			predicates.add(builder.equal(root.get(SysProvisioningArchive_.systemEntityUid), systemEntityUid));
 		}
 		// Operation result and his state
-		if (filter.getResultState() != null) {
-			predicates.add(builder.equal(root.get(SysProvisioningArchive_.result).get(OperationResultDto.PROPERTY_STATE), filter.getResultState()));
+		OperationState resultState = filter.getResultState();
+		if (resultState != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningArchive_.result).get(OperationResultDto.PROPERTY_STATE), resultState));
 		}
 		// Batch id
 		if (filter.getBatchId() != null) {

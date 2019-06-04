@@ -184,7 +184,7 @@ public class DefaultSysProvisioningOperationService
 		}
 		// Entity identifier
 		UUID entityIdentifier = filter.getEntityIdentifier();
-		if (filter.getEntityIdentifier() != null) {
+		if (entityIdentifier != null) {
 			predicates.add(builder.equal(root.get(SysProvisioningOperation_.entityIdentifier), entityIdentifier));
 		}
 		// System entity

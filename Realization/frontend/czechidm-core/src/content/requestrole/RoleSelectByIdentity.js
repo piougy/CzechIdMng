@@ -341,7 +341,8 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                 placeholder={ this.i18n('entity.Role.environment.help') }
                 multiSelect
                 onChange={ this._onEnvironmentChange.bind(this) }
-                value={ environment }/>
+                value={ environment }
+                helpBlock={ this.i18n('environment.help') }/>
             </Basic.Col>
             <Basic.Col lg={ 6 }>
               <Basic.ContentHeader
@@ -361,7 +362,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                 ref="identityContract"
                 manager={ this.identityContractManager }
                 forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername).setFilter('validNowOrInFuture', true) }
-                label={ this.i18n('entity.IdentityRole.identityContract.label') }
+                label={ this.i18n('targetIdentityContract.label') }
                 placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
                 helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
                 returnProperty={ false }

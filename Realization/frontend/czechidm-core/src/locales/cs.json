@@ -1420,9 +1420,15 @@
               "help": "Po zaškrtnutí budou zkopírovany vyplněné hodnoty parametrů rolí."
             },
             "selectIdentityContract": {
-              "label": "Úvazek vybraného uživatele",
+              "label": "Konkrakt zdrojového uživatele",
               "help": "Výběr úvazku od uživatele. Výběr úvazku filtruje uživatelovy role.",
               "placeholder": "Vyberte úvazek"
+            },
+            "targetIdentityContract": {
+              "label": "Kontrakt cílového uživatele"
+            },
+            "environment": {
+              "help": "Filtruje role uživatele dle zvoleného prostředí."
             },
             "roleSelectionHeader": "Výběr rolí",
             "roleSelect": "Výběr rolí uživatele {{username}}",

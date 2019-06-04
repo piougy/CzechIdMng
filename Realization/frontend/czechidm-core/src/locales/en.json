@@ -1376,9 +1376,15 @@
             "help": "After check, will be copied parameter values filled in roles."
           },
           "selectIdentityContract": {
-            "label": "Contract of the selected user",
+            "label": "Source user contract",
             "help": "Select contract of user. Select contract filtering roles of selected user.",
             "placeholder": "Select contract"
+          },
+          "targetIdentityContract": {
+            "label": "Target user contract"
+          },
+          "environment": {
+            "help": "Filtering roles of selected user by environment."
           },
           "roleSelectionHeader": "Selection of roles",
           "roleSelect": "Roles select from user {{username}}",

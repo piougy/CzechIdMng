@@ -597,6 +597,17 @@
         "dateTill": {
           "label": "To",
           "placeholder": "Date to"
+        },
+        "attributeUpdated": {
+          "placeholder": "With filled attributes (OR)"
+        },
+        "attributeRemoved": {
+          "placeholder": "With removed attributes (emtpy attribute values, OR)"
+        },
+        "emptyProvisioning": {
+          "placeholder": "All operations ...",
+          "yes": "Exclude epmty provisioning (with attributes)",
+          "no": "Empty provisioning provisioning only (without atributes)"
         }
       }
     },

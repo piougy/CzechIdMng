@@ -6,12 +6,16 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
@@ -21,11 +25,17 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive_;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -41,20 +51,27 @@ public class DefaultSysProvisioningArchiveService
 		extends AbstractReadWriteDtoService<SysProvisioningArchiveDto, SysProvisioningArchive, SysProvisioningOperationFilter> 
 		implements SysProvisioningArchiveService {
 	
-	private final SysSystemEntityService systemEntityService;
+	@Autowired private SysSystemEntityService systemEntityService;
+	@Autowired private SysProvisioningAttributeService provisioningAttributeService;
 
 	@Autowired
-	public DefaultSysProvisioningArchiveService(
-			SysProvisioningArchiveRepository repository,
-			SysSystemEntityService systemEntityService) {
+	public DefaultSysProvisioningArchiveService(SysProvisioningArchiveRepository repository) {
 		super(repository);
-		//
-		this.systemEntityService = systemEntityService;
 	}
 	
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(AccGroupPermission.PROVISIONINGARCHIVE, getEntityClass());
+	}
+	
+	@Override
+	@Transactional
+	public void deleteInternal(SysProvisioningArchiveDto dto) {
+		Assert.notNull(dto);
+		// delete attributes
+		provisioningAttributeService.deleteAttributes(dto);
+		//
+		super.deleteInternal(dto);
 	}
 
 	@Override
@@ -80,12 +97,22 @@ public class DefaultSysProvisioningArchiveService
 		// archive modified is used as the executed / canceled 
 		archive.setModified(DateTime.now());
 		//
-		return save(archive);
+		archive = save(archive);
+		//
+		// log attributes used in provisioning context into provisioning attributes
+		provisioningAttributeService.saveAttributes(archive);
+		//
+		return archive;
 	}
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<SysProvisioningArchive> root, CriteriaQuery<?> query, CriteriaBuilder builder, SysProvisioningOperationFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
+		// quick - "fulltext"
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			throw new ResultCodeException(CoreResultCode.BAD_FILTER, "Filter by text is not supported.");
+		}
 		// System Id
 		if (filter.getSystemId() != null) {
 			predicates.add(builder.equal(root.get(SysProvisioningArchive_.system).get(SysSystem_.id), filter.getSystemId()));
@@ -112,7 +139,7 @@ public class DefaultSysProvisioningArchiveService
 		}
 		// System entity
 		if (filter.getSystemEntity() != null) {
-			throw new UnsupportedOperationException("Filter by system entity identifier is not supported. Use system entity uid filter.");
+			throw new ResultCodeException(CoreResultCode.BAD_FILTER, "Filter by system entity identifier is not supported. Use system entity uid filter.");
 		}
 		// System entity UID
 		if (filter.getSystemEntityUid() != null) {
@@ -120,12 +147,57 @@ public class DefaultSysProvisioningArchiveService
 		}
 		// Operation result and his state
 		if (filter.getResultState() != null) {
-			// TODO: Operation result hasn't metadata model
-			predicates.add(builder.equal(root.get(SysProvisioningArchive_.result).get("state"), filter.getResultState()));
+			predicates.add(builder.equal(root.get(SysProvisioningArchive_.result).get(OperationResultDto.PROPERTY_STATE), filter.getResultState()));
 		}
 		// Batch id
 		if (filter.getBatchId() != null) {
 			throw new UnsupportedOperationException("Filter by batch identifier is not supported in archive.");
+		}
+		// updated attributes
+		List<String> attributeUpdated = filter.getAttributeUpdated();
+		if (!CollectionUtils.isEmpty(attributeUpdated)) {
+			Subquery<SysProvisioningAttribute> subquery = query.subquery(SysProvisioningAttribute.class);
+			Root<SysProvisioningAttribute> subRoot = subquery.from(SysProvisioningAttribute.class);
+			subquery.select(subRoot);
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get(SysProvisioningAttribute_.provisioningId), root.get(SysProvisioningArchive_.id)), // correlation attr
+                    		subRoot.get(SysProvisioningAttribute_.name).in(attributeUpdated),
+                    		builder.isFalse(subRoot.get(SysProvisioningAttribute_.removed))
+                    		)
+            );		
+			predicates.add(builder.exists(subquery));
+		}
+		// removed attributes
+		List<String> attributeRemoved = filter.getAttributeRemoved();
+		if (!CollectionUtils.isEmpty(attributeRemoved)) {
+			Subquery<SysProvisioningAttribute> subquery = query.subquery(SysProvisioningAttribute.class);
+			Root<SysProvisioningAttribute> subRoot = subquery.from(SysProvisioningAttribute.class);
+			subquery.select(subRoot);
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get(SysProvisioningAttribute_.provisioningId), root.get(SysProvisioningArchive_.id)), // correlation attr
+                    		subRoot.get(SysProvisioningAttribute_.name).in(attributeRemoved),
+                    		builder.isTrue(subRoot.get(SysProvisioningAttribute_.removed))
+                    		)
+            );		
+			predicates.add(builder.exists(subquery));
+		}
+		// empty provisioning
+		Boolean emptyProvisioning = filter.getEmptyProvisioning();
+		if (emptyProvisioning != null) {
+			Subquery<SysProvisioningAttribute> subquery = query.subquery(SysProvisioningAttribute.class);
+			Root<SysProvisioningAttribute> subRoot = subquery.from(SysProvisioningAttribute.class);
+			subquery.select(subRoot);
+			subquery.where(
+                    builder.and(builder.equal(subRoot.get(SysProvisioningAttribute_.provisioningId), root.get(SysProvisioningArchive_.id))) // correlation attr)
+            );
+			//
+			Predicate provisioningPredicate = builder.exists(subquery); // has attributes
+			if (emptyProvisioning) {
+				provisioningPredicate = builder.not(provisioningPredicate); // empty
+			}
+			predicates.add(provisioningPredicate);
 		}
 		//
 		return predicates;

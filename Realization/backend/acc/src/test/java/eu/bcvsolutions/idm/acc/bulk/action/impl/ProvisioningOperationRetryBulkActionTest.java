@@ -295,8 +295,8 @@ public class ProvisioningOperationRetryBulkActionTest extends AbstractBulkAction
 		assertFalse(operations.isEmpty());
 
 		IdmBulkActionDto bulkAction = this.findBulkAction(SysProvisioningOperation.class, ProvisioningOperationRetryBulkAction.NAME);
-		bulkAction.setTransformedFilter(null); // There must be null
-		bulkAction.setFilter(toMap(filter)); // Empty filter
+		bulkAction.setTransformedFilter(filter);
+		bulkAction.setFilter(filter.getData().toSingleValueMap()); // FIXME: can be multivalued (attributes) ...
 
 		int allOperations = operations.size();
 

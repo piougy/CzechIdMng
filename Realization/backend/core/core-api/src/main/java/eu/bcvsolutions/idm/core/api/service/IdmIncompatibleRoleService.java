@@ -36,7 +36,7 @@ public interface IdmIncompatibleRoleService extends
 	 * 
 	 * @param roleIds bulk role ids
 	 * @return
-	 * @since 9.7.0
+	 * @since 9.6.3
 	 */
 	List<IdmIncompatibleRoleDto> findAllByRoles(List<UUID> roleIds);
 	

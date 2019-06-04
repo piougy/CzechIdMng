@@ -15,7 +15,6 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +23,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
@@ -41,9 +39,11 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive_;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningAttributeRepository;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.ProvisioningQueueTaskExecutor;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.RetryProvisioningTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
@@ -86,6 +86,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * - disabled system provisioning
  * - readonly system provisioning
  * - asynchronous system provisioning
+ * - fill provisioning attributes
  * 
  * @author Radek Tomiška
  *
@@ -108,20 +109,34 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	@Autowired private SysProvisioningArchiveService provisioningArchiveService;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private SchedulerManager schedulerManager;
+	@Autowired private SysProvisioningAttributeRepository provisioningAttributeRepository;
 	//
 	private SysProvisioningOperationService provisioningOperationService;
 	private ProvisioningExecutor provisioningExecutor;
 	
 	@Before
 	public void init() {	
-		loginAsAdmin();
 		provisioningOperationService = context.getAutowireCapableBeanFactory().createBean(DefaultSysProvisioningOperationService.class);
 		provisioningExecutor = context.getAutowireCapableBeanFactory().createBean(DefaultProvisioningExecutor.class);
 	}
 	
-	@After
-	public void logout() {
-		super.logout();
+	@Test
+	public void testReferentiralIntegrity() {
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		
+		SysProvisioningOperationDto operationOne = provisioningOperationService.save(
+				createProvisioningOperation(system, getHelper().createName()));
+		SysProvisioningOperationDto operationTwo = provisioningOperationService.save(
+				createProvisioningOperation(system, getHelper().createName()));
+		SysProvisioningAttribute attributeOne = new SysProvisioningAttribute(operationOne.getId(), getHelper().createName());
+		attributeOne = provisioningAttributeRepository.save(attributeOne);
+		SysProvisioningAttribute attributeTwo = new SysProvisioningAttribute(operationTwo.getId(), getHelper().createName());
+		attributeTwo = provisioningAttributeRepository.save(attributeTwo);
+		//
+		provisioningOperationService.delete(operationOne);
+		//
+		Assert.assertNull(provisioningAttributeRepository.findOne(attributeOne.getId()));
+		Assert.assertNotNull(provisioningAttributeRepository.findOne(attributeTwo.getId()));
 	}
 	
 	@Test
@@ -271,8 +286,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		filter.setSystemId(system.getId());
 		SysProvisioningOperationDto readOnlyoperation = provisioningOperationService.find(filter, null).getContent().get(0);
 		//
-		assertEquals(OperationState.NOT_EXECUTED, readOnlyoperation.getResultState());
-		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), readOnlyoperation.getResult().getModel().getStatusEnum());
+		Assert.assertEquals(OperationState.NOT_EXECUTED, readOnlyoperation.getResultState());
+		Assert.assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), readOnlyoperation.getResult().getModel().getStatusEnum());
 		//
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
@@ -281,10 +296,10 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				objectClass, 
 				uidAttribute);
 		//
-		assertNull(existsConnectorObject);
+		Assert.assertNull(existsConnectorObject);
 		// passwords are stored in confidential storage
-		assertNotNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class, provisioningOperationService.createAccountObjectPropertyKey( passwordAttribute.getKey(), 0)));
-		assertNotNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class, provisioningOperationService.createConnectorObjectPropertyKey(readOnlyoperation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttribute.getSchemaAttributeName()), 0)));
+		Assert.assertNotNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class, provisioningOperationService.createAccountObjectPropertyKey( passwordAttribute.getKey(), 0)));
+		Assert.assertNotNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class, provisioningOperationService.createConnectorObjectPropertyKey(readOnlyoperation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttribute.getSchemaAttributeName()), 0)));
 		//
 		system.setReadonly(false);
 		system = systemService.save(system);
@@ -300,11 +315,11 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				objectClass, 
 				uidAttribute);
 		//
-		assertNotNull(existsConnectorObject);
-		assertEquals(uid, existsConnectorObject.getUidValue());
-		assertEquals(accoutObject.get(firstNameAttribute), 
+		Assert.assertNotNull(existsConnectorObject);
+		Assert.assertEquals(uid, existsConnectorObject.getUidValue());
+		Assert.assertEquals(accoutObject.get(firstNameAttribute), 
 				existsConnectorObject.getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME).getValue());
-		assertEquals(accoutObject.get(lastNameAttribute), 
+		Assert.assertEquals(accoutObject.get(lastNameAttribute), 
 				existsConnectorObject.getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
@@ -312,17 +327,17 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				systemService.getConnectorConfiguration(system), 
 				objectClass,
 				uid, password);
-		assertNotNull(attribute);
-		assertEquals(uid, attribute.getUidValue());
+		Assert.assertNotNull(attribute);
+		Assert.assertEquals(uid, attribute.getUidValue());
 		// passwords are removed in confidential storage
-		assertNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class,
+		Assert.assertNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class,
 				provisioningOperationService.createAccountObjectPropertyKey(TestHelper.ATTRIBUTE_MAPPING_PASSWORD, 0)));
 		//
 		String connectorObjectPropertyKey = provisioningOperationService.createConnectorObjectPropertyKey(
 				readOnlyoperation.getProvisioningContext().getConnectorObject().getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_PASSWORD),
 				0);
 		//
-		assertNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class, connectorObjectPropertyKey));
+		Assert.assertNull(confidentialStorage.get(readOnlyoperation.getId(), SysProvisioningOperation.class, connectorObjectPropertyKey));
 	}
 	
 	@Test
@@ -716,17 +731,20 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	}
 	
 	@Test
-	@Transactional
 	public void testDeleteOperations() {
 		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
 		SysSystemDto systemTwo = getHelper().createTestResourceSystem(true);
 		//
 		SysProvisioningOperationDto createProvisioningOperationOne = createProvisioningOperation(systemOne, getHelper().createName());
 		createProvisioningOperationOne.setResult(new OperationResult(OperationState.BLOCKED));
-		provisioningOperationService.save(createProvisioningOperationOne);
+		createProvisioningOperationOne = provisioningOperationService.save(createProvisioningOperationOne);
+		SysProvisioningAttribute attributeOne = provisioningAttributeRepository.save(
+				new SysProvisioningAttribute(createProvisioningOperationOne.getId(), getHelper().createName()));
 		SysProvisioningOperationDto createProvisioningOperationTwo = createProvisioningOperation(systemTwo, getHelper().createName());
 		createProvisioningOperationTwo.setResult(new OperationResult(OperationState.BLOCKED));
-		provisioningOperationService.save(createProvisioningOperationTwo);
+		createProvisioningOperationTwo = provisioningOperationService.save(createProvisioningOperationTwo);
+		SysProvisioningAttribute attributeTwo = provisioningAttributeRepository.save(
+				new SysProvisioningAttribute(createProvisioningOperationTwo.getId(), getHelper().createName()));
 		
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setSystemId(systemOne.getId());
@@ -735,11 +753,30 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		Assert.assertEquals(1, provisioningOperationService.find(filter,  null).getTotalElements());
 		//
 		provisioningOperationService.deleteOperations(systemOne.getId());
+		Assert.assertNull(provisioningAttributeRepository.findOne(attributeOne.getId()));
+		Assert.assertNotNull(provisioningAttributeRepository.findOne(attributeTwo.getId()));
 		//
 		filter.setSystemId(systemOne.getId());
 		Assert.assertEquals(0, provisioningOperationService.find(filter,  null).getTotalElements());
 		filter.setSystemId(systemTwo.getId());
 		Assert.assertEquals(1, provisioningOperationService.find(filter,  null).getTotalElements());
+	}
+	
+	@Test
+	public void testFillProvisioningAttributes() {
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		system.setReadonly(true);
+		system = systemService.save(system);
+		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system, getHelper().createName());
+		// publish event
+		provisioningExecutor.execute(provisioningOperation);
+		//
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemEntity(provisioningOperation.getSystemEntity());
+		filter.setSystemId(system.getId());
+		filter.setEmptyProvisioning(Boolean.FALSE);
+		//
+		Assert.assertFalse(provisioningOperationService.find(filter, null).getContent().isEmpty());
 	}
 	
 	/**
@@ -780,10 +817,15 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
+				.setSystem(system.getId())
 				.setOperationType(ProvisioningOperationType.CREATE)
 				.setSystemEntity(systemEntity)
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
-		return operationBuilder.build();
+		SysProvisioningOperationDto operation = operationBuilder.build();
+		// set default result state
+		operation.setResult(new OperationResult(OperationState.CREATED));
+		//
+		return operation;
 	}
 	
 	private SysProvisioningOperationDto updateProvisioningOperation(SysSystemEntityDto systemEntity, String firstname) {

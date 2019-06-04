@@ -62,5 +62,12 @@
         "environment": null
       }
     }
+  },
+  "provisioning-archive": {
+    "table": {
+      "filter": {
+        "emptyProvisioning": false
+      }
+    }
   }
 }

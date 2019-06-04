@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * Delete executed events
  * 
  * @author Radek Tomiška
- * @since 9.7.0
+ * @since 9.6.3
  */
 @Service(DeleteExecutedEventTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution

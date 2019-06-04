@@ -4,6 +4,9 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
@@ -29,6 +32,7 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 	private ProvisioningEventType operationType;
 	@Embedded(dtoClass = SysSystemDto.class)
 	private UUID system;
+	@JsonProperty(access = Access.READ_ONLY)
 	private ProvisioningContext provisioningContext;
 	private SystemEntityType entityType;
 	private UUID entityIdentifier;

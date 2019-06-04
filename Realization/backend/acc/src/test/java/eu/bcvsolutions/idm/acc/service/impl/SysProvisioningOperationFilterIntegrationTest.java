@@ -223,7 +223,7 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 
 		createProvisioningOperation(entityType, system);
 
-		getHelper().waitForResult(null, null, 1);
+		getHelper().waitForResult(null, 30, 1);
 		
 		DateTime dateTime = DateTime.now();
 

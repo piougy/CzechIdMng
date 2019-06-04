@@ -42,6 +42,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
@@ -98,15 +99,12 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	private final SysSchemaAttributeService schemaAttributeService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final ProvisioningConfiguration provisioningConfiguration;
-	@Autowired
-	private ProvisioningService provisioningService;
-
-	@Autowired
-	private LookupService lookupService;
-	@Autowired
-	private IdmPasswordPolicyService passwordPolicyService;
-	@Autowired
-	private ConfidentialStorage confidentialStorage;
+	//
+	@Autowired private ProvisioningService provisioningService;
+	@Autowired private LookupService lookupService;
+	@Autowired private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired private ConfidentialStorage confidentialStorage;
+	@Autowired private SysProvisioningAttributeService provisioningAttributeService;
 	
 	@Autowired
 	public PrepareConnectorObjectProcessor(
@@ -199,6 +197,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					provisioningOperation.getOperationType(), uid, objectClass.getType());
 			// set back to event content
 			provisioningOperation = provisioningOperationService.saveOperation(provisioningOperation);
+			// log attributes used in provisioning context into provisioning attributes
+			provisioningAttributeService.saveAttributes(provisioningOperation);
+			//
 			event.setContent(provisioningOperation);
 			return new DefaultEventResult<>(event, this);
 		} catch (Exception ex) {

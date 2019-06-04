@@ -17,7 +17,9 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 public class OperationResultDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+	public static final String PROPERTY_STATE = "state";
+	public static final String PROPERTY_CODE = "code";
+	//
 	private OperationState state = OperationState.CREATED;
 	private String code;
 	private ResultModel model;

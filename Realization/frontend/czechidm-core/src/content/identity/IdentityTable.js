@@ -208,10 +208,10 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 12 }>
                     <Advanced.Filter.CreatableSelectBox
                       ref="identifiers"
-                      manager={identityManager}
+                      manager={ identityManager }
                       useCheck
-                      placeholder={this.i18n('filter.identifiers.placeholder')}
-                      tooltip={this.i18n('filter.identifiers.tooltip')}/>
+                      placeholder={ this.i18n('filter.identifiers.placeholder') }
+                      tooltip={ this.i18n('filter.identifiers.tooltip') }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>

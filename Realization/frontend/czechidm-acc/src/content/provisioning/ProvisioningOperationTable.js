@@ -28,6 +28,10 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
     return 'acc:content.provisioningOperations';
   }
 
+  getManager() {
+    return this.props.manager;
+  }
+
   clearSelectedRows() {
     this.refs.table.getWrappedInstance().clearSelectedRows();
   }
@@ -48,6 +52,16 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  }
+
+  getDefaultSearchParameters() {
+    let searchParameters = this.getManager().getDefaultSearchParameters();
+    //
+    if (this.props.isArchive) {
+      searchParameters = searchParameters.setFilter('emptyProvisioning', Utils.Config.getConfig('identity.table.filter.disabled', null));
+    }
+    //
+    return searchParameters;
   }
 
   _deleteAll() {
@@ -132,24 +146,24 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
                   <Basic.Col lg={ 8 }>
-                    <Advanced.Filter.FilterDate ref="fromTill"/>
+                    <Advanced.Filter.FilterDate ref="fromTill" placeholder="TODO"/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
 
-                <Basic.Row className={ classnames({ last: !_.includes(columns, 'entityIdentifier') })}>
+                <Basic.Row>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="resultState"
-                      placeholder={this.i18n('acc:entity.ProvisioningOperation.resultState')}
+                      placeholder={ this.i18n('acc:entity.ProvisioningOperation.resultState') }
                       enum={ Enums.OperationStateEnum }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="operationType"
-                      placeholder={this.i18n('acc:entity.ProvisioningOperation.operationType')}
+                      placeholder={ this.i18n('acc:entity.ProvisioningOperation.operationType') }
                       enum={ ProvisioningOperationTypeEnum }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
@@ -158,29 +172,51 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                       ||
                       <Advanced.Filter.SelectBox
                         ref="systemId"
-                        placeholder={this.i18n('acc:entity.System._type')}
-                        multiSelect={false}
-                        manager={systemManager}/>
+                        placeholder={ this.i18n('acc:entity.System._type') }
+                        multiSelect={ false }
+                        manager={ systemManager }/>
                     }
                   </Basic.Col>
                 </Basic.Row>
 
-                <Basic.Row className="last" rendered={ _.includes(columns, 'entityIdentifier') }>
+                <Basic.Row rendered={ _.includes(columns, 'entityIdentifier') }>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="entityType"
-                      placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
-                      enum={SystemEntityTypeEnum}/>
+                      placeholder={ this.i18n('acc:entity.SystemEntity.entityType') }
+                      enum={ SystemEntityTypeEnum }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="entityIdentifier"
-                      placeholder={this.i18n('acc:entity.ProvisioningOperation.entityIdentifier')}/>
+                      placeholder={ this.i18n('acc:entity.ProvisioningOperation.entityIdentifier') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="systemEntityUid"
-                      placeholder={this.i18n('acc:entity.SystemEntity.uid')}/>
+                      placeholder={ this.i18n('acc:entity.SystemEntity.uid') }/>
+                  </Basic.Col>
+                </Basic.Row>
+
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.CreatableSelectBox
+                      ref="attributeUpdated"
+                      placeholder={ this.i18n('filter.attributeUpdated.placeholder') }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.CreatableSelectBox
+                      ref="attributeRemoved"
+                      placeholder={ this.i18n('filter.attributeRemoved.placeholder') }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.BooleanSelectBox
+                      ref="emptyProvisioning"
+                      placeholder={ this.i18n('filter.emptyProvisioning.placeholder') }
+                      options={ [
+                        { value: 'false', niceLabel: this.i18n('filter.emptyProvisioning.yes') },
+                        { value: 'true', niceLabel: this.i18n('filter.emptyProvisioning.no') }
+                      ]}/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>

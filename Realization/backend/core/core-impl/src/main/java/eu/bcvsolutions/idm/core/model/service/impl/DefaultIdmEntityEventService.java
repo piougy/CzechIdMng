@@ -155,6 +155,7 @@ public class DefaultIdmEntityEventService
 			IdmEntityEventFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
+		// "fulltext"
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.or(
 					builder.like(builder.lower(root.get(IdmEntityEvent_.ownerType)), "%" + filter.getText().toLowerCase() + "%"),

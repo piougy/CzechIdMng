@@ -1,13 +1,18 @@
 package eu.bcvsolutions.idm.acc.dto.filter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Provisioning operation filter
@@ -15,96 +20,171 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  * @author Radek Tomiška
  *
  */
-public class SysProvisioningOperationFilter implements BaseFilter {
+public class SysProvisioningOperationFilter extends DataFilter {
 
-	private DateTime from;
-	private DateTime till;
-	private UUID systemId;
-	private ProvisioningEventType operationType;
-	private SystemEntityType entityType;
-	private OperationState resultState;
-	private UUID entityIdentifier;
-	private UUID systemEntity;
-	private String systemEntityUid;
-	private UUID batchId;
+	public static final String PARAMETER_FROM = "from"; // created from
+	public static final String PARAMETER_TILL = "till"; // created till
+	public static final String PARAMETER_SYSTEM_ID = "systemId";
+	public static final String PARAMETER_OPERATION_TYPE = "operationType";
+	public static final String PARAMETER_ENTITY_TYPE = "entityType";
+	public static final String PARAMETER_RESULT_STATE = "resultState";
+	public static final String PARAMETER_ENTITY_IDENTIFIER = "entityIdentifier";
+	public static final String PARAMETER_SYSTEM_ENTITY_ID = "systemEntity";
+	public static final String PARAMETER_SYSTEM_ENTITY_UID = "systemEntityUid";
+	public static final String PARAMETER_BATCH_ID = "batchId";
+	public static final String PARAMETER_ATTRIBUTE_UPDATED = "attributeUpdated"; // list - OR
+	public static final String PARAMETER_ATTRIBUTE_REMOVED = "attributeRemoved"; // list - OR
+	public static final String PARAMETER_EMPTY_PROVISIONING = "emptyProvisioning"; // provisioning attributes are empty
+
+	public SysProvisioningOperationFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public SysProvisioningOperationFilter(MultiValueMap<String, Object> data) {
+		this(data, null);
+	}
+	
+	public SysProvisioningOperationFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(null, data, parameterConverter); // FIXME: filter used for two DTOs - operation and archive
+	}
 
 	public DateTime getFrom() {
-		return from;
+		return getParameterConverter().toDateTime(data, PARAMETER_FROM);
 	}
 
 	public void setFrom(DateTime from) {
-		this.from = from;
+		data.set(PARAMETER_FROM, from);
 	}
 
 	public DateTime getTill() {
-		return till;
+		return getParameterConverter().toDateTime(data, PARAMETER_TILL);
 	}
 
 	public void setTill(DateTime till) {
-		this.till = till;
+		data.set(PARAMETER_TILL, till);
 	}
 
 	public UUID getSystemId() {
-		return systemId;
+		return getParameterConverter().toUuid(data, PARAMETER_SYSTEM_ID);
 	}
 
 	public void setSystemId(UUID systemId) {
-		this.systemId = systemId;
+		data.set(PARAMETER_SYSTEM_ID, systemId);
 	}
 
 	public ProvisioningEventType getOperationType() {
-		return operationType;
+		return getParameterConverter().toEnum(data, PARAMETER_OPERATION_TYPE, ProvisioningEventType.class);
 	}
 
 	public void setOperationType(ProvisioningEventType operationType) {
-		this.operationType = operationType;
+		data.set(PARAMETER_OPERATION_TYPE, operationType);
 	}
 
 	public SystemEntityType getEntityType() {
-		return entityType;
+		return getParameterConverter().toEnum(data, PARAMETER_ENTITY_TYPE, SystemEntityType.class);
 	}
 
 	public void setEntityType(SystemEntityType entityType) {
-		this.entityType = entityType;
+		data.set(PARAMETER_ENTITY_TYPE, entityType);
 	}
 
 	public OperationState getResultState() {
-		return resultState;
+		return getParameterConverter().toEnum(data, PARAMETER_RESULT_STATE, OperationState.class);
 	}
 
 	public void setResultState(OperationState resultState) {
-		this.resultState = resultState;
+		data.set(PARAMETER_RESULT_STATE, resultState);
 	}
 
 	public UUID getEntityIdentifier() {
-		return entityIdentifier;
+		return getParameterConverter().toUuid(data, PARAMETER_ENTITY_IDENTIFIER);
 	}
 
 	public void setEntityIdentifier(UUID entityIdentifier) {
-		this.entityIdentifier = entityIdentifier;
+		data.set(PARAMETER_ENTITY_IDENTIFIER, entityIdentifier);
 	}
 	
 	public UUID getSystemEntity() {
-		return systemEntity;
+		return getParameterConverter().toUuid(data, PARAMETER_SYSTEM_ENTITY_ID);
 	}
 
 	public void setSystemEntity(UUID systemEntity) {
-		this.systemEntity = systemEntity;
+		data.set(PARAMETER_SYSTEM_ENTITY_ID, systemEntity);
 	}
 
 	public void setBatchId(UUID batchId) {
-		this.batchId = batchId;
+		data.set(PARAMETER_BATCH_ID, batchId);
 	}
 	
 	public UUID getBatchId() {
-		return batchId;
+		return getParameterConverter().toUuid(data, PARAMETER_BATCH_ID);
 	}
 
 	public String getSystemEntityUid() {
-		return systemEntityUid;
+		return getParameterConverter().toString(data, PARAMETER_SYSTEM_ENTITY_UID);
 	}
 
 	public void setSystemEntityUid(String systemEntityUid) {
-		this.systemEntityUid = systemEntityUid;
+		data.set(PARAMETER_SYSTEM_ENTITY_UID, systemEntityUid);
+	}
+	
+	/**
+	 * Updated (or created) attributes in provisioning context connector attributes.
+	 * 
+	 * @return
+	 * @since 9.6.3
+	 */
+	public List<String> getAttributeUpdated() {
+		return getParameterConverter().toStrings(data, PARAMETER_ATTRIBUTE_UPDATED);
+	}
+	
+	/**
+	 * Updated (or created) attributes in provisioning context connector attributes.
+	 * 
+	 * @param attributeUpdated
+	 * @since 9.6.3
+	 */
+	public void setAttributeUpdated(List<String> attributeUpdated) {
+		data.put(PARAMETER_ATTRIBUTE_UPDATED, attributeUpdated == null ? null : new ArrayList<Object>(attributeUpdated));
+	}
+
+	/**
+	 * Removed attributes in provisioning context connector attributes (null or empty values send in connector attributes).
+	 * 
+	 * @return
+	 * @since 9.6.3
+	 */
+	public List<String> getAttributeRemoved() {
+		return getParameterConverter().toStrings(data, PARAMETER_ATTRIBUTE_REMOVED);
+	}
+
+	/**
+	 * Removed attributes in provisioning context connector attributes (null or empty values send in connector attributes).
+	 * 
+	 * @param attributeRemoved
+	 * @since 9.6.3
+	 */
+	public void setAttributeRemoved(List<String> attributeRemoved) {
+		data.put(PARAMETER_ATTRIBUTE_REMOVED, attributeRemoved == null ? null : new ArrayList<Object>(attributeRemoved));
+	}
+	
+	/**
+	 * Provisioning context with connector attributes is empty.
+	 * 
+	 * @return
+	 * @since 9.6.3
+	 */
+	public Boolean getEmptyProvisioning() {
+		return getParameterConverter().toBoolean(data, PARAMETER_EMPTY_PROVISIONING);
+	}
+	
+	/**
+	 * Provisioning context with connector attributes is empty.
+	 * 
+	 * @param emptyProvisioning
+	 * @since 9.6.3
+	 */
+	public void setEmptyProvisioning(Boolean emptyProvisioning) {
+		data.set(PARAMETER_EMPTY_PROVISIONING, emptyProvisioning);
 	}
 }

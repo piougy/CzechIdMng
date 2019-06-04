@@ -180,4 +180,9 @@ public class SysProvisioningArchiveController extends AbstractReadWriteDtoContro
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
 	}
+	
+	@Override
+	protected SysProvisioningOperationFilter toFilter(MultiValueMap<String, Object> parameters) {
+		return new SysProvisioningOperationFilter(parameters, getParameterConverter());
+	}
 }

@@ -385,7 +385,7 @@ public class ParameterConverter {
 	 * @param identifiableType
 	 * @return
 	 * 
-	 * @since 9.7.0
+	 * @since 9.6.3
 	 */
 	public UUID toEntityUuid(Map<String, Object> parameters, String parameterName, Class<? extends Identifiable> identifiableType) {
 		return toEntityUuid(toString(parameters, parameterName), identifiableType);

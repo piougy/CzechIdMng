@@ -188,7 +188,7 @@ public class ExceptionControllerAdvice {
 	 * 
 	 * @param ex
 	 * @return
-	 * @since 9.7.0
+	 * @since 9.6.3
 	 */
 	@ExceptionHandler(ObjectOptimisticLockingFailureException.class)
 	ResponseEntity<ResultModels> handle(ObjectOptimisticLockingFailureException ex) {

@@ -33,6 +33,7 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	private static final long serialVersionUID = 3928289153591673531L;
 	
 	private ProvisioningEventType operationType;
+	@JsonProperty(access = Access.READ_ONLY)
 	private ProvisioningContext provisioningContext;
 	@Embedded(dtoClass = SysSystemDto.class)
 	private UUID system;

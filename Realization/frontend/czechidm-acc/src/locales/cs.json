@@ -592,11 +592,22 @@
       "filter": {
         "dateFrom": {
           "label": "Od",
-          "placeholder": "Datum od"
+          "placeholder": "Datum vytvoření od"
         },
         "dateTill": {
           "label": "Do",
-          "placeholder": "Datum do"
+          "placeholder": "Datum vytvoření do"
+        },
+        "attributeUpdated": {
+          "placeholder": "S vyplněnými atributy (OR)"
+        },
+        "attributeRemoved": {
+          "placeholder": "S odebíranými atributy (atributy s prázdnou hodnotou, OR)"
+        },
+        "emptyProvisioning": {
+          "placeholder": "Všechny operace ...",
+          "yes": "Bez prázdného provisioningu (s atributy)",
+          "no": "Pouze prázdný provisioning (bez atributů)"
         }
       }
     },

@@ -408,7 +408,8 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                   nodeNiceLabel={ this._identityRoleNiceLabel.bind(this) }
                   nodeIcon={ this._identityRoleIcon.bind(this)}
                   nodeIconClassName={ null }
-                  header={ this.i18n('roleSelect', {'username': identityManager.getNiceLabel(selectedIdentity)}) }/>
+                  header={ this.i18n('roleSelect', {'username': identityManager.getNiceLabel(selectedIdentity)}) }
+                  bodyStyle={{ overflowX: 'visible' }}/>
               </div>
 
               <div
@@ -476,7 +477,8 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                   nodeNiceLabel={ this._identityRoleNiceLabel.bind(this) }
                   nodeIcon={ this._identityRoleIcon.bind(this) }
                   nodeIconClassName={ null }
-                  header={ this.i18n('selectedIdentityRoles') }/>
+                  header={ this.i18n('selectedIdentityRoles') }
+                  bodyStyle={{ overflowX: 'visible' }}/>
               </div>
             </div>
           </Basic.Div>

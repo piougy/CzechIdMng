@@ -11,9 +11,13 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -21,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -28,6 +33,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.AbstractWorkflowEventProcessor;
 
 /**
@@ -51,6 +58,7 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
 
 	public IdentityContractEndProcessor() {
 		super(IdentityContractEventType.UPDATE, IdentityContractEventType.DELETE);
@@ -92,7 +100,11 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 		}
 		//
 		IdmIdentityContractDto contract = event.getContent();
-		OperationResult result = process(contract, (Boolean) event.getProperties().get(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION));
+		OperationResult result = process(
+				contract, 
+				(Boolean) event.getProperties().get(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION),
+				event.getPriority() // propagate event priority
+			);
 		return new DefaultEventResult.Builder<>(event, this).setResult(result).build();
 	}
 	
@@ -104,6 +116,17 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 	 * @return
 	 */
 	public OperationResult process(IdmIdentityContractDto contract, Boolean skipRecalculation) {
+		return process(contract, skipRecalculation, null);
+	}
+	
+	/**
+	 * Check identity state after contract ended
+	 * 
+	 * @param contract
+	 * @param skipRecalculation Skip automatic role recalculation
+	 * @return
+	 */
+	private OperationResult process(IdmIdentityContractDto contract, Boolean skipRecalculation, PriorityType priority) {
 		// update identity state
 		IdmIdentityDto identity = identityService.get(contract.getIdentity());
 		IdentityState newState = identityService.evaluateState(identity.getId());
@@ -133,7 +156,29 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 					concepts.add(conceptRoleRequest);
 				}
 			});
-			roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
+			if (!concepts.isEmpty()) {
+				IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+				roleRequest.setState(RoleRequestState.CONCEPT);
+				roleRequest.setExecuteImmediately(true); // without approval
+				roleRequest.setApplicant(contract.getIdentity());
+				roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
+				roleRequest = roleRequestService.save(roleRequest);
+				//
+				for (IdmConceptRoleRequestDto concept : concepts) {
+					concept.setRoleRequest(roleRequest.getId());
+					//
+					conceptRoleRequestService.save(concept);
+				}
+				//
+				// start event with skip check authorities
+				RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+				requestEvent.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
+				if (priority != null) {
+					requestEvent.setPriority(priority);
+				}
+				//
+				roleRequestService.startRequestInternal(requestEvent);
+			}
 		}
 		return new OperationResult.Builder(OperationState.EXECUTED).build();
 	}

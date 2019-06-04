@@ -122,7 +122,11 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 						ImmutableMap.of("entityClass", filter.getOwnerType(), "identifier", ownerId));
 			}
 		} else {
-			filter.setOwnerId(getParameterConverter().toUuid(parameters, "ownerId"));
+			try {
+				filter.setOwnerId(getParameterConverter().toUuid(parameters, "ownerId"));
+			} catch (ClassCastException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
+			}
 		}
 		filter.setStates(getParameterConverter().toEnums(parameters, "states", OperationState.class));
 		return filter;

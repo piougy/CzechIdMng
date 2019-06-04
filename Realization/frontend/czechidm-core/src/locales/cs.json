@@ -3245,7 +3245,7 @@
       "label": "$t(content.entityEvents.title)",
       "filter": {
         "text": {
-          "placeholder": "$t(entity.EntityEvent.ownerType.label) / $t(entity.EntityEvent.ownerId.label) (like)"
+          "placeholder": "$t(entity.EntityEvent.ownerType.label) / Identifikátor entity či události (like)"
         },
         "ownerType": {
           "placeholder": "$t(entity.EntityEvent.ownerType.label)"

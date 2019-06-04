@@ -159,7 +159,8 @@ public class DefaultIdmEntityEventService
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.or(
 					builder.like(builder.lower(root.get(IdmEntityEvent_.ownerType)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmEntityEvent_.ownerId).as(String.class)), "%" + filter.getText().toLowerCase() + "%"))
+					builder.like(builder.lower(root.get(IdmEntityEvent_.ownerId).as(String.class)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmEntityEvent_.id).as(String.class)), "%" + filter.getText().toLowerCase() + "%"))
 					);
 		}
 		// owner type

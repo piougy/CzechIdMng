@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class DeleteEvecutedEventTaskExecutorIntegrationTest extends AbstractIntegrationTest {
+public class DeleteExecutedEventTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private IdmEntityEventService service;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
@@ -38,7 +38,7 @@ public class DeleteEvecutedEventTaskExecutorIntegrationTest extends AbstractInte
 		// prepare provisioning operations
 		DateTime createdOne = DateTime.now().minusDays(2);
 		UUID ownerId = UUID.randomUUID();
-		IdmEntityEventDto operationOne = createDto(ownerId, DateTime.now().minusDays(2), OperationState.EXECUTED);
+		IdmEntityEventDto operationOne = createDto(ownerId, createdOne, OperationState.EXECUTED);
 		// all other variants for not removal
 		createDto(ownerId, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED);
 		createDto(ownerId, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.CREATED);

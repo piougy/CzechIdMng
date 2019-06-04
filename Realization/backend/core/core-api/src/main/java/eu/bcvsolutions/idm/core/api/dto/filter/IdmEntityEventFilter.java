@@ -8,9 +8,11 @@ import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
@@ -86,7 +88,11 @@ public class IdmEntityEventFilter extends DataFilter {
 	}
 	
 	public UUID getParentId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT_ID));
+		try {
+			return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT_ID));
+		} catch (ClassCastException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
+		}
 	}
 	
 	public void setParentId(UUID parentId) {
@@ -106,7 +112,11 @@ public class IdmEntityEventFilter extends DataFilter {
 	}
 	
 	public UUID getRootId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_ROOT_ID));
+		try {
+			return DtoUtils.toUuid(data.getFirst(PARAMETER_ROOT_ID));
+		} catch (ClassCastException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
+		}
 	}
 	
 	public UUID getSuperOwnerId() {

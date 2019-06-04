@@ -606,7 +606,7 @@
         },
         "emptyProvisioning": {
           "placeholder": "All operations ...",
-          "yes": "Exclude epmty provisioning (with attributes)",
+          "yes": "Exclude empty provisioning (with attributes)",
           "no": "Empty provisioning provisioning only (without atributes)"
         }
       }

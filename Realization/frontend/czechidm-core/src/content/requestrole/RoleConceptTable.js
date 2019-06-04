@@ -655,7 +655,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    // form validation at first => prevent to create emtpy request before form is valid 
+    // form validation at first => prevent to create emtpy request before form is valid
     const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
     const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
     if (!form.isFormValid()) {

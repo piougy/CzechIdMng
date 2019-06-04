@@ -1516,7 +1516,7 @@
           "system": {
             "label": "System",
             "placeholder": "All systems or select ...",
-            "help": "Delete operations with given systme only."
+            "help": "Delete operations with given system only."
           }
         }
       }

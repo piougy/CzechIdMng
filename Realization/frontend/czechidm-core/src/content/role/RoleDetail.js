@@ -45,7 +45,7 @@ class RoleDetail extends Basic.AbstractContent {
     roleManager = this.getRequestManager(this.props.params, new RoleManager());
 
     if (Utils.Entity.isNew(entity)) {
-      entity.priorityEnum = RolePriorityEnum.NONE;
+      entity.priorityEnum = RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.NONE);
       entity.priority = RolePriorityEnum.getPriority(RolePriorityEnum.NONE) + '';
       this._setSelectedEntity(entity);
     } else {
@@ -69,7 +69,7 @@ class RoleDetail extends Basic.AbstractContent {
   _prepareEntity(entity) {
     const copyOfEntity = _.merge({}, entity); // we can not modify given entity
     // we dont need to load entities again - we have them in embedded objects
-    copyOfEntity.priorityEnum = RolePriorityEnum.getKeyByPriority(copyOfEntity.priority);
+    copyOfEntity.priorityEnum = RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(copyOfEntity.priority));
     copyOfEntity.priority = copyOfEntity.priority + ''; // We have to do convert form int to string (cause TextField and validator)
     return copyOfEntity;
   }

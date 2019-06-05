@@ -105,7 +105,7 @@ export class RoleInfo extends AbstractEntityInfo {
           // FIXME: maxWidth + inline-block for IE - find a way, how to fix overflowX
           // TODO: maxWidth configurable
           return (
-            <span style={{ whiteSpace: 'normal', maxWidth: 350, display: 'inline-block' }}>{ super._renderPopover(node) }</span>
+            <span style={{ whiteSpace: 'normal', maxWidth: 300, display: 'inline-block' }}>{ super._renderPopover(node) }</span>
           );
         }}
         />

@@ -256,20 +256,21 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
                     entityType="role"
                     entityIdentifier={ entity.role }
                     entity={ entity._embedded.role }
-                    face="popover"/>
+                    face="popover"
+                    showIcon/>
                 );
               }
             }/>
           <Advanced.Column
             property="concept"
             sort
-            header={this.i18n('entity.AutomaticRole.attribute.concept.label')}
+            header={ this.i18n('entity.AutomaticRole.attribute.concept.label') }
             cell={
               ({ rowIndex, data }) => {
                 if (data && data[rowIndex].concept === true) {
                   return (
-                    <Basic.Tooltip value={this.i18n('entity.AutomaticRole.attribute.concept.help')}>
-                      <Basic.Label level="warning" text={this.i18n('entity.AutomaticRole.attribute.concept.info')}/>
+                    <Basic.Tooltip value={ this.i18n('entity.AutomaticRole.attribute.concept.help') }>
+                      <Basic.Label level="warning" text={ this.i18n('entity.AutomaticRole.attribute.concept.info') }/>
                     </Basic.Tooltip>
                   );
                 }

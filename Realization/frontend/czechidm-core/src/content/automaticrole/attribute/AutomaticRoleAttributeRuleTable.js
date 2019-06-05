@@ -79,9 +79,9 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
   _getAttributeName(automaticRole) {
     if (automaticRole) {
       if (automaticRole.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
-        return IdentityAttributeEnum.getNiceLabel(automaticRole.attributeName.toString().toUpperCase());
+        return IdentityAttributeEnum.getNiceLabel(IdentityAttributeEnum.findKeyBySymbol(IdentityAttributeEnum.getEnum(automaticRole.attributeName)));
       } else if (automaticRole.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT)) {
-        return ContractAttributeEnum.getNiceLabel(automaticRole.attributeName.toString().toUpperCase());
+        return ContractAttributeEnum.getNiceLabel(ContractAttributeEnum.findKeyBySymbol(ContractAttributeEnum.getEnum(automaticRole.attributeName)));
       } else if (automaticRole._embedded && automaticRole._embedded.formAttribute) {
         return automaticRole._embedded.formAttribute.name;
       }
@@ -95,7 +95,7 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
   }
 
   render() {
-    const { uiKey, manager, rendered, attributeId } = this.props;
+    const { uiKey, manager, rendered, attributeId, className } = this.props;
     const { filterOpened } = this.state;
     //
     if (!rendered) {
@@ -108,35 +108,35 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     }
     //
     return (
-      <div>
-        <Helmet title={this.i18n('content.automaticRoles.attribute.edit.title')} />
+      <Basic.Div>
+        <Helmet title={ this.i18n('content.automaticRoles.attribute.edit.title') } />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
-          manager={manager}
-          forceSearchParameters={forceSearchParameters}
-          showRowSelection={SecurityManager.hasAuthority('AUTOMATICROLERULE_DELETE')}
-          noData={this.i18n('content.automaticRoles.emptyRules')}
+          uiKey={ uiKey }
+          manager={ manager }
+          forceSearchParameters={ forceSearchParameters }
+          showRowSelection={ SecurityManager.hasAuthority('AUTOMATICROLERULE_DELETE') }
+          noData={ this.i18n('content.automaticRoles.emptyRules') }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
-                  <div className="col-lg-6">
+                  <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.text')}/>
-                  </div>
-                  <div className="col-lg-6 text-right">
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={filterOpened}
+          filterOpened={ filterOpened }
           _searchParameters={ this.getSearchParameters() }
-          >
+          className={ className }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -144,8 +144,8 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
               ({ rowIndex, data }) => {
                 return (
                   <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    title={ this.i18n('button.detail') }
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
               }
             }
@@ -153,24 +153,26 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
           <Advanced.Column
             property="type"
             face="enum"
-            enumClass={AutomaticRoleAttributeRuleTypeEnum}
-            header={this.i18n('entity.AutomaticRole.attribute.type.label')}/>
+            enumClass={ AutomaticRoleAttributeRuleTypeEnum }
+            header={ this.i18n('entity.AutomaticRole.attribute.type.label') }/>
           <Advanced.Column
             property="attributeName"
-            header={this.i18n('entity.AutomaticRole.attribute.attributeName')}
-            cell={({ rowIndex, data }) => {
-              return this._getAttributeName(data[rowIndex]);
-            }}/>
+            header={ this.i18n('entity.AutomaticRole.attribute.attributeName') }
+            cell={
+              ({ rowIndex, data }) => {
+                return this._getAttributeName(data[rowIndex]);
+              }
+            }/>
           <Advanced.Column
             property="comparison"
             face="enum"
-            enumClass={AutomaticRoleAttributeRuleComparisonEnum}
-            header={this.i18n('entity.AutomaticRole.attribute.comparison')}/>
+            enumClass={ AutomaticRoleAttributeRuleComparisonEnum }
+            header={ this.i18n('entity.AutomaticRole.attribute.comparison') }/>
           <Advanced.Column
             property="value"
-            header={this.i18n('entity.AutomaticRole.attribute.value.label')}/>
+            header={ this.i18n('entity.AutomaticRole.attribute.value.label') }/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

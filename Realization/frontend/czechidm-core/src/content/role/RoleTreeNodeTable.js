@@ -189,7 +189,7 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
             header={ this.i18n('entity.AutomaticRole.name.label') }
             face="text"
             width="20%"
-            rendered={_.includes(columns, 'name')}
+            rendered={ _.includes(columns, 'name') }
             sort/>
           <Advanced.Column
             property="_embedded.role.name"
@@ -198,7 +198,7 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
             sort
             sortProperty="role.name"
             face="text"
-            rendered={_.includes(columns, 'role')}
+            rendered={ _.includes(columns, 'role') }
             cell={
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
@@ -207,7 +207,8 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                     entityType="role"
                     entityIdentifier={ entity.role }
                     entity={ entity._embedded.role }
-                    face="popover"/>
+                    face="popover"
+                    showIcon/>
                 );
               }
             }/>
@@ -218,7 +219,7 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
             face="text"
             sort
             sortProperty="treeNode.name"
-            rendered={_.includes(columns, 'treeNode')}
+            rendered={ _.includes(columns, 'treeNode') }
             cell={
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
@@ -235,39 +236,45 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
             property="recursionType"
             header={ this.i18n('entity.RoleTreeNode.recursionType') }
             face="enum"
-            enumClass={RecursionTypeEnum}
+            enumClass={ RecursionTypeEnum }
             sort
-            rendered={_.includes(columns, 'recursionType')}/>
+            rendered={ _.includes(columns, 'recursionType') }/>
         </Advanced.Table>
 
         {
           !SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_READ')
           ||
           <div className="tab-pane-table-body">
-            <Basic.ContentHeader style={{ marginBottom: 0 }} text={this.i18n('content.automaticRoles.request.header')}/>
+            <Basic.ContentHeader style={{ marginBottom: 0 }} text={ this.i18n('content.automaticRoles.request.header') }/>
             <AutomaticRoleRequestTableComponent
               ref="automatic-role-requests-table"
               uiKey="role-automatic-role-requests-table"
-              forceSearchParameters={requestForceSearch}
+              forceSearchParameters={ requestForceSearch }
               columns={ _.difference(AutomaticRoleRequestTable.defaultProps.columns,
                  roleId ? ['role', 'executeImmediately', 'startRequest', 'createNew']
                         : ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified']
               )}
-              showFilter={false}
-              manager={automaticRoleRequestManager}/>
+              showFilter={ false }
+              manager={ automaticRoleRequestManager }/>
           </div>
         }
 
         <Basic.Modal
           bsSize="large"
-          show={detail.show}
-          onHide={this.closeDetail.bind(this)}
+          show={ detail.show }
+          onHide={ this.closeDetail.bind(this) }
           backdrop="static"
-          keyboard={!_showLoading}>
+          keyboard={ !_showLoading }>
 
-          <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
+          <form onSubmit={ this.save.bind(this, {}) }>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('create.header') }
+              rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('edit.header', { name: detail.entity.name }) }
+              rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"

@@ -46,7 +46,7 @@ export default class AutomaticRoleAttributeIdentities extends Basic.AbstractCont
     //
     return (
       <div className="tab-pane-table-body">
-        <Helmet title={this.i18n('edit.title')} />
+        <Helmet title={ this.i18n('edit.title') } />
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
           { this.i18n('identities.header') }
         </Basic.ContentHeader>
@@ -57,7 +57,8 @@ export default class AutomaticRoleAttributeIdentities extends Basic.AbstractCont
             identityManager={ this.getManager() }
             filterOpened={ false }
             forceSearchParameters={ forceSearchParameters }
-            showAddButton={ false }/>
+            showAddButton={ false }
+            className="no-margin"/>
         </Basic.Panel>
       </div>
     );

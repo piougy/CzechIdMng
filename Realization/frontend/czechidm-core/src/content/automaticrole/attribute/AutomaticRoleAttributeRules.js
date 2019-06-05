@@ -40,13 +40,14 @@ class AutomaticRoleAttributeRules extends Basic.AbstractContent {
     return (
       <div className="tab-pane-table-body">
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          {this.i18n('content.automaticRoles.attribute.rules.header')}
+          { this.i18n('content.automaticRoles.attribute.rules.header') }
         </Basic.ContentHeader>
         <Basic.Panel className="no-border last">
           <AutomaticRoleAttributeRuleTable
-            manager={this.automaticRoleAttributeRuleManager}
-            uiKey={entity ? entity.id : null}
-            attributeId={entity ? entity.id : null} />
+            manager={ this.automaticRoleAttributeRuleManager }
+            uiKey={ entity ? entity.id : null }
+            attributeId={ entity ? entity.id : null }
+            className="no-margin"/>
         </Basic.Panel>
       </div>
     );

@@ -27,10 +27,10 @@ export default class AutomaticRoleTrees extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
         <RoleTreeNodeTable uiKey="automatic-role-tree-table" manager={ this.manager }/>
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -46,7 +46,7 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
    * @param  {object} entity
    */
   getEntityIcon() {
-    return 'link';
+    return 'component:system';
   }
 
   /**

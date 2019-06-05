@@ -310,7 +310,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			entity = getRepository().findOne(identifier);
 		// }
 		//
-		LOG.trace("Entity found [{}]", entity);
+		LOG.trace("Entity found [{}], permissions [{}] will be evaluated ...", entity, permission);
 		entity = checkAccess(entity, permission);
 		//
 		LOG.trace("Entity [{}] passed permission check [{}]", entity, permission);

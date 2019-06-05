@@ -9,6 +9,8 @@ const manager = new SystemManager();
 
 /**
  * Target system detail content
+ *
+ * @author Radek Tomiška
  */
 class SystemContent extends Basic.AbstractContent {
 
@@ -43,13 +45,13 @@ class SystemContent extends Basic.AbstractContent {
     const { entity, showLoading, availableFrameworks } = this.props;
     return (
       <Basic.Row>
-        <div className={this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
+        <div className={ this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12' }>
           {
             showLoading || !availableFrameworks
             ?
             <Basic.Loading isStatic showLoading />
             :
-            <SystemDetail uiKey="system-detail" entity={entity} />
+            <SystemDetail uiKey="system-detail" entity={ entity } />
           }
         </div>
       </Basic.Row>

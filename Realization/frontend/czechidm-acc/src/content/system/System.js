@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { Basic, Advanced } from 'czechidm-core';
 import { SystemManager } from '../../redux';
@@ -21,21 +20,19 @@ class System extends Basic.AbstractContent {
 
   render() {
     const { entity, showLoading } = this.props;
-
+    //
     return (
-      <div>
-        <Helmet title={this.i18n('navigation.menu.profile')} />
-
-        <Basic.PageHeader showLoading={!entity && showLoading}>
-          <Basic.Icon value="link"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('acc:content.system.detail.edit.header', { name: manager.getNiceLabel(entity) }) }}/>
+      <Basic.Div>
+        <Basic.PageHeader showLoading={ !entity && showLoading }>
+          <Basic.Icon icon="component:system"/>
+          { ' ' }
+          { this.i18n('acc:content.system.detail.edit.header', { name: manager.getNiceLabel(entity), escape: false }) }
         </Basic.PageHeader>
 
-        <Advanced.TabPanel parentId="sys-systems" params={this.props.params}>
-          {this.props.children}
+        <Advanced.TabPanel parentId="sys-systems" params={ this.props.params }>
+          { this.props.children }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

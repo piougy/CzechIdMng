@@ -26,5 +26,11 @@ module.exports = {
       'labelKey': 'acc:component.advanced.EavForm.faceType.SYSTEM-SELECT',
       'manager': require('./src/redux').SystemManager
     },
+    {
+      'id': 'target-system-icon',
+      'type': 'icon',
+      'entityType': ['system', 'systems'],
+      'component': 'link'
+    }
   ]
 };

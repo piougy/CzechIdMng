@@ -132,16 +132,16 @@ export class AccountTable extends Advanced.AbstractTableContent {
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
-          manager={this.getManager()}
-          forceSearchParameters={forceSearchParameters}
-          showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_DELETE'])}
+          uiKey={ uiKey }
+          manager={ this.getManager() }
+          forceSearchParameters={ forceSearchParameters }
+          showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_DELETE']) }
           className={ className }
-          rowClass={({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; }}
+          rowClass={ ({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; } }
           actions={
             Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_DELETE'])
             ?
@@ -156,10 +156,9 @@ export class AccountTable extends Advanced.AbstractTableContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, { system: systemId, accountType: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
-                rendered={ showAddButton && Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_CREATE']) }>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+                rendered={ showAddButton && Managers.SecurityManager.hasAnyAuthority(['ACCOUNT_CREATE']) }
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }
@@ -192,17 +191,17 @@ export class AccountTable extends Advanced.AbstractTableContent {
             }
             property="uid"
             sort
-            header={this.i18n('acc:entity.Account.uid')}
-            rendered={_.includes(columns, 'uid')}/>
+            header={ this.i18n('acc:entity.Account.uid') }
+            rendered={ _.includes(columns, 'uid') }/>
           <Advanced.Column
             property="targetEntity"
-            rendered={_.includes(columns, 'targetEntity')}
+            rendered={ _.includes(columns, 'targetEntity') }
             header={ this.i18n('acc:entity.Account.targetEntity') }
-            cell={this.renderTargetEntity.bind(this)}
+            cell={ this.renderTargetEntity.bind(this) }
             />
           <Advanced.Column
-            header={this.i18n('acc:entity.System.name')}
-            rendered={_.includes(columns, 'system')}
+            header={ this.i18n('acc:entity.System.name') }
+            rendered={ _.includes(columns, 'system') }
             cell={
               /* eslint-disable react/no-multi-comp */
               ({rowIndex, data}) => {
@@ -211,26 +210,27 @@ export class AccountTable extends Advanced.AbstractTableContent {
                     entityType="system"
                     entityIdentifier={ data[rowIndex].system }
                     entity={ data[rowIndex]._embedded.system }
-                    face="popover" />
+                    face="popover"
+                    showIcon/>
                 );
               }
             }/>
           <Advanced.Column
             property="inProtection"
-            header={this.i18n('acc:entity.Account.inProtection')}
+            header={ this.i18n('acc:entity.Account.inProtection') }
             face="bool"
             sort
-            rendered={_.includes(columns, 'inProtection')}/>
+            rendered={ _.includes(columns, 'inProtection') }/>
           <Advanced.Column
             property="endOfProtection"
-            header={this.i18n('acc:entity.Account.endOfProtection')}
+            header={ this.i18n('acc:entity.Account.endOfProtection') }
             face="datetime"
             sort
-            rendered={_.includes(columns, 'endOfProtection')}/>
+            rendered={ _.includes(columns, 'endOfProtection') }/>
           <Advanced.Column
             property="_embedded.systemEntity.uid"
-            rendered={_.includes(columns, 'systemEntity')}
-            header={this.i18n('acc:entity.Account.systemEntity')}
+            rendered={ _.includes(columns, 'systemEntity') }
+            header={ this.i18n('acc:entity.Account.systemEntity') }
             sort
             sortProperty="systemEntity.uid"
             face="text" />
@@ -238,44 +238,50 @@ export class AccountTable extends Advanced.AbstractTableContent {
 
         <Basic.Modal
           bsSize="large"
-          show={detail.show}
-          onHide={this.closeDetail.bind(this)}
+          show={ detail.show }
+          onHide={ this.closeDetail.bind(this) }
           backdrop="static"
-          keyboard={!_showLoading}>
+          keyboard={ !_showLoading }>
 
-          <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={ !Utils.Entity.isNew(detail.entity) }/>
+          <form onSubmit={ this.save.bind(this, {}) }>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('create.header') }
+              rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('edit.header', { name: detail.entity.name }) }
+              rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
-                showLoading={_showLoading}
+                showLoading={ _showLoading }
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.SelectBox
                   ref="system"
-                  manager={systemManager}
-                  label={this.i18n('acc:entity.Account.system')}
+                  manager={ systemManager }
+                  label={ this.i18n('acc:entity.Account.system') }
                   readOnly={ !Utils.Entity.isNew(detail.entity) || systemId }
                   required/>
                 <Basic.TextField
                   ref="uid"
-                  label={this.i18n('acc:entity.Account.uid')}
+                  label={ this.i18n('acc:entity.Account.uid') }
                   required
-                  max={1000}/>
+                  max={ 1000 }/>
                 <Basic.SelectBox
                   ref="systemEntity"
-                  manager={systemEntityManager}
-                  label={this.i18n('acc:entity.Account.systemEntity')}
-                  forceSearchParameters={forceSystemEntitySearchParameters}
+                  manager={ systemEntityManager }
+                  label={ this.i18n('acc:entity.Account.systemEntity') }
+                  forceSearchParameters={ forceSystemEntitySearchParameters }
                   onChange={ this.onChangeSystemEntity.bind(this) }/>
                 <Basic.EnumSelectBox
                   ref="accountType"
-                  enum={AccountTypeEnum}
-                  label={this.i18n('acc:entity.Account.accountType')}
+                  enum={ AccountTypeEnum }
+                  label={ this.i18n('acc:entity.Account.accountType') }
                   required/>
                 <Basic.EnumSelectBox
                   ref="entityType"
-                  useSymbol={false}
+                  useSymbol={ false }
                   enum={ SystemEntityTypeEnum }
                   label={ this.i18n('acc:entity.SystemEntity.entityType') }
                   hidden={ systemEntity }/>
@@ -295,13 +301,13 @@ export class AccountTable extends Advanced.AbstractTableContent {
               <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') } rendered={ !Utils.Entity.isNew(detail.entity) }/>
 
               <Basic.Table
-                showLoading = {!connectorObject && !this.state.hasOwnProperty('connectorObject')}
-                data={connectorObject ? connectorObject.attributes : null}
-                noData={this.i18n('component.basic.Table.noData')}
+                showLoading = { !connectorObject && !this.state.hasOwnProperty('connectorObject') }
+                data={ connectorObject ? connectorObject.attributes : null }
+                noData={ this.i18n('component.basic.Table.noData') }
                 className="table-bordered"
                 rendered={ !Utils.Entity.isNew(detail.entity) }>
-                <Basic.Column property="name" header={this.i18n('label.property')}/>
-                <Basic.Column property="values" header={this.i18n('label.value')}
+                <Basic.Column property="name" header={ this.i18n('label.property') }/>
+                <Basic.Column property="values" header={ this.i18n('label.value') }
                   cell={
                     ({ rowIndex, data }) => {
                       return (
@@ -316,23 +322,23 @@ export class AccountTable extends Advanced.AbstractTableContent {
             <Basic.Modal.Footer>
               <Basic.Button
                 level="link"
-                onClick={this.closeDetail.bind(this)}
-                showLoading={_showLoading}>
-                {this.i18n('button.close')}
+                onClick={ this.closeDetail.bind(this) }
+                showLoading={ _showLoading }>
+                { this.i18n('button.close') }
               </Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"
-                rendered={manager.canSave(detail.entity, _permissions)}
-                showLoading={_showLoading}
+                rendered={ manager.canSave(detail.entity, _permissions) }
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
-                {this.i18n('button.save')}
+                showLoadingText={ this.i18n('button.saving') }>
+                { this.i18n('button.save') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -357,6 +363,7 @@ AccountTable.defaultProps = {
 function select(state, component) {
   const {uiKey} = component;
   return {
+    i18nReady: state.config.get('i18nReady'),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
     _searchParameters: Utils.Ui.getSearchParameters(state, uiKey),
     _permissions: Utils.Permission.getPermissions(state, `${uiKey}-detail`)
@@ -382,7 +389,7 @@ class Filter extends Advanced.Filter {
             <Basic.Col lg={ 8 }>
               <Advanced.Filter.TextField
                 ref="text"
-                placeholder={this.i18n('acc:content.system.accounts.filter.text.placeholder')}/>
+                placeholder={ this.i18n('acc:content.system.accounts.filter.text.placeholder') }/>
             </Basic.Col>
             <Basic.Col lg={ 4 } className="text-right">
               <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>
@@ -398,7 +405,7 @@ class Filter extends Advanced.Filter {
             <Basic.Col lg={ 4 }>
               <Advanced.Filter.EnumSelectBox
                 ref="entityType"
-                placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
+                placeholder={ this.i18n('acc:entity.SystemEntity.entityType') }
                 enum={ SystemEntityTypeEnum }
                 rendered={ !forceSearchParameters.getFilters().has('entityType') }/>
             </Basic.Col>

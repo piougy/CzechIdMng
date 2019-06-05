@@ -103,20 +103,20 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
             <AccountTableComponent
               ref="accountTable"
               uiKey="accounts-table"
-              showLoading={_showLoading}
-              forceSearchParameters={forceAccountSearchParameters}
-              forceSystemEntitySearchParameters={forceSystemEntitySearchParameters}
+              showLoading={ _showLoading }
+              forceSearchParameters={ forceAccountSearchParameters }
+              forceSystemEntitySearchParameters={ forceSystemEntitySearchParameters }
               columns={ _.difference(AccountTable.defaultProps.columns, ['entityType', 'systemEntity']) }
               showAddButton={ false }/>
           </Basic.Tab>
           <Basic.Tab eventKey={2} title={this.i18n('identity-accounts')}>
             <Advanced.Table
               ref="table"
-              uiKey={uiKey}
-              manager={this.getManager()}
-              forceSearchParameters={forceSearchParameters}
-              showRowSelection={Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_DELETE'])}
-              rowClass={({rowIndex, data}) => { return (data[rowIndex]._embedded.account.inProtection) ? 'disabled' : ''; }}
+              uiKey= {uiKey }
+              manager={ this.getManager() }
+              forceSearchParameters={ forceSearchParameters }
+              showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_DELETE']) }
+              rowClass={ ({rowIndex, data}) => { return (data[rowIndex]._embedded.account.inProtection) ? 'disabled' : ''; } }
               actions={
                 Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_DELETE'])
                 ?
@@ -130,11 +130,10 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
                     level="success"
                     key="add_button"
                     className="btn-xs"
-                    onClick={this.showDetail.bind(this, { type: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
-                    rendered={Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_CREATE'])}>
-                    <Basic.Icon type="fa" icon="plus"/>
-                    {' '}
-                    {this.i18n('button.add')}
+                    onClick={ this.showDetail.bind(this, { type: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) }) }
+                    rendered={ Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_CREATE']) }
+                    icon="fa:plus">
+                    { this.i18n('button.add') }
                   </Basic.Button>
                 ]
               }>
@@ -147,29 +146,30 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
                   ({ rowIndex, data }) => {
                     return (
                       <Advanced.DetailButton
-                        title={this.i18n('button.detail')}
-                        rendered={Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_READ'])}
-                        onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                        title={ this.i18n('button.detail') }
+                        rendered={ Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_READ']) }
+                        onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                     );
                   }
                 }/>
               <Advanced.Column
                 property="_embedded.account.uid"
-                header={this.i18n('acc:entity.Account.uid')}
+                header={ this.i18n('acc:entity.Account.uid') }
                 sort
                 sortProperty="account.uid"
                 face="text" />
               <Advanced.Column
-                header={this.i18n('acc:entity.System.name')}
+                header={ this.i18n('acc:entity.System.name') }
                 cell={
                   /* eslint-disable react/no-multi-comp */
-                  ({rowIndex, data}) => {
+                  ({ rowIndex, data }) => {
                     return (
                       <Advanced.EntityInfo
                         entityType="system"
                         entityIdentifier={ data[rowIndex]._embedded.account.system }
                         entity={ data[rowIndex]._embedded.account._embedded ? data[rowIndex]._embedded.account._embedded.system : null }
-                        face="popover" />
+                        face="popover"
+                        showIcon/>
                     );
                   }
                 }/>
@@ -191,23 +191,34 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
                     );
                   }
                 } />
-              <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
+              <Advanced.Column
+                property="ownership"
+                width={ 75 }
+                header={ this.i18n('acc:entity.IdentityAccount.ownership') }
+                sort
+                face="bool" />
             </Advanced.Table>
 
             <Basic.Modal
               bsSize="large"
-              show={detail.show}
-              onHide={this.closeDetail.bind(this)}
+              show={ detail.show }
+              onHide={ this.closeDetail.bind(this) }
               backdrop="static"
-              keyboard={!_showLoading}>
+              keyboard={ !_showLoading }>
 
-              <form onSubmit={this.save.bind(this, {})}>
-                <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
-                <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
+              <form onSubmit={ this.save.bind(this, {}) }>
+                <Basic.Modal.Header
+                  closeButton={ !_showLoading }
+                  text={ this.i18n('create.header') }
+                  rendered={ Utils.Entity.isNew(detail.entity) }/>
+                <Basic.Modal.Header
+                  closeButton={ !_showLoading }
+                  text={ this.i18n('edit.header', { name: detail.entity.name }) }
+                  rendered={ !Utils.Entity.isNew(detail.entity) }/>
                 <Basic.Modal.Body>
                   <Basic.AbstractForm
                     ref="form"
-                    showLoading={_showLoading}
+                    showLoading={ _showLoading }
                     readOnly={ !manager.canSave(detail.entity, _permissions) }>
                     <Basic.SelectBox
                       ref="account"
@@ -218,25 +229,25 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
                       required/>
                     <Basic.Checkbox
                       ref="ownership"
-                      label={this.i18n('acc:entity.IdentityAccount.ownership')}/>
+                      label={ this.i18n('acc:entity.IdentityAccount.ownership') }/>
                   </Basic.AbstractForm>
                 </Basic.Modal.Body>
 
                 <Basic.Modal.Footer>
                   <Basic.Button
                     level="link"
-                    onClick={this.closeDetail.bind(this)}
-                    showLoading={_showLoading}>
-                    {this.i18n('button.close')}
+                    onClick={ this.closeDetail.bind(this) }
+                    showLoading={ _showLoading }>
+                    { this.i18n('button.close') }
                   </Basic.Button>
                   <Basic.Button
                     type="submit"
                     level="success"
-                    showLoading={_showLoading}
+                    showLoading={ _showLoading }
                     showLoadingIcon
-                    showLoadingText={this.i18n('button.saving')}
+                    showLoadingText={ this.i18n('button.saving') }
                     rendered={ manager.canSave(detail.entity, _permissions) }>
-                    {this.i18n('button.save')}
+                    { this.i18n('button.save') }
                   </Basic.Button>
                 </Basic.Modal.Footer>
               </form>

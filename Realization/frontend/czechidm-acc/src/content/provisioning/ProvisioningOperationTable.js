@@ -320,7 +320,8 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                     entityType={ entity.entityType }
                     entityIdentifier={ entity.entityIdentifier }
                     entity={ entity._embedded.entity }
-                    face="popover"/>
+                    face="popover"
+                    showIcon/>
                 );
               }
             }
@@ -337,25 +338,26 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                     entityType="system"
                     entityIdentifier={ entity.system }
                     entity={ entity._embedded.system }
-                    face="popover"/>
+                    face="popover"
+                    showIcon/>
                 );
               }
             }
-            rendered={_.includes(columns, 'system')} />
+            rendered={ _.includes(columns, 'system') } />
           <Advanced.Column
             property="systemEntityUid"
-            header={this.i18n('acc:entity.SystemEntity.uid')}
+            header={ this.i18n('acc:entity.SystemEntity.uid') }
             sort
             sortProperty="systemEntityUid"
             face="text"
-            rendered={isArchive && _.includes(columns, 'systemEntityUid')}/>
+            rendered={ isArchive && _.includes(columns, 'systemEntityUid') }/>
           <Advanced.Column
             property="_embedded.systemEntity.uid"
-            header={this.i18n('acc:entity.SystemEntity.uid')}
+            header={ this.i18n('acc:entity.SystemEntity.uid') }
             sort
             sortProperty="systemEntity"
             face="text"
-            rendered={!isArchive && _.includes(columns, 'systemEntityUid')}/>
+            rendered={ !isArchive && _.includes(columns, 'systemEntityUid') }/>
         </Advanced.Table>
       </div>
     );

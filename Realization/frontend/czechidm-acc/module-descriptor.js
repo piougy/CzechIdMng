@@ -19,7 +19,7 @@ module.exports = {
         'order': 1100,
         'priority': 0,
         'path': '/systems',
-        'icon': 'link',
+        'icon': 'component:systems',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ],
         'items': [
           {

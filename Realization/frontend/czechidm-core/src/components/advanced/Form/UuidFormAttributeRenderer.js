@@ -1,9 +1,9 @@
 import TextFormAttributeRenderer from './TextFormAttributeRenderer';
+import Joi from 'joi';
 
 /**
  * Uuid form value component
  * - supports multiple and confidential attributes
- * - TODO: validation
  *
  * @author Radek Tomiška
  */
@@ -16,8 +16,11 @@ export default class UuidFormAttributeRenderer extends TextFormAttributeRenderer
    * @return {Joi}
    */
   getInputValidation() {
-    // TODO: uuid regex
-    return null;
+    let validation = Joi.string().guid();
+    if (!this.isRequired()) {
+      validation = validation.concat(Joi.string().guid().allow(null).allow(''));
+    }
+    return validation;
   }
 
   /**

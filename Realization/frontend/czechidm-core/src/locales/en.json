@@ -5958,7 +5958,8 @@
       "base" : "Required field!",
       "email": "format of e-mail is not valid!",
       "max" : "Enter the maximum {{count}} character!",
-      "max_plural" : "Enter the maximum {{count}} characters!"
+      "max_plural" : "Enter the maximum {{count}} characters!",
+      "guid": "Enter a valid uuid identifier"
     },
     "number": {
       "min" : "Min value is: {{count}}!",

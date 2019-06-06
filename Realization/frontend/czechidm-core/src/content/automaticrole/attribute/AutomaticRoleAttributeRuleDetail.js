@@ -48,15 +48,6 @@ class ContractAttributeEnum extends AbstractEnum {
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.IDENTITY: {
-        return 'identity';
-      }
-      case this.VALID_FROM: {
-        return 'validFrom';
-      }
-      case this.VALID_TILL: {
-        return 'validTill';
-      }
       case this.POSITION: {
         return 'position';
       }
@@ -84,15 +75,6 @@ class ContractAttributeEnum extends AbstractEnum {
     }
 
     switch (field) {
-      case 'identity': {
-        return this.IDENTITY;
-      }
-      case 'validFrom': {
-        return this.VALID_FROM;
-      }
-      case 'validTill': {
-        return this.VALID_TILL;
-      }
       case 'position': {
         return this.POSITION;
       }
@@ -132,12 +114,9 @@ class ContractAttributeEnum extends AbstractEnum {
   }
 }
 
-ContractAttributeEnum.IDENTITY = Symbol('IDENTITY');
 ContractAttributeEnum.MAIN = Symbol('MAIN');
 ContractAttributeEnum.STATE = Symbol('STATE');
 ContractAttributeEnum.POSITION = Symbol('POSITION');
-ContractAttributeEnum.VALID_FROM = Symbol('VALID_FROM');
-ContractAttributeEnum.VALID_TILL = Symbol('VALID_TILL');
 ContractAttributeEnum.EXTERNE = Symbol('EXTERNE');
 ContractAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
 

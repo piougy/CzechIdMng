@@ -147,7 +147,7 @@ public class ProvisioningValuesEqualityTest extends AbstractUnitTest {
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testHashMapEquals( ) {
 		SysSchemaAttributeDto schemaAttribute = new SysSchemaAttributeDto();
 		schemaAttribute.setMultivalued(true);
@@ -158,16 +158,16 @@ public class ProvisioningValuesEqualityTest extends AbstractUnitTest {
 		valueOne.put("three", "three");
 		
 		Map<String, String> valueTwo = new HashMap<>();
-		valueTwo.put("one", "one");
-		valueTwo.put("two", "two");
 		valueTwo.put("three", "three");
+		valueTwo.put("one", "one");
+		valueTwo.put("two", "two");		
 		
-		Map<String, String> valueThree = new HashMap<>();
-		valueThree.put("one", "one");
+		Map valueThree = new HashMap<>();
 		valueThree.put("two", "two");
+		valueThree.put("one", "one");
 		valueThree.put("three", "three");
 		
-		Map<String, String> valueFour = new HashMap<>();
+		Map<String, Object> valueFour = new HashMap<>();
 		valueFour.put("one", "one");
 		valueFour.put("two", "two");
 		valueFour.put("three", new String("three"));

@@ -47,6 +47,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
       filter: {
         roleEnvironment: ConfigLoader.getConfig('concept-role.table.filter.environment', [])
       },
+      sortSearchParameters: new SearchParameters(), // concept data are sorted by sections (direct / automatic / sub) by default
       validationErrors: null
     };
   }
@@ -95,6 +96,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
     });
   }
 
+  /**
+   * Apply FE filter
+   *
+   * @param  {array} conceptData
+   * @param  {object} filter
+   * @return {array}
+   */
   applyFilter(conceptData, filter) {
     if (!filter) {
       return conceptData;
@@ -141,6 +149,47 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   /**
+   * Apply FE sort
+   *
+   * @param  {array} conceptData
+   * @param  {SearchParameters} sortSearchParameters [description]
+   * @return {[type]}                      [description]
+   */
+  applySort(conceptData, sortSearchParameters) {
+    if (!conceptData || !sortSearchParameters || sortSearchParameters.getSorts().size === 0) {
+      return conceptData;
+    }
+    //
+    let _conceptData = conceptData;
+    sortSearchParameters.getSorts().forEach((ascending, property) => {
+      _conceptData = _conceptData.sort((one, two) => {
+        if (!one._embedded || !one._embedded.role
+            || !two._embedded || !two._embedded.role) {
+          return 0;
+        }
+        const roleOne = one._embedded.role;
+        const roleTwo = two._embedded.role;
+        //
+        let result = 0;
+        if (!roleOne[property] && !roleTwo[property]) {
+          result = 0;
+        } else if (!roleOne[property]) { // null at end in asc
+          result = 1;
+        } else if (!roleTwo[property]) {
+          result = -1;
+        } else {
+          result = roleOne[property].localeCompare(roleTwo[property]);
+        }
+        // console.log(roleOne[property], roleTwo[property], ascending ? result : !result);
+        //
+        return ascending ? result : -result;
+      });
+    });
+    //
+    return _conceptData;
+  }
+
+  /**
    * Set input arrays (with current, added, removed, changed data) to state (first do clone) and call compile conceptData
    * @param  {array}  identityRoles         Original not modified data
    * @param  {array}  addedIdentityRoles    Added data
@@ -164,7 +213,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
       validationErrors: null
     });
   }
-
 
   /**
    * Save added or changed entities to arrays and recompile concept data.
@@ -504,34 +552,32 @@ export class RoleConceptTable extends Basic.AbstractContent {
     //
     actions.push(
       <Basic.Button
-        level={'danger'}
-        onClick={this._removeConceptWithRequest.bind(this, data[rowIndex])}
+        level="danger"
+        onClick={ this._removeConceptWithRequest.bind(this, data[rowIndex]) }
         className="btn-xs"
-        disabled={readOnly || !manualRole}
-        showLoading={showLoadingButtonRemove}
+        disabled={ readOnly || !manualRole }
+        showLoading={ showLoadingButtonRemove }
         role="group"
-        title={this.i18n('button.delete')}
-        titlePlacement="bottom">
-        <Basic.Icon icon={notModificated ? 'trash' : 'remove'}/>
-      </Basic.Button>
+        title={ this.i18n('button.delete') }
+        titlePlacement="bottom"
+        icon={ notModificated ? 'trash' : 'remove' }/>
     );
     if (!value._removed) {
       actions.push(
         <Basic.Button
-          level={'warning'}
-          onClick={this._showDetail.bind(this, data[rowIndex], true, false)}
+          level="warning"
+          onClick={ this._showDetail.bind(this, data[rowIndex], true, false) }
           className="btn-xs"
-          disabled={readOnly || !manualRole}
+          disabled={ readOnly || !manualRole }
           role="group"
-          title={this.i18n('button.edit')}
-          titlePlacement="bottom">
-          <Basic.Icon icon={'edit'}/>
-        </Basic.Button>
+          title={ this.i18n('button.edit') }
+          titlePlacement="bottom"
+          icon="edit"/>
       );
     }
     return (
       <div className="btn-group" role="group">
-        {actions}
+        { actions }
       </div>
     );
   }
@@ -710,6 +756,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
     return null;
   }
 
+  _handleSort(property, order) {
+    const { sortSearchParameters } = this.state;
+    //
+    this.setState({
+      sortSearchParameters: sortSearchParameters.clearSort().setSort(property, order !== 'DESC')
+    });
+  }
+
   render() {
     const {
       identityUsername,
@@ -725,7 +779,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
       showRoleByIdentitySelect,
       validationErrors,
       filterOpened,
-      filter
+      filter,
+      sortSearchParameters
     } = this.state;
     //
     const showLoading = this.props.showLoading || this.state.showLoading;
@@ -808,10 +863,10 @@ export class RoleConceptTable extends Basic.AbstractContent {
           {/* this.generateTable(conceptData)*/}
           <Basic.Table
             ref="table"
-            rendered={!detail.show && !showRoleByIdentitySelect}
+            rendered={ !detail.show && !showRoleByIdentitySelect }
             hover={ false }
             showLoading={ showLoading }
-            data={ this.applyFilter(conceptData, filter) }
+            data={ this.applySort(this.applyFilter(conceptData, filter), sortSearchParameters) }
             rowClass={ this._rowClass }
             className={ className }
             showRowSelection={ false }
@@ -831,8 +886,8 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   //
                   content.push(
                     <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false)}/>
+                      title={ this.i18n('button.detail') }
+                      onClick={ this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false) }/>
                   );
                   content.push(
                     <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(role) }/>
@@ -931,10 +986,16 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   }
                   return content;
                 }
-              }
-              sort={false}/>
+              }/>
             <Basic.Column
-              header={ this.i18n('entity.IdentityRole.role') }
+              header={
+                <Basic.BasicTable.SortHeaderCell
+                  header={ this.i18n('entity.IdentityRole.role') }
+                  title={ this.i18n('entity.Role.name') }
+                  sortHandler={ this._handleSort.bind(this) }
+                  sortProperty="name"
+                  searchParameters={ sortSearchParameters }/>
+              }
               cell={
                 /* eslint-disable react/no-multi-comp */
                 ({ rowIndex, data }) => {
@@ -950,7 +1011,57 @@ export class RoleConceptTable extends Basic.AbstractContent {
                       entityIdentifier={ role.id }
                       entity={ role }
                       face="popover"
-                      showIcon/>
+                      showIcon
+                      showCode={ false }
+                      showEnvironment={ false }/>
+                  );
+                }
+              }
+              />
+            <Basic.Column
+              header={
+                <Basic.BasicTable.SortHeaderCell
+                  header={ this.i18n('entity.Role.baseCode.label') }
+                  sortHandler={ this._handleSort.bind(this) }
+                  sortProperty="baseCode"
+                  searchParameters={ sortSearchParameters }
+                  title={ this.i18n('entity.Role.baseCode.help') }/>
+              }
+              width={ 125 }
+              face="text"
+              cell={
+                ({ rowIndex, data }) => {
+                  const conceptOrIdentityRole = data[rowIndex];
+                  const role = conceptOrIdentityRole._embedded.role;
+                  if (!role) {
+                    return '';
+                  }
+                  return role.baseCode;
+                }
+              }
+              />
+            <Basic.Column
+              header={
+                <Basic.BasicTable.SortHeaderCell
+                  header={ this.i18n('entity.Role.environment.label') }
+                  title={ this.i18n('entity.Role.environment.help') }
+                  sortHandler={ this._handleSort.bind(this) }
+                  sortProperty="environment"
+                  searchParameters={ sortSearchParameters }/>
+              }
+              width={ 125 }
+              face="text"
+              sort
+              sortProperty="role.environment"
+              cell={
+                ({ rowIndex, data }) => {
+                  const conceptOrIdentityRole = data[rowIndex];
+                  const role = conceptOrIdentityRole._embedded.role;
+                  if (!role) {
+                    return '';
+                  }
+                  return (
+                    <Advanced.CodeListValue code="environment" value={ role.environment }/>
                   );
                 }
               }
@@ -998,7 +1109,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
               cell={ this._conceptDateCell.bind(this) }/>
             <Basic.Column
               property="directRole"
-              header={this.i18n('entity.IdentityRole.directRole.label')}
+              header={ this.i18n('entity.IdentityRole.directRole.label') }
               cell={
                 /* eslint-disable react/no-multi-comp */
                 ({ rowIndex, data, property }) => {
@@ -1019,7 +1130,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
               width={ 150 }/>
             <Basic.Column
               property="automaticRole"
-              header={<Basic.Cell className="column-face-bool">{ this.i18n('entity.IdentityRole.automaticRole.label') }</Basic.Cell>}
+              header={ <Basic.Icon value="component:automatic-role" title={ this.i18n('entity.IdentityRole.automaticRole.help') }/> }
               cell={
                 /* eslint-disable react/no-multi-comp */
                 ({ rowIndex, data }) => {
@@ -1029,9 +1140,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
                 }
               }/>
             <Basic.Column
-              header={this.i18n('label.action')}
+              header={ this.i18n('label.action') }
               className="action"
-              cell={this._conceptActionsCell.bind(this)}/>
+              cell={ this._conceptActionsCell.bind(this) }/>
           </Basic.Table>
         </Basic.Panel>
         <Basic.Modal

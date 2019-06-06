@@ -12,6 +12,11 @@ For linux (fedora):
 
 `sudo dnf install nodejs`
 
+For linux (ubuntu):
+
+`sudo apt install nodejs`
+`sudo apt install npm`
+
 Check nodejs version:
 
 `node -v`

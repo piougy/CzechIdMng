@@ -244,7 +244,7 @@ public abstract class AbstractSysSyncConfigDto extends AbstractDto {
 	 * Synchronization is running. Returns {@code null}, if running state was not evaluated yet.
 	 * 
 	 * @return
-	 * @since 9.7.0
+	 * @since 9.6.4
 	 */
 	public Boolean getRunning() {
 		return running;
@@ -254,7 +254,7 @@ public abstract class AbstractSysSyncConfigDto extends AbstractDto {
 	 * Synchronization is running.
 	 * 
 	 * @param running
-	 * @since 9.7.0
+	 * @since 9.6.4
 	 */
 	public void setRunning(Boolean running) {
 		this.running = running;

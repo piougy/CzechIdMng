@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
@@ -17,6 +19,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * DTO for {@link SysSyncConfig}.
@@ -25,7 +28,6 @@ import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
  * @author svandav
  *
  */
-
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "_type")
 @JsonSubTypes({
 	@JsonSubTypes.Type(value = SysSyncConfigDto.class),
@@ -62,7 +64,9 @@ public abstract class AbstractSysSyncConfigDto extends AbstractDto {
 	private String unlinkedActionWfKey;
 	private String missingEntityActionWfKey;
 	private String missingAccountActionWfKey;
-
+	@JsonProperty(access = Access.READ_ONLY)
+	@ApiModelProperty(notes = "Synchronization is running.")
+	private Boolean running;
 	
 	public boolean isEnabled() {
 		return enabled;
@@ -236,4 +240,23 @@ public abstract class AbstractSysSyncConfigDto extends AbstractDto {
 		return serialVersionUID;
 	}
 
+	/**
+	 * Synchronization is running. Returns {@code null}, if running state was not evaluated yet.
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	public Boolean getRunning() {
+		return running;
+	}
+	
+	/**
+	 * Synchronization is running.
+	 * 
+	 * @param running
+	 * @since 9.7.0
+	 */
+	public void setRunning(Boolean running) {
+		this.running = running;
+	}
 }

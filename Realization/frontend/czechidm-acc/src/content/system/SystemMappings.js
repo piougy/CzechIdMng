@@ -30,8 +30,8 @@ class SystemMappings extends Advanced.AbstractTableContent {
     return 'acc:content.system.mappings';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-mappings']);
+  getNavigationKey() {
+    return 'system-mappings';
   }
 
   showDetail(entity, add) {
@@ -48,82 +48,79 @@ class SystemMappings extends Advanced.AbstractTableContent {
   render() {
     const { entityId } = this.props.params;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
+    //
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={ this.i18n('title') } />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-        </Basic.ContentHeader>
+        <Basic.ContentHeader text={ this.i18n('header', { escape: false }) } style={{ marginBottom: 0 }}/>
 
-        <Basic.Panel className="no-border last">
-          <Advanced.Table
-            ref="table"
-            uiKey={uiKey}
-            manager={this.getManager()}
-            forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
-            actions={
-              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
-              ?
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-              :
-              null
-            }
-            buttons={
-              [
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { }, true)}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
-              ]
-            }>
-            <Advanced.Column
-              property=""
-              header=""
-              className="detail-button"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                  );
-                }
-              }/>
-            <Advanced.Column
-              property="operationType"
-              width="100px"
-              face="enum"
-              enumClass={SystemOperationTypeEnum}
-              header={this.i18n('acc:entity.SystemMapping.operationType')}
-              sort/>
-            <Advanced.ColumnLink
-              to={`system/${entityId}/mappings/:id/detail`}
-              property="name"
-              face="text"
-              header={this.i18n('acc:entity.SystemMapping.name')}
-              sort/>
-            <Advanced.Column
-              property="_embedded.objectClass.objectClassName"
-              face="text"
-              header={this.i18n('acc:entity.SystemMapping.objectClass')}
-              sort/>
-            <Advanced.Column
-              property="entityType"
-              face="enum"
-              enumClass={SystemEntityTypeEnum}
-              header={this.i18n('acc:entity.SystemMapping.entityType')}
-              sort/>
-          </Advanced.Table>
-        </Basic.Panel>
+        <Advanced.Table
+          ref="table"
+          uiKey={ uiKey }
+          manager={ this.getManager() }
+          forceSearchParameters={ forceSearchParameters }
+          showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
+          className="no-margin"
+          actions={
+            Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
+            ?
+            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
+            :
+            null
+          }
+          buttons={
+            [
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={ this.showDetail.bind(this, { }, true) }
+                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
+                icon="fa:plus">
+                { this.i18n('button.add') }
+              </Basic.Button>
+            ]
+          }>
+          <Advanced.Column
+            property=""
+            header=""
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.DetailButton
+                    title={ this.i18n('button.detail') }
+                    onClick={ this.showDetail.bind(this, data[rowIndex], false) }/>
+                );
+              }
+            }/>
+          <Advanced.Column
+            property="operationType"
+            width={ 100 }
+            face="enum"
+            enumClass={ SystemOperationTypeEnum }
+            header={ this.i18n('acc:entity.SystemMapping.operationType') }
+            sort/>
+          <Advanced.ColumnLink
+            to={ `system/${entityId}/mappings/:id/detail` }
+            property="name"
+            face="text"
+            header={ this.i18n('acc:entity.SystemMapping.name') }
+            sort/>
+          <Advanced.Column
+            property="_embedded.objectClass.objectClassName"
+            face="text"
+            header={ this.i18n('acc:entity.SystemMapping.objectClass') }
+            sort/>
+          <Advanced.Column
+            property="entityType"
+            face="enum"
+            enumClass={ SystemEntityTypeEnum }
+            header={ this.i18n('acc:entity.SystemMapping.entityType') }
+            sort/>
+        </Advanced.Table>
       </div>
     );
   }

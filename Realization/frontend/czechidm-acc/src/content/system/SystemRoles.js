@@ -44,7 +44,8 @@ export default class SystemRoles extends Basic.AbstractContent {
             uiKey={ `${this.getUiKey()}-${entityId}` }
             forceSearchParameters={ forceSearchParameters }
             menu="system"
-            params={ this.props.params }/>
+            params={ this.props.params }
+            className="no-margin"/>
         </Basic.Panel>
       </div>
     );

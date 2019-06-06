@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.rest.impl;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -36,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -61,13 +63,16 @@ public class SysSyncConfigController
 
 	protected static final String TAG = "Synchronization - configurations";
 	//
+	private final SysSyncConfigService service;
 	private final SynchronizationService synchronizationService;
 
 	@Autowired
 	public SysSyncConfigController(SysSyncConfigService service, SynchronizationService synchronizationService) {
 		super(service);
+		
 		Assert.notNull(synchronizationService);
 
+		this.service = service;
 		this.synchronizationService = synchronizationService;
 	}
 
@@ -98,6 +103,18 @@ public class SysSyncConfigController
 	public Resources<?> findQuick(@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
+	}
+	
+	@Override
+	public Page<AbstractSysSyncConfigDto> find(SysSyncConfigFilter filter, Pageable pageable,
+			BasePermission permission) {
+		Page<AbstractSysSyncConfigDto> results = super.find(filter, pageable, permission);
+		// load running state
+		results.getContent().forEach(syncConfig -> {
+			syncConfig.setRunning(service.isRunning(syncConfig));
+		});
+		//
+		return results;
 	}
 
 	@Override
@@ -229,7 +246,7 @@ public class SysSyncConfigController
 							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") }) }, notes = "If sync by given config's identifier is running.")
 	public ResponseEntity<?> isRunningSynchronization(
 			@ApiParam(value = "Config's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		boolean running = ((SysSyncConfigService) this.getService()).isRunning(this.getService().get(backendId));
+		boolean running = service.isRunning(this.getService().get(backendId));
 		return new ResponseEntity<>(running, HttpStatus.OK);
 	}
 

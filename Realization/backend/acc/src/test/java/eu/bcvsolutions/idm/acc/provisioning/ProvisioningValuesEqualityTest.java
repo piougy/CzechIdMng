@@ -3,17 +3,19 @@ package eu.bcvsolutions.idm.acc.provisioning;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.mockito.Mock;
 
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.impl.DefaultProvisioningService;
+import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
  * Test equality of value from IdM and system in provisioning
@@ -21,20 +23,15 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Vít Švanda
  *
  */
-@Service
-public class ProvisioningValuesEqualityTest extends AbstractIntegrationTest {
+public class ProvisioningValuesEqualityTest extends AbstractUnitTest {
 
-	@Autowired
-	private ProvisioningService provisioningService;
-
+	@Mock private SysSystemEntityService systemEntityService;
+	//
+	private DefaultProvisioningService provisioningService;
+	
 	@Before
 	public void init() {
-		loginAsAdmin();
-	}
-
-	@After
-	public void logout() {
-		super.logout();
+		provisioningService = new DefaultProvisioningService(Lists.newArrayList(), systemEntityService);
 	}
 	
 	@Test
@@ -147,6 +144,39 @@ public class ProvisioningValuesEqualityTest extends AbstractIntegrationTest {
 		
 		// Not same arrays -> false
 		assertFalse(provisioningService.isAttributeValueEquals(idmValue, systemValue, schemaAttribute));
+	}
+	
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testHashMapEquals( ) {
+		SysSchemaAttributeDto schemaAttribute = new SysSchemaAttributeDto();
+		schemaAttribute.setMultivalued(true);
+		
+		Map<String, String> valueOne = new HashMap<>();
+		valueOne.put("one", "one");
+		valueOne.put("two", "two");
+		valueOne.put("three", "three");
+		
+		Map<String, String> valueTwo = new HashMap<>();
+		valueTwo.put("one", "one");
+		valueTwo.put("two", "two");
+		valueTwo.put("three", "three");
+		
+		Map<String, String> valueThree = new HashMap<>();
+		valueThree.put("one", "one");
+		valueThree.put("two", "two");
+		valueThree.put("three", "three");
+		
+		Map<String, String> valueFour = new HashMap<>();
+		valueFour.put("one", "one");
+		valueFour.put("two", "two");
+		valueFour.put("three", new String("three"));
+		
+		Object idmValue = Lists.newArrayList(valueOne, valueTwo);
+		Object systemValue = Lists.newArrayList(valueThree, valueFour);
+		
+		// Same keys ane values in map -> true
+		assertTrue(provisioningService.isAttributeValueEquals(idmValue, systemValue, schemaAttribute));
 	}
 	
 }

@@ -44,7 +44,7 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 		SysSystemDto system = getHelper().createTestResourceSystem(false);
 		SysSystemDto systemOther = getHelper().createTestResourceSystem(false);
 		DateTime createdOne = DateTime.now().minusDays(2);
-		SysProvisioningArchiveDto operationOne = createDto(system, DateTime.now().minusDays(2), OperationState.EXECUTED);
+		SysProvisioningArchiveDto operationOne = createDto(system, createdOne, OperationState.EXECUTED);
 		// all other variants for not removal
 		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED);
 		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.CREATED);

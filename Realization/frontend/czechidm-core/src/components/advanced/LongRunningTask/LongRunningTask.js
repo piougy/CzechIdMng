@@ -213,9 +213,9 @@ class LongRunningTask extends Basic.AbstractContent {
           }
           <ProgressBar
             style={{ marginTop: 15, marginBottom: 0 }}
-            active={active}
-            max={_entity.count}
-            now={_entity.counter}
+            active={ active }
+            max={ _entity.count }
+            now={ _entity.counter }
             bars={[
               { now: _entity.failedItemCount, bsStyle: 'danger' },
               { now: _entity.warningItemCount, bsStyle: 'warning' },

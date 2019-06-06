@@ -19,6 +19,11 @@ export default class BasicProgressBar extends AbstractComponent {
    */
   _resolveLabel() {
     const { label, now, min } = this.props;
+    if (!label) {
+      // nothing to decorate
+      return null;
+    }
+    //
     const max = this._resolveMax();
     //
     let percent = 0;
@@ -58,7 +63,7 @@ export default class BasicProgressBar extends AbstractComponent {
     }
     if (showLoading) {
       return (
-        <span><Icon value="fa:refresh" showLoading/></span>
+        <Icon value="fa:refresh" showLoading/>
       );
     }
     // add component className
@@ -70,29 +75,29 @@ export default class BasicProgressBar extends AbstractComponent {
     if (children) {
       return (
         <ProgressBar
-          min={min}
-          max={this._resolveMax()}
-          now={now}
-          label={this._resolveLabel()}
-          active={active}
-          style={style}
-          bsStyle={bsStyle}>
+          min={ min }
+          max={ this._resolveMax() }
+          now={ now }
+          label={ this._resolveLabel() }
+          active={ active }
+          style={ style }
+          bsStyle={ bsStyle }>
           { children }
         </ProgressBar>
       );
     }
     //
     return (
-      <span className={classNames}>
+      <span className={ classNames }>
         <ProgressBar
-          min={min}
-          max={this._resolveMax()}
-          now={now}
-          label={this._resolveLabel()}
-          active={active}
-          style={style}
-          bsStyle={bsStyle}
-          isChild={isChild}/>
+          min={ min }
+          max={ this._resolveMax() }
+          now={ now }
+          label={ this._resolveLabel() }
+          active={ active }
+          style={ style }
+          bsStyle={ bsStyle }
+          isChild={ isChild }/>
       </span>
     );
   }

@@ -25,9 +25,6 @@ export default class ProgressBar extends Basic.AbstractContextComponent {
     if (label) { // label was given
       return label;
     }
-    //
-    // when progress is smal, then label needs to be inversed - will be visible
-    //
     // resolve default label from localization
     if (now === 0 || max === 0) {
       // start label
@@ -50,12 +47,18 @@ export default class ProgressBar extends Basic.AbstractContextComponent {
       const stackedBars = [];
       bars.forEach(bar => {
         stackedBars.push(
-          <Basic.ProgressBar isChild min={bar.min} max={this.props.max} now={bar.now} bsStyle={bar.bsStyle} active={active} />
+          <Basic.ProgressBar
+            isChild
+            min={ bar.min }
+            max={ this.props.max }
+            now={ bar.now }
+            bsStyle={ bar.bsStyle }
+            active={ active } />
         );
       });
       return (
-        <span className={classNames}>
-          <Basic.ProgressBar style={ { marginBottom: 0} }>
+        <span className={ classNames }>
+          <Basic.ProgressBar style={{ marginBottom: 0 }}>
             { stackedBars }
           </Basic.ProgressBar>
           <div className="text-center">
@@ -66,10 +69,11 @@ export default class ProgressBar extends Basic.AbstractContextComponent {
     }
     //
     return (
-      <span className={classNames}>
-        <Basic.ProgressBar
-          label={this._resolveLabel()}
-          {...others}/>
+      <span className={ classNames }>
+        <Basic.ProgressBar { ...others }/>
+        <div className="text-center">
+          { this._resolveLabel() }
+        </div>
       </span>
     );
   }

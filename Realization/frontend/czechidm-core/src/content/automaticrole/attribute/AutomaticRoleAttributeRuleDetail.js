@@ -434,16 +434,16 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       typeForceSearchParameters = this._getForceSearchParametersForType(option.value);
     }
     //
-    // clear values in specific fields
-    this.refs.attributeName.setValue(null);
-    this.refs.formAttribute.setValue(null);
-    //
     const newEntity = _.merge({}, this.state.entity);
     newEntity.type = option ? option.value : null;
     this.setState({
       typeForceSearchParameters,
       type: option ? option.value : null,
       entity: newEntity
+    }, () => {
+      // clear values in specific fields
+      this.refs.attributeName.setValue(null);
+      this.refs.formAttribute.setValue(null);
     });
   }
 
@@ -636,7 +636,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
               label={this.i18n('entity.AutomaticRole.attribute.type.label')}
               helpBlock={this.i18n('entity.AutomaticRole.attribute.type.help')}
               enum={AutomaticRoleAttributeRuleTypeEnum}
-              onChange={this._typeChange.bind(this)}/>
+              onChange={ this._typeChange.bind(this) }/>
             <Basic.EnumSelectBox
               ref="attributeName"
               clearable={ false }

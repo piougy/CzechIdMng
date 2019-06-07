@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 /**
  * Process all contracts that passed and not passed given automatic role
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 
@@ -59,14 +59,16 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 		if (automaticRoleId == null || automaticRolAttributeDto == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}
+		// For every query is get first page with 100 rows
+		PageRequest defaultPageRequest = new PageRequest(0, PAGE_SIZE);
 		Set<AbstractIdmAutomaticRoleDto> setWithAutomaticRole = Sets.newHashSet(automaticRolAttributeDto);
 		//
 		List<String> failedEntitiesAdd = new ArrayList<>();
 		List<String> failedEntitiesRemove = new ArrayList<>();
 		//
 		// by contract
-		Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, new PageRequest(0, PAGE_SIZE));
-    	Page<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, new PageRequest(0, PAGE_SIZE));
+		Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, defaultPageRequest);
+    	Page<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, defaultPageRequest);
 		//
 		counter = 0L;
 		count = Long.valueOf(newPassedContracts.getTotalElements() + newNotPassedContracts.getTotalElements());
@@ -82,6 +84,7 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     			//
     			// check for contract validity
     			if (contract.getState() == ContractState.DISABLED || !contract.isValidNowOrInFuture()) {
+    				count--; // decrease total count
     				continue;
     			}
     			//
@@ -104,7 +107,7 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 				}
     		}
     		if (newPassedContracts.hasNext()) {
-    			newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, newPassedContracts.nextPageable());
+    			newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, defaultPageRequest);
     		} else {
     			break;
     		}
@@ -131,7 +134,7 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 				}
     		}
     		if (newNotPassedContracts.hasNext()) {
-    			newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, newNotPassedContracts.nextPageable());
+    			newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, defaultPageRequest);
     		} else {
     			break;
     		}

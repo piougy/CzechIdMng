@@ -97,10 +97,13 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 	 */
 	private void processAutomaticRoleForContract(IdmAutomaticRoleAttributeDto automaticRolAttributeDto) {
 		UUID automaticRoleId = automaticRolAttributeDto.getId();
+		// For every query is get first page with 100 rows
+		PageRequest defaultPageRequest = new PageRequest(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES);
+
 		//
     	// process contracts
-    	Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, new PageRequest(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES));
-    	Page<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, new PageRequest(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES));
+    	Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, defaultPageRequest);
+    	Page<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, defaultPageRequest);
     	//
     	boolean canContinue = true;
     	while (canContinue) {
@@ -127,7 +130,7 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 				}
     		}
     		if (newPassedContracts.hasNext()) {
-    			newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, newPassedContracts.nextPageable());
+    			newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, defaultPageRequest);
     		} else {
     			break;
     		}
@@ -167,7 +170,7 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     			}
     		}
     		if (newNotPassedContracts.hasNext()) {
-    			newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, newNotPassedContracts.nextPageable());
+    			newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, defaultPageRequest);
     		} else {
     			break;
     		}

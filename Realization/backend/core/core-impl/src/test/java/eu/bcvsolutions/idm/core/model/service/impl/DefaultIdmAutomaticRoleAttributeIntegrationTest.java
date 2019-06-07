@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,12 +34,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -47,6 +50,12 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAttributeTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByAttributeTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -72,7 +81,11 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	private IdmIdentityContractService identityContractService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
-	
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
+	@Autowired
+	private IdmLongRunningTaskService longRunningTaskService;
+
 	@Before
 	public void login() {
 		super.loginAsAdmin();
@@ -1798,6 +1811,111 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		assertTrue(isRoleFromIdentityContractEav);
 		assertTrue(isRoleFromIdentityDescription);
 		assertFalse(isRoleFromIdentityContractDescription);
+	}
+
+	@Test
+	public void testRecalculationWithManyIdentities() {
+		String description = getHelper().createName();
+		List<IdmIdentityDto> identities = new ArrayList<IdmIdentityDto>();
+		
+		for (int index = 0; index < 187; index++) {
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			identity.setDescription(description);
+			identityService.save(identity);
+			identities.add(identity);
+		}
+		assertEquals(187, identities.size());
+
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = testHelper.createAutomaticRole(role.getId());
+		testHelper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, description);
+
+		this.recalculateSync(automaticRole.getId());
+
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setAutomaticRoleId(automaticRole.getId());
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
+		assertEquals(187, identityRoles.size());
+
+		for (IdmIdentityDto identity : identities) {
+			List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
+			assertEquals(1, allByIdentity.size());
+		}
+	}
+
+	@Test
+	public void testRecalculationWithManyIdentitiesProcessAll() {
+		String description = getHelper().createName();
+		List<IdmIdentityDto> identities = new ArrayList<IdmIdentityDto>();
+		
+		for (int index = 0; index < 241; index++) {
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			identity.setDescription(description);
+			identityService.save(identity);
+			identities.add(identity);
+		}
+		assertEquals(241, identities.size());
+
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = testHelper.createAutomaticRole(role.getId());
+		testHelper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, description);
+
+		ProcessAllAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAllAutomaticRoleByAttributeTaskExecutor.class);
+		longRunningTaskManager.executeSync(automaticRoleTask);
+
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setAutomaticRoleId(automaticRole.getId());
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
+		assertEquals(241, identityRoles.size());
+
+		for (IdmIdentityDto identity : identities) {
+			List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
+			assertEquals(1, allByIdentity.size());
+		}
+	}
+
+	@Test
+	public void testCountForDisabledContracts() {
+		String description = getHelper().createName();
+		List<IdmIdentityDto> identities = new ArrayList<IdmIdentityDto>();
+
+		for (int index = 0; index < 141; index++) {
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			identity.setDescription(description);
+			identityService.save(identity);
+			identities.add(identity);
+		}
+		assertEquals(141, identities.size());
+
+		int actualCount = 0;
+		for (IdmIdentityDto identity : identities) {
+			actualCount++;
+
+			// Identity have contract
+			IdmIdentityContractDto contractDto = identityContractService.findAllByIdentity(identity.getId()).get(0);
+			contractDto.setState(ContractState.DISABLED);
+			identityContractService.save(contractDto);
+
+			// Disable only first 30 identities
+			if (actualCount == 30) {
+				break;
+			}
+		}
+
+		IdmRoleDto role = testHelper.createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = testHelper.createAutomaticRole(role.getId());
+		testHelper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, description);
+
+		ProcessAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByAttributeTaskExecutor.class);
+		automaticRoleTask.setAutomaticRoleId(automaticRole.getId());
+		longRunningTaskManager.executeSync(automaticRoleTask);
+		
+		IdmLongRunningTaskDto task = longRunningTaskService.get(automaticRoleTask.getLongRunningTaskId());
+		assertEquals(Long.valueOf(111), task.getCount());
+		assertEquals(Long.valueOf(111), task.getCounter());
 	}
 
 	/**

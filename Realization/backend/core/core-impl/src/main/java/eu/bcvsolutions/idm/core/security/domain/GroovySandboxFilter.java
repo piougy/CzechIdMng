@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.runtime.GStringImpl;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
@@ -56,7 +57,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 			org.joda.time.LocalDate.class, OffsetTime.class, OffsetDateTime.class, Map.class, HashMap.class, List.class,
 			ArrayList.class, Set.class, HashSet.class, LoggerFactory.class, Logger.class,
 			ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class, MessageFormat.class, Arrays.class,
-			Collections.class, DtoUtils.class);
+			Collections.class, DtoUtils.class, StringUtils.class);
 
 	private final LinkedList<Set<Class<?>>> allowedCustomTypes = new LinkedList<>();
 

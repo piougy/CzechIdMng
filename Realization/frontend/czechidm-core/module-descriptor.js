@@ -913,7 +913,7 @@ module.exports = {
             'titleKey': 'content.notificationConfigurations.title',
             'order': 1000,
             'path': '/notification/configurations',
-            'icon': 'cog',
+            'icon': 'component:setting',
             'access': [
               {
                 'type': 'HAS_ANY_AUTHORITY',
@@ -927,7 +927,7 @@ module.exports = {
         'id': 'system',
         'labelKey': 'navigation.menu.system',
         'titleKey': 'navigation.menu.system',
-        'icon': 'cog',
+        'icon': 'component:setting',
         'order': 2000,
         'path': '/configurations',
         'iconColor': '#c12e2a',
@@ -945,7 +945,7 @@ module.exports = {
           {
             'id': 'system-configuration',
             'labelKey': 'navigation.menu.configuration',
-            'icon': 'cog',
+            'icon': 'component:setting',
             'order': 10,
             'path': '/configurations',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_READ'] } ]

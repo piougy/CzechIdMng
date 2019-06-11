@@ -3950,6 +3950,7 @@
       "type": "$t(entity.Notification.type)"
     },
     "Configuration": {
+      "_type": "Configuration item",
       "name": "Key",
       "value": "Value",
       "secured": "System",

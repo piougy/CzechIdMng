@@ -491,6 +491,19 @@ module.exports = {
       'type': 'icon',
       'entityType': ['audit'],
       'component': 'fa:history'
+    },
+    {
+      'id': 'setting-icon',
+      'type': 'icon',
+      'entityType': ['setting'],
+      'component': 'fa:cog'
+    },
+    {
+      'id': 'configuration-info',
+      'type': 'entity-info',
+      'entityType': ['configuration', 'IdmConfiguration', 'IdmConfigurationDto'],
+      'component': require('./src/components/advanced/ConfigurationInfo/ConfigurationInfo').default,
+      'manager': require('./src/redux').ConfigurationManager
     }
   ]
 };

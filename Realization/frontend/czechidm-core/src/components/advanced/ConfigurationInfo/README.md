@@ -1,6 +1,6 @@
-# PasswordInfo Component
+# ConfigurationInfo Component
 
-Information about password for given identity. If password doesn't exist, then short uuid identifier will be shown.
+Information about configuration item. If configuration item doesn't exist, then short uuid identifier will be shown.
 Inspiration for create similar component can be found - RoleInfo.
 
 ## Parameters
@@ -18,11 +18,11 @@ All parameters from AbstractComponent are supported. Added parameters:
 ## Usage
 
 ```html
-<Advanced.PasswordInfo entity={ passwordDto }/>
+<Advanced.ConfigurationInfo entity={ configutationItem }/>
 ```
 
 or
 
 ```html
-<Advanced.PasswordInfo entityIdentifier="passwordUuid" />
+<Advanced.ConfigurationInfo entityIdentifier="itemUuid" />
 ```

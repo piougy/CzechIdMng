@@ -2994,11 +2994,11 @@
           "items": "Zpracované položky",
           "queue": "Fronta",
           "audit": "Audit"
-        },
-        "audit": {
-          "header": "Audit <small>entity upravené touto úlohou</small>",
-          "title": "Audit"
         }
+      },
+      "audit": {
+        "header": "Audit <small>entity upravené touto úlohou</small>",
+        "title": "Audit"
       }
     },
     "notifications": {

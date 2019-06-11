@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [9.6.4]
+## [9.7.0]
 - Deprecated class (since 7.3.0) ``AuditableListener`` was removed. Use class ``AuditableEntityListener`` instead.
 
 ## [9.6.3]

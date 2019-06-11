@@ -465,6 +465,32 @@ module.exports = {
       'type': 'icon',
       'entityType': ['scheduled-task', 'scheduled-tasks'],
       'component': 'fa:calendar-times-o'
+    },
+    {
+      'id': 'role-request-info',
+      'type': 'entity-info',
+      'entityType': ['roleRequest', 'IdmRoleRequest', 'IdmRoleRequestDto'],
+      'component': require('./src/components/advanced/RoleRequestInfo/RoleRequestInfo').default,
+      'manager': require('./src/redux').RoleRequestManager
+    },
+    {
+      'id': 'password-info',
+      'type': 'entity-info',
+      'entityType': ['password', 'IdmPassword', 'IdmPasswordDto'],
+      'component': require('./src/components/advanced/PasswordInfo/PasswordInfo').default,
+      'manager': require('./src/redux').PasswordManager
+    },
+    {
+      'id': 'password-icon',
+      'type': 'icon',
+      'entityType': ['password', 'password-policies', 'password-policy'],
+      'component': 'fa:lock'
+    },
+    {
+      'id': 'audit-icon',
+      'type': 'icon',
+      'entityType': ['audit'],
+      'component': 'fa:history'
     }
   ]
 };

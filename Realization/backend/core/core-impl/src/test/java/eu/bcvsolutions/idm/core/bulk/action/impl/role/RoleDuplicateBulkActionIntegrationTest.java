@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
@@ -429,6 +430,17 @@ public class RoleDuplicateBulkActionIntegrationTest extends AbstractBulkActionTe
 	
 	@Test
 	public void testRemoveAutomaticRole() {
+		//
+		// create new entity state with a different transactionId - has to be preserved
+		TransactionContextHolder.clearContext();
+		IdmEntityStateDto otherState = new IdmEntityStateDto();
+		otherState.setOwnerId(UUID.randomUUID());
+		otherState.setOwnerType("mock");
+		otherState.setResult(new OperationResultDto.Builder(OperationState.CREATED).build());
+		otherState.setInstanceId("mock");
+		otherState = entityStateService.save(otherState);
+		//
+		TransactionContextHolder.clearContext();
 		// automatic role on sub role
 		IdmRoleDto parentRole = createRole();
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
@@ -468,15 +480,6 @@ public class RoleDuplicateBulkActionIntegrationTest extends AbstractBulkActionTe
 		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> duplicateAtomaticRoleTree.getId().equals(ir.getAutomaticRole())));
 		//
 		automaticRoleAttributeService.delete(automaticRoleAttribute);
-		//
-		// create new entity state with a different transactionId - has to be preserved
-		IdmEntityStateDto otherState = new IdmEntityStateDto();
-		otherState.setOwnerId(UUID.randomUUID());
-		otherState.setOwnerType("mock");
-		otherState.setTransactionId(UUID.randomUUID());
-		otherState.setResult(new OperationResultDto.Builder(OperationState.CREATED).build());
-		otherState.setInstanceId("mock");
-		otherState = entityStateService.save(otherState);
 		//
 		processAction = bulkActionManager.processAction(bulkAction);
 		//

@@ -118,7 +118,10 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
       <div>
         <Helmet title={this.i18n('title')} />
         <form onSubmit={ this.onSave.bind(this) }>
-          <Basic.ContentHeader icon="lock" text={ this.i18n('header') } style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }} />
+          <Basic.ContentHeader
+            icon="component:password"
+            text={ this.i18n('header') }
+            style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }} />
           <Basic.Panel className="no-border" style={{ paddingRight: 15, paddingLeft: 15 }}>
             <Basic.Alert
               ref="blockLoginDateInfo"

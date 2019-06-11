@@ -550,8 +550,8 @@ class Configurations extends Advanced.AbstractTableContent {
               header={ this.i18n('fromEnvironment', { escape: false } ) }
               showLoading={ _environmentConfigurationsShowLoading }
               noData={ this.i18n('component.basic.Table.noData') }>
-              <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="150px"/>
-              <Basic.Column property="value" header={this.i18n('entity.Configuration.value')}/>
+              <Basic.Column property="name" header={ this.i18n('entity.Configuration.name') } width={ 150 }/>
+              <Basic.Column property="value" header={ this.i18n('entity.Configuration.value') }/>
             </Basic.Table>
           </Basic.Panel>
         }

@@ -12,7 +12,7 @@ import Filter from '../Filter/Filter';
 import SearchParameters from '../../../domain/SearchParameters';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import RefreshButton from './RefreshButton';
-import { DataManager, FormAttributeManager, LongRunningTaskManager, SecurityManager } from '../../../redux';
+import { DataManager, FormAttributeManager, LongRunningTaskManager, SecurityManager, ConfigurationManager } from '../../../redux';
 import EavAttributeForm from '../Form/EavAttributeForm';
 import LongRunningTask from '../LongRunningTask/LongRunningTask';
 
@@ -455,12 +455,18 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   _showId() {
-    const { showId } = this.props;
+    const { showId, appShowId } = this.props;
     //
-    if (showId === null || showId === undefined) {
-      return this.isDevelopment();
+    if (showId !== null && showId !== undefined) {
+      // table prop => highest priority
+      return showId;
     }
-    return showId;
+    if (appShowId !== null && appShowId !== undefined) {
+      // app prop => highest priority
+      return appShowId;
+    }
+    // app prop by stage as default
+    return this.isDevelopment();
   }
 
   _filterOpen(open) {
@@ -677,7 +683,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       header,
       forceSearchParameters,
       className,
-      uuidEnd
+      uuidEnd,
+      showTransactionId
     } = this.props;
     const {
       filterOpened,
@@ -832,13 +839,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
     //
     return (
-      <div className={ classnames('advanced-table', className) } style={ style }>
+      <Basic.Div className={ classnames('advanced-table', className) } style={ style }>
         {
           !filter && (_actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0)
           ||
           <Basic.Toolbar container={ this } viewportOffsetTop={ filterViewportOffsetTop } rendered={ showToolbar }>
-            <div className="advanced-table-heading">
-              <div className="pull-left">
+            <Basic.Div className="advanced-table-heading">
+              <Basic.Div className="pull-left">
                 <Basic.EnumSelectBox
                   onChange={ this.onBulkAction.bind(this) }
                   ref="bulkActionSelect"
@@ -849,8 +856,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   placeholder={ this.i18n('bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count }) }
                   rendered={ _actions.length > 0 && showRowSelection }
                   searchable={ false }/>
-              </div>
-              <div className="pull-right">
+              </Basic.Div>
+              <Basic.Div className="pull-right">
                 { buttons }
 
                 <Filter.ToogleButton
@@ -866,13 +873,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   title={ this.i18n('button.refresh') }
                   showLoading={ _showLoading }
                   rendered={ showRefreshButton }/>
-              </div>
-              <div className="clearfix"></div>
-            </div>
+              </Basic.Div>
+              <Basic.Div className="clearfix"></Basic.Div>
+            </Basic.Div>
             <Basic.Collapse in={ filterOpened } rendered={ showFilter }>
-              <div>
+              <Basic.Div>
                 { filter }
-              </div>
+              </Basic.Div>
             </Basic.Collapse>
           </Basic.Toolbar>
         }
@@ -894,7 +901,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             </div>
           </Basic.Alert>
           :
-          <div>
+          <Basic.Div>
             <Basic.BasicTable.Table
               ref="table"
               header={ header }
@@ -919,12 +926,39 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 property="id"
                 rendered={ this._showId() }
                 className="text-center"
-                width={ 100 }
+                width={ 115 }
                 cell={
                   ({rowIndex, data, property}) => {
-                    return (
-                      <UuidInfo value={ data[rowIndex][property] } uuidEnd={ uuidEnd }/>
+                    const entity = data[rowIndex];
+                    const identifier = entity[property];
+                    const transactionId = entity.transactionId;
+                    const _showTransactionId = transactionId && showTransactionId;
+                    const content = [];
+                    //
+                    content.push(
+                      <Basic.Div>
+                        {
+                          !_showTransactionId
+                          ||
+                          <span title={ this.i18n('entity.id.help') }>
+                            { this.i18n('entity.id.short') }:
+                          </span>
+                        }
+                        <UuidInfo value={ identifier } uuidEnd={ uuidEnd }/>
+                      </Basic.Div>
                     );
+                    if (_showTransactionId) {
+                      content.push(
+                        <Basic.Div>
+                          <span title={ this.i18n('entity.transactionId.help') }>
+                            { this.i18n('entity.transactionId.short') }:
+                          </span>
+                          <UuidInfo value={ transactionId } uuidEnd={ uuidEnd }/>
+                        </Basic.Div>
+                      );
+                    }
+                    //
+                    return content;
                   }
                 }/>
             </Basic.BasicTable.Table>
@@ -932,11 +966,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               ref="pagination"
               showPageSize={ showPageSize }
               paginationHandler={ pagination ? this._handlePagination.bind(this) : null }
-              total={ pagination ? _total : _entities.length } {...range} />
-          </div>
+              total={ pagination ? _total : _entities.length } { ...range } />
+          </Basic.Div>
         }
         { this._renderBulkActionDetail() }
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -1108,13 +1142,17 @@ AdvancedTable.defaultProps = {
 function select(state, component) {
   const uiKey = component.manager.resolveUiKey(component.uiKey);
   const ui = state.data.ui[uiKey];
+  const result = {
+    i18nReady: state.config.get('i18nReady'),
+    appShowId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.id', null),
+    showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false)
+  };
+  //
   if (!ui) {
-    return {
-      i18nReady: state.config.get('i18nReady')
-    };
+    return result;
   }
   return {
-    i18nReady: state.config.get('i18nReady'),
+    ...result,
     _showLoading: ui.showLoading,
     _entities: component.manager.getEntities(state, uiKey),
     _total: ui.total,

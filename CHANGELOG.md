@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.6.4]
+- Deprecated class (since 7.3.0) ``AuditableListener`` was removed. Use class ``AuditableEntityListener`` instead.
+
 ## [9.6.3]
 - [#1668](https://redmine.czechidm.com/issues/1668) - ``EntityEventDeleteExecutedProcessor`` was removed. LRT ``DeleteExecutedEventTaskExecutor`` was created and scheduled by default to cover this functionality (executed events older than 3 days will be removed by default schedule).
 - [#1393](https://redmine.czechidm.com/issues/1393) - Provisioned attributes (schema connector attribute names) are logged for provisioning operations in queue and archive. Is possible to filter by attributes used in provisioning context (updated, removed and empty provisioning). This feature is available for the new records in provisioning queue and archive. **Older records** (created before version 9.6.3 was installed) **will be filtered as empty provisioning without attributes** (attributes are empty).

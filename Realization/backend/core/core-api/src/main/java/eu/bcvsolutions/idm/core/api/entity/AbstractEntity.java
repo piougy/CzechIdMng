@@ -106,9 +106,8 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	@JsonProperty(access = Access.READ_ONLY)
 	private UUID originalModifierId;
 	
-	@Audited
 	@Column(name = "transaction_id", length = 16)
-	@JsonIgnore
+	@JsonProperty(access = Access.READ_ONLY)
 	private UUID transactionId;
 	
 	@Audited

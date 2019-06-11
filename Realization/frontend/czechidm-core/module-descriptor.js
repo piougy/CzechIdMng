@@ -102,7 +102,7 @@ module.exports = {
                 'labelKey': 'content.identity.sidebar.password',
                 'order': 20,
                 'path': '/identity/:entityId/password/change',
-                'icon': 'lock',
+                'icon': 'component:password',
                 'conditions': [
                   'todo: eval( canPasswordChange ...)'
                 ],
@@ -231,7 +231,7 @@ module.exports = {
                 'order': 500,
                 'path': '/identity/:entityId/audit/identity',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
-                'icon': 'fa:history',
+                'icon': 'component:audit',
                 'items': [
                   {
                     'id': 'profile-audit-profile',
@@ -658,7 +658,7 @@ module.exports = {
         'id': 'audit',
         'labelKey': 'content.audit.title',
         'titleKey': 'content.audit.title',
-        'icon': 'stats',
+        'icon': 'component:audit',
         'path': '/audit/entities',
         'order': 1900,
         'items': [
@@ -704,7 +704,7 @@ module.exports = {
             'labelKey': 'content.audit.title',
             'order': 40,
             'path': '/audit/entities',
-            'icon': 'eye-open',
+            'icon': 'component:audit',
             'access': [
               {
                 'type': 'HAS_ANY_AUTHORITY',
@@ -1055,6 +1055,20 @@ module.exports = {
                         'authorities': ['SCHEDULER_EXECUTE']
                       }
                     ]
+                  },
+                  {
+                    'id': 'long-running-task-audit',
+                    'labelKey': 'content.scheduler.all-tasks.tabs.audit',
+                    'order': 400,
+                    'path': '/scheduler/all-tasks/:entityId/audit',
+                    'type': 'TAB',
+                    'icon': 'component:audit',
+                    'access': [
+                      {
+                        'type': 'DENY_ALL',
+                        'authorities': ['AUDIT_READ']
+                      }
+                    ]
                   }
                 ]
               }
@@ -1162,7 +1176,7 @@ module.exports = {
             'id': 'password-policies',
             'labelKey': 'content.passwordPolicies.header',
             'titleKey': 'content.passwordPolicies.title',
-            'icon': 'lock',
+            'icon': 'component:password-policies',
             'iconColor': '#ff0000',
             'order': 60,
             'path': '/password-policies',

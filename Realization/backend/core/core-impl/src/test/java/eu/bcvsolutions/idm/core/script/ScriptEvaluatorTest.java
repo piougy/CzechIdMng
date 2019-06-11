@@ -98,8 +98,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	public void testRemoveScriptWithAuthentization() {
 		IdmScriptDto script = new IdmScriptDto();
 		script.setCategory(IdmScriptCategory.DEFAULT);
-		script.setCode("script_code_" + System.currentTimeMillis());
-		script.setName("script_name_" + System.currentTimeMillis());
+		script.setCode(getHelper().createName());
+		script.setName(getHelper().createName());
 		//
 		script = scriptService.saveInternal(script);
 		
@@ -116,8 +116,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	public void testCreateScript() {
 		IdmScriptDto script = new IdmScriptDto();
 		script.setCategory(IdmScriptCategory.DEFAULT);
-		script.setCode("script_code_" + System.currentTimeMillis());
-		script.setName("script_name_" + System.currentTimeMillis());
+		script.setCode(getHelper().createName());
+		script.setName(getHelper().createName());
 		//
 		IdmScriptDto script2 = scriptService.saveInternal(script);
 		//
@@ -132,14 +132,14 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto script = new IdmScriptDto();
 		script.setCategory(IdmScriptCategory.DEFAULT);
-		script.setCode("script_code_" + System.currentTimeMillis());
+		script.setCode(getHelper().createName());
 		script.setName(duplName);
 		//
 		script = scriptService.saveInternal(script);
 		//
 		IdmScriptDto script2 = new IdmScriptDto();
 		script2.setCategory(IdmScriptCategory.DEFAULT);
-		script2.setCode("script_code_" + System.currentTimeMillis());
+		script2.setCode(getHelper().createName());
 		script2.setName(duplName);
 		//
 		script2 = scriptService.saveInternal(script2);
@@ -156,14 +156,14 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		IdmScriptDto script = new IdmScriptDto();
 		script.setCategory(IdmScriptCategory.DEFAULT);
 		script.setCode(duplCode);
-		script.setName("script_name_" + System.currentTimeMillis());
+		script.setName(getHelper().createName());
 		//
 		script = scriptService.saveInternal(script);
 		//
 		IdmScriptDto script2 = new IdmScriptDto();
 		script2.setCategory(IdmScriptCategory.DEFAULT);
 		script2.setCode(duplCode);
-		script2.setName("script_name_" + System.currentTimeMillis());
+		script2.setName(getHelper().createName());
 		//
 		script2 = scriptService.saveInternal(script2);
 	}
@@ -172,8 +172,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	public void testEvaluateScriptWithoutAuth() {
 		IdmScriptDto script = new IdmScriptDto();
 		script.setCategory(IdmScriptCategory.DEFAULT);
-		script.setCode("script_name_" + System.currentTimeMillis());
-		script.setName("script_name_" + System.currentTimeMillis());
+		script.setCode(getHelper().createName());
+		script.setName(getHelper().createName());
 		//
 		script.setScript(createListScript(Boolean.TRUE));
 		//
@@ -181,8 +181,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto script2 = new IdmScriptDto();
 		script2.setCategory(IdmScriptCategory.DEFAULT);
-		script2.setCode("script_name_" + System.currentTimeMillis());
-		script2.setName("script_name_" + System.currentTimeMillis());
+		script2.setCode(getHelper().createName());
+		script2.setName(getHelper().createName());
 		//
 		script.setScript(createScriptThatCallAnother(script, IdmScriptCategory.DEFAULT, null, false));
 		//
@@ -195,8 +195,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	public void testEvaluateScriptWithAuth() {
 		IdmScriptDto subScript = new IdmScriptDto();
 		subScript.setCategory(IdmScriptCategory.DEFAULT);
-		subScript.setCode("script_name_" + System.currentTimeMillis());
-		subScript.setName("script_name_" + System.currentTimeMillis());
+		subScript.setCode(getHelper().createName());
+		subScript.setName(getHelper().createName());
 		//
 		subScript.setScript(createListScript(Boolean.TRUE));
 		//
@@ -206,8 +206,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto parent = new IdmScriptDto();
 		parent.setCategory(IdmScriptCategory.DEFAULT);
-		parent.setCode("script_name_" + System.currentTimeMillis());
-		parent.setName("script_name_" + System.currentTimeMillis());
+		parent.setCode(getHelper().createName());
+		parent.setName(getHelper().createName());
 		//
 		parent.setScript(createScriptThatCallAnother(subScript, IdmScriptCategory.DEFAULT, null, false));
 		parent = scriptService.saveInternal(parent);
@@ -219,8 +219,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	public void testEvaluateScriptWithAnotherCategory() {
 		IdmScriptDto subScript = new IdmScriptDto();
 		subScript.setCategory(IdmScriptCategory.SYSTEM);
-		subScript.setCode("script_name_" + System.currentTimeMillis());
-		subScript.setName("script_name_" + System.currentTimeMillis());
+		subScript.setCode(getHelper().createName());
+		subScript.setName(getHelper().createName());
 		//
 		subScript.setScript(createListScript(Boolean.TRUE));
 		//
@@ -230,8 +230,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto parent = new IdmScriptDto();
 		parent.setCategory(IdmScriptCategory.DEFAULT);
-		parent.setCode("script_name_" + System.currentTimeMillis());
-		parent.setName("script_name_" + System.currentTimeMillis());
+		parent.setCode(getHelper().createName());
+		parent.setName(getHelper().createName());
 		//
 		parent.setScript(createScriptThatCallAnother(subScript, IdmScriptCategory.DEFAULT, null, false));
 		parent = scriptService.saveInternal(parent);
@@ -243,8 +243,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	public void testEvaluateScriptWithCreateEntity() {
 		IdmScriptDto subScript = new IdmScriptDto();
 		subScript.setCategory(IdmScriptCategory.DEFAULT);
-		subScript.setCode("script_name_" + System.currentTimeMillis());
-		subScript.setName("script_name_" + System.currentTimeMillis());
+		subScript.setCode(getHelper().createName());
+		subScript.setName(getHelper().createName());
 		//
 		subScript.setScript(createTreeNodeScript(TREE_TYPE_CODE, TREE_TYPE_NAME));
 		//
@@ -256,8 +256,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto parent = new IdmScriptDto();
 		parent.setCategory(IdmScriptCategory.DEFAULT);
-		parent.setCode("script_name_" + System.currentTimeMillis());
-		parent.setName("script_name_" + System.currentTimeMillis());
+		parent.setCode(getHelper().createName());
+		parent.setName(getHelper().createName());
 		//
 		parent.setScript(createScriptThatCallAnother(subScript, IdmScriptCategory.DEFAULT, null, true));
 		parent = scriptService.save(parent);
@@ -277,8 +277,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	public void testEvaluateScriptWithCreateEntityAndWorkWith() {
 		IdmScriptDto subScript = new IdmScriptDto();
 		subScript.setCategory(IdmScriptCategory.DEFAULT);
-		subScript.setCode("script_name_" + System.currentTimeMillis());
-		subScript.setName("script_name_" + System.currentTimeMillis());
+		subScript.setCode(getHelper().createName());
+		subScript.setName(getHelper().createName());
 		//
 		subScript.setScript(createTreeNodeScript(TREE_TYPE_CODE + "_2", TREE_TYPE_NAME + "_2"));
 		//
@@ -290,8 +290,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto parent = new IdmScriptDto();
 		parent.setCategory(IdmScriptCategory.DEFAULT);
-		parent.setCode("script_name_" + System.currentTimeMillis());
-		parent.setName("script_name_" + System.currentTimeMillis());
+		parent.setCode(getHelper().createName());
+		parent.setName(getHelper().createName());
 		//
 		StringBuilder scriptToEnd = new StringBuilder();
 		scriptToEnd.append("import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;\n");
@@ -312,8 +312,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	public void testThreeScriptAuthoritySuccess() {
 		IdmScriptDto third = new IdmScriptDto();
 		third.setCategory(IdmScriptCategory.DEFAULT);
-		third.setCode("third_script_name_" + System.currentTimeMillis());
-		third.setName("third_script_name_" + System.currentTimeMillis());
+		third.setCode(getHelper().createName());
+		third.setName(getHelper().createName());
 		StringBuilder script = new StringBuilder();
 		script.append(createRoleScript());
 		script.append("return null;\n");
@@ -323,8 +323,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto second = new IdmScriptDto();
 		second.setCategory(IdmScriptCategory.DEFAULT);
-		second.setCode("second_script_name_" + System.currentTimeMillis());
-		second.setName("second_script_name_" + System.currentTimeMillis());
+		second.setCode(getHelper().createName());
+		second.setName(getHelper().createName());
 		script = new StringBuilder();
 		script.append(createTreeTypeScript());
 		script.append(createScriptThatCallAnother(third, IdmScriptCategory.DEFAULT, null, false, null));
@@ -338,8 +338,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto first = new IdmScriptDto();
 		first.setCategory(IdmScriptCategory.DEFAULT);
-		first.setCode("first_script_name_" + System.currentTimeMillis());
-		first.setName("first_script_name_" + System.currentTimeMillis());
+		first.setCode(getHelper().createName());
+		first.setName(getHelper().createName());
 		script = new StringBuilder();
 		script.append(createIdenityScript());
 		script.append("\n");
@@ -359,16 +359,16 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	public void testThreeScriptAuthorityFailSecond() {
 		IdmScriptDto third = new IdmScriptDto();
 		third.setCategory(IdmScriptCategory.DEFAULT);
-		third.setCode("script_name_" + System.currentTimeMillis());
-		third.setName("script_name_" + System.currentTimeMillis());
+		third.setCode(getHelper().createName());
+		third.setName(getHelper().createName());
 		third.setScript(createTreeNodeScript());
 		third = scriptService.save(third);
 		createAuthority(third.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeNodeDto.class.getName(), null);
 		//
 		IdmScriptDto second = new IdmScriptDto();
 		second.setCategory(IdmScriptCategory.DEFAULT);
-		second.setCode("script_name_" + System.currentTimeMillis());
-		second.setName("script_name_" + System.currentTimeMillis());
+		second.setCode(getHelper().createName());
+		second.setName(getHelper().createName());
 		StringBuilder script = new StringBuilder(createTreeTypeScript());
 		script.append(createTreeNodeScript());// security exception
 		script.append(createScriptThatCallAnother(third, IdmScriptCategory.DEFAULT, null, false, null));
@@ -379,8 +379,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto first = new IdmScriptDto();
 		first.setCategory(IdmScriptCategory.DEFAULT);
-		first.setCode("script_name_" + System.currentTimeMillis());
-		first.setName("script_name_" + System.currentTimeMillis());
+		first.setCode(getHelper().createName());
+		first.setName(getHelper().createName());
 		script = new StringBuilder(createIdenityScript());
 		script.append(createScriptThatCallAnother(second, IdmScriptCategory.DEFAULT, null, false, null));
 		first.setScript(script.toString());
@@ -396,8 +396,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	public void testThreeScriptAuthorityThirdScriptUseAnotherAuth() {
 		IdmScriptDto third = new IdmScriptDto();
 		third.setCategory(IdmScriptCategory.DEFAULT);
-		third.setCode("script_name_" + System.currentTimeMillis());
-		third.setName("script_name_" + System.currentTimeMillis());
+		third.setCode(getHelper().createName());
+		third.setName(getHelper().createName());
 		StringBuilder script = new StringBuilder(createTreeNodeScript());
 		script.append(createIdenityScript()); // fail
 		third.setScript(script.toString());
@@ -406,8 +406,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto second = new IdmScriptDto();
 		second.setCategory(IdmScriptCategory.DEFAULT);
-		second.setCode("script_name_" + System.currentTimeMillis());
-		second.setName("script_name_" + System.currentTimeMillis());
+		second.setCode(getHelper().createName());
+		second.setName(getHelper().createName());
 		script = new StringBuilder(createTreeTypeScript());
 		script.append(createTreeNodeScript());
 		second.setScript(createScriptThatCallAnother(third, IdmScriptCategory.DEFAULT, null, false, null));
@@ -417,8 +417,8 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		IdmScriptDto first = new IdmScriptDto();
 		first.setCategory(IdmScriptCategory.DEFAULT);
-		first.setCode("script_name_" + System.currentTimeMillis());
-		first.setName("script_name_" + System.currentTimeMillis());
+		first.setCode(getHelper().createName());
+		first.setName(getHelper().createName());
 		script = new StringBuilder(createIdenityScript());
 		script.append(createScriptThatCallAnother(second, IdmScriptCategory.DEFAULT, null, false, null));
 		first.setScript(script.toString());
@@ -437,7 +437,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testScriptExceptionWithCatch() {
-		String testString = "TEST-" + System.currentTimeMillis();
+		String testString = getHelper().createName();
 		//
 		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
 		IdmScriptDto script1 = scripts.getFirst();
@@ -470,7 +470,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testScriptThrowableWithCatch() {
-		String testString = "TEST-" + System.currentTimeMillis();
+		String testString = getHelper().createName();
 		//
 		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
 		IdmScriptDto script1 = scripts.getFirst();
@@ -503,7 +503,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testScriptRuntimeExceptionWithCatch() {
-		String testString = "TEST-" + System.currentTimeMillis();
+		String testString = getHelper().createName();
 		//
 		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
 		IdmScriptDto script1 = scripts.getFirst();
@@ -536,7 +536,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Test(expected = IdmSecurityException.class)
 	public void testScriptSecurityExceptionWithCatchSecurityException() {
-		String testString = "TEST-" + System.currentTimeMillis();
+		String testString = getHelper().createName();
 		//
 		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
 		IdmScriptDto script1 = scripts.getFirst();
@@ -565,7 +565,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testScriptSecurityExceptionWithCatch() {
-		String testString = "TEST-" + System.currentTimeMillis();
+		String testString = getHelper().createName();
 		//
 		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
 		IdmScriptDto script1 = scripts.getFirst();
@@ -600,7 +600,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testScriptExceptionWithoutCatch() {
-		String testString = "TEST-" + System.currentTimeMillis();
+		String testString = getHelper().createName();
 		//
 		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
 		IdmScriptDto script1 = scripts.getFirst();
@@ -626,7 +626,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testScriptThrowableWithoutCatch() {
-		String testString = "TEST-" + System.currentTimeMillis();
+		String testString = getHelper().createName();
 		//
 		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
 		IdmScriptDto script1 = scripts.getFirst();
@@ -652,7 +652,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testScriptRuntimeExceptionWithoutCatch() {
-		String testString = "TEST-" + System.currentTimeMillis();
+		String testString = getHelper().createName();
 		//
 		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
 		IdmScriptDto script1 = scripts.getFirst();
@@ -678,7 +678,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Test(expected = IdmSecurityException.class)
 	public void testScriptSecurityExceptionWithoutCatch() {
-		String testString = "TEST-" + System.currentTimeMillis();
+		String testString = getHelper().createName();
 		//
 		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
 		IdmScriptDto script1 = scripts.getFirst();
@@ -727,21 +727,21 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	 * @return
 	 */
 	private Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> createThreeScripts() {
-		String codeName1 = "script_name1_" + System.currentTimeMillis();
+		String codeName1 = getHelper().createName();
 		IdmScriptDto script1 = new IdmScriptDto();
 		script1.setCategory(IdmScriptCategory.DEFAULT);
 		script1.setCode(codeName1);
 		script1.setName(codeName1);
 		script1 = this.scriptService.save(script1);
 		//
-		String codeName2 = "script_name2_" + System.currentTimeMillis();
+		String codeName2 = getHelper().createName();
 		IdmScriptDto script2 = new IdmScriptDto();
 		script2.setCategory(IdmScriptCategory.DEFAULT);
 		script2.setCode(codeName2);
 		script2.setName(codeName2);
 		script2 = this.scriptService.save(script2);
 		//
-		String codeName3 = "script_name3_" + System.currentTimeMillis();
+		String codeName3 = getHelper().createName();
 		IdmScriptDto script3 = new IdmScriptDto();
 		script3.setCategory(IdmScriptCategory.DEFAULT);
 		script3.setCode(codeName3);

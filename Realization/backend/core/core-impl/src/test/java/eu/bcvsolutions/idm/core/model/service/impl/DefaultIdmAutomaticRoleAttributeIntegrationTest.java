@@ -15,7 +15,6 @@ import java.util.UUID;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -67,8 +66,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  */
 public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractIntegrationTest {
 
-	private final String TEST_NAME = "test-name-";
-
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
@@ -86,17 +83,11 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	@Autowired
 	private IdmLongRunningTaskService longRunningTaskService;
 
-	@Before
-	public void login() {
-		super.loginAsAdmin();
-	}
-
 	@After
 	public void logout() {
 		automaticRoleAttributeService.find(null).forEach(autoRole -> {
 			automaticRoleAttributeService.delete(autoRole);
 		});
-		super.logout();
 	}
 
 	@Test
@@ -104,7 +95,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmRoleDto role = testHelper.createRole();
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
 		automaticRole.setRole(role.getId());
-		automaticRole.setName(getTestName());
+		automaticRole.setName(getHelper().createName());
 		IdmAutomaticRoleAttributeDto savedAutomaticRole = automaticRoleAttributeService.save(automaticRole);
 		//
 		assertNotNull(savedAutomaticRole);
@@ -114,7 +105,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		try {
 			// update isn't allowed
-			savedAutomaticRole.setName(getTestName());
+			savedAutomaticRole.setName(getHelper().createName());
 			automaticRoleAttributeService.save(savedAutomaticRole);
 			fail();
 		} catch (Exception e) {
@@ -135,7 +126,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmRoleDto role = testHelper.createRole();
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
 		automaticRole.setRole(role.getId());
-		automaticRole.setName(getTestName());
+		automaticRole.setName(getHelper().createName());
 		automaticRole = automaticRoleAttributeService.save(automaticRole);
 		//
 		IdmAutomaticRoleFilter filter = new IdmAutomaticRoleFilter();
@@ -153,7 +144,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		automaticRole = new IdmAutomaticRoleAttributeDto();
 		automaticRole.setRole(role.getId());
-		automaticRole.setName(getTestName());
+		automaticRole.setName(getHelper().createName());
 		automaticRole = automaticRoleAttributeService.save(automaticRole);
 		//
 		IdmAutomaticRoleAttributeRuleDto rule1 = new IdmAutomaticRoleAttributeRuleDto();
@@ -201,7 +192,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmRoleDto role = testHelper.createRole();
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
 		automaticRole.setRole(role.getId());
-		automaticRole.setName(getTestName());
+		automaticRole.setName(getHelper().createName());
 		automaticRole = automaticRoleAttributeService.save(automaticRole);
 		//
 		IdmAutomaticRoleFilter filter = new IdmAutomaticRoleFilter();
@@ -280,7 +271,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmRoleDto role = testHelper.createRole();
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
 		automaticRole.setRole(role.getId());
-		automaticRole.setName(getTestName());
+		automaticRole.setName(getHelper().createName());
 		automaticRole = automaticRoleAttributeService.save(automaticRole);
 		//
 		IdmAutomaticRoleAttributeRuleDto rule1 = new IdmAutomaticRoleAttributeRuleDto();
@@ -551,7 +542,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmAutomaticRoleAttributeDto automaticRole = testHelper.createAutomaticRole(role.getId());
 		//
 		String email = "test@example.tld";
-		String username = getTestName();
+		String username = getHelper().createName();
 		String firstName = "firstName";
 		//
 		testHelper.createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
@@ -1091,7 +1082,6 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	
 	@Test
 	public void testMoreContracts() {
-		String eavCode = "testingEav";
 		UUID testValue1 = UUID.randomUUID();
 		Long testValue2 = System.currentTimeMillis();
 		Boolean testValue3 = Boolean.FALSE;
@@ -1104,13 +1094,13 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmIdentityContractDto primeContractCheck = testHelper.getPrimeContract(identity.getId());
 		assertEquals(primeContract.getId(), primeContractCheck.getId());
 		
-		IdmFormAttributeDto eavAttributeContract1 = testHelper.createEavAttribute(eavCode + System.currentTimeMillis(), IdmIdentityContract.class, PersistentType.UUID);
+		IdmFormAttributeDto eavAttributeContract1 = testHelper.createEavAttribute(getHelper().createName(), IdmIdentityContract.class, PersistentType.UUID);
 		testHelper.setEavValue(primeContract, eavAttributeContract1, IdmIdentityContract.class, testValue1, PersistentType.UUID);
 		
-		IdmFormAttributeDto eavAttributeContract2 = testHelper.createEavAttribute(eavCode + System.currentTimeMillis(), IdmIdentityContract.class, PersistentType.LONG);
+		IdmFormAttributeDto eavAttributeContract2 = testHelper.createEavAttribute(getHelper().createName(), IdmIdentityContract.class, PersistentType.LONG);
 		testHelper.setEavValue(contract2, eavAttributeContract2, IdmIdentityContract.class, testValue2, PersistentType.LONG);
 		
-		IdmFormAttributeDto eavAttributeContract3 = testHelper.createEavAttribute(eavCode + System.currentTimeMillis(), IdmIdentityContract.class, PersistentType.BOOLEAN);
+		IdmFormAttributeDto eavAttributeContract3 = testHelper.createEavAttribute(getHelper().createName(), IdmIdentityContract.class, PersistentType.BOOLEAN);
 		testHelper.setEavValue(contract3, eavAttributeContract3, IdmIdentityContract.class, testValue3, PersistentType.BOOLEAN);
 		
 		IdmRoleDto role1 = testHelper.createRole();
@@ -1155,8 +1145,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	}
 	
 	@Test
-	public void testDeletePrimariContract() {
-		String eavCode = "testingEav";
+	public void testDeletePrimaryContract() {
 		UUID testValue1 = UUID.randomUUID();
 		Long testValue2 = System.currentTimeMillis();
 		Boolean testValue3 = Boolean.FALSE;
@@ -1169,13 +1158,13 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmIdentityContractDto primeContractCheck = testHelper.getPrimeContract(identity.getId());
 		assertEquals(primeContract.getId(), primeContractCheck.getId());
 		
-		IdmFormAttributeDto eavAttributeContract1 = testHelper.createEavAttribute(eavCode + System.currentTimeMillis(), IdmIdentityContract.class, PersistentType.UUID);
+		IdmFormAttributeDto eavAttributeContract1 = testHelper.createEavAttribute(getHelper().createName(), IdmIdentityContract.class, PersistentType.UUID);
 		testHelper.setEavValue(primeContract, eavAttributeContract1, IdmIdentityContract.class, testValue1, PersistentType.UUID);
 		
-		IdmFormAttributeDto eavAttributeContract2 = testHelper.createEavAttribute(eavCode + System.currentTimeMillis(), IdmIdentityContract.class, PersistentType.LONG);
+		IdmFormAttributeDto eavAttributeContract2 = testHelper.createEavAttribute(getHelper().createName(), IdmIdentityContract.class, PersistentType.LONG);
 		testHelper.setEavValue(contract2, eavAttributeContract2, IdmIdentityContract.class, testValue2, PersistentType.LONG);
 		
-		IdmFormAttributeDto eavAttributeContract3 = testHelper.createEavAttribute(eavCode + System.currentTimeMillis(), IdmIdentityContract.class, PersistentType.BOOLEAN);
+		IdmFormAttributeDto eavAttributeContract3 = testHelper.createEavAttribute(getHelper().createName(), IdmIdentityContract.class, PersistentType.BOOLEAN);
 		testHelper.setEavValue(contract3, eavAttributeContract3, IdmIdentityContract.class, testValue3, PersistentType.BOOLEAN);
 		
 		IdmRoleDto role1 = testHelper.createRole();
@@ -1916,15 +1905,6 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		IdmLongRunningTaskDto task = longRunningTaskService.get(automaticRoleTask.getLongRunningTaskId());
 		assertEquals(Long.valueOf(111), task.getCount());
 		assertEquals(Long.valueOf(111), task.getCounter());
-	}
-
-	/**
-	 * Method return test name
-	 * 
-	 * @return
-	 */
-	private String getTestName() {
-		return TEST_NAME + System.currentTimeMillis();
 	}
 	
 	/**

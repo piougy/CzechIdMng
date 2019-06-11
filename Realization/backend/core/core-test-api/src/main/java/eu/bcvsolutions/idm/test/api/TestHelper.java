@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
@@ -490,6 +491,14 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityContractDto getPrimeContract(IdmIdentityDto identity);
+	
+	/**
+	 * Get password for given identity
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	IdmPasswordDto getPassword(IdmIdentityDto identity);
 
 	/**
 	 * Creates simple identity contract

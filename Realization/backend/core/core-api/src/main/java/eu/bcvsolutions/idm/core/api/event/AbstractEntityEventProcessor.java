@@ -24,7 +24,6 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -232,10 +231,6 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 								.build())
 							.build())
 					);
-		}
-		// set transaction id from event id, if given
-		if (event.getTransactionId() != null && event.getContent() instanceof Auditable) {
-			((Auditable) event.getContent()).setTransactionId(event.getTransactionId());
 		}		
 		// process event
 		EventResult<E> result = null;

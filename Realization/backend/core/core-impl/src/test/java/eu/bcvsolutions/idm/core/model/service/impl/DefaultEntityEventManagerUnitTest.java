@@ -741,6 +741,24 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
+	public void testResurrectEventWithTransactionId() {
+		IdmIdentityDto mockOwner = new IdmIdentityDto(UUID.randomUUID());
+		IdmEntityEventDto entityEvent = new IdmEntityEventDto(UUID.randomUUID());
+		entityEvent.setOwnerType(IdmIdentity.class.getCanonicalName());
+		entityEvent.setOwnerId((UUID) mockOwner.getId());
+		entityEvent.setEventType(CoreEventType.NOTIFY.name());
+		entityEvent.setTransactionId(UUID.randomUUID());
+		//
+		when(lookupService.lookupDto(IdmIdentity.class, mockOwner.getId())).thenReturn(mockOwner);
+		//
+		EntityEvent<?> event = manager.toEvent(entityEvent);
+		//
+		Assert.assertEquals(mockOwner, event.getContent());
+		Assert.assertEquals(CoreEventType.NOTIFY.name(), event.getType().name());
+		Assert.assertEquals(entityEvent.getTransactionId(), event.getTransactionId());
+	}
+	
+	@Test
 	public void testSetAdditionalPrioritiesForEvent() {
 		when(eventConfiguration.getAsynchronousInstanceId()).thenReturn("mockInstance");
 		//

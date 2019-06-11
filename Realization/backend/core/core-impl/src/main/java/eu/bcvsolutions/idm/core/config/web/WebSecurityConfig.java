@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.rest.PublicController;
 import eu.bcvsolutions.idm.core.security.api.auth.filter.AuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.auth.filter.ExtendExpirationFilter;
+import eu.bcvsolutions.idm.core.security.auth.filter.StartUserTransactionFilter;
 
 /**
  * Web security configuration
@@ -60,6 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     	 LOG.debug("Resolved public paths [{}]", publicPaths);
     	 //
     	 http
+    	 	.addFilterBefore(startUserTransactionFilter(), BasicAuthenticationFilter.class)
     	 	.addFilterAfter(authenticationFilter(), BasicAuthenticationFilter.class)
     	 	.addFilterAfter(extendExpirationFilter(), BasicAuthenticationFilter.class)
 			.authorizeRequests()
@@ -132,6 +134,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public ExtendExpirationFilter extendExpirationFilter() {
 		return new ExtendExpirationFilter();
+	}
+	
+	@Bean
+	public StartUserTransactionFilter startUserTransactionFilter() {
+		return new StartUserTransactionFilter();
 	}
 	
 	/**

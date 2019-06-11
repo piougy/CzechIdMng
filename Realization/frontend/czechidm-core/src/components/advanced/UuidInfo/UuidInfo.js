@@ -7,8 +7,7 @@ const MAX_UUID_LENGTH = 7;
 
 /**
  * Shows uuid - shorten by default - full view in popover for copy
- *
- * TODO: readonly textfiled with selected uuid value - for copy / paste
+ * - copy identifier after focus into clipboard automatically
  *
  * @author Radek Tomiška
  */
@@ -16,6 +15,10 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
+  }
+
+  getComponentKey() {
+    return 'component.advanced.UuidInfo';
   }
 
   /**
@@ -26,6 +29,7 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
    */
   shorten(value) {
     if (typeof value === 'string') {
+      // FIXME: Ui.Utils.shorten ...
       const { uuidEnd } = this.props;
       if (uuidEnd) {
         return value.substr(value.length - 7, value.length);
@@ -57,13 +61,31 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
     //
     return (
       <Basic.Popover
-        trigger={['click']}
-        value={<span className="uuid-info-popover-value">{value}</span>}>
+        trigger={[ 'click' ]}
+        value={
+          <span className="uuid-info-popover-value">
+            <input
+              ref="input"
+              type="text"
+              value={ value }
+              readOnly
+              onClick={ ()=> {
+                // ~ctrl+c
+                this.refs.input.select();
+                document.execCommand('copy');
+                this.addMessage({ level: 'success', message: this.i18n('copy.message') });
+              }}/>
+          </span>
+        }>
         {
           <span
             className={ classNames }
             style={ style }>
-            <Basic.Button level="link" style={{ padding: 0 }} onClick={ (e) => e.preventDefault() }>{ this.shorten(value) }</Basic.Button>
+            <Basic.Button
+              level="link"
+              className="embedded"
+              onClick={ (e) => e.preventDefault() }>{ this.shorten(value) }
+            </Basic.Button>
           </span>
         }
       </Basic.Popover>

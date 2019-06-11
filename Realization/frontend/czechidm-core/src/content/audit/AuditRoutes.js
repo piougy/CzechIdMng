@@ -7,6 +7,7 @@ import * as Advanced from '../../components/advanced';
  * Default content (routes diff) for audits
  *
  * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 export default class AuditRoutes extends Basic.AbstractContent {
 
@@ -14,22 +15,15 @@ export default class AuditRoutes extends Basic.AbstractContent {
     return 'content.audit';
   }
 
-  componentDidMount() {
-  }
-
   render() {
     return (
-      <div>
-        <Basic.PageHeader>
-          <Basic.Icon value="eye-open"/>
-          {' '}
-          {this.i18n('header')}
-        </Basic.PageHeader>
+      <Basic.Div>
+        { this.renderPageHeader() }
 
-        <Advanced.TabPanel position="top" parentId="audits" params={this.props.params}>
-          {this.props.children}
+        <Advanced.TabPanel position="top" parentId="audits" params={ this.props.params }>
+          { this.props.children }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

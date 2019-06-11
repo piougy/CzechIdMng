@@ -126,6 +126,9 @@
     "module": {
       "label": "Modul",
       "placeholder": "Modul"
+    },
+    "transactionId": {
+      "placeholder": "$t(entity.transactionId.label) (uuid)"
     }
   },
   "action": {
@@ -411,6 +414,11 @@
           "popover": {
             "title": "Zobrazit vizitku"
           }
+        }
+      },
+      "UuidInfo": {
+        "copy": {
+          "message": "Identifikátor zkopírován do schránky."
         }
       },
       "IdentityInfo": {
@@ -2984,7 +2992,12 @@
         "tabs": {
           "basic": "Základní informace",
           "items": "Zpracované položky",
-          "queue": "Fronta"
+          "queue": "Fronta",
+          "audit": "Audit"
+        },
+        "audit": {
+          "header": "Audit <small>entity upravené touto úlohou</small>",
+          "title": "Audit"
         }
       }
     },
@@ -3258,6 +3271,12 @@
         },
         "ownerId": {
           "placeholder": "$t(entity.EntityEvent.ownerId.label) (uuid)"
+        },
+        "rootId": {
+          "placeholder": "$t(entity.EntityEvent.rootId.label) (uuid)"
+        },
+        "parent": {
+          "placeholder": "$t(entity.EntityEvent.parent.label) (uuid)"
         }
       },
       "event": {
@@ -3306,9 +3325,15 @@
   },
   "entity": {
     "id": {
+      "short": "ID",
       "label": "Id",
       "title": "Identifikátor",
-      "help": "Interní identifikátor"
+      "help": "Interní identifikátor entity"
+    },
+    "transactionId": {
+      "short": "TI",
+      "label": "Identifikátor transakce",
+      "help": "Interní identifikátor uživatelské transakce - entity byly uloženy v rámci této dávky (operace)."
     },
     "name": "Název",
     "created": "Vytvořeno",
@@ -3355,6 +3380,9 @@
         "label": "$t(label.disabled)",
         "help": "Neaktivní uživatel se nemůže přihlásit. Aktivita je řízena stavem uživatele."
       }
+    },
+    "Password": {
+      "_type": "Heslo uživatele"
     },
     "RoleCatalogue": {
       "_type": "Složka katalogu",
@@ -4254,6 +4282,7 @@
       }
     },
     "RoleRequest": {
+      "_type": "Žádost o změnu rolí",
       "applicant": "Žádost pro",
       "implementer": "Žadatel",
       "state": "Stav",
@@ -4401,7 +4430,7 @@
         "title": "Typ události, který vyvolal změnu"
       },
       "rootId": {
-        "label": "Root"
+        "label": "Root event"
       },
       "parent": {
         "label": "Vychází z"
@@ -5337,7 +5366,7 @@
     },
     "LONG_RUNNING_TASK_NOT_RUNNING": {
       "title": "Úloha již neběží",
-      "message": "Úloha [{{taskType}}] na instanci [{{instanceId}}] již byla ukončena."
+      "message": "Úloha na instanci [{{instanceId}}] již byla ukončena."
     },
     "LONG_RUNNING_TASK_INIT_FAILED": {
       "title": "Úloha je chybně nakonfigurovaná",

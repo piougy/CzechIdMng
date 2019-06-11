@@ -55,7 +55,8 @@ import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
 		@Index(name = "idx_idm_audit_owner_type", columnList = "owner_type"),
 		@Index(name = "idx_idm_audit_sub_owner_id", columnList = "sub_owner_id"),
 		@Index(name = "idx_idm_audit_sub_owner_code", columnList = "sub_owner_code"),
-		@Index(name = "idx_idm_audit_sub_owner_type", columnList = "sub_owner_type")})
+		@Index(name = "idx_idm_audit_sub_owner_type", columnList = "sub_owner_type"),
+		@Index(name = "idx_idm_audit_trans_id", columnList = "transaction_id")})
 public class IdmAudit implements BaseEntity {
 
 	private static final long serialVersionUID = -2762812245969363775L;
@@ -109,6 +110,9 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "realm_id")
 	@JsonIgnore // TODO: remove after implementation
 	private UUID realmId;
+	
+	@Column(name = "transaction_id", length = 16)
+	private UUID transactionId;
 	
 	@Column(name = "owner_id")
 	private String ownerId;
@@ -349,4 +353,23 @@ public class IdmAudit implements BaseEntity {
 		this.temporaryChangedColumns = temporaryChangedColumns;
 	}
 	
+	/**
+	 * Returns batch transaction id (entity was created or modified in given transaction).
+	 * 
+	 * @param transactionId
+	 * @since 9.7.0
+	 */
+	public void setTransactionId(UUID transactionId) {
+		this.transactionId = transactionId;
+	}
+	
+	/**
+	 * Sets batch transaction id (entity was created or modified in given transaction).
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	public UUID getTransactionId() {
+		return transactionId;
+	}
 }

@@ -126,6 +126,9 @@
     "module": {
       "label": "Modul",
       "placeholder": "Modul"
+    },
+    "transactionId": {
+      "placeholder": "$t(entity.transactionId.label) (uuid)"
     }
   },
   "action": {
@@ -381,6 +384,11 @@
           "popover": {
             "title": "Show info card"
           }
+        }
+      },
+      "UuidInfo": {
+        "copy": {
+          "message": "Identifier copied into clipboard."
         }
       },
       "IdentityInfo": {
@@ -1028,8 +1036,8 @@
         "help": "The valid till is composed from the password policy setting."
       },
       "lastSuccessfulLogin": {
-        "label": "Las successful login",
-        "help": "Date of last successful login to IdM. It is possible update las successful login by authenticate by another system."
+        "label": "Last successful login",
+        "help": "Date of last successful login to IdM. It is possible update last successful login by authenticate by another system."
       },
       "blockLoginDate": {
         "label": "Login block date",
@@ -2933,8 +2941,13 @@
         "tabs": {
           "basic": "Basic information",
           "items": "Processed items",
-          "queue": "Queue"
+          "queue": "Queue",
+          "audit": "Audit"
         }
+      },
+      "audit": {
+        "header": "Audit <small>entities modified by this task</small>",
+        "title": "Audit"
       }
     },
     "notifications": {
@@ -3207,6 +3220,12 @@
         },
         "ownerId": {
           "placeholder": "$t(entity.EntityEvent.ownerId.label) (uuid)"
+        },
+        "rootId": {
+          "placeholder": "$t(entity.EntityEvent.rootId.label) (uuid)"
+        },
+        "parent": {
+          "placeholder": "$t(entity.EntityEvent.parent.label) (uuid)"
         }
       },
       "event": {
@@ -3255,9 +3274,15 @@
   },
   "entity": {
     "id": {
+      "short": "ID",
       "label": "Id",
       "title": "Identifier",
-      "help": "Internal identifier"
+      "help": "Internal entity identifier"
+    },
+    "transactionId": {
+      "short": "TI",
+      "label": "Transaction identifier",
+      "help": "User transaction identifier - entity was saved in this context (batch)."
     },
     "name": "Name",
     "created": "Created",
@@ -3304,6 +3329,9 @@
         "label": "$t(label.disabled)",
         "help": "$t(label.disabled) identity cannot log in. It's controlled by the state."
       }
+    },
+    "Password": {
+      "_type": "User password"
     },
     "RoleCatalogue": {
       "_type": "Catalog folder",
@@ -4204,6 +4232,7 @@
       }
     },
     "RoleRequest": {
+      "_type": "Request for change roles",
       "applicant": "Requested for",
       "implementer": "Applicant",
       "state": "State",
@@ -4351,7 +4380,7 @@
         "title": "Event type"
       },
       "rootId": {
-        "label": "Root"
+        "label": "Root event"
       },
       "parent": {
         "label": "Parent event"
@@ -5287,7 +5316,7 @@
     },
     "LONG_RUNNING_TASK_NOT_RUNNING": {
       "title": "The task is already running",
-      "message": "Task [{{taskType}}] on instance [{{instanceId}}] already finished."
+      "message": "Task on instance [{{instanceId}}] already finished."
     },
     "LONG_RUNNING_TASK_INIT_FAILED": {
       "title": "Task has invalid configuration",

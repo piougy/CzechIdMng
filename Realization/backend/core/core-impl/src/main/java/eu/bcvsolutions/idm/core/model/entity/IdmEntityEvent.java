@@ -41,7 +41,8 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 		@Index(name = "idx_idm_entity_event_created", columnList = "created"),
 		@Index(name = "idx_idm_entity_event_exe", columnList = "execute_date"),
 		@Index(name = "idx_idm_entity_event_inst", columnList = "instance_id"),
-		@Index(name = "idx_idm_entity_event_root", columnList = "root_id")})
+		@Index(name = "idx_idm_entity_event_root", columnList = "root_id"),
+		@Index(name = "idx_idm_entity_event_trans_id", columnList = "transaction_id")})
 public class IdmEntityEvent extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;

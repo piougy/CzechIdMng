@@ -126,7 +126,7 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 		token = manager.getToken(token.getId());
 		Assert.assertTrue(token.isDisabled());
 		Assert.assertNotNull(token.getExpiration());
-		Assert.assertTrue(token.getExpiration().isBefore(DateTime.now()));
+		Assert.assertFalse(token.getExpiration().isAfter(DateTime.now()));
 		//
 		token = createToken(owner, null, DateTime.now().plusDays(1));
 		//
@@ -135,7 +135,7 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 		token = manager.getToken(token.getId());
 		Assert.assertTrue(token.isDisabled());
 		Assert.assertNotNull(token.getExpiration());
-		Assert.assertTrue(token.getExpiration().isBefore(DateTime.now()));
+		Assert.assertFalse(token.getExpiration().isAfter(DateTime.now()));
 		//
 		DateTime expired = DateTime.now().minusDays(1);
 		token = createToken(owner, null, expired);

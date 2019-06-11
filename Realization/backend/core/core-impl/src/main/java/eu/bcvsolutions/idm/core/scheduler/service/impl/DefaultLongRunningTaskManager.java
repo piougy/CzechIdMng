@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -198,17 +199,21 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		Assert.notNull(taskExecutor);
 		Assert.notNull(futureTask.getFutureTask());
 		//
+		if (securityService.getUsername().contentEquals(SecurityService.SYSTEM_NAME)) {
+			// each LRT executed by system (~scheduler) will have new transaction context
+			TransactionContextHolder.setContext(TransactionContextHolder.createEmptyContext());
+		}
+		//
 		markTaskAsRunning(getValidTask(taskExecutor));
 		UUID longRunningTaskId = taskExecutor.getLongRunningTaskId();
 		//
+		LOG.debug("Execute task [{}] asynchronously", longRunningTaskId);
 		try {
-			LOG.debug("Execute task [{}] asynchronously", longRunningTaskId);
-			//
 			executor.execute(futureTask.getFutureTask());
 		} catch (RejectedExecutionException ex) {
 			// thread pool queue is full - wait for another try
 			UUID taskId = futureTask.getExecutor().getLongRunningTaskId();
-			LOG.info("Execute task [{}] asynchronously will be postponed.", taskId);
+			LOG.info("Execute task [{}] asynchronously will be postponed, all threads are in use.", taskId);
 			//
 			IdmLongRunningTaskDto task = service.get(taskId);
 			markTaskAsCreated(task);
@@ -393,7 +398,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		IdmLongRunningTaskDto task;
 		if (taskExecutor.getLongRunningTaskId() == null) {
 			task = new IdmLongRunningTaskDto();
-			task.setTaskType(taskExecutor.getName());
+			task.setTaskType(taskExecutor.getName()); // FIXME: taskExecutor.getClass().getCannonicalName()
 			task.setTaskProperties(taskExecutor.getProperties());
 			task.setTaskDescription(taskExecutor.getDescription());	
 			task.setInstanceId(configurationService.getInstanceId());

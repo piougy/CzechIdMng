@@ -38,6 +38,14 @@ public interface IdmProcessedTaskItemService extends
 	void deleteAllByScheduledTask(IdmScheduledTaskDto dto);
 	
 	/**
+	 * Delete item by shceduled task and entity identifier.
+	 * 
+	 * @param scheduledTaskId
+	 * @param referencedEntityId
+	 */
+	void deleteItem(UUID scheduledTaskId, UUID referencedEntityId);
+	
+	/**
 	 * Find all referenced entity identifiers by scheduled tasks.
 	 * @param dto
 	 * @return

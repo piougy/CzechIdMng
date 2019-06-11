@@ -131,20 +131,20 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		// code must be unique for all nodes,
 		// name must be unique for all children of parent.
 		IdmRoleCatalogueDto root = new IdmRoleCatalogueDto();
-		String code = "cat_one_" + System.currentTimeMillis();
+		String code = getHelper().createName();
 		root.setName("test_01");
 		root.setCode(code);
 		root = this.roleCatalogueService.save(root);
 		//
 		IdmRoleCatalogueDto child1 = new IdmRoleCatalogueDto();
-		code = "cat_one_" + System.currentTimeMillis();
+		code = getHelper().createName();
 		child1.setName("test_02");
 		child1.setParent(root.getId());
 		child1.setCode(code);
 		child1 = this.roleCatalogueService.save(child1);
 		//
 		IdmRoleCatalogueDto child2 = new IdmRoleCatalogueDto();
-		code = "cat_one_" + System.currentTimeMillis();
+		code = getHelper().createName();
 		child2.setName("test_02");
 		child2.setParent(child1.getId());
 		child2.setCode(code);

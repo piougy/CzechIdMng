@@ -21,9 +21,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -36,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
@@ -245,41 +248,107 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		//
 		// prepare identity and contract
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = service.getPrimeContract(identity.getId());
-		contract.setIdentity(identity.getId());
-		contract.setValidFrom(new LocalDate().minusDays(1));
-		contract.setValidTill(new LocalDate().plusMonths(1));
-		contract.setWorkPosition(nodeD.getId());
-		contract.setMain(true);
-		contract.setDescription("test-node-d");
-		service.save(contract);
+		IdmIdentityContractDto contractToCreate = service.getPrimeContract(identity.getId());
+		contractToCreate.setIdentity(identity.getId());
+		contractToCreate.setValidFrom(new LocalDate().minusDays(1));
+		contractToCreate.setValidTill(new LocalDate().plusMonths(1));
+		contractToCreate.setWorkPosition(nodeD.getId());
+		contractToCreate.setMain(true);
+		contractToCreate.setDescription("test-node-d");
+		service.save(contractToCreate);
 		//
-		contract = service.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = service.getPrimeContract(identity.getId());
 		//
 		// test after create
-		assertEquals(nodeD.getId(), contract.getWorkPosition());
-		assertEquals("test-node-d", contract.getDescription());
+		Assert.assertEquals(nodeD.getId(), contract.getWorkPosition());
+		Assert.assertEquals("test-node-d", contract.getDescription());
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
-		assertEquals(3, identityRoles.size());
-		for(IdmIdentityRoleDto identityRole : identityRoles) {
-			assertEquals(contract.getValidFrom(), identityRole.getValidFrom());
-			assertEquals(contract.getValidTill(), identityRole.getValidTill());
-			if (identityRole.getAutomaticRole().equals(nodeA.getId())) {
-				assertEquals(roleA, identityRole.getRole());
-			}
-			if (identityRole.getAutomaticRole().equals(nodeD.getId())) {
-				assertEquals(roleB, identityRole.getRole());
-			}
-			if (identityRole.getAutomaticRole().equals(nodeF.getId())) {
-				assertEquals(roleC, identityRole.getRole());
-			}
-		}
+		Assert.assertEquals(3, identityRoles.size());
+		Assert.assertTrue(identityRoles.stream().allMatch(ir -> contract.getValidFrom().equals(ir.getValidFrom())));
+		Assert.assertTrue(identityRoles.stream().allMatch(ir -> contract.getValidTill().equals(ir.getValidTill())));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleA.getId().equals(ir.getRole());
+		}));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleB.getId().equals(ir.getRole());
+		}));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleC.getId().equals(ir.getRole());
+		}));
+		//
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(3, identityRoles.size());
 		//
 		// test after delete
 		service.delete(contract);
 		assertTrue(identityRoleService.findAllByIdentity(identity.getId()).isEmpty());
+	}
+	
+	@Test
+	public void testCRUDContractWithAutomaticRolesAsync() {
+		prepareAutomaticRoles();
+		//
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			TransactionContextHolder.setContext(TransactionContextHolder.createEmptyContext());
+			UUID transactionId = TransactionContextHolder.getContext().getTransactionId();
+			//
+			// prepare identity and contract
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			IdmIdentityContractDto contractToCreate = service.getPrimeContract(identity.getId());
+			contractToCreate.setIdentity(identity.getId());
+			contractToCreate.setValidFrom(new LocalDate().minusDays(1));
+			contractToCreate.setValidTill(new LocalDate().plusMonths(1));
+			contractToCreate.setWorkPosition(nodeD.getId());
+			contractToCreate.setMain(true);
+			contractToCreate.setDescription("test-node-d");
+			service.save(contractToCreate);
+			//
+			IdmIdentityContractDto contract = service.getPrimeContract(identity.getId());
+			//
+			// test after create
+			Assert.assertEquals(nodeD.getId(), contract.getWorkPosition());
+			Assert.assertEquals("test-node-d", contract.getDescription());
+			Assert.assertEquals(transactionId, contract.getTransactionId());
+			//
+			getHelper().waitForResult(res -> {
+				return identityRoleService.findAllByContract(contract.getId()).isEmpty();
+			}, 500, Integer.MAX_VALUE);
+			//
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
+			Assert.assertEquals(3, identityRoles.size());
+			Assert.assertTrue(identityRoles.stream().allMatch(ir -> contract.getValidFrom().equals(ir.getValidFrom())));
+			Assert.assertTrue(identityRoles.stream().allMatch(ir -> contract.getValidTill().equals(ir.getValidTill())));
+			Assert.assertTrue(identityRoles.stream().allMatch(ir -> ir.getTransactionId().equals(transactionId)));
+			Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+				return roleA.getId().equals(ir.getRole());
+			}));
+			Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+				return roleB.getId().equals(ir.getRole());
+			}));
+			Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+				return roleC.getId().equals(ir.getRole());
+			}));
+			//
+			// find by transactionId
+			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+			filter.setTransactionId(transactionId);
+			identityRoles = identityRoleService.find(filter, null).getContent();
+			Assert.assertEquals(3, identityRoles.size());
+			Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+				return roleA.getId().equals(ir.getRole());
+			}));
+			Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+				return roleB.getId().equals(ir.getRole());
+			}));
+			Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+				return roleC.getId().equals(ir.getRole());
+			}));
+			//
+			service.delete(contract);
+		} finally { 
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		}
 	}
 	
 	@Test
@@ -328,17 +397,15 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		// test after create
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(3, identityRoles.size());
-		for(IdmIdentityRoleDto identityRole : identityRoles) {
-			if (identityRole.getAutomaticRole().equals(nodeA.getId())) {
-				assertEquals(roleA, identityRole.getRole());
-			}
-			if (identityRole.getAutomaticRole().equals(nodeD.getId())) {
-				assertEquals(roleB, identityRole.getRole());
-			}
-			if (identityRole.getAutomaticRole().equals(nodeF.getId())) {
-				assertEquals(roleC, identityRole.getRole());
-			}
-		}
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleA.getId().equals(ir.getRole());
+		}));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleB.getId().equals(ir.getRole());
+		}));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleC.getId().equals(ir.getRole());
+		}));
 		//
 		contract.setWorkPosition(nodeE.getId());
 		contract = service.save(contract);
@@ -346,17 +413,15 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		// test after change
 		identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(3, identityRoles.size());
-		for(IdmIdentityRoleDto identityRole : identityRoles) {
-			if (identityRole.getAutomaticRole().equals(nodeA.getId())) {
-				assertEquals(roleA, identityRole.getRole());
-			}
-			if (identityRole.getAutomaticRole().equals(nodeD.getId())) {
-				assertEquals(roleB, identityRole.getRole());
-			}
-			if (identityRole.getAutomaticRole().equals(nodeE.getId())) {
-				assertEquals(roleD, identityRole.getRole());
-			}
-		}
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleA.getId().equals(ir.getRole());
+		}));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleB.getId().equals(ir.getRole());
+		}));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleD.getId().equals(ir.getRole());
+		}));
 	}
 	
 	@Test

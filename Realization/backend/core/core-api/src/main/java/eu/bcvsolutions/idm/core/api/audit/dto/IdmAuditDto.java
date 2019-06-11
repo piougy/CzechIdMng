@@ -64,6 +64,9 @@ public class IdmAuditDto implements BaseDto {
 	@JsonProperty(value = "_embedded", access = Access.READ_ONLY)
 	@ApiModelProperty(readOnly = true)
 	private Map<String, BaseDto> embedded;
+	
+	@ApiModelProperty(readOnly = true)
+	private UUID transactionId;
 
     public UUID getModifierId() {
         return modifierId;
@@ -242,5 +245,25 @@ public class IdmAuditDto implements BaseDto {
 
 	public void setEmbedded(Map<String, BaseDto> emmbedded) {
 		this.embedded = emmbedded;
+	}
+	
+	/**
+	 * Returns batch transaction id (entity was created or modified in given transaction).
+	 * 
+	 * @param transactionId
+	 * @since 9.7.0
+	 */
+	public void setTransactionId(UUID transactionId) {
+		this.transactionId = transactionId;
+	}
+	
+	/**
+	 * Sets batch transaction id (entity was created or modified in given transaction).
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	public UUID getTransactionId() {
+		return transactionId;
 	}
 }

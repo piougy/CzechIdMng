@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
@@ -116,16 +117,14 @@ public class RoleDuplicateBulkAction extends AbstractBulkAction<IdmRoleDto, IdmR
 			}
 		}
 		//
-		UUID transactionId = UUID.randomUUID();
 		EntityEvent<IdmRoleDto> event = new RoleEvent(RoleEventType.DUPLICATE, targetRole, new ConfigurationMap(getProperties()).toMap());
 		event.setOriginalSource(dto); // original source is the cloned role
 		event.setPriority(PriorityType.IMMEDIATE); // we want to be sync
-		event.setTransactionId(transactionId); // transaction identifier - whole event tree will be under one transaction id.
 		roleService.publish(event, IdmBasePermission.CREATE, IdmBasePermission.UPDATE);
 		//
 		// delete all states created by event processing - with the same transaction id
 		IdmEntityStateFilter stateFilter = new IdmEntityStateFilter();
-		stateFilter.setTransactionId(transactionId);
+		stateFilter.setTransactionId(TransactionContextHolder.getContext().getTransactionId());
 		stateFilter.setResultCode(CoreResultCode.DELETED.getCode());
 		entityStateManager
 			.findStates(stateFilter, null)
@@ -135,7 +134,6 @@ public class RoleDuplicateBulkAction extends AbstractBulkAction<IdmRoleDto, IdmR
 				if (owner != null) {
 					EntityEvent<BaseDto> deleteEvent = new CoreEvent<>(CoreEventType.DELETE, owner);
 					deleteEvent.setPriority(PriorityType.IMMEDIATE); // we want to be sync
-					deleteEvent.setTransactionId(transactionId); // transaction identifier - whole event tree will be under one transaction id.
 					entityEventManager.process(deleteEvent, event);
 				}
 				entityStateManager.deleteState(state);

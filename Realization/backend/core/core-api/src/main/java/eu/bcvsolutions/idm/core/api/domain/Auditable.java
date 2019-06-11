@@ -183,7 +183,7 @@ public interface Auditable {
 	/**
 	 * Sets batch transaction id (entity was created or modified in given transaction).
 	 * 
-	 * @param originalModifierId
+	 * @param transactionId
 	 */
 	void setTransactionId(UUID transactionId);	
 	

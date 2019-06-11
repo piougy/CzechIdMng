@@ -118,7 +118,6 @@ public class DuplicateRoleAutomaticByTreeProcessor
 				// dirty flag automatic role only - will be processed after parent action ends
 				IdmEntityStateDto stateDeleted = new IdmEntityStateDto();
 				stateDeleted.setEvent(event.getId());
-				stateDeleted.setTransactionId(event.getTransactionId());
 				stateDeleted.setSuperOwnerId(cloned.getId());
 				stateDeleted.setResult(new OperationResultDto.Builder(OperationState.RUNNING)
 						.setModel(new DefaultResultModel(CoreResultCode.DELETED)).build());

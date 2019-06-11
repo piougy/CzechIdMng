@@ -316,9 +316,11 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		executorOne.setDescription(getHelper().createName());
 		executorOne.setCount(1L);
 		//
-		persistTask(executorOne, OperationState.CREATED);
-		persistTask(executorOne, OperationState.CREATED);
-		persistTask(executorOne, OperationState.CREATED);
+		manager.persistTask(executorOne, OperationState.CREATED);
+		executorOne.setLongRunningTaskId(null);
+		manager.persistTask(executorOne, OperationState.CREATED);
+		executorOne.setLongRunningTaskId(null);
+		manager.persistTask(executorOne, OperationState.CREATED);
 		//
 		manager.processCreated();
 		//
@@ -336,18 +338,6 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		Assert.assertNotEquals(ltrs.get(0).getTransactionId(), ltrs.get(1).getTransactionId());
 		Assert.assertNotEquals(ltrs.get(0).getTransactionId(), ltrs.get(2).getTransactionId());
 		Assert.assertNotEquals(ltrs.get(1).getTransactionId(), ltrs.get(2).getTransactionId());
-	}
-	
-	private IdmLongRunningTaskDto persistTask(LongRunningTaskExecutor<?> taskExecutor, OperationState state) {
-		// prepare task
-		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
-		task.setTaskType(taskExecutor.getClass().getCanonicalName());
-		task.setTaskProperties(taskExecutor.getProperties());
-		task.setTaskDescription(taskExecutor.getDescription());	
-		task.setInstanceId(configurationService.getInstanceId());
-		task.setResult(new OperationResult.Builder(state).build());
-		//
-		return service.save(task);
 	}
 	
 	private class TestLogItemLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<Boolean> {

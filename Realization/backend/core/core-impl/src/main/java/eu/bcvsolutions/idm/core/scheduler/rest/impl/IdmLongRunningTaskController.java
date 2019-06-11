@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -170,7 +171,7 @@ public class IdmLongRunningTaskController
 				IdmBasePermission.READ);
 		InputStream is = attachmentManager.getAttachmentData(attachmentDto.getId(), IdmBasePermission.READ);
 
-		String attachmentName = longRunningTaskDto.getTaskType() + "-" + longRunningTaskDto.getCreated().toString("yyyyMMddHHmmss");
+		String attachmentName = SpinalCase.format(longRunningTaskDto.getTaskType()) + "-" + longRunningTaskDto.getCreated().toString("yyyyMMddHHmmss");
 		return ResponseEntity.ok()
 				.contentLength(attachmentDto.getFilesize())
 				.contentType(MediaType.parseMediaType(attachmentDto.getMimetype()))

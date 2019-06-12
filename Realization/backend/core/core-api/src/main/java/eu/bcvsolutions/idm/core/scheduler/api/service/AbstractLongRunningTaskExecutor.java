@@ -17,6 +17,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContext;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
@@ -120,6 +122,13 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	protected boolean start() {
 		Assert.notNull(longRunningTaskId);
 		IdmLongRunningTaskDto task = longRunningTaskService.get(longRunningTaskId);
+		Map<String, Object> taskProperties = task.getTaskProperties();
+		//
+		// set user transaction context for current thread
+		TransactionContext context = (TransactionContext) taskProperties.get(LongRunningTaskExecutor.PARAMETER_TRANSACTION_CONTEXT);
+		if (context != null) {
+			TransactionContextHolder.setContext(context);			
+		}
 		//
 		validate(task);
 		//
@@ -133,7 +142,6 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 		task.setTaskStarted(DateTime.now());
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
 		task.setStateful(isStateful());
-		Map<String, Object> taskProperties = task.getTaskProperties();
 		taskProperties.put(LongRunningTaskExecutor.PARAMETER_INSTANCE_ID, task.getInstanceId());
 		taskProperties.putAll(getProperties());
 		task.setTaskProperties(taskProperties);
@@ -163,7 +171,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 		// 
 		if (this.getClass().isAnnotationPresent(DisallowConcurrentExecution.class)) {
 			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-			filter.setTaskType(getName());
+			filter.setTaskType(task.getTaskType());
 			filter.setOperationState(OperationState.RUNNING);
 			List<IdmLongRunningTaskDto> runningTasks = longRunningTaskService
 					.find(filter, null)

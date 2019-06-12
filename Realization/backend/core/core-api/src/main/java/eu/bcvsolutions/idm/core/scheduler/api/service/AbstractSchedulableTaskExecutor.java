@@ -7,6 +7,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
@@ -72,6 +73,11 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 		longRunningTask.setScheduledTask(taskDto.getId());
 		longRunningTask.setStateful(isStateful());
 		longRunningTask.setDryRun(context.getMergedJobDataMap().getBoolean(PARAMETER_DRY_RUN));
+		// each LRT executed from the queue will have new transaction context
+		longRunningTask.getTaskProperties().put(
+				LongRunningTaskExecutor.PARAMETER_TRANSACTION_CONTEXT, 
+				TransactionContextHolder.createEmptyContext()
+				);
 		//
 		longRunningTask = longRunningTaskService.save(longRunningTask);
 		//

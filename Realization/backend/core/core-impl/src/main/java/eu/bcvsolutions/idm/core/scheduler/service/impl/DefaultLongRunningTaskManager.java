@@ -403,6 +403,13 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			task.setTaskDescription(taskExecutor.getDescription());	
 			task.setInstanceId(configurationService.getInstanceId());
 			task.setResult(new OperationResult.Builder(state).build());
+			// each LRT executed from the queue will have new transaction context
+			if (state == OperationState.CREATED) {
+				task.getTaskProperties().put(
+						LongRunningTaskExecutor.PARAMETER_TRANSACTION_CONTEXT, 
+						TransactionContextHolder.createEmptyContext()
+						);
+			}
 			// LRT is saved in new transaction implicitly.
 			task = service.save(task);
 			taskExecutor.setLongRunningTaskId(task.getId());

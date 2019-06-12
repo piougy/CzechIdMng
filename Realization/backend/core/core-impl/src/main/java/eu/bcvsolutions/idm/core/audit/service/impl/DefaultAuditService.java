@@ -52,6 +52,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -270,7 +271,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setEntityId(entityId);
 		filter.setType(classType.getName());
-		Pageable page = new PageRequest(0, Integer.MAX_VALUE, new Sort("timestamp"));
+		Pageable page = new PageRequest(0, Integer.MAX_VALUE, Direction.ASC, "timestamp", "id");
 		Page<IdmAuditDto> result = this.find(filter, page);
 		return result.getContent();
 	}

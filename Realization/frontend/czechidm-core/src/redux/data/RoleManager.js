@@ -1,5 +1,5 @@
 import AbstractRequestFormableManager from './AbstractRequestFormableManager';
-import { RoleService} from '../../services';
+import { RoleService } from '../../services';
 import DataManager from './DataManager';
 import IncompatibleRoleManager from './IncompatibleRoleManager';
 

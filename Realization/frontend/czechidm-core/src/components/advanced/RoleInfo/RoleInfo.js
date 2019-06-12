@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import { RoleManager } from '../../../redux/';
+import { RoleManager, ConfigurationManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import RolePriorityEnum from '../../../enums/RolePriorityEnum';
 import Tree from '../Tree/Tree';
@@ -128,7 +128,7 @@ export class RoleInfo extends AbstractEntityInfo {
         value: entity.baseCode
       }
     ];
-    if (entity.environment) {
+    if (entity.environment && this.props.showEnvironment) {
       content.push({
         label: this.i18n('entity.Role.environment.label'),
         value: (<CodeListValue code="environment" value={ entity.environment }/>)
@@ -178,12 +178,13 @@ RoleInfo.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityIdentifier, entity } = component;
+  const { entityIdentifier, entity, showEnvironment } = component;
   let entityId = entityIdentifier;
   if (!entityId && entity) {
     entityId = entity.id;
   }
   return {
+    showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', showEnvironment || true),
     _entity: manager.getEntity(state, entityId),
     _showLoading: manager.isShowLoading(state, null, entityId),
     _permissions: manager.getPermissions(state, null, entityId)

@@ -9,7 +9,7 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import RolePriorityEnum from '../../enums/RolePriorityEnum';
-import { RoleManager, SecurityManager, RequestManager } from '../../redux';
+import { RoleManager, SecurityManager, RequestManager, ConfigurationManager } from '../../redux';
 import RequestTable from '../request/RequestTable';
 import SearchParameters from '../../domain/SearchParameters';
 
@@ -176,7 +176,7 @@ class RoleDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading, _permissions, _requestUi} = this.props;
+    const { entity, showLoading, _permissions, _requestUi, showEnvironment } = this.props;
     const { _showLoading, activeKey } = this.state;
     if (!roleManager || !entity) {
       return null;
@@ -187,7 +187,7 @@ class RoleDetail extends Basic.AbstractContent {
     requestsForceSearch = requestsForceSearch.setFilter('states', ['IN_PROGRESS', 'CONCEPT', 'EXCEPTION']);
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title') } />
         <Basic.Tabs
           activeKey={ activeKey }
@@ -218,14 +218,14 @@ class RoleDetail extends Basic.AbstractContent {
                       <Basic.Col lg={ 8 }>
                         <Basic.TextField
                           ref="name"
-                          label={this.i18n('entity.Role.name')}
+                          label={ this.i18n('entity.Role.name') }
                           required
                           min={ 0 }
                           max={ 255 }/>
                       </Basic.Col>
                     </Basic.Row>
 
-                    <Basic.Row>
+                    <Basic.Row className={ showEnvironment ? '' : 'hidden' }>
                       <Basic.Col lg={ 4 }>
                         <Advanced.CodeListSelect
                           ref="environment"
@@ -247,27 +247,27 @@ class RoleDetail extends Basic.AbstractContent {
                       rendered={ false }/>
                     <Basic.EnumSelectBox
                       ref="priorityEnum"
-                      label={this.i18n('entity.Role.priorityEnum')}
-                      enum={RolePriorityEnum}
-                      onChange={this._onChangePriorityEnum.bind(this)}/>
+                      label={ this.i18n('entity.Role.priorityEnum') }
+                      enum= {RolePriorityEnum }
+                      onChange={ this._onChangePriorityEnum.bind(this) }/>
                     <Basic.TextField
                       ref="priority"
-                      label={this.i18n('entity.Role.priority')}
+                      label={ this.i18n('entity.Role.priority') }
                       readOnly
                       required/>
                     <Basic.Checkbox
                       ref="approveRemove"
-                      label={this.i18n('entity.Role.approveRemove')}/>
+                      label={ this.i18n('entity.Role.approveRemove') }/>
                     <Basic.Checkbox
                       ref="canBeRequested"
-                      label={this.i18n('entity.Role.canBeRequested')}/>
+                      label={ this.i18n('entity.Role.canBeRequested') }/>
                     <Basic.TextArea
                       ref="description"
-                      label={this.i18n('entity.Role.description')}
+                      label={ this.i18n('entity.Role.description') }
                       max={2000}/>
                     <Basic.Checkbox
                       ref="disabled"
-                      label={this.i18n('entity.Role.disabled')}/>
+                      label={ this.i18n('entity.Role.disabled') }/>
                   </Basic.AbstractForm>
                 </Basic.PanelBody>
 
@@ -276,7 +276,8 @@ class RoleDetail extends Basic.AbstractContent {
                     type="button"
                     level="link"
                     onClick={this.context.router.goBack}
-                    showLoading={_showLoading}>{this.i18n('button.back')}
+                    showLoading={ _showLoading} >
+                    { this.i18n('button.back') }
                   </Basic.Button>
                   <Basic.SplitButton
                     level="success"
@@ -290,7 +291,7 @@ class RoleDetail extends Basic.AbstractContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      onClick={this.save.bind(this, 'CLOSE')}>
+                      onClick={ this.save.bind(this, 'CLOSE') }>
                       {this.i18n('button.saveAndClose')}
                     </Basic.MenuItem>
                     <Basic.MenuItem
@@ -335,7 +336,7 @@ class RoleDetail extends Basic.AbstractContent {
                 columns= {['state', 'created', 'modified', 'wf', 'detail']}/>
           </Basic.Tab>
         </Basic.Tabs>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -350,13 +351,18 @@ RoleDetail.defaultProps = {
 };
 
 function select(state, component) {
+  const result = {
+    showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', true)
+  };
+  //
   if (!roleManager) {
-    return null;
+    return result;
   }
   if (!component.entity) {
-    return {};
+    return result;
   }
   return {
+    ...result,
     _permissions: roleManager.getPermissions(state, null, component.entity.id),
     _requestUi: Utils.Ui.getUiState(state, uiKeyRoleRequest)
   };

@@ -1725,6 +1725,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		try {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 			FormableDto owner = getHelper().createIdentity((GuardedString) null);
+			getHelper().waitForResult(null, 1, 1);
 			//
 			// create definition one		
 			IdmFormAttributeDto attributeDefinitionOne = new IdmFormAttributeDto();

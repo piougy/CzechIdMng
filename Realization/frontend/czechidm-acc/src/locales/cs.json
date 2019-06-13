@@ -11,7 +11,8 @@
     "advanced": {
       "EavForm": {
         "faceType": {
-          "SYSTEM-SELECT": "Výběr systémů (SelectBox)"
+          "SYSTEM-SELECT": "Výběr systémů (SelectBox)",
+          "[SYNCHRONIZATION-CONFIG-SELECT": "Výběr nakonfigurované synchronizace (SelectBox)"
         }
       }
     }
@@ -1519,6 +1520,17 @@
             "label": "Systém",
             "placeholder": "Všechny systémy či vyberte ...",
             "help": "Smazat pouze operace na zadaném systému."
+          }
+        }
+      },
+      "acc-synchronization-long-running-task": {
+        "label": "Spustit synchronizaci",
+        "help": "Spustit nakonfigurovanou synchronizaci.",
+        "icon": "component:synchronization",
+        "attributes": {
+          "synchronization-uuid": {
+            "label": "Synchronizace",
+            "placeholder": "Vyberte nakonfigurovanou synchronizaci pro spuštění ..."
           }
         }
       }

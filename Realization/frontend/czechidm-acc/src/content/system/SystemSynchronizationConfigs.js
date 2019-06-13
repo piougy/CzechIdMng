@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
@@ -10,6 +9,9 @@ const uiKey = 'system-synchronization-configs-table';
 const manager = new SynchronizationConfigManager();
 const systemManager = new SystemManager();
 
+/**
+ * @author Vít Švanda
+ */
 class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -134,12 +136,9 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
     return (
       <div>
-        <Helmet title={ this.i18n('title') } />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-        </Basic.ContentHeader>
+        { this.renderContentHeader() }
 
         <Basic.Panel className="no-border last">
           <Advanced.Table

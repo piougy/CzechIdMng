@@ -11,10 +11,12 @@ import org.springframework.util.Assert;
  * @since 9.7.0
  * @see SecurityContextHolder
  */
-public class TransactionContextHolder {
+public final class TransactionContextHolder {
 
 	// inheritable thread strategy is supported only.
 	private static final ThreadLocal<TransactionContext> contextHolder = new InheritableThreadLocal<TransactionContext>();
+	
+	private TransactionContextHolder() {}
 	
 	public static void clearContext() {
 		contextHolder.remove();

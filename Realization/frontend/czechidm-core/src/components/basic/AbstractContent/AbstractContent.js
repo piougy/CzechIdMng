@@ -270,7 +270,7 @@ export default class AbstractContent extends AbstractContextComponent {
    * @param {object} props ContentHeader properties e.g. style, className
    * @return {element} react element
    */
-  renderContentHeader(props) {
+  renderContentHeader(props = {}) {
     const navigationItem = this.getNavigationItem() || {};
     //
     return (

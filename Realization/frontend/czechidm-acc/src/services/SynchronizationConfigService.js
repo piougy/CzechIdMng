@@ -16,7 +16,17 @@ export default class SynchronizationConfigService extends Services.AbstractServi
     if (!entity) {
       return '';
     }
-    return entity.name;
+    let label = entity.name;
+    // prepend system name
+    if (entity._embedded
+        && entity._embedded.systemMapping
+        && entity._embedded.systemMapping._embedded
+        && entity._embedded.systemMapping._embedded.objectClass
+        && entity._embedded.systemMapping._embedded.objectClass._embedded
+        && entity._embedded.systemMapping._embedded.objectClass._embedded.system) {
+      label = `${ entity._embedded.systemMapping._embedded.objectClass._embedded.system.name }, ${ label }`;
+    }
+    return label;
   }
 
   getApiPath() {

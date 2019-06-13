@@ -96,7 +96,7 @@ module.exports = {
           {
             'id': 'system-synchronization-configs',
             'type': 'TAB',
-            'icon': 'transfer',
+            'icon': 'component:synchronizations',
             'labelKey': 'acc:content.system.systemSynchronizationConfigs.title',
             'order': 60,
             'path': '/system/:entityId/synchronization-configs',

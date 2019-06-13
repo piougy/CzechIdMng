@@ -527,7 +527,9 @@
           "ROLE-CATALOGUE-SELECT": "Select folder in role catalogue (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
           "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
-          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)"
+          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)",
+          "AUTOMATIC-ROLE-TREE-SELECT": "Select automatic role by tree structure (SelectBox)",
+          "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Select automatic role by attribute (SelectBox)"
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes."
@@ -5065,6 +5067,59 @@
             "help": "Delete events older than given number of days."
           }
         }
+      },
+      "core-add-new-automatic-role-contract-long-running-task": {
+        "label": "Recalculate automatic role by tree structure for contracts",
+        "help": "Assign roles for identities with contract match selected automatic role by tree structure.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatic role",
+            "help": "Automatic role by tree structure."
+          }
+        }
+      },
+      "core-add-new-automatic-role-position-long-running-task": {
+        "label": "Recalculate automatic role by tree structure for other contract positions",
+        "help": "Assign roles for identities with other contract position which match selected automatic role by tree structure.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatic role",
+            "help": "Automatic role by tree structure."
+          }
+        }
+      },
+      "core-process-all-automatic-role-attribute-long-running-task": {
+        "label": "Recalculate all automatic roles by attribute",
+        "help": "Recalculate all automatic roles by attribute. Creates new request with concepts.",
+        "icon": "component:automatic-role"
+      },
+      "core-process-automatic-role-attribute-long-running-task": {
+        "label": "Recalculate automatic role by attribute",
+        "help": "Recalculate roles for identities for selected automatic role by attribute.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatic role",
+            "help": "Automatic role by attribute."
+          }
+        }
+      },
+      "core-remove-automatic-role-long-running-task": {
+        "label": "Remove automatic role",
+        "help": "Remove automatic role - removes all roles assigned by selected automatic role definition. $t(error.AUTOMATIC_ROLE_TASK_INVALID.message)",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "automaticroletree": {
+            "label": "Automatic role by tree structure",
+            "help": "Automatic role by tree structure."
+          },
+          "automaticroleattribute": {
+            "label": "Or automatic role by attribute",
+            "help": "Automatic role by attribute."
+          }
+        }
       }
     }
   },
@@ -5602,6 +5657,10 @@
     "AUTOMATIC_ROLE_TASK_EMPTY": {
       "title": "Missing 'id' of automatic role",
       "message": "Id of automatic role is required."
+    },
+    "AUTOMATIC_ROLE_TASK_INVALID": {
+      "title": "",
+      "message": "Select only one of automatic role - by tree structure or by attribute."
     },
     "BACKUP_FAIL": {
       "title": "Backup failed",

@@ -11,9 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -23,6 +24,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 
 /**
  * Process all contracts that passed and not passed given automatic role
@@ -30,11 +34,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
  * @author Ondrej Kopr
  *
  */
-
-@Service
+@Component(ProcessAutomaticRoleByAttributeTaskExecutor.TASK_NAME)
 @Description("Add or remove automatic role by IdmAutomaticRoleAttribute.")
 public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomaticRoleTaskExecutor {
 
+	public static final String TASK_NAME = "core-process-automatic-role-attribute-long-running-task";
 	private static final int PAGE_SIZE = 100;
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
@@ -44,6 +48,11 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 	@Autowired private IdmIdentityContractService identityContractService;
 	
 	private boolean async = true; // FIXME: make AbstractAutomaticRoleTaskExecutor stateful - use requires new + continue on exception
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -147,5 +156,16 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 	public void setAsync(boolean async) {
 		this.async = async;
 	}
-
+	
+	@Override
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		IdmFormAttributeDto automaticRoleAttribute = new IdmFormAttributeDto(
+				PARAMETER_ROLE_TREE_NODE,
+				PARAMETER_ROLE_TREE_NODE, 
+				PersistentType.UUID,
+				BaseFaceType.AUTOMATIC_ROLE_ATTRIBUTE_SELECT);
+		automaticRoleAttribute.setRequired(true);
+		//
+		return Lists.newArrayList(automaticRoleAttribute);
+	}
 }

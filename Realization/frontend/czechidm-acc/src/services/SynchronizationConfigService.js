@@ -24,7 +24,7 @@ export default class SynchronizationConfigService extends Services.AbstractServi
         && entity._embedded.systemMapping._embedded.objectClass
         && entity._embedded.systemMapping._embedded.objectClass._embedded
         && entity._embedded.systemMapping._embedded.objectClass._embedded.system) {
-      label = `${ entity._embedded.systemMapping._embedded.objectClass._embedded.system.name }, ${ label }`;
+      label = `${ entity._embedded.systemMapping._embedded.objectClass._embedded.system.name } - ${ label }`;
     }
     return label;
   }

@@ -27,7 +27,7 @@ export default class AutomaticRoleAttributeService extends AbstractService {
     if (!entity || !entity._embedded) {
       return '';
     }
-    return `${entity.name} - ${this.roleService.getNiceLabel(entity._embedded.role)}`;
+    return `${ this.roleService.getNiceLabel(entity._embedded.role) } - ${ entity.name }`;
   }
 
   supportsPatch() {

@@ -558,7 +558,9 @@
           "ROLE-CATALOGUE-SELECT": "Výběr složky z katalogu rolí (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
           "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
-          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)"
+          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)",
+          "AUTOMATIC-ROLE-TREE-SELECT": "Výběr automatické role dle stromové struktury (SelectBox)",
+          "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Výběr automatické role dle atributu (SelectBox)"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
@@ -5115,6 +5117,59 @@
             "help": "Smazat události starší, než-li zadaný počet dní."
           }
         }
+      },
+      "core-add-new-automatic-role-contract-long-running-task": {
+        "label": "Přepočítat automatickou roli dle stromové struktury pro kontrakty",
+        "help": "Přiřadí role pro uživatele s kontraktem vyhovující zadané automatické roli dle stromové struktury.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatická role",
+            "help": "Automatická role dle stromové struktury."
+          }
+        }
+      },
+      "core-add-new-automatic-role-position-long-running-task": {
+        "label": "Přepočítat automatickou roli dle stromové struktury pro další pozice kontraktu",
+        "help": "Přiřadí role pro uživatele s kontraktem a další pozicí vyhovující zadané automatické roli dle stromové struktury.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatická role",
+            "help": "Automatická role dle stromové struktury."
+          }
+        }
+      },
+      "core-process-all-automatic-role-attribute-long-running-task": {
+        "label": "Přepočítat všechny automatické role dle atributu",
+        "help": "Přepočítá všechny nakonfigurované automatické role dle atributu.",
+        "icon": "component:automatic-role"
+      },
+      "core-process-automatic-role-attribute-long-running-task": {
+        "label": "Přepočítat automatickou roli dle atribute",
+        "help": "Přepočítá přiřazené role uživatelům dle zadané automatické role dle atributu.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatická role",
+            "help": "Automatická role dle attributu."
+          }
+        }
+      },
+      "core-remove-automatic-role-long-running-task": {
+        "label": "Odebrat automatickou roli",
+        "help": "Odebrat automatickou roli - odebere všechny role přiřazené dle této definice. $t(error.AUTOMATIC_ROLE_TASK_INVALID.message)",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "automaticroletree": {
+            "label": "Automatická role dle stromové struktury",
+            "help": "Automatická role dle stromové struktury."
+          },
+          "automaticroleattribute": {
+            "label": "Or automatická role dle attributu",
+            "help": "Automatická role dle attributu."
+          }
+        }
       }
     }
   },
@@ -5652,6 +5707,10 @@
     "AUTOMATIC_ROLE_TASK_EMPTY": {
       "title": "Chybí 'id' automatické role",
       "message": "Id automatické role je povinné."
+    },
+    "AUTOMATIC_ROLE_TASK_INVALID": {
+      "title": "",
+      "message": "Vyberte pouze jednu z automatických rolí - dle stromové struktury nebo dle atributu."
     },
     "BACKUP_FAIL": {
       "title": "Záloha nebyla provedena",

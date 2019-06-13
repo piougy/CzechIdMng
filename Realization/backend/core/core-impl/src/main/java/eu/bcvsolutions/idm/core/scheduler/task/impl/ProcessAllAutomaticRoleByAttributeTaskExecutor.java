@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
@@ -42,11 +42,12 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  *
  */
 
-@Service
+@Component(ProcessAllAutomaticRoleByAttributeTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Recalculate all automatic roles by attribute. Creates new request with concepts.")
 public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
+	public static final String TASK_NAME = "core-process-all-automatic-role-attribute-long-running-task";
 	private static final int DEFAULT_PAGE_SIZE_ROLE = 10;
 	private static final int DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES = 100;
 
@@ -58,6 +59,11 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmRoleRequestService roleRequestService;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	public Boolean process() {

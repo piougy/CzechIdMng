@@ -45,6 +45,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
@@ -60,10 +63,13 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  *
  */
 @Service
-@Description("Remove automatic role from IdmRoleTreeNode.")
+@Description("Remove automatic role (by tree structure or attribute).")
 public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityRoleDto> {
 	
+	public static final String TASK_NAME = "core-remove-automatic-role-long-running-task";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveAutomaticRoleTaskExecutor.class);
+	private static final String PARAMETER_AUTOMATIC_ROLE_TREE = "automaticRoleTree";
+	private static final String PARAMETER_AUTOMATIC_ROLE_ATTRIBUTE = "automaticRoleAttribute";
 	//
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
@@ -77,6 +83,11 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	private boolean deleteEntity = true; // At the end of the task remove whole entity (this isn't possible set via FE parameters)
 	private UUID automaticRoleId = null;
 	private AbstractIdmAutomaticRoleDto automaticRole = null;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	/**
 	 * Automatic role removal can be start, if previously LRT ended.
@@ -130,7 +141,20 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		super.init(properties);
 		//
 		this.automaticRole = null;
-		this.setAutomaticRoleId(getParameterConverter().toUuid(properties, AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE));
+		
+		UUID id = getParameterConverter().toUuid(properties, AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
+		if (id == null) {
+			UUID automaticRoleTreeId = getParameterConverter().toUuid(properties, PARAMETER_AUTOMATIC_ROLE_TREE);
+			UUID automaticRoleAttributeId = getParameterConverter().toUuid(properties, PARAMETER_AUTOMATIC_ROLE_ATTRIBUTE);
+			if (automaticRoleTreeId != null && automaticRoleAttributeId != null) {
+				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_INVALID);
+			}
+			id = automaticRoleTreeId == null ? automaticRoleAttributeId : automaticRoleTreeId;
+		}
+		if (id == null) {
+			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
+		}
+		this.setAutomaticRoleId(id);
 	}
 	
 	@Override
@@ -324,5 +348,22 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		List<String> propertyNames = super.getPropertyNames();
 		propertyNames.add(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
 		return propertyNames;
+	}
+	
+	@Override
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		IdmFormAttributeDto automaticRoleAttributeByTree = new IdmFormAttributeDto(
+				PARAMETER_AUTOMATIC_ROLE_TREE,
+				PARAMETER_AUTOMATIC_ROLE_TREE, 
+				PersistentType.UUID,
+				BaseFaceType.AUTOMATIC_ROLE_TREE_SELECT);
+		//
+		IdmFormAttributeDto automaticRoleAttributeByAttribute = new IdmFormAttributeDto(
+				PARAMETER_AUTOMATIC_ROLE_ATTRIBUTE,
+				PARAMETER_AUTOMATIC_ROLE_ATTRIBUTE, 
+				PersistentType.UUID,
+				BaseFaceType.AUTOMATIC_ROLE_ATTRIBUTE_SELECT);
+		//
+		return Lists.newArrayList(automaticRoleAttributeByTree, automaticRoleAttributeByAttribute);
 	}
 }

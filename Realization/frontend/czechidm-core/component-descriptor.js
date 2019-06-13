@@ -504,6 +504,24 @@ module.exports = {
       'entityType': ['configuration', 'IdmConfiguration', 'IdmConfigurationDto'],
       'component': require('./src/components/advanced/ConfigurationInfo/ConfigurationInfo').default,
       'manager': require('./src/redux').ConfigurationManager
+    },
+    {
+      'id': 'automatic-role-tree-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'AUTOMATIC-ROLE-TREE-SELECT',
+      'component': require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.AUTOMATIC-ROLE-TREE-SELECT',
+      'manager': require('./src/redux').RoleTreeNodeManager
+    },
+    {
+      'id': 'automatic-role-attribute-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'AUTOMATIC-ROLE-ATTRIBUTE-SELECT',
+      'component': require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.AUTOMATIC-ROLE-ATTRIBUTE-SELECT',
+      'manager': require('./src/redux').AutomaticRoleAttributeManager
     }
   ]
 };

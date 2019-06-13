@@ -254,6 +254,10 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                   if (Utils.Ui.isEmpty(propertyValue[propertyName])) {
                     return null;
                   }
+                  if (propertyName === 'core:transactionContext') {
+                    // FIXME: transaction context info
+                    return null;
+                  }
                   return (
                     <div>{ propertyName }: { Utils.Ui.toStringValue(propertyValue[propertyName]) }</div>
                   );

@@ -606,10 +606,14 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			IdmEntityEventFilter filter = new IdmEntityEventFilter();
 			filter.setOwnerId(identity.getId());
 			filter.setEventType(NeverEndingProcessor.WAIT.name());
+			filter.setStates(Lists.newArrayList(OperationState.RUNNING));
 			//
 			// wait for executed event is running
 			getHelper().waitForResult(res -> {
 				return !manager.isRunningOwner(identity.getId());
+			}, 500, Integer.MAX_VALUE);
+			getHelper().waitForResult(res -> {
+				return entityEventService.find(filter, new PageRequest(0, 1)).getContent().isEmpty();
 			}, 500, Integer.MAX_VALUE);
 			Assert.assertTrue(manager.isRunningOwner(identity.getId()));
 			//

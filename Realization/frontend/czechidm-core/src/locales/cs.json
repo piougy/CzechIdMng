@@ -468,7 +468,11 @@
           "load": "Při načítání záznamů do tabulky nastala chyba"
         },
         "button": {
-          "refresh": "Znovu načíst záznamy"
+          "refresh": "Znovu načíst záznamy",
+          "transactionId" : {
+            "label": "Zobrazit v auditu",
+            "title": "Zobrazit v auditu všechny záznamy s daným identifikátorem uživatelské transacke."
+          }
         },
         "noData": "$t(component.basic.Table.noData)",
         "filter": {

@@ -20,12 +20,35 @@ export class AuditTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      transactionId: this._getTransactionId(props._searchParameters)
+    };
   }
 
   componentDidMount() {
     super.componentDidMount();
     //
     this.context.store.dispatch(auditManager.fetchAuditedEntitiesNames());
+  }
+
+  componentWillReceiveProps(nextProps) {
+    //  filters from redux
+    if (nextProps._searchParameters) {
+      const newTransactionId = this._getTransactionId(nextProps._searchParameters);
+      if (newTransactionId && this.state.transactionId !== newTransactionId) {
+        this.setState({
+          transactionId: newTransactionId
+        }, () => {
+          //
+          const filterData = {};
+          nextProps._searchParameters.getFilters().forEach((v, k) => {
+            filterData[k] = v;
+          });
+          this.refs.filterForm.setData(filterData);
+          this.refs.table.getWrappedInstance().useFilterData(filterData);
+        });
+      }
+    }
   }
 
   getContentKey() {
@@ -54,6 +77,13 @@ export class AuditTable extends Advanced.AbstractTableContent {
   */
   _getType(name) {
     return Utils.Ui.getSimpleJavaType(name);
+  }
+
+  _getTransactionId(searchParameters) {
+    if (!searchParameters || !searchParameters.getFilters().has('transactionId')) {
+      return null;
+    }
+    return searchParameters.getFilters().get('transactionId');
   }
 
   /**

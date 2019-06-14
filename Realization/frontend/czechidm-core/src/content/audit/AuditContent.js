@@ -18,16 +18,16 @@ class AuditContent extends Basic.AbstractContent {
     return 'content.audit';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['audit', 'audits', 'audit-entities']);
+  getNavigationKey() {
+    return 'audit-entities';
   }
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={this.i18n('title')} />
         <AuditTable uiKey="audit-table"/>
-      </div>
+      </Basic.Div>
     );
   }
 }

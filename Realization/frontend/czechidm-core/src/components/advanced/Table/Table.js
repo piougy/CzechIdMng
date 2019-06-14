@@ -12,9 +12,19 @@ import Filter from '../Filter/Filter';
 import SearchParameters from '../../../domain/SearchParameters';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import RefreshButton from './RefreshButton';
-import { DataManager, FormAttributeManager, LongRunningTaskManager, SecurityManager, ConfigurationManager } from '../../../redux';
+import {
+  DataManager,
+  FormAttributeManager,
+  LongRunningTaskManager,
+  SecurityManager,
+  ConfigurationManager,
+  AuditManager
+} from '../../../redux';
 import EavAttributeForm from '../Form/EavAttributeForm';
 import LongRunningTask from '../LongRunningTask/LongRunningTask';
+
+const auditManager = new AuditManager();
+const dataManager = new DataManager();
 
 /**
  * Table component with header and columns.
@@ -501,6 +511,24 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
   }
 
+  showAudit(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    // set search parameters in redux
+    const searchParameters = auditManager.getDefaultSearchParameters().setFilter('transactionId', entity.transactionId);
+    // co conctete audit table
+    this.context.store.dispatch(auditManager.requestEntities(searchParameters, 'audit-table'));
+    // prevent to show loading, when transaction id is the same
+    this.context.store.dispatch(dataManager.stopRequest('audit-table'));
+    // redirect to audit of entities with prefiled search parameters
+    if (this.props.uiKey === 'audit-table') {
+      // audit table reloads externally ()
+    } else {
+      this.context.router.push(`/audit/entities?transactionId=${ entity.transactionId }`);
+    }
+  }
+
   _renderPrevalidateMessages(backendBulkAction) {
     if (!backendBulkAction.prevalidateResult) {
       return null;
@@ -554,8 +582,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               footerButtons={
                 <Basic.Button
                   level="link"
-                  onClick={this.showBulkActionDetail.bind(this)}>
-                  {this.i18n('button.close')}
+                  onClick={ this.showBulkActionDetail.bind(this) }>
+                  { this.i18n('button.close') }
                 </Basic.Button>
               }/>
             </Basic.Modal.Body>
@@ -567,13 +595,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             <Basic.Modal.Body>
               <Basic.Alert
                 level="info"
-                text={this.i18n('bulkAction.insufficientReadPermission')}/>
+                text={ this.i18n('bulkAction.insufficientReadPermission') }/>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button
                 level="link"
-                onClick={this.showBulkActionDetail.bind(this)}>
-                {this.i18n('button.close')}
+                onClick={ this.showBulkActionDetail.bind(this) }>
+                { this.i18n('button.close') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </div>
@@ -893,9 +921,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               { this.i18n('error.load') }
             </div>
             <div style={{ textAlign: 'center' }}>
-              <Basic.Button onClick={this.reload.bind(this, this.props)}>
+              <Basic.Button onClick={ this.reload.bind(this, this.props) }>
                 <Basic.Icon value="fa:refresh"/>
-                {' '}
+                { ' ' }
                 { this.i18n('button.refresh') }
               </Basic.Button>
             </div>
@@ -944,7 +972,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                             { this.i18n('entity.id.short') }:
                           </span>
                         }
-                        <UuidInfo value={ identifier } uuidEnd={ uuidEnd }/>
+                        <UuidInfo
+                          header={ this.i18n('entity.id.help') }
+                          value={ identifier }
+                          uuidEnd={ uuidEnd }
+                          placement="left"/>
                       </Basic.Div>
                     );
                     if (_showTransactionId) {
@@ -953,7 +985,21 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                           <span title={ this.i18n('entity.transactionId.help') }>
                             { this.i18n('entity.transactionId.short') }:
                           </span>
-                          <UuidInfo value={ transactionId } uuidEnd={ uuidEnd }/>
+                          <UuidInfo
+                            value={ transactionId }
+                            uuidEnd={ uuidEnd }
+                            header={ this.i18n('entity.transactionId.label') }
+                            placement="left"
+                            buttons={[
+                              <a
+                                href="#"
+                                onClick={ this.showAudit.bind(this, entity) }
+                                title={ this.i18n('button.transactionId.title') }>
+                                <Basic.Icon icon="component:audit"/>
+                                {' '}
+                                { this.i18n('button.transactionId.label') }
+                              </a>
+                            ]}/>
                         </Basic.Div>
                       );
                     }
@@ -1137,6 +1183,10 @@ AdvancedTable.defaultProps = {
   showRefreshButton: true,
   uuidEnd: false,
   initialReload: true
+};
+AdvancedTable.contextTypes = {
+  ...Basic.AbstractContextComponent.contextTypes,
+  router: PropTypes.object // .isRequired
 };
 
 function select(state, component) {

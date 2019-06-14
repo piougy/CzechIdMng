@@ -39,8 +39,23 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
     return value;
   }
 
+  close() {
+    if (this.refs.popover) {
+      this.refs.popover.close();
+    }
+  }
+
   render() {
-    const { rendered, showLoading, value, style, className } = this.props;
+    const {
+      rendered,
+      showLoading,
+      value,
+      style,
+      className,
+      header,
+      placement,
+      buttons
+    } = this.props;
     //
     if (!rendered) {
       return null;
@@ -61,21 +76,42 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
     //
     return (
       <Basic.Popover
+        ref="popover"
         trigger={[ 'click' ]}
+        placement={ placement }
+        className={
+          classnames(
+            'abstract-entity-info-popover',
+            'uuid-info-popover-value')
+        }
         value={
-          <span className="uuid-info-popover-value">
-            <input
-              ref="input"
-              type="text"
-              value={ value }
-              readOnly
-              onClick={ ()=> {
-                // ~ctrl+c
-                this.refs.input.select();
-                document.execCommand('copy');
-                this.addMessage({ level: 'success', message: this.i18n('copy.message') });
-              }}/>
-          </span>
+          <Basic.Panel
+            className={
+              classnames(
+                'panel-success',
+                { 'no-border': (!header && (buttons === null || buttons.length === 0)) }
+              )
+            }>
+            <Basic.PanelHeader rendered={ header !== null && header !== false && header !== '' }>
+              { header }
+            </Basic.PanelHeader>
+            <Basic.PanelBody>
+              <input
+                ref="input"
+                type="text"
+                value={ value }
+                readOnly
+                onClick={ ()=> {
+                  // ~ctrl+c
+                  this.refs.input.select();
+                  document.execCommand('copy');
+                  this.addMessage({ level: 'success', message: this.i18n('copy.message') });
+                }}/>
+            </Basic.PanelBody>
+            <Basic.PanelFooter rendered={ buttons !== null && buttons.length > 0 }>
+              { buttons }
+            </Basic.PanelFooter>
+          </Basic.Panel>
         }>
         {
           <span
@@ -105,9 +141,24 @@ UuidInfo.propTypes = {
   /**
    * Shows ending uuid characters in shorten label.
    */
-  uuidEnd: PropTypes.bool
+  uuidEnd: PropTypes.bool,
+  /**
+   * Buttons are shown in popover footer
+   */
+  buttons: PropTypes.arrayOf(PropTypes.element),
+  /**
+   * Popover Header
+   */
+  header: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+  /**
+   * Popover position
+   */
+  placement: PropTypes.oneOf(['top', 'bottom', 'right', 'left'])
 };
 UuidInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
-  uuidEnd: false
+  uuidEnd: false,
+  buttons: [],
+  placement: 'bottom',
+  header: null
 };

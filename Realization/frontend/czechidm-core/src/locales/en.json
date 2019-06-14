@@ -437,7 +437,11 @@
           "load": "Error during loading records to the table."
         },
         "button": {
-          "refresh": "Reload records"
+          "refresh": "Reload records",
+          "transactionId" : {
+            "label": "Show in audit",
+            "title": "Show all audit records with given user transaction identifier."
+          }
         },
         "noData": "$t(component.basic.Table.noData)",
         "filter": {

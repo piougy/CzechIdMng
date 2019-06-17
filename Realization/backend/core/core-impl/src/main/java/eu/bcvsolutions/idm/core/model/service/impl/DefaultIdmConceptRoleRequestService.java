@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -396,6 +397,11 @@ public class DefaultIdmConceptRoleRequestService extends
 		}
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.state), filter.getState()));
+		}
+		
+		Set<UUID> ids = filter.getIdentityRoleIds();
+		if (ids != null && !ids.isEmpty()) {
+			predicates.add(root.get(IdmConceptRoleRequest_.identityRole).get(IdmIdentityRole_.id).in(ids));
 		}
 		//
 		return predicates;

@@ -60,6 +60,18 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	DTO get(Serializable id, BasePermission... permission);
+	
+	/**
+	 * Returns DTO by given id. Returns null, if dto is not exists. Authorization policies are evaluated.
+	 * 
+	 * @param id
+	 * @param context returned DTO structure can be specified.
+	 * @param permission permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 9.7.0
+	 */
+	DTO get(Serializable id, F context, BasePermission... permission);
 
 	/**
 	 * Returns page of DTOs.

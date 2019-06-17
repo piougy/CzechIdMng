@@ -55,7 +55,6 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 		return dtoClass;
 	}
 
-	
 	@Override
 	public boolean isNew(DTO dto) {
 		Assert.notNull(dto);
@@ -71,6 +70,11 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 
 	@Override
 	public DTO get(Serializable id, BasePermission... permission) {
+		return null;
+	}
+	
+	@Override
+	public DTO get(Serializable id, F context, BasePermission... permission) {
 		return null;
 	}
 

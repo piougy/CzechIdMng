@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.rest.impl;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 
@@ -164,6 +165,14 @@ public class IdmLongRunningTaskController
 			@ApiParam(value = "LRT's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
+	}
+	
+	@Override
+	public IdmLongRunningTaskDto getDto(Serializable backendId) {
+		// FIXME: Propagate filter in GET method (in AbstractReadDto controller => requires lookup api improvement).
+		IdmLongRunningTaskFilter filter = toFilter(null);
+		//
+		return getService().get(backendId, filter, IdmBasePermission.READ);
 	}
 	
 	@Override
@@ -331,5 +340,14 @@ public class IdmLongRunningTaskController
 		longRunningTaskManager.processCreated(backendId);
 		//
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	@Override
+	protected IdmLongRunningTaskFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter(parameters, getParameterConverter());
+		// counters are loaded from controller all times
+		filter.setIncludeItemCounts(true);
+		//
+		return filter;
 	}
 }

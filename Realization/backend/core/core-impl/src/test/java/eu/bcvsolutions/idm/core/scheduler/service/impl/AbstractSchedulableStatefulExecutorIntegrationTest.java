@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
@@ -42,7 +43,7 @@ import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
 /**
  * Stateful tasks test:
  * - persist processed items
- * - test queue titems
+ * - test queue items
  * - continueOnException
  * - requiresNewTransaction
  * 
@@ -182,7 +183,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			// nothing
 		}
 		//
-		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId(), getContext());
 		Assert.assertEquals(3, taskDto.getCount().intValue());
 		Assert.assertEquals(1, taskDto.getSuccessItemCount().intValue());
 		Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -214,7 +215,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			};
 			getHelper().waitForResult(continueFunction);
 			//
-			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
+			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId(), getContext());
 			Assert.assertEquals(3, taskDto.getCount().intValue());
 			Assert.assertEquals(1, taskDto.getSuccessItemCount().intValue());
 			Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -249,7 +250,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			// nothing
 		}
 		//
-		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId(), getContext());
 		Assert.assertEquals(3, taskDto.getCount().intValue());
 		Assert.assertEquals(2, taskDto.getSuccessItemCount().intValue());
 		Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -281,7 +282,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			};
 			getHelper().waitForResult(continueFunction);
 			//
-			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
+			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId(), getContext());
 			Assert.assertEquals(3, taskDto.getCount().intValue());
 			Assert.assertEquals(2, taskDto.getSuccessItemCount().intValue());
 			Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -316,7 +317,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			// nothing
 		}
 		//
-		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId(), getContext());
 		Assert.assertEquals(3, taskDto.getCount().intValue());
 		Assert.assertEquals(1, taskDto.getSuccessItemCount().intValue());
 		Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -346,7 +347,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			};
 			getHelper().waitForResult(continueFunction);
 			//
-			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
+			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId(), getContext());
 			Assert.assertEquals(3, taskDto.getCount().intValue());
 			Assert.assertEquals(1, taskDto.getSuccessItemCount().intValue());
 			Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -381,7 +382,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			// nothing
 		}
 		//
-		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId(), getContext());
 		Assert.assertEquals(3, taskDto.getCount().intValue());
 		Assert.assertEquals(2, taskDto.getSuccessItemCount().intValue());
 		Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -411,7 +412,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			};
 			getHelper().waitForResult(continueFunction);
 			//
-			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId());
+			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId(), getContext());
 			Assert.assertEquals(3, taskDto.getCount().intValue());
 			Assert.assertEquals(2, taskDto.getSuccessItemCount().intValue());
 			Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());
@@ -576,6 +577,18 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 	private IdmLongRunningTaskDto createIdmLongRunningTask(IdmScheduledTaskDto taskDto,
 			Class<? extends SchedulableTaskExecutor<Boolean>> clazz) {
 		return longRunningTaskService.save(SchedulerTestUtils.createIdmLongRunningTask(taskDto, clazz));
+	}
+	
+	/**
+	 * LRT with loaded counters.
+	 * 
+	 * @return
+	 */
+	private IdmLongRunningTaskFilter getContext() {
+		IdmLongRunningTaskFilter context = new IdmLongRunningTaskFilter();
+		context.setIncludeItemCounts(true);
+		//
+		return context;
 	}
 	
 	private static class TestIdentityIntegrationExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityDto> {

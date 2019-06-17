@@ -59,7 +59,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Audit tests
- * - tast transactional id
+ * - test transactional id
  * 
  * @author Ondrej Kopr
  * @author Radek Tomiška
@@ -112,7 +112,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		IdmAuditDto audit2 = result.get(result.size() - result.size());
 		assertEquals(RevisionType.ADD.toString(), audit2.getModification());
 
-		assertEquals(true, audit2.getTimestamp() < audit.getTimestamp());
+		Assert.assertFalse(audit2.getTimestamp() > audit.getTimestamp());
 	}
 
 	@Test

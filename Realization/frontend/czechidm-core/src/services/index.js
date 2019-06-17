@@ -77,6 +77,7 @@ import IncompatibleRoleService from './IncompatibleRoleService';
 import RoleFormAttributeService from './RoleFormAttributeService';
 import PasswordHistoryService from './PasswordHistoryService';
 import PasswordService from './PasswordService';
+import RequestIdentityRoleService from './RequestIdentityRoleService';
 
 const ServiceRoot = {
   RestApiService,
@@ -150,7 +151,8 @@ const ServiceRoot = {
   IncompatibleRoleService,
   RoleFormAttributeService,
   PasswordHistoryService,
-  PasswordService
+  PasswordService,
+  RequestIdentityRoleService
 };
 
 ServiceRoot.version = '9.4.0';

@@ -11,6 +11,7 @@ import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager, Dat
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import RoleConceptTable from './RoleConceptTable';
+import RequestIdentityRoleTable from './RequestIdentityRoleTable';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 import SearchParameters from '../../domain/SearchParameters';
 //
@@ -103,11 +104,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   }
 
   _initComponentCurrentRoles(props, force) {
-    const { _request, location} = props;
     const {context} = this;
 
-    const applicantFromUrl = location ? location.query.applicantId : null;
-    const identityId = _request ? _request.applicant : applicantFromUrl;
+    const identityId = this._getIdentityId(props);
     const state = context.store.getState();
     let identityRoles = null;
     if (identityId) {
@@ -492,6 +491,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
+
   _getApplicantAndImplementer(request) {
     return (
       <div>
@@ -555,6 +555,13 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           />
       </div>
     );
+  }
+
+  _getIdentityId(props) {
+    const { _request, location} = props;
+    const applicantFromUrl = location ? location.query.applicantId : null;
+
+    return _request ? _request.applicant : applicantFromUrl;
   }
 
   render() {
@@ -723,6 +730,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
             changedIdentityRoles, removedIdentityRoles)
         }
+        <RequestIdentityRoleTable
+          request={request}
+          identityId={this._getIdentityId(this.props)}
+          />
       </div>
     );
   }

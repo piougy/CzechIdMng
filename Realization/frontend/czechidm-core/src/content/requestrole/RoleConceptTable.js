@@ -370,7 +370,10 @@ export class RoleConceptTable extends Basic.AbstractContent {
       removeConceptFunc(data.id, 'UPDATE');
     } else {
       data.roleRequest = requestId;
-      createConceptFunc(data, 'REMOVE', null, () => {
+      createConceptFunc(data, 'REMOVE', null, (json, error) => {
+        if (error) {
+          this.addError(error);
+        }
         if (reloadComponent) {
           reloadComponent();
         }

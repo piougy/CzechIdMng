@@ -8,10 +8,11 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 
 /**
- * Long running task filter
+ * Long running task filter.
  * 
  * @author Radek Tomiška
  *
@@ -32,7 +33,11 @@ public class IdmLongRunningTaskFilter extends DataFilter {
 	}
 	
 	public IdmLongRunningTaskFilter(MultiValueMap<String, Object> data) {
-		super(IdmLongRunningTaskDto.class, data);
+		this(data, null);
+	}
+	
+	public IdmLongRunningTaskFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(IdmLongRunningTaskDto.class, data, parameterConverter);
 	}
 
 	public OperationState getOperationState() {

@@ -66,15 +66,9 @@ public class DefaultIdmLongRunningTaskService
 	}
 
 	@Override
-	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity, IdmLongRunningTaskDto dto) {
-		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity, dto);
-		return setFailedAndSuccessItems(longRunningTaskDto);
-	}
-	
-	@Override
-	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity) {
-		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity);
-		//
+	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity, IdmLongRunningTaskDto dto, IdmLongRunningTaskFilter filter) {
+		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity, dto, filter);
+		// FIXME: items are loaded here => three additional select all time :/. Move to controller or @Formula.
 		return setFailedAndSuccessItems(longRunningTaskDto);
 	}
 

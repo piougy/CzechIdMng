@@ -39,12 +39,6 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
     return value;
   }
 
-  close() {
-    if (this.refs.popover) {
-      this.refs.popover.close();
-    }
-  }
-
   render() {
     const {
       rendered,
@@ -76,7 +70,6 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
     //
     return (
       <Basic.Popover
-        ref="popover"
         trigger={[ 'click' ]}
         placement={ placement }
         className={

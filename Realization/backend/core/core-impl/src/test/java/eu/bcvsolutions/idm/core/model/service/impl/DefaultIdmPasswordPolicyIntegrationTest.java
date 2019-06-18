@@ -851,7 +851,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 
 	@Test
 	public void testContainsUsername() {
-		IdmIdentityDto identity = this.getHelper().createIdentity("John", (GuardedString) null);
+		IdmIdentityDto identity = this.getHelper().createIdentity("John217", (GuardedString) null);
 		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setType(IdmPasswordPolicyType.VALIDATE);
 		policy.setEnchancedControl(true);
@@ -893,7 +893,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		}
 
 		// Suffix and prefix with accent
-		validation.setPassword("demojÓhn" + System.currentTimeMillis());
+		validation.setPassword("demojÓhn217" + System.currentTimeMillis());
 		try {
 			passwordPolicyService.validate(validation, policy);
 			fail("Password pass.");
@@ -904,7 +904,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		}
 
 		// Prefix with accent
-		validation.setPassword("demojÓhň");
+		validation.setPassword("demojÓhň217");
 		try {
 			passwordPolicyService.validate(validation, policy);
 			fail("Password pass.");

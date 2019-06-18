@@ -338,6 +338,21 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     });
   }
 
+  addPage() {
+    const entities = this.getManager().getEntities(this.context.store.getState(), `${this.getUiKey()}-table`);
+    const { selectedRows, selectedRoles } = this.state;
+    //
+    entities.forEach(entity => {
+      selectedRows.push(entity.id);
+      selectedRoles.push(entity);
+    });
+    //
+    this.setState({
+      selectedRows,
+      selectedRoles
+    });
+  }
+
   /**
   * Method filtering by roleCatalogue. Filtr si applied to role table
   */
@@ -556,14 +571,22 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                   defaultSearchParameters={
                     showEnvironment
                     ?
-                    this.getManager().getDefaultSearchParameters().setFilter('environment', ConfigLoader.getConfig('role.table.filter.environment', []))
+                    this
+                      .getManager()
+                      .getDefaultSearchParameters()
+                      .setFilter('environment', ConfigLoader.getConfig('role.table.filter.environment', []))
                     :
                     null
                   }>
                   <Column
                     property=""
-                    header=""
-                    width="5px"
+                    header={
+                      <Basic.Icon
+                        icon="fa:check"
+                        onClick={ this.addPage.bind(this) }
+                        style={{ color: 'transparent' }}/>
+                    }
+                    width={ 15 }
                     rendered={showActionButtons}
                     cell={
                       ({ rowIndex, data }) => {
@@ -579,16 +602,16 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                               !isSelected
                               ?
                               <input
-                                readOnly={readOnly}
+                                readOnly={ readOnly }
                                 type="checkbox"
-                                checked={false}
-                                onMouseDown={this._addRole.bind(this, rowIndex, data[rowIndex])}/>
+                                checked={ false }
+                                onMouseDown={ this._addRole.bind(this, rowIndex, data[rowIndex]) }/>
                               :
                               <input
                                 readOnly={readOnly}
                                 type="checkbox"
                                 checked
-                                onMouseDown={this._removeRole.bind(this, rowIndex, data[rowIndex])}/>
+                                onMouseDown={ this._removeRole.bind(this, rowIndex, data[rowIndex]) }/>
                             }
                           </span>
                         );

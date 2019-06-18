@@ -1350,10 +1350,6 @@
           "deleteRemoved": {
             "header": "Delete removed roles",
             "message": "Do you really want to delete removed roles?"
-          },
-          "delete": {
-            "header": "Delete roles",
-            "message": "Do you really want to delete roles"
           }
         },
         "identityRoleAttributes": {

@@ -675,6 +675,15 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
             </Basic.AbstractForm>
             <div style={{ padding: '15px 15px 0 15px' }}>
+              <Basic.ContentHeader>
+                <Basic.Icon value="list"/>
+                {' '}
+                <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
+              </Basic.ContentHeader>
+              <RequestIdentityRoleTable
+                request={request}
+                identityId={this._getIdentityId(this.props)}
+                />
               {
                 this._renderRoleConceptTable(request, true, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles, showLoadingButtonRemove)
               }
@@ -730,10 +739,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
             changedIdentityRoles, removedIdentityRoles)
         }
-        <RequestIdentityRoleTable
-          request={request}
-          identityId={this._getIdentityId(this.props)}
-          />
       </div>
     );
   }

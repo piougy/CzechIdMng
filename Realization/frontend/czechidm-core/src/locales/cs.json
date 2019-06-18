@@ -1394,10 +1394,6 @@
             "deleteRemoved": {
               "header": "Odstranění úprav",
               "message": "Opravdu chcete zrušit úpravy nad touto rolí?"
-            },
-            "delete": {
-              "header": "Odebrání role",
-              "message": "Opravdu chcete tuto roli odebrat?"
             }
           },
           "identityRoleAttributes": {

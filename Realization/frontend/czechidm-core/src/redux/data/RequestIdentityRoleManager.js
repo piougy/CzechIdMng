@@ -72,15 +72,22 @@ export default class RequestIdentityRoleManager extends FormableEntityManager {
        );
        const successEntities = [];
        const approveEntities = [];
+       let roleRequestId = null;
        let currentEntity = null; // currentEntity in loop
        entities.reduce((sequence, entity) => {
          return sequence.then(() => {
            // stops when first error occurs
            currentEntity = entity;
+           if (currentEntity && !entity.roleRequest) {
+             entity.roleRequest = roleRequestId;
+           }
            return this.getService().delete(entity);
-         }).then(() => {
+         }).then((deletedEntity) => {
+           // ID of role-request returned from BE. We want to use it in next item.
+           roleRequestId = deletedEntity.roleRequest;
+
            dispatch(this.updateBulkAction());
-           successEntities.push(entity);
+           successEntities.push(deletedEntity);
            // remove entity to redux store
            dispatch(this.deletedEntity(entity.id, entity, uiKey));
          }).catch(error => {
@@ -91,8 +98,8 @@ export default class RequestIdentityRoleManager extends FormableEntityManager {
              if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
                if (!cb) { // if no callback given, we need show error
                  dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
-               } else { // otherwise caller has to show eror etc. himself
-                 cb(entity, error, null);
+               } else { // otherwise caller has to show error etc. himself
+                 cb(entity, error, successEntities);
                }
              }
              throw error;

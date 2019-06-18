@@ -644,7 +644,7 @@ public class DefaultIdmRoleRequestService
 		roleRequest = this.save(roleRequest);
 		if (roles != null) {
 			for (IdmRoleDto role : roles) {
-				createConcept(roleRequest, contract, role.getId(), ConceptRoleRequestOperation.ADD);
+				createConcept(roleRequest, contract, null, role.getId(), ConceptRoleRequestOperation.ADD);
 			}
 		}
 		return roleRequest;
@@ -937,6 +937,22 @@ public class DefaultIdmRoleRequestService
 		return startRequestInternal(requestEvent);
 	}
 	
+	@Override
+	public IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, IdmIdentityContractDto contract, UUID identityRoleId,
+			UUID roleId, ConceptRoleRequestOperation operation) {
+		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+		conceptRoleRequest.setRoleRequest(roleRequest.getId());
+		if (contract != null) {
+			conceptRoleRequest.setIdentityContract(contract.getId());
+			conceptRoleRequest.setValidFrom(contract.getValidFrom());
+			conceptRoleRequest.setValidTill(contract.getValidTill());
+		}
+		conceptRoleRequest.setIdentityRole(identityRoleId);
+		conceptRoleRequest.setRole(roleId);
+		conceptRoleRequest.setOperation(operation);
+		return conceptRoleRequestService.save(conceptRoleRequest);
+	}
+	
 	/**
 	 * Flush Hibernate session
 	 */
@@ -1185,26 +1201,6 @@ public class DefaultIdmRoleRequestService
 		});
 	}
 
-	/**
-	 * Method create {@link IdmConceptRoleRequestDto}
-	 * 
-	 * @param roleRequest
-	 * @param contract
-	 * @param roleId
-	 * @param operation
-	 * @return
-	 */
-	private IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, IdmIdentityContractDto contract,
-			UUID roleId, ConceptRoleRequestOperation operation) {
-		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
-		conceptRoleRequest.setRoleRequest(roleRequest.getId());
-		conceptRoleRequest.setIdentityContract(contract.getId());
-		conceptRoleRequest.setValidFrom(contract.getValidFrom());
-		conceptRoleRequest.setValidTill(contract.getValidTill());
-		conceptRoleRequest.setRole(roleId);
-		conceptRoleRequest.setOperation(operation);
-		return conceptRoleRequestService.save(conceptRoleRequest);
-	}
 
 	/**
 	 * Create concepts for removing duplicities with subroles.

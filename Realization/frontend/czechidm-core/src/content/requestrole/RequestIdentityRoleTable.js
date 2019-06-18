@@ -56,9 +56,9 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     super.componentDidMount();
   }
 
-  // getContentKey() {
-  //   return 'content.task.IdentityRoleConceptTable';
-  // }
+  getContentKey() {
+    return 'content.task.IdentityRoleConceptTable';
+  }
 
   getManager() {
     return requestIdentityRoleManager;
@@ -139,47 +139,6 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   /**
-   * Apply FE sort
-   *
-   * @param  {array} conceptData
-   * @param  {SearchParameters} sortSearchParameters [description]
-   * @return {[type]}                      [description]
-   */
-  applySort(conceptData, sortSearchParameters) {
-    if (!conceptData || !sortSearchParameters || sortSearchParameters.getSorts().size === 0) {
-      return conceptData;
-    }
-    //
-    let _conceptData = conceptData;
-    sortSearchParameters.getSorts().forEach((ascending, property) => {
-      _conceptData = _conceptData.sort((one, two) => {
-        if (!one._embedded || !one._embedded.role
-            || !two._embedded || !two._embedded.role) {
-          return 0;
-        }
-        const roleOne = one._embedded.role;
-        const roleTwo = two._embedded.role;
-        //
-        let result = 0;
-        if (!roleOne[property] && !roleTwo[property]) {
-          result = 0;
-        } else if (!roleOne[property]) { // null at end in asc
-          result = 1;
-        } else if (!roleTwo[property]) {
-          result = -1;
-        } else {
-          result = roleOne[property].localeCompare(roleTwo[property]);
-        }
-        // console.log(roleOne[property], roleTwo[property], ascending ? result : !result);
-        //
-        return ascending ? result : -result;
-      });
-    });
-    //
-    return _conceptData;
-  }
-
-  /**
    * Close modal dialog
    */
   _closeDetail() {
@@ -196,7 +155,11 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   /**
    * Save added or changed entities to arrays and recompile concept data.
    */
-  _saveConcept(requestId, data, roleRequestCb) {
+  _saveConcept(event) {
+    if (event) {
+      event.preventDefault();
+    }
+
     const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
     const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
     if (!form.isFormValid()) {
@@ -209,134 +172,46 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     this.setState({
       showLoading: true
     }, () => {
-      const { identityUsername, createConceptFunc, updateConceptFunc, reloadComponent } = this.props;
+      const { request} = this.props;
 
       const entity = form.getData();
-      entity.roleRequest = requestId;
+      entity.roleRequest = request.id;
       let eavValues = null;
       if (eavForm) {
         eavValues = {values: eavForm.getValues()};
       }
-      // after concept is sent to BE - hide modal
-      const cb = (validatedEntity, error) => {
+
+      // Conversions
+      if ( entity.identityContract && _.isObject(entity.identityContract)) {
+        entity.identityContract = entity.identityContract.id;
+      }
+      if ( entity.role && _.isArray(entity.role)) {
+        entity.roles = entity.role;
+        entity.role = null;
+      }
+      // Add EAV to entity
+      entity._eav = [eavValues];
+      // Save entity
+      this.context.store.dispatch(requestIdentityRoleManager.createEntity(entity, null, (createdEntity, error) => {
         if (error) {
-          // TODO: only one modal is shown => one validationErrors in the state
           this.setState({
             validationErrors: error.parameters ? error.parameters.attributes : null,
             showLoading: false
           });
         } else {
-          if (roleRequestCb) {
-            roleRequestCb();
-          }
           this.setState({
             showLoading: false
           }, () => {
-            this._closeDetail();
-            if (reloadComponent) {
-              reloadComponent();
+            if (!request.id) {
+              this.context.router.replace(`/role-requests/${createdEntity.roleRequest}/detail`);
+            } else {
+              this._closeDetail();
+              this.reload();
             }
           });
         }
-      };
-      //
-      if (entity._added) {
-        if (!entity._virtualId && !entity.id && entity.role instanceof Array) {
-          let index = 0;
-          for (const roleId of entity.role) {
-            index++;
-            const uuidId = uuid.v1();
-            const identityRole = _.merge({}, entity, {_virtualId: uuidId, _added: true});
-            identityRole._virtualId = uuidId;
-            identityRole._embedded = {};
-            identityRole._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
-            identityRole._embedded.role = roleManager.getEntity(this.context.store.getState(), roleId);
-            // call calback on the last entity only
-            createConceptFunc(identityRole, 'ADD', eavValues, index === entity.role.length ? cb : null);
-          }
-        } else {
-          const addedIdentityRole = this._findAddedIdentityRoleById(entity.id);
-          entity._embedded = {};
-          entity._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
-          if (entity.role instanceof Array) {
-            entity.role = entity.role[0];
-          }
-          entity._embedded.role = roleManager.getEntity(this.context.store.getState(), entity.role);
-          if (addedIdentityRole) {
-            updateConceptFunc(entity, 'ADD', eavValues, cb);
-          } else {
-            createConceptFunc(entity, 'ADD', eavValues, cb);
-          }
-        }
-      } else {
-        const changedIdentityRole = _.merge({}, this._findChangedIdentityRoleById(entity.id));
-        let changed = false;
-        const resultValidFrom = this._findChange('validFrom', entity);
-        const resultValidTill = this._findChange('validTill', entity);
-
-        if (resultValidFrom.changed) {
-          changedIdentityRole.validFrom = resultValidFrom.value;
-          changed = true;
-        }
-        if (resultValidTill.changed) {
-          changedIdentityRole.validTill = resultValidTill.value;
-          changed = true;
-        }
-
-        if (changed && changedIdentityRole && changedIdentityRole.id) {
-          updateConceptFunc(changedIdentityRole, 'UPDATE', eavValues, cb);
-        } else {
-          createConceptFunc(entity, 'UPDATE', eavValues, cb);
-        }
-      }
+      }));
     });
-  }
-
-  _findChangedIdentityRoleById(id) {
-    const {changedIdentityRoles} = this.props;
-    for (const changedIdentityRole of changedIdentityRoles) {
-      if (changedIdentityRole.identityRole === id) {
-        return changedIdentityRole;
-      }
-    }
-    return null;
-  }
-
-  _findAddedIdentityRoleById(virtualId) {
-    const {addedIdentityRoles} = this.props;
-    for (const addedIdentityRole of addedIdentityRoles) {
-      if (addedIdentityRole.id === virtualId) {
-        return addedIdentityRole;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Find and apply changes to changedIdentityRole array
-   */
-  _findChange(property, entity) {
-    const {conceptData} = this.state;
-    const changedPropertyName = '_' + property + 'Changed';
-    for (const conceptIdentityRole of conceptData) {
-      if (conceptIdentityRole.id === entity.id) {
-        let propertyWithNewValue = property;
-        if (entity.hasOwnProperty(changedPropertyName)) {
-          propertyWithNewValue = changedPropertyName;
-        }
-        if (entity[propertyWithNewValue] !== conceptIdentityRole[propertyWithNewValue]) {
-          return {changed: true, value: entity[propertyWithNewValue]};
-        }
-      }
-    }
-    return {changed: false};
-  }
-
-  _sortRoles(one, two) {
-    if (!one._embedded.role || !two._embedded.role) {
-      return false;
-    }
-    return one._embedded.role.name.toLowerCase() > two._embedded.role.name.toLowerCase();
   }
 
   /**
@@ -360,32 +235,10 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   /**
-   * Generate date cell for concept. If is entity changed, will use 'changed' property. In title show old value.
-   */
-  _conceptDateCell({rowIndex, data, property}) {
-    const changedProperty = '_' + property + 'Changed';
-    // Load old value and add to title
-    const format = this.i18n('format.date');
-    const propertyOldValue = Basic.Cell.getPropertyValue(data[rowIndex], property);
-    const dataOldValue = propertyOldValue ? moment(propertyOldValue).format(format) : null;
-    const oldValueMessage = dataOldValue ? this.i18n('oldValue', {oldValue: dataOldValue}) : this.i18n('oldValueNotExist');
-    const changedPropertyExist = data[rowIndex].hasOwnProperty(changedProperty);
-    return (
-      <Basic.DateCell
-        className={changedPropertyExist ? 'text-danger' : ''}
-        property={changedPropertyExist ? changedProperty : property}
-        rowIndex={rowIndex}
-        data={data}
-        title={changedPropertyExist ? oldValueMessage : null}
-        format={format}/>
-    );
-  }
-
-  /**
    * Create new IdentityRoleConcet with virtual ID (UUID)
    */
   _addConcept() {
-    const newIdentityRoleConcept = {_added: true};
+    const newIdentityRoleConcept = {operation: 'ADD'};
     this._showDetail(newIdentityRoleConcept, true, true);
   }
 
@@ -435,14 +288,96 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     });
   }
 
+  _getIncompatibleRoles(role) {
+    const { _incompatibleRoles } = this.props;
+    //
+    if (!_incompatibleRoles) {
+      return [];
+    }
+    //
+    return _incompatibleRoles.filter(ir => ir.directRole.id === role.id);
+  }
+
+  _filterOpen(open) {
+    this.setState({
+      filterOpened: open
+    });
+  }
+
+  /**
+   * Execute role request by identity. If request does not exist, the is created first.
+   */
+  _executeRoleRequestByIdentityWithRequest(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const {getRequest} = this.props;
+    getRequest(this._executeRoleRequestByIdentity, this);
+  }
+
+  _toggleShowChangesOnly() {
+    this.setState(prevState => {
+      return {
+        showChangesOnly: !prevState.showChangesOnly
+      };
+    });
+  }
+
+  _internalDelete(data) {
+    const {request} = this.props;
+    this.setState({showLoadingActions: true}, () => {
+      data.roleRequest = request.id;
+      this.context.store.dispatch(this.getManager().deleteEntity(data, null, (json) => {
+        this.setState({showLoadingActions: false});
+        if (!request.id) {
+          this.context.router.replace(`/role-requests/${json.roleRequest}/detail`);
+        } else {
+          this.reload();
+        }
+      }));
+    });
+  }
+
+  beforeDelete(bulkActionValue, selectedEntities) {
+    const {request} = this.props;
+
+    for (const entity of selectedEntities) {
+      entity.roleRequest = request.id;
+    }
+  }
+
+  afterDelete(entities) {
+    const {request} = this.props;
+
+    if (!request.id && entities && entities.length > 0) {
+      this.context.router.replace(`/role-requests/${entities[0].roleRequest}/detail`);
+    } else {
+      this.reload();
+    }
+  }
+
+  reload() {
+    this.refs.table.getWrappedInstance().reload();
+  }
+
+  _handleSort(property, order) {
+    const { sortSearchParameters } = this.state;
+    //
+    console.log("_handleSort", property, order, sortSearchParameters.clearSort().setSort(property, order !== 'DESC'));
+    this.setState({
+      sortSearchParameters: sortSearchParameters.clearSort().setSort(property, order !== 'DESC')
+    });
+  }
+
   /**
    * Generate cell with actions (buttons)
    */
-  _conceptActionsCell({rowIndex, data}) {
-    const {readOnly, showLoadingButtonRemove} = this.props;
+  renderConceptActionsCell({rowIndex, data}) {
+    const {readOnly} = this.props;
+    const {showLoadingActions} = this.state;
+
     const actions = [];
     const value = data[rowIndex];
-    const notModificated = !(value._added || value._removed || value._changed);
     const manualRole = !value.automaticRole && !value.directRole;
     const operation = value.operation;
     //
@@ -452,16 +387,17 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         onClick={ this._internalDelete.bind(this, data[rowIndex]) }
         className="btn-xs"
         disabled={ readOnly || !manualRole }
-        showLoading={ showLoadingButtonRemove }
+        showLoading={ showLoadingActions }
         role="group"
         title={ this.i18n('button.delete') }
         titlePlacement="bottom"
-        icon={ notModificated ? 'trash' : 'remove' }/>
+        icon={'trash'}/>
     );
     if (operation !== 'REMOVE') {
       actions.push(
         <Basic.Button
           level="warning"
+          showLoading={ showLoadingActions }
           onClick={ this._showDetail.bind(this, data[rowIndex], true, false) }
           className="btn-xs"
           disabled={ readOnly || !manualRole }
@@ -478,7 +414,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     );
   }
 
-  _conceptAttributesCell({rowIndex, data}) {
+  renderConceptAttributesCell({rowIndex, data}) {
     const value = data[rowIndex];
     const result = [];
     if ( value
@@ -506,117 +442,6 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     );
   }
 
-  _getIncompatibleRoles(role) {
-    const { _incompatibleRoles } = this.props;
-    //
-    if (!_incompatibleRoles) {
-      return [];
-    }
-    //
-    return _incompatibleRoles.filter(ir => ir.directRole.id === role.id);
-  }
-
-  _filterOpen(open) {
-    this.setState({
-      filterOpened: open
-    });
-  }
-
-  /**
-   * Save concept. If request does not exist, the is created first.
-   */
-  _saveConceptWithRequest(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    // form validation at first => prevent to create emtpy request before form is valid
-    const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
-    const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
-    if (!form.isFormValid()) {
-      return;
-    }
-    if (eavForm && !eavForm.isValid()) {
-      return;
-    }
-    //
-    const { getRequest } = this.props;
-    getRequest(this._saveConcept, this);
-  }
-
-  /**
-   * Remove concept. If request does not exist, the is created first.
-   */
-  _removeConceptWithRequest(data) {
-    const {getRequest} = this.props;
-    getRequest(this._internalDeleteConcept, this, data);
-  }
-
-  /**
-   * Execute role request by identity. If request does not exist, the is created first.
-   */
-  _executeRoleRequestByIdentityWithRequest(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    const {getRequest} = this.props;
-    getRequest(this._executeRoleRequestByIdentity, this);
-  }
-
-  /**
-   * Gets duplicated concept or identity role for the given concept
-   */
-  _getOriginalForDuplicate(conceptData, concept) {
-    if (!conceptData || !concept.duplicate || !concept._embedded || !concept._embedded.duplicates) {
-      return null;
-    }
-    const duplicates = concept._embedded.duplicates;
-    if (duplicates.identityRoles.length > 0) {
-      return conceptData.find(c => {
-        return c.id === duplicates.identityRoles[0];
-      });
-    }
-    if (duplicates.concepts.length > 0) {
-      return conceptData.find(c => {
-        return c.id === duplicates.concepts[0];
-      });
-    }
-    //
-    return null;
-  }
-
-  _handleSort(property, order) {
-    const { sortSearchParameters } = this.state;
-    //
-    this.setState({
-      sortSearchParameters: sortSearchParameters.clearSort().setSort(property, order !== 'DESC')
-    });
-  }
-
-  // NEW ...
-  _toggleShowChangesOnly() {
-    this.setState(prevState => {
-      return {
-        showChangesOnly: !prevState.showChangesOnly
-      };
-    });
-  }
-
-  _internalDelete(data) {
-    const {request} = this.props;
-    data.roleRequest = request.id;
-    this.context.store.dispatch(this.getManager().deleteEntity(data, null, (json) => {
-      if (!request.id) {
-        this.context.router.replace(`/role-requests/${json.roleRequest}/detail`);
-      } else {
-        this.reload();
-      }
-    }));
-  }
-
-  reload() {
-    this.refs.table.getWrappedInstance().reload();
-  }
-
   render() {
     const {
       readOnly,
@@ -634,6 +459,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
       filter,
       sortSearchParameters
     } = this.state;
+    console.log("sort", sortSearchParameters);
 
     const identityUsername = request && request.applicant;
     let forceSearchParameters = new SearchParameters();
@@ -650,7 +476,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     //
     const result = (
       <div>
-        <Basic.Panel rendered={ request !== null} className={ detail.show || showRoleByIdentitySelect ? 'hidden' : '' }>
+        <Basic.Panel rendered={ request !== null}>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
           <Basic.Toolbar>
             <div>
@@ -736,10 +562,18 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                  action: this.onDelete.bind(this), disabled: false }]
             }
             rowClass={this._getRowClass}
+            defaultSearchParameters={ sortSearchParameters }
             forceSearchParameters={forceSearchParameters}>
             <Advanced.Column
-              header={ this.i18n('entity.IdentityRole.role') }
               title={ this.i18n('entity.Role.name') }
+              header={
+                <Basic.BasicTable.SortHeaderCell
+                  header={ this.i18n('entity.IdentityRole.role') }
+                  title={ this.i18n('entity.Role.name') }
+                  sortHandler={ this._handleSort.bind(this) }
+                  sortProperty="name"
+                  searchParameters={ sortSearchParameters }/>
+              }
               cell={
                 /* eslint-disable react/no-multi-comp */
                 ({ rowIndex, data }) => {
@@ -773,7 +607,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
               header={this.i18n('content.task.IdentityRoleConceptTable.identityRoleAttributes.header')}
               cell={
                 ({rowIndex, data}) => {
-                  return this._conceptAttributesCell({ rowIndex, data });
+                  return this.renderConceptAttributesCell({ rowIndex, data });
                 }
               }/>
             <Advanced.Column
@@ -831,7 +665,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
             <Advanced.Column
                 header={ this.i18n('label.action') }
                 className="action"
-                cell={ this._conceptActionsCell.bind(this) }/>
+                cell={ this.renderConceptActionsCell.bind(this) }/>
           </Advanced.Table>
         </Basic.Panel>
         <Basic.Modal
@@ -876,7 +710,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           backdrop="static"
           keyboard={!showLoading}>
 
-          <form onSubmit={ this._saveConceptWithRequest.bind(this) }>
+          <form onSubmit={ this._saveConcept.bind(this) }>
             <Basic.Modal.Header
               closeButton={ !showLoading }
               text={ this.i18n('create.header') }
@@ -933,7 +767,8 @@ RequestIdentityRoleTable.propTypes = {
 RequestIdentityRoleTable.defaultProps = {
   filterOpened: false,
   showLoading: false,
-  showRowSelection: true
+  showRowSelection: true,
+  readOnly: false
 };
 
 export default RequestIdentityRoleTable;

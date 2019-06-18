@@ -169,7 +169,6 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       validationErrors
     } = this.props;
     const { environment } = this.state;
-
     const entity = this.state.entity ? this.state.entity : this.props.entity;
     if (!entity) {
       return null;
@@ -194,6 +193,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
         _formInstance = instance;
       });
     }
+    const added = entity.operation === 'ADD';
 
     return (
       <Basic.AbstractForm
@@ -208,12 +208,12 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           placeholder={ this.i18n('entity.Role.environment.help') }
           multiSelect
           onChange={ this._onEnvironmentChange.bind(this) }
-          rendered={ (!entity._added || readOnly || !Utils.Entity.isNew(entity)) === false }
+          rendered={ (!added || readOnly || !Utils.Entity.isNew(entity)) === false }
           value={ environment }/>
         <Advanced.RoleSelect
           required
-          readOnly={ !entity._added || readOnly || !Utils.Entity.isNew(entity)}
-          multiSelect={ entity._added && multiAdd }
+          readOnly={ !added || readOnly || !Utils.Entity.isNew(entity)}
+          multiSelect={ added && multiAdd }
           showActionButtons
           header={ this.i18n('selectRoleCatalogue.header') }
           onChange={ this._onChangeSelectOfRole.bind(this) }
@@ -228,7 +228,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
           helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
           returnProperty={false}
-          readOnly={!entity._added || readOnly || !Utils.Entity.isNew(entity)}
+          readOnly={added || readOnly || !Utils.Entity.isNew(entity)}
           onChange={this._onChangeSelectOfContract.bind(this)}
           niceLabel={ (contract) => { return identityContractManager.getNiceLabel(contract, false); }}
           required
@@ -237,7 +237,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           label={ this.i18n('entity.IdentityRole.automaticRole.label') }
           helpBlock={ this.i18n('entity.IdentityRole.automaticRole.help') }
           rendered={ entity.automaticRole !== null }
-          hidden={ entity._added }>
+          hidden={ added }>
           { entity.automaticRole ? roleTreeNodeManager.getNiceLabel(entity._embedded.automaticRole) : null }
         </Basic.LabelWrapper>
         <Basic.Row>

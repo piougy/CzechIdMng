@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
@@ -303,7 +304,11 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		assertEquals(newIdentity.getUsername(), username);
 		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
 		parameters.put("username", ImmutableList.of(username));
-		List<IdmAuditDto> audits = auditService.findEntityWithRelation(IdmIdentity.class, parameters, null).getContent();
+		
+		List<IdmAuditDto> audits = auditService.findEntityWithRelation(
+				IdmIdentity.class, 
+				parameters, 
+				new PageRequest(0, Integer.MAX_VALUE, new Sort("id"))).getContent();
 		assertEquals(2, audits.size());
 		//
 		String contractChangedAttribute = audits.get(0).getChangedAttributes();

@@ -7,10 +7,9 @@ import static org.junit.Assert.fail;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
@@ -26,34 +25,20 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Basic test for validation and generate password by IdmPasswordPolicyService
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
+@Transactional
 public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegrationTest {
 	
 	private static final int ATTEMPTS = 20;
 	
-	@Autowired
-	private IdmPasswordPolicyService passwordPolicyService;
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private TestHelper testHelper;
-
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-	
-	@After 
-	public void logout() {
-		super.logout();
-	}
+	@Autowired private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired private IdmIdentityService identityService;
 	
 	@Test
 	public void testGenerateRandomPasswordLength() {
@@ -668,7 +653,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		String firstPassword = "test-password-first-" + System.currentTimeMillis();
 		String secondPassword = "test-password-second-" + System.currentTimeMillis();
 		String thridPassword = "test-password-third" + System.currentTimeMillis();
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		
 		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_default_policy_" + System.currentTimeMillis());

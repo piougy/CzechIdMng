@@ -25,6 +25,7 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
     private UUID automaticRole;
     private ConceptRoleRequestOperation operation;
     private Set<UUID> identityRoleIds;
+    private String roleEnvironment;
     
     public IdmConceptRoleRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -115,5 +116,13 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
     public void setRoleTreeNodeId(UUID roleTreeNodeId) {
     	setAutomaticRole(roleTreeNodeId);
     }
+    
+	public String getRoleEnvironment() {
+		return roleEnvironment;
+	}
+
+	public void setRoleEnvironment(String roleEnvironment) {
+		this.roleEnvironment = roleEnvironment;
+	}
 
 }

@@ -240,7 +240,6 @@ public class DefaultIdmConceptRoleRequestService extends
 	@Transactional
 	public IdmConceptRoleRequestDto saveInternal(IdmConceptRoleRequestDto dto) {
 		IdmConceptRoleRequestDto savedDto = super.saveInternal(dto);
-
 		if (dto != null && dto.getRole() != null) {
 			// TODO: concept role request hasn't events, after implement events for the dto, please remove this.
 			if (isNew(dto)) {
@@ -402,6 +401,10 @@ public class DefaultIdmConceptRoleRequestService extends
 		Set<UUID> ids = filter.getIdentityRoleIds();
 		if (ids != null && !ids.isEmpty()) {
 			predicates.add(root.get(IdmConceptRoleRequest_.identityRole).get(IdmIdentityRole_.id).in(ids));
+		}
+		
+		if (filter.getRoleEnvironment() != null) {
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.role).get(IdmRole_.environment), filter.getRoleEnvironment()));
 		}
 		//
 		return predicates;

@@ -200,8 +200,8 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_CREATE + "')"
 			+ " or hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_UPDATE + "')")
 	@ApiOperation(
-			value = "Create / update role request", 
-			nickname = "postRoleRequest", 
+			value = "Create concepts by identity", 
+			nickname = "Copy roles", 
 			response = IdmRoleRequestDto.class, 
 			tags = { IdmRoleRequestController.TAG },
 			authorizations = { 
@@ -215,6 +215,28 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	public ResponseEntity<?> copyRoles(@ApiParam(value = "Role request's uuid identifier.", required = true)
 	@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmRoleRequestByIdentityDto dto) {
 		dto.setRoleRequest(UUID.fromString(backendId));
+		IdmRoleRequestDto roleRequest = this.service.copyRolesByIdentity(dto);
+
+		return new ResponseEntity<Object>(roleRequest, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/copy-roles", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_UPDATE + "')")
+	@ApiOperation(
+			value = "Create concepts by identity", 
+			nickname = "Copy roles", 
+			response = IdmRoleRequestDto.class, 
+			tags = { IdmRoleRequestController.TAG },
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_CREATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_CREATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "")})
+					})
+	public ResponseEntity<?> copyRolesWithoutRequest(@RequestBody @NotNull IdmRoleRequestByIdentityDto dto) {
 		IdmRoleRequestDto roleRequest = this.service.copyRolesByIdentity(dto);
 
 		return new ResponseEntity<Object>(roleRequest, HttpStatus.OK);
@@ -401,19 +423,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 			dto.getConceptRoles().stream() //
 			.filter(concept -> ConceptRoleRequestOperation.REMOVE != concept.getOperation()) //
 			.forEach(concept -> { //
-				IdmFormInstanceDto formInstanceDto = conceptService.getRoleAttributeValues(concept, true);
-				if (formInstanceDto != null) {
-					concept.getEavs().clear();
-					concept.getEavs().add(formInstanceDto);
-					// Validate the concept
-					List<InvalidFormAttributeDto> validationResults = formService.validate(formInstanceDto);
-					formInstanceDto.setValidationErrors(formService.validate(formInstanceDto));
-					if (!validationResults.isEmpty()) {
-						// Concept is not valid (no other metadata for validation problem is not
-						// necessary now).
-						concept.setValid(false);
-					}
-				}
+				addMetadataToConcept(concept);
 			});
 
 			// Mark duplicates
@@ -431,6 +441,22 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 			dto.setConceptRoles(concepts);
 		}
 		return dto;
+	}
+
+	private void addMetadataToConcept(IdmConceptRoleRequestDto concept) {
+		IdmFormInstanceDto formInstanceDto = conceptService.getRoleAttributeValues(concept, true);
+		if (formInstanceDto != null) {
+			concept.getEavs().clear();
+			concept.getEavs().add(formInstanceDto);
+			// Validate the concept
+			List<InvalidFormAttributeDto> validationResults = formService.validate(formInstanceDto);
+			formInstanceDto.setValidationErrors(formService.validate(formInstanceDto));
+			if (!validationResults.isEmpty()) {
+				// Concept is not valid (no other metadata for validation problem is not
+				// necessary now).
+				concept.setValid(false);
+			}
+		}
 	}
 
 	@Override

@@ -653,7 +653,6 @@ public class DefaultIdmRoleRequestService
 	@Override
 	public IdmRoleRequestDto copyRolesByIdentity(IdmRoleRequestByIdentityDto requestByIdentityDto) {
 		Assert.notNull(requestByIdentityDto, "Request by identity must exist!");
-		Assert.notNull(requestByIdentityDto.getRoleRequest(), "Request must be filled for copy roles!");
 		Assert.notNull(requestByIdentityDto.getIdentityContract(), "Contract must be filled for create role request!");
 
 		UUID identityContractId = requestByIdentityDto.getIdentityContract();
@@ -663,6 +662,12 @@ public class DefaultIdmRoleRequestService
 		boolean copyRoleParameters = requestByIdentityDto.isCopyRoleParameters();
 
 		List<UUID> identityRoles = requestByIdentityDto.getIdentityRoles();
+		
+		if (roleRequestId == null) {
+			IdmIdentityContractDto identityContractDto = identityContractService.get(identityContractId);
+			IdmRoleRequestDto request = this.createManualRequest(identityContractDto.getIdentity());
+			roleRequestId = request.getId();
+		}
 		
 		for (int i = 0; identityRoles.size() > i; i++) {
 			UUID identityRoleId = identityRoles.get(i);
@@ -1264,6 +1269,16 @@ public class DefaultIdmRoleRequestService
 		// Add all concept to remove
 		concepts.addAll(conceptsToRemove);
 		return concepts;
+	}
+	
+	private IdmRoleRequestDto createManualRequest(UUID identityId) {
+		Assert.notNull(identityId, "Identity id must be filled for create role request!");
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setApplicant(identityId);
+		roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
+		roleRequest.setExecuteImmediately(false);
+		roleRequest = this.save(roleRequest);
+		return roleRequest;
 	}
 
 	/**

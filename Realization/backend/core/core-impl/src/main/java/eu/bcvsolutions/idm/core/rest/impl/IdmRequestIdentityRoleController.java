@@ -141,17 +141,6 @@ public class IdmRequestIdentityRoleController
 	@Override
 	public Page<IdmRequestIdentityRoleDto> find(IdmRequestIdentityRoleFilter filter, Pageable pageable,
 			BasePermission permission) {
-		// check access
-		if (!securityService.hasAnyAuthority(CoreGroupPermission.ROLE_REQUEST_ADMIN)) {
-			if (filter == null || filter.getRoleRequestId() == null) {
-				throw new ForbiddenEntityException(null, CoreGroupPermission.ROLEREQUEST, IdmBasePermission.ADMIN);
-			}
-			IdmRoleRequestDto roleRequest = roleRequestService.get(filter.getRoleRequestId(), permission);
-			if (roleRequest == null) {
-				// return empty result (find method doesn't throw 404)
-				return new PageImpl<>(new ArrayList<>());
-			}
-		}
 		// We need to load EAV attributes
 		filter.setIncludeEav(true);
 		
@@ -329,7 +318,10 @@ public class IdmRequestIdentityRoleController
 	protected IdmRequestIdentityRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmRequestIdentityRoleFilter filter = new IdmRequestIdentityRoleFilter(parameters);
 		filter.setIdentityId(getParameterConverter().toUuid(parameters, "identityId"));
+		filter.setIdentityContractId(getParameterConverter().toUuid(parameters, "identityContractId"));
+		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));
 		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setRoleEnvironment(getParameterConverter().toString(parameters, "roleEnvironment"));
 		filter.setRoleRequestId(getParameterConverter().toUuid(parameters, "roleRequestId"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
 		Boolean onlyChanges = getParameterConverter().toBoolean(parameters, "onlyChanges");

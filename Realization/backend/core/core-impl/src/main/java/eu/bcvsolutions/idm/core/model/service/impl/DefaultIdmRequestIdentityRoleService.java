@@ -66,7 +66,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 	@Autowired
 	private IdmConceptRoleRequestService conceptRoleService;
 	@Autowired
-	private IdmRoleRequestService roleRoleService;
+	private IdmRoleRequestService roleRequestService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
@@ -252,7 +252,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 			}
 			IdmRoleRequestDto mockRequest = new IdmRoleRequestDto();
 			mockRequest.setId(requestId);
-			IdmConceptRoleRequestDto concept = roleRoleService.createConcept(mockRequest, identityContractDto, identityRoleDto.getId(), identityRoleDto.getRole(),
+			IdmConceptRoleRequestDto concept = roleRequestService.createConcept(mockRequest, identityContractDto, identityRoleDto.getId(), identityRoleDto.getRole(),
 					ConceptRoleRequestOperation.REMOVE);
 			
 			return this.conceptToRequestIdentityRole(concept, null);
@@ -310,7 +310,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 		roleRequest.setApplicant(identityId);
 		roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
 		roleRequest.setExecuteImmediately(false);
-		roleRequest = roleRoleService.save(roleRequest);
+		roleRequest = roleRequestService.save(roleRequest);
 		LOG.debug(MessageFormat.format("New manual role-request [{1}] was created.", roleRequest));
 		
 		return roleRequest;
@@ -426,6 +426,24 @@ public class DefaultIdmRequestIdentityRoleService extends
 		if (concepts == null) {
 			return results;
 		}
+		
+		// Mark duplicates
+		// TODO: Rewrite to query, this is very ineffective!!
+		UUID identityId = filter.getIdentityId();
+		LOG.debug(MessageFormat.format("Start searching duplicates for identity [{1}].", identityId));
+		Assert.notNull(identityId);
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findValidRoles(identityId, null).getContent();
+		// Add to all identity roles form instance. For identity role can exists only
+		// one form instance.
+		identityRoles.forEach(identityRole -> {
+			IdmFormInstanceDto formInstance = identityRoleService.getRoleAttributeValues(identityRole);
+			if (formInstance != null) {
+				identityRole.setEavs(Lists.newArrayList(formInstance));
+			}
+		});
+		concepts = roleRequestService.markDuplicates(concepts, identityRoles);
+		// End mark duplicates
+		LOG.debug(MessageFormat.format("End searching duplicates for identity [{1}].", identityId));
 
 		concepts.forEach(concept -> {
 			IdmRequestIdentityRoleDto requestIdentityRoleDto = conceptToRequestIdentityRole(concept, filter);
@@ -445,6 +463,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 	private IdmRequestIdentityRoleDto conceptToRequestIdentityRole(IdmConceptRoleRequestDto concept,
 			IdmRequestIdentityRoleFilter filter) {
 		IdmRequestIdentityRoleDto requestIdentityRoleDto = modelMapper.map(concept, IdmRequestIdentityRoleDto.class);
+		
 		if (filter != null && filter.isIncludeEav()) {
 			IdmFormInstanceDto formInstanceDto  = null;
 			if (ConceptRoleRequestOperation.REMOVE == concept.getOperation()) {

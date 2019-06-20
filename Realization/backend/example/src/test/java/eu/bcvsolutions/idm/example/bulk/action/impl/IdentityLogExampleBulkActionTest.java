@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDeleteBulkAction;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
@@ -63,7 +64,10 @@ public class IdentityLogExampleBulkActionTest extends AbstractBulkActionTest {
 		
 		IdmBulkActionDto processAction = bulkActionManager.processAction(exampleAction);
 		assertNotNull(processAction.getLongRunningTaskId());
-		IdmLongRunningTaskDto longRunningTask = longRunningTaskService.get(processAction.getLongRunningTaskId());
+		
+		IdmLongRunningTaskFilter context = new IdmLongRunningTaskFilter();
+		context.setIncludeItemCounts(true);
+		IdmLongRunningTaskDto longRunningTask = longRunningTaskService.get(processAction.getLongRunningTaskId(), context);
 
 		assertEquals(Long.valueOf(3), longRunningTask.getCount());
 		assertEquals(Long.valueOf(3), longRunningTask.getSuccessItemCount());

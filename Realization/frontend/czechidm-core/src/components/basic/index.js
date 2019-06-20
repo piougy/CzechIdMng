@@ -47,6 +47,7 @@ import PasswordStrength from './PasswordStrength/PasswordStrength';
 import Link from './Link/Link';
 import ShortText from './ShortText/ShortText';
 import Div from './Div/Div';
+import ToggleSwitch from './ToggleSwitch/ToggleSwitch';
 
 const Components = {
   AbstractComponent,
@@ -111,7 +112,8 @@ const Components = {
   PasswordStrength,
   Link,
   ShortText,
-  Div
+  Div,
+  ToggleSwitch
 };
 
 Components.version = '9.4.0';

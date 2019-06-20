@@ -228,7 +228,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
           helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
           returnProperty={false}
-          readOnly={added || readOnly || !Utils.Entity.isNew(entity)}
+          readOnly={!added || readOnly || !Utils.Entity.isNew(entity)}
           onChange={this._onChangeSelectOfContract.bind(this)}
           niceLabel={ (contract) => { return identityContractManager.getNiceLabel(contract, false); }}
           required

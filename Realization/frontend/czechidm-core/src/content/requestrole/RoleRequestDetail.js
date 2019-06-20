@@ -682,6 +682,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               </Basic.ContentHeader>
               <RequestIdentityRoleTable
                 request={request}
+                incompatibleRoles={ _incompatibleRoles }
                 identityId={this._getIdentityId(this.props)}
                 />
               {

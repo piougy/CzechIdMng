@@ -1321,6 +1321,7 @@
       "IdentityRoleConceptTable": {
         "oldValue": "Old value {{oldValue}}",
         "oldValueNotExist": "Old value was empty",
+        "switchShowChangesOnly": "Show changes only",
         "create": {
           "header": "Add roles",
           "headerByIdentity": "Add roles by user"

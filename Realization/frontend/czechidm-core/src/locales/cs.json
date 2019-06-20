@@ -1365,6 +1365,7 @@
         "IdentityRoleConceptTable": {
           "oldValue": "Původní hodnota {{oldValue}}",
           "oldValueNotExist": "Původní hodnota byla prázdná",
+          "switchShowChangesOnly": "Zobrazit pouze změny",
           "create": {
             "header": "Přidat role",
             "headerByIdentity": "Přidat role podle uživatele"

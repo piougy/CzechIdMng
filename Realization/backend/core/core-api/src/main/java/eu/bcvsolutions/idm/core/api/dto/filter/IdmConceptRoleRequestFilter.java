@@ -26,6 +26,8 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
     private ConceptRoleRequestOperation operation;
     private Set<UUID> identityRoleIds;
     private String roleEnvironment;
+    // Find only concepts, where identityRoleId is null
+    private boolean identityRoleIsNull = false;
     
     public IdmConceptRoleRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -123,6 +125,14 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
 
 	public void setRoleEnvironment(String roleEnvironment) {
 		this.roleEnvironment = roleEnvironment;
+	}
+
+	public boolean isIdentityRoleIsNull() {
+		return identityRoleIsNull;
+	}
+
+	public void setIdentityRoleIsNull(boolean identityRoleIsNull) {
+		this.identityRoleIsNull = identityRoleIsNull;
 	}
 
 }

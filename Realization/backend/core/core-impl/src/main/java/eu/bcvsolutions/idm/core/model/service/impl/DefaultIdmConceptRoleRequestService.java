@@ -406,6 +406,10 @@ public class DefaultIdmConceptRoleRequestService extends
 		if (filter.getRoleEnvironment() != null) {
 			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.role).get(IdmRole_.environment), filter.getRoleEnvironment()));
 		}
+		
+		if (filter.isIdentityRoleIsNull()) {
+			predicates.add(builder.isNull(root.get(IdmConceptRoleRequest_.identityRole)));
+		}
 		//
 		return predicates;
 	}

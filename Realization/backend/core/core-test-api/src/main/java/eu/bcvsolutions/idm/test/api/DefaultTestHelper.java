@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
@@ -62,6 +63,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
@@ -134,6 +136,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
 	@Autowired private ModuleService moduleService;
+	@Autowired private IdmPasswordService passwordService;
 	
 	@Override
 	public LoginDto loginAdmin() {
@@ -458,7 +461,13 @@ public class DefaultTestHelper implements TestHelper {
 		identityRole.setRole(role.getId());
 		identityRole.setValidFrom(validFrom);
 		identityRole.setValidTill(validTill);
-		return identityRoleService.save(identityRole);
+		identityRole = identityRoleService.save(identityRole);
+		//
+		// tests (e.g. deduplications) uses created date for removing duplicate roles - artificial slow down is here just for this purposes
+		// FIXME: fix all tests dependent on created date
+		waitForResult(null, 1, 1);
+		//
+		return identityRole;
 	}
 	
 	@Override
@@ -481,6 +490,13 @@ public class DefaultTestHelper implements TestHelper {
 		Assert.notNull(identity);
 		//
 		return getPrimeContract(identity.getId());
+	}
+	
+	@Override
+	public IdmPasswordDto getPassword(IdmIdentityDto identity) {
+		Assert.notNull(identity);
+		//
+		return passwordService.findOrCreateByIdentity(identity.getId());
 	}
 
 	@Override

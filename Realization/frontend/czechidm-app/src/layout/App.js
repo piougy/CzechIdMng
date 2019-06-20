@@ -126,7 +126,7 @@ export class App extends Basic.AbstractContent {
           ?
           <Basic.Loading className="global" showLoading/>
           :
-          <div>
+          <Basic.Div>
             <Helmet title={this.i18n('navigation.menu.home')} titleTemplate={titleTemplate}/>
             <Advanced.Navigation/>
             <div id="content-container" className={ classnames }>
@@ -135,11 +135,11 @@ export class App extends Basic.AbstractContent {
                 ||
                 isLogout
                 ||
-                <div>
+                <Basic.Div>
                   {/* Childrens are hiden, when token expires => all components are loaded (componentDidMount) after identity is logged again */}
                   { this.props.children }
                   <Footer rendered={ !hideFooter }/>
-                </div>
+                </Basic.Div>
               }
 
               <Advanced.ModalProgressBar
@@ -149,18 +149,18 @@ export class App extends Basic.AbstractContent {
                 counter={bulk.counter}/>
 
               <Basic.Modal dialogClassName="login-container" show={ userContext.isExpired }>
-                <form onSubmit={this.login.bind(this)}>
-                  <Basic.Modal.Header text={this.i18n('error.LOG_IN.title')} />
+                <form onSubmit={ this.login.bind(this) }>
+                  <Basic.Modal.Header text={ this.i18n('error.LOG_IN.title') } />
                   <Basic.Modal.Body>
-                    <Basic.Loading showLoading={userContext.showLoading}>
-                      <Basic.Alert text={this.i18n('error.LOG_IN.message')}/>
+                    <Basic.Loading showLoading={ userContext.showLoading }>
+                      <Basic.Alert text={ this.i18n('error.LOG_IN.message') }/>
                       <Basic.AbstractForm ref="form" className="form-horizontal" style={{ padding: 0, backgroundColor: '#fff' }}>
                         <Basic.TextField
                           ref="username"
                           labelSpan="col-sm-5"
                           componentSpan="col-sm-7"
-                          label={this.i18n('content.login.username')}
-                          placeholder={this.i18n('content.login.username')}
+                          label={ this.i18n('content.login.username') }
+                          placeholder={ this.i18n('content.login.username') }
                           required
                           readOnly/>
                         <Basic.TextField
@@ -169,8 +169,8 @@ export class App extends Basic.AbstractContent {
                           labelSpan="col-sm-5"
                           componentSpan="col-sm-7"
                           className="last"
-                          label={this.i18n('content.login.password')}
-                          placeholder={this.i18n('content.login.password')}
+                          label={ this.i18n('content.login.password') }
+                          placeholder={ this.i18n('content.login.password') }
                           required/>
                       </Basic.AbstractForm>
                     </Basic.Loading>
@@ -178,20 +178,19 @@ export class App extends Basic.AbstractContent {
                   <Basic.Modal.Footer>
                     <Basic.Button
                       level="link"
-                      onClick={this.logout.bind(this)}
-                      showLoading={userContext.showLoading}
-                      title={this.i18n('content.login.button.logout.title')}
+                      onClick={ this.logout.bind(this) }
+                      title={ this.i18n('content.login.button.logout.title') }
                       titlePlacement="bottom">
-                      {this.i18n('content.login.button.logout.value')}
+                      { this.i18n('content.login.button.logout.value') }
                     </Basic.Button>
-                    <Basic.Button type="submit" level="success" showLoading={userContext.showLoading}>
-                      {this.i18n('content.login.button.login')}
+                    <Basic.Button type="submit" level="success" showLoading={ userContext.showLoading }>
+                      { this.i18n('content.login.button.login') }
                     </Basic.Button>
                   </Basic.Modal.Footer>
                 </form>
               </Basic.Modal>
             </div>
-          </div>
+          </Basic.Div>
         }
       </div>
     );

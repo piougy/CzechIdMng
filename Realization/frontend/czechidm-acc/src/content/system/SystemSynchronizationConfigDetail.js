@@ -50,6 +50,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     return 'acc:content.system.systemSynchronizationConfigDetail';
   }
 
+  getNavigationKey() {
+    return 'system-synchronization-configs';
+  }
+
   showDetail(entity) {
     const {entityId} = this.props.params;
     this.context.router.push(`/system/${entityId}/synchronization-logs/${entity.id}/detail`);
@@ -64,6 +68,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
   // Did mount only call initComponent method
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._initComponent(this.props);
     if (this.refs.name) {
       this.refs.name.focus();
@@ -92,7 +98,6 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     } else {
       this.context.store.dispatch(synchronizationConfigManager.fetchEntity(configId));
     }
-    this.selectNavigationItems(['sys-systems', 'system-synchronization-configs']);
   }
 
   /**
@@ -406,6 +411,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.ContentHeader>
+          <Basic.Icon value="component:synchronization"/>
+          {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
 

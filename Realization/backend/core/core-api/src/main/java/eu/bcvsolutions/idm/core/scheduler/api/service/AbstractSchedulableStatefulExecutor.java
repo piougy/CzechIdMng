@@ -109,10 +109,13 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	@Override
 	public void removeFromProcessedQueue(UUID entityRef) {
 		Assert.notNull(entityRef);
-		//
-		Page<IdmProcessedTaskItemDto> p = getItemFromQueue(entityRef);
-		//
-		p.forEach(item -> itemService.deleteInternal(item));
+		UUID scheduledTaskId = this.getScheduledTaskId();
+		if (scheduledTaskId == null) {
+			// nothing to delete
+			return;
+		}
+		// remove entity from processed queue
+		itemService.deleteItem(scheduledTaskId, entityRef);
 	}
 
 	@Override

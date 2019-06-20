@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @Transactional(propagation = Propagation.REQUIRES_NEW) is needed. 
  * LRT has to be persist and read separately from outer transaction => we want to see LRT progress all time. And result with exception.
  * 
- * 
  * @author Radek Tomiška
  *
  */
@@ -66,21 +65,27 @@ public class DefaultIdmLongRunningTaskService
 	}
 
 	@Override
-	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity, IdmLongRunningTaskDto dto) {
-		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity, dto);
-		return setFailedAndSuccessItems(longRunningTaskDto);
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.SCHEDULER, getEntityClass());
 	}
 	
 	@Override
-	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity) {
-		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity);
-		//
-		return setFailedAndSuccessItems(longRunningTaskDto);
+	public boolean supportsToDtoWithFilter() {
+		return true;
 	}
-
+	
 	@Override
-	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.SCHEDULER, getEntityClass());
+	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity, IdmLongRunningTaskDto dto, IdmLongRunningTaskFilter filter) {
+		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity, dto, filter);
+		//
+		if (filter == null) {
+			return longRunningTaskDto;
+		}
+		//
+		if (filter.isIncludeItemCounts()) {
+			longRunningTaskDto = setFailedAndSuccessItems(longRunningTaskDto);
+		}
+		return longRunningTaskDto;
 	}
 	
 	@Override
@@ -162,6 +167,7 @@ public class DefaultIdmLongRunningTaskService
 		task.setInstanceId(instanceId);
 		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 		task.setScheduledTask(scheduledTask.getId());
+		//
 		return this.save(task);
 	}
 	

@@ -103,6 +103,8 @@ public class IdmEntityEventFilterIntegrationTest extends AbstractIntegrationTest
 		entityEventOne.setPriority(PriorityType.NORMAL);
 		entityEventOne = service.save(entityEventOne);
 		//
+		getHelper().waitForResult(null, 30, 1);
+		//
 		UUID ownerTwoId = UUID.randomUUID();
 		IdmEntityEventDto entityEventTwo = new IdmEntityEventDto();
 		entityEventTwo.setOwnerType("mockType");

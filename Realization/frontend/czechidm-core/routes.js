@@ -635,6 +635,11 @@ module.exports = {
           component: require('./src/content/scheduler/LongRunningTaskQueue'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_EXECUTE'] } ]
         },
+        {
+          path: 'audit',
+          component: require('./src/content/scheduler/LongRunningTaskAudit'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+        }
       ]
     },
     {

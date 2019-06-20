@@ -31,6 +31,21 @@ module.exports = {
       'type': 'icon',
       'entityType': ['system', 'systems'],
       'component': 'link'
-    }
+    },
+    {
+      'id': 'synchronization-config-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'SYNCHRONIZATION-CONFIG-SELECT',
+      'component': require('czechidm-core/src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'acc:component.advanced.EavForm.faceType.[SYNCHRONIZATION-CONFIG-SELECT',
+      'manager': require('./src/redux').SynchronizationConfigManager
+    },
+    {
+      'id': 'synchronization-icon',
+      'type': 'icon',
+      'entityType': ['synchronization', 'synchronizations'],
+      'component': 'fa:exchange'
+    },
   ]
 };

@@ -12,9 +12,19 @@ import Filter from '../Filter/Filter';
 import SearchParameters from '../../../domain/SearchParameters';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import RefreshButton from './RefreshButton';
-import { DataManager, FormAttributeManager, LongRunningTaskManager, SecurityManager } from '../../../redux';
+import {
+  DataManager,
+  FormAttributeManager,
+  LongRunningTaskManager,
+  SecurityManager,
+  ConfigurationManager,
+  AuditManager
+} from '../../../redux';
 import EavAttributeForm from '../Form/EavAttributeForm';
 import LongRunningTask from '../LongRunningTask/LongRunningTask';
+
+const auditManager = new AuditManager();
+const dataManager = new DataManager();
 
 /**
  * Table component with header and columns.
@@ -455,12 +465,18 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   _showId() {
-    const { showId } = this.props;
+    const { showId, appShowId } = this.props;
     //
-    if (showId === null || showId === undefined) {
-      return this.isDevelopment();
+    if (showId !== null && showId !== undefined) {
+      // table prop => highest priority
+      return showId;
     }
-    return showId;
+    if (appShowId !== null && appShowId !== undefined) {
+      // app prop => highest priority
+      return appShowId;
+    }
+    // app prop by stage as default
+    return this.isDevelopment();
   }
 
   _filterOpen(open) {
@@ -492,6 +508,24 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       }, () => {
         this.prevalidateBulkAction(backendBulkAction);
       });
+    }
+  }
+
+  showAudit(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    // set search parameters in redux
+    const searchParameters = auditManager.getDefaultSearchParameters().setFilter('transactionId', entity.transactionId);
+    // co conctete audit table
+    this.context.store.dispatch(auditManager.requestEntities(searchParameters, 'audit-table'));
+    // prevent to show loading, when transaction id is the same
+    this.context.store.dispatch(dataManager.stopRequest('audit-table'));
+    // redirect to audit of entities with prefiled search parameters
+    if (this.props.uiKey === 'audit-table') {
+      // audit table reloads externally ()
+    } else {
+      this.context.router.push(`/audit/entities?transactionId=${ entity.transactionId }`);
     }
   }
 
@@ -548,8 +582,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               footerButtons={
                 <Basic.Button
                   level="link"
-                  onClick={this.showBulkActionDetail.bind(this)}>
-                  {this.i18n('button.close')}
+                  onClick={ this.showBulkActionDetail.bind(this) }>
+                  { this.i18n('button.close') }
                 </Basic.Button>
               }/>
             </Basic.Modal.Body>
@@ -561,13 +595,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             <Basic.Modal.Body>
               <Basic.Alert
                 level="info"
-                text={this.i18n('bulkAction.insufficientReadPermission')}/>
+                text={ this.i18n('bulkAction.insufficientReadPermission') }/>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button
                 level="link"
-                onClick={this.showBulkActionDetail.bind(this)}>
-                {this.i18n('button.close')}
+                onClick={ this.showBulkActionDetail.bind(this) }>
+                { this.i18n('button.close') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </div>
@@ -678,7 +712,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       forceSearchParameters,
       className,
       uuidEnd,
-      hover
+      showTransactionId
     } = this.props;
     const {
       filterOpened,
@@ -833,13 +867,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
     //
     return (
-      <div className={ classnames('advanced-table', className) } style={ style }>
+      <Basic.Div className={ classnames('advanced-table', className) } style={ style }>
         {
           !filter && (_actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0)
           ||
           <Basic.Toolbar container={ this } viewportOffsetTop={ filterViewportOffsetTop } rendered={ showToolbar }>
-            <div className="advanced-table-heading">
-              <div className="pull-left">
+            <Basic.Div className="advanced-table-heading">
+              <Basic.Div className="pull-left">
                 <Basic.EnumSelectBox
                   onChange={ this.onBulkAction.bind(this) }
                   ref="bulkActionSelect"
@@ -850,8 +884,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   placeholder={ this.i18n('bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count }) }
                   rendered={ _actions.length > 0 && showRowSelection }
                   searchable={ false }/>
-              </div>
-              <div className="pull-right">
+              </Basic.Div>
+              <Basic.Div className="pull-right">
                 { buttons }
 
                 <Filter.ToogleButton
@@ -867,13 +901,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   title={ this.i18n('button.refresh') }
                   showLoading={ _showLoading }
                   rendered={ showRefreshButton }/>
-              </div>
-              <div className="clearfix"></div>
-            </div>
+              </Basic.Div>
+              <Basic.Div className="clearfix"></Basic.Div>
+            </Basic.Div>
             <Basic.Collapse in={ filterOpened } rendered={ showFilter }>
-              <div>
+              <Basic.Div>
                 { filter }
-              </div>
+              </Basic.Div>
             </Basic.Collapse>
           </Basic.Toolbar>
         }
@@ -887,15 +921,15 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               { this.i18n('error.load') }
             </div>
             <div style={{ textAlign: 'center' }}>
-              <Basic.Button onClick={this.reload.bind(this, this.props)}>
+              <Basic.Button onClick={ this.reload.bind(this, this.props) }>
                 <Basic.Icon value="fa:refresh"/>
-                {' '}
+                { ' ' }
                 { this.i18n('button.refresh') }
               </Basic.Button>
             </div>
           </Basic.Alert>
           :
-          <div>
+          <Basic.Div>
             <Basic.BasicTable.Table
               ref="table"
               header={ header }
@@ -921,12 +955,57 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 property="id"
                 rendered={ this._showId() }
                 className="text-center"
-                width={ 100 }
+                width={ 115 }
                 cell={
                   ({rowIndex, data, property}) => {
-                    return (
-                      <UuidInfo value={ data[rowIndex][property] } uuidEnd={ uuidEnd }/>
+                    const entity = data[rowIndex];
+                    const identifier = entity[property];
+                    const transactionId = entity.transactionId;
+                    const _showTransactionId = transactionId && showTransactionId;
+                    const content = [];
+                    //
+                    content.push(
+                      <Basic.Div>
+                        {
+                          !_showTransactionId
+                          ||
+                          <span title={ this.i18n('entity.id.help') }>
+                            { this.i18n('entity.id.short') }:
+                          </span>
+                        }
+                        <UuidInfo
+                          header={ this.i18n('entity.id.help') }
+                          value={ identifier }
+                          uuidEnd={ uuidEnd }
+                          placement="left"/>
+                      </Basic.Div>
                     );
+                    if (_showTransactionId) {
+                      content.push(
+                        <Basic.Div>
+                          <span title={ this.i18n('entity.transactionId.help') }>
+                            { this.i18n('entity.transactionId.short') }:
+                          </span>
+                          <UuidInfo
+                            value={ transactionId }
+                            uuidEnd={ uuidEnd }
+                            header={ this.i18n('entity.transactionId.label') }
+                            placement="left"
+                            buttons={[
+                              <a
+                                href="#"
+                                onClick={ this.showAudit.bind(this, entity) }
+                                title={ this.i18n('button.transactionId.title') }>
+                                <Basic.Icon icon="component:audit"/>
+                                {' '}
+                                { this.i18n('button.transactionId.label') }
+                              </a>
+                            ]}/>
+                        </Basic.Div>
+                      );
+                    }
+                    //
+                    return content;
                   }
                 }/>
             </Basic.BasicTable.Table>
@@ -934,11 +1013,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               ref="pagination"
               showPageSize={ showPageSize }
               paginationHandler={ pagination ? this._handlePagination.bind(this) : null }
-              total={ pagination ? _total : _entities.length } {...range} />
-          </div>
+              total={ pagination ? _total : _entities.length } { ...range } />
+          </Basic.Div>
         }
         { this._renderBulkActionDetail() }
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -1111,17 +1190,25 @@ AdvancedTable.defaultProps = {
   initialReload: true,
   hover: true
 };
+AdvancedTable.contextTypes = {
+  ...Basic.AbstractContextComponent.contextTypes,
+  router: PropTypes.object // .isRequired
+};
 
 function select(state, component) {
   const uiKey = component.manager.resolveUiKey(component.uiKey);
   const ui = state.data.ui[uiKey];
+  const result = {
+    i18nReady: state.config.get('i18nReady'),
+    appShowId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.id', null),
+    showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false)
+  };
+  //
   if (!ui) {
-    return {
-      i18nReady: state.config.get('i18nReady')
-    };
+    return result;
   }
   return {
-    i18nReady: state.config.get('i18nReady'),
+    ...result,
     _showLoading: ui.showLoading,
     _entities: component.manager.getEntities(state, uiKey),
     _total: ui.total,

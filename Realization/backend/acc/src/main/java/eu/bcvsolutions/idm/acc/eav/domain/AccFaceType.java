@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
  */
 public interface AccFaceType extends BaseFaceType {
 
-	String SYSTEM_SELECT = "SYSTEM-SELECT";
+	String SYSTEM_SELECT = "SYSTEM-SELECT"; // target system select
+	String SYNCHRONIZATION_CONFIG_SELECT = "SYNCHRONIZATION-CONFIG-SELECT";
 	
 }

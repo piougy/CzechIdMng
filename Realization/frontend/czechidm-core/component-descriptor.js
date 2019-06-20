@@ -465,6 +465,63 @@ module.exports = {
       'type': 'icon',
       'entityType': ['scheduled-task', 'scheduled-tasks'],
       'component': 'fa:calendar-times-o'
+    },
+    {
+      'id': 'role-request-info',
+      'type': 'entity-info',
+      'entityType': ['roleRequest', 'IdmRoleRequest', 'IdmRoleRequestDto'],
+      'component': require('./src/components/advanced/RoleRequestInfo/RoleRequestInfo').default,
+      'manager': require('./src/redux').RoleRequestManager
+    },
+    {
+      'id': 'password-info',
+      'type': 'entity-info',
+      'entityType': ['password', 'IdmPassword', 'IdmPasswordDto'],
+      'component': require('./src/components/advanced/PasswordInfo/PasswordInfo').default,
+      'manager': require('./src/redux').PasswordManager
+    },
+    {
+      'id': 'password-icon',
+      'type': 'icon',
+      'entityType': ['password', 'password-policies', 'password-policy'],
+      'component': 'fa:lock'
+    },
+    {
+      'id': 'audit-icon',
+      'type': 'icon',
+      'entityType': ['audit'],
+      'component': 'fa:history'
+    },
+    {
+      'id': 'setting-icon',
+      'type': 'icon',
+      'entityType': ['setting'],
+      'component': 'fa:cog'
+    },
+    {
+      'id': 'configuration-info',
+      'type': 'entity-info',
+      'entityType': ['configuration', 'IdmConfiguration', 'IdmConfigurationDto'],
+      'component': require('./src/components/advanced/ConfigurationInfo/ConfigurationInfo').default,
+      'manager': require('./src/redux').ConfigurationManager
+    },
+    {
+      'id': 'automatic-role-tree-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'AUTOMATIC-ROLE-TREE-SELECT',
+      'component': require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.AUTOMATIC-ROLE-TREE-SELECT',
+      'manager': require('./src/redux').RoleTreeNodeManager
+    },
+    {
+      'id': 'automatic-role-attribute-select-form-value',
+      'type': 'form-attribute-renderer',
+      'persistentType': 'UUID',
+      'faceType': 'AUTOMATIC-ROLE-ATTRIBUTE-SELECT',
+      'component': require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      'labelKey': 'core:component.advanced.EavForm.faceType.AUTOMATIC-ROLE-ATTRIBUTE-SELECT',
+      'manager': require('./src/redux').AutomaticRoleAttributeManager
     }
   ]
 };

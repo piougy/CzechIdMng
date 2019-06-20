@@ -5,7 +5,7 @@ import java.util.UUID;
 import javax.validation.constraints.NotNull;
 
 /**
- * Triiger by oher tas end.
+ * Trigger by other scheduled task.
  * 
  * @author Radek Tomiška
  *

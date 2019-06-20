@@ -69,7 +69,7 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	@JsonProperty(value = "_embedded", access = Access.READ_ONLY)
 	@ApiModelProperty(readOnly = true)
 	private Map<String, BaseDto> embedded;
-	@JsonIgnore
+	@JsonProperty(access = Access.READ_ONLY)
 	@ApiModelProperty(readOnly = true)
 	private UUID transactionId;
 	@JsonIgnore

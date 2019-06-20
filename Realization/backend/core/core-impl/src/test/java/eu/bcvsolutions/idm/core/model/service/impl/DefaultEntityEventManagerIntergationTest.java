@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
@@ -59,6 +60,7 @@ import eu.bcvsolutions.idm.core.event.domain.MockDto;
 import eu.bcvsolutions.idm.core.event.domain.MockOwner;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.EntityGenerateValuesProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.NeverEndingProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.ObserveDtoProcessor;
@@ -329,6 +331,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 				entityEvent.setResult(new OperationResultDto(OperationState.CREATED));
 				entityEvent.setPriority(PriorityType.NORMAL);
 				events.add(entityEventService.save(entityEvent));
+				//
+				getHelper().waitForResult(null, 1, 1);
 			}
 			//
 			IdmEntityEventFilter filter = new IdmEntityEventFilter();
@@ -602,10 +606,14 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			IdmEntityEventFilter filter = new IdmEntityEventFilter();
 			filter.setOwnerId(identity.getId());
 			filter.setEventType(NeverEndingProcessor.WAIT.name());
+			filter.setStates(Lists.newArrayList(OperationState.RUNNING));
 			//
 			// wait for executed event is running
 			getHelper().waitForResult(res -> {
 				return !manager.isRunningOwner(identity.getId());
+			}, 500, Integer.MAX_VALUE);
+			getHelper().waitForResult(res -> {
+				return entityEventService.find(filter, new PageRequest(0, 1)).getContent().isEmpty();
 			}, 500, Integer.MAX_VALUE);
 			Assert.assertTrue(manager.isRunningOwner(identity.getId()));
 			//
@@ -700,6 +708,44 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			Assert.assertEquals(identity.getId(), roles.get(0).getCreatorId());
 		} finally {
 			logout();
+			manager.deleteAllEvents();
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		}
+	}
+	
+	@Test
+	public void testExecuteAsyncEventUnderSameTransactionId() {
+		try {
+			TransactionContextHolder.setContext(TransactionContextHolder.createEmptyContext()); //start transaction
+			UUID transactionId = TransactionContextHolder.getContext().getTransactionId();
+			Assert.assertNotNull(transactionId);
+			//
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			
+			// Create role request - identity roles has to be created under creators authority
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			Assert.assertEquals(transactionId, identity.getTransactionId());
+			IdmRoleDto role = getHelper().createRole();
+			Assert.assertEquals(transactionId, role.getTransactionId());
+			IdmRoleRequestDto request = getHelper().createRoleRequest(getHelper().getPrimeContract(identity), role);
+			Assert.assertEquals(transactionId, request.getTransactionId());
+			getHelper().executeRequest(request, false, false);
+			
+			getHelper().waitForResult(res -> {
+				return identityRoleService.findValidRoles(identity.getId(), null).getContent().isEmpty();
+			}, 500, Integer.MAX_VALUE);
+			//
+			// created events for the request
+			IdmEntityEventFilter filter = new IdmEntityEventFilter();
+			filter.setOwnerId(request.getId());
+			filter.setEventType(RoleRequestEventType.NOTIFY.name());
+			List<IdmEntityEventDto> events = entityEventService.find(filter, null).getContent();
+			Assert.assertEquals(1, events.size());
+			Assert.assertEquals(transactionId, events.get(0).getTransactionId());
+			// created roles 
+			List<IdmIdentityRoleDto> roles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
+			Assert.assertEquals(1, roles.size());
+		} finally {
 			manager.deleteAllEvents();
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 		}

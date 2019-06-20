@@ -204,6 +204,10 @@ class LongRunningTask extends Basic.AbstractContent {
                   if (Utils.Ui.isEmpty(_entity.taskProperties[propertyName])) {
                     return null;
                   }
+                  if (propertyName === 'core:transactionContext') {
+                    // FIXME: transaction context info
+                    return null;
+                  }
                   return `${ propertyName }: ${ Utils.Ui.toStringValue(_entity.taskProperties[propertyName]) }`;
                 })
                 .filter(v => v !== null)

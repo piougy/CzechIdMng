@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 /**
  * Filter for audit.
  * Filter must have only interface base filter is not
- * {@link DataFilter} because audit has long ID.	
+ * {@link DataFilter} because audit has long ID.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -46,6 +46,7 @@ public class IdmAuditFilter implements BaseFilter {
 	private String subOwnerId;
 	private String subOwnerCode;
 	private String subOwnerType;
+	private UUID transactionId;
 
 	public String getModifier() {
         return modifier;
@@ -199,11 +200,32 @@ public class IdmAuditFilter implements BaseFilter {
 		this.ownerIds = ownerIds;
 	}
 
-	public Boolean isWithVersion() {
+	public Boolean getWithVersion() {
 		return withVersion;
 	}
 
 	public void setWithVersion(Boolean withVersion) {
 		this.withVersion = withVersion;
 	}
+	
+	/**
+	 * Returns batch transaction id (entity was created or modified in given transaction).
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	public UUID getTransactionId() {
+		return transactionId;
+	}
+
+	/**
+	 * Sets batch transaction id (entity was created or modified in given transaction).
+	 * 
+	 * @param transactionId
+	 * @since 9.7.0
+	 */
+	public void setTransactionId(UUID transactionId) {
+		this.transactionId = transactionId;
+	}
+	
 }

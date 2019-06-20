@@ -330,8 +330,8 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           <Basic.PanelFooter>
             <Link to={ this.getLink(_entity) }>
               <Basic.Icon value="fa:angle-double-right"/>
-              {' '}
-              {this.i18n('component.advanced.EntityInfo.link.detail.label')}
+              { ' ' }
+              { this.i18n('component.advanced.EntityInfo.link.detail.label') }
             </Link>
           </Basic.PanelFooter>
         }

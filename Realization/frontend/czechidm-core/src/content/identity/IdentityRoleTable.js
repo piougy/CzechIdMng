@@ -7,7 +7,16 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager, IdentityContractManager, CodeListManager, DataManager } from '../../redux';
+import {
+  IdentityRoleManager,
+  IdentityManager,
+  RoleTreeNodeManager,
+  RoleManager,
+  IdentityContractManager,
+  CodeListManager,
+  DataManager,
+  ConfigurationManager
+} from '../../redux';
 import IdentityRoleEav from './IdentityRoleEav';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 import FormInstance from '../../domain/FormInstance';
@@ -39,9 +48,9 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     const { entityId } = this.props.params;
-    const { fetchIncompatibleRoles, fetchCodeLists } = this.props;
+    const { fetchIncompatibleRoles, fetchCodeLists, showEnvironment } = this.props;
     //
-    if (fetchCodeLists) {
+    if (fetchCodeLists && showEnvironment) {
       this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
     }
     if (fetchIncompatibleRoles) {
@@ -60,7 +69,9 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
   getDefaultSearchParameters() {
     let searchParameters = this.getManager().getDefaultSearchParameters();
     //
-    searchParameters = searchParameters.setFilter('roleEnvironment', ConfigLoader.getConfig('identity-role.table.filter.environment', []));
+    if (this.props.showEnvironment) {
+      searchParameters = searchParameters.setFilter('roleEnvironment', ConfigLoader.getConfig('identity-role.table.filter.environment', []));
+    }
     //
     return searchParameters;
   }
@@ -165,7 +176,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
       className,
       rendered,
       environmentItems,
-      showRefreshButton
+      showRefreshButton,
+      showEnvironment
     } = this.props;
     const { detail, activeKey } = this.state;
     //
@@ -224,14 +236,14 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className="last">
-                  <Basic.Col lg={ 3 }>
+                  <Basic.Col lg={ showEnvironment ? 3 : 5 }>
                     <Advanced.Filter.RoleSelect
                       ref="roleId"
                       label={ null }
                       placeholder={ this.i18n('filter.role.placeholder') }
                       header={ this.i18n('filter.role.placeholder') }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 3 }>
+                  <Basic.Col lg={ 3 } rendered={ showEnvironment }>
                     <Advanced.CodeListSelect
                       ref="roleEnvironment"
                       code="environment"
@@ -240,7 +252,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                       items={ environmentItems || [] }
                       multiSelect/>
                   </Basic.Col>
-                  <Basic.Col lg={ 3 }>
+                  <Basic.Col lg={ showEnvironment ? 3 : 4 }>
                     <Basic.Div rendered={ contractForceSearchparameters !== null }>
                       <Advanced.Filter.SelectBox
                         ref="identityContractId"
@@ -319,7 +331,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             face="text"
             sort
             sortProperty="role.environment"
-            rendered={ _.includes(columns, 'environment') }
+            rendered={ showEnvironment && _.includes(columns, 'environment') }
             cell={
               ({ rowIndex, data }) => {
                 return (
@@ -599,6 +611,7 @@ IdentityRoleTable.defaultProps = {
 function select(state, component) {
   return {
     i18nReady: state.config.get('i18nReady'),
+    showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', true),
     _showLoading: Utils.Ui.isShowLoading(state, component.uiKey),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _incompatibleRoles: DataManager.getData(state, `${ uiKeyIncompatibleRoles }${ component.params.entityId }`),

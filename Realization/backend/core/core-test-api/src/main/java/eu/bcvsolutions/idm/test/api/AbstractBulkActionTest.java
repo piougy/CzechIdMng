@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -154,7 +155,11 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 	 */
 	protected IdmLongRunningTaskDto checkResultLrt(IdmBulkActionDto processAction, Long successCount, Long failedCount, Long warningCount) {
 		assertNotNull(processAction.getLongRunningTaskId());
-		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(processAction.getLongRunningTaskId());
+		//
+		IdmLongRunningTaskFilter context = new IdmLongRunningTaskFilter();
+		context.setIncludeItemCounts(true);
+		//		
+		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(processAction.getLongRunningTaskId(), context);
 		assertNotNull(taskDto);
 		
 		if (successCount != null) {

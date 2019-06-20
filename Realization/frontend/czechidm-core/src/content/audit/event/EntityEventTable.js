@@ -5,7 +5,7 @@ import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { EntityEventManager, SecurityManager } from '../../../redux';
+import { EntityEventManager, SecurityManager, ConfigurationManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import EntityStateTableComponent, { EntityStateTable } from './EntityStateTable';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
@@ -122,7 +122,8 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
       forceSearchParameters,
       rendered,
       className,
-      showDeleteAllButton
+      showDeleteAllButton,
+      showTransactionId
     } = this.props;
     const { filterOpened, detail } = this.state;
     //
@@ -168,15 +169,24 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                       multiSelect
                       useSymbol={ false }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.TextField
-                      ref="rootId"
-                      placeholder={ this.i18n('entity.EntityEvent.rootId.label') }/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.TextField
-                      ref="parentId"
-                      placeholder={ this.i18n('entity.EntityEvent.parent.label') }/>
+                  <Basic.Col lg={ 8 }>
+                    <Basic.Row>
+                      <Basic.Col lg={ showTransactionId ? 4 : 6 }>
+                        <Advanced.Filter.TextField
+                          ref="rootId"
+                          placeholder={ this.i18n('filter.rootId.placeholder') }/>
+                      </Basic.Col>
+                      <Basic.Col lg={ showTransactionId ? 4 : 6 }>
+                        <Advanced.Filter.TextField
+                          ref="parentId"
+                          placeholder={ this.i18n('filter.parent.placeholder') }/>
+                      </Basic.Col>
+                      <Basic.Col lg={ 4 } rendered={ showTransactionId }>
+                        <Advanced.Filter.TextField
+                          ref="transactionId"
+                          placeholder={ this.i18n('filter.transactionId.placeholder') }/>
+                      </Basic.Col>
+                    </Basic.Row>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row className="last" rendered={ _.includes(columns, 'ownerType') }>
@@ -200,7 +210,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
             </Advanced.Filter>
           }
           filterOpened={ filterOpened }
-          forceSearchParameters={_forceSearchParameters}
+          forceSearchParameters={ _forceSearchParameters }
           _searchParameters={ this.getSearchParameters() }
           showRowSelection
           className={ className }
@@ -225,8 +235,8 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 return (
                   <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={() => this.showDetail(data[rowIndex])}/>
+                    title={ this.i18n('button.detail') }
+                    onClick={ () => this.showDetail(data[rowIndex]) }/>
                 );
               }
             }/>
@@ -287,41 +297,63 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                     entityIdentifier={ data[rowIndex][property] }
                     entity={ data[rowIndex]._embedded[property] }
                     face="popover"
-                    showEntityType={ false }/>
+                    showEntityType={ false }
+                    showIcon/>
                 );
               }
             }/>
-          <Advanced.Column property="eventType" sort rendered={_.includes(columns, 'eventType')} />
-          <Advanced.Column property="priority" face="enum" enumClass={ PriorityTypeEnum } sort width="100px" rendered={_.includes(columns, 'priority')}/>
-          <Advanced.Column property="instanceId" width={ 100 } rendered={_.includes(columns, 'instanceId')} />
-            <Advanced.Column
-              width={ 125 }
-              property="rootId"
-              rendered={_.includes(columns, 'root')}
-              cell={
-                ({ rowIndex, data, property }) => {
-                  if (data[rowIndex][property]) {
-                    // TODO: info card?
-                    return (
-                      <Advanced.UuidInfo value={ data[rowIndex][property] }/>
-                    );
-                  }
-                  return null;
-                }
-              }/>
+          <Advanced.Column property="eventType" sort rendered={ _.includes(columns, 'eventType') } />
+          <Advanced.Column
+            property="priority"
+            face="enum"
+            enumClass={ PriorityTypeEnum }
+            sort
+            width={ 100 }
+            rendered={ _.includes(columns, 'priority') }/>
+          <Advanced.Column property="instanceId" width={ 100 } rendered={ _.includes(columns, 'instanceId') } />
           <Advanced.Column
             width={ 125 }
             property="parent"
-            rendered={_.includes(columns, 'parent')}
+            rendered={ _.includes(columns, 'parent') || _.includes(columns, 'root') }
             cell={
-              ({ rowIndex, data, property }) => {
-                if (data[rowIndex][property]) {
-                  // TODO: info card?
-                  return (
-                    <Advanced.UuidInfo value={ data[rowIndex][property] }/>
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                const parent = entity.parent;
+                const root = entity.rootId;
+                const _showRoot = root && _.includes(columns, 'root') && root !== parent;
+                //
+                const content = [];
+                // root event
+                if (_showRoot) {
+                  // TODO: info card
+                  content.push(
+                    <div>
+                      <span>{ this.i18n('entity.EntityEvent.rootId.label') }:</span>
+                      <Advanced.UuidInfo value={ root }/>
+                    </div>
                   );
                 }
-                return data[rowIndex].parentEventType;
+                // parent event
+                if (_.includes(columns, 'parent')) {
+                  if (parent) {
+                    // TODO: info card
+                    content.push(
+                      <div>
+                        {
+                          !_showRoot
+                          ||
+                          <span>{ this.i18n('entity.EntityEvent.parent.label') }:</span>
+                        }
+                        <Advanced.UuidInfo value={ parent }/>
+                      </div>
+                    );
+                  } else {
+                    content.push(
+                      <div>{ data[rowIndex].parentEventType }</div>
+                    );
+                  }
+                }
+                return content;
               }
             }/>
         </Advanced.Table>
@@ -449,6 +481,7 @@ EntityEventTable.defaultProps = {
 
 function select(state, component) {
   return {
+    showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
   };
 }

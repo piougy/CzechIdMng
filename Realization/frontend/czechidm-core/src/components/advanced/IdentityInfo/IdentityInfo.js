@@ -175,7 +175,7 @@ export class IdentityInfo extends AbstractEntityInfo {
     );
     //
     return (
-      <Basic.Panel className={panelClassNames} style={style}>
+      <Basic.Panel className={ panelClassNames } style={ style }>
         <Basic.PanelHeader>
           <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
           { this.getPopoverTitle(_entity) }

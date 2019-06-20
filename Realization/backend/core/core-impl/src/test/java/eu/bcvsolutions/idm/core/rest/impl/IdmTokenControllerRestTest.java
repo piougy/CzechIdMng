@@ -47,6 +47,11 @@ public class IdmTokenControllerRestTest extends AbstractReadWriteDtoControllerRe
 		return dto;
 	}
 	
+	@Override
+	public void testFindByTransactionId() {
+		// token is used even for login => two records are inserted all time in one request
+	}
+	
 	@Test
 	public void testFindByOwner() {
 		IdmIdentityDto owner = getHelper().createIdentity();

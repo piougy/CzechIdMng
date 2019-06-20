@@ -179,7 +179,17 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Override
 	@Transactional(readOnly = true)
 	public DTO get(Serializable id, BasePermission... permission) {
-		return toDto(getEntity(id, permission));
+		return get(id, (F) null, permission);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public DTO get(Serializable id, F context, BasePermission... permission) {
+		if (supportsToDtoWithFilter()) {
+			return toDto(getEntity(id, permission), null, context);
+		} else {
+			return toDto(getEntity(id, permission));
+		}
 	}
 
 	@Override

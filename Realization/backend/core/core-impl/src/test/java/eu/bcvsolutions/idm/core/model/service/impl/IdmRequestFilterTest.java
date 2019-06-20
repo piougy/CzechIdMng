@@ -31,21 +31,22 @@ public class IdmRequestFilterTest extends AbstractIntegrationTest{
 	public void dateTest() {
 		UUID ownerId = UUID.randomUUID();
 		String ownerType = IdmIdentityDto.class.toString();
-		createRequest(ownerType, ownerId);
-		
+		IdmRequestDto createRequest = createRequest(ownerType, ownerId);
+		DateTime createdDate = createRequest.getCreated();
+		//
 		IdmRequestFilter filter = new IdmRequestFilter();
-		filter.setCreatedAfter(new DateTime().minusSeconds(10));
-		filter.setCreatedBefore(new DateTime());
+		filter.setCreatedAfter(createdDate.minusSeconds(10));
+		filter.setCreatedBefore(createdDate.plusSeconds(10));
 		List<IdmRequestDto> content = requestService.find(filter, null).getContent();
 		Assert.assertEquals(1, content.size());
-		
-		filter.setCreatedAfter(new DateTime().minusSeconds(10));
-		filter.setCreatedBefore(new DateTime().minusSeconds(9));
+		//
+		filter.setCreatedAfter(createdDate.minusSeconds(10));
+		filter.setCreatedBefore(createdDate.minusSeconds(9));
 		content = requestService.find(filter, null).getContent();
 		Assert.assertEquals(0, content.size());
-		
-		filter.setCreatedAfter(new DateTime().plusSeconds(10));
-		filter.setCreatedBefore(new DateTime().plusSeconds(11));
+		//
+		filter.setCreatedAfter(createdDate.plusSeconds(10));
+		filter.setCreatedBefore(createdDate.plusSeconds(11));
 		content = requestService.find(filter, null).getContent();
 		Assert.assertEquals(0, content.size());
 	}

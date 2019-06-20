@@ -181,7 +181,9 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE),
-	SCHEDULER(IdmBasePermission.ADMIN, 
+	SCHEDULER(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT,
 			IdmBasePermission.EXECUTE, 
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE, 
@@ -502,6 +504,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String MODULE_CREATE = "MODULE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String MODULE_UPDATE = "MODULE" + BasePermission.SEPARATOR + "UPDATE";
 	//
+	public static final String SCHEDULER_COUNT = "SCHEDULER" + BasePermission.SEPARATOR + "COUNT";
 	public static final String SCHEDULER_READ = "SCHEDULER" + BasePermission.SEPARATOR + "READ";
 	public static final String SCHEDULER_CREATE = "SCHEDULER" + BasePermission.SEPARATOR + "CREATE";
 	public static final String SCHEDULER_UPDATE = "SCHEDULER" + BasePermission.SEPARATOR + "UPDATE";

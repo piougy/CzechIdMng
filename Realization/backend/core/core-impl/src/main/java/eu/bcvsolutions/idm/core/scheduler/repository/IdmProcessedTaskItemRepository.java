@@ -19,15 +19,20 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmProcessedTaskItem;
  */
 public interface IdmProcessedTaskItemRepository extends AbstractEntityRepository<IdmProcessedTaskItem> {
 	
-	@Transactional
 	@Modifying
+	@Transactional
 	@Query("delete from #{#entityName} e where e.longRunningTask.id = :lrtId")
 	void deleteAllByLongRunningTaskId(@Param("lrtId") UUID id);
 
-	@Transactional
 	@Modifying
+	@Transactional
 	@Query("delete from #{#entityName} e where e.scheduledTaskQueueOwner.id = :stId")
 	void deleteAllByScheduledTaskId(@Param("stId") UUID id);
+	
+	@Modifying
+	@Query("delete from #{#entityName} e where e.scheduledTaskQueueOwner.id = :scheduledTaskId"
+			+ " and e.referencedEntityId = :referencedEntityId")
+	void deleteItem(@Param("scheduledTaskId") UUID scheduledTaskId, @Param("referencedEntityId") UUID referencedEntityId);
 	
 	@Query("select e.referencedEntityId from #{#entityName} e where e.scheduledTaskQueueOwner.id = :stId")
 	List<UUID> findAllRefEntityIdsByScheduledTaskId(@Param("stId") UUID id);

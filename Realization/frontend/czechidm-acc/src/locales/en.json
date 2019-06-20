@@ -11,7 +11,8 @@
     "advanced": {
       "EavForm": {
         "faceType": {
-          "SYSTEM-SELECT": "System select (SelectBox)"
+          "SYSTEM-SELECT": "System select (SelectBox)",
+          "[SYNCHRONIZATION-CONFIG-SELECT": "Synchronization configuration select (SelectBox)"
         }
       }
     }
@@ -1517,6 +1518,17 @@
             "label": "System",
             "placeholder": "All systems or select ...",
             "help": "Delete operations with given system only."
+          }
+        }
+      },
+      "acc-synchronization-long-running-task": {
+        "label": "Run synchronization",
+        "help": "Run configured synchronization.",
+        "icon": "component:synchronization",
+        "attributes": {
+          "synchronization-uuid": {
+            "label": "Configured synchronization",
+            "placeholder": "Select synchronization to run ..."
           }
         }
       }

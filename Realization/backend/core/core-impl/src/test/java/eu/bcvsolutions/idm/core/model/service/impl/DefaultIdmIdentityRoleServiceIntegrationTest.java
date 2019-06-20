@@ -18,6 +18,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
@@ -86,12 +88,20 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	//
 	private DefaultIdmIdentityRoleService service;
 
 	@Before
 	public void init() {
 		service = context.getAutowireCapableBeanFactory().createBean(DefaultIdmIdentityRoleService.class);
+	}
+	
+	@After
+	public void logout() {
+		automaticRoleAttributeService.find(null).forEach(autoRole -> {
+			automaticRoleAttributeService.delete(autoRole);
+		});
 	}
 	
 	@Test

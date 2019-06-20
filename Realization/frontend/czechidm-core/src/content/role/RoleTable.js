@@ -9,7 +9,14 @@ import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import ConfigLoader from '../../utils/ConfigLoader';
 //
-import { RoleManager, RequestManager, SecurityManager, RoleCatalogueManager, ConfigurationManager, CodeListManager } from '../../redux';
+import {
+  RoleManager,
+  RequestManager,
+  SecurityManager,
+  RoleCatalogueManager,
+  ConfigurationManager,
+  CodeListManager
+} from '../../redux';
 
 // Table uiKey
 const requestManager = new RequestManager();
@@ -35,7 +42,9 @@ class RoleTable extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
+    if (this.props.showEnvironment) {
+      this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
+    }
     this.refs.text.focus();
   }
 
@@ -50,7 +59,9 @@ class RoleTable extends Advanced.AbstractTableContent {
   getDefaultSearchParameters() {
     let searchParameters = this.getManager().getDefaultSearchParameters();
     //
-    searchParameters = searchParameters.setFilter('environment', ConfigLoader.getConfig('role.table.filter.environment', []));
+    if (this.props.showEnvironment) {
+      searchParameters = searchParameters.setFilter('environment', ConfigLoader.getConfig('role.table.filter.environment', []));
+    }
     //
     return searchParameters;
   }
@@ -179,7 +190,8 @@ class RoleTable extends Advanced.AbstractTableContent {
       forceSearchParameters,
       _requestsEnabled,
       className,
-      showAddButton
+      showAddButton,
+      showEnvironment
     } = this.props;
     const { filterOpened, showLoading } = this.state;
     const _showTree = showCatalogue && SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
@@ -227,13 +239,13 @@ class RoleTable extends Advanced.AbstractTableContent {
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className={ _showTree ? '' : 'last'}>
-                    <Basic.Col lg={ 4 }>
+                    <Basic.Col lg={ showEnvironment ? 4 : 8 }>
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('content.roles.filter.text.placeholder')}
                         help={ Advanced.Filter.getTextHelp() }/>
                     </Basic.Col>
-                    <Basic.Col lg={ 4 }>
+                    <Basic.Col lg={ 4 } className={ showEnvironment ? '' : 'hidden'}>
                       <Advanced.CodeListSelect
                         ref="environment"
                         code="environment"
@@ -302,7 +314,7 @@ class RoleTable extends Advanced.AbstractTableContent {
               width={ 100 }
               face="text"
               sort
-              rendered={_.includes(columns, 'environment')}
+              rendered={ _.includes(columns, 'environment') && showEnvironment }
               cell={
                 ({ rowIndex, data, property }) => {
                   return (
@@ -360,6 +372,7 @@ RoleTable.defaultProps = {
 
 function select(state, component) {
   return {
+    showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', true),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _requestsEnabled: ConfigurationManager.getPublicValueAsBoolean(state, component.roleManager.getEnabledPropertyKey())
   };

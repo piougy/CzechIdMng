@@ -52,6 +52,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,14 +81,16 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword_;
 import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
+import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditStrategy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Implementation of service for auditing
  * 
- * @see {@link IdmAuditListener}
- * @see {@link IdmAudit}
+ * @see IdmAuditListener
+ * @see IdmAudit
+ * @see IdmAuditStrategy
  * @author Ondrej Kopr
  *
  */
@@ -131,6 +134,11 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		// Id in audit is long
 		if (filter.getId() != null) {
 			predicates.add(builder.equal(root.get(IdmAudit_.id), filter.getId()));
+		}
+		// TODO: transaction id - use DataFilter super class some way (long id ...). 
+		UUID transactionId = filter.getTransactionId();
+		if (transactionId != null) {
+			predicates.add(builder.equal(root.get(IdmAudit_.transactionId), transactionId));
 		}
 
 		// Text filtering is by id, is this really mandatory?
@@ -211,7 +219,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 
 	@Override
 	protected IdmAuditDto toDto(IdmAudit entity, IdmAuditDto dto, IdmAuditFilter filter) {
-		if (filter != null && BooleanUtils.isTrue(filter.isWithVersion())) {
+		if (filter != null && BooleanUtils.isTrue(filter.getWithVersion())) {
 
 			Class<?> forName;
 			try {
@@ -263,7 +271,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setEntityId(entityId);
 		filter.setType(classType.getName());
-		Pageable page = new PageRequest(0, Integer.MAX_VALUE, new Sort("timestamp"));
+		Pageable page = new PageRequest(0, Integer.MAX_VALUE, Direction.ASC, "timestamp", "id");
 		Page<IdmAuditDto> result = this.find(filter, page);
 		return result.getContent();
 	}

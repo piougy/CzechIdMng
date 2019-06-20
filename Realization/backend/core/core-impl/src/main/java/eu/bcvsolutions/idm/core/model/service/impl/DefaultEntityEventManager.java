@@ -43,6 +43,8 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContext;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.domain.comparator.CreatedComparator;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -523,6 +525,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 							null, 
 							Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()),
 							null));
+					// run under original transaction id - asynchronous processing continue the "user" transaction
+					TransactionContextHolder.setContext(new TransactionContext(event.getTransactionId()));
+					//
+					LOG.trace("Executing event under user [{}] (admin authorities) and transaction [{}]", 
+							securityService.getUsername(),
+							TransactionContextHolder.getContext().getTransactionId());
 					//
 					try {
 						process(new CoreEvent<>(EntityEventType.EXECUTE, event));
@@ -680,6 +688,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		eventProperties.put(EntityEvent.EVENT_PROPERTY_PARENT_EVENT_ID, entityEvent.getParent());
 		eventProperties.put(EntityEvent.EVENT_PROPERTY_ROOT_EVENT_ID, entityEvent.getRootId());
 		eventProperties.put(EntityEvent.EVENT_PROPERTY_SUPER_OWNER_ID, entityEvent.getSuperOwnerId());
+		eventProperties.put(EntityEvent.EVENT_PROPERTY_TRANSACTION_ID, entityEvent.getTransactionId());
 		final String type = entityEvent.getEventType();
 		DefaultEventContext<Identifiable> initContext = new DefaultEventContext<>();
 		initContext.setProcessedOrder(entityEvent.getProcessedOrder());
@@ -1261,7 +1270,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 					.build());
 		}
 		entityEvent.setSuspended(event.isSuspended());
-		entityEvent.setTransactionId(event.getTransactionId());
 		//
 		return entityEvent;
 	}

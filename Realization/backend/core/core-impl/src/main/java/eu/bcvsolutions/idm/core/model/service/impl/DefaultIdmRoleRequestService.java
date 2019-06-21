@@ -234,7 +234,7 @@ public class DefaultIdmRoleRequestService
 	public IdmRoleRequestDto startRequest(UUID requestId, boolean checkRight) {
 		Assert.notNull(requestId, "Role request ID is required!");
 		// Load request ... check right for read
-		IdmRoleRequestDto request = get(requestId);
+		IdmRoleRequestDto request = get(requestId, new IdmRoleRequestFilter(true));
 		Assert.notNull(request, "Role request DTO is required!");
 		//
 		Map<String, Serializable> variables = new HashMap<>();
@@ -346,8 +346,8 @@ public class DefaultIdmRoleRequestService
 
 		// Request will be set on in progress state
 		request.setState(RoleRequestState.IN_PROGRESS);
-		IdmRoleRequestDto savedRequest = this.save(request);
-		event.setContent(savedRequest);
+		this.save(request);
+		event.setContent(request);
 		//
 		IdmRoleRequestDto content =  entityEventManager
 				.process(event)
@@ -389,14 +389,12 @@ public class DefaultIdmRoleRequestService
 			// Minimize size of DTO persisting to WF
 			IdmRoleRequestDto eventRequest = event.getContent();
 			trimRequest(eventRequest);
-			eventRequest.setConceptRoles(null);
-			eventRequest.setOriginalRequest(null);
 			variables.put(EntityEvent.EVENT_PROPERTY, event);
 
 			ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinition,
 					IdmIdentity.class.getSimpleName(), applicant.getUsername(), applicant.getId().toString(),
 					variables);
-			// We have to refresh request (maybe was changed in wf process)
+			// We have to refresh request (maybe was changed in WF process)
 			request = this.get(request.getId());
 			request.setWfProcessId(processInstance.getProcessInstanceId());
 			this.save(request);
@@ -415,7 +413,7 @@ public class DefaultIdmRoleRequestService
 		//
 		// prepare request event
 		Assert.notNull(requestId, "Role request ID is required!");
-		IdmRoleRequestDto request = this.get(requestId);
+		IdmRoleRequestDto request = this.get(requestId, new IdmRoleRequestFilter(true));
 		Assert.notNull(request, "Role request is required!");
 		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, request);
 		//
@@ -431,7 +429,7 @@ public class DefaultIdmRoleRequestService
 	private IdmRoleRequestDto executeRequestInternal(EntityEvent<IdmRoleRequestDto> requestEvent) {
 		UUID requestId = requestEvent.getContent().getId();
 		Assert.notNull(requestId, "Role request ID is required!");
-		IdmRoleRequestDto request = this.get(requestId);
+		IdmRoleRequestDto request = this.get(requestId, new IdmRoleRequestFilter(true));
 		Assert.notNull(request, "Role request is required!");
 
 		List<IdmConceptRoleRequestDto> concepts = request.getConceptRoles();
@@ -536,12 +534,17 @@ public class DefaultIdmRoleRequestService
 			}
 		});
 	}
+	
+	@Override
+	public boolean supportsToDtoWithFilter() {
+		return true;
+	}
 
 	@Override
-	public IdmRoleRequestDto toDto(IdmRoleRequest entity, IdmRoleRequestDto dto) {
-		IdmRoleRequestDto requestDto = super.toDto(entity, dto);
-		// Set concepts to request DTO
-		if (requestDto != null) {
+	public IdmRoleRequestDto toDto(IdmRoleRequest entity, IdmRoleRequestDto dto, IdmRoleRequestFilter filter) {
+		IdmRoleRequestDto requestDto = super.toDto(entity, dto, filter);
+		// Set concepts to request DTO, but only if given filter has sets include-concepts attribute
+		if (requestDto != null && filter != null && filter.isIncludeConcepts()) {
 			requestDto.setConceptRoles(conceptRoleRequestService.findAllByRoleRequest(requestDto.getId()));
 		}		
 		// Load and add WF process DTO to embedded. Prevents of many requests
@@ -602,6 +605,9 @@ public class DefaultIdmRoleRequestService
 	@Override
 	@Transactional
 	public void deleteInternal(IdmRoleRequestDto dto) {
+		Assert.notNull(dto);
+		Assert.notNull(dto.getId());
+
 		// Find all request where is this request duplicated and remove relation
 		IdmRoleRequestFilter conceptRequestFilter = new IdmRoleRequestFilter();
 		conceptRequestFilter.setDuplicatedToRequestId(dto.getId());
@@ -619,10 +625,14 @@ public class DefaultIdmRoleRequestService
 		// Stop connected WF process
 		cancelWF(dto);
 
-		// First we have to delete all concepts for this request
-		dto.getConceptRoles().forEach(concept -> {
-			conceptRoleRequestService.delete(concept);
-		});
+		// We have to delete all concepts for this request
+		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
+		conceptFilter.setRoleRequestId(dto.getId());
+		conceptRoleRequestService.find(conceptFilter, null) //
+				.getContent() //
+				.forEach(concept -> {
+					conceptRoleRequestService.delete(concept);
+				});
 		super.deleteInternal(dto);
 	}
 
@@ -1197,13 +1207,11 @@ public class DefaultIdmRoleRequestService
 	 * 
 	 * @param requestOriginal
 	 */
-	private void trimRequest(IdmRoleRequestDto requestOriginal) {
-		requestOriginal.setLog(null);
-		requestOriginal.setEmbedded(null);
-		requestOriginal.getConceptRoles().forEach(concept -> {
-			concept.setEmbedded(null);
-			concept.setLog(null);
-		});
+	private void trimRequest(IdmRoleRequestDto request) {
+		request.setLog(null);
+		request.setEmbedded(null);
+		request.setConceptRoles(null);
+		request.setOriginalRequest(null);
 	}
 
 

@@ -1,12 +1,14 @@
-
 import React from 'react';
-import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
-import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import merge from 'object-assign';
-import ApiOperationTypeEnum from '../../../enums/ApiOperationTypeEnum';
-import Loading from '../Loading/Loading';
 import _ from 'lodash';
 import equal from 'fast-deep-equal';
+import classnames from 'classnames';
+//
+import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
+import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
+import ApiOperationTypeEnum from '../../../enums/ApiOperationTypeEnum';
+import Loading from '../Loading/Loading';
+
 
 /**
  * Abstract form component
@@ -301,7 +303,7 @@ class AbstractForm extends AbstractContextComponent {
     return (
       <Loading showLoading={showLoading || this.state.showLoading}>{/* props.showLoading has higher priority */}
         {/* TODO: remove className defs? Somethimes different className e.g. form-inline is needed */}
-        <div className={'abstract-form clearfix ' + className} style={style}>
+        <div className={ classnames('abstract-form', 'clearfix', className) } style={ style }>
           {children}
         </div>
         {this.getFooter()}

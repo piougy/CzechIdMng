@@ -941,7 +941,7 @@ public class DefaultIdmRoleRequestService
 		for (IdmConceptRoleRequestDto concept : concepts) {
 			concept.setRoleRequest(roleRequest.getId());
 			//
-			conceptRoleRequestService.save(concept);
+			roleRequest.getConceptRoles().add(conceptRoleRequestService.save(concept));
 		}
 		//
 		// start event with skip check authorities

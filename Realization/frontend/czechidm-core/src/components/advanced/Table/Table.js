@@ -712,7 +712,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       forceSearchParameters,
       className,
       uuidEnd,
-      showTransactionId
+      showTransactionId,
+      hover
     } = this.props;
     const {
       filterOpened,
@@ -934,6 +935,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               ref="table"
               header={ header }
               data={ _entities }
+              hover={ hover }
               showLoading={ _showLoading || showLoading }
               onRowClick={ onRowClick }
               onRowDoubleClick={ onRowDoubleClick }
@@ -1146,6 +1148,10 @@ AdvancedTable.propTypes = {
    * Data are loaded automatically, after component is mounted. Set to false, if initial load will be controlled programatically.
    */
   initialReload: PropTypes.bool,
+  /**
+   * Enable hover table class
+   */
+  hover: PropTypes.bool,
   //
   // Private properties, which are used internally for async data fetching
   //
@@ -1182,7 +1188,8 @@ AdvancedTable.defaultProps = {
   showToolbar: true,
   showRefreshButton: true,
   uuidEnd: false,
-  initialReload: true
+  initialReload: true,
+  hover: true
 };
 AdvancedTable.contextTypes = {
   ...Basic.AbstractContextComponent.contextTypes,

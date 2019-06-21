@@ -73,6 +73,7 @@ import IncompatibleRoleManager from './IncompatibleRoleManager';
 import RoleFormAttributeManager from './RoleFormAttributeManager';
 import PasswordHistoryManager from './PasswordHistoryManager';
 import PasswordManager from './PasswordManager';
+import RequestIdentityRoleManager from './RequestIdentityRoleManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -142,7 +143,8 @@ const ManagerRoot = {
   IncompatibleRoleManager,
   RoleFormAttributeManager,
   PasswordHistoryManager,
-  PasswordManager
+  PasswordManager,
+  RequestIdentityRoleManager
 };
 
 ManagerRoot.version = '9.4.0';

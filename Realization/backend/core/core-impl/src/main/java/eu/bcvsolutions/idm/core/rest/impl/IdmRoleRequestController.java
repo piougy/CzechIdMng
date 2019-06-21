@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -12,7 +11,6 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
@@ -30,17 +28,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
-import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
@@ -53,12 +47,7 @@ import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
-import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
-import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
@@ -75,6 +64,8 @@ import io.swagger.annotations.AuthorizationScope;
 /**
  * Role request endpoint
  * 
+ * Returns request doesn't contains concepts (from version 9.7.0!)
+ * 
  * @author svandav
  *
  */
@@ -88,12 +79,6 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	//
 	private final IdmConceptRoleRequestController conceptRoleRequestController;
 	private final IdmRoleRequestService service;
-	@Autowired
-	private FormService formService;
-	@Autowired
-	private IdmConceptRoleRequestService conceptService;
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	public IdmRoleRequestController(IdmRoleRequestService service,
@@ -111,7 +96,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_READ + "')")
-	@ApiOperation(value = "Search role requests (/search/quick alias)", nickname = "searchRoleRequests", tags = {
+	@ApiOperation(value = "Search role requests (/search/quick alias). Returns requests doesn't contains concepts (from version 9.7.0!).", nickname = "searchRoleRequests", tags = {
 			IdmRoleRequestController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") }),
@@ -126,7 +111,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	@ResponseBody
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_READ + "')")
-	@ApiOperation(value = "Search role requests", nickname = "searchQuickRoleRequests", tags = {
+	@ApiOperation(value = "Search role requests. Returns requests doesn't contains concepts (from version 9.7.0!).", nickname = "searchQuickRoleRequests", tags = {
 			IdmRoleRequestController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") }),
@@ -159,7 +144,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_READ + "')")
-	@ApiOperation(value = "Role request detail", nickname = "getRoleRequest", response = IdmRoleRequestDto.class, tags = {
+	@ApiOperation(value = "Role request detail. Returns request doesn't contains concepts (from version 9.7.0!).", nickname = "getRoleRequest", response = IdmRoleRequestDto.class, tags = {
 			IdmRoleRequestController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") }),
@@ -168,7 +153,6 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Role request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
 		ResponseEntity<?> response = super.get(backendId);
-		this.addMetadataToConcepts(response);
 		return response;
 	}
 
@@ -177,7 +161,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	@RequestMapping(method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_CREATE + "')" + " or hasAuthority('"
 			+ CoreGroupPermission.ROLE_REQUEST_UPDATE + "')")
-	@ApiOperation(value = "Create / update role request", nickname = "postRoleRequest", response = IdmRoleRequestDto.class, tags = {
+	@ApiOperation(value = "Create / update role request. Returns request doesn't contains concepts (from version 9.7.0!).", nickname = "postRoleRequest", response = IdmRoleRequestDto.class, tags = {
 			IdmRoleRequestController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_CREATE, description = ""),
@@ -191,7 +175,6 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 					ImmutableMap.of("new", dto));
 		}
 		ResponseEntity<?> response = super.post(dto);
-		this.addMetadataToConcepts(response);
 		return response;
 	}
 
@@ -200,8 +183,8 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_CREATE + "')"
 			+ " or hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_UPDATE + "')")
 	@ApiOperation(
-			value = "Create / update role request", 
-			nickname = "postRoleRequest", 
+			value = "Create concepts by identity. Returns request doesn't contains concepts (from version 9.7.0!).", 
+			nickname = "Copy roles", 
 			response = IdmRoleRequestDto.class, 
 			tags = { IdmRoleRequestController.TAG },
 			authorizations = { 
@@ -219,12 +202,34 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 
 		return new ResponseEntity<Object>(roleRequest, HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "/copy-roles", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_UPDATE + "')")
+	@ApiOperation(
+			value = "Create concepts by identity", 
+			nickname = "Copy roles", 
+			response = IdmRoleRequestDto.class, 
+			tags = { IdmRoleRequestController.TAG },
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_CREATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_CREATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "")})
+					})
+	public ResponseEntity<?> copyRolesWithoutRequest(@RequestBody @NotNull IdmRoleRequestByIdentityDto dto) {
+		IdmRoleRequestDto roleRequest = this.service.copyRolesByIdentity(dto);
+
+		return new ResponseEntity<Object>(roleRequest, HttpStatus.OK);
+	}
 
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_UPDATE + "')")
-	@ApiOperation(value = "Update role request", nickname = "putRoleRequest", response = IdmRoleRequestDto.class, tags = {
+	@ApiOperation(value = "Update role request. Returns request doesn't contains concepts (from version 9.7.0!).", nickname = "putRoleRequest", response = IdmRoleRequestDto.class, tags = {
 			IdmRoleRequestController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "") }),
@@ -234,7 +239,6 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 			@ApiParam(value = "Role request's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
 			@RequestBody @NotNull IdmRoleRequestDto dto) {
 		ResponseEntity<?> response =  super.put(backendId, dto);
-		this.addMetadataToConcepts(response);
 		return response;
 	}
 
@@ -293,7 +297,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/start", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_UPDATE + "')")
-	@ApiOperation(value = "Start role request", nickname = "startRoleRequest", response = IdmRoleRequestDto.class, tags = {
+	@ApiOperation(value = "Start role request. Returns request doesn't contains concepts (from version 9.7.0!).", nickname = "startRoleRequest", response = IdmRoleRequestDto.class, tags = {
 			IdmRoleRequestController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "") }),
@@ -301,7 +305,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> startRequest(
 			@ApiParam(value = "Role request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		IdmRoleRequestDto requestDto = this.getDto(backendId);
+		IdmRoleRequestDto requestDto = service.get(backendId, new IdmRoleRequestFilter(true), IdmBasePermission.READ);
 		// Validate
 		service.validate(requestDto);
 		// Start request
@@ -316,7 +320,6 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		}
 		ResourceSupport resource = toResource(requestDto);
 		ResponseEntity<ResourceSupport> response = new ResponseEntity<>(resource, HttpStatus.OK);
-		addMetadataToConcepts(response);
 		
 		return response;
 	}
@@ -378,60 +381,6 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		return toResources(incompatibleRoles, ResolvedIncompatibleRoleDto.class);
 	}
 
-	
-	private void addMetadataToConcepts(ResponseEntity<?> response) {
-		if(response != null && response.getBody() instanceof Resource) {
-			@SuppressWarnings("unchecked")
-			Resource<IdmRoleRequestDto> resource = (Resource<IdmRoleRequestDto>) response.getBody();
-			this.addMetadataToConcepts(resource.getContent());
-		}
-	}
-
-	/**
-	 * Fill each {@link IdmConceptRoleRequestDto} with metadata abou EAV's values and changes.
-	 * And also set duplicates for each concept and another concepts or identity role.
-	 *
-	 * @param dto
-	 * @return
-	 */
-	private IdmRoleRequestDto addMetadataToConcepts(IdmRoleRequestDto dto) {
-		if (dto != null) {
-			// TODO: concepts will be removed from request
-			// Add EAV values and evaluate changes on EAV values for concepts 
-			dto.getConceptRoles().stream() //
-			.filter(concept -> ConceptRoleRequestOperation.REMOVE != concept.getOperation()) //
-			.forEach(concept -> { //
-				IdmFormInstanceDto formInstanceDto = conceptService.getRoleAttributeValues(concept, true);
-				if (formInstanceDto != null) {
-					concept.getEavs().clear();
-					concept.getEavs().add(formInstanceDto);
-					// Validate the concept
-					List<InvalidFormAttributeDto> validationResults = formService.validate(formInstanceDto);
-					formInstanceDto.setValidationErrors(formService.validate(formInstanceDto));
-					if (!validationResults.isEmpty()) {
-						// Concept is not valid (no other metadata for validation problem is not
-						// necessary now).
-						concept.setValid(false);
-					}
-				}
-			});
-
-			// Mark duplicates
-			UUID identityId = dto.getApplicant();
-			List<IdmIdentityRoleDto> identityRoles = identityRoleService.findValidRoles(identityId, null).getContent();
-			// Add to all identity roles form instance. For identity role can exists only one form instance.
-			identityRoles.forEach(identityRole -> {
-				IdmFormInstanceDto formInstance = identityRoleService.getRoleAttributeValues(identityRole);
-				if (formInstance != null) {
-					identityRole.setEavs(Lists.newArrayList(formInstance));
-				}
-			});
-			List<IdmConceptRoleRequestDto> concepts = dto.getConceptRoles();
-			concepts = this.service.markDuplicates(concepts, identityRoles);
-			dto.setConceptRoles(concepts);
-		}
-		return dto;
-	}
 
 	@Override
 	protected IdmRoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {

@@ -216,6 +216,8 @@ describe('Basic AbstractComponent', function abstractComponent() {
               comp.setValue('SYSTEM');
             } else if (component.endsWith('Checkbox')) {
               comp.setValue(true);
+            } else if (component.endsWith('ToggleSwitch')) {
+              comp.setValue(true);
             } else {
               // test with string
               comp.setValue('test');

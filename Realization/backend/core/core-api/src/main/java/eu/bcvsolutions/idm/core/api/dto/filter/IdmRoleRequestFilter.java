@@ -28,9 +28,15 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private DateTime createdTill;
 	private List<UUID> applicants;
 	private UUID creatorId;
+	private boolean includeConcepts = false;
 
 	public IdmRoleRequestFilter() {
 		this(new LinkedMultiValueMap<>());
+	}
+	
+	public IdmRoleRequestFilter(boolean includeConcepts) {
+		this(new LinkedMultiValueMap<>());
+		this.includeConcepts = includeConcepts;
 	}
 
 	public IdmRoleRequestFilter(MultiValueMap<String, Object> data) {
@@ -114,4 +120,13 @@ public class IdmRoleRequestFilter extends DataFilter {
 	public UUID getCreatorId() {
 		return creatorId;
 	}
+
+	public boolean isIncludeConcepts() {
+		return includeConcepts;
+	}
+
+	public void setIncludeConcepts(boolean includeConcepts) {
+		this.includeConcepts = includeConcepts;
+	}
+
 }

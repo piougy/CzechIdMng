@@ -132,12 +132,13 @@ export default class AbstractTableContent extends Basic.AbstractContent {
    */
   onDelete(bulkActionValue, selectedRows) {
     const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
+    this.beforeDelete(bulkActionValue, selectedEntities);
     //
     this.refs['confirm-' + bulkActionValue].show(
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
-      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, this.getUiKey(), (entity, error) => {
+      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, this.getUiKey(), (entity, error, successEntities) => {
         if (entity && error) {
           if (error.statusCode !== 202) {
             this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
@@ -145,7 +146,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
             this.addError(error);
           }
         } else {
-          this.afterDelete();
+          this.afterDelete(successEntities);
         }
       }));
     }, () => {
@@ -155,6 +156,16 @@ export default class AbstractTableContent extends Basic.AbstractContent {
 
   afterDelete() {
     this.refs.table.getWrappedInstance().reload();
+  }
+
+  /**
+   * Before delete
+   *
+   * @param bulkActionValue
+   * @param selectedEntities
+   */
+  beforeDelete() {
+    // By default nothing
   }
 
   /**

@@ -175,6 +175,32 @@ export default class AbstractService {
       });
   }
 
+  /**
+	 * Delete is realized as PUT, because we need to use
+	 * body (is not supported for DELETE)
+	 */
+  delete(entity) {
+    return RestApiService
+      .put(this.getApiPath() + `/${encodeURIComponent(entity.id)}/delete`, entity)
+      .then(response => {
+        if (response.status === 204) { // no content - ok
+          return null;
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
+        return json;
+      }).catch(ex => {
+        throw this._resolveException(ex);
+      });
+  }
+
   updateById(id, json) {
     return RestApiService
       .put(this.getApiPath() + `/${encodeURIComponent(id)}`, json)

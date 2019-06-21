@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
@@ -190,5 +191,17 @@ public interface IdmRoleRequestService extends
 	 */
 	List<IdmConceptRoleRequestDto> markDuplicates(List<IdmConceptRoleRequestDto> concepts,
 			List<IdmIdentityRoleDto> allByIdentity);
+
+	/**
+	 * Method create {@link IdmConceptRoleRequestDto}
+	 * 
+	 * @param roleRequest
+	 * @param contract
+	 * @param roleId
+	 * @param operation
+	 * @return
+	 */
+	IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, IdmIdentityContractDto contract, UUID identityRoleId, UUID roleId,
+			ConceptRoleRequestOperation operation);
 
 }

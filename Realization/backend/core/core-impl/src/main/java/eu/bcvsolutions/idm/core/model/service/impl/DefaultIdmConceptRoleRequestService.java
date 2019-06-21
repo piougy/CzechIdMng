@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -242,7 +243,6 @@ public class DefaultIdmConceptRoleRequestService extends
 	@Transactional
 	public IdmConceptRoleRequestDto saveInternal(IdmConceptRoleRequestDto dto) {
 		IdmConceptRoleRequestDto savedDto = super.saveInternal(dto);
-
 		if (dto != null && dto.getRole() != null) {
 			// TODO: concept role request hasn't events, after implement events for the dto, please remove this.
 			if (isNew(dto)) {
@@ -401,6 +401,19 @@ public class DefaultIdmConceptRoleRequestService extends
 		}
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.state), filter.getState()));
+		}
+		
+		Set<UUID> ids = filter.getIdentityRoleIds();
+		if (ids != null && !ids.isEmpty()) {
+			predicates.add(root.get(IdmConceptRoleRequest_.identityRole).get(IdmIdentityRole_.id).in(ids));
+		}
+		
+		if (filter.getRoleEnvironment() != null) {
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.role).get(IdmRole_.environment), filter.getRoleEnvironment()));
+		}
+		
+		if (filter.isIdentityRoleIsNull()) {
+			predicates.add(builder.isNull(root.get(IdmConceptRoleRequest_.identityRole)));
 		}
 		//
 		return predicates;

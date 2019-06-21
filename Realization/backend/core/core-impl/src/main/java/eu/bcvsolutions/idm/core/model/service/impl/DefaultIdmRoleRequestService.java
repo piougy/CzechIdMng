@@ -237,7 +237,7 @@ public class DefaultIdmRoleRequestService
 	public IdmRoleRequestDto startRequest(UUID requestId, boolean checkRight) {
 		Assert.notNull(requestId, "Role request ID is required!");
 		// Load request ... check right for read
-		IdmRoleRequestDto request = get(requestId);
+		IdmRoleRequestDto request = get(requestId, new IdmRoleRequestFilter(true));
 		Assert.notNull(request, "Role request DTO is required!");
 		//
 		Map<String, Serializable> variables = new HashMap<>();
@@ -349,8 +349,8 @@ public class DefaultIdmRoleRequestService
 
 		// Request will be set on in progress state
 		request.setState(RoleRequestState.IN_PROGRESS);
-		IdmRoleRequestDto savedRequest = this.save(request);
-		event.setContent(savedRequest);
+		this.save(request);
+		event.setContent(request);
 		//
 		IdmRoleRequestDto content =  entityEventManager
 				.process(event)
@@ -392,14 +392,12 @@ public class DefaultIdmRoleRequestService
 			// Minimize size of DTO persisting to WF
 			IdmRoleRequestDto eventRequest = event.getContent();
 			trimRequest(eventRequest);
-			eventRequest.setConceptRoles(null);
-			eventRequest.setOriginalRequest(null);
 			variables.put(EntityEvent.EVENT_PROPERTY, event);
 
 			ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinition,
 					IdmIdentity.class.getSimpleName(), applicant.getUsername(), applicant.getId().toString(),
 					variables);
-			// We have to refresh request (maybe was changed in wf process)
+			// We have to refresh request (maybe was changed in WF process)
 			request = this.get(request.getId());
 			request.setWfProcessId(processInstance.getProcessInstanceId());
 			this.save(request);
@@ -418,7 +416,7 @@ public class DefaultIdmRoleRequestService
 		//
 		// prepare request event
 		Assert.notNull(requestId, "Role request ID is required!");
-		IdmRoleRequestDto request = this.get(requestId);
+		IdmRoleRequestDto request = this.get(requestId, new IdmRoleRequestFilter(true));
 		Assert.notNull(request, "Role request is required!");
 		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, request);
 		//
@@ -434,7 +432,7 @@ public class DefaultIdmRoleRequestService
 	private IdmRoleRequestDto executeRequestInternal(EntityEvent<IdmRoleRequestDto> requestEvent) {
 		UUID requestId = requestEvent.getContent().getId();
 		Assert.notNull(requestId, "Role request ID is required!");
-		IdmRoleRequestDto request = this.get(requestId);
+		IdmRoleRequestDto request = this.get(requestId, new IdmRoleRequestFilter(true));
 		Assert.notNull(request, "Role request is required!");
 
 		List<IdmConceptRoleRequestDto> concepts = request.getConceptRoles();
@@ -539,12 +537,17 @@ public class DefaultIdmRoleRequestService
 			}
 		});
 	}
+	
+	@Override
+	public boolean supportsToDtoWithFilter() {
+		return true;
+	}
 
 	@Override
-	public IdmRoleRequestDto toDto(IdmRoleRequest entity, IdmRoleRequestDto dto) {
-		IdmRoleRequestDto requestDto = super.toDto(entity, dto);
-		// Set concepts to request DTO
-		if (requestDto != null) {
+	public IdmRoleRequestDto toDto(IdmRoleRequest entity, IdmRoleRequestDto dto, IdmRoleRequestFilter filter) {
+		IdmRoleRequestDto requestDto = super.toDto(entity, dto, filter);
+		// Set concepts to request DTO, but only if given filter has sets include-concepts attribute
+		if (requestDto != null && filter != null && filter.isIncludeConcepts()) {
 			requestDto.setConceptRoles(conceptRoleRequestService.findAllByRoleRequest(requestDto.getId()));
 		}		
 		// Load and add WF process DTO to embedded. Prevents of many requests
@@ -605,6 +608,9 @@ public class DefaultIdmRoleRequestService
 	@Override
 	@Transactional
 	public void deleteInternal(IdmRoleRequestDto dto) {
+		Assert.notNull(dto);
+		Assert.notNull(dto.getId());
+
 		// Find all request where is this request duplicated and remove relation
 		IdmRoleRequestFilter conceptRequestFilter = new IdmRoleRequestFilter();
 		conceptRequestFilter.setDuplicatedToRequestId(dto.getId());
@@ -622,10 +628,14 @@ public class DefaultIdmRoleRequestService
 		// Stop connected WF process
 		cancelWF(dto);
 
-		// First we have to delete all concepts for this request
-		dto.getConceptRoles().forEach(concept -> {
-			conceptRoleRequestService.delete(concept);
-		});
+		// We have to delete all concepts for this request
+		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
+		conceptFilter.setRoleRequestId(dto.getId());
+		conceptRoleRequestService.find(conceptFilter, null) //
+				.getContent() //
+				.forEach(concept -> {
+					conceptRoleRequestService.delete(concept);
+				});
 		super.deleteInternal(dto);
 	}
 
@@ -647,7 +657,7 @@ public class DefaultIdmRoleRequestService
 		roleRequest = this.save(roleRequest);
 		if (roles != null) {
 			for (IdmRoleDto role : roles) {
-				createConcept(roleRequest, contract, role.getId(), ConceptRoleRequestOperation.ADD);
+				createConcept(roleRequest, contract, null, role.getId(), ConceptRoleRequestOperation.ADD);
 			}
 		}
 		return roleRequest;
@@ -656,7 +666,6 @@ public class DefaultIdmRoleRequestService
 	@Override
 	public IdmRoleRequestDto copyRolesByIdentity(IdmRoleRequestByIdentityDto requestByIdentityDto) {
 		Assert.notNull(requestByIdentityDto, "Request by identity must exist!");
-		Assert.notNull(requestByIdentityDto.getRoleRequest(), "Request must be filled for copy roles!");
 		Assert.notNull(requestByIdentityDto.getIdentityContract(), "Contract must be filled for create role request!");
 
 		UUID identityContractId = requestByIdentityDto.getIdentityContract();
@@ -666,6 +675,12 @@ public class DefaultIdmRoleRequestService
 		boolean copyRoleParameters = requestByIdentityDto.isCopyRoleParameters();
 
 		List<UUID> identityRoles = requestByIdentityDto.getIdentityRoles();
+		
+		if (roleRequestId == null) {
+			IdmIdentityContractDto identityContractDto = identityContractService.get(identityContractId);
+			IdmRoleRequestDto request = this.createManualRequest(identityContractDto.getIdentity());
+			roleRequestId = request.getId();
+		}
 		
 		for (int i = 0; identityRoles.size() > i; i++) {
 			UUID identityRoleId = identityRoles.get(i);
@@ -929,7 +944,7 @@ public class DefaultIdmRoleRequestService
 		for (IdmConceptRoleRequestDto concept : concepts) {
 			concept.setRoleRequest(roleRequest.getId());
 			//
-			conceptRoleRequestService.save(concept);
+			roleRequest.getConceptRoles().add(conceptRoleRequestService.save(concept));
 		}
 		//
 		// start event with skip check authorities
@@ -938,6 +953,22 @@ public class DefaultIdmRoleRequestService
 		requestEvent.setPriority(PriorityType.IMMEDIATE); // execute request synchronously (asynchronicity schould be added from outside).
 		//
 		return startRequestInternal(requestEvent);
+	}
+	
+	@Override
+	public IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, IdmIdentityContractDto contract, UUID identityRoleId,
+			UUID roleId, ConceptRoleRequestOperation operation) {
+		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+		conceptRoleRequest.setRoleRequest(roleRequest.getId());
+		if (contract != null) {
+			conceptRoleRequest.setIdentityContract(contract.getId());
+			conceptRoleRequest.setValidFrom(contract.getValidFrom());
+			conceptRoleRequest.setValidTill(contract.getValidTill());
+		}
+		conceptRoleRequest.setIdentityRole(identityRoleId);
+		conceptRoleRequest.setRole(roleId);
+		conceptRoleRequest.setOperation(operation);
+		return conceptRoleRequestService.save(conceptRoleRequest);
 	}
 	
 	/**
@@ -1179,35 +1210,13 @@ public class DefaultIdmRoleRequestService
 	 * 
 	 * @param requestOriginal
 	 */
-	private void trimRequest(IdmRoleRequestDto requestOriginal) {
-		requestOriginal.setLog(null);
-		requestOriginal.setEmbedded(null);
-		requestOriginal.getConceptRoles().forEach(concept -> {
-			concept.setEmbedded(null);
-			concept.setLog(null);
-		});
+	private void trimRequest(IdmRoleRequestDto request) {
+		request.setLog(null);
+		request.setEmbedded(null);
+		request.setConceptRoles(null);
+		request.setOriginalRequest(null);
 	}
 
-	/**
-	 * Method create {@link IdmConceptRoleRequestDto}
-	 * 
-	 * @param roleRequest
-	 * @param contract
-	 * @param roleId
-	 * @param operation
-	 * @return
-	 */
-	private IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, IdmIdentityContractDto contract,
-			UUID roleId, ConceptRoleRequestOperation operation) {
-		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
-		conceptRoleRequest.setRoleRequest(roleRequest.getId());
-		conceptRoleRequest.setIdentityContract(contract.getId());
-		conceptRoleRequest.setValidFrom(contract.getValidFrom());
-		conceptRoleRequest.setValidTill(contract.getValidTill());
-		conceptRoleRequest.setRole(roleId);
-		conceptRoleRequest.setOperation(operation);
-		return conceptRoleRequestService.save(conceptRoleRequest);
-	}
 
 	/**
 	 * Create concepts for removing duplicities with subroles.
@@ -1271,6 +1280,16 @@ public class DefaultIdmRoleRequestService
 		// Add all concept to remove
 		concepts.addAll(conceptsToRemove);
 		return concepts;
+	}
+	
+	private IdmRoleRequestDto createManualRequest(UUID identityId) {
+		Assert.notNull(identityId, "Identity id must be filled for create role request!");
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setApplicant(identityId);
+		roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
+		roleRequest.setExecuteImmediately(false);
+		roleRequest = this.save(roleRequest);
+		return roleRequest;
 	}
 
 	/**

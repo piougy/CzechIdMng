@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
@@ -659,9 +660,11 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public IdmRoleRequestDto executeRequest(IdmRoleRequestDto roleRequest, boolean startInNewTransaction, boolean immediate) {
 		if (startInNewTransaction) {
-			return roleRequestService.startRequest(roleRequest.getId(), false);
+			roleRequestService.startRequest(roleRequest.getId(), false);
+		} else {
+			roleRequestService.startRequestInternal(roleRequest.getId(), false, immediate);
 		}
-		return roleRequestService.startRequestInternal(roleRequest.getId(), false, immediate);
+		return roleRequestService.get(roleRequest.getId(), new IdmRoleRequestFilter(true));
 	}
 
 	@Override

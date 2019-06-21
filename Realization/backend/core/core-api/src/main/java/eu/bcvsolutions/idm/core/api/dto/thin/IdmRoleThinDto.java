@@ -11,7 +11,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 
 /**
  * DTO for role - thin variant.
- *
+ * - purpose - disable embedded annotations only.
+ * 
  * @author Radek Tomiška
  * @since 9.7.0
  */
@@ -24,4 +25,20 @@ public class IdmRoleThinDto extends IdmRoleDto {
     private UUID requestItem; // Isn't persist in the entity
     @Embedded(enabled= false, dtoClass = IdmFormDefinitionDto.class)
 	private UUID identityRoleAttributeDefinition;
+    
+	public UUID getRequestItem() {
+		return requestItem;
+	}
+	
+	public void setRequestItem(UUID requestItem) {
+		this.requestItem = requestItem;
+	}
+	
+	public UUID getIdentityRoleAttributeDefinition() {
+		return identityRoleAttributeDefinition;
+	}
+	
+	public void setIdentityRoleAttributeDefinition(UUID identityRoleAttributeDefinition) {
+		this.identityRoleAttributeDefinition = identityRoleAttributeDefinition;
+	}
 }

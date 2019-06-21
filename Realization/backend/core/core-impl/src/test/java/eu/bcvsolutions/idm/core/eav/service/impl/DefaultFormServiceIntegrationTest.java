@@ -1763,6 +1763,35 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		}
 	}
 	
+	@Test
+	public void testMoveValueIntoOtherOwner() {
+		Identifiable ownerOne = getHelper().createIdentity((GuardedString) null);
+		Identifiable ownerTwo = getHelper().createIdentity((GuardedString) null);
+		//
+		// create definition with attribute
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attribute.getCode());
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmIdentity.class.getCanonicalName(), getHelper().createName(), Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		// fill values		
+		List<IdmFormValueDto> savedValueOne = formService.saveValues(ownerOne, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		List<IdmFormValueDto> savedValueTwo = formService.saveValues(ownerTwo, formDefinitionOne, savedValueOne);
+		List<IdmFormValueDto> getValueOne = formService.getValues(ownerOne, attribute);
+		// both values should be saved
+		Assert.assertEquals(1, getValueOne.size());
+		Assert.assertEquals(1, savedValueTwo.size());
+		Assert.assertNotEquals(getValueOne.get(0).getId(), savedValueTwo.get(0).getId());
+		//
+		// prevent to move value for original owner
+		List<IdmFormValueDto>  getValueAfterMoveOne = formService.getValues(ownerOne, attribute);
+		Assert.assertEquals(1, getValueAfterMoveOne.size());
+		Assert.assertEquals(getValueOne.get(0).getId(), getValueAfterMoveOne.get(0).getId());
+	}
+	
 	private long prepareDataAndFind(Class<? extends AbstractEntity> type, AbstractDto owner) {
 		//
 		//create attribute

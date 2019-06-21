@@ -507,7 +507,8 @@ public class DefaultFormService implements FormService {
 	}
 	
 	/**
-	 * Save single attribute values
+	 * Save single attribute values. Main business logic is here => all method ends here.
+	 * 
 	 * 
 	 * @param ownerEntity
 	 * @param attribute
@@ -559,11 +560,19 @@ public class DefaultFormService implements FormService {
 		IdmFormValueDto[] sortedPreviousValues = resolvePreviousValues(unprocessedPreviousValues, newValues);
 		for (short index = 0; index < newValues.size(); index++) {
 			IdmFormValueDto previousValue = sortedPreviousValues[index];
-			IdmFormValueDto newValue = newValues.get(index);			
-			newValue.setOwnerAndAttribute(ownerEntity, attribute);
-			newValue.setSeq(index);
+			IdmFormValueDto newValue = newValues.get(index);
 			//
 			if (previousValue == null) {
+				if (newValue.getOwnerId() != null && !newValue.getOwnerId().equals(ownerEntity.getId())) {
+					// owner was changed, new value will be created => prevent to move (update) value into new owner. 
+					newValue.setId(null);
+					DtoUtils.clearAuditFields(newValue);
+					//
+					// FIXME: move deep copy of attachments an confidential storage here.
+				}
+				newValue.setOwnerAndAttribute(ownerEntity, attribute);
+				newValue.setSeq(index);
+				//
 				if (!newValue.isNull()) { // null values are not saved
 					newValue = formValueService.save(newValue, permission);
 					//

@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
@@ -97,8 +96,6 @@ public class DefaultIdmConceptRoleRequestService extends
 	private IdmRoleService roleService;
 	@Autowired
 	private FormService formService;
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmIdentityRoleThinService identityRoleThinService;
 	@Autowired
@@ -298,6 +295,9 @@ public class DefaultIdmConceptRoleRequestService extends
 				// Get form instance from given concept first
 				if (eavs != null && eavs.size() == 1) {
 					conceptFormInstance = eavs.get(0);
+					if(conceptFormInstance.getFormDefinition() == null) {
+						conceptFormInstance.setFormDefinition(formDefinitionDto);
+					}
 				} else {
 					conceptFormInstance = formService.getFormInstance(dto, formDefinitionDto);
 				}

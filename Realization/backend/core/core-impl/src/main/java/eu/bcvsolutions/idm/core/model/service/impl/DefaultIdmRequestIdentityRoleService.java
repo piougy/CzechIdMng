@@ -7,8 +7,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.transaction.NotSupportedException;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -33,8 +30,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestIdentityRoleFilter;
-import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -44,12 +39,10 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
-import eu.bcvsolutions.idm.core.model.repository.IdmConceptRoleRequestRepository;
+import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Default implementation of service for search and processing changes in assigned identity roles
@@ -58,7 +51,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service("requestIdentityRoleService")
 public class DefaultIdmRequestIdentityRoleService extends
-		AbstractReadWriteDtoService<IdmRequestIdentityRoleDto, IdmConceptRoleRequest, IdmRequestIdentityRoleFilter>
+			AbstractBaseDtoService<IdmRequestIdentityRoleDto, IdmRequestIdentityRoleFilter>
 		implements IdmRequestIdentityRoleService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
@@ -72,35 +65,10 @@ public class DefaultIdmRequestIdentityRoleService extends
 	@Autowired
 	private IdmIdentityContractService identityContractService;
 	@Autowired
-	protected ModelMapper modelMapper;
+	private ModelMapper modelMapper;
 	@Autowired
 	private FormService formService;
 
-	@Autowired
-	public DefaultIdmRequestIdentityRoleService(IdmConceptRoleRequestRepository repository) {
-		super(repository);
-	}
-
-	@Override
-	public AuthorizableType getAuthorizableType() {
-		// secured internally by role requests
-		return null;
-	}
-
-	@Override
-	public IdmConceptRoleRequest checkAccess(IdmConceptRoleRequest entity, BasePermission... permission) {
-		if (entity == null) {
-			// nothing to check
-			return null;
-		}
-
-		if (ObjectUtils.isEmpty(permission)) {
-			return entity;
-		}
-		// TODO
-		throw new ForbiddenEntityException(entity.getId(), permission);
-	}
-	
 	@Override
 	public Page<IdmRequestIdentityRoleDto> find(IdmRequestIdentityRoleFilter filter, Pageable pageable,
 			BasePermission... permission) {
@@ -278,7 +246,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 	 * Not supported, use deleteRequestIdentityRole!
 	 */
 	public void delete(IdmRequestIdentityRoleDto dto, BasePermission... permission) {
-		new NotSupportedException();
+		new UnsupportedOperationException();
 	}
 	
     /**

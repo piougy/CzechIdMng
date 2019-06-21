@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.core.api.service;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Service for search and processing changes in assigned identity roles
@@ -13,9 +11,16 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmRequestIdentityRoleService
-		extends ReadWriteDtoService<IdmRequestIdentityRoleDto, IdmRequestIdentityRoleFilter>,
-		AuthorizableService<IdmConceptRoleRequestDto> {
+		extends ReadWriteDtoService<IdmRequestIdentityRoleDto, IdmRequestIdentityRoleFilter>{
 
+	/**
+	 * Delete method. In this case we need to use method where parameter is DTO (not
+	 * ID only, as in standard internalDelete method).
+	 * 
+	 * @param dto
+	 * @param permission
+	 * @return
+	 */
 	IdmRequestIdentityRoleDto deleteRequestIdentityRole(IdmRequestIdentityRoleDto dto, BasePermission... permission);
 
 }

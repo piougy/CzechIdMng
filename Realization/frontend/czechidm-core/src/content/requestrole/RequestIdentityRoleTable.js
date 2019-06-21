@@ -12,7 +12,6 @@ import FormInstance from '../../domain/FormInstance';
 import ConfigLoader from '../../utils/ConfigLoader';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 
-
 /**
 * Table for keep identity role concepts.
 *
@@ -144,7 +143,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   _createConceptsByIdentity() {
-    const { request } = this.props;
+    const { request, replaceUrl} = this.props;
     this.setState({
       showLoading: true
     }, () => {
@@ -157,7 +156,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           }, () => { this.addError(error);});
         } else {
           if (!request.id) {
-            this.context.router.replace(`/role-requests/${requestReturned.id}/detail`);
+            replaceUrl(requestReturned.id);
           } else {
             this._hideRoleByIdentitySelect();
             this.setState({
@@ -186,7 +185,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     this.setState({
       showLoading: true
     }, () => {
-      const { request} = this.props;
+      const { request, replaceUrl} = this.props;
 
       const entity = form.getData();
       entity.roleRequest = request.id;
@@ -225,7 +224,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
             showLoading: false
           }, () => {
             if (!request.id) {
-              this.context.router.replace(`/role-requests/${createdEntity.roleRequest}/detail`);
+              replaceUrl(createdEntity.roleRequest);
             } else {
               this._closeDetail();
               this.reload();
@@ -237,7 +236,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   _internalDelete(data) {
-    const {request} = this.props;
+    const {request, replaceUrl} = this.props;
     this.setState({showLoadingActions: true}, () => {
       data.roleRequest = request.id;
       this.context.store.dispatch(this.getManager().deleteEntity(data, null, (json, error) => {
@@ -246,7 +245,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         }
         this.setState({showLoadingActions: false});
         if (!request.id) {
-          this.context.router.replace(`/role-requests/${json.roleRequest}/detail`);
+          replaceUrl(json.roleRequest);
         } else {
           this.reload();
         }
@@ -281,10 +280,10 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   afterDelete(entities) {
-    const {request} = this.props;
+    const {request, replaceUrl} = this.props;
 
     if (!request.id && entities && entities.length > 0) {
-      this.context.router.replace(`/role-requests/${entities[0].roleRequest}/detail`);
+      replaceUrl(entities[0].roleRequest);
     } else {
       this.reload();
     }
@@ -292,6 +291,40 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
 
   reload() {
     this.refs.table.getWrappedInstance().reload();
+  }
+
+  /**
+   * Generate cell with detail button and info components
+   */
+  renderDetailCell({rowIndex, data}) {
+    const requestIdentityRole = data[rowIndex];
+    const role = requestIdentityRole._embedded.role;
+    const operation = requestIdentityRole.operation;
+    if (!role) {
+      return '';
+    }
+    const content = [];
+    //
+    content.push(
+      <Advanced.DetailButton
+        title={ this.i18n('button.detail') }
+        onClick={ this._showDetail.bind(this, requestIdentityRole, operation !== 'REMOVE', false) }/>
+    );
+    content.push(
+      <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(role) }/>
+    );
+    if (requestIdentityRole.duplicate) {
+      //
+      content.push(
+         <span>
+          <Basic.Icon
+            icon="fa:warning"
+            style={{ marginLeft: 3, color: '#337ab7' }}
+            title={ this.i18n('entity.IdentityRole.duplicate.label') }/>
+        </span>
+      );
+    }
+    return content;
   }
 
   /**
@@ -395,7 +428,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     const showLoading = this.props.showLoading || this.state.showLoading;
     const contractForceSearchparameters = new SearchParameters().setFilter('identity', identityUsername);
     //
-    const result = (
+    return (
       <div>
         <Basic.Panel rendered={ request !== null}>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
@@ -485,38 +518,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           <Advanced.Column
             header=""
             className="detail-button"
-            cell={
-              ({ rowIndex, data }) => {
-                const requestIdentityRole = data[rowIndex];
-                const role = requestIdentityRole._embedded.role;
-                const operation = requestIdentityRole.operation;
-                if (!role) {
-                  return '';
-                }
-                const content = [];
-                //
-                content.push(
-                  <Advanced.DetailButton
-                    title={ this.i18n('button.detail') }
-                    onClick={ this._showDetail.bind(this, requestIdentityRole, operation !== 'REMOVE', false) }/>
-                );
-                content.push(
-                  <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(role) }/>
-                );
-                if (requestIdentityRole.duplicate) {
-                  //
-                  content.push(
-                     <span>
-                      <Basic.Icon
-                        icon="fa:warning"
-                        style={{ marginLeft: 3, color: '#337ab7' }}
-                        title={ this.i18n('entity.IdentityRole.duplicate.label') }/>
-                    </span>
-                  );
-                }
-                return content;
-              }
-            }/>
+            cell={ this.renderDetailCell.bind(this) }/>
            <Advanced.Column
             property="role.name"
             title={ this.i18n('entity.Role.name') }
@@ -665,7 +667,6 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           onHide={ this._closeDetail.bind(this) }
           backdrop="static"
           keyboard={!showLoading}>
-
           <form onSubmit={ this._internalSave.bind(this) }>
             <Basic.Modal.Header
               closeButton={ !showLoading }
@@ -706,7 +707,6 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         </Basic.Modal>
       </div>
     );
-    return result;
   }
 }
 
@@ -715,8 +715,8 @@ RequestIdentityRoleTable.propTypes = {
   identityId: PropTypes.string.isRequired,
   className: PropTypes.string,
   request: PropTypes.object,
-  showRowSelection: PropTypes.bool,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  replaceUrl: PropTypes.func
 };
 
 RequestIdentityRoleTable.defaultProps = {

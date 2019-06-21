@@ -712,7 +712,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       forceSearchParameters,
       className,
       uuidEnd,
-      showTransactionId
+      showTransactionId,
+      hover
     } = this.props;
     const {
       filterOpened,

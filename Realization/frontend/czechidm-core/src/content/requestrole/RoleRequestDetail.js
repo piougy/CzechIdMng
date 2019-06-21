@@ -10,10 +10,8 @@ import * as Utils from '../../utils';
 import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager, DataManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
-import RoleConceptTable from './RoleConceptTable';
 import RequestIdentityRoleTable from './RequestIdentityRoleTable';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
-import SearchParameters from '../../domain/SearchParameters';
 //
 const uiKey = 'role-request';
 const uiKeyAttributes = 'concept-role-requests';
@@ -50,14 +48,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { _request } = nextProps;
     const entityId = nextProps.entityId ? nextProps.entityId : nextProps.params.entityId;
     const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.params.entityId;
     if (entityId && entityId !== entityIdCurrent) {
       this._initComponent(nextProps);
-    }
-    if (_request && (!this.props._request || _request.id !== this.props._request.id)) {
-      this._initComponentCurrentRoles(nextProps);
     }
   }
 
@@ -66,8 +60,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     this._initComponent(this.props);
-    //
-    this._initComponentCurrentRoles(this.props, true);
     if (this.refs.description) {
       this.refs.description.focus();
     }
@@ -101,21 +93,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
    */
   reloadComponent() {
     this._initComponent(this.props);
-  }
-
-  _initComponentCurrentRoles(props, force) {
-    const {context} = this;
-
-    const identityId = this._getIdentityId(props);
-    const state = context.store.getState();
-    let identityRoles = null;
-    if (identityId) {
-      identityRoles = identityRoleManager.getEntities(state, `${uiKey}-${identityId}`);
-    }
-    // Identity-roles are loaded only if not exists in the redux state or if force parameter is used (from didmount method).
-    if (identityId && (force || !identityRoles || identityRoles.length === 0)) {
-      this.context.store.dispatch(identityRoleManager.fetchRoles(identityId, `${uiKey}-${identityId}`));
-    }
   }
 
   /**
@@ -157,12 +134,16 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           this.addMessage({ message: this.i18n('save.success') });
         }
         if (this._getIsNew()) {
-          this.context.router.replace(`/role-requests/${entity.id}/detail`);
+          this.replaceUrl(entity.id);
         }
       } else {
         this.addError(error);
       }
     });
+  }
+
+  replaceUrl(requestId) {
+    this.context.router.replace(`/role-requests/${requestId}/detail`);
   }
 
   afterSaveAndStartRequest(entity, error) {
@@ -184,182 +165,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       return (query) ? query.new : null;
     }
     return false;
-  }
-
-  _removeConcept(data, type, cb = null) {
-    const {_request} = this.props;
-    this.setState({showLoadingButtonRemove: true});
-
-    let concept = data;
-    if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)
-      || (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE))) {
-      for (const conceptRole of _request.conceptRoles) {
-        if (conceptRole.identityRole === data) {
-          concept = conceptRole;
-        }
-      }
-    }
-
-    conceptRoleRequestManager.getService().deleteById(concept.id)
-    .then(() => {
-      for (const conceptRole of _request.conceptRoles) {
-        if (conceptRole.id === concept.id) {
-          _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
-        }
-      }
-      this.setState({showLoadingButtonRemove: false}, () => {
-        this.reloadComponent();
-        if (cb) {
-          cb();
-        }
-      });
-    })
-    .catch(error => {
-      this.setState({
-        showLoadingButtonRemove: false
-      }, () => {
-        if (cb) {
-          cb(null, error);
-        } else {
-          this.addError(error);
-        }
-      });
-    });
-
-    // this.context.store.dispatch(conceptRoleRequestManager.deleteEntity(concept, `${uiKeyAttributes}-deleteConcept-${_request.applicant}`, (deletedEntity, error) => {
-    //   if (!error) {
-    //     for (const conceptRole of _request.conceptRoles) {
-    //       if (conceptRole.id === concept.id) {
-    //         _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
-    //       }
-    //     }
-    //     this.refs.table.getWrappedInstance().reload();
-    //   } else {
-    //     this.addError(error);
-    //   }
-    // }));
-  }
-
-  _updateConcept(data, type, formInstance, cb = null) {
-    const {_request} = this.props;
-    let concept;
-    if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)) {
-      concept = {
-        'id': data.id,
-        'operation': type,
-        'roleRequest': data.roleRequest,
-        'identityContract': data.identityContract,
-        'role': data.role,
-        'identityRole': data.identityRole,
-        'validFrom': data.validFrom,
-        'validTill': data.validTill,
-        'state': data.state,
-        '_eav': [formInstance]
-      };
-    }
-    if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)) {
-      concept = {
-        'id': data.id,
-        'operation': type,
-        'roleRequest': data.roleRequest,
-        'identityContract': data.identityContract.id,
-        'role': data.role,
-        'identityRole': data.identityRole,
-        'validFrom': data.validFrom,
-        'validTill': data.validTill,
-        'state': data.state,
-        '_eav': [formInstance]
-      };
-    }
-    this.context.store.dispatch(conceptRoleRequestManager.updateEntity(concept, `${uiKeyAttributes}-detail`, (updatedEntity, error) => {
-      if (!error) {
-        for (let i = 0; i < _request.conceptRoles.length; i++) {
-          if (_request.conceptRoles[i].id === updatedEntity.id) {
-            _request.conceptRoles[i] = updatedEntity;
-          }
-        }
-        if (cb) {
-          cb();
-        }
-      } else if (cb) {
-        cb(null, error);
-      } else {
-        this.addError(error);
-      }
-    }));
-  }
-
-  /**
-   * If request does not exists yet, then will be created and given method will executed.
-   * If request already exists, then given method will be executed immediately.
-   *
-   * @param saveMethod Method for execute after createion of the request
-   * @param  roleConceptTable
-   * @param  data
-   */
-  _getOrCreateRequest(saveMethod, roleConceptTable, data) {
-    const {_request} = this.props;
-    if (_request) {
-      saveMethod.bind(roleConceptTable)(_request.id, data);
-      return;
-    }
-
-    if (!this.refs.form.isFormValid()) {
-      return;
-    }
-    const formEntity = this.refs.form.getData();
-    this.context.store.dispatch(roleRequestManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
-      if (!error) {
-        if (this._getIsNew()) {
-          saveMethod.bind(roleConceptTable, createdEntity.id, data, () => {
-            this.context.router.replace(`/role-requests/${createdEntity.id}/detail`);
-          })();
-        }
-      } else {
-        this.addError(error);
-      }
-    }));
-  }
-
-  _createConcept(data, type, formInstance, cb = null) {
-    const {_request} = this.props;
-    const concept = {
-      'operation': type,
-      'roleRequest': data.roleRequest,
-      'identityContract': data.identityContract.id,
-      'role': data._embedded.role.id,
-      'identityRole': data.id,
-      'validFrom': data.validFrom,
-      'validTill': data.validTill,
-      'state': data.state,
-      '_eav': [formInstance]
-    };
-
-    conceptRoleRequestManager.getService().create(concept)
-    .then(json => {
-      if (_request) {
-        _request.conceptRoles.push(json);
-      }
-      if (cb) {
-        cb();
-      }
-    })
-    .catch(error => {
-      if (cb) {
-        cb(null, error);
-      } else {
-        this.addError(error);
-      }
-    });
-
-    // this.context.store.dispatch(conceptRoleRequestManager.createEntity(concept, `${uiKeyAttributes}-createConcept-${_request.applicant}`, (createdEntity, error) => {
-    //   if (!error) {
-    //     _request.conceptRoles.push(createdEntity);
-    //     this.refs.table.getWrappedInstance().reload();
-    //   } else {
-    //     this.addError(error);
-    //   }
-    // }));
   }
 
   _startRequest(idRequest, event) {
@@ -491,7 +296,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
-
   _getApplicantAndImplementer(request) {
     return (
       <div>
@@ -519,44 +323,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
-  _renderRoleConceptTable(request, rendered, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles, showLoadingButtonRemove) {
-    if (!rendered) {
-      return null;
-    }
-    //
-    const { _permissions, canExecute, _incompatibleRoles, showLoadingRoles } = this.props;
-    return (
-      <div>
-        <Basic.ContentHeader>
-          <Basic.Icon value="list"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
-        </Basic.ContentHeader>
-        <RoleConceptTable
-          ref="identityRoleConceptTable"
-          uiKey="identity-role-concept-table"
-          showLoading={showLoading || showLoadingRoles}
-          showLoadingButtonRemove={showLoadingButtonRemove}
-          className="lg-vertical-scroll"
-          readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
-          identityUsername={request && request.applicant}
-          request={request}
-          identityRoles={_currentIdentityRoles}
-          addedIdentityRoles={addedIdentityRoles}
-          changedIdentityRoles={changedIdentityRoles}
-          removedIdentityRoles={removedIdentityRoles}
-          removeConceptFunc={this._removeConcept.bind(this)}
-          createConceptFunc={this._createConcept.bind(this)}
-          updateConceptFunc={this._updateConcept.bind(this)}
-          getRequest={this._getOrCreateRequest.bind(this)}
-          conceptRoleRequestManager={conceptRoleRequestManager}
-          reloadComponent={ this.reloadComponent.bind(this) }
-          _incompatibleRoles={ _incompatibleRoles }
-          />
-      </div>
-    );
-  }
-
   _getIdentityId(props) {
     const { _request, location} = props;
     const applicantFromUrl = location ? location.query.applicantId : null;
@@ -568,12 +334,12 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const {
       _showLoading,
       _request,
-      _currentIdentityRoles,
       editableInStates,
       showRequestDetail,
       _permissions,
       _incompatibleRoles,
-      _incompatibleRolesLoading
+      _incompatibleRolesLoading,
+      canExecute
     } = this.props;
     //
     const isNew = this._getIsNew();
@@ -588,7 +354,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const _adminMode = hasAdminRights && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
     const showLoading = !request || (_showLoading && !isNew) || this.state.showLoading || this.props.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
-    const showLoadingButtonRemove = this.state.showLoadingButtonRemove;
     if (this.state.showLoading || !request) {
       return (<div>
         <Basic.ContentHeader rendered={ showRequestDetail }>
@@ -601,28 +366,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         </Basic.PanelBody>
       </div>);
     }
-
-    const addedIdentityRoles = [];
-    const changedIdentityRoles = [];
-    const removedIdentityRoles = [];
-    if (request && request.conceptRoles) {
-      const conceptRoles = request.conceptRoles;
-      for (const concept of conceptRoles) {
-        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)
-          && concept.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
-          addedIdentityRoles.push(concept);
-        }
-        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)
-          && concept.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
-          changedIdentityRoles.push(concept);
-        }
-        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)
-          && concept.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
-          removedIdentityRoles.push(concept.identityRole);
-        }
-      }
-    }
-    const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
+    // const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     return (
       <div>
         <Basic.Confirm ref="confirm-incompatible-role" level="warning">
@@ -683,13 +427,13 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               <RequestIdentityRoleTable
                 request={request}
                 incompatibleRoles={ _incompatibleRoles }
+                readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
                 identityId={this._getIdentityId(this.props)}
+                replaceUrl={this.replaceUrl.bind(this)}
                 />
               {
-                this._renderRoleConceptTable(request, true, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles, showLoadingButtonRemove)
-              }
-              {
-                this._renderRoleConceptChangesTable(request, forceSearchParameters, _adminMode)
+                // Table with concepts was hidden, is replaced by new request-identity-role-table
+                // this._renderRoleConceptChangesTable(request, forceSearchParameters, _adminMode)
               }
               <Basic.AbstractForm
                 readOnly
@@ -735,11 +479,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-        {
-          this._renderRoleConceptTable(request, !showRequestDetail,
-            isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
-            changedIdentityRoles, removedIdentityRoles)
-        }
       </div>
     );
   }
@@ -760,12 +499,8 @@ RoleRequestDetail.defaultProps = {
 function select(state, component) {
   const entityId = component.entityId ? component.entityId : component.params.entityId;
   const entity = roleRequestManager.getEntity(state, entityId);
-  let _currentIdentityRoles = null;
   const applicantFromUrl = component.location ? component.location.query.applicantId : null;
   const identityId = entity ? entity.applicant : applicantFromUrl;
-  if (identityId) {
-    _currentIdentityRoles = identityRoleManager.getEntities(state, `${uiKey}-${identityId}`);
-  }
   if (entity && entity._embedded && entity._embedded.wfProcessId) {
     entity.currentActivity = entity._embedded.wfProcessId.name;
     entity.candicateUsers = entity._embedded.wfProcessId.candicateUsers;
@@ -774,7 +509,6 @@ function select(state, component) {
     _request: entity,
     _showLoading: entity ? false : true,
     showLoadingRoles: identityRoleManager.isShowLoading(state, `${uiKey}-${identityId}`),
-    _currentIdentityRoles,
     _permissions: roleRequestManager.getPermissions(state, null, entity),
     _incompatibleRoles: entity ? DataManager.getData(state, `${ uiKeyIncompatibleRoles }${entity.id}`) : null,
     _incompatibleRolesLoading: entity ? DataManager.isShowLoading(state, `${ uiKeyIncompatibleRoles }${entity.id}`) : false

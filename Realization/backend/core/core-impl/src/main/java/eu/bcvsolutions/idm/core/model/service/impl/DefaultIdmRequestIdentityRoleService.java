@@ -246,7 +246,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 	 * Not supported, use deleteRequestIdentityRole!
 	 */
 	public void delete(IdmRequestIdentityRoleDto dto, BasePermission... permission) {
-		new UnsupportedOperationException();
+		throw new UnsupportedOperationException();
 	}
 	
     /**

@@ -94,35 +94,45 @@ public class DefaultIdmLongRunningTaskService
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// quick - "fulltext"
-		if (StringUtils.isNotEmpty(filter.getText())) {
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
 			predicates.add(builder.or(
-					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskType)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskDescription)), "%" + filter.getText().toLowerCase() + "%")					
+					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskType)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskDescription)), "%" + text + "%")					
 					));
 		}
-		if (StringUtils.isNotEmpty(filter.getInstanceId())) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.instanceId), filter.getInstanceId()));
+		String instanceId = filter.getInstanceId();
+		if (StringUtils.isNotEmpty(instanceId)) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.instanceId), instanceId));
 		}
-		if (StringUtils.isNotEmpty(filter.getTaskType())) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.taskType), filter.getTaskType()));
+		String taskType = filter.getTaskType();
+		if (StringUtils.isNotEmpty(taskType)) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.taskType), taskType));
 		}
-		if (filter.getFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmLongRunningTask_.created), filter.getFrom()));
+		DateTime from = filter.getFrom();
+		if (from != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmLongRunningTask_.created), from));
 		}
-		if (filter.getTill() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(IdmLongRunningTask_.created), filter.getTill().plusDays(1)));
+		DateTime till = filter.getTill();
+		if (till != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmLongRunningTask_.created), till.plusDays(1)));
 		}
-		if (filter.getOperationState() != null) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.result).get(OperationResult_.state), filter.getOperationState()));
+		OperationState operationState = filter.getOperationState();
+		if (operationState != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.result).get(OperationResult_.state), operationState));
 		}
-		if (filter.getRunning() != null) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.running), filter.getRunning()));
+		Boolean running = filter.getRunning();
+		if (running != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.running), running));
 		}
-		if (filter.getStateful() != null) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.stateful), filter.getStateful()));
+		Boolean stateful = filter.getStateful();
+		if (stateful != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.stateful), stateful));
 		}
-		if (filter.getCreatorId() != null) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.creatorId), filter.getCreatorId()));
+		UUID creatorId = filter.getCreatorId();
+		if (creatorId != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.creatorId), creatorId));
 		}
 		//
 		return predicates;

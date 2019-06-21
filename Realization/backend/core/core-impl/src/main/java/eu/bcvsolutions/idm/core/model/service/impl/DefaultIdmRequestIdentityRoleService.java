@@ -119,6 +119,8 @@ public class DefaultIdmRequestIdentityRoleService extends
 			if (!returnOnlyChanges) {
 				// We want to load only new added roles
 				filter.setOperation(ConceptRoleRequestOperation.ADD);
+				// We don`t want load ADD concepts with filled identityRoleId (such concepts were already executed )
+				filter.setIdentityRoleIsNull(true);
 			}
 			
 			Page<IdmConceptRoleRequestDto> conceptsPage = conceptRoleService.find(filter, pageable, permission);
@@ -441,7 +443,12 @@ public class DefaultIdmRequestIdentityRoleService extends
 				identityRole.setEavs(Lists.newArrayList(formInstance));
 			}
 		});
-		concepts = roleRequestService.markDuplicates(concepts, identityRoles);
+		// Find potential duplicated concepts (only ADD and not in terminated state)
+		List<IdmConceptRoleRequestDto> conceptsForMarkDuplicates = concepts.stream() //
+				.filter(concept -> ConceptRoleRequestOperation.ADD == concept.getOperation()) //
+				.filter(concept -> !concept.getState().isTerminatedState()) //
+				.collect(Collectors.toList()); //
+		roleRequestService.markDuplicates(conceptsForMarkDuplicates, identityRoles);
 		// End mark duplicates
 		LOG.debug(MessageFormat.format("End searching duplicates for identity [{1}].", identityId));
 
@@ -467,7 +474,13 @@ public class DefaultIdmRequestIdentityRoleService extends
 		if (filter != null && filter.isIncludeEav()) {
 			IdmFormInstanceDto formInstanceDto  = null;
 			if (ConceptRoleRequestOperation.REMOVE == concept.getOperation()) {
-				IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole.getName(), IdmIdentityRoleDto.class);
+				IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept,
+						IdmConceptRoleRequest_.identityRole.getName(), IdmIdentityRoleDto.class,
+						(IdmIdentityRoleDto) null);
+				if (identityRole == null) { 
+					// Identity-role was not found, remove concept was executed (identity-role was removed).
+					return requestIdentityRoleDto;
+				}
 				formInstanceDto  = identityRoleService.getRoleAttributeValues(identityRole);
 			} else {
 				formInstanceDto  = conceptRoleService.getRoleAttributeValues(concept, true);

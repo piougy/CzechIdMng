@@ -1,15 +1,11 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -28,27 +24,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestIdentityRoleFilter;
-import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRequestIdentityRoleService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -65,21 +51,9 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmRequestIdentityRoleController
 		extends AbstractReadWriteDtoController<IdmRequestIdentityRoleDto, IdmRequestIdentityRoleFilter> {
 
-	protected static final String TAG = "Role Request - concepts";
-	@Autowired
-	private SecurityService securityService;
-	@Autowired
-	private IdmRoleRequestService roleRequestService;
-	@Autowired
-	private IdmConceptRoleRequestService conceptRoleService;
-	@Autowired
-	private FormService formService;
+	protected static final String TAG = "Role Request identity-roles";
 	@Autowired
 	private final IdmRequestIdentityRoleService service;
-	@Autowired
-	private IdmFormDefinitionController formDefinitionController;
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	public IdmRequestIdentityRoleController(IdmRequestIdentityRoleService service) {

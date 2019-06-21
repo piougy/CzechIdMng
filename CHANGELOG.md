@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 ## [9.7.0]
 - Deprecated class (since 7.3.0) ``AuditableListener`` was removed. Use class ``AuditableEntityListener`` instead.
 - Deprecated classes (since 7.7.0) for long running tasks placed in core ``impl`` package was removed. Used the same classes from core ``api``.
+- [#1692](https://redmine.czechidm.com/issues/1692) - **The table of user roles changes has been redesigned**. All logic was move from frontend to backend. This new table (RequestIdentityRoleTable) is pageable, sorting, filtering on backend now.
+   - For this table was created new DTO ``IdmRequestIdentityRoleDto``, representing change for specific identity-role entity.
+   - For this table was created new REST endpoint too ``/request-identity-roles``. This endpoint can be calling with starndard CRUD operations. Logic in this REST (service ``IdmRequestIdentityRoleService``) will be automatically creates role-concepts.
+   - The finding method in this serivce compiles assigned identity-roles and role-concepts together and returns list of ``IdmRequestIdentityRoleDto``.
+   - Sorting works separatly for identity-roles and concepts. For this reason are first returns concepts adding new assign roles. Then are returns currentlly assigned identity-roles. If for returns identity-role exists remove or update concept, then is identity-role marked as changed. Role-concepts and identity-roles are always returns as ``IdmRequestIdentityRoleDto``.
+   - **For performance reasons, the REST endpoint for role-request, returns request without concepts** (from this version)! For same reason **``IdmRoleRequestService`` doesn't returns concepts in the request from now**. If you need to get request with a concepts, you can use this:  
+    ```javascript
+    roleRequestService.get(requestId, new IdmRoleRequestFilter(true));
+    ```
+
+
+
 
 ## [9.6.3]
 - [#1668](https://redmine.czechidm.com/issues/1668) - ``EntityEventDeleteExecutedProcessor`` was removed. LRT ``DeleteExecutedEventTaskExecutor`` was created and scheduled by default to cover this functionality (executed events older than 3 days will be removed by default schedule).

@@ -63,10 +63,11 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * @see Sort
  * @see Pageable
  * @see Page
+ * @see DataFilter
  *
  * @param <DTO> dto type for entity type
  * @param <E> entity type
- * @param <F> filter
+ * @param <F> filter {@link DataFilter} generalization is preferred.
  */
 public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
 		implements ReadDtoService<DTO, F> {
@@ -123,8 +124,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public Class<DTO> getDtoClass() {
 		return ((Class<DTO>)this.getDtoClass(null));
 	}
@@ -140,8 +141,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	/**
-	 * Returns {@link BaseEntity} type class, which is controlled by this
-	 * service
+	 * Returns {@link BaseEntity} type class, which is controlled by this service.
 	 * 
 	 * @return
 	 */
@@ -151,8 +151,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 	
 	/**
-	 * Returns {@link BaseEntity} type class, which is controlled by this
-	 * service
+	 * Returns {@link BaseEntity} type class, which is controlled by this service.
 	 * @param dto 
 	 * 
 	 * @return
@@ -162,8 +161,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	/**
-	 * Returns {@link BaseFilter} type class, which is controlled by this
-	 * service
+	 * Returns {@link BaseFilter} type class, which is controlled by this service.
+	 * {@link DataFilter} generalization is preferred.
 	 * 
 	 * @return
 	 */
@@ -297,28 +296,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		} else {
 			identifier = (UUID) id;
 		}
-		// find / get entity
-		E entity = null;
-		// TODO: preparation for #1643
-		/* if (DataFilter.class.isAssignableFrom(getFilterClass())) {
-			// optimization - find with fetches available
-			F filter;
-			try {
-				filter = getFilterClass().newInstance();
-				((DataFilter) filter).setId(identifier);
-				// permission are not checked here, see bellow => some agenda supports permission on concrete entity only (WF related)
-				List<E> entities = findEntities(filter, new PageRequest(0, 1)).getContent();
-				if (!entities.isEmpty()) {
-					entity = entities.get(0);
-				}
-			} catch (InstantiationException | IllegalAccessException e) {
-				// default
-				entity = getRepository().findOne(identifier);
-			}
-		} else { */
-			// default
-			entity = getRepository().findOne(identifier);
-		// }
+		// get entity
+		E entity = getRepository().findOne(identifier);
 		//
 		LOG.trace("Entity found [{}], permissions [{}] will be evaluated ...", entity, permission);
 		entity = checkAccess(entity, permission);
@@ -687,5 +666,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	        }
 	    }
 	}
+	
+	
+
 	
 }

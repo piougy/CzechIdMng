@@ -56,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmTokenService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.api.service.thin.IdmIdentityRoleThinService;
 import eu.bcvsolutions.idm.core.config.domain.DefaultContractSliceConfiguration;
 import eu.bcvsolutions.idm.core.config.domain.DefaultRoleConfiguration;
 import eu.bcvsolutions.idm.core.config.domain.DefaultTreeConfiguration;
@@ -111,6 +112,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmTokenRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.repository.filter.DefaultFilterManager;
+import eu.bcvsolutions.idm.core.model.repository.thin.IdmIdentityRoleThinRepository;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityStateManager;
@@ -141,6 +143,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTokenService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultLookupService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
+import eu.bcvsolutions.idm.core.model.service.thin.DefaultIdmIdentityRoleThinService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
@@ -199,6 +202,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmContractGuaranteeRepository contractGuaranteeRepository;
 	@Autowired private IdmContractPositionRepository contractPositionRepository;
 	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
+	@Autowired private IdmIdentityRoleThinRepository identityRoleThinRepository;
 	@Autowired private IdmIdentityContractRepository identityContractRepository;
 	@Autowired private IdmProcessedTaskItemRepository processedTaskRepository;
 	@Autowired private IdmScheduledTaskRepository scheduledTaskRepository;
@@ -703,6 +707,17 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(IdmIdentityRoleService.class)
 	public IdmIdentityRoleService identityRoleService() {
 		return new DefaultIdmIdentityRoleService(identityRoleRepository,  formService(), entityEventManager());
+	}
+	
+	/**
+	 * Assigned identity's roles - thin variant.
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmIdentityRoleThinService.class)
+	public IdmIdentityRoleThinService identityRoleThinService() {
+		return new DefaultIdmIdentityRoleThinService(identityRoleThinRepository);
 	}
 
 	/**

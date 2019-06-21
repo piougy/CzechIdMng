@@ -203,18 +203,18 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		EntityAccountFilter filter = createEntityAccountFilter();
 		filter.setEntityId(dto.getId());
 		filter.setOwnership(Boolean.TRUE);
-		List<? extends EntityAccountDto> entityAccoutnList = this.getEntityAccountService().find(filter, null)
+		List<? extends EntityAccountDto> entityAccountList = this.getEntityAccountService().find(filter, null)
 				.getContent();
 
 		List<UUID> accounts = new ArrayList<>();
-		entityAccoutnList.stream().forEach((entityAccount) -> {
+		entityAccountList.stream().forEach((entityAccount) -> {
 			if (!accounts.contains(entityAccount.getAccount())) {
 				accounts.add(entityAccount.getAccount());
 			}
 		});
 
 		accounts.stream().forEach(account -> {
-			EntityAccountDto entityAccountDto = entityAccoutnList
+			EntityAccountDto entityAccountDto = entityAccountList
 					.stream()
 					.filter(entityAccount -> account.equals(entityAccount.getAccount()))
 					.findFirst()

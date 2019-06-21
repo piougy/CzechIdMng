@@ -45,6 +45,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
+import eu.bcvsolutions.idm.core.api.service.thin.IdmIdentityRoleThinService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -97,6 +98,8 @@ public class DefaultIdmConceptRoleRequestService extends
 	private FormService formService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmIdentityRoleThinService identityRoleThinService;
 	@Autowired
 	private ValueGeneratorManager valueGeneratorManager;
 
@@ -310,9 +313,11 @@ public class DefaultIdmConceptRoleRequestService extends
 					IdmIdentityRoleDto identityRoleDto = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.identityRole,
 							IdmIdentityRoleDto.class, null);
 					if(identityRoleDto == null) {
-						identityRoleDto = identityRoleService.get(dto.getIdentityRole());
+						identityRoleDto = identityRoleThinService.get(dto.getIdentityRole());
 					}
-					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinitionDto);
+					IdmFormInstanceDto formInstance = formService.getFormInstance(
+							new IdmIdentityRoleDto(identityRoleDto.getId()), 
+							formDefinitionDto);
 					if (formInstance != null && conceptFormInstance != null) {
 						IdmFormInstanceDto conceptFormInstanceFinal = conceptFormInstance;
 						List<IdmFormValueDto> conceptValues = conceptFormInstanceFinal.getValues();

@@ -108,10 +108,11 @@ public class DefaultIdmIdentityRoleService
 		if (roleId != null) {
 			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmIdentityRole_.role, IdmRoleDto.class);
 			// Has role filled attribute definition?
-			UUID formDefintion = role.getIdentityRoleAttributeDefinition();
-			if (formDefintion != null) {
+			UUID formDefinition = role.getIdentityRoleAttributeDefinition();
+			if (formDefinition != null) {
 				IdmFormDefinitionDto formDefinitionDto = roleService.getFormAttributeSubdefinition(role);
-				return this.getFormService().getFormInstance(dto, formDefinitionDto);
+				// thin dto can be given -> owner is normal dto
+				return this.getFormService().getFormInstance(new IdmIdentityRoleDto(dto.getId()), formDefinitionDto);
 			}
 		}
 		return null;

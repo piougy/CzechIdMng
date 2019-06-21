@@ -114,6 +114,7 @@ public class DefaultAccIdentityAccountService extends
 	protected List<Predicate> toPredicates(Root<AccIdentityAccount> root, CriteriaQuery<?> query,
 			CriteriaBuilder builder, AccIdentityAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
 		if (filter.getAccountId() != null) {
 			predicates.add(builder.equal(root.get(AccIdentityAccount_.account).get(AccAccount_.id), filter.getAccountId()));
 		}

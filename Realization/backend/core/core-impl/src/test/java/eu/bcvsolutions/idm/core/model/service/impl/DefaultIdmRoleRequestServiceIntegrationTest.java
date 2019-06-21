@@ -62,7 +62,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test for change permissions via Role request.
@@ -73,8 +72,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWorkflowIntegrationTest {
 
-	@Autowired
-	protected TestHelper helper;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
@@ -117,7 +114,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 
 	private void prepareIdentityAndRoles() {
 		// create roles
-		roleA = helper.createRole();
+		roleA = getHelper().createRole();
 		roleA.setPriority(100);
 		roleService.save(roleA);
 

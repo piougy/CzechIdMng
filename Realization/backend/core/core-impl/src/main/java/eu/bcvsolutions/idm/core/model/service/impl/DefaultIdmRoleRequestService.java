@@ -76,6 +76,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
+import eu.bcvsolutions.idm.core.api.service.thin.IdmIdentityRoleThinService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -150,6 +151,8 @@ public class DefaultIdmRoleRequestService
 	private IdmRoleCompositionService roleCompositionService;
 	@Autowired
 	private ValueGeneratorManager valueGeneratorManager;
+	@Autowired
+	private IdmIdentityRoleThinService identityRoleThinService;
 
 	@Autowired
 	public DefaultIdmRoleRequestService(IdmRoleRequestRepository repository,
@@ -517,7 +520,7 @@ public class DefaultIdmRoleRequestService
 				} else {
 					IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole, IdmIdentityRoleDto.class, null);
 					if (identityRole == null) {
-						identityRole = identityRoleService.get(concept.getIdentityRole());
+						identityRole = identityRoleThinService.get(concept.getIdentityRole());
 					}
 					if (identityRole != null) {
 						 role = DtoUtils.getEmbedded(concept, IdmIdentityRole_.role, IdmRoleDto.class);
@@ -685,7 +688,7 @@ public class DefaultIdmRoleRequestService
 			if (i % 20 == 0 && i > 0) {
 				 flushHibernateSession();
 			}
-			IdmIdentityRoleDto identityRoleDto = identityRoleService.get(identityRoleId, IdmBasePermission.READ);
+			IdmIdentityRoleDto identityRoleDto = identityRoleThinService.get(identityRoleId);
 			if (identityRoleDto == null) {
 				LOG.error("For given identity role id [{}] was not found entity. ", identityRoleId);
 				continue;
@@ -996,7 +999,7 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(concept.getIdentityRole(), "IdentityRole is mandatory for delete!");
 		IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole.getName(), IdmIdentityRoleDto.class, (IdmIdentityRoleDto)null);
 		if (identityRole == null) {
-			identityRole = identityRoleService.get(concept.getIdentityRole());
+			identityRole = identityRoleThinService.get(concept.getIdentityRole());
 		}
 		
 		if (identityRole != null) {

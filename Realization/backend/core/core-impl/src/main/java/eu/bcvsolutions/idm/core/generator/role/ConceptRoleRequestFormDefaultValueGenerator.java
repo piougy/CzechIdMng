@@ -13,8 +13,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.thin.IdmIdentityRoleThinService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -35,7 +35,7 @@ public class ConceptRoleRequestFormDefaultValueGenerator
 	@Autowired
 	private IdmRoleService roleService;
 	@Autowired
-	private IdmIdentityRoleService identityRoleService;
+	private IdmIdentityRoleThinService identityRoleService;
 
 	@Override
 	public String getName() {

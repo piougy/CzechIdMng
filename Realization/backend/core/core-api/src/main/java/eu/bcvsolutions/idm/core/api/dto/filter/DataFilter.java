@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Common filter for registrable filter builders - contains filter parameters as map. 
+ * Common filter for registerable filter builders - contains filter parameters as map. 
  * Registered filter builders will have all values available.
  * 
  * @see FilterBuilder

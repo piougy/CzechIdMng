@@ -535,7 +535,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                   forceSearchParameters={ _tableForceSearchParameters }
                   uiKey={ `${this.getUiKey()}-table` }
                   manager={ this.getManager() }
-                  showPageSize={ false }
+                  showPageSize={ this.isDevelopment() }
                   rowClass={({rowIndex, data}) => {
                     return _.includes(selectedRows, data[rowIndex].id) ? selectRowClass : Utils.Ui.getDisabledRowClass(data[rowIndex]);
                   }}

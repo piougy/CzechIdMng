@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
@@ -63,7 +64,9 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 		
 		IdmBulkActionDto processAction = bulkActionManager.processAction(exampleAction);
 		assertNotNull(processAction.getLongRunningTaskId());
-		IdmLongRunningTaskDto longRunningTask = longRunningTaskService.get(processAction.getLongRunningTaskId());
+		IdmLongRunningTaskFilter context = new IdmLongRunningTaskFilter();
+		context.setIncludeItemCounts(true);
+		IdmLongRunningTaskDto longRunningTask = longRunningTaskService.get(processAction.getLongRunningTaskId(), context);
 
 		assertEquals(Long.valueOf(3), longRunningTask.getCount());
 		assertEquals(Long.valueOf(3), longRunningTask.getSuccessItemCount());

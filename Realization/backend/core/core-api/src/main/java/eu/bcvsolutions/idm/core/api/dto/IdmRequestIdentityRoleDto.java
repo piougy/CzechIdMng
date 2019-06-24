@@ -14,8 +14,12 @@ import org.springframework.hateoas.core.Relation;
 public class IdmRequestIdentityRoleDto extends IdmConceptRoleRequestDto {
 
 	private static final long serialVersionUID = 1L;
-	
-    private Set<UUID> roles;
+
+	/**
+	 * Roles for create adding concepts (use only for assign new roles). You can
+	 * still use field "role" for assign one role.
+	 */
+	private Set<UUID> roles;
 
 	public Set<UUID> getRoles() {
 		return roles;
@@ -25,4 +29,4 @@ public class IdmRequestIdentityRoleDto extends IdmConceptRoleRequestDto {
 		this.roles = roles;
 	}
 
- }
+}

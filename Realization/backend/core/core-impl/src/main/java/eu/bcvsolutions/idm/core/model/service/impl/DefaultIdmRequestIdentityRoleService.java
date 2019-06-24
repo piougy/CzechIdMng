@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.joda.time.LocalDate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
@@ -148,8 +150,9 @@ public class DefaultIdmRequestIdentityRoleService extends
 				IdmRoleRequestDto request = this.createRequest(identityContractDto.getIdentity());
 				requestId = request.getId();
 			}
-			IdmConceptRoleRequestDto conceptRoleRequest = createConcept(identityRoleDto, identityContractDto,
-					requestId, identityRoleDto.getRole(), ConceptRoleRequestOperation.UPDATE);
+			IdmConceptRoleRequestDto conceptRoleRequest = createConcept(identityRoleDto, identityContractDto, requestId,
+					identityRoleDto.getRole(), identityContractDto.getValidFrom(), identityContractDto.getValidTill(),
+					ConceptRoleRequestOperation.UPDATE);
 			conceptRoleRequest.setValidFrom(dto.getValidFrom());
 			conceptRoleRequest.setValidTill(dto.getValidTill());
 			conceptRoleRequest.setEavs(dto.getEavs());
@@ -160,7 +163,16 @@ public class DefaultIdmRequestIdentityRoleService extends
 		} else if(dto.getId() == null && dto.getIdentityRole() == null) {
 			// Given DTO does not have ID neither identity-role ID -> create ADD concept
 			Assert.notNull(dto.getIdentityContract());
-			Assert.notNull(dto.getRoles());
+			
+			Set<UUID> roles = Sets.newHashSet();
+			if (dto.getRole() != null) {
+				roles.add(dto.getRole());
+			}
+			if (dto.getRoles() != null) {
+				roles.addAll(dto.getRoles());
+			}
+			
+			Assert.notEmpty(roles, "Roles cannot be empty!");
 			
 			IdmIdentityContractDto identityContractDto = identityContractService.get(dto.getIdentityContract());
 			
@@ -172,9 +184,9 @@ public class DefaultIdmRequestIdentityRoleService extends
 			List<IdmConceptRoleRequestDto> concepts = Lists.newArrayList();
 			
 			UUID finalRequestId = requestId;
-			dto.getRoles().forEach(role -> {
+			roles.forEach(role -> {
 				IdmConceptRoleRequestDto conceptRoleRequest = createConcept(null, identityContractDto, finalRequestId,
-						role, ConceptRoleRequestOperation.ADD);
+						role, dto.getValidFrom(), dto.getValidTill(), ConceptRoleRequestOperation.ADD);
 				conceptRoleRequest.setEavs(dto.getEavs());
 				// Create concept with EAVs
 				conceptRoleRequest = conceptRoleService.save(conceptRoleRequest);
@@ -298,14 +310,14 @@ public class DefaultIdmRequestIdentityRoleService extends
 	 * @return
 	 */
 	private IdmConceptRoleRequestDto createConcept(IdmIdentityRoleDto identityRoleDto,
-			IdmIdentityContractDto identityContractDto, UUID requestId, UUID roleId, ConceptRoleRequestOperation operation) {
+			IdmIdentityContractDto identityContractDto, UUID requestId, UUID roleId, LocalDate validFrom, LocalDate validTill, ConceptRoleRequestOperation operation) {
 		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
 		conceptRoleRequest.setRoleRequest(requestId);
 		if (identityContractDto != null) {
 			conceptRoleRequest.setIdentityContract(identityContractDto.getId());
-			conceptRoleRequest.setValidFrom(identityContractDto.getValidFrom());
-			conceptRoleRequest.setValidTill(identityContractDto.getValidTill());
 		}
+		conceptRoleRequest.setValidFrom(validFrom);
+		conceptRoleRequest.setValidTill(validTill);
 		if (identityRoleDto != null) {
 			conceptRoleRequest.setIdentityRole(identityRoleDto.getId());
 		}

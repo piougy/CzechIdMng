@@ -27,16 +27,14 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * Recalculate all automatic role by attribute for all contracts.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
-
 @Service
 @DisallowConcurrentExecution
 @Description("Recalculate all automatic roles by attribute.")
 public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final int DEFAULT_PAGE_SIZE_ROLE = 10;
-	private static final int DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES = 100;
 
 	@Autowired
 	private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
@@ -85,55 +83,39 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 		UUID automaticRoleId = automaticRolAttributeDto.getId();
 		Set<AbstractIdmAutomaticRoleDto> automaticRoleSet = new HashSet<AbstractIdmAutomaticRoleDto>();
 		automaticRoleSet.add(automaticRolAttributeDto);
-		// For every query is get first page with 100 rows
-		PageRequest defaultPageRequest = new PageRequest(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES);
 		//
     	// process contracts
-    	Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, defaultPageRequest);
-    	Page<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, defaultPageRequest);
+    	List<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, null).getContent();
+    	List<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, null).getContent();
     	//
     	boolean canContinue = true;
-    	while (canContinue) {
-    		for(UUID contractId : newPassedContracts) {
-    			IdmIdentityContractDto contract = identityContractService.get(contractId);
-    			//
-    			// check for contract validity
-    			if (contract.getState() == ContractState.DISABLED || !contract.isValidNowOrInFuture()) {
-    				continue;
-    			}
-    			//
-    			automaticRoleAttributeService.addAutomaticRoles(contract, automaticRoleSet);
-				canContinue = updateState();
-				if (!canContinue) {
-					break;
-				}
-    		}
-    		if (newPassedContracts.hasNext()) {
-    			newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, defaultPageRequest);
-    		} else {
-    			break;
-    		}
-    	}
+		for(UUID contractId : newPassedContracts) {
+			IdmIdentityContractDto contract = identityContractService.get(contractId);
+			//
+			// check for contract validity
+			if (contract.getState() == ContractState.DISABLED || !contract.isValidNowOrInFuture()) {
+				continue;
+			}
+			//
+			automaticRoleAttributeService.addAutomaticRoles(contract, automaticRoleSet);
+			canContinue = updateState();
+			if (!canContinue) {
+				break;
+			}
+		}
     	//
-    	while (canContinue) {
-    		for(UUID contractId : newNotPassedContracts) {
-    			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-    			filter.setIdentityContractId(contractId);
-    			filter.setAutomaticRoleId(automaticRoleId);
-    			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
-    			for (IdmIdentityRoleDto identityRole : identityRoles) {
-    				automaticRoleAttributeService.removeAutomaticRoles(identityRole);
-    			}
-    			canContinue = updateState();
-    			if (!canContinue) {
-    				break;
-    			}
-    		}
-    		if (newNotPassedContracts.hasNext()) {
-    			newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, defaultPageRequest);
-    		} else {
-    			break;
-    		}
-    	}
+		for(UUID contractId : newNotPassedContracts) {
+			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+			filter.setIdentityContractId(contractId);
+			filter.setAutomaticRoleId(automaticRoleId);
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
+			for (IdmIdentityRoleDto identityRole : identityRoles) {
+				automaticRoleAttributeService.removeAutomaticRoles(identityRole);
+			}
+			canContinue = updateState();
+			if (!canContinue) {
+				break;
+			}
+		}
 	}
 }

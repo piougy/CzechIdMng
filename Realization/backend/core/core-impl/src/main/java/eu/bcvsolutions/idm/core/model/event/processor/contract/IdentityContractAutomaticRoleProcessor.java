@@ -28,13 +28,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
- * Recalculate automatic roles after identity contract is changed
+ * Recalculate automatic roles by attribute after identity contract is changed.
  * 
  * @author Ondrej Kopr
  * @author Radek Tomiška
  */
 @Component
-@Description("Recalculate automatic roles after identity contract is changed.")
+@Description("Recalculate automatic roles by attribute after identity contract is changed.")
 public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityContractDto>
 		implements IdentityContractProcessor {
 
@@ -55,7 +55,8 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
 		// skip recalculation
 		return super.conditional(event)
-				&& !getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties());
+				&& !getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties())
+				&& event.getContent().isValidNowOrInFuture();  // invalid contracts cannot have roles (roles for disabled contracts are removed by different process)
 	}
 
 	@Override
@@ -80,7 +81,7 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 		// Iterate over newly passed
 		for (AbstractIdmAutomaticRoleDto autoRole : allNewPassedAutomaticRoleForContract) {
 			IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
-			concept.setIdentityContract(identityContract.getId());
+			concept.setIdentityContract(contractId);
 			concept.setValidFrom(identityContract.getValidFrom());
 			concept.setValidTill(identityContract.getValidTill());
 			concept.setRole(autoRole.getRole());

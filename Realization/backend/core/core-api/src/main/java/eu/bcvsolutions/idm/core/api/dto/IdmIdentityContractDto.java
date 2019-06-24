@@ -145,6 +145,11 @@ public class IdmIdentityContractDto extends FormableDto implements ValidableEnti
 		return ValidableEntity.super.isValid(targetDate) && !isDisabled();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Contract validity and state is evaluated too.
+	 */
 	@Override
 	public boolean isValidNowOrInFuture() {
 		return ValidableEntity.super.isValidNowOrInFuture() && !isDisabled();

@@ -35,13 +35,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent.ContractPositionEventType;
 
 /**
- * Automatic roles recount while contract position is created or updated.
+ * Automatic roles by tree structure recount while contract position is created or updated.
  * 
  * @author Radek Tomiška
  * @since 9.1.0
  */
 @Component(ContractPositionAutomaticRoleProcessor.PROCESSOR_NAME)
-@Description("Automatic roles recount while contract position is created or updated.")
+@Description("Automatic roles by tree structure recount while contract position is created or updated.")
 public class ContractPositionAutomaticRoleProcessor
 		extends CoreEventProcessor<IdmContractPositionDto> 
 		implements ContractPositionProcessor {
@@ -60,6 +60,14 @@ public class ContractPositionAutomaticRoleProcessor
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<IdmContractPositionDto> event) {
+		IdmIdentityContractDto contract = DtoUtils.getEmbedded(event.getContent(), IdmContractPosition_.identityContract);
+		//
+		return super.conditional(event)
+				&& contract.isValidNowOrInFuture(); // invalid contracts cannot have roles (roles for disabled contracts are removed by different process)
+	}
 
 	@Override
 	public EventResult<IdmContractPositionDto> process(EntityEvent<IdmContractPositionDto> event) {
@@ -69,117 +77,114 @@ public class ContractPositionAutomaticRoleProcessor
 		UUID newPosition = contractPosition.getWorkPosition();
 		//
 		// check if new and old work position are same
-		// check automatic roles - if position or disabled was changed
-		if (contract.isValidNowOrInFuture()) {			
-			List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
-			// work positions has some difference or validity changes
-			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContractPosition(contractPosition.getId());
-			//
-			// remove all automatic roles by attribute
-			// and automatic roles given by contracts position
-			if (!assignedRoles.isEmpty()) {
-				assignedRoles = assignedRoles
-						.stream()
-						.filter(autoRole -> {
-							// just for sure
-							AbstractIdmAutomaticRoleDto automaticRoleDto = DtoUtils.getEmbedded(autoRole, IdmIdentityRole_.automaticRole, (AbstractIdmAutomaticRoleDto) null);
-							if (automaticRoleDto instanceof IdmRoleTreeNodeDto) {
-								return true;
-							}
-							return false;
-						})
-						.collect(Collectors.toList());
-			}
-			//
-			Set<UUID> previousAutomaticRoles = assignedRoles.stream()
-					.filter(identityRole -> {
-						return identityRole.getAutomaticRole() != null;
-					})
-					.map(identityRole -> {
-						return identityRole.getAutomaticRole();
-					})
-					.collect(Collectors.toSet());
-			Set<IdmRoleTreeNodeDto> addedAutomaticRoles = new HashSet<>();
-			if (newPosition != null && contract.isValidNowOrInFuture()) {
-				addedAutomaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(newPosition);
-			}
-			// prevent to remove newly added or still exists roles
-			Set<UUID> removedAutomaticRoles = new HashSet<>(previousAutomaticRoles);
-			removedAutomaticRoles.removeAll(addedAutomaticRoles
+		// check automatic roles - if position or contract was enabled
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
+		// work positions has some difference or validity changes
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContractPosition(contractPosition.getId());
+		//
+		// remove all automatic roles by attribute
+		// and automatic roles given by contracts position
+		if (!assignedRoles.isEmpty()) {
+			assignedRoles = assignedRoles
 					.stream()
-					.map(IdmRoleTreeNodeDto::getId)
-					.collect(Collectors.toList())
-					);
-			addedAutomaticRoles.removeIf(a -> {
-				return previousAutomaticRoles.contains(a.getId());
-			});
-			//
-			for(UUID removedAutomaticRole : removedAutomaticRoles) {
-				Iterator<IdmIdentityRoleDto> iter = assignedRoles.iterator();
-				while (iter.hasNext()){
-					IdmIdentityRoleDto identityRole = iter.next();				
-					if (Objects.equals(identityRole.getAutomaticRole(), removedAutomaticRole)) {					
-						// check, if role will be added by new automatic roles and prevent removing
-						IdmRoleTreeNodeDto addedAutomaticRole = getByRole(identityRole.getRole(), addedAutomaticRoles);
-						if (addedAutomaticRole == null) {
-							// remove assigned role
-							IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
-							conceptRoleRequest.setIdentityRole(identityRole.getId());
-							conceptRoleRequest.setRole(identityRole.getRole());
-							conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
-							//
-							concepts.add(conceptRoleRequest);
-							//
-							iter.remove();
-						} else {
-							// change relation only
-							IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
-							conceptRoleRequest.setIdentityRole(identityRole.getId());
-							conceptRoleRequest.setAutomaticRole(addedAutomaticRole.getId());
-							conceptRoleRequest.setIdentityContract(contract.getId());
-							conceptRoleRequest.setContractPosition(contractPosition.getId());
-							conceptRoleRequest.setValidFrom(contract.getValidFrom());
-							conceptRoleRequest.setValidTill(contract.getValidTill());
-							conceptRoleRequest.setRole(identityRole.getRole());
-							conceptRoleRequest.setOperation(ConceptRoleRequestOperation.UPDATE);
-							//
-							concepts.add(conceptRoleRequest);
-							//
-							// new automatic role is not needed
-							addedAutomaticRoles.remove(addedAutomaticRole);
+					.filter(autoRole -> {
+						// just for sure, other contract position supports automatic role by tree structure only for now
+						AbstractIdmAutomaticRoleDto automaticRoleDto = DtoUtils.getEmbedded(autoRole, IdmIdentityRole_.automaticRole, (AbstractIdmAutomaticRoleDto) null);
+						if (automaticRoleDto instanceof IdmRoleTreeNodeDto) {
+							return true;
 						}
+						return false;
+					})
+					.collect(Collectors.toList());
+		}
+		//
+		Set<UUID> previousAutomaticRoles = assignedRoles.stream()
+				.filter(identityRole -> {
+					return identityRole.getAutomaticRole() != null;
+				})
+				.map(identityRole -> {
+					return identityRole.getAutomaticRole();
+				})
+				.collect(Collectors.toSet());
+		Set<IdmRoleTreeNodeDto> addedAutomaticRoles = new HashSet<>();
+		if (newPosition != null) {
+			addedAutomaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(newPosition);
+		}
+		// prevent to remove newly added or still exists roles
+		Set<UUID> removedAutomaticRoles = new HashSet<>(previousAutomaticRoles);
+		removedAutomaticRoles.removeAll(addedAutomaticRoles
+				.stream()
+				.map(IdmRoleTreeNodeDto::getId)
+				.collect(Collectors.toList())
+				);
+		addedAutomaticRoles.removeIf(a -> {
+			return previousAutomaticRoles.contains(a.getId());
+		});
+		//
+		for(UUID removedAutomaticRole : removedAutomaticRoles) {
+			Iterator<IdmIdentityRoleDto> iter = assignedRoles.iterator();
+			while (iter.hasNext()){
+				IdmIdentityRoleDto identityRole = iter.next();				
+				if (Objects.equals(identityRole.getAutomaticRole(), removedAutomaticRole)) {					
+					// check, if role will be added by new automatic roles and prevent removing
+					IdmRoleTreeNodeDto addedAutomaticRole = getByRole(identityRole.getRole(), addedAutomaticRoles);
+					if (addedAutomaticRole == null) {
+						// remove assigned role
+						IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+						conceptRoleRequest.setIdentityRole(identityRole.getId());
+						conceptRoleRequest.setRole(identityRole.getRole());
+						conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+						//
+						concepts.add(conceptRoleRequest);
+						//
+						iter.remove();
+					} else {
+						// change relation only
+						IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+						conceptRoleRequest.setIdentityRole(identityRole.getId());
+						conceptRoleRequest.setAutomaticRole(addedAutomaticRole.getId());
+						conceptRoleRequest.setIdentityContract(contract.getId());
+						conceptRoleRequest.setContractPosition(contractPosition.getId());
+						conceptRoleRequest.setValidFrom(contract.getValidFrom());
+						conceptRoleRequest.setValidTill(contract.getValidTill());
+						conceptRoleRequest.setRole(identityRole.getRole());
+						conceptRoleRequest.setOperation(ConceptRoleRequestOperation.UPDATE);
+						//
+						concepts.add(conceptRoleRequest);
+						//
+						// new automatic role is not needed
+						addedAutomaticRoles.remove(addedAutomaticRole);
 					}
-			    }
-			}
-			//
-			// add identity roles
-			for (AbstractIdmAutomaticRoleDto autoRole : addedAutomaticRoles) {
-				IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
-				conceptRoleRequest.setIdentityContract(contract.getId());
-				conceptRoleRequest.setContractPosition(contractPosition.getId());
-				conceptRoleRequest.setValidFrom(contract.getValidFrom());
-				conceptRoleRequest.setValidTill(contract.getValidTill());
-				conceptRoleRequest.setRole(autoRole.getRole());
-				conceptRoleRequest.setAutomaticRole(autoRole.getId());
-				conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
-				//
-				concepts.add(conceptRoleRequest);
-			}
-			//
-			if (!concepts.isEmpty()) {
-				IdmRoleRequestDto roleRequest = (IdmRoleRequestDto) event.getProperties().get(IdentityContractUpdateByAutomaticRoleProcessor.EVENT_PROPERTY_REQUEST);
-				if (roleRequest != null) {
-					// add concept into single request
-					// single request will be executed by parent event
-					roleRequest.getConceptRoles().addAll(concepts);
-				} else {
-					// execute new request
-					roleRequest = roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
-					//
-					event.getProperties().put(IdentityContractUpdateByAutomaticRoleProcessor.EVENT_PROPERTY_REQUEST, roleRequest);
 				}
+		    }
+		}
+		//
+		// add identity roles
+		for (AbstractIdmAutomaticRoleDto autoRole : addedAutomaticRoles) {
+			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+			conceptRoleRequest.setIdentityContract(contract.getId());
+			conceptRoleRequest.setContractPosition(contractPosition.getId());
+			conceptRoleRequest.setValidFrom(contract.getValidFrom());
+			conceptRoleRequest.setValidTill(contract.getValidTill());
+			conceptRoleRequest.setRole(autoRole.getRole());
+			conceptRoleRequest.setAutomaticRole(autoRole.getId());
+			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
+			//
+			concepts.add(conceptRoleRequest);
+		}
+		//
+		if (!concepts.isEmpty()) {
+			IdmRoleRequestDto roleRequest = (IdmRoleRequestDto) event.getProperties().get(IdentityContractUpdateByAutomaticRoleProcessor.EVENT_PROPERTY_REQUEST);
+			if (roleRequest != null) {
+				// add concept into single request
+				// single request will be executed by parent event
+				roleRequest.getConceptRoles().addAll(concepts);
+			} else {
+				// execute new request
+				roleRequest = roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
+				//
+				event.getProperties().put(IdentityContractUpdateByAutomaticRoleProcessor.EVENT_PROPERTY_REQUEST, roleRequest);
 			}
-			
 		}
 		//
 		return new DefaultEventResult<>(event, this);

@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.acc.domain;
 
 /**
- * Type of all special actions for synchronization of identities
+ * Type of all special actions for synchronization of identities.
  * 
  * @author Alena Peterova
  *

@@ -64,6 +64,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 /**
  * Assigned roles integration tests
  * - referential integrity
+ * - role deduplicate
  * 
  * @author Radek Tomiška
  * @author Ondrej Kopr

@@ -77,6 +77,11 @@ public class DefaultIdmRequestIdentityRoleService extends
 		LOG.debug(MessageFormat.format("Find idm-request-identity-roles by filter [{0}] ", filter));
 		Assert.notNull(filter);
 		
+		if (pageable == null) {
+			// Page is null, so we set page to max value
+			pageable = new PageRequest(0, Integer.MAX_VALUE);
+		}
+		
 		// If is true, then we want to return only concepts (not assigned roles)
 		boolean returnOnlyChanges = filter.isOnlyChanges();
 		
@@ -253,6 +258,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 	
 	
 	
+	@Deprecated
 	@Override
 	/**
 	 * Not supported, use deleteRequestIdentityRole!
@@ -364,6 +370,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 					requestIdentityRoleWithConcept.setId(concept.getId());
 					requestIdentityRoleWithConcept.setValidFrom(concept.getValidFrom());
 					requestIdentityRoleWithConcept.setValidTill(concept.getValidTill());
+					requestIdentityRoleWithConcept.setRoleRequest(concept.getRoleRequest());
 					IdmFormInstanceDto formInstanceDto  = null;
 					// For updated identity-role replace EAVs from the concept
 					if (ConceptRoleRequestOperation.UPDATE == concept.getOperation()) {

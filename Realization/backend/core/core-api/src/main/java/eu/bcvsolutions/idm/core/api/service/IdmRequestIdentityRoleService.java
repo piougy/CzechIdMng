@@ -22,5 +22,12 @@ public interface IdmRequestIdentityRoleService
 	 * @return
 	 */
 	IdmRequestIdentityRoleDto deleteRequestIdentityRole(IdmRequestIdentityRoleDto dto, BasePermission... permission);
+	
+	@Deprecated
+	@Override
+	/**
+	 * Not supported, use deleteRequestIdentityRole!
+	 */
+	void delete(IdmRequestIdentityRoleDto dto, BasePermission... permission);
 
 }

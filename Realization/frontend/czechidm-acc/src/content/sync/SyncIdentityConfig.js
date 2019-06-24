@@ -60,11 +60,11 @@ class SyncIdentityConfig extends Basic.AbstractContent {
         <Basic.EnumSelectBox
           ref="inactiveOwnerBehavior"
           useSymbol={ false }
-          enum={SynchronizationInactiveOwnerBehaviorTypeEnum}
-          hidden={defaultRoleId === null}
-          required={defaultRoleId !== null}
-          label={this.i18n('identityConfigDetail.inactiveOwnerBehavior.label')}
-          helpBlock={this.i18n('identityConfigDetail.inactiveOwnerBehavior.helpBlock')}/>
+          enum={ SynchronizationInactiveOwnerBehaviorTypeEnum }
+          hidden={ defaultRoleId ? false : true }
+          required={ defaultRoleId ? true : false }
+          label={ this.i18n('identityConfigDetail.inactiveOwnerBehavior.label') }
+          helpBlock={ this.i18n('identityConfigDetail.inactiveOwnerBehavior.helpBlock') }/>
         <Basic.Checkbox
           ref="startAutoRoleRec"
           label={this.i18n('identityConfigDetail.startAutoRoleRec.label')}

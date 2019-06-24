@@ -42,14 +42,14 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
- * Automatic roles recount while identity contract is saved, updated or deleted / disabled.
+ * Automatic roles by tree structure recount while identity contract is saved, updated or deleted / disabled.
  * 
  * @author Radek Tomiška
  * @author Ondřej Kopr
  *
  */
 @Component
-@Description("Automatic roles recount while identity contract is updated, disabled or enabled.")
+@Description("Automatic roles by tree structure recount while identity contract is updated, disabled or enabled.")
 public class IdentityContractUpdateByAutomaticRoleProcessor
 		extends CoreEventProcessor<IdmIdentityContractDto> 
 		implements IdentityContractProcessor {
@@ -74,7 +74,8 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	@Override
 	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
 		return super.conditional(event)
-				&& IdentityContractEventType.UPDATE.name().equals(event.getParentType());
+				&& IdentityContractEventType.UPDATE.name().equals(event.getParentType())
+				&& event.getContent().isValidNowOrInFuture(); // invalid contracts cannot have roles (roles for disabled contracts are removed by different process)
 	}
 
 	@Override
@@ -89,17 +90,18 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 		//
 		// check if new and old work position are same
-		// check automatic roles - if position or disabled was changed
+		// check automatic roles - if position or contract was enabled
 		boolean validityChangedToValid = contract.isValidNowOrInFuture() && previous.isValidNowOrInFuture() != contract.isValidNowOrInFuture();
 		if (!Objects.equals(newPosition, previousPosition) || validityChangedToValid) {
 			// work positions has some difference or validity changes
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContract(contract.getId());
 			//
-			// remove all automatic roles by attribute
+			// remove all automatic roles by attribute and by other contract position
 			if (!assignedRoles.isEmpty()) {
 				assignedRoles = assignedRoles
 						.stream()
 						.filter(autoRole -> {
+							// remove automatic roles by attribute - solved by different process
 							AbstractIdmAutomaticRoleDto automaticRoleDto = DtoUtils.getEmbedded(autoRole, IdmIdentityRole_.automaticRole, (AbstractIdmAutomaticRoleDto) null);
 							if (automaticRoleDto instanceof IdmRoleTreeNodeDto) {
 								return true;
@@ -107,6 +109,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 							return false;
 						})
 						.filter(identityRole -> {
+							// remove automatic roles by attribute - solved by different process
 							return identityRole.getContractPosition() == null;
 						})
 						.collect(Collectors.toList());
@@ -121,7 +124,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 					})
 					.collect(Collectors.toSet());
 			Set<IdmRoleTreeNodeDto> addedAutomaticRoles = new HashSet<>();
-			if (newPosition != null && contract.isValidNowOrInFuture()) {
+			if (newPosition != null) {
 				addedAutomaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(newPosition);
 			}
 			// prevent to remove newly added or still exists roles
@@ -207,10 +210,9 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 					}
 				}
 			}
-		}
-		//
-		// process validable change
-		else if (EntityUtils.validableChanged(previous, contract)) {
+		} else if (EntityUtils.validableChanged(previous, contract)) {
+			//
+			// process validable change only
 			roleRequest.getConceptRoles().addAll(changeValidable(contract, identityRoleService.findAllByContract(contract.getId())));
 		}
 		// start request at end

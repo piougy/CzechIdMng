@@ -23,9 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -49,6 +52,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
@@ -1255,5 +1259,71 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		service.save(contractTwo);
 		//
 		Assert.assertEquals(contractTwo.getId(), getHelper().getPrimeContract(identity).getId());
+	}
+	
+	@Test
+	public void testAutomaticRolesRemovalAfterContractEnds() {
+		// automatic roles by tree structure
+		prepareAutomaticRoles();
+		// automatic role by attribute on contract
+		String autoPosition = getHelper().createName();
+		IdmRoleDto autoAttributeRole = getHelper().createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(autoAttributeRole.getId());
+		getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.CONTRACT, IdmIdentityContract_.position.getName(), null, autoPosition);
+		//
+		// prepare identity, contract, direct roles and automatic roles
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = service.getPrimeContract(identity.getId());
+		contract.setIdentity(identity.getId());
+		contract.setValidFrom(new LocalDate().minusDays(1));
+		contract.setValidTill(new LocalDate().plusMonths(1));
+		contract.setWorkPosition(nodeD.getId());
+		contract.setMain(true);
+		contract.setDescription("test-node-d");
+		contract.setPosition(autoPosition);
+		contract = service.save(contract);
+		UUID contractId = contract.getId();
+		IdmRoleDto directRole = getHelper().createRole();
+		getHelper().createIdentityRole(contract, directRole);
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
+		Assert.assertEquals(5, identityRoles.size());
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleA.getId().equals(ir.getRole());
+		}));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleB.getId().equals(ir.getRole());
+		}));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleC.getId().equals(ir.getRole());
+		}));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return directRole.getId().equals(ir.getRole());
+		}));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return autoAttributeRole.getId().equals(ir.getRole());
+		}));
+		//
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			//
+			// end contract - all roles should be removed, after asynchronous role request ends
+			contract.setValidTill(LocalDate.now().minusDays(1));
+			contract = service.save(contract);
+			//
+			Assert.assertFalse(contract.isValidNowOrInFuture());
+			//
+			getHelper().waitForResult(res -> {
+				return !identityRoleService.findAllByContract(contractId).isEmpty();
+			}, 300, Integer.MAX_VALUE);
+			//
+			identityRoles = identityRoleService.findAllByContract(contract.getId());
+			Assert.assertTrue(identityRoles.isEmpty());
+			//
+			service.delete(contract);
+		} finally { 
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		}
 	}
 }

@@ -23,13 +23,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 
 /**
- * Automatic roles recount while enabled identity contract is created
+ * Automatic roles by tree structure recount while enabled identity contract is created.
  * 
  * @author Radek Tomiška
  *
  */
 @Component
-@Description("Automatic roles recount while enabled identity contract is created.")
+@Description("Automatic roles by tree structure recount while enabled identity contract is created.")
 public class IdentityContractCreateByAutomaticRoleProcessor
 		extends CoreEventProcessor<IdmIdentityContractDto> 
 		implements IdentityContractProcessor {
@@ -50,14 +50,16 @@ public class IdentityContractCreateByAutomaticRoleProcessor
 	
 	@Override
 	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
-		return super.conditional(event) && IdentityContractEventType.CREATE.name().equals(event.getParentType());
+		return super.conditional(event) 
+				&& IdentityContractEventType.CREATE.name().equals(event.getParentType())
+				&& event.getContent().isValidNowOrInFuture(); // invalid contracts cannot have roles (roles for disabled contracts are removed by different process)
 	}
 
 	@Override
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
 		IdmIdentityContractDto contract = event.getContent();
-		// contract is or could be valid in future
-		if (contract.isValidNowOrInFuture() && contract.getWorkPosition() != null) {
+		//
+		if (contract.getWorkPosition() != null) {
 			Set<IdmRoleTreeNodeDto> automaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(contract.getWorkPosition());
 			if (!automaticRoles.isEmpty()) {
 				List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();

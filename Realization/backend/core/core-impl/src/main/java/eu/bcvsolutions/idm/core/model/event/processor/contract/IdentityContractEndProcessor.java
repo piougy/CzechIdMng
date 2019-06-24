@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -142,20 +143,26 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 		}
 		//
 		// remove all contract roles
-		// TODO: remove? It's solved by different process
 		if(!contract.isValidNowOrInFuture()) {
 			List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
-			identityRoleService.findAllByContract(contract.getId()).forEach(identityRole -> {
-				if (identityRole.getDirectRole() == null) {
-					IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
-					conceptRoleRequest.setIdentityRole(identityRole.getId());
-					conceptRoleRequest.setRole(identityRole.getRole());
-					conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
-					conceptRoleRequest.setIdentityContract(contract.getId());
+			for(IdmIdentityRoleDto identityRole : identityRoleService.findAllByContract(contract.getId())) {
+				if (identityRole.getDirectRole() != null) {
+					LOG.debug("Sub role will be removed by direct role removal");
 					//
-					concepts.add(conceptRoleRequest);
+					continue;
 				}
-			});
+				if (identityRole.getAutomaticRole() != null) {
+					LOG.debug("Automatic role will be removed by role request"
+							+ " - automatic roles for invalid contracts are not evaluated.");
+				}
+				IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+				conceptRoleRequest.setIdentityRole(identityRole.getId());
+				conceptRoleRequest.setRole(identityRole.getRole());
+				conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+				conceptRoleRequest.setIdentityContract(contract.getId());
+				//
+				concepts.add(conceptRoleRequest);
+			}
 			if (!concepts.isEmpty()) {
 				IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 				roleRequest.setState(RoleRequestState.CONCEPT);

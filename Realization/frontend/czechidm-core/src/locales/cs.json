@@ -896,7 +896,7 @@
       "VALID": "Validní",
       "PASSWORD_EXPIRED": "Heslo vypršelo",
       "LEFT": "Odešel(a)",
-      "DISABLED": "$t(label.disabled)",
+      "DISABLED": "$t(enums.ContractStateEnum.EXCLUDED)",
       "DISABLED_MANUALLY": "$t(label.disabled) - manuálně"
     },
     "PriorityTypeEnum": {

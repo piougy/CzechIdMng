@@ -865,7 +865,7 @@
       "VALID": "Valid",
       "PASSWORD_EXPIRED": "Password expired",
       "LEFT": "Left",
-      "DISABLED": "$t(label.disabled)",
+      "DISABLED": "$t(enums.ContractStateEnum.EXCLUDED)",
       "DISABLED_MANUALLY": "$t(label.disabled) - manually"
     },
     "PriorityTypeEnum": {

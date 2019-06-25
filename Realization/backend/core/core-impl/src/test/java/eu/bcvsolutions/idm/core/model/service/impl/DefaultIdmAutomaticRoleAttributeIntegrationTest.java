@@ -18,6 +18,8 @@ import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
@@ -42,8 +44,12 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseCodeList;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -79,6 +85,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	private LongRunningTaskManager longRunningTaskManager;
 	@Autowired
 	private IdmLongRunningTaskService longRunningTaskService;
+	@Autowired
+	private FormService formService;
 
 	@After
 	public void logout() {
@@ -857,6 +865,41 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		primeContract.setExterne(false);
 		primeContract = identityContractService.save(primeContract);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
+	public void testAutomaticRoleContractExterneAttributeCodelist() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity.getId());
+		//
+		IdmFormAttributeDto environmentAttribute = new IdmFormAttributeDto();
+		environmentAttribute.setCode(getHelper().createName());
+		environmentAttribute.setName(getHelper().createName());
+		environmentAttribute.setPersistentType(PersistentType.CODELIST);
+		environmentAttribute.setFaceType(BaseCodeList.ENVIRONMENT);
+		IdmFormDefinitionDto formDefinitionCodeList = formService.getDefinition(IdmIdentityContract.class);
+		environmentAttribute = formService.saveAttribute(IdmIdentityContract.class, environmentAttribute);
+		//
+		IdmRoleDto role = getHelper().createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+		getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.CONTRACT_EAV, environmentAttribute.getCode(), environmentAttribute.getId(), "test");
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		IdmFormValueDto value = new IdmFormValueDto(environmentAttribute);
+		value.setValue("test");
+		formService.saveValues(primeContract, formDefinitionCodeList, Lists.newArrayList(value));
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		value.setValue(null);
+		formService.saveValues(primeContract, formDefinitionCodeList, Lists.newArrayList(value));
 		//
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(0, identityRoles.size());

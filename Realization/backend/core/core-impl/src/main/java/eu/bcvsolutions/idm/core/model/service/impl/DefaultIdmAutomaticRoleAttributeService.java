@@ -736,6 +736,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 		case UUID: {
 			return AbstractFormValue_.uuidValue;
 		}
+		case CODELIST:
 		case SHORTTEXT: {
 			return AbstractFormValue_.shortTextValue;
 		}

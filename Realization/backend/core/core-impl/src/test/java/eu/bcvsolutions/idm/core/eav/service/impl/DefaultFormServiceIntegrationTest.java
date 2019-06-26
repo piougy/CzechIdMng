@@ -125,7 +125,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		// create definition one		
 		IdmFormAttributeDto attributeDefinitionOne = new IdmFormAttributeDto();
-		attributeDefinitionOne.setCode("name_" + System.currentTimeMillis());
+		attributeDefinitionOne.setCode(getHelper().createName());
 		attributeDefinitionOne.setName(attributeDefinitionOne.getCode());
 		attributeDefinitionOne.setPersistentType(PersistentType.TEXT);
 		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmIdentity.class.getCanonicalName(), "t_v1", Lists.newArrayList(attributeDefinitionOne));
@@ -133,7 +133,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		// create definition two		
 		IdmFormAttributeDto attributeDefinitionTwo = new IdmFormAttributeDto();
-		attributeDefinitionTwo.setCode("name_" + System.currentTimeMillis());
+		attributeDefinitionTwo.setCode(getHelper().createName());
 		attributeDefinitionTwo.setName(attributeDefinitionTwo.getCode());
 		attributeDefinitionTwo.setPersistentType(PersistentType.TEXT);		
 		IdmFormDefinitionDto formDefinitionTwo = formService.createDefinition(IdmIdentity.class.getCanonicalName(), "t_v2", Lists.newArrayList(attributeDefinitionTwo));
@@ -184,7 +184,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		// create definition with multi parameter	
 		IdmFormAttributeDto multiAttribite = new IdmFormAttributeDto();
-		String multiAttributeName = "name_" + System.currentTimeMillis();
+		String multiAttributeName = getHelper().createName();
 		multiAttribite.setCode(multiAttributeName);
 		multiAttribite.setName(multiAttribite.getCode());
 		multiAttribite.setPersistentType(PersistentType.TEXT);
@@ -531,7 +531,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		IdmTreeNodeDto owner = getHelper().createTreeNode();
 		//
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
-		attribute.setCode("name_" + System.currentTimeMillis());
+		attribute.setCode(getHelper().createName());
 		attribute.setName(attribute.getCode());
 		attribute.setPersistentType(PersistentType.SHORTTEXT);
 		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmTreeNode.class.getCanonicalName(), "t_v1", Lists.newArrayList(attribute));
@@ -553,7 +553,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		IdmTreeNodeDto owner = getHelper().createTreeNode();
 		//
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
-		attribute.setCode("name_" + System.currentTimeMillis());
+		attribute.setCode(getHelper().createName());
 		attribute.setName(attribute.getCode());
 		attribute.setPersistentType(PersistentType.TEXT);
 		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmTreeNode.class.getCanonicalName(), "t_v1", Lists.newArrayList(attribute));
@@ -681,7 +681,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testSaveAttribute() {
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
-		String attributeName = "name_" + System.currentTimeMillis();
+		String attributeName = getHelper().createName();
 		attribute.setCode(attributeName);
 		attribute.setName(attribute.getCode());
 		attribute.setPersistentType(PersistentType.TEXT);
@@ -845,7 +845,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		// create definition with multi parameter	
 		IdmFormAttributeDto multiAttribite = new IdmFormAttributeDto();
-		String multiAttributeName = "name_" + System.currentTimeMillis();
+		String multiAttributeName = getHelper().createName();
 		multiAttribite.setCode(multiAttributeName);
 		multiAttribite.setName(multiAttribite.getCode());
 		multiAttribite.setPersistentType(PersistentType.TEXT);
@@ -920,7 +920,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		// create definition with multi parameter	
 		IdmFormAttributeDto multiAttribite = new IdmFormAttributeDto();
-		String multiAttributeName = "name_" + System.currentTimeMillis();
+		String multiAttributeName = getHelper().createName();
 		multiAttribite.setCode(multiAttributeName);
 		multiAttribite.setName(multiAttribite.getCode());
 		multiAttribite.setPersistentType(PersistentType.TEXT);
@@ -967,7 +967,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		// create definition with confidential parameter	
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
-		String attributeName = "name_" + System.currentTimeMillis();
+		String attributeName = getHelper().createName();
 		attribute.setCode(attributeName);
 		attribute.setName(attribute.getCode());
 		attribute.setPersistentType(PersistentType.SHORTTEXT);
@@ -1016,7 +1016,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		// create definition with multi confidential parameter	
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
-		String attributeName = "name_" + System.currentTimeMillis();
+		String attributeName = getHelper().createName();
 		attribute.setCode(attributeName);
 		attribute.setName(attribute.getCode());
 		attribute.setPersistentType(PersistentType.SHORTTEXT);
@@ -1729,7 +1729,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 			//
 			// create definition one		
 			IdmFormAttributeDto attributeDefinitionOne = new IdmFormAttributeDto();
-			attributeDefinitionOne.setCode("name_" + System.currentTimeMillis());
+			attributeDefinitionOne.setCode(getHelper().createName());
 			attributeDefinitionOne.setName(attributeDefinitionOne.getCode());
 			attributeDefinitionOne.setPersistentType(PersistentType.SHORTTEXT);
 			IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmIdentity.class.getCanonicalName(), "t_v1", Lists.newArrayList(attributeDefinitionOne));
@@ -1796,7 +1796,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		//create attribute
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
-		String attributeName = "name_" + System.currentTimeMillis();
+		String attributeName = getHelper().createName();
 		attribute.setCode(attributeName);
 		attribute.setName(attribute.getCode());
 		attribute.setPersistentType(PersistentType.SHORTTEXT);

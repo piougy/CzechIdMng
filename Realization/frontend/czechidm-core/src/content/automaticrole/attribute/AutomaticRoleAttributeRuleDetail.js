@@ -353,8 +353,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       if (!entity.id) {
         entity.type = AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY);
         entity.comparison = AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.EQUALS);
-        entity.attributeName = IdentityAttributeEnum.USERNAME;
-        attributeName = IdentityAttributeEnum.USERNAME;
+        attributeName = IdentityAttributeEnum.findKeyBySymbol(IdentityAttributeEnum.USERNAME);
+        entity.attributeName = attributeName;
       } else {
         if (entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY_EAV)
          && entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT_EAV)) {
@@ -543,14 +543,16 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   _getDefaultTextField(value) {
     const { readOnly } = this.props;
     const { valueRequired } = this.state;
+    //
     return (
       <Basic.TextField
         ref="value"
-        value={value}
-        readOnly={readOnly}
-        required={valueRequired}
-        label={this.i18n('entity.AutomaticRole.attribute.value.label')}
-        helpBlock={this.i18n('entity.AutomaticRole.attribute.value.help')}/>);
+        value={ value }
+        readOnly={ readOnly }
+        required={ valueRequired }
+        label={ this.i18n('entity.AutomaticRole.attribute.value.label') }
+        helpBlock={ this.i18n('entity.AutomaticRole.attribute.value.help') }/>
+    );
   }
 
   /**
@@ -559,15 +561,17 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   _getDefaultDateTimePicker(value) {
     const { valueRequired } = this.state;
     const { readOnly } = this.props;
-
-    return (<Basic.DateTimePicker
-      ref="value"
-      mode="date"
-      readOnly={readOnly}
-      value={value}
-      required={valueRequired}
-      label={this.i18n('entity.AutomaticRole.attribute.value.label')}
-      helpBlock={this.i18n('entity.AutomaticRole.attribute.value.help')}/>);
+    //
+    return (
+      <Basic.DateTimePicker
+        ref="value"
+        mode="date"
+        readOnly={ readOnly }
+        value={ value }
+        required={ valueRequired }
+        label={ this.i18n('entity.AutomaticRole.attribute.value.label') }
+        helpBlock={ this.i18n('entity.AutomaticRole.attribute.value.help') }/>
+    );
   }
 
   /**
@@ -576,15 +580,16 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   _getDefaultBooleanSelectBox(value) {
     const { valueRequired } = this.state;
     const { readOnly } = this.props;
-
+    //
     return (
       <Basic.BooleanSelectBox
         ref="value"
-        value={value}
-        readOnly={readOnly}
-        required={valueRequired}
-        label={this.i18n('entity.AutomaticRole.attribute.value.label')}
-        helpBlock={this.i18n('entity.AutomaticRole.attribute.value.help')}/>);
+        value={ value }
+        readOnly={ readOnly }
+        required={ valueRequired }
+        label={ this.i18n('entity.AutomaticRole.attribute.value.label') }
+        helpBlock={ this.i18n('entity.AutomaticRole.attribute.value.help') }/>
+    );
   }
 
   render() {
@@ -603,60 +608,60 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     }
     //
     return (
-      <div>
-          <Basic.AbstractForm
-            ref="form"
-            uiKey={ uiKey }
-            data={ data }
-            readOnly={ readOnly }>
-            <Basic.EnumSelectBox
-              ref="type"
-              required
-              label={this.i18n('entity.AutomaticRole.attribute.type.label')}
-              helpBlock={this.i18n('entity.AutomaticRole.attribute.type.help')}
-              enum={AutomaticRoleAttributeRuleTypeEnum}
-              onChange={ this._typeChange.bind(this) }/>
-            <Basic.EnumSelectBox
-              ref="attributeName"
-              clearable={ false }
-              label={ this.i18n('entity.AutomaticRole.attribute.attributeName') }
-              enum={
-                type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)
-                ?
-                IdentityAttributeEnum
-                :
-                ContractAttributeEnum
-              }
-              hidden={ typeForceSearchParameters !== null }
-              onChange={ this._attributeNameChange.bind(this) }
-              required={ !(typeForceSearchParameters !== null) }/>
-            <Basic.SelectBox
-              ref="formAttribute"
-              useFirst
-              clearable={ false }
-              returnProperty={ null }
-              onChange={ this._formAttributeChange.bind(this) }
-              forceSearchParameters={ typeForceSearchParameters }
-              label={ this.i18n('entity.AutomaticRole.attribute.formAttribute') }
-              hidden={ typeForceSearchParameters === null }
-              required={ !(typeForceSearchParameters === null) }
-              manager={ this.formAttributeManager }/>
-            <Basic.Row>
-              <div className="col-lg-4">
-                <Basic.EnumSelectBox
-                  ref="comparison"
-                  required
-                  useFirst
-                  onChange={this._comparsionChange.bind(this)}
-                  label={this.i18n('entity.AutomaticRole.attribute.comparison')}
-                  enum={AutomaticRoleAttributeRuleComparisonEnum}/>
-              </div>
-              <div className="col-lg-8">
-                { this._getValueField(type, valueRequired, formAttribute, attributeName) }
-              </div>
-            </Basic.Row>
-          </Basic.AbstractForm>
-      </div>
+      <Basic.Div>
+        <Basic.AbstractForm
+          ref="form"
+          uiKey={ uiKey }
+          data={ data }
+          readOnly={ readOnly }>
+          <Basic.EnumSelectBox
+            ref="type"
+            required
+            label={ this.i18n('entity.AutomaticRole.attribute.type.label') }
+            helpBlock={ this.i18n('entity.AutomaticRole.attribute.type.help') }
+            enum={ AutomaticRoleAttributeRuleTypeEnum }
+            onChange={ this._typeChange.bind(this) }/>
+          <Basic.EnumSelectBox
+            ref="attributeName"
+            clearable={ false }
+            label={ this.i18n('entity.AutomaticRole.attribute.attributeName') }
+            enum={
+              type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)
+              ?
+              IdentityAttributeEnum
+              :
+              ContractAttributeEnum
+            }
+            hidden={ typeForceSearchParameters !== null }
+            onChange={ this._attributeNameChange.bind(this) }
+            required={ !(typeForceSearchParameters !== null) }/>
+          <Basic.SelectBox
+            ref="formAttribute"
+            useFirst
+            clearable={ false }
+            returnProperty={ null }
+            onChange={ this._formAttributeChange.bind(this) }
+            forceSearchParameters={ typeForceSearchParameters }
+            label={ this.i18n('entity.AutomaticRole.attribute.formAttribute') }
+            hidden={ typeForceSearchParameters === null }
+            required={ !(typeForceSearchParameters === null) }
+            manager={ this.formAttributeManager }/>
+          <Basic.Row>
+            <div className="col-lg-4">
+              <Basic.EnumSelectBox
+                ref="comparison"
+                required
+                useFirst
+                onChange={ this._comparsionChange.bind(this) }
+                label={ this.i18n('entity.AutomaticRole.attribute.comparison') }
+                enum={ AutomaticRoleAttributeRuleComparisonEnum }/>
+            </div>
+            <div className="col-lg-8">
+              { this._getValueField(type, valueRequired, formAttribute, attributeName) }
+            </div>
+          </Basic.Row>
+        </Basic.AbstractForm>
+      </Basic.Div>
     );
   }
 }

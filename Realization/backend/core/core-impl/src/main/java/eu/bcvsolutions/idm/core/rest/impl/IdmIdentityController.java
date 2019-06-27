@@ -694,16 +694,14 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		checkAccess(originalEntity, IdmBasePermission.READ);
 		//
 		IdmIdentity revisionIdentity;
 		try {
 			revisionIdentity = this.auditService.findRevision(IdmIdentity.class, originalEntity.getId(), revId);
-			// checkAccess(revisionIdentity, IdmBasePermission.READ);
 		} catch (RevisionDoesNotExistException ex) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId), ex);
 		}
-		// TODO: dto
+		// FIXME: to dto
 		return new ResponseEntity<>(revisionIdentity, HttpStatus.OK);
 	}
 	

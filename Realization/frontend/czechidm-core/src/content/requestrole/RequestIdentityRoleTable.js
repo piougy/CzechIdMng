@@ -18,6 +18,7 @@ import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 * @author Vít Švanda
 */
 
+const uiKeyIncompatibleRoles = 'request-incompatible-roles-';
 const requestIdentityRoleManager = new RequestIdentityRoleManager();
 const roleRequestManager = new RoleRequestManager();
 const identityContractManager = new IdentityContractManager();
@@ -227,6 +228,8 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
               replaceUrl(createdEntity.roleRequest);
             } else {
               this._closeDetail();
+              // We need to fetch incompatibleRoles (could be changed)
+              this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(request.id, `${ uiKeyIncompatibleRoles }${ request.id }`));
               this.reload();
             }
           });
@@ -247,6 +250,8 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         if (!request.id) {
           replaceUrl(json.roleRequest);
         } else {
+          // We need to fetch incompatibleRoles (could be changed)
+          this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(request.id, `${ uiKeyIncompatibleRoles }${ request.id }`));
           this.reload();
         }
       }));

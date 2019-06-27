@@ -18,7 +18,7 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
    * @return {FormValue}
    */
   fillFormValue(formValue, rawValue) {
-    if (!rawValue || (typeof rawValue === 'string') && rawValue.toLowerCase() !== 'true') { // false
+    if (!rawValue || ((typeof rawValue === 'string') && rawValue.toLowerCase() !== 'true')) { // false
       const { attribute } = this.props;
       //
       if (this.isRequired() || (attribute.defaultValue != null && attribute.defaultValue.toLowerCase() === 'true')) {

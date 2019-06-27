@@ -100,7 +100,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     super.setState(json, () => {
       // FIXME: abstract form component everride standard state to show validations => we need to propage this state into component
       if (json && json.showValidationError !== undefined) {
-        this.refs.role.setState({ showValidationError: json.showValidationError}, cb);
+        this.refs.role.setState({ showValidationError: json.showValidationError }, cb);
       } else if (cb) {
         cb();
       }
@@ -339,7 +339,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
   }
 
   addPage() {
-    const entities = this.getManager().getEntities(this.context.store.getState(), `${this.getUiKey()}-table`);
+    const entities = this.getManager().getEntities(this.context.store.getState(), `${ this.getUiKey() }-table`);
     const { selectedRows, selectedRoles } = this.state;
     //
     entities.forEach(entity => {
@@ -401,10 +401,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
             }
           }
         }
-      } else {
-        if (value.id) {
-          selectedRows.push(value.id);
-        }
+      } else if (value.id) {
+        selectedRows.push(value.id);
       }
     }
     //
@@ -439,7 +437,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
             onClick={ this.showRoleCatalogue.bind(this) }
             title={ this.i18n('content.roles.select.showRoleCatalogue') }
             titlePlacement="bottom"
-            disabled={ readOnly }/>
+            disabled={ readOnly } />
         </Basic.LabelWrapper>
       </div>
     );

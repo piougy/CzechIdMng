@@ -62,7 +62,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   _closeDetail() {
     this.setState({
       detail: {
-        ... this.state.detail,
+        ...this.state.detail,
         show: false,
         add: false
       },
@@ -154,16 +154,14 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         if (error) {
           this.setState({
             showLoading: false
-          }, () => { this.addError(error);});
+          }, () => { this.addError(error); });
+        } else if (!request.id) {
+          replaceUrl(requestReturned.id);
         } else {
-          if (!request.id) {
-            replaceUrl(requestReturned.id);
-          } else {
-            this._hideRoleByIdentitySelect();
-            this.setState({
-              showLoading: false
-            }, () => { this.reload();});
-          }
+          this._hideRoleByIdentitySelect();
+          this.setState({
+            showLoading: false
+          }, () => { this.reload(); });
         }
       }));
     });
@@ -196,10 +194,10 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
       }
 
       // Conversions
-      if ( entity.identityContract && _.isObject(entity.identityContract)) {
+      if (entity.identityContract && _.isObject(entity.identityContract)) {
         entity.identityContract = entity.identityContract.id;
       }
-      if ( entity.role && _.isArray(entity.role)) {
+      if (entity.role && _.isArray(entity.role)) {
         entity.roles = entity.role;
         entity.role = null;
       }
@@ -321,7 +319,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     if (requestIdentityRole.duplicate) {
       //
       content.push(
-         <span>
+        <span>
           <Basic.Icon
             icon="fa:warning"
             style={{ marginLeft: 3, color: '#337ab7' }}
@@ -354,7 +352,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         role="group"
         title={ this.i18n('button.delete') }
         titlePlacement="bottom"
-        icon={'trash'}/>
+        icon="trash"/>
     );
     if (operation !== 'REMOVE') {
       actions.push(
@@ -380,7 +378,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   renderConceptAttributesCell({rowIndex, data}) {
     const value = data[rowIndex];
     const result = [];
-    if ( value
+    if (value
       && value._eav
       && value._eav.length === 1
       && value._eav[0].formDefinition) {
@@ -440,12 +438,12 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           <Basic.Toolbar>
             <div>
               <div className="pull-left">
-                  <Basic.ToggleSwitch
-                    ref="switchShowChangesOnly"
-                    label={this.i18n('switchShowChangesOnly')}
-                    onChange={this._toggleShowChangesOnly.bind(this)}
-                    value={showChangesOnly}
-                  />
+                <Basic.ToggleSwitch
+                  ref="switchShowChangesOnly"
+                  label={this.i18n('switchShowChangesOnly')}
+                  onChange={this._toggleShowChangesOnly.bind(this)}
+                  value={showChangesOnly}
+                />
               </div>
               <div className="pull-right">
                 <Basic.Button
@@ -473,8 +471,12 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
             manager={requestIdentityRoleManager}
             showRowSelection={ showRowSelection }
             actions={
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
-                 action: this.onDelete.bind(this), disabled: false }]
+              [{
+                value: 'delete',
+                niceLabel: this.i18n('action.delete.action'),
+                action: this.onDelete.bind(this),
+                disabled: false
+              }]
             }
             rowClass={this._getRowClass}
             defaultSearchParameters={ sortSearchParameters }
@@ -518,26 +520,26 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
-            </Advanced.Filter>
-          }>
-          <Advanced.Column
-            header=""
-            className="detail-button"
-            cell={ this.renderDetailCell.bind(this) }/>
-           <Advanced.Column
-            property="role.name"
-            title={ this.i18n('entity.Role.name') }
-            sort
-            header={ this.i18n('entity.IdentityRole.role') }
-            cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data }) => {
-                const role = data[rowIndex]._embedded.role;
-                if (!role) {
-                  return '';
-                }
-                return (
-                  <Advanced.EntityInfo
+              </Advanced.Filter>
+            }>
+            <Advanced.Column
+              header=""
+              className="detail-button"
+              cell={ this.renderDetailCell.bind(this) }/>
+            <Advanced.Column
+              property="role.name"
+              title={ this.i18n('entity.Role.name') }
+              sort
+              header={ this.i18n('entity.IdentityRole.role') }
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  const role = data[rowIndex]._embedded.role;
+                  if (!role) {
+                    return '';
+                  }
+                  return (
+                    <Advanced.EntityInfo
                       entityType="role"
                       entityIdentifier={ role.id }
                       entity={ role }
@@ -545,9 +547,9 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                       showIcon
                       showCode={ false }
                       showEnvironment={ false }/>
-                );
-              }
-            }/>
+                  );
+                }
+              }/>
             <Advanced.Column
               property="_embedded.role.baseCode"
               sortProperty="role.baseCode"
@@ -563,9 +565,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
             <Advanced.Column
               header={this.i18n('content.task.IdentityRoleConceptTable.identityRoleAttributes.header')}
               cell={
-                ({rowIndex, data}) => {
-                  return this.renderConceptAttributesCell({ rowIndex, data });
-                }
+                ({rowIndex, data}) => this.renderConceptAttributesCell({ rowIndex, data })
               }/>
             <Advanced.Column
               header={ this.i18n('entity.IdentityRole.identityContract.title') }
@@ -619,16 +619,14 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
               header={ <Basic.Icon value="component:automatic-role" title={ this.i18n('entity.IdentityRole.automaticRole.help') }/> }
               cell={
                 /* eslint-disable react/no-multi-comp */
-                ({ rowIndex, data }) => {
-                  return (
-                    <Basic.BooleanCell propertyValue={ data[rowIndex].automaticRole !== null } className="column-face-bool"/>
-                  );
-                }
+                ({ rowIndex, data }) => <Basic.BooleanCell
+                  propertyValue={ data[rowIndex].automaticRole !== null }
+                  className="column-face-bool"/>
               }/>
             <Advanced.Column
-                header={ this.i18n('label.action') }
-                className="action"
-                cell={ this.renderConceptActionsCell.bind(this) }/>
+              header={ this.i18n('label.action') }
+              className="action"
+              cell={ this.renderConceptActionsCell.bind(this) }/>
           </Advanced.Table>
         </Basic.Panel>
         <Basic.Modal

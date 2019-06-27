@@ -3,10 +3,11 @@ import TestUtils from 'react-addons-test-utils';
 import Immutable from 'immutable';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
-chai.use(dirtyChai);
 //
+import { Basic, Advanced } from 'czechidm-core';
 import { App } from '../../src/layout/App';
-import {Basic, Advanced} from 'czechidm-core';
+//
+chai.use(dirtyChai);
 
 describe('App', function appTestSuite() {
   describe.skip('[without redux connected]', function appTest() {

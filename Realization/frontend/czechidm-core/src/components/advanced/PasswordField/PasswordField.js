@@ -147,7 +147,7 @@ class PasswordField extends Basic.AbstractFormComponent {
           {
             !labelSpan
             ||
-            <span className={labelSpan}></span>
+            <span className={ labelSpan } />
           }
           <Basic.PasswordStrength
             max={5}

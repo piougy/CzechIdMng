@@ -1,6 +1,7 @@
-import EntityUtils from './EntityUtils';
 import Joi from 'joi';
 import _ from 'lodash';
+//
+import EntityUtils from './EntityUtils';
 
 /**
  * Helper methods for ui state
@@ -243,6 +244,7 @@ export default class UiUtils {
     result = result + suffix;
     return result;
   }
+
   /**
    * Do substring on given data by max length. Substring is not on char byt on word.
    * Last word will be whole. Get ending part.
@@ -291,9 +293,11 @@ export default class UiUtils {
    * @return {String}
    */
   static utf8ToBase64(data) {
-    if (data != null) {
-      return window.btoa(unescape(encodeURIComponent(data)));
+    if (!data) {
+      return null;
     }
+    //
+    return window.btoa(unescape(encodeURIComponent(data)));
   }
 
   /**
@@ -303,9 +307,11 @@ export default class UiUtils {
    * @return {String}
    */
   static base64ToUtf8(data) {
-    if (data != null) {
-      return decodeURIComponent(escape(window.atob(data)));
+    if (!data) {
+      return null;
     }
+    //
+    return decodeURIComponent(escape(window.atob(data)));
   }
 
   /**
@@ -318,9 +324,21 @@ export default class UiUtils {
    */
   static getIntegerValidation(max) {
     if (max) {
-      return Joi.number().integer().allow(null).allow(0).positive().max(max);
+      return Joi
+        .number()
+        .integer()
+        .allow(null)
+        .allow(0)
+        .positive()
+        .max(max);
     }
-    return Joi.number().integer().allow(null).allow(0).positive().max(UiUtils.MAX_VALUE_INTEGER);
+    return Joi
+      .number()
+      .integer()
+      .allow(null)
+      .allow(0)
+      .positive()
+      .max(UiUtils.MAX_VALUE_INTEGER);
   }
 
   /**
@@ -393,11 +411,10 @@ export default class UiUtils {
   static toStringValue(objectValue) {
     if (_.isArray(objectValue)) {
       return objectValue
-        .map(singleValue => {
-          return UiUtils.toStringValue(singleValue);
-        })
+        .map(singleValue => UiUtils.toStringValue(singleValue))
         .join(', ');
-    } else if (_.isObject(objectValue)) {
+    }
+    if (_.isObject(objectValue)) {
       return JSON.stringify(objectValue);
     }
     return objectValue + '';

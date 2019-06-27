@@ -431,7 +431,7 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
         <div style={{marginLeft: 5, flex: 1 }}>
           {component}
         </div>
-     </div>
+      </div>
     );
   }
 }

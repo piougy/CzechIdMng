@@ -247,7 +247,8 @@ class SystemConnectorContent extends Basic.AbstractContent {
         this.setState({
           showLoading: false
         });
-      }));});
+      }));
+    });
   }
 
   _getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity) {

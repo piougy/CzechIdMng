@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
@@ -20,10 +21,6 @@ const codeListItemManager = new CodeListItemManager();
 * @since 9.4.0
 */
 export class CodeListValue extends Basic.AbstractContextComponent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   renderItem(value, options) {
     if (!options || !value) {

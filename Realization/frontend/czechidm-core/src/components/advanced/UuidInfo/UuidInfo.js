@@ -13,10 +13,6 @@ const MAX_UUID_LENGTH = 7;
  */
 export default class UuidInfo extends Basic.AbstractContextComponent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getComponentKey() {
     return 'component.advanced.UuidInfo';
   }
@@ -94,7 +90,7 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
                 type="text"
                 value={ value }
                 readOnly
-                onClick={ ()=> {
+                onClick={ () => {
                   // ~ctrl+c
                   this.refs.input.select();
                   document.execCommand('copy');
@@ -113,7 +109,8 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
             <Basic.Button
               level="link"
               className="embedded"
-              onClick={ (e) => e.preventDefault() }>{ this.shorten(value) }
+              onClick={ e => e.preventDefault() }>
+              { this.shorten(value) }
             </Basic.Button>
           </span>
         }

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 //
 import * as Utils from '../../../utils';
 import * as Basic from '../../basic';
-import { ContractPositionManager } from '../../../redux/';
+import { ContractPositionManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import EntityInfo from '../EntityInfo/EntityInfo';
 

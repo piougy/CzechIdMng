@@ -6,7 +6,7 @@ import { RoleCatalogueManager } from '../../../redux';
 import EntitySelectBox from '../EntitySelectBox/EntitySelectBox';
 import Tree from '../Tree/Tree';
 
-const roleCatalogueManager = new RoleCatalogueManager();  // default manager in manager in props is not given
+const roleCatalogueManager = new RoleCatalogueManager(); // default manager in manager in props is not given
 
 /**
 * Select role catalogue

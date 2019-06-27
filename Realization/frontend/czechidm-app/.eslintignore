@@ -4,3 +4,4 @@ docs-built/**
 lib/**
 **/node_modules/**
 **/*.md
+czechidm-modules/czechidm-app/**

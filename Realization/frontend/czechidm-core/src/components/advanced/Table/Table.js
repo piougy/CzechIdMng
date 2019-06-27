@@ -288,26 +288,27 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       //
       this.setState({
         bulkActionShowLoading: true
+      }, () => {
+        this.context.store.dispatch(manager.prevalidateBulkAction(bulkActionToProcess, (resultModel, error) => {
+          if (error) {
+            this.addErrorMessage({}, error);
+            this.setState({
+              bulkActionShowLoading: false
+            });
+          } else if (resultModel) {
+            const { backendBulkAction } = this.state;
+            backendBulkAction.prevalidateResult = resultModel;
+            this.setState({
+              bulkActionShowLoading: false,
+              backendBulkAction
+            });
+          } else {
+            this.setState({
+              bulkActionShowLoading: false
+            });
+          }
+        }));
       });
-      this.context.store.dispatch(manager.prevalidateBulkAction(bulkActionToProcess, (resultModel, error) => {
-        if (error) {
-          this.addErrorMessage({}, error);
-          this.setState({
-            bulkActionShowLoading: false
-          });
-        } else if (resultModel) {
-          const backendBulkAction = this.state.backendBulkAction;
-          backendBulkAction.prevalidateResult = resultModel;
-          this.setState({
-            bulkActionShowLoading: false,
-            backendBulkAction
-          });
-        } else {
-          this.setState({
-            bulkActionShowLoading: false
-          });
-        }
-      }));
     }
   }
 
@@ -870,7 +871,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return (
       <Basic.Div className={ classnames('advanced-table', className) } style={ style }>
         {
-          !filter && (_actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0)
+          (!filter && (_actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0))
           ||
           <Basic.Toolbar container={ this } viewportOffsetTop={ filterViewportOffsetTop } rendered={ showToolbar }>
             <Basic.Div className="advanced-table-heading">

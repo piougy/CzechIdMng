@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import { ConfigurationManager } from '../../../redux/';
+import { ConfigurationManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new ConfigurationManager();
@@ -14,10 +14,6 @@ const manager = new ConfigurationManager();
  * @since 9.7.0
  */
 export class ConfigurationInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -44,8 +40,8 @@ export class ConfigurationInfo extends AbstractEntityInfo {
   getTableChildren() {
     // component are used in #getPopoverContent => skip default column resolving
     return [
-      <Basic.Column property="label"/>,
-      <Basic.Column property="value"/>
+      <Basic.Column property="label" />,
+      <Basic.Column property="value" />
     ];
   }
 

@@ -75,7 +75,6 @@ export default class AbstractIdentityDashboardButton extends Basic.AbstractConte
    * OnClick button function
    */
   onClick() {
-    return;
   }
 
   /**

@@ -95,11 +95,11 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     if (identity && identity.id) {
       const identityRoleRoots = [];
       const searchParameters = identityRoleManager.getSearchParameters()
-            .setFilter('identityId', identity.id)
-            .setFilter('identityContractId', identityContract ? identityContract.id : null)
-            .setFilter('directRole', showOnlyDirectRoles === true ? true : null) // When is filter false we want all roles
-            .setFilter('roleEnvironment', environment)
-            .setSize(100000);
+        .setFilter('identityId', identity.id)
+        .setFilter('identityContractId', identityContract ? identityContract.id : null)
+        .setFilter('directRole', showOnlyDirectRoles === true ? true : null) // When is filter false we want all roles
+        .setFilter('roleEnvironment', environment)
+        .setSize(100000);
       this.context.store.dispatch(identityRoleManager.fetchEntities(searchParameters, IDENTITY_ROLE_BY_IDENTITY_UIKEY, json => {
         // Returned json and inner embbeded with identity roles must exists
         if (json && json._embedded && json._embedded.identityRoles) {

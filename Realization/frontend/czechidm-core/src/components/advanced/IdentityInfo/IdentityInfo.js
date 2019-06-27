@@ -17,10 +17,6 @@ const manager = new IdentityManager();
  */
 export class IdentityInfo extends AbstractEntityInfo {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getComponentKey() {
     return 'component.advanced.IdentityInfo';
   }
@@ -100,7 +96,7 @@ export class IdentityInfo extends AbstractEntityInfo {
    * Renders nicelabel used in text and link face
    */
   _renderNiceLabel() {
-    const{ showOnlyUsername } = this.props;
+    const { showOnlyUsername } = this.props;
     //
     if (!showOnlyUsername) {
       return super._renderNiceLabel();

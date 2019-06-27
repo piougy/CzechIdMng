@@ -14,10 +14,6 @@ const manager = new SystemManager();
  */
 class SystemContent extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'acc:content.system.detail';
   }

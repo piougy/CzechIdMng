@@ -19,10 +19,6 @@ const manager = new IdentityContractManager();
  */
 export class IdentityContractInfo extends AbstractEntityInfo {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return manager;
   }
@@ -76,7 +72,7 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     const { entityIdentifier } = this.props;
     const _entity = this.getEntity();
     //
-    return `/identity/${encodeURIComponent(_entity._embedded.identity.username)}/identity-contract/${entityIdentifier}/detail`;
+    return `/identity/${ encodeURIComponent(_entity._embedded.identity.username) }/identity-contract/${ entityIdentifier }/detail`;
   }
 
   /**

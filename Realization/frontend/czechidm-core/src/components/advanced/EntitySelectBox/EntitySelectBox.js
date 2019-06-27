@@ -13,10 +13,6 @@ const componentService = new ComponentService();
  */
 export default class EntitySelectBox extends Basic.AbstractFormComponent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   componentWillReceiveProps(nextProps) {
     if (this.refs.selectComponent) {
       this.refs.selectComponent.componentWillReceiveProps(nextProps);
@@ -112,7 +108,11 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
       }
       //
       if (finalSearchInFields) {
-        finalHelpBlock.push(<div>{ this.i18n('component.advanced.EntitySelectBox.defaultHelpBlock', { searchInFields: finalSearchInFields.join(', ') }) }</div>);
+        finalHelpBlock.push(
+          <div>
+            { this.i18n('component.advanced.EntitySelectBox.defaultHelpBlock', { searchInFields: finalSearchInFields.join(', ') }) }
+          </div>
+        );
       }
     }
     //
@@ -123,7 +123,7 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { rendered, showDefaultHelpBlock, helpBlock, entityType, pageSize, ...others } = this.props;
+    const { rendered, entityType, pageSize, ...others } = this.props;
     // standard rendered - we dont propagate rendered to underliyng component
     if (!rendered) {
       return null;
@@ -136,7 +136,7 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
         <Basic.Alert
           level="warning"
           text={ this.i18n('component.advanced.EntitySelectBox.componentNotFound', { entityType }) }
-          className="no-margin"/>
+          className="no-margin" />
       );
     }
     //
@@ -157,12 +157,12 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
           ref="selectComponent"
           pageSize={ pageSizeFinal }
           helpBlock={ this._getHelpBlock(component) }
-          {...others} />
-        );
+          { ...others } />
+      );
     }
     //
     const ManagerType = component.manager;
-    const manager = new ManagerType;
+    const manager = new ManagerType();
     //
     // remove all overload attributes
     delete others.ref;
@@ -178,7 +178,7 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
         pageSize={ pageSizeFinal }
         searchInFields={ component.searchInFields }
         helpBlock={ this._getHelpBlock(component) }
-        {...others}/>
+        { ...others }/>
     );
   }
 }

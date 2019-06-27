@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 //
 import * as Basic from '../../basic';
@@ -58,7 +59,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   getValue() {
     const { options } = this.state;
     //
-    if (options.length > 0 ) {
+    if (options.length > 0) {
       return this.refs.inputEnum.getValue();
     }
     return this.refs.inputText.getValue();
@@ -78,7 +79,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   isValid() {
     const { options } = this.state;
     //
-    if (options.length > 0 ) {
+    if (options.length > 0) {
       return this.refs.inputEnum.isValid();
     }
     return this.refs.inputText.isValid();
@@ -91,7 +92,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
     if (readOnly || !rendered) {
       return true;
     }
-    if (options.length > 0 ) {
+    if (options.length > 0) {
       return this.refs.inputEnum.validate(true, cb);
     }
     return this.refs.inputText.validate(true, cb);
@@ -101,8 +102,8 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
     super.setState(json, () => {
       // FIXME: abstract form component everride standard state to show validations => we need to propage this state into component
       if (json && json.showValidationError !== undefined) {
-        this.refs.inputEnum.setState({ showValidationError: json.showValidationError}, cb);
-        this.refs.inputText.setState({ showValidationError: json.showValidationError}, cb);
+        this.refs.inputEnum.setState({ showValidationError: json.showValidationError }, cb);
+        this.refs.inputText.setState({ showValidationError: json.showValidationError }, cb);
       } else if (cb) {
         cb();
       }
@@ -157,7 +158,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   }
 
   _loadOptions(props = null) {
-    const _props = props ? props : this.props;
+    const _props = props || this.props;
     const { code, forceSearchParameters, useFirst, items } = _props;
     if (!_props.rendered) {
       // component is not rendered ... loading is not needed
@@ -178,7 +179,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
         _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override setted pagination
       }
       searchParameters = codeListItemManager.mergeSearchParameters(searchParameters, _forceSearchParameters);
-      this.context.store.dispatch(codeListItemManager.fetchEntities(searchParameters, `${this.getUiKey()}-${code}`, (json, error) => {
+      this.context.store.dispatch(codeListItemManager.fetchEntities(searchParameters, `${ this.getUiKey() }-${ code }`, (json, error) => {
         if (!error) {
           const data = json._embedded[codeListItemManager.getCollectionType()] || [];
           //
@@ -203,7 +204,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
             showLoading: false
           }, () => {
             // TODO: enum refresh - normalize item has to be called.
-            const value = this.state.value;
+            const { value } = this.state;
             this.refs.inputEnum.setValue(value);
             this.refs.inputText.setValue(value);
           });
@@ -213,7 +214,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   }
 
   _setOptions(options, useFirst) {
-    let value = this.state.value;
+    let { value } = this.state;
     const values = _.concat([], value).filter(v => v !== null && v !== undefined && v !== '');
     const _options = [];
     //
@@ -277,7 +278,8 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           showLoading={ showLoading }
           options={ options }
           multiSelect={ multiSelect }
-          onChange={ onChange }/>
+          onChange={ onChange }
+        />
         <Basic.TextField
           ref="inputText"
           value={ value }
@@ -288,7 +290,8 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           required={ required }
           validationErrors={ validationErrors }
           hidden={ showLoading || hidden || options.length > 0 }
-          onChange={ onChange }/>
+          onChange={ onChange }
+        />
       </span>
     );
   }

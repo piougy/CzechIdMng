@@ -113,7 +113,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     const entityFormData = _.merge({}, entity);
     entityFormData.validFrom = validFrom;
     entityFormData.identityContract = value;
-    if ( this.refs.role) {
+    if (this.refs.role) {
       entityFormData.role = this.refs.role.getValue();
     }
 
@@ -180,7 +180,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       _showEAV = true;
     }
     if (selectedRole && _identityRoleAttributeDefinition) {
-      if ( entity
+      if (entity
         && entity._eav
         && entity._eav.length === 1) {
         _formInstance = new FormInstance(_identityRoleAttributeDefinition, entity._eav[0].values);
@@ -189,7 +189,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       }
     }
     if (!_formInstance && _identityRoleFormInstance && _identityRoleFormInstance.size === 1) {
-      _identityRoleFormInstance.map(instance => {
+      _identityRoleFormInstance.forEach(instance => {
         _formInstance = instance;
       });
     }

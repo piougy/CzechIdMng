@@ -267,7 +267,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     //
     return (
       <Basic.Popover
-        trigger={['click']}
+        trigger={ ['click'] }
         value={ this._renderFull(entity) }
         className="abstract-entity-info-popover"
         onEnter={ this.onEnter.bind(this) }>
@@ -322,7 +322,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           hover={ false }
           noHeader
           data={ this.getPopoverContent(_entity) }
-          children={ this.getTableChildren() }/>
+          children={ this.getTableChildren() } />
 
         {
           !this.showLink()

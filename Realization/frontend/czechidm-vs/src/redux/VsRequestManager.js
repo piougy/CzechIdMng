@@ -144,15 +144,14 @@ export default class VsRequestManager extends Managers.EntityManager {
             title: detail.i18n(`action.cancel.header`, { count: ids.length })
           },
           ids.length
-          )
-        );
+        ));
       }
       const reason = detail.refs['cancel-form'].getData()['cancel-reason'];
       detail.setState({
         showLoading: true
       });
       ids.reduce((sequence, entityId) => {
-        const uiKey = this.resolveUiKey(uiKey, entityId);
+        const uiKey = this.resolveUiKey(null, entityId);
         return sequence.then(() => {
           dispatch(this.requestEntity(entityId, uiKey));
           // Call backend API

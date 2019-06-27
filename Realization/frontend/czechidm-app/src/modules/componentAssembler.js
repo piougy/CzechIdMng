@@ -4,9 +4,9 @@
  *
  */
 import Immutable from 'immutable';
-/*eslint-disable */
+/* eslint-disable */
 let componentDescriptors = new Immutable.Map();
-/*eslint-enable */
+/* eslint-enable */
 // Default component descriptors
 //
 // Additional component descriptors (will added during compilation)

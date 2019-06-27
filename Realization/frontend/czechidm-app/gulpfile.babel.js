@@ -94,14 +94,20 @@ function getConfigByEnvironment(env = 'development', profile = 'default') {
  * Select environment stage and profile by input arguments.
  */
 function selectStageAndProfile() {
-  const argv = yargs.alias('p', 'profile').alias('s', 'stage').usage('Usage: $0 --profile [name of profile] --stage [development/test/production]')
-  .choices('stage', ['development', 'test', 'production']).help('help').alias('h', 'help').argv;
+  const argv = yargs
+    .alias('p', 'profile')
+    .alias('s', 'stage')
+    .usage('Usage: $0 --profile [name of profile] --stage [development/test/production]')
+    .choices('stage', ['development', 'test', 'production'])
+    .help('help')
+    .alias('h', 'help')
+    .argv;
   let profile = argv.profile;
   if (!profile) {
     profile = 'default';
-    util.log('No profile argument present. Profile "' + profile + '" will be used for build!');
+    util.log(`No profile argument present. Profile "${ profile }" will be used for build!`);
   } else {
-    util.log('Profile "' + profile + '" will be used for build.');
+    util.log(`Profile "${ profile }" will be used for build.`);
   }
   let stage = argv.stage;
   if (!stage) {
@@ -247,9 +253,7 @@ gulp.task('versionSet', () => {
   iterateOverModulesAndExec(versionCommand);
 });
 
-gulp.task('removeAppLink', cb => {
-  return rimraf('./czechidm-modules/czechidm-app', cb);
-});
+gulp.task('removeAppLink', cb => rimraf('./czechidm-modules/czechidm-app', cb));
 
 /**
  * Load module-descriptors.
@@ -436,7 +440,7 @@ gulp.task('styles', () => {
       starttag: '/* inject:imports */',
       endtag: '/* endinject */',
       transform: function transform(filepath) {
-        return '@import "' + __dirname + filepath + '";';
+        return `@import "${ __dirname }${ filepath }";`;
       }
     }))
     .pipe(less({
@@ -593,23 +597,106 @@ gulp.task('watchTask', () => {
 
 
 gulp.task('install', cb => {
-  runSequence('clean', 'npmPrune', 'npmInstall', 'makeProductModules', 'removeAppLink', cb);
+  runSequence(
+    'clean',
+    'npmPrune',
+    'npmInstall',
+    'makeProductModules',
+    'removeAppLink',
+    cb
+  );
 });
 
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'webfonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
+  runSequence(
+    'clean',
+    'removeAppLink',
+    'makeModules',
+    'loadModules',
+    'createModuleAssembler',
+    'loadModuleStyles',
+    'loadModuleRoutes',
+    'createRouteAssembler',
+    'loadModuleComponents',
+    'createComponentAssembler',
+    'themes',
+    'runTest',
+    'config',
+    'copyConfig',
+    'styles',
+    // 'lint', too long ...
+    'images',
+    'js',
+    'fonts',
+    'webfonts',
+    'loadModuleLocales',
+    'browserSync',
+    'watchTask',
+    'watchify',
+    cb
+  );
 });
 
 gulp.task('watch-nosync', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'webfonts', 'loadModuleLocales', 'browserNoSync', 'watchTask', 'watchify', cb);
+  runSequence(
+    'clean',
+    'removeAppLink',
+    'makeModules',
+    'loadModules',
+    'createModuleAssembler',
+    'loadModuleStyles',
+    'loadModuleRoutes',
+    'createRouteAssembler',
+    'loadModuleComponents',
+    'createComponentAssembler',
+    'themes',
+    'runTest',
+    'config',
+    'copyConfig',
+    'styles',
+    // 'lint', too long ...
+    'images',
+    'js',
+    'fonts',
+    'webfonts',
+    'loadModuleLocales',
+    'browserNoSync',
+    'watchTask',
+    'watchify',
+    cb
+  );
 });
 
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'copyConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'webfonts', 'loadModuleLocales', 'browserify', cb);
+  runSequence(
+    'clean',
+    'removeAppLink',
+    'makeModules',
+    'loadModules',
+    'createModuleAssembler',
+    'loadModuleStyles',
+    'loadModuleRoutes',
+    'createRouteAssembler',
+    'loadModuleComponents',
+    'createComponentAssembler',
+    'themes',
+    'runTest',
+    'config',
+    'copyConfig',
+    'styles',
+    'htmlReplace',
+    'images',
+    'js',
+    'fonts',
+    'webfonts',
+    'loadModuleLocales',
+    'browserify',
+    cb
+  );
 });
 
 gulp.task('default', ['watch']);

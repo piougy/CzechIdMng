@@ -18,7 +18,7 @@ export default class ExampleDashboard extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         <Basic.ContentHeader
           icon="gift"
           text={ this.i18n('header') }/>
@@ -39,7 +39,7 @@ export default class ExampleDashboard extends Basic.AbstractContent {
             </Basic.Panel>
           </Basic.PanelBody>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

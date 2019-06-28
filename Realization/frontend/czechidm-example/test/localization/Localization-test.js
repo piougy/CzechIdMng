@@ -1,6 +1,7 @@
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import { LocalizationTester } from 'czechidm-core/src/utils/TestHelper';
+
 chai.use(dirtyChai);
 
 /**
@@ -8,8 +9,8 @@ chai.use(dirtyChai);
  *
  * @author Radek Tomiška
  */
-describe('Comparing JSON catalogs', function test() {
-  it('- example', function validate() {
+describe('Comparing JSON catalogs', () => {
+  it('- example', () => {
     const cs = require('../../src/locales/cs.json');
     const en = require('../../src/locales/en.json');
     //

@@ -30,12 +30,12 @@ export default class ExampleManager {
   clientError(parameter) {
     return (dispatch) => {
       this.getService().clientError(parameter)
-      .then(() => {
+        .then(() => {
         // nothing - just error handling example
-      })
-      .catch(error => {
-        dispatch(this.dataManager.receiveError(null, null, error));
-      });
+        })
+        .catch(error => {
+          dispatch(this.dataManager.receiveError(null, null, error));
+        });
     };
   }
 
@@ -48,12 +48,12 @@ export default class ExampleManager {
   serverError(parameter) {
     return (dispatch) => {
       this.getService().serverError(parameter)
-      .then(() => {
+        .then(() => {
         // nothing - just error handling example
-      })
-      .catch(error => {
-        dispatch(this.dataManager.receiveError(null, null, error));
-      });
+        })
+        .catch(error => {
+          dispatch(this.dataManager.receiveError(null, null, error));
+        });
     };
   }
 }

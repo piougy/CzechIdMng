@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
     ```javascript
     roleRequestService.get(requestId, new IdmRoleRequestFilter(true));
     ```
-
+- ``eslint 5.3.0`` library in version is used for FE - use new ``.eslintrc`` configuration file in your custom module (new rules was reused from ``airbnb``).
 
 
 

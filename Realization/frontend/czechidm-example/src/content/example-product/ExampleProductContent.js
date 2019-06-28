@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import { Basic } from 'czechidm-core';
@@ -13,10 +14,6 @@ const manager = new ExampleProductManager();
  * @author Radek Tomiška
  */
 class ExampleProductContent extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   /**
    * "Shorcut" for localization
@@ -41,7 +38,7 @@ class ExampleProductContent extends Basic.AbstractContent {
       this.context.store.dispatch(manager.receiveEntity(entityId, { }));
     } else {
       // load entity from BE - we need load actual entity and set her to the form
-      this.getLogger().debug(`[ExampleProductContent] loading entity detail [id:${entityId}]`);
+      this.getLogger().debug(`[ExampleProductContent] loading entity detail [id:${ entityId }]`);
       this.context.store.dispatch(manager.fetchEntity(entityId));
     }
   }
@@ -76,7 +73,7 @@ ExampleProductContent.propTypes = {
   /**
    * Loaded entity
    */
-  entity: PropTypes.object,
+  entity: PropTypes.instanceOf(PropTypes.object),
   /**
    * Entity is currently loaded from BE
    */

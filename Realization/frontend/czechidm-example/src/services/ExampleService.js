@@ -1,5 +1,5 @@
-import { Services } from 'czechidm-core';
-import { Utils } from 'czechidm-core';
+import { Services, Utils } from 'czechidm-core';
+
 
 /**
  * Example service:
@@ -17,10 +17,8 @@ export default class ExampleProductService {
    */
   clientError(parameter = 'Test') {
     return Services.RestApiService
-      .get(`/examples/client-error?parameter=${encodeURIComponent(parameter)}`)
-      .then(response => {
-        return response.json();
-      })
+      .get(`/examples/client-error?parameter=${ encodeURIComponent(parameter) }`)
+      .then(response => response.json())
       .then(json => {
         if (Utils.Response.hasError(json)) {
           throw Utils.Response.getFirstError(json);
@@ -37,10 +35,8 @@ export default class ExampleProductService {
    */
   serverError(parameter = 'Test') {
     return Services.RestApiService
-      .get(`/examples/server-error?parameter=${encodeURIComponent(parameter)}`)
-      .then(response => {
-        return response.json();
-      })
+      .get(`/examples/server-error?parameter=${ encodeURIComponent(parameter) }`)
+      .then(response => response.json())
       .then(json => {
         if (Utils.Response.hasError(json)) {
           throw Utils.Response.getFirstError(json);

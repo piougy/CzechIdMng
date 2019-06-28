@@ -1,5 +1,5 @@
-import { Services } from 'czechidm-core';
-import { Domain } from 'czechidm-core';
+import { Services, Domain } from 'czechidm-core';
+
 
 /**
  * Example products
@@ -16,7 +16,7 @@ export default class ExampleProductService extends Services.AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.name} (${entity.code})`;
+    return `${ entity.name } (${ entity.code })`;
   }
 
   /**

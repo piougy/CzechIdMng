@@ -12,10 +12,6 @@ const identityManager = new Managers.IdentityManager();
  */
 class IdentityContractDashboardButton extends Advanced.AbstractIdentityDashboardButton {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getIcon() {
     return 'component:contract';
   }
@@ -35,7 +31,7 @@ class IdentityContractDashboardButton extends Advanced.AbstractIdentityDashboard
   }
 
   onClick() {
-    this.context.router.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/contracts`);
+    this.context.router.push(`/identity/${ encodeURIComponent(this.getIdentityIdentifier()) }/contracts`);
   }
 }
 

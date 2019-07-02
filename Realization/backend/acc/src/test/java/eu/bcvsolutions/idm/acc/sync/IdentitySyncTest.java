@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
+import org.activiti.engine.ProcessEngine;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.After;
@@ -174,6 +175,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private SynchronizationService synchronizationService;
 	@Autowired
 	private IdentityConfiguration identityConfiguration;
+	@Autowired
+	private ProcessEngine processEngine;
 
 	@After
 	public void logout() {
@@ -952,6 +955,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		identityFilter.setUsername(IDENTITY_ONE);
 		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
 		Assert.assertEquals(0, identities.size());
+		
+		long countOfHistoricProcesses = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -969,6 +978,15 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, emailValues.size());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+		
+		long countOfHistoricProcessesAfter = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
+
+		// We deleting a historic processes created during sync -> count must be same!
+		Assert.assertEquals(countOfHistoricProcesses, countOfHistoricProcessesAfter);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -993,6 +1011,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
 		Assert.assertEquals(0, identities.size());
 		getHelper().createIdentity(IDENTITY_ONE);
+		
+		long countOfHistoricProcesses = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -1010,6 +1034,15 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, emailValues.size());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+		
+		long countOfHistoricProcessesAfter = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
+
+		// We deleting a historic processes created during sync -> count must be same!
+		Assert.assertEquals(countOfHistoricProcesses, countOfHistoricProcessesAfter);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -1037,6 +1070,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		config.setMissingEntityActionWfKey(wfExampleKey);
 		config.setUnlinkedActionWfKey(wfExampleKey);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		long countOfHistoricProcesses = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -1054,6 +1093,15 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, emailValues.size());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+		
+		long countOfHistoricProcessesAfter = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
+
+		// We deleting a historic processes created during sync -> count must be same!
+		Assert.assertEquals(countOfHistoricProcesses, countOfHistoricProcessesAfter);
 
 		// Delete log
 		syncLogService.delete(log);

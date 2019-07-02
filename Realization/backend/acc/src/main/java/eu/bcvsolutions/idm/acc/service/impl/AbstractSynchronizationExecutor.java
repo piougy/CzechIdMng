@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
+import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.delegate.VariableScope;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.collections.CollectionUtils;
@@ -179,6 +180,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
 	protected ProvisioningConfiguration provisioningConfiguration;
+	@Autowired
+	private ProcessEngine processEngine;
+	
 	@Autowired(required = false)
 	private CacheManager cacheManager;
 	// Instance of LRT
@@ -1928,8 +1932,14 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			addToItemLog(logItem, MessageFormat.format("Workflow (with id {0}) for missing entity situation ended.",
 					processInstance.getId()));
 			initSyncActionLog(situation.getAction(), OperationResultType.WF, logItem, log, actionLogs);
+			
+			// We don't wont history for workflow executed in synchronization!
+			processEngine.getHistoryService().deleteHistoricProcessInstance(processInstance.getId());
+			addToItemLog(logItem, MessageFormat.format("Workflow history for process instance [{0}] was deleted.",
+					processInstance.getId()));
 
 		} else {
+			// If workflow not ended, then the history will be not deleted!
 			addToItemLog(logItem, MessageFormat.format(
 					"Workflow (with id {0}) for missing entity situation not ended (will be ended asynchronously).",
 					processInstance.getId()));

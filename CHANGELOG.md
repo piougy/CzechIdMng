@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
     roleRequestService.get(requestId, new IdmRoleRequestFilter(true));
     ```
 - ``eslint 5.3.0`` library in version is used for FE - use new ``.eslintrc`` configuration file in your custom module (new rules was reused from ``airbnb``).
+- History of workflow processes created (and synchronously ended) in synchronization will be delete from now (for prevent of too many records in activiti database).
 
 
 

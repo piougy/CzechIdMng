@@ -44,8 +44,6 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 	@Autowired
 	private IdentityEavReportExecutor reportExecutor;
 	@Autowired
-	private IdentityEavReportXlsxRenderer xlsxRenderer;
-	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
 	private AttachmentManager attachmentManager;

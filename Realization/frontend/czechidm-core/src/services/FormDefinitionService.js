@@ -13,7 +13,7 @@ class FormDefinitionService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.name} (${entity.code})`;
+    return `${entity.name} (${entity.code}) - ${Utils.Ui.getSimpleJavaType(entity.type)}`;
   }
 
   getGroupPermission() {

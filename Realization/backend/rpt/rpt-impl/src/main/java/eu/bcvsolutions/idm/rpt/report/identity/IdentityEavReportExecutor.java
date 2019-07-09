@@ -28,7 +28,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
@@ -45,9 +44,13 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 	public static final String ATTRIBUTE_LNAME = "lastName";
 	public static final String ATTRIBUTE_USERNAME = "username";
 	public static final String ATTRIBUTE_DISABLED = "disabled";
-	private static final String EAV_VALUE = "EAV-VALUE";
-	private static final String FORM_DEFINITION = "FORM-DEFINITION";
-	private String EAV_CODE = "EAV";
+	public static final String ATTRIBUTE_BTITLE = "titleBefore";
+	public static final String ATTRIBUTE_ATITLE = "titleAfter";
+	public static final String ATTRIBUTE_EXTERNAL_CODE = "personalNumber";
+	//
+	public static final String EAV_VALUE = "EAV-VALUE";
+	public static final String FORM_DEFINITION = "FORM-DEFINITION";
+	public static final String EAV_CODE = "EAV";
 	//
 	private String eavName;
 
@@ -55,8 +58,6 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 	private IdmIdentityService identityService;
 	@Autowired
 	private FormService formService;
-	@Autowired
-	private IdmFormAttributeService formAttributeService;
 
 	@Override
 	protected IdmAttachmentDto generateData(RptReportDto report) {
@@ -87,17 +88,6 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 				UUID definitionUUID =
 						UUID.fromString(formInstance.toSinglePersistentValue(FORM_DEFINITION).toString());
 				IdmFormDefinitionDto definition = formService.getDefinition(definitionUUID);
-
-				boolean attributePresent = false;
-				String name = formInstance.toSinglePersistentValue(EAV_CODE).toString();
-				IdmFormAttributeDto currentAttribute;
-				for (IdmFormAttributeDto attribute : definition.getFormAttributes()) {
-					if (attribute.getCode().equals(name)) {
-						attributePresent = true;
-						currentAttribute = attribute;
-						break;
-					}
-				}
 
 				IdmIdentityFilter fltr = new IdmIdentityFilter();
 				if (disabled != null) {
@@ -154,9 +144,14 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 		} else {
 			if (formValue != null) {
 				if (formValue.size() != 0) {
-					String check = String.valueOf(formValue.get(0).getValue());  //todo for multivalued
-					if (check.equals(eavValue)) {
-						createData(identity, jGenerator, formValue);
+					List<IdmFormValueDto> listOfValues = new LinkedList<>();
+					for (IdmFormValueDto val : formValue) {
+						if (val.getValue().toString().equals(eavValue)) {
+							listOfValues.add(val);
+						}
+					}
+					if (listOfValues.size() > 0) {
+						createData(identity, jGenerator, listOfValues);
 					} else {
 						count--;
 					}
@@ -168,14 +163,21 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 	}
 
 	private void createData(IdmIdentityDto identity, JsonGenerator jGenerator, List<IdmFormValueDto> formValue) throws IOException {
-		String value = String.valueOf(formValue.get(0).getValue()); //todo for multivalued
 		jGenerator.writeStartObject();
+		jGenerator.writeObjectField(ATTRIBUTE_BTITLE, identity.getTitleBefore());
 		jGenerator.writeObjectField(ATTRIBUTE_FNAME, identity.getFirstName());
 		jGenerator.writeObjectField(ATTRIBUTE_LNAME, identity.getLastName());
+		jGenerator.writeObjectField(ATTRIBUTE_ATITLE, identity.getTitleAfter());
 		jGenerator.writeObjectField(ATTRIBUTE_USERNAME, identity.getUsername());
+		jGenerator.writeObjectField(ATTRIBUTE_EXTERNAL_CODE, identity.getExternalCode());
 		jGenerator.writeBooleanField(ATTRIBUTE_DISABLED, identity.isDisabled());
 		//
-		jGenerator.writeObjectField(eavName, value);
+		jGenerator.writeFieldName(eavName);
+		jGenerator.writeStartArray();
+		for (IdmFormValueDto idmFormValueDto : formValue) {
+			jGenerator.writeObject(idmFormValueDto.getValue());
+		}
+		jGenerator.writeEndArray();
 		jGenerator.writeEndObject();
 		counter++;
 	}

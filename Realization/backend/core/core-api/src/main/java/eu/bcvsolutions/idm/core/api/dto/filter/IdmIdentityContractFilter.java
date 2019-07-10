@@ -35,6 +35,7 @@ public class IdmIdentityContractFilter
 	private Boolean validNowOrInFuture;
 	private ContractState state;
 	private String position;
+	private UUID roleId;
 
 
 	public IdmIdentityContractFilter() {
@@ -120,7 +121,7 @@ public class IdmIdentityContractFilter
 	public ContractState getState() {
 		return state;
 	}
-
+	
 	@Override
 	public String getProperty() {
 		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
@@ -177,5 +178,13 @@ public class IdmIdentityContractFilter
 	
 	public void setExcluded(Boolean excluded) {
 		data.set(PARAMETER_EXCLUDED, excluded);
+	}
+
+	public UUID getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(UUID roleId) {
+		this.roleId = roleId;
 	}
 }

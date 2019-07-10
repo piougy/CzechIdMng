@@ -801,6 +801,10 @@
         "label": "Available scripts for transformation from resource",
         "help": "After script selection, will be automatically insert code which calls selected script including sample parameters."
       },
+      "notUseIfConctractExcluded": {
+        "label": "Skip value when contract is excluded",
+        "help": "If the contract is excluded, then that value will be skipped from the resulting merge of that attribute values."
+      },
       "idmPropertyEnum": "Entity field",
       "schemaAttribute": "Attribute in schema",
       "systemMapping": "Mapping name",

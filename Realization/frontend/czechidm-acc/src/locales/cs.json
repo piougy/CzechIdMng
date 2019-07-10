@@ -802,6 +802,10 @@
         "label": "Dostupné skripty pro transformaci ze systému",
         "help": "Po výběru skriptu se vloží kód pro zavolání daného skriptu, včetně ukázkových parametrů."
       },
+      "notUseIfConctractExcluded": {
+        "label": "Vynechat hodnotu, pokud je kontrakt vyňat",
+        "help": "Pokud bude kontrakt (na který je role vázána) vyňat z evidenčního počtu, pak bude tato hodnota vynechána z výsledného sloučení hodnot tohoto atributu. "
+      },
       "idmPropertyEnum": "Položky entity",
       "schemaAttribute": "Atribut ve schéma",
       "systemMapping": "Název mapování",

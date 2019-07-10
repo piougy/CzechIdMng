@@ -184,6 +184,21 @@ gulp.task('makeProductModules', () => {
 });
 
 /**
+ * Remove czechidm modules symlinks from node_modules
+ * (prevent cyclink during "npm prune").
+ */
+gulp.task('removeSymlinks', () => {
+  return vfs.src(['../czechidm-*'])
+   .pipe(flatmap(function iterateModules(stream, file) {
+     const pathToSymlink = `./node_modules/${file.basename}`;
+     util.log('Symlink to delete:', pathToSymlink);
+     rimraf.sync(pathToSymlink);
+     return stream;
+   }));
+});
+
+
+/**
  * Npm install
  */
 gulp.task('npmInstall',
@@ -599,6 +614,7 @@ gulp.task('watchTask', () => {
 gulp.task('install', cb => {
   runSequence(
     'clean',
+    'removeSymlinks',
     'npmPrune',
     'npmInstall',
     'makeProductModules',

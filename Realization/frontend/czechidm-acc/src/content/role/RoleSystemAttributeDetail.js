@@ -221,6 +221,7 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
     const strategyTypeTemp = strategyType ? strategyType : attribute.strategyType;
     const isMerge = strategyTypeTemp === AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.MERGE);
+    const isAuthoritativeMerge = strategyTypeTemp === AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.AUTHORITATIVE_MERGE);
 
     return (
       <div>
@@ -331,18 +332,27 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
 
               <Basic.SelectBox
                 ref="transformToResourceScriptSelectBox"
+                readOnly = {_isDisabled}
                 label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.help')}
                 onChange={this._scriptChange.bind(this, 'transformScript', 'transformToResourceScriptSelectBox')}
+                hidden={isMerge}
                 forceSearchParameters={
                   scriptManager.getDefaultSearchParameters().setFilter('category', Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO))}
                 manager={scriptManager} />
+              <Basic.Checkbox
+                ref="skipValueIfExcluded"
+                hidden={!(isMerge || isAuthoritativeMerge)}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.notUseIfConctractExcluded.help')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.notUseIfConctractExcluded.label')}
+                readOnly = {_isDisabled}/>
               <Advanced.ScriptArea
                 ref="transformScript"
+                readOnly = {_isDisabled}
                 showScriptSelection={!isMerge}
                 scriptCategory={[Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.DEFAULT), Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO)]}
-                headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
-                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help')}
+                headerText={isMerge ? '' : this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
+                helpBlock={isMerge ? '' : this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.help')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.label')}
                 scriptManager={scriptManager} />
             </Basic.AbstractForm>

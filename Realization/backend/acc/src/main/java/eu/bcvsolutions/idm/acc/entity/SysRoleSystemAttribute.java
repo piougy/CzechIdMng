@@ -100,6 +100,14 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 	@Audited
 	@Column(name = "send_only_if_not_null", nullable = false)
 	private boolean sendOnlyIfNotNull = false;
+	
+	@Audited
+	@Column(name = "skip_value_if_excluded", nullable = false)
+	/**
+	 * Value returned by this attribute will be skipped from the MERGE (AUTHORITATIVE_MERGE too) 
+	 * when the contract will be excluded. 
+	 */
+	private boolean skipValueIfExcluded = false;
 
 
 	public String getName() {
@@ -205,5 +213,13 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull) {
 		this.sendOnlyIfNotNull = sendOnlyIfNotNull;
 	}
-	
+
+	public boolean isSkipValueIfExcluded() {
+		return skipValueIfExcluded;
+	}
+
+	public void setSkipValueIfExcluded(boolean skipValueIfExcluded) {
+		this.skipValueIfExcluded = skipValueIfExcluded;
+	}
+
 }

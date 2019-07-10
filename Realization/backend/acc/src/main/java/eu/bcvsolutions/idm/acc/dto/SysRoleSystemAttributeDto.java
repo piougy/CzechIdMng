@@ -47,6 +47,11 @@ public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeM
 	private boolean cached = true;
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
+	/**
+	 * Value returned by this attribute will be skipped from the MERGE (AUTHORITATIVE_MERGE too) 
+	 * when the contract will be excluded. 
+	 */
+	private boolean skipValueIfExcluded = false;
 
 	public String getName() {
 		return name;
@@ -229,6 +234,14 @@ public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeM
 	public boolean isPasswordAttribute() {
 		// for role overridden attributes return false
 		return false;
+	}
+
+	public boolean isSkipValueIfExcluded() {
+		return skipValueIfExcluded;
+	}
+
+	public void setSkipValueIfExcluded(boolean skipValueIfExcluded) {
+		this.skipValueIfExcluded = skipValueIfExcluded;
 	}
 
 }

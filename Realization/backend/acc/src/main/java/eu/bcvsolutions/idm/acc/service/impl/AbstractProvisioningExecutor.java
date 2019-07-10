@@ -118,7 +118,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	private final SysSchemaAttributeService schemaAttributeService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
-	private final SysRoleSystemService roleSystemService;
+	protected final SysRoleSystemService roleSystemService;
 	private final IdmRoleService roleService;
 
 	@Autowired

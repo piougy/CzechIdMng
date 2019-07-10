@@ -19,16 +19,19 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AssignedRoleDto;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -48,8 +51,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -81,6 +86,8 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	private final AccAccountManagementService accountManagementService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmIdentityContractService identityContractService;
 
 	@Autowired
 	public IdentityProvisioningExecutor(SysSystemMappingService systemMappingService,
@@ -178,6 +185,41 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	@Override
 	protected Object getAttributeValue(String uid, IdmIdentityDto dto, AttributeMapping attribute,
 			SysSystemDto system) {
+		
+		if (attribute instanceof SysRoleSystemAttributeDto) {
+			SysRoleSystemAttributeDto roleSystemAttributeDto = (SysRoleSystemAttributeDto) attribute;
+			if (roleSystemAttributeDto.isSkipValueIfExcluded() &&
+					(AttributeMappingStrategyType.MERGE == roleSystemAttributeDto.getStrategyType() ||
+					AttributeMappingStrategyType.AUTHORITATIVE_MERGE == roleSystemAttributeDto.getStrategyType())) {
+				
+				// Get ID of the role
+				Assert.notNull(roleSystemAttributeDto.getRoleSystem(), "SysRoleSystem cannot be null!");	
+				SysRoleSystemDto roleSystemDto = DtoUtils.getEmbedded(roleSystemAttributeDto,
+						SysRoleSystemAttribute_.roleSystem.getName(), SysRoleSystemDto.class, (SysRoleSystemDto) null);
+				if(roleSystemDto == null) {
+					roleSystemDto = roleSystemService.get(roleSystemAttributeDto.getId());
+				}
+				UUID roleId = roleSystemDto.getRole();
+				Assert.notNull(roleId, "Role cannot be null!");
+				
+				// Find count of NOT excluded contracts for this identity and role
+				IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+				contractFilter.setIdentity(dto.getId());
+				contractFilter.setExcluded(Boolean.FALSE);
+				contractFilter.setRoleId(roleId);
+				// If exists some not excluded contract, then value will be not skipped!
+				long countOfNotExcludedContracts = identityContractService.count(contractFilter);
+				if (countOfNotExcludedContracts == 0) {
+					contractFilter.setExcluded(Boolean.TRUE);
+					// For skip the value must exist at least one excluded contract
+					long countOfexcludedContracts = identityContractService.count(contractFilter);
+					if (countOfexcludedContracts >= 0) {
+						return null;
+					}
+				}
+				
+			}
+		}
 
 		// If assigned roles fields are mapped, then we will searching and convert
 		// identity-roles to list of AssignedRoleDtos (including values of EAV for 

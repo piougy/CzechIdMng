@@ -6,7 +6,7 @@ In frontend project folder:
 
 ### Install Node.js
 
-**Node.js version 4.x.x is required (npm version 3.6 or higher is required).** Download and install Node.js by your OS.
+**Node.js version 10.x.x is required (NPM version 6.x.x or higher is required).** Download and install Node.js by your OS.
 
 For linux (fedora):
 

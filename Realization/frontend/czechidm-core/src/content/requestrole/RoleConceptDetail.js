@@ -166,7 +166,8 @@ export class RoleConceptDetail extends Basic.AbstractContent {
       style,
       isEdit,
       multiAdd,
-      validationErrors
+      validationErrors,
+      showEnvironment
     } = this.props;
     const { environment } = this.state;
     const entity = this.state.entity ? this.state.entity : this.props.entity;
@@ -204,6 +205,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
         readOnly={ !isEdit || readOnly }>
         <Advanced.CodeListSelect
           code="environment"
+          hidden={!showEnvironment}
           label={ this.i18n('entity.Role.environment.label') }
           placeholder={ this.i18n('entity.Role.environment.help') }
           multiSelect
@@ -278,13 +280,15 @@ RoleConceptDetail.propTypes = {
   isEdit: PropTypes.bool,
   entity: PropTypes.object,
   identityUsername: PropTypes.string,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  showEnvironment: PropTypes.bool
 };
 
 RoleConceptDetail.defaultProps = {
   multiAdd: false,
   showLoading: false,
-  readOnly: true
+  readOnly: true,
+  showEnvironment: true
 };
 
 function select(state) {

@@ -225,10 +225,11 @@ class RoleDetail extends Basic.AbstractContent {
                       </Basic.Col>
                     </Basic.Row>
 
-                    <Basic.Row className={ showEnvironment ? '' : 'hidden' }>
+                    <Basic.Row>
                       <Basic.Col lg={ 4 }>
                         <Advanced.CodeListSelect
                           ref="environment"
+                          hidden={!showEnvironment}
                           code="environment"
                           label={ this.i18n('entity.Role.environment.label') }
                           helpBlock={ this.i18n(`entity.Role.environment.${ entity.environment ? 'helpCode' : 'help' }`, { escape: false, code: entity.code }) }

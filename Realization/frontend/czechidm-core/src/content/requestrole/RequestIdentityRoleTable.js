@@ -408,7 +408,8 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
       readOnly,
       request,
       identityId,
-      showRowSelection
+      showRowSelection,
+      showEnvironment
     } = this.props;
     const {
       showChangesOnly,
@@ -496,6 +497,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                       <Advanced.CodeListSelect
                         ref="roleEnvironment"
                         code="environment"
+                        hidden={!showEnvironment}
                         label={ null }
                         placeholder={ this.i18n('entity.Role.environment.label') }
                         multiSelect/>
@@ -558,6 +560,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
               sort/>
             <Advanced.Column
               property="_embedded.role.environment"
+              rendered={showEnvironment}
               sortProperty="role.environment"
               face="text"
               header={ this.i18n('entity.Role.environment.label') }
@@ -682,6 +685,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
             <Basic.Modal.Body>
               <RoleConceptDetail
                 ref="roleConceptDetail"
+                showEnvironment={showEnvironment}
                 identityUsername={identityUsername}
                 showLoading={showLoading}
                 readOnly={readOnly}
@@ -719,13 +723,15 @@ RequestIdentityRoleTable.propTypes = {
   className: PropTypes.string,
   request: PropTypes.object,
   readOnly: PropTypes.bool,
+  showEnvironment: PropTypes.bool,
   replaceUrl: PropTypes.func
 };
 
 RequestIdentityRoleTable.defaultProps = {
   showLoading: false,
   showRowSelection: true,
-  readOnly: false
+  readOnly: false,
+  showEnvironment: true
 };
 
 export default RequestIdentityRoleTable;

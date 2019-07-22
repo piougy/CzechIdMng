@@ -7,7 +7,7 @@ import moment from 'moment';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager, DataManager } from '../../redux';
+import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager, DataManager, ConfigurationManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import RequestIdentityRoleTable from './RequestIdentityRoleTable';
@@ -339,7 +339,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       _permissions,
       _incompatibleRoles,
       _incompatibleRolesLoading,
-      canExecute
+      canExecute,
+      showEnvironment
     } = this.props;
     //
     const isNew = this._getIsNew();
@@ -426,6 +427,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               </Basic.ContentHeader>
               <RequestIdentityRoleTable
                 request={request}
+                showEnvironment={showEnvironment}
                 incompatibleRoles={ _incompatibleRoles }
                 readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
                 identityId={this._getIdentityId(this.props)}
@@ -497,6 +499,9 @@ RoleRequestDetail.defaultProps = {
 };
 
 function select(state, component) {
+  const result = {
+    showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', true)
+  };
   const entityId = component.entityId ? component.entityId : component.params.entityId;
   const entity = roleRequestManager.getEntity(state, entityId);
   const applicantFromUrl = component.location ? component.location.query.applicantId : null;
@@ -506,6 +511,7 @@ function select(state, component) {
     entity.candicateUsers = entity._embedded.wfProcessId.candicateUsers;
   }
   return {
+    ...result,
     _request: entity,
     _showLoading: entity ? false : true,
     showLoadingRoles: identityRoleManager.isShowLoading(state, `${uiKey}-${identityId}`),

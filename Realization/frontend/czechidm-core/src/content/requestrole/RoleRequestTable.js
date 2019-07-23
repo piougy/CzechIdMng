@@ -215,7 +215,13 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
                 return (
-                  <Advanced.OperationResult value={ entity.systemState }/>
+                  <Advanced.OperationResult
+                    value={ entity.systemState }
+                    stateLabel={ entity.systemState
+                      && entity.systemState.state === 'CREATED'
+                      ? this.i18n('enums.RoleRequestStateEnum.CONCEPT')
+                      : null}
+                  />
                 );
               }
             }

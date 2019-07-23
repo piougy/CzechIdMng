@@ -1945,11 +1945,11 @@
     },
     "ROLE_REQUEST_ALL_OPERATIONS_BLOCKED": {
       "title": "All operations were blocked!",
-      "message": "All operations in this request [{{requestId}}] were blocked!"
+      "message": "All operations in this request were blocked!"
     },
     "ROLE_REQUEST_ALL_OPERATIONS_FAILED": {
       "title": "All operations failed!",
-      "message": "All operations in this request [{{requestId}}] failed!"
+      "message": "All operations in this request failed!"
     },
     "ROLE_REQUEST_OPERATION_FAILED": {
       "title": "Provisioning operation failed!",

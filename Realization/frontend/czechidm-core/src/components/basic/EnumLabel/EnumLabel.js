@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
-import Label from '../Label/Label';
 import EnumValue from '../EnumValue/EnumValue';
 
 /**
@@ -15,12 +14,8 @@ import EnumValue from '../EnumValue/EnumValue';
  */
 class EnumLabel extends AbstractFormComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   getBody() {
-    const { labelSpan, label, componentSpan, style } = this.props;
+    const { labelSpan, label, componentSpan } = this.props;
     const enumeration = this.props.enum;
     const { value } = this.state;
     //

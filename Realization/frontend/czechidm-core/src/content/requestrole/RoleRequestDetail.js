@@ -428,7 +428,12 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 </div>
                 <div style={{ marginLeft: '10px', marginTop: '14px', height: '19px' }}>
                   <Advanced.OperationResult
-                    value={ request.systemState }/>
+                    value={ request.systemState }
+                    stateLabel={ request.systemState
+                      && request.systemState.state === 'CREATED'
+                      ? this.i18n('enums.RoleRequestStateEnum.CONCEPT')
+                      : null}
+                  />
                 </div>
               </div>
               <Basic.Checkbox

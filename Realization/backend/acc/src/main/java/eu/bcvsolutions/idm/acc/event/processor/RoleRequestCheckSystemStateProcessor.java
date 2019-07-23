@@ -244,15 +244,7 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 		
 		provisioningOperationFilter.setResultState(OperationState.BLOCKED);
 		long countBlockedOperations = provisioningOperationService.count(provisioningOperationFilter);
-		if (countBlockedOperations == allOperations) {
-			// All operations are blocked
-			return createResult(event, //
-					request, //
-					OperationState.BLOCKED, //
-					AccResultCode.ROLE_REQUEST_ALL_OPERATIONS_BLOCKED, //
-					ImmutableMap.of("requestId", request.getId()), //
-					null);
-		} else if (countBlockedOperations > 0) {
+		if (countBlockedOperations > 0) {
 			// Some operations are blocked
 			List<SysProvisioningOperationDto> blockedOperations = provisioningOperationService
 					.find(provisioningOperationFilter, null).getContent();

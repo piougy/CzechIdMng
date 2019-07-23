@@ -577,6 +577,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
             <Advanced.Column
               property="_embedded.role.baseCode"
               sortProperty="role.baseCode"
+              rendered={showEnvironment}
               face="text"
               header={ this.i18n('entity.Role.baseCode.label') }
               sort/>

@@ -129,11 +129,6 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		Assert.notNull(attributes, "Attributes cannot be null!");
 		Assert.notNull(uid, "UID cannot be null!");
-		
-		 if(true) { 
-//			   throw new RuntimeException("ccccccccccccccccssssssssssssssssssaaaaaaaaaaaaaaa");
-		}
-
 	
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");

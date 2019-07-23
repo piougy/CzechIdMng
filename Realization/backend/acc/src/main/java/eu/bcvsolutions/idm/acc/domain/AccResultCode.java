@@ -136,11 +136,10 @@ public enum AccResultCode implements ResultCode {
 	SYSTEM_DELETE_BULK_ACTION_NUMBER_OF_ACCOUNTS(HttpStatus.FOUND, "System [%s] has [%s] accounts."),
 	SYSTEM_DELETE_BULK_ACTION_NUMBER_OF_PROVISIONINGS(HttpStatus.FOUND, "System [%s] has [%s] provisioning operations."),
 	// Role request
-	ROLE_REQUEST_ALL_OPERATIONS_BLOCKED(HttpStatus.NOT_MODIFIED, "All operations for the request [%s] were blocked!"),
 	ROLE_REQUEST_SOME_OPERATIONS_BLOCKED(HttpStatus.NOT_MODIFIED, "Some operations for systems [%s] were blocked!"),
 	ROLE_REQUEST_ALL_OPERATIONS_FAILED(HttpStatus.BAD_REQUEST, "All operations for the request [%s] failed!"),
 	ROLE_REQUEST_SOME_OPERATIONS_FAILED(HttpStatus.BAD_REQUEST, "Some operations for systems [%s] failed!"),
-	ROLE_REQUEST_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Operation for system [%s] failed!"),
+	ROLE_REQUEST_OPERATION_FAILED(HttpStatus.BAD_REQUEST, "Operation for system [%s] failed!"),
 	ROLE_REQUEST_OPERATION_CANCELED(HttpStatus.NOT_MODIFIED, "Operation for system [%s] canceled!");
 
 	private final HttpStatus status;

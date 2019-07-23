@@ -1947,11 +1947,11 @@
     },
     "ROLE_REQUEST_ALL_OPERATIONS_BLOCKED": {
       "title": "Všechny provisioning operace jsou blokovány!",
-      "message": "Všechny provisioning operace pro žádost [{{requestId}}] jsou blokovány!"
+      "message": "Všechny provisioning operace pro žádost jsou blokovány!"
     },
     "ROLE_REQUEST_ALL_OPERATIONS_FAILED": {
       "title": "Všechny provisioning operace selhaly!",
-      "message": "Všechny provisioning operace pro žádost [{{requestId}}] selhaly!"
+      "message": "Všechny provisioning operace pro žádost selhaly!"
     },
     "ROLE_REQUEST_OPERATION_FAILED": {
       "title": "Provisioning operace selhala!",

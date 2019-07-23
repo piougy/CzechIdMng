@@ -55,6 +55,7 @@ export default class RoleRequestStateEnum extends AbstractEnum {
       }
     }
   }
+
   static getIcon(key) {
     if (!key) {
       return null;
@@ -63,11 +64,15 @@ export default class RoleRequestStateEnum extends AbstractEnum {
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.CONCEPT:
+      case this.CONCEPT: {
+        return 'fa:circle-o';
+      }
       case this.IN_PROGRESS: {
         return 'fa:circle-o';
       }
-      case this.APPROVED:
+      case this.APPROVED: {
+        return 'fa:check';
+      }
       case this.EXECUTED: {
         return 'fa:check';
       }

@@ -402,4 +402,12 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 			.filter(s -> !s.isEmpty())
 			.collect(Collectors.toSet());
 	}
+
+	/**
+	 * Returns entity-event-manager
+	 */
+	protected EntityEventManager getEntityEventManager() {
+		return entityEventManager;
+	}
+	
 }

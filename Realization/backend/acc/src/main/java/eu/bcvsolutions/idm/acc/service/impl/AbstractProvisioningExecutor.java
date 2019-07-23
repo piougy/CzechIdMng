@@ -70,6 +70,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
+import eu.bcvsolutions.idm.core.api.domain.Contextable;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -80,6 +81,7 @@ import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -674,17 +676,52 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		//
 		Map<ProvisioningAttributeDto, Object> accountAttributes = prepareMappedAttributesValues(dto, operationType,
 				systemEntity, attributes);
+		
+		UUID roleRequestId = null;
+		if(ProvisioningOperationType.DELETE == operationType) {
+			// Return ID of role-request from system-entity's context.
+			roleRequestId = getRoleRequestIdFromContext(systemEntity);
+		} else {
+			// Return ID of role-request from DTO's context.
+			roleRequestId = getRoleRequestIdFromContext(dto);
+		}
+
 		// public provisioning event
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
 				new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName()), null);
+		// Propagate the role-request ID to the connector (for virtual systems ...)
+		connectorObject.getObjectClass().setRoleRequestId(roleRequestId);
+		
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
 				.setOperationType(operationType) //
 				.setSystemEntity(systemEntity) //
 				.setEntityIdentifier(entityId) //
+				.setRoleRequestId(roleRequestId)
 				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
 		//
 		return operationBuilder.build();
+	}
+
+	/**
+	 * Return ID of role-request from DTO's context. If context or value missing,
+	 * then return null.
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	private UUID getRoleRequestIdFromContext(AbstractDto dto) {
+		if (dto instanceof Contextable) {
+			Contextable contextable = (Contextable) dto;
+			Map<String, Object> context = contextable.getContext();
+			if (context != null && context.containsKey(IdmRoleRequestService.ROLE_REQUEST_ID_KEY)) {
+				Object value = context.get(IdmRoleRequestService.ROLE_REQUEST_ID_KEY);
+				if (value instanceof UUID) {
+					return (UUID) value;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -848,7 +885,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		IcAttribute icAttributeForCreate = attributeMappingService.createIcAttribute(schemaAttributeDto,
 				valueTransformed);
 		//
-		// Call ic modul for update single attribute
+		// Call IC modul for update single attribute
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
 				new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate));
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()

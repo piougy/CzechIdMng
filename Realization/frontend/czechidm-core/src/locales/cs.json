@@ -770,9 +770,9 @@
       "CONCEPT": "Koncept",
       "EXECUTED": "Provedeno",
       "CANCELED": "Zrušeno",
-      "APPROVED": "Zpracovává se (schváleno)",
+      "APPROVED": "Zpracovává se",
       "DISAPPROVED": "Zamítnuto",
-      "IN_PROGRESS": "Zpracovává se",
+      "IN_PROGRESS": "Schvalování",
       "EXCEPTION": "Chyba",
       "DUPLICATED": "Duplicitní"
     },
@@ -1380,6 +1380,7 @@
           "oldValue": "Původní hodnota {{oldValue}}",
           "oldValueNotExist": "Původní hodnota byla prázdná",
           "switchShowChangesOnly": "Zobrazit pouze změny",
+          "systemState": "Stav na systému",
           "create": {
             "header": "Přidat role",
             "headerByIdentity": "Přidat role podle uživatele"
@@ -4287,9 +4288,11 @@
     },
     "RoleRequest": {
       "_type": "Žádost o změnu rolí",
+      "systemState": "Stav na systémech",
       "applicant": "Žádost pro",
       "implementer": "Žadatel",
-      "state": "Stav",
+      "state": "Stav v IdM",
+      "states": "Stav v IdM / systémech",
       "executeImmediately": "Provést bez schválení",
       "log": "Log",
       "description": {
@@ -4301,7 +4304,8 @@
       "candicateUsers": "Mohou řešit",
       "currentActivity": "Stav schvalování",
       "originalRequest": "Žádost v okamžiku podání",
-      "wfProcessId": "WF"
+      "wfProcessId": "WF",
+      "systemStateLog": "Výpis chyby ze systémů"
     },
     "ConceptRoleRequest": {
       "identityContract": "Vztah",
@@ -6084,6 +6088,10 @@
     "OPTIMISTIC_LOCK_ERROR": {
       "title": "Záznam byl upraven",
       "message": "Záznam byl upraven jiným proceses či uživatelem. Zkuste záznam obnovit a akci opakovat."
+    },
+    "ROLE_REQUEST_SYSTEM_STATE_CANCELED": {
+      "title": "Stav na systémech byl pro tuto žádost zrušen!",
+      "message": "Stav na systeméch byl zrušen. Předchozí stav byl: [{{state}}]."
     }
   },
   "validationError": {

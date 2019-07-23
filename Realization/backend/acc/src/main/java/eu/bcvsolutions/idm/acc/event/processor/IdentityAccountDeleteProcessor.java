@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 
 /**
  * Deletes identity account
@@ -147,12 +149,30 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 					.forEach(identityAccount -> {
 						service.delete(identityAccount);
 					});
-			accountService.publish(new AccountEvent(AccountEventType.DELETE, accountDto,
-					ImmutableMap.of(AccAccountService.DELETE_TARGET_ACCOUNT_PROPERTY, deleteTargetAccount,
-							AccAccountService.ENTITY_ID_PROPERTY, entity.getEntity())));
-
+			UUID roleRequestId = this.getRoleRequestIdProperty(event.getProperties());
+			Map<String, Serializable> properties = new HashMap<String, Serializable>();
+			properties.put(AccAccountService.DELETE_TARGET_ACCOUNT_PROPERTY, deleteTargetAccount);
+			properties.put(AccAccountService.ENTITY_ID_PROPERTY, entity.getEntity());
+		
+			if (roleRequestId != null) {
+				properties.put(IdmRoleRequestService.ROLE_REQUEST_ID_KEY, roleRequestId);
+			}
+			accountService.publish(new AccountEvent(AccountEventType.DELETE, accountDto, properties));
 		}
 		return new DefaultEventResult<>(event, this);
+	}
+
+	/**
+	 * Get role-request ID from event
+	 * 
+	 * @param properties
+	 */
+	private UUID getRoleRequestIdProperty(Map<String, Serializable> properties) {
+		Serializable requestIdObj = properties.get(IdmRoleRequestService.ROLE_REQUEST_ID_KEY);
+		if (requestIdObj instanceof UUID) {
+			return (UUID) requestIdObj;
+		}
+		return null;
 	}
 
 	/**
@@ -162,6 +182,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 	 * @param entity
 	 */
 	private void doProvisioningSkipAccountProtection(AccAccountDto account, UUID entity) {
+		// TODO check propagtion request id!!!!!!!!!!!!
 		entityEventManager.process(new ProvisioningEvent(ProvisioningEventType.START, account,
 				ImmutableMap.of(ProvisioningService.DTO_PROPERTY_NAME, identityService.get(entity),
 						ProvisioningService.CANCEL_PROVISIONING_BREAK_IN_PROTECTION, Boolean.TRUE)));

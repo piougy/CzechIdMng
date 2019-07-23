@@ -496,6 +496,8 @@ public class DefaultIdmRequestIdentityRoleService extends
 			request.setId(identityRole.getId());
 			request.setRole(identityRole.getRole());
 			request.setIdentityRole(identityRole.getId());
+			request.setDirectRole(identityRole.getDirectRole());
+			request.setRoleComposition(identityRole.getRoleComposition());
 			request.setIdentityContract(identityRole.getIdentityContract());
 			request.setValidFrom(identityRole.getValidFrom());
 			request.setValidTill(identityRole.getValidTill());

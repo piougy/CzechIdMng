@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
@@ -157,4 +158,12 @@ public interface SysProvisioningOperationService extends
 	 * @since 9.5.2
 	 */
 	void deleteAllOperations();
+
+	/**
+	 * Optimize - system can be pre-loaded in DTO.
+	 * 
+	 * @param operation
+	 * @return
+	 */
+	SysSystemDto getSystem(SysProvisioningOperationDto operation);
 }

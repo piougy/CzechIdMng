@@ -72,6 +72,15 @@ public class WorkflowConfig {
 	 * This application property has higher priority than attribute set into task. 
 	 */
 	public static final String SEND_NOTIFICATION_CONFIGURATION_PROPERTY = "idm.sec.core.wf.notification.send";
+	
+	/**
+	 * Enable sending notification of changing roles to user, whose account will be modified
+	 */
+	public static final String SEND_NOTIFICATION_TO_APPLICANT_CONFIGURATION_PROPERTY = "idm.sec.core.wf.notification.applicant.enabled";
+	/**
+	 * Enable sending notification of changing roles to user, who made request
+	 */
+	public static final String SEND_NOTIFICATION_TO_IMPLEMENTER_CONFIGURATION_PROPERTY = "idm.sec.core.wf.notification.implementer.enabled";
 
 	@Configuration
 	@ConditionalOnClass(name = "javax.persistence.EntityManagerFactory")

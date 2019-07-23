@@ -43,7 +43,8 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 			+ " where"
 			+ " o.batch = e"
 			+ " and"
-			+ " o.result.state = :state)")
+			+ " o.result.state = :state"
+			+ " and o.system.queue = TRUE)")
 	Page<SysProvisioningBatch> findByOperationState(@Param("state") OperationState state, Pageable pageable);
 	
 	/**
@@ -59,7 +60,8 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 			+ " and"
 			+ " o.system.virtual = :virtualSystem"
 			+ " and"
-			+ " o.result.state = :state)")
+			+ " o.result.state = :state"
+			+ " and o.system.queue = TRUE)")
 	Page<SysProvisioningBatch>  findByVirtualSystemAndOperationState(@Param("virtualSystem") Boolean virtualSystem, @Param("state") OperationState state, Pageable pageable);
 	
 	/**

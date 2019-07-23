@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -47,6 +49,8 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	@Embedded(dtoClass = SysProvisioningBatchDto.class)
 	private UUID batch;
 	private String systemEntityUid;
+	// ID of request, without DB relation on the request -> Request can be null or doesn't have to exists 
+	private UUID roleRequestId;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -99,6 +103,14 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	
 	public void setSystemEntity(UUID systemEntity) {
 		this.systemEntity = systemEntity;
+	}
+	
+	public UUID getRoleRequestId() {
+		return roleRequestId;
+	}
+
+	public void setRoleRequestId(UUID roleRequestId) {
+		this.roleRequestId = roleRequestId;
 	}
 
 	@Override
@@ -169,9 +181,12 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		private ProvisioningContext provisioningContext;
 		private UUID entityIdentifier;
 		private UUID system;
+		// Add system DTO to the embedded ... for optimization 
+		private SysSystemDto systemDto;
 		private SystemEntityType entityType;
 		private UUID systemEntity;
 		private String systemEntityUid;
+		private UUID roleRequestId;
 		
 		public Builder setOperationType(ProvisioningEventType operationType) {
 			this.operationType = operationType;
@@ -217,6 +232,11 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		}
 		
 		public Builder setSystemEntity(SysSystemEntityDto systemEntity) {
+			
+			SysSystemDto systemDto = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system.getName(), SysSystemDto.class, null);
+			if(systemDto != null) {
+				this.systemDto = systemDto;
+			}
 			this.system = systemEntity.getSystem();
 			this.entityType = systemEntity.getEntityType();
 			this.systemEntity = systemEntity.getId();
@@ -239,6 +259,11 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 			return this;
 		}
 		
+		public Builder setRoleRequestId(UUID roleRequestId) {
+			this.roleRequestId = roleRequestId;
+			return this;
+		}
+		
 		/**
 		 * Returns newly constructed SysProvisioningOperation object.
 		 * 
@@ -247,12 +272,18 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		public SysProvisioningOperationDto build() {
 			SysProvisioningOperationDto provisioningOperation = new SysProvisioningOperationDto();
 			provisioningOperation.setOperationType(operationType);
+			if (systemDto != null) {
+				// Add system DTO to the embedded ... for optimization 
+				provisioningOperation.getEmbedded().put(SysProvisioningOperation_.system.getName(), systemDto);
+			}
 			provisioningOperation.setSystem(system);
 			provisioningOperation.setSystemEntity(systemEntity);
 			provisioningOperation.setSystemEntityUid(systemEntityUid);
 			provisioningOperation.setEntityType(entityType);
 			provisioningOperation.setEntityIdentifier(entityIdentifier);
 			provisioningOperation.setProvisioningContext(provisioningContext);
+			provisioningOperation.setRoleRequestId(roleRequestId);
+		 
 			return provisioningOperation;
 		}
 	}

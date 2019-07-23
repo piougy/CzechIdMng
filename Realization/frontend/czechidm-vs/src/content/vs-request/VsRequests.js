@@ -47,7 +47,7 @@ export default class VsRequests extends Basic.AbstractContent {
             <Basic.Tab eventKey={2} title={this.i18n('tabs.archive.label')}>
               <VsRequestTable
                 uiKey="vs-request-table-archive"
-                columns= {['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'created', 'creator', 'modified']}
+                columns= {['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'created', 'creator', 'modified', 'roleRequestId']}
                 showRowSelection={false}
                 forceSearchParameters={searchArchive}
                 filterOpened />

@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -16,24 +15,24 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
- * Finisher of request for change permissions. Changing state of request to 'Executed'.
+ * Processor for delete role-request
  * 
  * @author Vít Švanda
  *
  */
 @Component
-@Description("Finisher of request for change permissions. Changing state of request to 'Executed'.")
-public class RoleRequestRealizationFinisherProcessor extends CoreEventProcessor<IdmRoleRequestDto>
-		implements RoleRequestProcessor {
-
-	public static final String PROCESSOR_NAME = "role-request-realization-finisher-processor";
+@Description("Processor for delete role-request")
+public class RoleRequestDeleteProcessor extends CoreEventProcessor<IdmRoleRequestDto> implements RoleRequestProcessor {
+	public static final String PROCESSOR_NAME = "role-request-delete-processor";
 
 	private final IdmRoleRequestService service;
 
 	@Autowired
-	public RoleRequestRealizationFinisherProcessor(IdmRoleRequestService service) {
-		super(RoleRequestEventType.NOTIFY);
+	public RoleRequestDeleteProcessor(IdmRoleRequestService service) {
+		super(RoleRequestEventType.DELETE);
+		//
 		Assert.notNull(service);
+		//
 		this.service = service;
 	}
 
@@ -44,24 +43,9 @@ public class RoleRequestRealizationFinisherProcessor extends CoreEventProcessor<
 
 	@Override
 	public EventResult<IdmRoleRequestDto> process(EntityEvent<IdmRoleRequestDto> event) {
-		IdmRoleRequestDto requestDto = event.getContent();
-		RoleRequestState state = requestDto.getState();
-		if(RoleRequestState.APPROVED  == state || RoleRequestState.IN_PROGRESS  == state) {
-			requestDto.setState(RoleRequestState.EXECUTED);
-			
-			IdmRoleRequestDto returnedReqeust = service.refreshSystemState(requestDto);;
-			event.setContent(service.save(returnedReqeust));
-		}
+		IdmRoleRequestDto dto = event.getContent();
+		service.deleteInternal(dto);
 		
 		return new DefaultEventResult<>(event, this);
 	}
-	
-	/**
-	 * Finisher must be started on the end.
-	 */
-	@Override
-	public int getOrder() {
-		return Integer.MAX_VALUE - 1000;
-	}
-
 }

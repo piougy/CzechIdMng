@@ -236,10 +236,7 @@ class IdentityRoles extends Basic.AbstractContent {
     force = force.setFilter('category', 'eu.bcvsolutions.role.approve');
     let roleRequestsForceSearch = new SearchParameters();
     roleRequestsForceSearch = roleRequestsForceSearch.setFilter('applicant', entityId);
-    roleRequestsForceSearch = roleRequestsForceSearch.setFilter('states', ['IN_PROGRESS', 'DUPLICATED', 'EXCEPTION', 'APPROVED', 'CONCEPT']);
-    let conceptsForceSearch = new SearchParameters();
-    conceptsForceSearch = conceptsForceSearch.setFilter('applicant', entityId);
-    conceptsForceSearch = conceptsForceSearch.setFilter('state', 'CONCEPT');
+    roleRequestsForceSearch = roleRequestsForceSearch.setFilter('executed', 'false');
     //
     return (
       <div style={{ paddingTop: 15 }}>
@@ -332,7 +329,7 @@ class IdentityRoles extends Basic.AbstractContent {
                   uiKey={ 'table-applicant-requests' }
                   showFilter={ false }
                   forceSearchParameters={ roleRequestsForceSearch }
-                  columns={ ['state', 'created', 'modified', 'wf', 'detail'] }
+                  columns={ ['state', 'created', 'modified', 'wf', 'detail', 'systemState'] }
                   externalRefresh={this._refreshAll.bind(this)}
                   manager={ roleRequestManager }/>
               </div>

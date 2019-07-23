@@ -1063,7 +1063,11 @@
       "operationType": "Operation",
       "entityIdentifier": "Entity identifier (IdM)",
       "resultState": "Result",
-      "entity": "IdM entity"
+      "entity": "IdM entity",
+      "roleRequestId": {
+        "label": "Request",
+        "help": "Go to the request within which this operation was created."
+      }
     },
     "ProvisioningArchive": {
       "_type": "Provisioning - archive",
@@ -1930,6 +1934,30 @@
     "ROLE_SYSTEM_SUPPORTS_ONLY_IDENTITY": {
       "message": "Account management by roles supports 'Identity' type only (no [{{entityType}}])!",
       "title": "Unsupported system mapping type"
+    },
+    "ROLE_REQUEST_SOME_OPERATIONS_BLOCKED": {
+      "title": "Some operations were blocked!",
+      "message": "Some operations for systems [{{systems}}] were blocked!"
+    },
+    "ROLE_REQUEST_SOME_OPERATIONS_FAILED": {
+      "title": "Some operations failed!",
+      "message": "Some operations for systems [{{systems}}] failed!"
+    },
+    "ROLE_REQUEST_ALL_OPERATIONS_BLOCKED": {
+      "title": "All operations were blocked!",
+      "message": "All operations in this request [{{requestId}}] were blocked!"
+    },
+    "ROLE_REQUEST_ALL_OPERATIONS_FAILED": {
+      "title": "All operations failed!",
+      "message": "All operations in this request [{{requestId}}] failed!"
+    },
+    "ROLE_REQUEST_OPERATION_FAILED": {
+      "title": "Provisioning operation failed!",
+      "message": "Provisioning operation on the system [{{system}}] failed!"
+    },
+    "ROLE_REQUEST_OPERATION_CANCELED": {
+      "title": "Provisioning operation was canceled!",
+      "message": "Provisioning operation on the system [{{system}}] were canceled!"
     }
   },
   "processor": {

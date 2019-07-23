@@ -3,6 +3,7 @@ import classNames from 'classnames';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import Label from '../Label/Label';
+import EnumValue from '../EnumValue/EnumValue';
 
 /**
  * Renders localized enum label -
@@ -37,7 +38,11 @@ class EnumLabel extends AbstractFormComponent {
         }
         <div className={componentSpan} style={{ whiteSpace: 'nowrap' }}>
           <div style={{marginTop: '5px'}}>
-            <Label style={style} level={enumeration.getLevel(value)} text = {enumeration.getNiceLabel(value)} className="label-form"/>
+            <EnumValue
+              level={enumeration.getLevel(value)}
+              value={value}
+              enum={ enumeration }
+              label={ enumeration.getNiceLabel(value) }/>
           </div>
         </div>
       </div>

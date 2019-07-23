@@ -13,6 +13,5 @@ public enum VsRequestState {
 	REALIZED,
 	REJECTED,
 	IN_PROGRESS,
-	EXCEPTION,
 	DUPLICATED;
 }

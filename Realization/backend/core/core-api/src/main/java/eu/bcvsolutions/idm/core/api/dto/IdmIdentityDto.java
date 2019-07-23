@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
+import eu.bcvsolutions.idm.core.api.domain.Contextable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
@@ -33,7 +35,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Relation(collectionRelation = "identities")
 @ApiModel(description = "Identity domain object")
-public class IdmIdentityDto extends FormableDto implements Disableable, Codeable, ExternalCodeable, ExternalIdentifiable {
+public class IdmIdentityDto extends FormableDto implements Disableable, Codeable, ExternalCodeable, ExternalIdentifiable, Contextable {
 
 	private static final long serialVersionUID = 1L;
 	@Size(max = DefaultFieldLengths.NAME)
@@ -71,6 +73,8 @@ public class IdmIdentityDto extends FormableDto implements Disableable, Codeable
 	@JsonProperty(access = Access.READ_ONLY)
 	private IdentityState state;
 	private DateTime blockLoginDate = null;
+	@JsonIgnore
+	private Map<String, Object> context = null;
 
 	public IdmIdentityDto() {
 	}
@@ -231,4 +235,15 @@ public class IdmIdentityDto extends FormableDto implements Disableable, Codeable
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
 	}
+
+	@JsonIgnore
+	public Map<String, Object> getContext() {
+		return context;
+	}
+
+	@JsonIgnore
+	public void setContext(Map<String, Object> context) {
+		this.context = context;
+	}
+
 }

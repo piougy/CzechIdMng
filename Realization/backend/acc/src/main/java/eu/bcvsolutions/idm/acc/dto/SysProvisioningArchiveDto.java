@@ -38,6 +38,8 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 	private UUID entityIdentifier;
 	private String systemEntityUid; // account uid, etc.
 	private OperationResult result;
+	// ID of request, without DB relation on the request -> Request can be null or doesn't have to exist!
+    private UUID roleRequestId;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -95,6 +97,16 @@ public class SysProvisioningArchiveDto extends AbstractDto implements Provisioni
 	public void setResult(OperationResult result) {
 		this.result = result;
 	}
+	
+	public UUID getRoleRequestId() {
+		return roleRequestId;
+	}
+
+	public void setRoleRequestId(UUID roleRequestId) {
+		this.roleRequestId = roleRequestId;
+	}
+
+
 
 	/**
 	 * New {@link SysProvisioningArchiveDto} builder.

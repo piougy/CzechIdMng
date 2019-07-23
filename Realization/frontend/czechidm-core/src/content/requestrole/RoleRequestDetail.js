@@ -27,10 +27,6 @@ const identityRoleManager = new IdentityRoleManager();
  */
 class RoleRequestDetail extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return conceptRoleRequestManager;
   }
@@ -71,7 +67,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
    */
   _initComponent(props) {
     const { entityId } = props;
-    const _entityId = entityId ? entityId : props.params.entityId;
+    const _entityId = entityId || props.params.entityId;
     if (this._getIsNew(props)) {
       this.setState({
         showLoading: false,
@@ -113,15 +109,13 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       this.context.store.dispatch(roleRequestManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
       }));
+    } else if (startRequest) {
+      this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSaveAndStartRequest.bind(this)));
     } else {
-      if (startRequest) {
-        this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSaveAndStartRequest.bind(this)));
-      } else {
-        // => save only
-        this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
-          this.afterSave(createdEntity, error, true);
-        }));
-      }
+      // => save only
+      this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
+        this.afterSave(createdEntity, error, true);
+      }));
     }
   }
 
@@ -183,7 +177,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             this.context.store.dispatch(roleRequestManager.fetchEntity(json.id));
           }
           if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
-            this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
+            this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated',
+              { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}),
+            level: 'warning'});
             return;
           }
           if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
@@ -222,8 +218,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       this.save(true);
     } else {
       this.refs['confirm-incompatible-role'].show(
-         null,
-         this.i18n(`confirm-incompatible-role.header`)
+        null,
+        this.i18n(`confirm-incompatible-role.header`)
       ).then(() => {
         this.save(true);
       });
@@ -284,12 +280,34 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                   );
                 }
               }
-              />
-            <Advanced.Column property="operation" face="enum" enumClass={ConceptRoleRequestOperationEnum} header={this.i18n('entity.ConceptRoleRequest.operation')} sort/>
-            <Advanced.Column property="state" face="enum" enumClass={RoleRequestStateEnum} header={this.i18n('entity.ConceptRoleRequest.state')} sort/>
-            <Advanced.Column property="validFrom" face="date" header={this.i18n('entity.ConceptRoleRequest.validFrom')} sort/>
-            <Advanced.Column property="validTill" face="date" header={this.i18n('entity.ConceptRoleRequest.validTill')} sort/>
-            <Advanced.Column property="wfProcessId" cell={this._getWfProcessCell} header={this.i18n('entity.ConceptRoleRequest.wfProcessId')} sort/>
+            />
+            <Advanced.Column
+              property="operation"
+              face="enum"
+              enumClass={ConceptRoleRequestOperationEnum}
+              header={this.i18n('entity.ConceptRoleRequest.operation')}
+              sort/>
+            <Advanced.Column
+              property="state"
+              face="enum"
+              enumClass={RoleRequestStateEnum}
+              header={this.i18n('entity.ConceptRoleRequest.state')}
+              sort/>
+            <Advanced.Column
+              property="validFrom"
+              face="date"
+              header={this.i18n('entity.ConceptRoleRequest.validFrom')}
+              sort/>
+            <Advanced.Column
+              property="validTill"
+              face="date"
+              header={this.i18n('entity.ConceptRoleRequest.validTill')}
+              sort/>
+            <Advanced.Column
+              property="wfProcessId"
+              cell={this._getWfProcessCell}
+              header={this.i18n('entity.ConceptRoleRequest.wfProcessId')}
+              sort/>
           </Advanced.Table>
         </Basic.Panel>
       </div>
@@ -344,7 +362,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     } = this.props;
     //
     const isNew = this._getIsNew();
-    const request = isNew ? this.state.request : _request;
+    let request = isNew ? this.state.request : _request;
+    if (!request) {
+      request = this.state.request;
+    }
     const requestForForm = _.merge({}, request);
     // Form is rendered if data are changed, but we don't want rerenderd the form if only some
     // concept was changed (prevent lost other changes in form ... filled description for example).
@@ -355,23 +376,26 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const _adminMode = hasAdminRights && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
     const showLoading = !request || (_showLoading && !isNew) || this.state.showLoading || this.props.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
+    const systemStateLog = request && request.systemState ? request.systemState.stackTrace : null;
+
     if (this.state.showLoading || !request) {
-      return (<div>
-        <Basic.ContentHeader rendered={ showRequestDetail }>
-          <Basic.Icon value="component:role-request"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-        </Basic.ContentHeader>
-        <Basic.PanelBody>
-          <Basic.Loading show isStatic style={{marginTop: '300px', marginBottom: '300px'}} />
-        </Basic.PanelBody>
-      </div>);
+      return (
+        <div>
+          <Basic.ContentHeader rendered={ showRequestDetail }>
+            <Basic.Icon value="component:role-request"/>
+            {' '}
+            <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+          </Basic.ContentHeader>
+          <Basic.PanelBody>
+            <Basic.Loading show isStatic style={{marginTop: '300px', marginBottom: '300px'}} />
+          </Basic.PanelBody>
+        </div>);
     }
-    // const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
+
     return (
       <div>
         <Basic.Confirm ref="confirm-incompatible-role" level="warning">
-          <IncompatibleRoleWarning incompatibleRoles={ _.uniqWith(_incompatibleRoles, (irOne, irTwo) => { return irOne.id === irTwo.id; }) } face="full"/>
+          <IncompatibleRoleWarning incompatibleRoles={ _.uniqWith(_incompatibleRoles, (irOne, irTwo) => irOne.id === irTwo.id) } face="full"/>
           <Basic.Alert level="warning" text={ this.i18n(`confirm-incompatible-role.message`, { escape: false }) }/>
         </Basic.Confirm>
         <form onSubmit={this.save.bind(this, false)}>
@@ -383,16 +407,30 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
           </Basic.ContentHeader>
           <Basic.Panel rendered={ showRequestDetail }>
-            <Basic.AbstractForm readOnly={!isEditable} ref="form" data={requestForForm} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
+            <Basic.AbstractForm
+              readOnly={!isEditable}
+              ref="form"
+              data={requestForForm}
+              showLoading={showLoading}
+              style={{ padding: '15px 15px 0 15px' }}>
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   { this._getApplicantAndImplementer(request) }
                 </Basic.Col>
               </Basic.Row>
-              <Basic.EnumLabel
-                ref="state"
-                enum={RoleRequestStateEnum}
-                label={this.i18n('entity.RoleRequest.state')}/>
+              <div style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' }}>
+                <Basic.EnumLabel
+                  ref="state"
+                  enum={RoleRequestStateEnum}
+                  label={this.i18n('entity.RoleRequest.states')}/>
+                <div style={{ marginTop: '14px', marginLeft: '-70px', height: '19px' }}>
+                  /
+                </div>
+                <div style={{ marginLeft: '10px', marginTop: '14px', height: '19px' }}>
+                  <Advanced.OperationResult
+                    value={ request.systemState }/>
+                </div>
+              </div>
               <Basic.Checkbox
                 ref="executeImmediately"
                 hidden={!hasAdminRights}
@@ -400,7 +438,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               <Basic.LabelWrapper
                 rendered={ _adminMode && request.wfProcessId }
                 label={this.i18n('entity.RoleRequest.wfProcessId')}>
-                <Advanced.WorkflowProcessInfo entityIdentifier={ request.wfProcessId } entity={ request._embedded ? request._embedded.wfProcessId : null }/>
+                <Advanced.WorkflowProcessInfo
+                  entityIdentifier={ request.wfProcessId }
+                  entity={ request._embedded ? request._embedded.wfProcessId : null }/>
               </Basic.LabelWrapper>
               <Basic.TextField
                 ref="currentActivity"
@@ -409,7 +449,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.RoleRequest.currentActivity')}/>
               <Basic.LabelWrapper
                 label={ this.i18n('entity.RoleRequest.candicateUsers') }
-                rendered={ (_adminMode && request.candicateUsers && request.candicateUsers.length > 0) === true ? true : false }>
+                rendered={ (_adminMode && request.candicateUsers && request.candicateUsers.length > 0) === true }>
                 <Advanced.IdentitiesInfo identities={ request.candicateUsers } maxEntry={ 5 } />
               </Basic.LabelWrapper>
               <Basic.TextArea
@@ -432,7 +472,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
                 identityId={this._getIdentityId(this.props)}
                 replaceUrl={this.replaceUrl.bind(this)}
-                />
+              />
               {
                 // Table with concepts was hidden, is replaced by new request-identity-role-table
                 // this._renderRoleConceptChangesTable(request, forceSearchParameters, _adminMode)
@@ -446,13 +486,28 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                   ref="log"
                   hidden={!_adminMode}
                   mode="sqlserver"
-                  height="20em"
+                  height="15em"
                   readOnly
                   label={this.i18n('entity.RoleRequest.log')}/>
               </Basic.AbstractForm>
+              <Basic.AbstractForm
+                readOnly
+                ref="formSystemStateLog"
+                data={{systemStateLog}}
+                showLoading={showLoading}>
+                <Basic.ScriptArea
+                  ref="systemStateLog"
+                  hidden={!_adminMode || !systemStateLog}
+                  mode="sqlserver"
+                  height="15em"
+                  readOnly
+                  label={this.i18n('entity.RoleRequest.systemStateLog')}/>
+              </Basic.AbstractForm>
             </div>
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link"
+              <Basic.Button
+                type="button"
+                level="link"
                 onClick={this.context.router.goBack}
                 showLoading={showLoading}>
                 {this.i18n('button.back')}
@@ -513,7 +568,7 @@ function select(state, component) {
   return {
     ...result,
     _request: entity,
-    _showLoading: entity ? false : true,
+    _showLoading: !entity,
     showLoadingRoles: identityRoleManager.isShowLoading(state, `${uiKey}-${identityId}`),
     _permissions: roleRequestManager.getPermissions(state, null, entity),
     _incompatibleRoles: entity ? DataManager.getData(state, `${ uiKeyIncompatibleRoles }${entity.id}`) : null,

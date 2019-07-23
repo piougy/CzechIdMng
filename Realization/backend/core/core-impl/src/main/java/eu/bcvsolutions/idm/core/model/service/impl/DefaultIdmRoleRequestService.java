@@ -44,6 +44,7 @@ import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
@@ -57,6 +58,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
@@ -65,7 +67,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -121,7 +123,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  */
 @Service("roleRequestService")
 public class DefaultIdmRoleRequestService
-		extends AbstractReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequest, IdmRoleRequestFilter>
+		extends AbstractEventableDtoService<IdmRoleRequestDto, IdmRoleRequest, IdmRoleRequestFilter>
 		implements IdmRoleRequestService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
@@ -132,7 +134,6 @@ public class DefaultIdmRoleRequestService
 	private final SecurityService securityService;
 	private final ApplicationContext applicationContext;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
-	private final EntityEventManager entityEventManager;
 	@Autowired
 	private FormService formService;
 	@Autowired
@@ -160,7 +161,7 @@ public class DefaultIdmRoleRequestService
 			IdmIdentityService identityService, ObjectMapper objectMapper, SecurityService securityService,
 			ApplicationContext applicationContext, WorkflowProcessInstanceService workflowProcessInstanceService,
 			EntityEventManager entityEventManager) {
-		super(repository);
+		super(repository, entityEventManager);
 		//
 		Assert.notNull(conceptRoleRequestService, "Concept role request service is required!");
 		Assert.notNull(identityRoleService, "Identity role service is required!");
@@ -168,7 +169,6 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(securityService, "Security service is required!");
 		Assert.notNull(applicationContext, "Application context is required!");
 		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
-		Assert.notNull(entityEventManager, "Entity event manager is required!");
 		//
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.identityRoleService = identityRoleService;
@@ -176,7 +176,6 @@ public class DefaultIdmRoleRequestService
 		this.securityService = securityService;
 		this.applicationContext = applicationContext;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
-		this.entityEventManager = entityEventManager;
 	}
 
 	@Override
@@ -228,6 +227,37 @@ public class DefaultIdmRoleRequestService
 		if (filter.getCreatedTill() != null) {
 			predicates.add(
 					builder.lessThanOrEqualTo(root.get(IdmRoleRequest_.created), filter.getCreatedTill().plusDays(1)));
+		}
+		Boolean executed = filter.getExecuted();
+		// If Boolean.FALSE, then return all requests where IdM state is not DUPLICATED, CANCELED, DISAPPROVED and IdM state is not EXECUTED or system state is not EXECUTED and not null.
+		// If Boolean.TRUE, then return all requests where IdM state is EXECUTED and system state is EXECUTED.
+		if (executed != null) {
+			if (executed) {
+				predicates.add(builder.and( //
+						builder.equal(root.get(IdmRoleRequest_.state), RoleRequestState.EXECUTED), //
+						builder.equal(root.get(IdmRoleRequest_.systemState).get(OperationResultDto.PROPERTY_STATE), //
+								OperationState.EXECUTED) //
+				));
+			} else {
+				predicates.add(builder.and( //
+						builder.notEqual(root.get(IdmRoleRequest_.state), RoleRequestState.CANCELED), //
+						builder.notEqual(root.get(IdmRoleRequest_.state), RoleRequestState.DUPLICATED), //
+						builder.notEqual(root.get(IdmRoleRequest_.state), RoleRequestState.DISAPPROVED) //
+				));
+				predicates.add(builder.or( //
+						builder.notEqual(root.get(IdmRoleRequest_.state), RoleRequestState.EXECUTED), //
+						builder.and(
+								builder.notEqual(
+										root.get(IdmRoleRequest_.systemState).get(OperationResultDto.PROPERTY_STATE),
+										OperationState.EXECUTED),
+								builder.notEqual(
+										root.get(IdmRoleRequest_.systemState).get(OperationResultDto.PROPERTY_STATE),
+										OperationState.CANCELED),
+								builder.isNotNull(
+										root.get(IdmRoleRequest_.systemState).get(OperationResultDto.PROPERTY_STATE))) //
+				));
+			}
+
 		}
 		return predicates;
 	}
@@ -352,9 +382,7 @@ public class DefaultIdmRoleRequestService
 		this.save(request);
 		event.setContent(request);
 		//
-		IdmRoleRequestDto content =  entityEventManager
-				.process(event)
-				.getContent();
+		IdmRoleRequestDto content = this.publish(event).getContent();
 		// Returned content is not actual, we need to load fresh request
 		return this.get(content.getId());
 	}
@@ -586,11 +614,22 @@ public class DefaultIdmRoleRequestService
 			return null;
 		}
 		
-		if (dto.getId() == null) {
+		if (this.isNew(dto)) {
+			dto.setSystemState(new OperationResultDto(OperationState.CREATED));
 			dto.setState(RoleRequestState.CONCEPT);
 		}
 		
 		return super.toEntity(dto, entity);
+	}
+	
+	@Override
+	@Transactional
+	public IdmRoleRequestDto refreshSystemState(IdmRoleRequestDto request) {
+		Assert.notNull(request, "Role request cannot be null!");
+		
+		RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.REFRESH_SYSTEM_STATE, request);
+		this.publish(requestEvent);
+		return requestEvent.getContent();
 	}
 
 	@Override

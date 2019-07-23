@@ -11,4 +11,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
  */
 public interface RoleRequestProcessor extends EntityEventProcessor<IdmRoleRequestDto> {
 	
+	public static final String SYSTEM_STATE_RESOLVED_KEY = "system-state-resolved";
+	
 }

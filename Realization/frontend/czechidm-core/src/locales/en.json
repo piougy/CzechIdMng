@@ -739,9 +739,9 @@
       "CONCEPT": "Concept",
       "EXECUTED": "Executed",
       "CANCELED": "Canceled",
-      "APPROVED": "In progress (approved)",
+      "APPROVED": "In progress",
       "DISAPPROVED": "Disapproved",
-      "IN_PROGRESS": "In progress",
+      "IN_PROGRESS": "Approving",
       "EXCEPTION": "Exception",
       "DUPLICATED": "Duplicated"
     },
@@ -1336,6 +1336,7 @@
         "oldValue": "Old value {{oldValue}}",
         "oldValueNotExist": "Old value was empty",
         "switchShowChangesOnly": "Show changes only",
+        "systemState": "System state",
         "create": {
           "header": "Add roles",
           "headerByIdentity": "Add roles by user"
@@ -4237,9 +4238,11 @@
     },
     "RoleRequest": {
       "_type": "Request for change roles",
+      "systemState": "State on systems",
       "applicant": "Requested for",
       "implementer": "Applicant",
-      "state": "State",
+      "state": "State in IdM",
+      "states": "State in IdM / systems",
       "executeImmediately": "Without approval",
       "log": "Log",
       "description": {
@@ -4251,7 +4254,8 @@
       "candicateUsers": "Can solve",
       "currentActivity": "Approval state",
       "originalRequest": "Original request",
-      "wfProcessId": "WF identifier"
+      "wfProcessId": "WF identifier",
+      "systemStateLog": "Error log from a systems"
     },
     "ConceptRoleRequest": {
       "identityContract": "Employment relationship",
@@ -6034,6 +6038,10 @@
     "OPTIMISTIC_LOCK_ERROR": {
       "title": "Record was modified",
       "message": "Record was modified by other process or logged user. Try to reload the record and then retry the operation."
+    },
+    "ROLE_REQUEST_SYSTEM_STATE_CANCELED": {
+      "title": "Role request's system state was canceled!",
+      "message": "System state was canceled from the state [{{state}}]."
     }
   },
   "validationError": {

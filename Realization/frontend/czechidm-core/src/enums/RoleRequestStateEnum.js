@@ -55,6 +55,39 @@ export default class RoleRequestStateEnum extends AbstractEnum {
       }
     }
   }
+  static getIcon(key) {
+    if (!key) {
+      return null;
+    }
+
+    const sym = super.findSymbolByKey(this, key);
+
+    switch (sym) {
+      case this.CONCEPT:
+      case this.IN_PROGRESS: {
+        return 'fa:circle-o';
+      }
+      case this.APPROVED:
+      case this.EXECUTED: {
+        return 'fa:check';
+      }
+      case this.DISAPPROVED: {
+        return 'fa:circle-thin';
+      }
+      case this.EXCEPTION: {
+        return 'fa:warning';
+      }
+      case this.CANCELED: {
+        return 'fa:ban';
+      }
+      case this.DUPLICATED: {
+        return 'fa:ban';
+      }
+      default: {
+        return 'default';
+      }
+    }
+  }
 }
 
 RoleRequestStateEnum.CONCEPT = Symbol('CONCEPT');

@@ -27,6 +27,12 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    const {request} = this.props;
+
+    let showChangesOnly = false;
+    if (request && request.state === 'EXECUTED') {
+      showChangesOnly = true;
+    }
     this.state = {
       conceptData: [],
       showRoleByIdentitySelect: false,
@@ -40,12 +46,22 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
       },
       sortSearchParameters: new SearchParameters(), // concept data are sorted by sections (direct / automatic / sub) by default
       validationErrors: null,
-      showChangesOnly: false
+      showChangesOnly
     };
   }
 
   componentDidMount() {
     super.componentDidMount();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const {request} = nextProps;
+    if (request
+      && request.state === 'EXECUTED'
+      && this.props.request
+      && this.props.request.state !== 'EXECUTED') {
+      this.setState({showChangesOnly: true});
+    }
   }
 
   getContentKey() {
@@ -155,9 +171,11 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           this.setState({
             showLoading: false
           }, () => { this.addError(error); });
-        } else if (!request.id) {
-          replaceUrl(requestReturned.id);
         } else {
+          if (!request.id) {
+            this.reload();
+            replaceUrl(requestReturned.id);
+          }
           this._hideRoleByIdentitySelect();
           this.setState({
             showLoading: false
@@ -223,13 +241,13 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
             showLoading: false
           }, () => {
             if (!request.id) {
+              request.id = createdEntity.roleRequest;
               replaceUrl(createdEntity.roleRequest);
-            } else {
-              this._closeDetail();
-              // We need to fetch incompatibleRoles (could be changed)
-              this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(request.id, `${ uiKeyIncompatibleRoles }${ request.id }`));
-              this.reload();
             }
+            this._closeDetail();
+            // We need to fetch incompatibleRoles (could be changed)
+            this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(request.id, `${ uiKeyIncompatibleRoles }${ request.id }`));
+            this.reload();
           });
         }
       }));
@@ -246,12 +264,12 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         }
         this.setState({showLoadingActions: false});
         if (!request.id) {
+          request.id = json.roleRequest;
           replaceUrl(json.roleRequest);
-        } else {
-          // We need to fetch incompatibleRoles (could be changed)
-          this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(request.id, `${ uiKeyIncompatibleRoles }${ request.id }`));
-          this.reload();
         }
+        // We need to fetch incompatibleRoles (could be changed)
+        this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(request.id, `${ uiKeyIncompatibleRoles }${ request.id }`));
+        this.reload();
       }));
     });
   }
@@ -439,12 +457,16 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           <Basic.Toolbar>
             <div>
               <div className="pull-left">
-                <Basic.ToggleSwitch
-                  ref="switchShowChangesOnly"
-                  label={this.i18n('switchShowChangesOnly')}
-                  onChange={this._toggleShowChangesOnly.bind(this)}
-                  value={showChangesOnly}
-                />
+                <Basic.AbstractForm
+                  ref="formShowChangesOnly"
+                  style={{padding: '0px'}}
+                  data={{switchShowChangesOnly: showChangesOnly}}>
+                  <Basic.ToggleSwitch
+                    ref="switchShowChangesOnly"
+                    label={this.i18n('switchShowChangesOnly')}
+                    onChange={this._toggleShowChangesOnly.bind(this)}
+                  />
+                </Basic.AbstractForm>
               </div>
               <div className="pull-right">
                 <Basic.Button
@@ -559,6 +581,20 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
               header={ this.i18n('entity.Role.baseCode.label') }
               sort/>
             <Advanced.Column
+              property="systemState"
+              width={75}
+              face="text"
+              header={this.i18n('systemState')}
+              rendered={showChangesOnly}
+              cell={
+                ({ rowIndex, data }) => {
+                  const entity = data[rowIndex];
+                  return (
+                    <Advanced.OperationResult value={ entity.systemState }/>
+                  );
+                }
+              }/>
+            <Advanced.Column
               property="_embedded.role.environment"
               rendered={showEnvironment}
               sortProperty="role.environment"
@@ -589,14 +625,17 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                 }
               }/>
             <Advanced.Column
+              sort
               property="validFrom"
               face="date"
               header={this.i18n('entity.ConceptRoleRequest.validFrom')}/>
             <Advanced.Column
+              sort
               property="validTill"
               face="date"
               header={this.i18n('entity.ConceptRoleRequest.validTill')}/>
             <Advanced.Column
+              sort
               property="directRole"
               header={ this.i18n('entity.IdentityRole.directRole.label') }
               cell={
@@ -618,6 +657,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
               }
               width={ 150 }/>
             <Advanced.Column
+              sort
               property="automaticRole"
               header={ <Basic.Icon value="component:automatic-role" title={ this.i18n('entity.IdentityRole.automaticRole.help') }/> }
               cell={

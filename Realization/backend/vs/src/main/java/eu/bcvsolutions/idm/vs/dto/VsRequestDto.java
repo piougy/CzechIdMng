@@ -58,6 +58,8 @@ public class VsRequestDto extends AbstractDto {
 	@Embedded(dtoClass = VsRequestDto.class)
 	private UUID previousRequest;
 	private String reason;
+	// ID of request, without DB relation on the request -> Request can be null or doesn't have to exist!
+    private UUID roleRequestId;
 
 	public String getUid() {
 		return uid;
@@ -153,5 +155,13 @@ public class VsRequestDto extends AbstractDto {
 
 	public void setReason(String reason) {
 		this.reason = reason;
+	}
+
+	public UUID getRoleRequestId() {
+		return roleRequestId;
+	}
+
+	public void setRoleRequestId(UUID roleRequestId) {
+		this.roleRequestId = roleRequestId;
 	}
 }

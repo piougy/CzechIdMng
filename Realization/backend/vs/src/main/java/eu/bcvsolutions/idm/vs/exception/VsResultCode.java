@@ -19,7 +19,9 @@ public enum VsResultCode implements ResultCode {
 	VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST(HttpStatus.BAD_REQUEST, "Virtual system account with UID [%s] was not found. You have to relized 'create' request first!"),
 	VS_REQUEST_UPDATING_ACCOUNT_NOT_EXIST(HttpStatus.BAD_REQUEST, "Virtual system account with UID [%s] was not found. You have to relized 'create' request first!"),
 	VS_REQUEST_CANCEL_WRONG_STATE(HttpStatus.BAD_REQUEST, "For cancel must be request in state: [%s], but he is in state: [%s]!"),
-	VS_SYSTEM_DELETE_FAILED_HAS_REQUEST(HttpStatus.BAD_REQUEST, "Virtual system [%s] has unresolved requests, cannot be deleted.");
+	VS_SYSTEM_DELETE_FAILED_HAS_REQUEST(HttpStatus.BAD_REQUEST, "Virtual system [%s] has unresolved requests, cannot be deleted."),
+	ROLE_REQUEST_VS_REQUEST_REJECTED(HttpStatus.NOT_MODIFIED, "Request on virtual system [%s] was rejected!"),
+	ROLE_REQUEST_VS_REQUEST_IN_PROGRESS(HttpStatus.NOT_MODIFIED, "Some requests on vritual systems [%s] are not resloved!");
 	
 	
 	private final HttpStatus status;

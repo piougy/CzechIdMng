@@ -197,6 +197,7 @@ public class DefaultSysProvisioningOperationService
 		if (StringUtils.isNotEmpty(systemEntityUid)) {
 			predicates.add(builder.equal(root.get(SysProvisioningOperation_.systemEntity).get(SysSystemEntity_.uid), systemEntityUid));
 		}
+		
 		// Operation result and his state
 		OperationState resultState = filter.getResultState();
 		if (resultState != null) {
@@ -206,6 +207,11 @@ public class DefaultSysProvisioningOperationService
 		UUID batchId = filter.getBatchId();
 		if (batchId != null) {
 			predicates.add(builder.equal(root.get(SysProvisioningOperation_.batch).get(SysProvisioningBatch_.id), batchId));
+		}
+		// Role-request ID
+		UUID roleRequestId = filter.getRoleRequestId();
+		if (roleRequestId != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningOperation_.roleRequestId), roleRequestId));
 		}
 		// updated attributes
 		List<String> attributeUpdated = filter.getAttributeUpdated();
@@ -810,7 +816,8 @@ public class DefaultSysProvisioningOperationService
 	 * @param operation
 	 * @return
 	 */
-	private SysSystemDto getSystem(SysProvisioningOperationDto operation) {
+	@Override
+	public SysSystemDto getSystem(SysProvisioningOperationDto operation) {
 		SysSystemDto system = DtoUtils.getEmbedded(operation, SysProvisioningOperation_.system, (SysSystemDto) null);
 		if (system == null) {
 			// just for sure, self constructed operation can be given

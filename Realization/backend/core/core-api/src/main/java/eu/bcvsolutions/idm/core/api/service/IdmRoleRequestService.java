@@ -23,12 +23,15 @@ import eu.bcvsolutions.idm.core.security.api.service.ExceptionProcessable;
 /**
  * Service for role request
  * 
- * @author svandav
+ * @author Vít Švanda
  * 
  */
 public interface IdmRoleRequestService extends 
-		ReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequestFilter>, AuthorizableService<IdmRoleRequestDto>,
+		EventableDtoService<IdmRoleRequestDto, IdmRoleRequestFilter>,
+		AuthorizableService<IdmRoleRequestDto>,
 		ExceptionProcessable<IdmRoleRequestDto> {
+	
+	public final static String ROLE_REQUEST_ID_KEY = "roleRequestId";
 
 
 	/**
@@ -203,5 +206,12 @@ public interface IdmRoleRequestService extends
 	 */
 	IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, IdmIdentityContractDto contract, UUID identityRoleId, UUID roleId,
 			ConceptRoleRequestOperation operation);
+
+	/**
+	 * Refresh state on a systems. If is state changed, then will be returned in the request
+	 * 
+	 * @param request
+	 */
+	IdmRoleRequestDto refreshSystemState(IdmRoleRequestDto request);
 
 }

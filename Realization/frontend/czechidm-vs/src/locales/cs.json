@@ -240,6 +240,14 @@
     "VS_SYSTEM_DELETE_FAILED_HAS_REQUEST": {
       "title": "Virtuální systém nemůže být smazán!",
       "message": "Virtuální systém [{{system}}] nemůže být smazán, protože má nevyřešené požadavky!"
+    },
+    "ROLE_REQUEST_VS_REQUEST_REJECTED": {
+      "title": "Žádost na vrituálním systému byla zamítnuta!",
+      "message": "Žádost na virtuálním systému [{{system}}] byla zamítnuta!"
+    },
+    "ROLE_REQUEST_VS_REQUEST_IN_PROGRESS": {
+      "title": "Některé žádosti na virtuálních systémech nejsou vyřešeny.",
+      "message": "Některé žádosti na těchto virtuálních systémech [{{systems}}] nejsou vyřešeny."
     }
   }
 }

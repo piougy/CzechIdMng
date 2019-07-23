@@ -1064,7 +1064,11 @@
       "operationType": "Typ operace",
       "entityIdentifier": "Identifikátor entity (IdM)",
       "resultState": "Výsledek",
-      "entity": "Entita (IdM)"
+      "entity": "Entita (IdM)",
+      "roleRequestId": {
+        "label": "Žádost",
+        "help": "Přejít na žádost v rámci které byla tato operace vytvořena."
+      }
     },
     "ProvisioningArchive": {
       "_type": "Provisioning - archív",
@@ -1932,6 +1936,30 @@
     "ROLE_SYSTEM_SUPPORTS_ONLY_IDENTITY": {
       "message": "Správa účtů dle přiřazených rolí, je podporována pouze pro 'Identity' (nikoli pro [{{entityType}}])!",
       "title": "Nepodporovaný typ mapování systému"
+    },
+    "ROLE_REQUEST_SOME_OPERATIONS_BLOCKED": {
+      "title": "Některé provisioning operace jsou blokovány!",
+      "message": "Některé provisioning operace na systémech [{{systems}}] jsou blokovány!"
+    },
+    "ROLE_REQUEST_SOME_OPERATIONS_FAILED": {
+      "title": "Některé provisioning operace selhaly!",
+      "message": "Některé provisioning operace na systémech [{{systems}}] selhaly!"
+    },
+    "ROLE_REQUEST_ALL_OPERATIONS_BLOCKED": {
+      "title": "Všechny provisioning operace jsou blokovány!",
+      "message": "Všechny provisioning operace pro žádost [{{requestId}}] jsou blokovány!"
+    },
+    "ROLE_REQUEST_ALL_OPERATIONS_FAILED": {
+      "title": "Všechny provisioning operace selhaly!",
+      "message": "Všechny provisioning operace pro žádost [{{requestId}}] selhaly!"
+    },
+    "ROLE_REQUEST_OPERATION_FAILED": {
+      "title": "Provisioning operace selhala!",
+      "message": "Provisioning operace na systému [{{system}}] selhala!"
+    },
+    "ROLE_REQUEST_OPERATION_CANCELED": {
+      "title": "Provisioning operace byla zrušena!",
+      "message": "Provisioning operace na systému [{{system}}] byla zrušena!"
     }
   },
   "processor": {

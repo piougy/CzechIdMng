@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -17,8 +18,9 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @author Svanda
  *
  */
-public interface AccIdentityAccountService extends 
-		EntityAccountService<AccIdentityAccountDto, AccIdentityAccountFilter>, 
+public interface AccIdentityAccountService extends
+		EventableDtoService<AccIdentityAccountDto, AccIdentityAccountFilter>,
+		EntityAccountService<AccIdentityAccountDto, AccIdentityAccountFilter>,
 		ScriptEnabled,
 		AuthorizableService<AccIdentityAccountDto> {
 

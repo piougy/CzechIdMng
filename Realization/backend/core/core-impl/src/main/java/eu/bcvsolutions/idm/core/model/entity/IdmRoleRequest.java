@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -18,6 +19,7 @@ import org.hibernate.envers.Audited;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Request for roles
@@ -47,6 +49,10 @@ public class IdmRoleRequest extends AbstractEntity{
 	@Column(name = "state")
 	@Enumerated(EnumType.STRING)
 	private RoleRequestState state = RoleRequestState.CONCEPT;
+	
+	// @Audited - Cannot be audited. Audit throw exception when parameters are present!
+	@Embedded
+	private OperationResult systemState;
 
 	@Audited
 	@NotNull
@@ -154,5 +160,12 @@ public class IdmRoleRequest extends AbstractEntity{
 		this.description = description;
 	}
 
+	public OperationResult getSystemState() {
+		return systemState;
+	}
+
+	public void setSystemState(OperationResult systemState) {
+		this.systemState = systemState;
+	}
 
 }

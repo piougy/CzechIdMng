@@ -1,10 +1,14 @@
 package eu.bcvsolutions.idm.ic.impl;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 
 /**
- * Implementation of object class. Object class defined type or category of connector object.
- * @author svandav
+ * Implementation of object class. Object class defined type or category of
+ * connector object.
+ * 
+ * @author Vít Švanda
  *
  */
 public class IcObjectClassImpl implements IcObjectClass {
@@ -12,6 +16,11 @@ public class IcObjectClassImpl implements IcObjectClass {
 	private static final long serialVersionUID = 3167353857125655289L;
 	private String type;
 	private String displayName;
+	/**
+	 * Relation on the IdmRoleRequest, can be null and request doesn't have to exist
+	 * (used in virtual systems).
+	 */
+	private UUID roleRequestId;
 	
 	public IcObjectClassImpl(String type) {
 		super();
@@ -44,6 +53,16 @@ public class IcObjectClassImpl implements IcObjectClass {
 	@Override
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
+	}
+	
+	@Override
+	public UUID getRoleRequestId() {
+		return roleRequestId;
+	}
+
+	@Override
+	public void setRoleRequestId(UUID roleRequestId) {
+		this.roleRequestId = roleRequestId;
 	}
 
 	@Override

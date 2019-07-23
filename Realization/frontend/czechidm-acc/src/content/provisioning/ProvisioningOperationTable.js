@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { Link } from 'react-router';
 //
 import { Basic, Advanced, Enums, Utils, Managers } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
@@ -368,6 +369,26 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
             sortProperty="systemEntity"
             face="text"
             rendered={ !isArchive && _.includes(columns, 'systemEntityUid') }/>
+          <Advanced.Column
+            property="roleRequestId"
+            header={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.label') }
+            sort
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                if (!entity || !entity.roleRequestId) {
+                  return null;
+                }
+                return (
+                  <Link
+                    to={ `/role-requests/${encodeURIComponent(entity.roleRequestId)}/detail` }
+                    title={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.help') }>
+                      <Basic.Icon value="fa:key" style={{marginLeft: '25px'}}/>
+                  </Link>
+                );
+              }
+            }
+            rendered={ _.includes(columns, 'roleRequestId') } />
         </Advanced.Table>
       </div>
     );
@@ -405,7 +426,7 @@ ProvisioningOperationTable.propTypes = {
 ProvisioningOperationTable.defaultProps = {
   showRowSelection: false,
   forceSearchParameters: null,
-  columns: ['resultState', 'created', 'modified', 'operationType', 'entityType', 'entityIdentifier', 'system', 'systemEntityUid'],
+  columns: ['resultState', 'created', 'modified', 'operationType', 'entityType', 'entityIdentifier', 'system', 'systemEntityUid', 'roleRequestId'],
   showDeleteAllButton: true
 };
 

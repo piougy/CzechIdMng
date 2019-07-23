@@ -208,6 +208,19 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
             face="enum"
             enumClass={RoleRequestStateEnum}/>
           <Advanced.Column
+            property="systemState"
+            width={75}
+            face="text"
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                return (
+                  <Advanced.OperationResult value={ entity.systemState }/>
+                );
+              }
+            }
+            rendered={_.includes(columns, 'systemState')}/>
+          <Advanced.Column
             property="applicant"
             rendered={_.includes(columns, 'applicant')}
             face="text"
@@ -306,7 +319,7 @@ RoleRequestTable.defaultProps = {
   rendered: true,
   _showLoading: false,
   showFilter: true,
-  columns: ['state', 'created', 'modified', 'wf', 'applicant', 'executeImmediately', 'startRequest', 'createNew', 'detail']
+  columns: ['state', 'created', 'modified', 'wf', 'applicant', 'executeImmediately', 'startRequest', 'createNew', 'detail', 'systemState']
 };
 
 function select(state, component) {

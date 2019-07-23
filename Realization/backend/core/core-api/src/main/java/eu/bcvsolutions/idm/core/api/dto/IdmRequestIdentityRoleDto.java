@@ -15,6 +15,8 @@ public class IdmRequestIdentityRoleDto extends IdmConceptRoleRequestDto {
 
 	private static final long serialVersionUID = 1L;
 
+	private UUID directRole; // direct identity role
+	private UUID roleComposition; // direct role
 	/**
 	 * Roles for create adding concepts (use only for assign new roles). You can
 	 * still use field "role" for assign one role.
@@ -29,4 +31,19 @@ public class IdmRequestIdentityRoleDto extends IdmConceptRoleRequestDto {
 		this.roles = roles;
 	}
 
+	public UUID getDirectRole() {
+		return directRole;
+	}
+
+	public void setDirectRole(UUID directRole) {
+		this.directRole = directRole;
+	}
+
+	public UUID getRoleComposition() {
+		return roleComposition;
+	}
+
+	public void setRoleComposition(UUID roleComposition) {
+		this.roleComposition = roleComposition;
+	}
 }

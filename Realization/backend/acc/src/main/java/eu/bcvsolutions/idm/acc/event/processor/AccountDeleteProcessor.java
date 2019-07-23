@@ -1,7 +1,10 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -21,13 +24,15 @@ import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccRoleCatalogueAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractSliceAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleCatalogueAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
-import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
+import eu.bcvsolutions.idm.acc.entity.AccAccount_;
+import eu.bcvsolutions.idm.acc.event.AccountEvent.AccountEventType;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractSliceAccountService;
@@ -43,11 +48,13 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Deletes identity account
  * 
- * @author Svanda
+ * @author Vít Švanda
  */
 @Component("accAccountDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
@@ -72,7 +79,7 @@ public class AccountDeleteProcessor extends CoreEventProcessor<AccAccountDto> im
 			AccContractAccountService contractAccountService,
 			AccRoleCatalogueAccountService roleCatalogueAccountService,
 			AccIdentityAccountService identityAccountService, ProvisioningService provisioningService) {
-		super(IdentityAccountEventType.DELETE);
+		super(AccountEventType.DELETE);
 		//
 		Assert.notNull(accountService);
 		Assert.notNull(entityEventManager);
@@ -182,6 +189,12 @@ public class AccountDeleteProcessor extends CoreEventProcessor<AccAccountDto> im
 						entityType));
 				return new DefaultEventResult<>(event, this);
 			}
+			LOG.debug(MessageFormat.format("Call delete provisioning for account with UID [{0}] and entity ID [{1}].", account.getUid(),
+					entityId));
+			// Create context for systemEntity in account DTO and set ID of role-request to it.
+			UUID roleRequestId = this.getRoleRequestIdProperty(event.getProperties());
+			this.initContext(account, roleRequestId);
+			
 			this.provisioningService.doDeleteProvisioning(account, account.getEntityType(), entityId);
 		}
 
@@ -196,6 +209,40 @@ public class AccountDeleteProcessor extends CoreEventProcessor<AccAccountDto> im
 	@Override
 	public boolean isDisableable() {
 		return false;
+	}
+	
+	/**
+	 * Create context for systemEntity in account DTO and set ID of role-request to
+	 * it.
+	 * 
+	 * @param account
+	 * @param requestId
+	 */
+	private void initContext(AccAccountDto account, UUID requestId) {
+		SysSystemEntityDto systemEntityDto = DtoUtils.getEmbedded(account, AccAccount_.systemEntity.getName(),
+				SysSystemEntityDto.class, null);
+		if (systemEntityDto == null) {
+			return;
+		}
+		Map<String, Object> context = systemEntityDto.getContext();
+		if (context == null) {
+			context = new HashMap<String, Object>();
+		}
+		context.put(IdmRoleRequestService.ROLE_REQUEST_ID_KEY, requestId);
+		systemEntityDto.setContext(context);
+	}
+	
+	/**
+	 * Get role-request ID from event
+	 * 
+	 * @param properties
+	 */
+	private UUID getRoleRequestIdProperty(Map<String, Serializable> properties) {
+		Serializable requestIdObj = properties.get(IdmRoleRequestService.ROLE_REQUEST_ID_KEY);
+		if (requestIdObj instanceof UUID) {
+			return (UUID) requestIdObj;
+		}
+		return null;
 	}
 
 }

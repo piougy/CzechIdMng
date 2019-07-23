@@ -10,7 +10,8 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 
 /**
  * Instance of connector object
- * @author svandav
+ * 
+ * @author Vít Švanda
  *
  */
 public class IcConnectorObjectImpl implements IcConnectorObject {
@@ -28,18 +29,18 @@ public class IcConnectorObjectImpl implements IcConnectorObject {
 		this.objectClass = objectClass;
 		this.attributes = attributes;
 	}
-	
+
 	@Override
 	public String getUidValue() {
 		return uidValue;
 	}
-	
+
 	public void setUidValue(String uidValue) {
 		this.uidValue = uidValue;
 	}
 
 	public List<IcAttribute> getAttributes() {
-		if(attributes == null){
+		if (attributes == null) {
 			this.attributes = new ArrayList<>();
 		}
 		return attributes;
@@ -53,17 +54,17 @@ public class IcConnectorObjectImpl implements IcConnectorObject {
 	public IcObjectClass getObjectClass() {
 		return objectClass;
 	}
-	
-	 /**
-     * Get an attribute by if it exists else null.
-     */
+
+	/**
+	 * Get an attribute by if it exists else null.
+	 */
 	@Override
-    public IcAttribute getAttributeByName(String name) {
-    	Optional<IcAttribute> optionalAttr = this.getAttributes().stream().filter(attribute -> {
-        	return name.equals(attribute.getName());
-        }).findFirst();
-        return optionalAttr.isPresent() ? optionalAttr.get() : null;
-    }
+	public IcAttribute getAttributeByName(String name) {
+		Optional<IcAttribute> optionalAttr = this.getAttributes().stream().filter(attribute -> {
+			return name.equals(attribute.getName());
+		}).findFirst();
+		return optionalAttr.isPresent() ? optionalAttr.get() : null;
+	}
 
 	public void setObjectClass(IcObjectClass objectClass) {
 		this.objectClass = objectClass;

@@ -1,10 +1,14 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.core.api.domain.Contextable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
@@ -15,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  */
 
 @Relation(collectionRelation = "systemEntities")
-public class SysSystemEntityDto extends AbstractDto {
+public class SysSystemEntityDto extends AbstractDto implements Contextable {
 
 	private static final long serialVersionUID = -5087700187793325363L;
 
@@ -24,6 +28,8 @@ public class SysSystemEntityDto extends AbstractDto {
 	@Embedded(dtoClass = SysSystemDto.class)
 	private UUID system;
 	private boolean wish = true;
+	@JsonIgnore
+	private Map<String, Object> context = null;
 
 	public SysSystemEntityDto() {
 	}
@@ -63,5 +69,15 @@ public class SysSystemEntityDto extends AbstractDto {
 
 	public void setWish(boolean wish) {
 		this.wish = wish;
+	}
+	
+	@JsonIgnore
+	public Map<String, Object> getContext() {
+		return context;
+	}
+
+	@JsonIgnore
+	public void setContext(Map<String, Object> context) {
+		this.context = context;
 	}
 }

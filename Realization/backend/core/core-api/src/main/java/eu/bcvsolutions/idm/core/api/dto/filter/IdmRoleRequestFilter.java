@@ -29,6 +29,14 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private List<UUID> applicants;
 	private UUID creatorId;
 	private boolean includeConcepts = false;
+	/**
+	 * If true, then returns requests where state in IdM and state on a systems is
+	 * EXECUTED. 
+	 * If Boolean.FALSE, then return all requests where IdM state is not
+	 * DUPLICATED, CANCELED, DISAPPROVED and IdM state is not EXECUTED or system
+	 * state is not EXECUTED and not null.
+	 */
+	private Boolean executed;
 
 	public IdmRoleRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -129,4 +137,11 @@ public class IdmRoleRequestFilter extends DataFilter {
 		this.includeConcepts = includeConcepts;
 	}
 
+	public Boolean getExecuted() {
+		return executed;
+	}
+
+	public void setExecuted(Boolean executed) {
+		this.executed = executed;
+	}
 }

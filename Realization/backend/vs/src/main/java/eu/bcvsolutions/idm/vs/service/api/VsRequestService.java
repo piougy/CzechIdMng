@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.vs.service.api;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -98,5 +99,13 @@ public interface VsRequestService
 	 * @return
 	 */
 	VsConnectorObjectDto getWishConnectorObject(VsRequestDto request);
+
+	/**
+	 * Optimize - system can be pre-loaded in DTO.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	SysSystemDto getSystem(VsRequestDto request);
 
 }

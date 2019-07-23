@@ -216,6 +216,7 @@ public enum CoreResultCode implements ResultCode {
 	ROLE_REQUEST_EXECUTED_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Request [%s] in EXECUTED state cannot be deleted!"),
 	ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "Field 'requested by' in request [%s] cannot be 'AUTOMATICALLY' via REST API!"),
 	ROLE_REQUEST_UNVALID_CONCEPT_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Concept [%s] (for role [%s]) in the request [%s] has unvalid attribute [%s]!"),
+	ROLE_REQUEST_SYSTEM_STATE_CANCELED(HttpStatus.INTERNAL_SERVER_ERROR, "Request system state was canceled from state [%s]!"),
 	//
 	IDENTITY_ROLE_UNVALID_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Identity-role [%s] (for role [%s]) has unvalid attribute [%s]!"),
 	// 

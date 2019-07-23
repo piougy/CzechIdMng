@@ -31,12 +31,15 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
@@ -261,7 +264,19 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		}
 		//
 		checkAccess(dto, IdmBasePermission.DELETE);
-		//
+		// Request in Executed state can not be delete or change
+		OperationResultDto systemState = dto.getSystemState();
+		if (RoleRequestState.EXECUTED == dto.getState() && systemState != null && OperationState.CANCELED != systemState.getState()) {
+			// Request was executed in IdM, but system state is not canceled -> we will change the system state to CANCELED.
+			OperationResultDto systemResult = new OperationResultDto.Builder(OperationState.CANCELED)
+					.setModel(new DefaultResultModel(CoreResultCode.ROLE_REQUEST_SYSTEM_STATE_CANCELED,
+							ImmutableMap.of("state", systemState != null ? systemState.getState().name() : "")))
+					.build();
+			dto.setSystemState(systemResult);
+			service.save(dto);
+			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+		}
+		
 		// Request in Executed state can not be delete or change
 		if (RoleRequestState.EXECUTED == dto.getState()) {
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_EXECUTED_CANNOT_DELETE,
@@ -269,7 +284,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		}
 
 		// Only request in Concept state, can be deleted. In others states, will be
-		// request set to Canceled state and save.
+		// Request set to Canceled state and save.
 		if (RoleRequestState.CONCEPT == dto.getState()) {
 			service.delete(dto);
 		} else {
@@ -405,6 +420,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		filter.setStates(getParameterConverter().toEnums(parameters, "states", RoleRequestState.class));
 		filter.setApplicants(getParameterConverter().toUuids(parameters, "applicants"));
 		filter.setCreatorId(getParameterConverter().toEntityUuid(parameters, "creator", IdmIdentityDto.class));
+		filter.setExecuted(getParameterConverter().toBoolean(parameters, "executed"));
 		return filter;
 	}
 

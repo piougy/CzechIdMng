@@ -14,10 +14,6 @@ import Tooltip from '../Tooltip/Tooltip';
  */
 class ToggleSwitch extends AbstractFormComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   onChange(event) {
     if (this.props.onChange) {
       this.props.onChange(event);
@@ -70,14 +66,14 @@ class ToggleSwitch extends AbstractFormComponent {
         <div className="checkbox">
           <Tooltip trigger={['click', 'hover']} ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <div style={{display: 'flex', alignItems: 'middle'}}>
-                <Switch
-                  onClick={this.onChange.bind(this)}
-                  on={this._isChecked(value)}
-                  ref="toggleswitch"
-                  theme="graphite-small"
-                  disabled={ readOnly || disabled }
-                  readOnly={ readOnly }
-                />
+              <Switch
+                onClick={this.onChange.bind(this)}
+                on={this._isChecked(value)}
+                ref="toggleswitch"
+                theme="graphite-small"
+                disabled={ readOnly || disabled }
+                readOnly={ readOnly }
+              />
               <span style={{marginLeft: '5px', marginTop: '3px'}}>
                 {label}
               </span>

@@ -107,7 +107,7 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 		if (countCreatedOperations > 0) {
 			request.setSystemState(new OperationResultDto(OperationState.RUNNING));
 			DefaultEventResult<IdmRoleRequestDto> result = new DefaultEventResult<>(event, this);
-			result.getEvent().getProperties().put(SYSTEM_STATE_RESOLVED_KEY, true);
+			result.getEvent().getProperties().put(SYSTEM_STATE_RESOLVED_KEY, Boolean.TRUE);
 			
 			return result;
 		}
@@ -184,7 +184,7 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 		if (countOperations == 0 && countArchives == 0) {
 			request.setSystemState(null);
 			DefaultEventResult<IdmRoleRequestDto> result = new DefaultEventResult<>(event, this);
-			result.getEvent().getProperties().put(SYSTEM_STATE_RESOLVED_KEY, true);
+			result.getEvent().getProperties().put(SYSTEM_STATE_RESOLVED_KEY, Boolean.TRUE);
 
 			return result;
 		}
@@ -264,7 +264,7 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 		if (countNotExecutedOperations > 0) {
 			request.setSystemState(new OperationResultDto(OperationState.NOT_EXECUTED));
 			DefaultEventResult<IdmRoleRequestDto> result = new DefaultEventResult<>(event, this);
-			result.getEvent().getProperties().put(SYSTEM_STATE_RESOLVED_KEY, true);
+			result.getEvent().getProperties().put(SYSTEM_STATE_RESOLVED_KEY, Boolean.TRUE);
 
 			return result;
 		}
@@ -275,7 +275,7 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 		if (countRunningOperations > 0) {
 			request.setSystemState(new OperationResultDto(OperationState.RUNNING));
 			DefaultEventResult<IdmRoleRequestDto> result = new DefaultEventResult<>(event, this);
-			result.getEvent().getProperties().put(SYSTEM_STATE_RESOLVED_KEY, true);
+			result.getEvent().getProperties().put(SYSTEM_STATE_RESOLVED_KEY, Boolean.TRUE);
 
 			return result;
 		}
@@ -300,7 +300,7 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 		List<SysProvisioningArchiveDto> canceledOperations = provisioningArchiveService.find(provisioningOperationFilter, null).getContent();
 		
 		// We need to only failed operations without repaired executed archive operation
-		canceledOperations = canceledOperations.stream() //
+		return canceledOperations.stream() //
 				.filter(operation -> { //
 					// Check if exist some executed archive operation with for same entity/account
 					// for this request (retry mechanism ..).
@@ -314,7 +314,6 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 					return provisioningArchiveService.count(filterArchive) == 0;
 				}) //
 				.collect(Collectors.toList());
-		return canceledOperations;
 	}
 
 	private List<IdmConceptRoleRequestDto> loadConcepts(IdmRoleRequestDto request, List<IdmConceptRoleRequestDto> concepts) {
@@ -327,13 +326,12 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 	}
 
 	private String getSystems(List<SysProvisioningOperationDto> operations) {
-		String failedSystems = operations.stream() //
+		return operations.stream() //
 				.map(operation -> { //
 					return provisioningOperationService.getSystem(operation).getCode();
 				}) //
 				.distinct() //
 				.collect(Collectors.joining(","));
-		return failedSystems;
 	}
 
 	private EventResult<IdmRoleRequestDto> createResult(EntityEvent<IdmRoleRequestDto> event,
@@ -345,7 +343,7 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 		systemResult.setCause(cause);
 		request.setSystemState(systemResult);
 		DefaultEventResult<IdmRoleRequestDto> result = new DefaultEventResult<>(event, this);
-		result.getEvent().getProperties().put(SYSTEM_STATE_RESOLVED_KEY, true);
+		result.getEvent().getProperties().put(SYSTEM_STATE_RESOLVED_KEY, Boolean.TRUE);
 
 		return result;
 	}

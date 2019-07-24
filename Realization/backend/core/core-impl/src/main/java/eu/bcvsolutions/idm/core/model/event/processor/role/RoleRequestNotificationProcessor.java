@@ -70,7 +70,7 @@ public class RoleRequestNotificationProcessor extends CoreEventProcessor<IdmRole
 	public boolean conditional(EntityEvent<IdmRoleRequestDto> event) {
 		IdmRoleRequestDto dto = event.getContent();
 		// Notification is not send if request is execute immediately
-		if (dto.isExecuteImmediately()) {
+		if (dto == null || dto.isExecuteImmediately()) {
 			return false;
 		}
 		

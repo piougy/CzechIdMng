@@ -7,6 +7,7 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import {SecurityManager, IdentityManager, WorkflowTaskInstanceManager} from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
+import { Enums } from '../../../index';
 
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 /**
@@ -155,13 +156,20 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                       multiSelect
                       manager={this.identityManager}/>
                   </Basic.Col>
-                  <Basic.Col lg={ 8 }>
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.FilterDate
                       ref="fromTill"
                       fromProperty="createdFrom"
                       fromPlaceholder={this.i18n('filter.dateCreatedFrom.placeholder')}
                       tillProperty="createdTill"
                       tillPlaceholder={this.i18n('filter.dateCreatedTill.placeholder')}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="resultStates"
+                      multiSelect
+                      placeholder={ this.i18n('filter.statesSystem.placeholder') }
+                      enum={ Enums.OperationStateEnum }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>

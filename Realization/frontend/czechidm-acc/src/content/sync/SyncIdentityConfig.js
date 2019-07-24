@@ -26,12 +26,14 @@ class SyncIdentityConfig extends Basic.AbstractContent {
     if (this.refs.formSpecific) {
       return this.refs.formSpecific.getData(allData);
     }
+    return null;
   }
 
   isFormValid() {
     if (this.refs.formSpecific) {
       return this.refs.formSpecific.isFormValid();
     }
+    return false;
   }
 
   _defaultRoleChange(defaultRole) {
@@ -57,12 +59,17 @@ class SyncIdentityConfig extends Basic.AbstractContent {
           onChange={this._defaultRoleChange.bind(this)}
           label={this.i18n('identityConfigDetail.defaultRole.label')}
           helpBlock={this.i18n('identityConfigDetail.defaultRole.helpBlock')}/>
+        <Basic.Checkbox
+          ref="assignDefaultRoleToAll"
+          hidden={ !defaultRoleId }
+          label={this.i18n('identityConfigDetail.assignDefaultRoleToAll.label')}
+          helpBlock={this.i18n('identityConfigDetail.assignDefaultRoleToAll.helpBlock')}/>
         <Basic.EnumSelectBox
           ref="inactiveOwnerBehavior"
           useSymbol={ false }
           enum={ SynchronizationInactiveOwnerBehaviorTypeEnum }
-          hidden={ defaultRoleId ? false : true }
-          required={ defaultRoleId ? true : false }
+          hidden={ !defaultRoleId }
+          required={ !!defaultRoleId }
           label={ this.i18n('identityConfigDetail.inactiveOwnerBehavior.label') }
           helpBlock={ this.i18n('identityConfigDetail.inactiveOwnerBehavior.helpBlock') }/>
         <Basic.Checkbox

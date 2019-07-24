@@ -198,6 +198,10 @@
             "label": "Behavior of the default role for inactive identities",
             "helpBlock": "How to behave if the identity doesn't have any valid contract for assigning the default role."
           },
+          "assignDefaultRoleToAll": {
+            "label": "Assign default role to all valid contracts",
+            "helpBlock": "The default role will not be assigned to the main contract, but to all valid or in future valid contracts of the identity."
+          },
           "startAutoRoleRec": {
             "label": "After end, start the automatic role recalculation",
             "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute."

@@ -192,11 +192,15 @@
         "identityConfigDetail":{
           "defaultRole": {
             "label": "Výchozí role",
-            "helpBlock": "Při vytváření vztahu mezi identitou a účtem, bude identitě přiřazena tato role. Tato role bude navázána na hlavní smluvní vztah identity."
+            "helpBlock": "Při vytváření vztahu mezi identitou a účtem, bude identitě přiřazena tato role. Tato role bude navázána na hlavní kontrakt identity."
           },
           "inactiveOwnerBehavior": {
             "label": "Chování výchozí role pro neaktivní identity",
             "helpBlock": "Jak se zachovat, pokud se při přidělování výchozí role zjistí, že identita nemá žádný validní smluvní vztah."
+          },
+          "assignDefaultRoleToAll": {
+            "label": "Přiřadit výchozí roli všem platným kontraktům",
+            "helpBlock": "Výchozí role nebude přiřazena na hlavní kontrakt, ale na všechny platné, či v budoucnu platní kontrakty dané identity."
           },
           "startAutoRoleRec": {
             "label": "Po dokončení spustit přepočet automatických rolí",

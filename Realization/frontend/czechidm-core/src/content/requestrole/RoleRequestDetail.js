@@ -423,9 +423,11 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                   ref="state"
                   enum={RoleRequestStateEnum}
                   label={this.i18n('entity.RoleRequest.states')}/>
-                <div style={{ marginTop: '14px', marginLeft: '-70px', height: '19px' }}>
+                <Basic.Div
+                  rendered={request.systemState}
+                  style={{ marginTop: '14px', marginLeft: '-70px', height: '19px' }}>
                   /
-                </div>
+                </Basic.Div>
                 <div style={{ marginLeft: '10px', marginTop: '14px', height: '19px' }}>
                   <Advanced.OperationResult
                     value={ request.systemState }

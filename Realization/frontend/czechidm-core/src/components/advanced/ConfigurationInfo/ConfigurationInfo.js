@@ -9,7 +9,7 @@ import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 const manager = new ConfigurationManager();
 
 /**
- * Component for rendering information about password, similar function as roleInfo
+ * Component for rendering information about IdM configurations
  *
  * @author Radek Tomiška
  * @since 9.7.0

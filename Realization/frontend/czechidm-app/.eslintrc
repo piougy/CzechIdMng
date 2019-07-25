@@ -129,7 +129,7 @@
       "objectLiterals": "never"
     }}],
     "react/jsx-closing-bracket-location": "off",
-    "react/jsx-no-bind": "warn",
+    "react/jsx-no-bind": "off",
     "react/no-multi-comp": "warn",
     "react/no-string-refs": "off",
     "react/sort-comp": 0,

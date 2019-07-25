@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 - History of workflow processes created (and synchronously ended) in synchronization will be delete from now (for prevent of too many records in activiti database).
 - **NPM version 6.x.x or higher is required** for support of NPM lockfile (package-lock.json).
 - ``FilterBuilder`` supports creating predicates for sub queries now. Use new ``getPredicate`` method with ``AbstractQuery`` parameter instead (method with ``CriteriaQuery`` parameter is deprecated and will be removed). All filters in core was updated to use ``AbstractQuery`` parameter - make sure you override this method in your custom module.
+- Deprecated module ``gui`` was removed from product. Prevent to pull target folder, if you are product developer.
 
 
 

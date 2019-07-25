@@ -40,10 +40,6 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         entity: {},
         add: false
       },
-      filter: {
-        roleEnvironment: ConfigLoader.getConfig('concept-role.table.filter.environment', [])
-      },
-      sortSearchParameters: new SearchParameters(), // concept data are sorted by sections (direct / automatic / sub) by default
       validationErrors: null,
       showChangesOnly
     };
@@ -69,6 +65,30 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
 
   getManager() {
     return requestIdentityRoleManager;
+  }
+
+  getDefaultSearchParameters() {
+    let searchParameters = this.getManager().getDefaultSearchParameters();
+    //
+    if (this.props.showEnvironment) {
+      searchParameters = searchParameters.setFilter('roleEnvironment', ConfigLoader.getConfig('concept-role.table.filter.environment', []));
+    }
+    //
+    return searchParameters;
+  }
+
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -432,8 +452,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
       showChangesOnly,
       detail,
       showRoleByIdentitySelect,
-      validationErrors,
-      sortSearchParameters,
+      validationErrors
     } = this.state;
 
     const identityUsername = request && request.applicant;
@@ -501,7 +520,6 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
               }]
             }
             rowClass={this._getRowClass}
-            defaultSearchParameters={ sortSearchParameters }
             forceSearchParameters={forceSearchParameters}
             filter={
               <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
@@ -514,24 +532,21 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                         placeholder={ this.i18n('content.identity.roles.filter.role.placeholder') }
                         header={ this.i18n('content.identity.roles.filter.role.placeholder') }/>
                     </Basic.Col>
-                    <Basic.Col lg={ 3 }>
+                    <Basic.Col lg={ 3 } className={ showEnvironment ? '' : 'hidden'}>
                       <Advanced.CodeListSelect
                         ref="roleEnvironment"
                         code="environment"
-                        hidden={!showEnvironment}
                         label={ null }
                         placeholder={ this.i18n('entity.Role.environment.label') }
                         multiSelect/>
                     </Basic.Col>
-                    <Basic.Col lg={ 3 }>
-                      <Basic.Div>
-                        <Advanced.Filter.SelectBox
-                          ref="identityContractId"
-                          placeholder={ this.i18n('entity.IdentityRole.identityContract.title') }
-                          manager={ identityContractManager }
-                          forceSearchParameters={ contractForceSearchparameters }
-                          niceLabel={ (entity) => identityContractManager.getNiceLabel(entity, false) }/>
-                      </Basic.Div>
+                    <Basic.Col lg={ showEnvironment ? 3 : 6 }>
+                      <Advanced.Filter.SelectBox
+                        ref="identityContractId"
+                        placeholder={ this.i18n('entity.IdentityRole.identityContract.title') }
+                        manager={ identityContractManager }
+                        forceSearchParameters={ contractForceSearchparameters }
+                        niceLabel={ (entity) => identityContractManager.getNiceLabel(entity, false) }/>
                     </Basic.Col>
                     <Basic.Col lg={ 3 } className="text-right">
                       <Basic.Button onClick={ this.cancelFilter.bind(this) } style={{ marginRight: 5 }}>
@@ -544,7 +559,8 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
-            }>
+            }
+            _searchParameters={ this.getSearchParameters() }>
             <Advanced.Column
               header=""
               className="detail-button"

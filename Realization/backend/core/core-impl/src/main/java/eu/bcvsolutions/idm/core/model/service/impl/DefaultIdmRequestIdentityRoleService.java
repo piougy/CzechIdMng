@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -279,9 +278,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 		identityRoleFilter.setIdentityContractId(filter.getIdentityContractId());
 		identityRoleFilter.setIdentityId(filter.getIdentityId());
 		identityRoleFilter.setRoleId(filter.getRoleId());
-		if (!Strings.isNullOrEmpty(filter.getRoleEnvironment())) {
-			identityRoleFilter.setRoleEnvironment(filter.getRoleEnvironment());
-		}
+		identityRoleFilter.setRoleEnvironments(filter.getRoleEnvironments());
 		
 		return identityRoleFilter;
 	}

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
     private String roleEnvironment;
     // Find only concepts, where identityRoleId is null
     private boolean identityRoleIsNull = false;
+    private List<String> roleEnvironments;
     
     public IdmConceptRoleRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -133,6 +135,14 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
 
 	public void setIdentityRoleIsNull(boolean identityRoleIsNull) {
 		this.identityRoleIsNull = identityRoleIsNull;
+	}
+
+	public List<String> getRoleEnvironments() {
+		return roleEnvironments;
+	}
+
+	public void setRoleEnvironments(List<String> roleEnvironments) {
+		this.roleEnvironments = roleEnvironments;
 	}
 
 }

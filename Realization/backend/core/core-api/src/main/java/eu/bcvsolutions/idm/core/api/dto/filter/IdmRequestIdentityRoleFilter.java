@@ -46,4 +46,5 @@ public class IdmRequestIdentityRoleFilter extends IdmConceptRoleRequestFilter {
 	public void setOnlyChanges(boolean onlyChanges) {
 		this.onlyChanges = onlyChanges;
 	}
+	
 }

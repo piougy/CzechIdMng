@@ -186,7 +186,7 @@ public class IdmRequestIdentityRoleController
 		filter.setIdentityContractId(getParameterConverter().toUuid(parameters, "identityContractId"));
 		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));
 		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setRoleEnvironment(getParameterConverter().toString(parameters, "roleEnvironment"));
+		filter.setRoleEnvironments(getParameterConverter().toStrings(parameters, "roleEnvironment"));
 		filter.setRoleRequestId(getParameterConverter().toUuid(parameters, "roleRequestId"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
 		Boolean onlyChanges = getParameterConverter().toBoolean(parameters, "onlyChanges");

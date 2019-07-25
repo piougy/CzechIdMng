@@ -36,19 +36,11 @@
 	</build>
 
 	<profiles>
-		<!-- Profile adds build of frontend in separated module "gui", so result of complete build will be 2 wars containing backend and frontend separately -->
-		<profile>
-			<id>separatedApp</id>
-			<modules>
-				<module>../gui</module>
-			</modules>
-		</profile>
 
 		<profile>
 			<!-- Profile is used for releasing product. Usage is described in documentation -->
 			<id>release</id>
 			<modules>
-				<!-- module gui is released separately - is not needed for our deploy process after release anymore -->
 				<module>../example</module>
 				<module>../ic</module>
 				<module>../acc</module>

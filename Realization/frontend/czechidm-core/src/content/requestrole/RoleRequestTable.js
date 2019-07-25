@@ -137,14 +137,21 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                       ref="applicant"
                       placeholder={this.i18n('filter.applicant.placeholder')}/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ 3 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="states"
                       placeholder={ this.i18n('filter.states.placeholder') }
                       enum={ RoleRequestStateEnum }
                       multiSelect/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 } className="text-right">
+                  <Basic.Col lg={ 3 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="resultStates"
+                      multiSelect
+                      placeholder={ this.i18n('filter.statesSystem.placeholder') }
+                      enum={ Enums.OperationStateEnum }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 2 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </Basic.Col>
                 </Basic.Row>
@@ -163,13 +170,6 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                       fromPlaceholder={this.i18n('filter.dateCreatedFrom.placeholder')}
                       tillProperty="createdTill"
                       tillPlaceholder={this.i18n('filter.dateCreatedTill.placeholder')}/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.EnumSelectBox
-                      ref="resultStates"
-                      multiSelect
-                      placeholder={ this.i18n('filter.statesSystem.placeholder') }
-                      enum={ Enums.OperationStateEnum }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>

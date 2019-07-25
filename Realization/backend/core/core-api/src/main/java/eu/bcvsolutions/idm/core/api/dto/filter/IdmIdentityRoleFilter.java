@@ -112,7 +112,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
     
     public void setRoleEnvironments(List<String> roleEnvironments) {
     	if (CollectionUtils.isEmpty(roleEnvironments)) {
-    		data.remove(PARAMETER_IDENTITY_ID);
+    		data.remove(PARAMETER_ROLE_ENVIRONMENT);
     	} else {
     		data.put(PARAMETER_ROLE_ENVIRONMENT, new ArrayList<Object>(roleEnvironments));
     	}

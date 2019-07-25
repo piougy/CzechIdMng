@@ -591,7 +591,7 @@
         "resultCode": "Kód",
         "nextAttempt": {
           "header": "Další pokus",
-          "label": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn <strong>{{nextAttempt}}</strong>"
+          "label": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn po <strong>{{nextAttempt}}</strong>"
         }
       },
       "filter": {

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.event.processor.role;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -29,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
@@ -147,19 +149,19 @@ public class RoleRequestNotificationProcessor extends CoreEventProcessor<IdmRole
 			// Send notification only to implementer if
 			// implementer and applicant is same identity
 			if (sendNotificationToImplementer || sendNotificationToApplicant) {
-				send(CoreModuleDescriptor.TOPIC_REQUEST_REALIZED_IMPLEMENTER, from, addedRoles, changedRoles,
-						removedRoles, implementerIdentity);
+				send(CoreModuleDescriptor.TOPIC_REQUEST_REALIZED_IMPLEMENTER, request, from, addedRoles, changedRoles,
+						removedRoles, applicantIdentity, implementerIdentity);
 			}
 		} else {
 			// Send notification to applicant
 			if (sendNotificationToApplicant) {
-				send(CoreModuleDescriptor.TOPIC_REQUEST_REALIZED_APPLICANT, from, addedRoles, changedRoles, removedRoles,
-						applicantIdentity);
+				send(CoreModuleDescriptor.TOPIC_REQUEST_REALIZED_APPLICANT, request, from, addedRoles, changedRoles, removedRoles,
+						applicantIdentity, applicantIdentity);
 			}
 			// Send notification to implementer
 			if (sendNotificationToImplementer) {
-				send(CoreModuleDescriptor.TOPIC_REQUEST_REALIZED_IMPLEMENTER, from, addedRoles, changedRoles,
-						removedRoles, implementerIdentity);
+				send(CoreModuleDescriptor.TOPIC_REQUEST_REALIZED_IMPLEMENTER, request, from, addedRoles, changedRoles,
+						removedRoles, applicantIdentity, implementerIdentity);
 			}
 		}
 	}
@@ -174,14 +176,35 @@ public class RoleRequestNotificationProcessor extends CoreEventProcessor<IdmRole
 	 * @param removedRoles
 	 * @param applicantIdentity
 	 */
-	private void send(String topic, String from, Set<IdmConceptRoleRequestDto> addedRoles,
+	private void send(String topic, IdmRoleRequestDto request, String from, Set<IdmConceptRoleRequestDto> addedRoles,
 			Set<IdmConceptRoleRequestDto> changedRoles, Set<IdmConceptRoleRequestDto> removedRoles,
-			IdmIdentityDto applicantIdentity) {
-		notificationManager.send(topic,
-				new IdmMessageDto.Builder().setLevel(NotificationLevel.SUCCESS).addParameter("addedRoles", addedRoles)
-						.addParameter("changedRoles", changedRoles).addParameter("removedRoles", removedRoles)
-						.addParameter("identity", applicantIdentity).addParameter("from", from).build(),
-				applicantIdentity);
+			IdmIdentityDto applicantIdentity, IdmIdentityDto recipientIdentity) {
+		notificationManager.send(topic, new IdmMessageDto.Builder().setLevel(NotificationLevel.SUCCESS)//
+				.addParameter("addedRoles", addedRoles)//
+				.addParameter("changedRoles", changedRoles)//
+				.addParameter("removedRoles", removedRoles)//
+				.addParameter("identity", applicantIdentity)//
+				.addParameter("url", this.getUrl(request))//
+				.addParameter("from", from).build(), recipientIdentity);
+	}
+	
+	/**
+	 * Construct URL to frontend for given request
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private String getUrl(IdmRoleRequestDto request) {
+		if (request == null) {
+			return null;
+		}
+		String origins = configurationService.getValue(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN);
+		//
+		if (origins != null && !origins.isEmpty()) {
+			String origin = origins.trim().split(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN_SEPARATOR)[0];
+			return MessageFormat.format("{0}/#/role-requests/{1}/detail", origin, request.getId());
+		}
+		return null;
 	}
 	
 	@Override

@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 
@@ -22,6 +23,7 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private UUID applicantId;
 	private String applicant;
 	private RoleRequestState state;
+	private List<OperationState> resultStates;
 	private UUID duplicatedToRequestId;
 	private List<RoleRequestState> states;
 	private DateTime createdFrom;
@@ -143,5 +145,13 @@ public class IdmRoleRequestFilter extends DataFilter {
 
 	public void setExecuted(Boolean executed) {
 		this.executed = executed;
+	}
+
+	public List<OperationState> getResultStates() {
+		return resultStates;
+	}
+
+	public void setResultStates(List<OperationState> resultStates) {
+		this.resultStates = resultStates;
 	}
 }

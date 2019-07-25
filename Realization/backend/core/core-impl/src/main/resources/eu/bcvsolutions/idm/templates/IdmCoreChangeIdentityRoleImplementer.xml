@@ -104,14 +104,14 @@ parameters:
 		#macro( printRole $headline $roles $loc )
 			#if( !$roles.isEmpty() )
 				#foreach( $role in $roles )
-					<tr>
+					<tr style="border-top: solid 1px #bbb;">
                         <td style="padding-left: 5px; padding-right: 5px;">
                             <strong>$role.Embedded["role"].Name</strong>
                         </td>
                         <td style="padding-left: 5px; padding-right: 5px;">
                             <strong>#printState( $role.State $loc )</strong>
-                        </td>
-                        <td style="padding-left: 5px; padding-right: 5px;">
+                        </td>                                                     
+                        <td style="padding-left: 5px; padding-right: 5px; text-align: center; #if( $role.SystemState.State == "CANCELED" ) background-color: #ff8a00; color: #f5f5f5; border-left: solid 1px #bbb; #end">
                             <strong>#printSystemState( $role.SystemState.State $loc )</strong>
                         </td>
                     </tr>
@@ -123,6 +123,10 @@ parameters:
 		Vámi podaná žádost ze dne $from byla vyřízena.<br />
 		<br />
 
+        <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
+            border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+            Detail této <b>žádosti</b> najdete zde <b><a href='$url'>zde</a>.</b><br/>
+        </div>
 
 		<br />
 		Pro účet <b>$identity.Username</b> v CzechIdM byla provedena následující změna oprávnění:<br />
@@ -131,17 +135,17 @@ parameters:
 		<table style="border: solid 0px display: block; margin: 30px auto; max-width: 1500px;">
 			#if( !$addedRoles.isEmpty() )
               <tr>
-  				<td valign="top" style=" background-color: #faf2cc;">
+  				<td valign="top" style=" background-color: #f5f5f5bf;">
   
   					<table style= "max-width: 1000px; border: black solid 1px;">
   						<tr style="height: 13px;">
-  							<td style="background-color: #5cb85c; min-width: 200px; padding: 5px;">
+  							<td style="background-color: #85c226; min-width: 200px; padding: 5px;">
   								<span style="font-size: 11pt; color: #ffffff;"><strong>Přidělené role</strong></span>
                               </td>
-                              <td style="background-color: #5cb85c; padding: 5px;">
+                              <td style="background-color: #85c226; padding: 5px;">
   								<span style="font-size: 11pt; color: #ffffff;"><strong>Stav v IdM</strong></span>
                               </td>
-                              <td style="background-color: #5cb85c; padding: 5px;">
+                              <td style="background-color: #85c226; padding: 5px;">
   								<span style="font-size: 11pt; color: #ffffff;"><strong>Problém na systémech</strong></span>
                               </td>
   						</tr>
@@ -160,17 +164,17 @@ parameters:
             #end
             #if( !$changedRoles.isEmpty())
               <tr>
-    				<td valign="top" style=" background-color: #faf2cc;">
+    				<td valign="top" style=" background-color: #f5f5f5bf;">
     
     					<table style= "max-width: 1000px; border: black solid 1px;">
     						<tr style="height: 13px;">
-    							<td style="background-color: #ffa500; min-width: 200px; padding: 5px;">
+    							<td style="background-color: #85c226; min-width: 200px; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"> <strong>Změněné role</strong></span>
     							</td>
-                                <td style="background-color: #ffa500; padding: 5px;">
+                                <td style="background-color: #85c226; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>Stav v IdM</strong></span>
                                 </td>
-                                <td style="background-color: #ffa500; padding: 5px;">
+                                <td style="background-color: #85c226; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>Problém na systémech</strong></span>
                                 </td>
     						</tr>
@@ -189,17 +193,17 @@ parameters:
             #end
             #if( !$removedRoles.isEmpty())
                 <tr>
-    				<td valign="top" style=" background-color: #faf2cc;">
+    				<td valign="top" style=" background-color: #f5f5f5bf;">
     
     					<table style= "max-width: 1000px; border: black solid 1px;">
     						<tr style="height: 13px; ">
-    							<td style="background-color: #F3123D; min-width: 200px; padding: 5px;">
+    							<td style="background-color: #85c226; min-width: 200px; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>Odebrané role</strong></span>
     							</td>
-                                 <td style="background-color: #F3123D; padding: 5px;">
+                                 <td style="background-color: #85c226; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>Stav v IdM</strong></span>
                                 </td>
-                                <td style="background-color: #F3123D; padding: 5px;">
+                                <td style="background-color: #85c226; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>Problém na systémech</strong></span>
                                 </td>
     						</tr>
@@ -220,13 +224,17 @@ parameters:
 		</div>
 
 		<div style="display: block; margin: 30px auto; max-width: 800px; text-align: center;">
-				--------------------------------------------------------------- English version ---------------------------------------------------------------
+				----------------------------------------- English version -----------------------------------------
 		</div>
 
 		Hello,<br />
 		your request dated $from was executed.<br />
 		<br />
 
+        <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
+            border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+            Detail of this <b>request</b> can be found <b><a href='$url'>here</a>.</b><br/>
+        </div>
 
 		<br />
 			For account <b>$identity.Username</b> in CzechIdM was made following a change of permissions:<br />
@@ -235,17 +243,17 @@ parameters:
         <table style="border: solid 0px display: block; margin: 30px auto; max-width: 1500px;">
             #if( !$addedRoles.isEmpty())
                 <tr>
-    				<td valign="top" style=" background-color: #faf2cc;">
+    				<td valign="top" style=" background-color: #f5f5f5bf;">
     
     					<table style= "max-width: 1000px; border: black solid 1px;">
     						<tr style="height: 13px;">
-    							<td style="background-color: #5cb85c; min-width: 200px; padding: 5px;">
+    							<td style="background-color: #85c226; min-width: 200px; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>Assigned roles</strong></span>
                                 </td>
-                                <td style="background-color: #5cb85c; padding: 5px;">
+                                <td style="background-color: #85c226; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>State in IdM</strong></span>
                                 </td>
-                                <td style="background-color: #5cb85c; padding: 5px;">
+                                <td style="background-color: #85c226; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>Problem on systems</strong></span>
                                 </td>
     						</tr>
@@ -264,17 +272,17 @@ parameters:
             #end
             #if( !$changedRoles.isEmpty())
                 <tr>
-    				<td valign="top" style=" background-color: #faf2cc;">
+    				<td valign="top" style=" background-color: #f5f5f5bf;">
     
     					<table style= "max-width: 1000px; border: black solid 1px;">
     						<tr style="height: 13px;">
-    							<td style="background-color: #ffa500; min-width: 200px; padding: 5px;">
+    							<td style="background-color: #85c226; min-width: 200px; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"> <strong>Updated roles</strong></span>
     							</td>
-                                <td style="background-color: #ffa500; padding: 5px;">
+                                <td style="background-color: #85c226; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>State in IdM</strong></span>
                                 </td>
-                                <td style="background-color: #ffa500; padding: 5px;">
+                                <td style="background-color: #85c226; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>Problem on systems</strong></span>
                                 </td>
     						</tr>
@@ -293,17 +301,17 @@ parameters:
             #end
             #if( !$removedRoles.isEmpty())
                 <tr>
-    				<td valign="top" style=" background-color: #faf2cc;">
+    				<td valign="top" style=" background-color: #f5f5f5bf;">
     
     					<table style= "max-width: 1000px; border: black solid 1px;">
     						<tr style="height: 13px; ">
-    							<td style="background-color: #F3123D; min-width: 200px; padding: 5px;">
+    							<td style="background-color: #85c226; min-width: 200px; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>Removed roles</strong></span>
     							</td>
-                                 <td style="background-color: #F3123D; padding: 5px;">
+                                 <td style="background-color: #85c226; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>State in IdM</strong></span>
                                 </td>
-                                <td style="background-color: #F3123D; padding: 5px;">
+                                <td style="background-color: #85c226; padding: 5px;">
     								<span style="font-size: 11pt; color: #ffffff;"><strong>Problem on systems</strong></span>
                                 </td>
     						</tr>

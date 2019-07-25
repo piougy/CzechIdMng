@@ -12,7 +12,7 @@
       "EavForm": {
         "faceType": {
           "SYSTEM-SELECT": "System select (SelectBox)",
-          "[SYNCHRONIZATION-CONFIG-SELECT": "Synchronization configuration select (SelectBox)"
+          "SYNCHRONIZATION-CONFIG-SELECT": "Synchronization configuration select (SelectBox)"
         }
       }
     }
@@ -1524,7 +1524,7 @@
           "operationstate": {
             "label": "Operation state",
             "placeholder": "All states or ...",
-            "help": "Delete operations in given state only. Available options [CREATED, RUNNING, EXECUTED, NOT_EXECUTED, BLOCKED, EXCEPTION, CANCELED]."
+            "help": "Delete operations in given state only."
           },
           "system": {
             "label": "System",

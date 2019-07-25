@@ -62,7 +62,9 @@ class Footer extends Basic.AbstractContent {
             { this.i18n('app.serviceDesk') }
           </a>
           <span style={{margin: '0 10px'}}>|</span>
-          <a href="#" onClick={this.showAbout.bind(this)} title={this.i18n('content.about.link')}>{this.i18n('content.about.link')}</a>
+          <a href="#" onClick={ this.showAbout.bind(this) } title={ this.i18n('content.about.link') }>
+            { this.i18n('content.about.link') }
+          </a>
         </div>
         <div className="pull-right">
           <Basic.Button

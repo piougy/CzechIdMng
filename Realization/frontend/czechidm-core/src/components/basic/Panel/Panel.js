@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -13,18 +14,14 @@ import Loading from '../Loading/Loading';
  */
 export class Panel extends AbstractComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { className, rendered, showLoading, level, style } = this.props;
-    if (!rendered) {
+    if (rendered === null || rendered === undefined || rendered === '' || rendered === false) {
       return null;
     }
     const classNames = classnames(
       'panel',
-      'panel-' + level,
+      `panel-${ level }`,
       className
     );
     return (
@@ -51,13 +48,9 @@ Panel.defaultProps = {
 
 export class PanelHeader extends AbstractComponent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   render() {
     const { className, rendered, showLoading, text, help, children, style, buttons } = this.props;
-    if (!rendered) {
+    if (rendered === null || rendered === undefined || rendered === '' || rendered === false) {
       return null;
     }
     const classNames = classnames(
@@ -91,12 +84,12 @@ export class PanelHeader extends AbstractComponent {
           help
           ?
           <div className="pull-right">
-            <HelpIcon content={help}/>
+            <HelpIcon content={ help }/>
           </div>
           :
           null
         }
-        <div className="clearfix"></div>
+        <div className="clearfix" />
       </div>
     );
   }
@@ -122,13 +115,9 @@ PanelHeader.defaultProps = {
 
 export class PanelBody extends AbstractComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { className, rendered, showLoading, style } = this.props;
-    if (!rendered) {
+    if (rendered === null || rendered === undefined || rendered === '' || rendered === false) {
       return null;
     }
     const classNames = classnames(
@@ -156,13 +145,9 @@ PanelBody.defaultProps = {
 
 export class PanelFooter extends AbstractComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { rendered, className, showLoading, style } = this.props;
-    if (!rendered) {
+    if (rendered === null || rendered === undefined || rendered === '' || rendered === false) {
       return null;
     }
     const classNames = classnames(

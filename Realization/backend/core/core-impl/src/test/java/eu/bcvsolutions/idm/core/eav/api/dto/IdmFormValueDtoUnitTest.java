@@ -264,4 +264,17 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		Assert.assertEquals(value, formValue.getValue());
 		Assert.assertEquals(value, formValue.getShortTextValue());
 	}
+	
+	@Test
+	public void testEnumerationValue() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.ENUMERATION);
+		//
+		String value = "codeOne";
+		//
+		formValue.setValue(value);
+		//
+		Assert.assertEquals(value, formValue.getValue());
+		Assert.assertEquals(value, formValue.getShortTextValue());
+	}
 }

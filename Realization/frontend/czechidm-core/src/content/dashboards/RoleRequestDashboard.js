@@ -18,10 +18,6 @@ const uiKeyApplicant = 'applicant-role-request-dashboard-table';
  */
 class RoleRequestDashboard extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'dashboard.role-request';
   }
@@ -29,7 +25,7 @@ class RoleRequestDashboard extends Basic.AbstractContent {
   render() {
     const { identity, _totalCreator, _totalApplicant } = this.props;
     //
-    if (!identity || !SecurityManager.hasAuthority('ROLEREQUEST_READ') ) {
+    if (!identity || !SecurityManager.hasAuthority('ROLEREQUEST_READ')) {
       return null;
     }
     //

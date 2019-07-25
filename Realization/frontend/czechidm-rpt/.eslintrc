@@ -137,7 +137,7 @@
     "react/no-did-mount-set-state": 1,
     "react/no-did-update-set-state": 1,
     "react/no-unescaped-entities": "warn",
-    "react/forbid-prop-types": "warn",
+    "react/forbid-prop-types": ["warn", { "forbid": ["any", "array"] }],
     "react/no-deprecated": "warn",
     "react/no-children-prop": "warn",
     "react/jsx-closing-tag-location": "warn",

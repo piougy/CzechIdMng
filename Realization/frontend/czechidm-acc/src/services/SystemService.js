@@ -1,5 +1,4 @@
-import { Services } from 'czechidm-core';
-import { Domain, Utils} from 'czechidm-core';
+import { Services, Domain, Utils} from 'czechidm-core';
 
 /**
  * Target systems

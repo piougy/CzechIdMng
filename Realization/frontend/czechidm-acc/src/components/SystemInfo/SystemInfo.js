@@ -1,4 +1,4 @@
-import { PropTypes } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import { Advanced, Managers } from 'czechidm-core';
@@ -13,10 +13,6 @@ const manager = new SystemManager();
  */
 export class SystemInfo extends Advanced.AbstractEntityInfo {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return manager;
   }
@@ -25,7 +21,7 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!Managers.SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']})) {
+    if (!Managers.SecurityManager.hasAccess({ type: 'HAS_ANY_AUTHORITY', authorities: ['SYSTEM_READ'] })) {
       return false;
     }
     return true;

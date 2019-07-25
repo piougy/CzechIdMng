@@ -1,4 +1,5 @@
-import React, { PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import classNames from 'classnames';
@@ -118,8 +119,7 @@ export class IdentityInfo extends AbstractEntityInfo {
           <Basic.Icon
             value="fa:refresh"
             showLoading
-            color={ '#FFFFFF' }
-            />
+            color="#FFFFFF" />
         </div>
       );
     } else if (_imageUrl) {
@@ -133,8 +133,7 @@ export class IdentityInfo extends AbstractEntityInfo {
           identity={ entity }
           className="text-center img-thumbnail img-none"
           style={{ backgroundColor: this.isDisabled(entity) ? '#FCF8E3' : '#DFF0D8' }}
-          color={ '#FFFFFF' }
-          />
+          color="#FFFFFF" />
       );
     }
     //
@@ -146,16 +145,18 @@ export class IdentityInfo extends AbstractEntityInfo {
   }
 
   renderRow(icon, entityAttr) {
-    if (entityAttr) {
-      return (
-        <tr>
-          <td>
-            <Basic.Icon value={ icon } style={{ marginRight: 5 }} />
-            { entityAttr }
-          </td>
-        </tr>
-      );
+    if (!entityAttr) {
+      return null;
     }
+    //
+    return (
+      <tr>
+        <td>
+          <Basic.Icon value={ icon } style={{ marginRight: 5 }} />
+          { entityAttr }
+        </td>
+      </tr>
+    );
   }
 
   _renderFull() {
@@ -257,7 +258,11 @@ function select(state, component) {
     _imageUrl: profile ? profile.imageUrl : null,
     userContext: state.security.userContext, // is needed for refresh after login
     _permissions: manager.getPermissions(state, null, identity),
-    skipDashboard: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.dashboard.skip', ConfigLoader.getConfig('identity.dashboard.skip', false))
+    skipDashboard: ConfigurationManager.getPublicValueAsBoolean(
+      state,
+      'idm.pub.core.identity.dashboard.skip',
+      ConfigLoader.getConfig('identity.dashboard.skip', false)
+    )
   };
 }
 export default connect(select)(IdentityInfo);

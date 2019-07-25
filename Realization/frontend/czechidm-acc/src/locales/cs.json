@@ -12,7 +12,7 @@
       "EavForm": {
         "faceType": {
           "SYSTEM-SELECT": "Výběr systémů (SelectBox)",
-          "[SYNCHRONIZATION-CONFIG-SELECT": "Výběr nakonfigurované synchronizace (SelectBox)"
+          "SYNCHRONIZATION-CONFIG-SELECT": "Výběr nakonfigurované synchronizace (SelectBox)"
         }
       }
     }
@@ -1526,7 +1526,7 @@
           "operationstate": {
             "label": "Stav operace",
             "placeholder": "Všechny stavy či zadejte ...",
-            "help": "Smazat pouze operace se zadaným stavem. Možno zadat [CREATED, RUNNING, EXECUTED, NOT_EXECUTED, BLOCKED, EXCEPTION, CANCELED]."
+            "help": "Smazat pouze operace se zadaným stavem."
           },
           "system": {
             "label": "Systém",

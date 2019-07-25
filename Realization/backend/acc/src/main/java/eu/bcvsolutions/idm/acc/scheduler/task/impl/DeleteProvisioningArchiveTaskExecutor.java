@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.eav.domain.AccFaceType;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -134,9 +135,9 @@ public class DeleteProvisioningArchiveTaskExecutor
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		IdmFormAttributeDto numberOfDaysAttribute = new IdmFormAttributeDto(PARAMETER_NUMBER_OF_DAYS, PARAMETER_NUMBER_OF_DAYS, PersistentType.LONG);
 		numberOfDaysAttribute.setDefaultValue(String.valueOf(DEFAULT_NUMBER_OF_DAYS));
-		IdmFormAttributeDto operationStateAttribute = new IdmFormAttributeDto(PARAMETER_OPERATION_STATE, PARAMETER_OPERATION_STATE, PersistentType.SHORTTEXT);
+		IdmFormAttributeDto operationStateAttribute = new IdmFormAttributeDto(PARAMETER_OPERATION_STATE, PARAMETER_OPERATION_STATE, PersistentType.ENUMERATION);
 		operationStateAttribute.setDefaultValue(DEFAULT_OPERATION_STATE.name());
-		// TODO: enumeration state in forms
+		operationStateAttribute.setFaceType(BaseFaceType.OPERATION_STATE_ENUM);
 		IdmFormAttributeDto system = new IdmFormAttributeDto(
 				PARAMETER_SYSTEM,
 				"System", 

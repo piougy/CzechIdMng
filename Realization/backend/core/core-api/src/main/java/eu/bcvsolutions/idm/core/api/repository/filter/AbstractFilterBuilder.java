@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.repository.filter;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -50,7 +51,7 @@ public abstract class AbstractFilterBuilder<E extends BaseEntity, F extends Data
 		// transform filter to criteria
 		Specification<E> criteria = new Specification<E>() {
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate predicate = AbstractFilterBuilder.this.getPredicate(root, query, builder, filter);
+				Predicate predicate = AbstractFilterBuilder.this.getPredicate(root, (AbstractQuery<?>) query, builder, filter);
 				if (predicate == null) {
 					return query.getRestriction();
 				}

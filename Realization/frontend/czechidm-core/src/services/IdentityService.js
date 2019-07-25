@@ -67,7 +67,11 @@ class IdentityService extends FormableEntityService {
    * @return {Promise}
    */
   passwordChange(username, passwordChangeDto, token = null) {
-    return RestApiService.put(RestApiService.getUrl(`/public${this.getApiPath()}/${encodeURIComponent(username)}/password-change`), passwordChangeDto, token);
+    return RestApiService.put(
+      RestApiService.getUrl(`/public${ this.getApiPath() }/${ encodeURIComponent(username) }/password-change`),
+      passwordChangeDto,
+      token
+    );
   }
 
   /**
@@ -248,6 +252,7 @@ class IdentityService extends FormableEntityService {
 
   /**
    * Start workflow for change permissions
+   *
    * @param  id Identity id
    * @return Promise  task instance
    */
@@ -299,16 +304,14 @@ class IdentityService extends FormableEntityService {
    */
   patchProfile(identityId, profile) {
     return RestApiService
-    .patch(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile`, profile)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .patch(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/profile`, profile)
+      .then(response => response.json())
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**

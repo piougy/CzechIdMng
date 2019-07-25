@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -52,7 +52,7 @@ public class DefaultManagersFilter
 	}
 
 	@Override
-	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+	public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		if (filter.getManagersFor() == null) {
 			return null;
 		}

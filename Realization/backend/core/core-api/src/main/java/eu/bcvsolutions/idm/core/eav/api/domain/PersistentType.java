@@ -19,5 +19,6 @@ public enum PersistentType {
 	BYTEARRAY,
 	UUID, // referenced entity uuid (identity) 
 	ATTACHMENT, // referenced attachment
-	CODELIST; // referenced code list - persists items "code" into short text. Uses face type as code list code
+	CODELIST, // referenced code list - persists items "code" into short text. Uses face type as code list code
+	ENUMERATION; // referenced enumeration - persists items "code" into short text. Uses face type as enumeration name
 }

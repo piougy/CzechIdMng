@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ListJoin;
@@ -63,14 +63,14 @@ public class EavCodeManagersFilter
 	@Override
 	public List<String> getPropertyNames() {
 		List<String> props = super.getPropertyNames();
-		props.add(EavCodeSubordinatesFilter.PROPERTY_FORM_DEFINITION);
-		props.add(EavCodeSubordinatesFilter.PROPERTY_FORM_ATTRIBUTE);
-		props.add(EavCodeSubordinatesFilter.PROPERTY_PERSISTENT_TYPE);
+		props.add(EavCodeContractByManagerFilter.PROPERTY_FORM_DEFINITION);
+		props.add(EavCodeContractByManagerFilter.PROPERTY_FORM_ATTRIBUTE);
+		props.add(EavCodeContractByManagerFilter.PROPERTY_PERSISTENT_TYPE);
 		return props;
 	}
 
 	@Override
-	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+	public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		if (filter.getManagersFor() == null) {
 			return null;
 		}
@@ -105,7 +105,7 @@ public class EavCodeManagersFilter
 			    			? builder.equal(joinContracts.get(IdmIdentityContract_.id), filter.getManagersByContract())
 			    			: builder.conjunction(),
 						builder.equal(subRootTree.get(IdmTreeNode_.code), 
-								subRootEav.get(getConfigurationValue(EavCodeSubordinatesFilter.PROPERTY_PERSISTENT_TYPE, EavCodeSubordinatesFilter.DEFAULT_PERSISTENT_TYPE))
+								subRootEav.get(getConfigurationValue(EavCodeContractByManagerFilter.PROPERTY_PERSISTENT_TYPE, EavCodeContractByManagerFilter.DEFAULT_PERSISTENT_TYPE))
 								),
 						builder.equal(joinContracts.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), filter.getManagersFor()),
 						// by tree type structure
@@ -114,10 +114,10 @@ public class EavCodeManagersFilter
 							: builder.equal(wp.get(IdmTreeNode_.treeType).get(IdmTreeType_.id), filter.getManagersByTreeType()),
 						builder.equal(
 								extDef.get(IdmFormDefinition_.code), 
-								getConfigurationValue(EavCodeSubordinatesFilter.PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_CODE)),
+								getConfigurationValue(EavCodeContractByManagerFilter.PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_CODE)),
 						builder.equal(
 								eavAttr.get(IdmFormAttribute_.code), 
-								getConfigurationValue(EavCodeSubordinatesFilter.PROPERTY_FORM_ATTRIBUTE, EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE))
+								getConfigurationValue(EavCodeContractByManagerFilter.PROPERTY_FORM_ATTRIBUTE, EavCodeContractByManagerFilter.DEFAULT_FORM_ATTRIBUTE_CODE))
 						));
 		//
 		subPredicates.add(builder.exists(subqueryEav));

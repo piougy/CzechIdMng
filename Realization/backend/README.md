@@ -25,7 +25,6 @@ Java application deployable to Tomcat 8 application server.
 * `module-example` - Example application module / skeleton
 
 ### Maven modules [optional]
-* `gui` - frontend as .war package
 * `module-aggregator` - complex builder of all modules
 
 ## Build and deploy

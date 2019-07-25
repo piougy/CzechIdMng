@@ -81,6 +81,7 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
   render() {
     const {
       formAttributes,
+      formInstance,
       rendered,
       showLoading,
       readOnly,
@@ -136,10 +137,14 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
             //
             const FormValueComponent = component.component;
             const ManagerType = component.manager;
-            let value = {};
-            if (useDefaultValue && attribute.defaultValue) {
+            let value = null;
+            if (formInstance != null) {
+              value = formInstance.getValues(attribute.code);
+            }
+            if (!value && useDefaultValue && attribute.defaultValue) {
               value = { value: attribute.defaultValue};
             }
+            //
             return (
               <FormValueComponent
                 ref={ attribute.code }
@@ -147,7 +152,8 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
                 attribute={ attribute }
                 values={ value }
                 readOnly={ readOnly }
-                manager={ ManagerType ? new ManagerType() : null }/>
+                manager={ ManagerType ? new ManagerType() : null }
+                component={ component }/>
             );
           })
         }

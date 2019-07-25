@@ -1,7 +1,7 @@
 import React from 'react';
 //
 import { Basic } from 'czechidm-core';
-import ReportTable from './ReportTable';
+import ReportTableComponent from './ReportTable';
 
 /**
  * List of reports
@@ -9,10 +9,6 @@ import ReportTable from './ReportTable';
  * @author Radek Tomiška
  */
 export default class Reports extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   /**
    * "Shorcut" for localization
@@ -30,14 +26,17 @@ export default class Reports extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         { this.renderPageHeader() }
 
         <Basic.Panel>
-          <ReportTable uiKey="rpt-report-table" filterOpened location={ this.props.location }/>
+          <ReportTableComponent
+            uiKey="rpt-report-table"
+            filterOpened
+            location={ this.props.location }/>
         </Basic.Panel>
 
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -28,9 +28,8 @@ public class OperationResult implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	// @NotNull - Null state is necessary in system state (role-request)
 	@Enumerated(EnumType.STRING)
-	@Column(name = "result_state", length = 45)
+	@Column(name = "result_state", length = DefaultFieldLengths.ENUMARATION)
 	private OperationState state = OperationState.CREATED;
 	
 	@Column(name = "result_code", length = DefaultFieldLengths.NAME)

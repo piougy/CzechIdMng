@@ -23,4 +23,6 @@ public interface BaseFaceType {
 	String AUTOMATIC_ROLE_ATTRIBUTE_SELECT = "AUTOMATIC-ROLE-ATTRIBUTE-SELECT";
 	//
 	String BOOLEAN_SELECT = "BOOLEAN-SELECT";
+	//
+	String OPERATION_STATE_ENUM = "OPERATION-STATE-ENUM"; // OperationState ~ OperationStateEnum
 }

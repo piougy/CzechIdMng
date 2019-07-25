@@ -436,6 +436,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 *
 	 * @return
 	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
@@ -459,6 +460,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @param bulkAction
 	 * @return
 	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
@@ -483,6 +485,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @param bulkAction
 	 * @return
 	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
@@ -1249,7 +1252,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	
 	@Override
 	protected IdmIdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmIdentityFilter filter = new IdmIdentityFilter(parameters);
+		IdmIdentityFilter filter = new IdmIdentityFilter(parameters, getParameterConverter());
 		filter.setDisabled(getParameterConverter().toBoolean(parameters, IdmIdentityFilter.PARAMETER_DISABLED));
 		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
 		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
@@ -1263,7 +1266,9 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		// TODO: or / and in multivalues? OR is supported now
 		if (parameters.containsKey("role")) {
 			for(Object role : parameters.get("role")) {
-				filter.getRoles().add(getParameterConverter().toEntityUuid((String) role, IdmRole.class));
+				if (role != null) {
+					filter.getRoles().add(getParameterConverter().toEntityUuid((String) role, IdmRole.class));
+				}
 			}
 		}
 		filter.setFirstName(getParameterConverter().toString(parameters, "firstName"));

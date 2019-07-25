@@ -12,17 +12,16 @@ import FormInstance from '../../domain/FormInstance';
 import ConfigLoader from '../../utils/ConfigLoader';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 
-/**
-* Table for keep identity role concepts.
-*
-* @author Vít Švanda
-*/
-
 const uiKeyIncompatibleRoles = 'request-incompatible-roles-';
 const requestIdentityRoleManager = new RequestIdentityRoleManager();
 const roleRequestManager = new RoleRequestManager();
 const identityContractManager = new IdentityContractManager();
 
+/**
+ * Table for keep identity role concepts.
+ *
+ * @author Vít Švanda
+ */
 export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -636,7 +635,6 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
               face="date"
               header={this.i18n('entity.ConceptRoleRequest.validTill')}/>
             <Advanced.Column
-              sort
               property="directRole"
               header={ this.i18n('entity.IdentityRole.directRole.label') }
               cell={

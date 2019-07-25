@@ -189,8 +189,7 @@ public class IdmRequestIdentityRoleController
 		filter.setRoleEnvironment(getParameterConverter().toString(parameters, "roleEnvironment"));
 		filter.setRoleRequestId(getParameterConverter().toUuid(parameters, "roleRequestId"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
-		Boolean onlyChanges = getParameterConverter().toBoolean(parameters, "onlyChanges");
-		filter.setOnlyChanges(onlyChanges == Boolean.TRUE ? true : false);
+		filter.setOnlyChanges(getParameterConverter().toBoolean(parameters, "onlyChanges", false));
 		return filter;
 	}
 }

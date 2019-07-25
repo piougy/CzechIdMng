@@ -31,19 +31,19 @@ class Create extends Basic.AbstractContent {
     };
   }
 
- initData() {
-   // TODO: load data from redux store
-   const { generatePassword } = this.state;
-   this.transformData({
-     generatePassword
-   }, () => {
-     this.refs.username.focus();
-     if (generatePassword) {
-       this.generatePassword();
-     }
-     this._preValidate();
-   });
- }
+  initData() {
+    // TODO: load data from redux store
+    const { generatePassword } = this.state;
+    this.transformData({
+      generatePassword
+    }, () => {
+      this.refs.username.focus();
+      if (generatePassword) {
+        this.generatePassword();
+      }
+      this._preValidate();
+    });
+  }
 
   componentDidMount() {
     this.selectNavigationItem('identities');
@@ -61,40 +61,40 @@ class Create extends Basic.AbstractContent {
     requestData.idm = true;
 
     identityManager.preValidate(requestData)
-    .then(response => {
-      if (response.status === 204) {
-        return {};
-      }
-      return response.json();
-    })
-    .then(json => {
-      let error;
-      if (Utils.Response.getFirstError(json)) {
-        error = Utils.Response.getFirstError(json);
-      } else if (json._errors) {
-        error = json._errors.pop();
-      }
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        let error;
+        if (Utils.Response.getFirstError(json)) {
+          error = Utils.Response.getFirstError(json);
+        } else if (json._errors) {
+          error = json._errors.pop();
+        }
 
-      if (error) {
-        this.setState({
-          validationError: error,
-          validationDefinition: true
-        });
+        if (error) {
+          this.setState({
+            validationError: error,
+            validationDefinition: true
+          });
 
-        throw error;
-      }
-      return json;
-    })
-    .catch(error => {
-      if (!error) {
-        return {};
-      }
-      if (error.statusEnum === PASSWORD_PREVALIDATION) {
-        this.addErrorMessage({hidden: true}, error);
-      } else {
-        this.addError(error);
-      }
-    });
+          throw error;
+        }
+        return json;
+      })
+      .catch(error => {
+        if (!error) {
+          return {};
+        }
+        if (error.statusEnum === PASSWORD_PREVALIDATION) {
+          this.addErrorMessage({hidden: true}, error);
+        } else {
+          this.addError(error);
+        }
+      });
   }
 
   save(editContinue = 'CLOSE', event) {
@@ -123,47 +123,47 @@ class Create extends Basic.AbstractContent {
       delete result.generatePassword;
       // TODO: transform to redux
       identityManager.getService().create(result)
-      .then(json => {
-        this.setState({
-          showLoading: false,
-          validationError: null,
-          validationDefinition: false
-        }, () => {
-          this.addMessage({
-            message: this.i18n('content.identity.create.message.success', { username: json.username})
-          });
-          switch (editContinue) {
-            case 'EDIT': {
-              this.context.router.replace(`identity/${encodeURIComponent(json.username)}/profile`);
-              break;
-            }
-            case 'NEW': {
-              this.initData();
-              this.context.router.replace(`identity/new`);
-              break;
-            }
-            default : {
-              // this.context.router.push(`identities`); // TODO: has goBack?
-              this.context.router.goBack();
-            }
-          }
-        });
-      }).catch(error => {
-        this.setState({
-          showLoading: false,
-          validationError: error,
-          validationDefinition: false
-        }, () => {
+        .then(json => {
           this.setState({
-            password: formData.password,
-            passwordAgain: formData.password
+            showLoading: false,
+            validationError: null,
+            validationDefinition: false
           }, () => {
-            this.transformData(null, () => {
-              this.addError(error);
+            this.addMessage({
+              message: this.i18n('content.identity.create.message.success', { username: json.username})
+            });
+            switch (editContinue) {
+              case 'EDIT': {
+                this.context.router.replace(`identity/${encodeURIComponent(json.username)}/profile`);
+                break;
+              }
+              case 'NEW': {
+                this.initData();
+                this.context.router.replace(`identity/new`);
+                break;
+              }
+              default: {
+                // this.context.router.push(`identities`); // TODO: has goBack?
+                this.context.router.goBack();
+              }
+            }
+          });
+        }).catch(error => {
+          this.setState({
+            showLoading: false,
+            validationError: error,
+            validationDefinition: false
+          }, () => {
+            this.setState({
+              password: formData.password,
+              passwordAgain: formData.password
+            }, () => {
+              this.transformData(null, () => {
+                this.addError(error);
+              });
             });
           });
         });
-      });
     });
   }
 

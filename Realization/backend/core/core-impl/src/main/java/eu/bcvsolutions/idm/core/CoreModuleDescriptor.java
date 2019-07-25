@@ -36,6 +36,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 
 	public static final String MODULE_ID = "core";
+	//
 	public static final String TOPIC_CHANGE_IDENTITY_ROLES = String.format("%s:changeIdentityRole", MODULE_ID);
 	public static final String TOPIC_CHANGE_IDENTITY_ROLES_IMPLEMENTER = String.format("%s:changeIdentityRoleImplementer", MODULE_ID);
 	public static final String TOPIC_REQUEST_REALIZED_APPLICANT = String.format("%s:roleRequestRealizedApplicant", MODULE_ID);

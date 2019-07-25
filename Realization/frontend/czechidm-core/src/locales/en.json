@@ -42,6 +42,7 @@
   "label": {
     "id": "Id",
     "action": "Actions",
+    "approved": "Approved",
     "otherAttributes": "Other attributes",
     "selectAll": "Select / unselect all",
     "validFrom": "$t(entity.validFrom)",
@@ -58,6 +59,7 @@
     "yes": "Yes",
     "no": "No",
     "readOnly": "Read only",
+    "removed": "Removed",
     "waiting": "Waiting"
   },
   "button": {
@@ -532,8 +534,10 @@
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
           "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
           "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)",
+          "ENUMERATION": "$t(enums.PersistentTypeEnum.ENUMERATION)",
           "AUTOMATIC-ROLE-TREE-SELECT": "Select automatic role by tree structure (SelectBox)",
-          "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Select automatic role by attribute (SelectBox)"
+          "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Select automatic role by attribute (SelectBox)",
+          "OPERATION-STATE-ENUM": "Operation state"
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes."
@@ -647,7 +651,8 @@
       "BYTEARRAY": "Byte array",
       "UUID": "Uuid identifier",
       "ATTACHMENT": "Attachment",
-      "CODELIST": "Code list"
+      "CODELIST": "Code list",
+      "ENUMERATION": "Enumeration"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",

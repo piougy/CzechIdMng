@@ -12,6 +12,8 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter for {@link IdmIdentityDto} dtos.
@@ -23,6 +25,18 @@ public class IdmIdentityContractFilter
 		implements CorrelationFilter, ExternalIdentifiable {
 
 	public static final String PARAMETER_EXCLUDED = "excluded"; // true / false
+	/**
+	 * Subordinate contracts for given identity.
+	 */
+	public static final String PARAMETER_SUBORDINATES_FOR = IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR;
+	/**
+	 * Subordinate contracts by given tree structure.
+	 */
+	public static final String PARAMETER_SUBORDINATES_BY_TREE_TYPE = IdmIdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE;
+	/**
+	 * Managers with contract guarantees included (manually assigned guarantees).
+	 */
+	public static final String PARAMETER_INCLUDE_GUARANTEES = IdmIdentityFilter.PARAMETER_INCLUDE_GUARANTEES;
 	//
 	private UUID identity;
 	private UUID workPosition;
@@ -37,17 +51,24 @@ public class IdmIdentityContractFilter
 	private String position;
 	private UUID roleId;
 
-
 	public IdmIdentityContractFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
 
 	public IdmIdentityContractFilter(MultiValueMap<String, Object> data) {
-		super(IdmIdentityContractDto.class, data);
+		this(data, null);
+	}
+	
+	public IdmIdentityContractFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		this(IdmIdentityContractDto.class, data, null);
 	}
 
 	public IdmIdentityContractFilter(Class<? extends BaseDto> dtoClass, MultiValueMap<String, Object> data) {
-		super(dtoClass, data);
+		this(dtoClass, data, null);
+	}
+	
+	public IdmIdentityContractFilter(Class<? extends BaseDto> dtoClass, MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(dtoClass, data, parameterConverter);
 	}
 
 	public UUID getIdentity() {
@@ -178,6 +199,66 @@ public class IdmIdentityContractFilter
 	
 	public void setExcluded(Boolean excluded) {
 		data.set(PARAMETER_EXCLUDED, excluded);
+	}
+	
+	/**
+	 * Subordinate contracts for given identity (manager or guarantee).
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	public UUID getSubordinatesFor() {
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_FOR));
+	}
+
+	/**
+	 * Subordinate contracts for given identity (manager or guarantee).
+	 * 
+	 * @param subordinatesFor
+	 * @since 9.7.0
+	 */
+	public void setSubordinatesFor(UUID subordinatesFor) {
+		data.set(PARAMETER_SUBORDINATES_FOR, subordinatesFor);
+	}
+	
+	/**
+	 * Subordinate contracts by given tree structure.
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	public UUID getSubordinatesByTreeType() {
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_BY_TREE_TYPE));
+	}
+
+	/**
+	 * Subordinate contracts by given tree structure.
+	 * 
+	 * @param subordinatesByTreeType
+	 * @since 9.7.0
+	 */
+	public void setSubordinatesByTreeType(UUID subordinatesByTreeType) {
+		data.set(PARAMETER_SUBORDINATES_BY_TREE_TYPE, subordinatesByTreeType);
+	}
+	
+	/**
+	 * Managers with contract guarantees included (manually assigned guarantees).
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	public boolean isIncludeGuarantees() {
+		return getParameterConverter().toBoolean(data, PARAMETER_INCLUDE_GUARANTEES, true);
+	}
+	
+	/**
+	 * Managers with contract guarantees included (manually assigned guarantees).
+	 * 
+	 * @param includeGuarantees
+	 * @since 9.7.0
+	 */
+	public void setIncludeGuarantees(boolean includeGuarantees) {
+		data.set(PARAMETER_INCLUDE_GUARANTEES, includeGuarantees);
 	}
 
 	public UUID getRoleId() {

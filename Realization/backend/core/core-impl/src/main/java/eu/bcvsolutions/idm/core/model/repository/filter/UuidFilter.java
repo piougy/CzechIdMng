@@ -1,10 +1,11 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -31,11 +32,11 @@ public class UuidFilter<E extends AbstractEntity> extends BaseFilterBuilder<E, D
 	}
 	
 	@Override
-	public Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
-		if (filter.getId() == null) {
+	public Predicate getPredicate(Root<E> root, AbstractQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
+		if (CollectionUtils.isEmpty(filter.getIds())) {
 			return null;
 		}
-		return builder.equal(root.get(AbstractEntity_.id), filter.getId());
+		return root.get(AbstractEntity_.id).in(filter.getIds());
 	}	
 
 	@Override

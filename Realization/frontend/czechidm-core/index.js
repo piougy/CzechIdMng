@@ -27,8 +27,13 @@ import ApiOperationTypeEnum from './src/enums/ApiOperationTypeEnum';
 import IdentityAttributeEnum from './src/enums/IdentityAttributeEnum';
 import ContractAttributeEnum from './src/enums/ContractAttributeEnum';
 import ContractSliceAttributeEnum from './src/enums/ContractSliceAttributeEnum';
+import ConceptRoleRequestOperationEnum from './src/enums/ConceptRoleRequestOperationEnum';
 //
 import ValidationMessage from './src/components/advanced/ValidationMessage/ValidationMessage';
+//
+import IdentityTableComponent from './src/content/identity/IdentityTable';
+import RoleRequestTableComponent from './src/content/requestrole/RoleRequestTable';
+import IdentityRoleTableComponent from './src/content/identity/IdentityRoleTable';
 
 const ModuleRoot = {
   Basic,
@@ -53,10 +58,16 @@ const ModuleRoot = {
     ApiOperationTypeEnum,
     IdentityAttributeEnum,
     ContractAttributeEnum,
-    ContractSliceAttributeEnum
+    ContractSliceAttributeEnum,
+    ConceptRoleRequestOperationEnum
   },
   Content: {
     ValidationMessage // backward compatibility
+  },
+  Table: {
+    IdentityTable: IdentityTableComponent,
+    RoleRequestTable: RoleRequestTableComponent,
+    IdentityRoleTable: IdentityRoleTableComponent
   }
 };
 ModuleRoot.version = '0.0.1';

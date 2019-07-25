@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 //
 import * as Basic from '../../basic';
@@ -176,7 +177,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
             (!value || !value.code)
             ||
             <span style={{ marginLeft: value.state ? 15 : 0 }}>
-              { this.i18n('result.code') }: { value.code }
+              { `${ this.i18n('result.code')}: ${ value.code}` }
             </span>
           }
           <Basic.FlashMessage message={ message } style={{ margin: '15px 0 0 0' }}/>

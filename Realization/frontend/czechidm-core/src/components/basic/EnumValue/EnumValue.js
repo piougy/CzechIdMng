@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Label from '../Label/Label';
@@ -10,10 +11,6 @@ import Icon from '../Icon/Icon';
  * @author Radek Tomiška
  */
 class EnumValue extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { rendered, value, style, label, level } = this.props;

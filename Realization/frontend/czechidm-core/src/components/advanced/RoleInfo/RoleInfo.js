@@ -1,8 +1,9 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import { RoleManager, ConfigurationManager } from '../../../redux/';
+import { RoleManager, ConfigurationManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import RolePriorityEnum from '../../../enums/RolePriorityEnum';
 import Tree from '../Tree/Tree';
@@ -16,10 +17,6 @@ const manager = new RoleManager();
  * @author Radek Tomiška
  */
 export class RoleInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -137,7 +134,11 @@ export class RoleInfo extends AbstractEntityInfo {
     //
     content.push({
       label: this.i18n('entity.Role.priorityEnum'),
-      value: (<Basic.EnumValue enum={ RolePriorityEnum } value={ RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(entity.priority)) } />)
+      value: (
+        <Basic.EnumValue
+          enum={ RolePriorityEnum }
+          value={ RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(entity.priority)) } />
+      )
     });
     //
     if (entity.description) {

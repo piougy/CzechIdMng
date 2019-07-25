@@ -8,29 +8,29 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
-import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
- * Find subordinates by direct managers
+ * Find subordinates by direct managers.
  * 
  * @author Radek Tomiška
  *
  */
 public class GuaranteeSubordinatesFilterIntegrationTest extends AbstractWorkingPositionFilterIntegrationTest {
 	
-	@Autowired private IdmIdentityRepository repository;
+	@Autowired private ApplicationContext context;
 	//
 	private GuaranteeSubordinatesFilter builder;
 	
 	@Before
 	public void init() {
 		super.init();
-		builder = AutowireHelper.autowireBean(new GuaranteeSubordinatesFilter(repository));
+		//
+		builder = context.getAutowireCapableBeanFactory().createBean(GuaranteeSubordinatesFilter.class);
 	}
 	
 	@Test

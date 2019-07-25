@@ -1,11 +1,14 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 /**
  * Helper class which is able to autowire a specified class. It holds a static
@@ -145,5 +148,39 @@ public final class AutowireHelper implements ApplicationContextAware {
 	 */
 	public static <T> T createBean(Class<T> beanClass) {
 		return applicationContext.getAutowireCapableBeanFactory().createBean(beanClass);
+	}
+	
+	/**
+	 * Return target class. AOP or cglib proxy is supported.
+	 * 
+	 * @param beanInstance
+	 * @return
+	 * @since 9.7.0
+	 */
+	public static Class<?> getTargetClass(Object beanInstance) {
+		Assert.notNull(beanInstance);
+		//
+		Class<?> targetClass = beanInstance.getClass();
+		//
+		if (ClassUtils.isCglibProxy(beanInstance)) {
+			targetClass = ClassUtils.getUserClass(beanInstance);
+		} else if (AopUtils.isAopProxy(beanInstance)) {
+			targetClass = AopUtils.getTargetClass(beanInstance);
+		}
+		//
+		return targetClass;
+	}
+	
+	/**
+	 * Return target class string  representation.  AOP or cglib proxy is supported.
+	 * 
+	 * @param beanInstance
+	 * @return
+	 * @since 9.7.0
+	 */
+	public static String getTargetType(Object beanInstance) {
+		Assert.notNull(beanInstance);
+		//
+		return getTargetClass(beanInstance).getCanonicalName();
 	}
 }

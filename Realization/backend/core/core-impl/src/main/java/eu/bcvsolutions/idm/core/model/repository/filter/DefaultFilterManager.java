@@ -83,8 +83,8 @@ public class DefaultFilterManager implements FilterManager {
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<Predicate> toPredicates(Root<? extends BaseEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
 		List<Predicate> predicates = new ArrayList<>();
 		if (filter == null) {
@@ -99,6 +99,7 @@ public class DefaultFilterManager implements FilterManager {
 			})
 			.filter(Objects::nonNull)
 			.map(filterBuilder -> {
+				// TODO: deprecated in 9.7.0, but fix this after original method will be removed => all custom filters can use original
 				return filterBuilder.getPredicate(root, query, builder, filter);
 			})
 			.filter(Objects::nonNull)

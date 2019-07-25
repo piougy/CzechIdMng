@@ -2,8 +2,8 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 
 import java.util.List;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -37,7 +37,7 @@ public class DefaultIdentityIdentifiersFilter extends AbstractFilterBuilder<IdmI
 	}
 
 	@Override
-	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+	public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder,
 			IdmIdentityFilter filter) {
 		List<String> identifiers = filter.getIdentifiers();
 		if (identifiers.isEmpty()) {

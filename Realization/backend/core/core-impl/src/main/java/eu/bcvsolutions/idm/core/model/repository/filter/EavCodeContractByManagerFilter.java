@@ -14,7 +14,7 @@ import javax.persistence.criteria.Subquery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -22,7 +22,6 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
@@ -31,35 +30,36 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue_;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 
 /**
  * Subordinates criteria builder:
  * - by guarantee and tree structure - finds parent tree node by code in eav attribute value
  * 
  * @author Radek Tomiška
- * @Deprecated @since 9.7.0 use EavCodeContractByManagerFilter
+ * @since 9.7.0
  */
-@Deprecated
-@Component("eavCodeSubordinatesFilter")
-public class EavCodeSubordinatesFilter 
-		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
+@Component(EavCodeContractByManagerFilter.BEAN_NAME)
+public class EavCodeContractByManagerFilter 
+		extends AbstractFilterBuilder<IdmIdentityContract, IdmIdentityContractFilter> {
 	
+	public static final String BEAN_NAME = "eav-code-contract-by-manager-filter";
+	//
 	protected static final String PROPERTY_FORM_DEFINITION = "formDefinition";
 	protected static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
 	protected static final String PROPERTY_PERSISTENT_TYPE = "persistentType";
 	protected static final String DEFAULT_FORM_ATTRIBUTE_CODE = "parentCode";
 	protected static final String DEFAULT_PERSISTENT_TYPE = "stringValue";
 	//
-	@Autowired GuaranteeSubordinatesFilter guaranteeSubordinatesFilter;
+	@Autowired private ContractByGuaranteeFilter contractByGuaranteeFilter;
 	
 	@Override
 	public String getName() {
-		return IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR;
+		return IdmIdentityContractFilter.PARAMETER_SUBORDINATES_FOR;
 	}
 	
 	@Autowired
-	public EavCodeSubordinatesFilter(IdmIdentityRepository repository) {
+	public EavCodeContractByManagerFilter(IdmIdentityContractRepository repository) {
 		super(repository);
 	}
 	
@@ -73,7 +73,8 @@ public class EavCodeSubordinatesFilter
 	}
 
 	@Override
-	public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+	public Predicate getPredicate(Root<IdmIdentityContract> root, AbstractQuery<?> query, 
+			CriteriaBuilder builder, IdmIdentityContractFilter filter) {
 		if (filter.getSubordinatesFor() == null) {
 			return null;
 		}
@@ -86,7 +87,7 @@ public class EavCodeSubordinatesFilter
 		List<Predicate> subPredicates = new ArrayList<>();
 		if (filter.getSubordinatesByTreeType() == null && filter.isIncludeGuarantees()) {
 			// manager as guarantee
-			subPredicates.add(guaranteeSubordinatesFilter.getGuaranteesPredicate(root, query, builder, filter));
+			subPredicates.add(contractByGuaranteeFilter.getPredicate(root, query, builder, filter));
 		}		
 		//
 		Subquery<IdmTreeNode> subqueryWp = query.subquery(IdmTreeNode.class);
@@ -126,7 +127,7 @@ public class EavCodeSubordinatesFilter
 		// 
 		subquery.where(
                 builder.and(
-                		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr - identity has identity contract
+                		builder.equal(subRoot, root), // correlation attr
                 		builder.or(subPredicates.toArray(new Predicate[subPredicates.size()]))
                 		)
         );

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
@@ -13,10 +14,6 @@ const componentService = new ComponentService();
  * @author Radek Tomiška
  */
 export default class EntityInfo extends Basic.AbstractContextComponent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   /**
    * Returns entity info component by given type
@@ -50,7 +47,20 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showLoading, entity, entityType, entityIdentifier, face, style, className, showLink, showEntityType, showIcon, ...other } = this.props;
+    const {
+      rendered,
+      showLoading,
+      entity,
+      entityType,
+      entityIdentifier,
+      face,
+      style,
+      className,
+      showLink,
+      showEntityType,
+      showIcon,
+      ...other
+    } = this.props;
     // standard rendered - we dont propagate rendered to underliyng component
     if (!rendered) {
       return null;

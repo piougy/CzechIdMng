@@ -7,18 +7,11 @@ import CodeListSelect from '../CodeListSelect/CodeListSelect';
 
 /**
  * Code list select component
- * - TODO: supports multiple attributes
+ * - TODO: add support multiple attributes
  *
  * @author Radek Tomiška
  */
 export default class CodeListSelectFormAttributeRenderer extends SelectBoxFormAttributeRenderer {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      ...this.state
-    };
-  }
 
   /**
    * Returns true, when confidential mode is supported

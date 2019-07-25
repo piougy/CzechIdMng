@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
  
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -40,7 +40,7 @@ public class IdentityAutomaticRoleFilter extends AbstractFilterBuilder<IdmIdenti
     }
  
     @Override
-    public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+    public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
         if (filter.getAutomaticRoleId() == null) {
             return null;
         }

@@ -481,12 +481,12 @@ export default class EntityManager {
     return (dispatch) => {
       dispatch(this.requestEntity(entity.id, uiKey));
       this.getService().patchById(entity.id, entity)
-      .then(json => {
-        dispatch(this.receiveEntity(entity.id, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(entity, uiKey, error, cb));
-      });
+        .then(json => {
+          dispatch(this.receiveEntity(entity.id, json, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(entity, uiKey, error, cb));
+        });
     };
   }
 

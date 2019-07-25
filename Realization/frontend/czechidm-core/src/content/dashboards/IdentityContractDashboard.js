@@ -18,14 +18,10 @@ const identityManager = new IdentityManager();
  */
 class IdentityContractDashboard extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   render() {
     const { entityId, permissions, identity } = this.props;
     //
-    if (!identity || !SecurityManager.hasAuthority('IDENTITYCONTRACT_READ') ) {
+    if (!identity || !SecurityManager.hasAuthority('IDENTITYCONTRACT_READ')) {
       return null;
     }
     const forceSearchParameters = new Domain.SearchParameters().setFilter('identity', identity.id);

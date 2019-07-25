@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
@@ -44,7 +45,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    this.context.store.dispatch(manager.fetchSupportedReports( (data, error) => {
+    this.context.store.dispatch(manager.fetchSupportedReports((data, error) => {
       if (error) {
         this.addError(error);
       } else {

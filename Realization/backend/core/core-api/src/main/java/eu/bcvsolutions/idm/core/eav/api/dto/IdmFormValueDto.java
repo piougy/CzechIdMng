@@ -274,7 +274,8 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 			return uuidValue;
 		}
 		case SHORTTEXT:
-		case CODELIST: {
+		case CODELIST: 
+		case ENUMERATION: {
 			return shortTextValue;
 		}
 		default:
@@ -310,6 +311,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 				return uuidValue == null;
 			}
 			case CODELIST:
+			case ENUMERATION:
 			case SHORTTEXT: {
 				return StringUtils.isEmpty(shortTextValue);
 			}
@@ -346,6 +348,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 				return uuidValue == null;
 			}
 			case CODELIST:
+			case ENUMERATION:
 			case SHORTTEXT: {
 				return shortTextValue == null;
 			}
@@ -499,6 +502,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 				break;
 			}
 			case CODELIST:
+			case ENUMERATION:
 			case SHORTTEXT:
 				if (value == null) {
 					setShortTextValue(null);

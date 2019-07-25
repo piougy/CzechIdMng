@@ -2,8 +2,8 @@ package eu.bcvsolutions.idm.core.api.repository.filter;
 
 import java.util.Collections;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -61,7 +61,7 @@ public class DisabledFilterBuilder<E extends BaseEntity> extends BaseFilterBuild
 	}
 
 	@Override
-	public Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
+	public Predicate getPredicate(Root<E> root, AbstractQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
 		if (wrapped.getPredicate(root, query, builder, filter) != null) {
 			LOG.debug("Filter [{}] is filled, but is disabled. Returning 'disjunction' predicate.", getName());
 			//

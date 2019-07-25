@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.repository.filter;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -48,8 +49,27 @@ public interface FilterBuilder<E extends BaseEntity, F extends DataFilter> exten
 	 * @param query
 	 * @param builder
 	 * @return
+	 * @deprecated @since 9.7.0. use {@link #getPredicate(Root, AbstractQuery, CriteriaBuilder, DataFilter)}
 	 */
-	Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, F filter);
+	@Deprecated
+	default Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, F filter) {
+		return getPredicate(root, (AbstractQuery<?>) query, builder, filter);
+	}
+	
+	/**
+	 * Filter construct partial criteria where clause => {@link Predicate}, which will be appended to query for defined domain type.
+	 * Returned Predicate could be {@code null}, if builder doesn't have all parameters in filter set.
+	 * Can be used in both - in query and sub query too.
+	 * 
+	 * @param root
+	 * @param query
+	 * @param builder
+	 * @return
+	 * @since 9.7.0
+	 */
+	default Predicate getPredicate(Root<E> root, AbstractQuery<?> query, CriteriaBuilder builder, F filter) {
+		return null;
+	}
 	
 	/**
 	 * Finds entities by this filter builder only

@@ -1,10 +1,14 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Map.Entry;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -52,7 +56,7 @@ public class ParameterConverter {
 	public String toString(MultiValueMap<String, Object> parameters, String parameterName) {
 		Assert.notNull(parameters);
 	    //
-		return toString(parameters.toSingleValueMap(), parameterName);
+		return toString(toSingleValueMap(parameters), parameterName);
 	}
 	
 	/**
@@ -119,7 +123,7 @@ public class ParameterConverter {
 	public Boolean toBoolean(MultiValueMap<String, Object> parameters, String parameterName) {
 		Assert.notNull(parameters);
 		//
-		return toBoolean(parameters.toSingleValueMap(), parameterName);
+		return toBoolean(toSingleValueMap(parameters), parameterName);
 	}
 	
 	/**
@@ -131,6 +135,20 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public boolean toBoolean(MultiValueMap<String, Object> parameters, String parameterName, boolean deafultValue) {
+		Assert.notNull(parameters);
+	    //
+		return toBoolean(toSingleValueMap(parameters), parameterName, deafultValue);
+	}
+	
+	/**
+	 * Converts parameter to {@code boolean} from given parameters, or returns default value, if no value is given
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @param deafultValue
+	 * @return
+	 */
+	public boolean toBoolean(Map<String, Object> parameters, String parameterName, boolean deafultValue) {
 		Assert.notNull(parameters);
 		//
 		Boolean result = toBoolean(parameters, parameterName);
@@ -172,7 +190,7 @@ public class ParameterConverter {
 	public Long toLong(MultiValueMap<String, Object> parameters, String parameterName) {
 		Assert.notNull(parameters);
 		//
-		return toLong(parameters.toSingleValueMap(), parameterName);
+		return toLong(toSingleValueMap(parameters), parameterName);
 	}
 	
 	/**
@@ -204,7 +222,7 @@ public class ParameterConverter {
 	public UUID toUuid(MultiValueMap<String, Object> parameters, String parameterName) {
 		Assert.notNull(parameters);
 	    //
-		return toUuid(parameters.toSingleValueMap(), parameterName);
+		return toUuid(toSingleValueMap(parameters), parameterName);
 	}
 	
 	/**
@@ -232,6 +250,35 @@ public class ParameterConverter {
 	}
 	
 	/**
+	 * Converts parameter to list of {@code UUID} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	public List<UUID> toUuids(Map<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+		//
+		List<UUID> results = new ArrayList<>();
+		//
+		Object asObject = parameters.get(parameterName);
+		if (asObject == null) {
+			return results;
+		}
+		if (!(asObject instanceof Collection)) {
+			results.add(DtoUtils.toUuid(asObject));
+		} else {
+			((Collection<?>) asObject).forEach(uuid -> {
+				if (uuid != null) {
+					results.add(DtoUtils.toUuid(uuid));
+				}
+			});
+		}
+		//
+		return results;
+	}
+	
+	/**
 	 * Converts parameter to {@code UUID} from given parameters.
 	 * 
 	 * @param parameters
@@ -254,7 +301,7 @@ public class ParameterConverter {
 	public <T extends Enum<T>> T toEnum(MultiValueMap<String, Object> parameters, String parameterName, Class<T> enumClass) {
 		Assert.notNull(parameters);
 	    //
-		return toEnum(parameters.toSingleValueMap(), parameterName, enumClass);
+		return toEnum(toSingleValueMap(parameters), parameterName, enumClass);
 	}
 	
 	/**
@@ -327,7 +374,7 @@ public class ParameterConverter {
 	public <T extends BaseEntity> T toEntity(MultiValueMap<String, Object> parameters, String parameterName, Class<T> identifiableType) {
 		Assert.notNull(parameters);
 	    //
-		return toEntity(parameters.toSingleValueMap(), parameterName, identifiableType);
+		return toEntity(toSingleValueMap(parameters), parameterName, identifiableType);
 	}
 	
 	/**
@@ -374,7 +421,7 @@ public class ParameterConverter {
 	public UUID toEntityUuid(MultiValueMap<String, Object> parameters, String parameterName, Class<? extends Identifiable> identifiableType) {
 		Assert.notNull(parameters);
 		//
-		return toEntityUuid(parameters.toSingleValueMap(), parameterName, identifiableType);
+		return toEntityUuid(toSingleValueMap(parameters), parameterName, identifiableType);
 	}
 	
 	/**
@@ -413,7 +460,7 @@ public class ParameterConverter {
 	public DateTime toDateTime(MultiValueMap<String, Object> parameters, String parameterName) {
 		Assert.notNull(parameters);
 	    //
-		return toDateTime(parameters.toSingleValueMap(), parameterName);
+		return toDateTime(toSingleValueMap(parameters), parameterName);
 	}
 	
 	/**
@@ -446,7 +493,7 @@ public class ParameterConverter {
 	public LocalDate toLocalDate(MultiValueMap<String, Object> parameters, String parameterName) {
 		Assert.notNull(parameters);
 	    //
-		return toLocalDate(parameters.toSingleValueMap(), parameterName);
+		return toLocalDate(toSingleValueMap(parameters), parameterName);
 	}
 	
 	/**
@@ -463,5 +510,21 @@ public class ParameterConverter {
 		} else {
 			return new LocalDate(valueAsString);
 		}
+	}
+	
+	/**
+	 * Transform to single value map.
+	 * 
+	 * @param parameters
+	 * @return
+	 */
+	protected Map<String, Object> toSingleValueMap(MultiValueMap<String, Object> parameters) {
+		LinkedHashMap<String, Object> singleValueMap = new LinkedHashMap<String, Object>();
+		for (Entry<String, List<Object>> entry : parameters.entrySet()) {
+			if (CollectionUtils.isNotEmpty(entry.getValue())) {
+				singleValueMap.put(entry.getKey(), entry.getValue().get(0));
+			}
+		}
+		return singleValueMap;
 	}
 }

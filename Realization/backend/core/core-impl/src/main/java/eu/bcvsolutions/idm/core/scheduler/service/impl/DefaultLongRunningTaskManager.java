@@ -398,7 +398,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		IdmLongRunningTaskDto task;
 		if (taskExecutor.getLongRunningTaskId() == null) {
 			task = new IdmLongRunningTaskDto();
-			task.setTaskType(taskExecutor.getClass().getCanonicalName());
+			task.setTaskType(AutowireHelper.getTargetType(taskExecutor));
 			task.setTaskProperties(taskExecutor.getProperties());
 			task.setTaskDescription(taskExecutor.getDescription());	
 			task.setInstanceId(configurationService.getInstanceId());

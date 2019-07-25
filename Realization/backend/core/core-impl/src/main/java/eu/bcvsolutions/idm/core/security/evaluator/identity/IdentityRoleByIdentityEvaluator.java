@@ -26,13 +26,13 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
 
 /**
- * Permissions to roles by identity
+ * Permissions to roles by identity.
  * 
  * @author Radek Tomiška
  *
  */
 @Component
-@Description("Permissions to assigned roles by identity")
+@Description("Permissions to assigned roles by identity.")
 public class IdentityRoleByIdentityEvaluator extends AbstractTransitiveEvaluator<IdmIdentityRole> {
 
 	@Autowired private AuthorizationManager authorizationManager;

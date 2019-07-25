@@ -1,11 +1,15 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -122,7 +126,35 @@ public class DataFilter extends QuickFilter {
 	
 	@Override
 	public void setId(UUID id) {
-		data.set(PARAMETER_ID, id);
+		if (id == null) {
+    		data.remove(PARAMETER_ID);
+    	} else {
+    		data.put(PARAMETER_ID, Lists.newArrayList(id));
+    	}
+	}
+	
+	/**
+	 * Entity identifiers.
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	public List<UUID> getIds() {
+		return getParameterConverter().toUuids(data, PARAMETER_ID);
+	}
+    
+	/**
+	 * Entity identifiers.
+	 * 
+	 * @param ids
+	 * @since 9.7.0
+	 */
+    public void setIds(List<UUID> ids) {
+    	if (CollectionUtils.isEmpty(ids)) {
+    		data.remove(PARAMETER_ID);
+    	} else {
+    		data.put(PARAMETER_ID, new ArrayList<Object>(ids));
+    	}
 	}
 	
 	@Override

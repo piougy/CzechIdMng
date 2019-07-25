@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
@@ -140,7 +141,9 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		}
 		end = super.end(result, ex);
 		// send message
-		IdmLongRunningTaskDto task = getLongRunningTaskService().get(getLongRunningTaskId());
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setIncludeItemCounts(true);
+		IdmLongRunningTaskDto task = getLongRunningTaskService().get(getLongRunningTaskId(), filter);
 		IdmBulkActionDto action = getAction();
 		//
 		if (task.getCreatorId() != null) {
@@ -196,8 +199,10 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		if (!action.getIdentifiers().isEmpty()) {
 			entities = new ArrayList<UUID>(action.getIdentifiers());
 			//
-			description.append(System.lineSeparator());
-			description.append("For filtering is used list of ID's.");
+			if (description != null) {
+				description.append(System.lineSeparator());
+				description.append("For filtering is used list of ID's.");
+			}
 		} else if (action.getTransformedFilter() != null) {
 			// is necessary find entities with given base permission
 			List<UUID> content = getService().findIds(this.transformFilter(action.getTransformedFilter()), null,
@@ -206,13 +211,15 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 			// it is necessary create new arraylist because return list form find is unmodifiable
 			entities = new ArrayList<UUID>(content);
 			//
-			description.append(System.lineSeparator());
-			description.append("For filtering is used filter:");
-			description.append(System.lineSeparator());
-			String filterAsString = Arrays.toString(action.getFilter().entrySet().toArray());
-			description.append(filterAsString);
+			if (description != null) {
+				description.append(System.lineSeparator());
+				description.append("For filtering is used filter:");
+				description.append(System.lineSeparator());
+				String filterAsString = Arrays.toString(action.getFilter().entrySet().toArray());
+				description.append(filterAsString);
+			}
 		} else if (showWithoutSelection()) {
-			entities = getAllEntities(action, description);
+			entities = getAllEntities(action, description == null ? new StringBuilder() : description);
 		} else {
 			throw new ResultCodeException(CoreResultCode.BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED);
 		}

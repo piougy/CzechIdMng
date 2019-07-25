@@ -42,6 +42,7 @@
   "label": {
     "id": "Identifikátor",
     "action": "Akce",
+    "approved": "Scháleno",
     "otherAttributes": "Další atributy",
     "selectAll": "Vybrat vše / nic",
     "validFrom": "$t(entity.validFrom)",
@@ -58,6 +59,7 @@
     "yes": "Ano",
     "no": "Ne",
     "readOnly": "Pouze pro čtení",
+    "removed": "Odebráno",
     "waiting": "Čeká"
   },
   "button": {
@@ -563,8 +565,10 @@
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
           "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
           "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)",
+          "ENUMERATION": "$t(enums.PersistentTypeEnum.ENUMERATION)",
           "AUTOMATIC-ROLE-TREE-SELECT": "Výběr automatické role dle stromové struktury (SelectBox)",
-          "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Výběr automatické role dle atributu (SelectBox)"
+          "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Výběr automatické role dle atributu (SelectBox)",
+          "OPERATION-STATE-ENUM": "Stav operace"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
@@ -678,7 +682,8 @@
       "BYTEARRAY": "Bitové pole",
       "UUID": "Uuid identifikátor",
       "ATTACHMENT": "Příloha",
-      "CODELIST": "Číselník"
+      "CODELIST": "Číselník",
+      "ENUMERATION": "Enumerace"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -3592,7 +3597,7 @@
       "environment": {
         "label": "Prostředí",
         "help": "Prostředí, pro které je role určena.",
-        "helpCode": "$t(entity.Role.environment.help) Plný kód role včetně prostředí bude obsahovat hodnotu <strong>{{ code }}</strong>. Tento unikátní kód bude použít pro identifikaci role."
+        "helpCode": "$t(entity.Role.environment.help) Plný kód role včetně prostředí bude obsahovat hodnotu <strong>{{ code }}</strong>. Tento unikátní kód bude použit pro identifikaci role."
       },
       "name": "Název role",
       "roleType": "Typ role",

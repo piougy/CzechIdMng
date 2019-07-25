@@ -491,7 +491,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 	
 	@Override
 	protected IdmIdentityContractFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmIdentityContractFilter filter = new IdmIdentityContractFilter(parameters);
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter(parameters, getParameterConverter());
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentityDto.class));
 		filter.setWorkPosition(getParameterConverter().toEntityUuid(parameters, "workPosition", IdmTreeNodeDto.class));

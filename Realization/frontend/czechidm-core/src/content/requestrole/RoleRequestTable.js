@@ -5,10 +5,12 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import {SecurityManager, IdentityManager, WorkflowTaskInstanceManager} from '../../redux';
+import { SecurityManager, IdentityManager, WorkflowTaskInstanceManager, RoleRequestManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
-
+//
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
+const manager = new RoleRequestManager();
+
 /**
  * Role request table
  * @author Vít Švanda
@@ -17,6 +19,9 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      filterOpened: props.filterOpened
+    };
     this.identityManager = new IdentityManager();
   }
 
@@ -99,6 +104,7 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
 
   render() {
     const { _showLoading, uiKey, startRequestFunc, createNewRequestFunc, columns, forceSearchParameters, showFilter, className, rendered, header } = this.props;
+    const { filterOpened } = this.state;
     const innerShowLoading = _showLoading;
     //
     if (!rendered) {
@@ -121,7 +127,7 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
             [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
                action: this.onDelete.bind(this), disabled: false }]
           }
-          filterOpened
+          filterOpened={ filterOpened }
           showFilter={ showFilter }
           filter={
             !showFilter
@@ -283,13 +289,17 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                 const canBeStart = (state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT))
                 || (state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION))
                 || (state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED));
+                //
+                if (!startRequestFunc || !SecurityManager.hasAnyAuthority(['ROLEREQUEST_UPDATE']) || !canBeStart) {
+                  return null;
+                }
+                //
                 return (
                   <span>
                     <Basic.Button
                       ref="startButton"
                       type="button"
                       level="success"
-                      rendered={startRequestFunc && SecurityManager.hasAnyAuthority(['ROLEREQUEST_UPDATE']) && canBeStart}
                       style={{marginRight: '2px'}}
                       title={this.i18n('button.start')}
                       titlePlacement="bottom"
@@ -322,9 +332,11 @@ RoleRequestTable.propTypes = {
 };
 
 RoleRequestTable.defaultProps = {
+  manager,
   rendered: true,
   _showLoading: false,
   showFilter: true,
+  filterOpened: true,
   columns: ['state', 'created', 'modified', 'wf', 'applicant', 'executeImmediately', 'startRequest', 'createNew', 'detail', 'systemState']
 };
 

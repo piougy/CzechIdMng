@@ -292,9 +292,11 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 			
 			for (Entry<String, Object> entry : properties.entrySet()) {
 				Object value = entry.getValue();
-				if(value instanceof List<?>) {
+				if (value == null) {
+					multivaluedMap.remove(entry.getKey());
+				} else if(value instanceof List<?>) {
 					multivaluedMap.put(entry.getKey(), (List<Object>) value);
-				}else {
+				} else {
 					multivaluedMap.add(entry.getKey(), entry.getValue());
 				}
 			}

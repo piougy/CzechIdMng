@@ -94,7 +94,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 					Task task = new Task();
 					task.setId(entry.getKey());
 					task.setModule(taskExecutor.getModule());
-					task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) taskExecutor.getClass());
+					task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) AutowireHelper.getTargetClass(taskExecutor));
 					task.setDescription(AutowireHelper.getBeanDescription(entry.getKey()));
 					for (String parameterName : taskExecutor.getPropertyNames()) {
 						task.getParameters().put(parameterName, null);
@@ -159,7 +159,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			task.setId(jobKey.getName());
 			// AutowireHelper is not needed here
 			SchedulableTaskExecutor<?> taskExecutor = (SchedulableTaskExecutor<?>) jobDetail.getJobClass().newInstance();
-			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) taskExecutor.getClass());
+			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) AutowireHelper.getTargetClass(taskExecutor));
 			task.setSupportsDryRun(taskExecutor.supportsDryRun());
 			task.setDescription(jobDetail.getDescription());
 			task.setInstanceId(jobDetail.getJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));

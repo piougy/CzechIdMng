@@ -42,7 +42,8 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 @Audited
 @Table(name = "idm_form_attribute", indexes = {
 		@Index(name = "idx_idm_f_a_definition_def", columnList = "definition_id"),
-		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, code", unique = true) })
+		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, code", unique = true),
+		@Index(name = "idx_idm_f_a_code", columnList = "code" )})
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEntity {

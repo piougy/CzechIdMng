@@ -50,6 +50,7 @@ class SyncIdentityConfig extends Basic.AbstractContent {
     if (isNew) {
       synchronizationConfig.createDefaultContract = false;
       synchronizationConfig.startAutoRoleRec = true;
+      synchronizationConfig.assignDefaultRoleToAll = true;
     }
     //
     return (

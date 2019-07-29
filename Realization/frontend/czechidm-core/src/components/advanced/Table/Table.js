@@ -1038,23 +1038,30 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                       content.push(
                         <Basic.Div>
                           <span title={ this.i18n('entity.transactionId.help') }>
-                            { this.i18n('entity.transactionId.short') }:
+                            { this.i18n('entity.transactionId.short') }
+                            :
                           </span>
                           <UuidInfo
                             value={ transactionId }
                             uuidEnd={ uuidEnd }
                             header={ this.i18n('entity.transactionId.label') }
                             placement="left"
-                            buttons={[
-                              <a
-                                href="#"
-                                onClick={ this.showAudit.bind(this, entity) }
-                                title={ this.i18n('button.transactionId.title') }>
-                                <Basic.Icon icon="component:audit"/>
-                                {' '}
-                                { this.i18n('button.transactionId.label') }
-                              </a>
-                            ]}/>
+                            buttons={
+                              SecurityManager.hasAuthority('AUDIT_READ')
+                              ?
+                              [
+                                <a
+                                  href="#"
+                                  onClick={ this.showAudit.bind(this, entity) }
+                                  title={ this.i18n('button.transactionId.title') }>
+                                  <Basic.Icon icon="component:audit"/>
+                                  {' '}
+                                  { this.i18n('button.transactionId.label') }
+                                </a>
+                              ]
+                              :
+                              null
+                            }/>
                         </Basic.Div>
                       );
                     }

@@ -334,6 +334,19 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   /**
+   * We cannot show delete action for automatic and business roles
+   */
+  _showRowSelection({rowIndex, data}) {
+    if (data && rowIndex >= 0) {
+      const request = data[rowIndex];
+      if (request && (request.directRole || request.automaticRole)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Generate cell with detail button and info components
    */
   renderDetailCell({rowIndex, data}) {
@@ -510,13 +523,13 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
             uiKey="request-identity-role-table"
             hover={ false }
             manager={requestIdentityRoleManager}
-            showRowSelection={ showRowSelection }
+            showRowSelection={ showRowSelection ? this._showRowSelection.bind(this) : false}
             actions={
               [{
                 value: 'delete',
                 niceLabel: this.i18n('action.delete.action'),
                 action: this.onDelete.bind(this),
-                disabled: false
+                disabled: readOnly
               }]
             }
             rowClass={this._getRowClass}

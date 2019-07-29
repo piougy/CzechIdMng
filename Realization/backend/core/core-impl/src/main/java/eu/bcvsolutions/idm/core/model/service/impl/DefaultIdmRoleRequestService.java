@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import static eu.bcvsolutions.idm.core.api.dto.OperationResultDto.PROPERTY_STATE;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -220,6 +222,11 @@ public class DefaultIdmRoleRequestService
 			predicates.add(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.id).in(applicants));
 		}
 		//
+		List<OperationState> resultStates = filter.getResultStates();
+		if (!resultStates.isEmpty()) {
+			predicates.add(root.get(IdmRoleRequest_.systemState).get(PROPERTY_STATE).in(resultStates));
+		}
+		//
 		if (filter.getCreatedFrom() != null) {
 			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmRoleRequest_.created), filter.getCreatedFrom()));
 		}
@@ -235,7 +242,7 @@ public class DefaultIdmRoleRequestService
 			if (executed) {
 				predicates.add(builder.and( //
 						builder.equal(root.get(IdmRoleRequest_.state), RoleRequestState.EXECUTED), //
-						builder.equal(root.get(IdmRoleRequest_.systemState).get(OperationResultDto.PROPERTY_STATE), //
+						builder.equal(root.get(IdmRoleRequest_.systemState).get(PROPERTY_STATE), //
 								OperationState.EXECUTED) //
 				));
 			} else {
@@ -248,13 +255,13 @@ public class DefaultIdmRoleRequestService
 						builder.notEqual(root.get(IdmRoleRequest_.state), RoleRequestState.EXECUTED), //
 						builder.and(
 								builder.notEqual(
-										root.get(IdmRoleRequest_.systemState).get(OperationResultDto.PROPERTY_STATE),
+										root.get(IdmRoleRequest_.systemState).get(PROPERTY_STATE),
 										OperationState.EXECUTED),
 								builder.notEqual(
-										root.get(IdmRoleRequest_.systemState).get(OperationResultDto.PROPERTY_STATE),
+										root.get(IdmRoleRequest_.systemState).get(PROPERTY_STATE),
 										OperationState.CANCELED),
 								builder.isNotNull(
-										root.get(IdmRoleRequest_.systemState).get(OperationResultDto.PROPERTY_STATE))) //
+										root.get(IdmRoleRequest_.systemState).get(PROPERTY_STATE))) //
 				));
 			}
 

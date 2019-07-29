@@ -7,7 +7,8 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { SecurityManager, IdentityManager, WorkflowTaskInstanceManager, RoleRequestManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
-//
+import OperationStateEnum from '../../enums/OperationStateEnum';
+
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 const manager = new RoleRequestManager();
 
@@ -103,7 +104,16 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, uiKey, startRequestFunc, createNewRequestFunc, columns, forceSearchParameters, showFilter, className, rendered, header } = this.props;
+    const { _showLoading,
+      uiKey,
+      startRequestFunc,
+      createNewRequestFunc,
+      columns,
+      forceSearchParameters,
+      showFilter,
+      className,
+      rendered,
+      header } = this.props;
     const { filterOpened } = this.state;
     const innerShowLoading = _showLoading;
     //
@@ -124,8 +134,10 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
           manager={this.getManager()}
           showRowSelection={SecurityManager.hasAuthority('ROLEREQUEST_UPDATE')}
           actions={
-            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
-               action: this.onDelete.bind(this), disabled: false }]
+            [{ value: 'delete',
+              niceLabel: this.i18n('action.delete.action'),
+              action: this.onDelete.bind(this),
+              disabled: false }]
           }
           filterOpened={ filterOpened }
           showFilter={ showFilter }
@@ -137,19 +149,26 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ 3 }>
                     <Advanced.Filter.TextField
                       ref="applicant"
                       placeholder={this.i18n('filter.applicant.placeholder')}/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ 3 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="states"
                       placeholder={ this.i18n('filter.states.placeholder') }
                       enum={ RoleRequestStateEnum }
                       multiSelect/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 } className="text-right">
+                  <Basic.Col lg={ 3 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="resultStates"
+                      multiSelect
+                      placeholder={ this.i18n('filter.statesSystem.placeholder') }
+                      enum={ OperationStateEnum }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 3 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </Basic.Col>
                 </Basic.Row>

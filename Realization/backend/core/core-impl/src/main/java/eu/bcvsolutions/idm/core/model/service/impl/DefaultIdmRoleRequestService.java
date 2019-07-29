@@ -23,6 +23,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -223,7 +224,7 @@ public class DefaultIdmRoleRequestService
 		}
 		//
 		List<OperationState> resultStates = filter.getSystemStates();
-		if (!resultStates.isEmpty()) {
+		if (!CollectionUtils.isEmpty(resultStates)) {
 			predicates.add(root.get(IdmRoleRequest_.systemState).get(PROPERTY_STATE).in(resultStates));
 		}
 		//

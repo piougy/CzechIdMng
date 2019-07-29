@@ -44,7 +44,7 @@ import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
  * @author Vít Švanda
  *
  */
-@Component
+@Component(RoleRequestNotificationProcessor.PROCESSOR_NAME)
 @Description(" Processor for send notification after request was realized on systems")
 public class RoleRequestNotificationProcessor extends CoreEventProcessor<IdmRoleRequestDto>
 		implements RoleRequestProcessor {

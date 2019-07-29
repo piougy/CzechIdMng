@@ -66,8 +66,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	private final SecurityService securityService;
 	private final ProvisioningConfiguration provisioningConfiguration;
 	private final SysSystemEntityService systemEntityService;
-	@Autowired
-	private IdmRoleRequestService roleRequestService;
+	//
+	@Autowired private IdmRoleRequestService roleRequestService;
 
 	@Autowired
 	public DefaultProvisioningExecutor(

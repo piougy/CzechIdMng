@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(RemoveProcessedOperationProcessor.PROCESSOR_NAME)
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Archives processed provisioning operation.")
 public class RemoveProcessedOperationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
@@ -40,8 +40,8 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveProcessedOperationProcessor.class);
 	private final SysProvisioningOperationService provisioningOperationService;
 	private final SysSystemEntityService systemEntityService;
-	@Autowired
-	private IdmRoleRequestService roleRequestService;
+	//
+	@Autowired private IdmRoleRequestService roleRequestService;
 	
 	@Autowired
 	public RemoveProcessedOperationProcessor(

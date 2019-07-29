@@ -46,7 +46,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventTyp
  * @author Vít Švanda
  *
  */
-@Component
+@Component(RoleRequestCheckSystemStateProcessor.PROCESSOR_NAME)
 @Description("Processor for check state on systems for given role-request (provisioning operation)")
 public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<IdmRoleRequestDto>
 		implements RoleRequestProcessor {
@@ -123,11 +123,11 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 			
 			List<SysProvisioningArchiveDto> canceledOperations = Lists.newArrayList();
 			// We want to mark canceled (archives with exception state) concepts
-			canceledOperations.addAll(findCanceledArchvieOperations(request, OperationState.EXCEPTION));
+			canceledOperations.addAll(findCanceledArchiveOperations(request, OperationState.EXCEPTION));
 			// We want to mark canceled (archives with blocked state) concepts
-			canceledOperations.addAll(findCanceledArchvieOperations(request, OperationState.BLOCKED));
+			canceledOperations.addAll(findCanceledArchiveOperations(request, OperationState.BLOCKED));
 			// We want to mark canceled (archives with not executed state) concepts
-			canceledOperations.addAll(findCanceledArchvieOperations(request, OperationState.NOT_EXECUTED));
+			canceledOperations.addAll(findCanceledArchiveOperations(request, OperationState.NOT_EXECUTED));
 			
 			if (canceledOperations.size() > 0) {
 				concepts = loadConcepts(request, concepts);
@@ -290,7 +290,7 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 	 * @param state
 	 * @return
 	 */
-	private List<SysProvisioningArchiveDto> findCanceledArchvieOperations(IdmRoleRequestDto request,
+	private List<SysProvisioningArchiveDto> findCanceledArchiveOperations(IdmRoleRequestDto request,
 			OperationState state) {
 		
 		SysProvisioningOperationFilter provisioningOperationFilter = new SysProvisioningOperationFilter();

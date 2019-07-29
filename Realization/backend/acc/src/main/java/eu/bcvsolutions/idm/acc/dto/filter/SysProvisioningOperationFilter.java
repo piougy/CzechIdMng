@@ -10,8 +10,10 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
@@ -98,7 +100,11 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	}
 
 	public UUID getEntityIdentifier() {
-		return getParameterConverter().toUuid(data, PARAMETER_ENTITY_IDENTIFIER);
+		try {
+			return getParameterConverter().toUuid(data, PARAMETER_ENTITY_IDENTIFIER);
+		} catch (ClassCastException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
+		}
 	}
 
 	public void setEntityIdentifier(UUID entityIdentifier) {

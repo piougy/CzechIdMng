@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventTyp
  * @author Vít Švanda
  *
  */
-@Component
+@Component(RoleRequestDeleteProcessor.PROCESSOR_NAME)
 @Description("Processor for delete role-request")
 public class RoleRequestDeleteProcessor extends CoreEventProcessor<IdmRoleRequestDto> implements RoleRequestProcessor {
 	public static final String PROCESSOR_NAME = "role-request-delete-processor";

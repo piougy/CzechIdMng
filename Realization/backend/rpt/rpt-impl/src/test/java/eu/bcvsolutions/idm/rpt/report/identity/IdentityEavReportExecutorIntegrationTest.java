@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
+import eu.bcvsolutions.idm.rpt.dto.RptIdentityWithFormValueDto;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegrationTest {
@@ -88,13 +89,13 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 		disabled.setValue(false);
 		//
 		IdmFormValueDto formDefinitionAttribute =
-				new IdmFormValueDto(definition.getMappedAttributeByCode(IdentityEavReportExecutor.FORM_DEFINITION));
+				new IdmFormValueDto(definition.getMappedAttributeByCode(IdentityEavReportExecutor.PARAMETER_FORM_DEFINITION));
 		IdmFormDefinitionDto definitionAttribute = formService.getDefinition(IdmIdentityDto.class,
 				FormService.DEFAULT_DEFINITION_CODE);
 		formDefinitionAttribute.setValue(definitionAttribute.getId());
 		//
 		IdmFormValueDto eavName =
-				new IdmFormValueDto(definition.getMappedAttributeByCode(IdentityEavReportExecutor.EAV_CODE));
+				new IdmFormValueDto(definition.getMappedAttributeByCode(IdentityEavReportExecutor.PARAMETER_EAV_CODE));
 		String code = "testAttribute001";
 		createFormAttribute(code, definitionAttribute.getId());
 		eavName.setValue(code);
@@ -125,7 +126,9 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 		//
 		// test
 		assertEquals(1, objects.size());
-		assertEquals(testValue, ((List<String>) objects.get(0).get(code)).get(0));
+		HashMap<String, Object> stringObjectHashMap = objects.get(0);
+		List<String> o = (List<String>) objects.get(0).get("formValue");
+		assertEquals(testValue, (o.get(0)));
 		//
 		attachmentManager.deleteAttachments(report);
 	}

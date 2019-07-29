@@ -17,9 +17,11 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -29,28 +31,28 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.rpt.api.domain.RptResultCode;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.api.exception.ReportGenerateException;
 import eu.bcvsolutions.idm.rpt.api.executor.AbstractReportExecutor;
+import eu.bcvsolutions.idm.rpt.dto.RptIdentityWithFormValueDto;
 
+/**
+ * Report for identity with chosen eav
+ *
+ * @author Marek Klement
+ */
 @Component("identityEavExecutor")
 @Description("Identities - report EAV attribute")
 public class IdentityEavReportExecutor extends AbstractReportExecutor {
 
 	public static final String REPORT_NAME = "identity-eav-report";
 	//
-	public static final String ATTRIBUTE_FNAME = "firstName";
-	public static final String ATTRIBUTE_LNAME = "lastName";
-	public static final String ATTRIBUTE_USERNAME = "username";
-	public static final String ATTRIBUTE_DISABLED = "disabled";
-	public static final String ATTRIBUTE_BTITLE = "titleBefore";
-	public static final String ATTRIBUTE_ATITLE = "titleAfter";
-	public static final String ATTRIBUTE_EXTERNAL_CODE = "personalNumber";
-	//
-	public static final String EAV_VALUE = "EAV-VALUE";
-	public static final String FORM_DEFINITION = "FORM-DEFINITION";
-	public static final String EAV_CODE = "EAV";
+	public static final String PARAMETER_EAV_VALUE = "EAV-VALUE";
+	public static final String PARAMETER_FORM_DEFINITION = "FORM-DEFINITION";
+	public static final String PARAMETER_EAV_CODE = "EAV";
 	//
 	private String eavName;
 
@@ -75,10 +77,10 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 						report.getFilter());
 				counter = 0L;
 				// take configuration
-				Serializable eavNameSerializable = formInstance.toSinglePersistentValue(EAV_CODE);
+				Serializable eavNameSerializable = formInstance.toSinglePersistentValue(PARAMETER_EAV_CODE);
 				eavName = eavNameSerializable != null ? eavNameSerializable.toString() : null;
 
-				Serializable eavValueSerializable = formInstance.toSinglePersistentValue(EAV_VALUE);
+				Serializable eavValueSerializable = formInstance.toSinglePersistentValue(PARAMETER_EAV_VALUE);
 				String eavValue = eavValueSerializable != null ? eavValueSerializable.toString() : null;
 
 				Serializable disabledSerializable =
@@ -86,9 +88,13 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 				String disabled = disabledSerializable != null ? disabledSerializable.toString() : null;
 
 				UUID definitionUUID =
-						UUID.fromString(formInstance.toSinglePersistentValue(FORM_DEFINITION).toString());
+						UUID.fromString(formInstance.toSinglePersistentValue(PARAMETER_FORM_DEFINITION).toString());
 				IdmFormDefinitionDto definition = formService.getDefinition(definitionUUID);
 
+				if(!definition.getType().equals(IdmIdentity.class.getName())){
+					throw new ResultCodeException(RptResultCode.REPORT_WRONG_DEFINITION,
+							ImmutableMap.of("firstType", definition.getType(),"secondType", IdmIdentity.class.getName()));
+				}
 				IdmIdentityFilter fltr = new IdmIdentityFilter();
 				if (disabled != null) {
 					fltr.setDisabled(Boolean.valueOf(disabled));
@@ -101,13 +107,18 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 					count = (long) identities.size();
 				}
 				//
-				identities.forEach(identity -> {
+				boolean canContinue;
+				for (IdmIdentityDto identity : identities) {
 					try {
 						writeValues(identity, eavName, eavValue, jGenerator, definition);
+						canContinue = updateState();
+						if (!canContinue) {
+							break;
+						}
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-				});
+				}
 
 				jGenerator.writeEndArray();
 			} finally {
@@ -124,19 +135,23 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 		}
 	}
 
-	public String getEavName() {
-		return eavName;
-	}
-
-	private void writeValues(IdmIdentityDto identity, String eavName, String eavValue, JsonGenerator jGenerator,
+	private boolean writeValues(IdmIdentityDto identity, String eavName, String eavValue, JsonGenerator jGenerator,
 							 IdmFormDefinitionDto definition) throws IOException {
-		List<IdmFormValueDto> formValue = formService.getValues(identity, definition, eavName);
+		boolean ret = true;
+		List<IdmFormValueDto> formValue;
+		try {
+			formValue = formService.getValues(identity, definition, eavName);
+		} catch (Exception e){
+			throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code",
+					eavName));
+		}
 		//
-		String value = null;
 		if (eavValue == null) {
 			if (formValue != null) {
 				if (formValue.size() != 0) {
 					createData(identity, jGenerator, formValue);
+					ret = updateState();
+					counter++;
 				} else {
 					count--;
 				}
@@ -152,6 +167,8 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 					}
 					if (listOfValues.size() > 0) {
 						createData(identity, jGenerator, listOfValues);
+						ret = updateState();
+						counter++;
 					} else {
 						count--;
 					}
@@ -160,26 +177,25 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 				}
 			}
 		}
+		return ret;
 	}
 
 	private void createData(IdmIdentityDto identity, JsonGenerator jGenerator, List<IdmFormValueDto> formValue) throws IOException {
-		jGenerator.writeStartObject();
-		jGenerator.writeObjectField(ATTRIBUTE_BTITLE, identity.getTitleBefore());
-		jGenerator.writeObjectField(ATTRIBUTE_FNAME, identity.getFirstName());
-		jGenerator.writeObjectField(ATTRIBUTE_LNAME, identity.getLastName());
-		jGenerator.writeObjectField(ATTRIBUTE_ATITLE, identity.getTitleAfter());
-		jGenerator.writeObjectField(ATTRIBUTE_USERNAME, identity.getUsername());
-		jGenerator.writeObjectField(ATTRIBUTE_EXTERNAL_CODE, identity.getExternalCode());
-		jGenerator.writeBooleanField(ATTRIBUTE_DISABLED, identity.isDisabled());
+		RptIdentityWithFormValueDto row = new RptIdentityWithFormValueDto();
+		row.setFirstName(identity.getFirstName());
+		row.setDisabled(identity.isDisabled());
+		row.setLastName(identity.getLastName());
+		row.setTitleBefore(identity.getTitleBefore());
+		row.setTitleAfter(identity.getTitleAfter());
+		row.setUsername(identity.getUsername());
+		row.setExternalCode(identity.getExternalCode());
 		//
-		jGenerator.writeFieldName(eavName);
-		jGenerator.writeStartArray();
+		List<String> formValues = new LinkedList<>();
 		for (IdmFormValueDto idmFormValueDto : formValue) {
-			jGenerator.writeObject(idmFormValueDto.getValue());
+			formValues.add(idmFormValueDto.getShortTextValue());
 		}
-		jGenerator.writeEndArray();
-		jGenerator.writeEndObject();
-		counter++;
+		row.setFormValue(formValues);
+		getMapper().writeValue(jGenerator, row);
 	}
 
 
@@ -204,7 +220,7 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 		attributes.add(disabled);
 		// form definition
 		IdmFormAttributeDto formDefinition = new IdmFormAttributeDto(
-				FORM_DEFINITION,
+				PARAMETER_FORM_DEFINITION,
 				"Form definition",
 				PersistentType.UUID);
 		formDefinition.setFaceType(BaseFaceType.FORM_DEFINITION_SELECT);
@@ -213,7 +229,7 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 		attributes.add(formDefinition);
 		// eav code
 		IdmFormAttributeDto eavName = new IdmFormAttributeDto(
-				EAV_CODE,
+				PARAMETER_EAV_CODE,
 				"EAV attribute name",
 				PersistentType.SHORTTEXT);
 		eavName.setPlaceholder("Name of EAV attribute to report...");
@@ -221,7 +237,7 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 		attributes.add(eavName);
 		//
 		IdmFormAttributeDto value = new IdmFormAttributeDto(
-				EAV_VALUE,
+				PARAMETER_EAV_VALUE,
 				"Value of EAV attribute to report",
 				PersistentType.SHORTTEXT);
 		value.setPlaceholder("If not filled, all kinds of values will be in report...");

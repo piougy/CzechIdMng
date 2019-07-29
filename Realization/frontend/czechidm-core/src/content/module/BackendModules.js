@@ -89,9 +89,7 @@ class BackendModules extends Basic.AbstractContent {
         _installedModules.push(moduleDescriptor);
       });
     }
-    _installedModules.sort((one, two) => {
-      return one.id > two.id;
-    });
+    _installedModules.sort((one, two) => one.id > two.id);
 
     return (
       <div>

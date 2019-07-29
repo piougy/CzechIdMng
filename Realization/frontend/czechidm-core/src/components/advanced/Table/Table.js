@@ -77,6 +77,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return 'component.advanced.Table';
   }
 
+  _getBulkActionLabel(backendBulkAction) {
+    return this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label', {
+      defaultValue: backendBulkAction.description || backendBulkAction.name
+    });
+  }
+
   componentDidMount() {
     const { manager, initialReload } = this.props;
     if (initialReload) {
@@ -92,31 +98,29 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             this.addErrorMessage({}, error);
           }
         } else {
-          const _actions = [];
           // TODO: react elements are stored in state ... redesign raw data and move cached actions into reducer
-          for (const index in actions) {
-            if (actions.hasOwnProperty(index)) {
-              const backendBulkAction = actions[index];
-              const iconKey = backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.icon';
+          const _actions = actions
+            .sort((one, two) => this._getBulkActionLabel(one).localeCompare(this._getBulkActionLabel(two)))
+            .map(backendBulkAction => {
+              const iconKey = `${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.icon`;
               const icon = this.i18n(iconKey);
-              _actions.push({
+              const label = this._getBulkActionLabel(backendBulkAction);
+              return {
                 value: backendBulkAction.name,
                 niceLabel: (
                   <span key={ `b-a-${backendBulkAction.name}` }>
-                    <Basic.Icon value={ icon } rendered={ backendBulkAction.module + icon !== iconKey } style={{ marginRight: 5 }}/>
-                    {
-                      this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label', {
-                        defaultValue: backendBulkAction.description || backendBulkAction.name
-                      })
-                    }
+                    <Basic.Icon
+                      value={ icon }
+                      rendered={ backendBulkAction.module + icon !== iconKey }
+                      style={{ marginRight: 5, width: 18, textAlign: 'center' }}/>
+                    { label }
                   </span>),
                 action: this.showBulkActionDetail.bind(this, backendBulkAction),
                 disabled: !SecurityManager.hasAllAuthorities(backendBulkAction.authorities),
                 showWithSelection: backendBulkAction.showWithSelection,
                 showWithoutSelection: backendBulkAction.showWithoutSelection,
-              });
-            }
-          }
+              };
+            });
           //
           this.setState({
             _actions
@@ -1034,23 +1038,30 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                       content.push(
                         <Basic.Div>
                           <span title={ this.i18n('entity.transactionId.help') }>
-                            { this.i18n('entity.transactionId.short') }:
+                            { this.i18n('entity.transactionId.short') }
+                            :
                           </span>
                           <UuidInfo
                             value={ transactionId }
                             uuidEnd={ uuidEnd }
                             header={ this.i18n('entity.transactionId.label') }
                             placement="left"
-                            buttons={[
-                              <a
-                                href="#"
-                                onClick={ this.showAudit.bind(this, entity) }
-                                title={ this.i18n('button.transactionId.title') }>
-                                <Basic.Icon icon="component:audit"/>
-                                {' '}
-                                { this.i18n('button.transactionId.label') }
-                              </a>
-                            ]}/>
+                            buttons={
+                              SecurityManager.hasAuthority('AUDIT_READ')
+                              ?
+                              [
+                                <a
+                                  href="#"
+                                  onClick={ this.showAudit.bind(this, entity) }
+                                  title={ this.i18n('button.transactionId.title') }>
+                                  <Basic.Icon icon="component:audit"/>
+                                  {' '}
+                                  { this.i18n('button.transactionId.label') }
+                                </a>
+                              ]
+                              :
+                              null
+                            }/>
                         </Basic.Div>
                       );
                     }

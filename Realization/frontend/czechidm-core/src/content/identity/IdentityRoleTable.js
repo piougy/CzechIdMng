@@ -137,20 +137,20 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
   _attributesCell({rowIndex, data}) {
     const value = data[rowIndex];
     const result = [];
-    if ( value
+    if (value
       && value._eav
       && value._eav.length === 1
       && value._eav[0].formDefinition) {
       const formInstance = value._eav[0];
       const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values, formInstance.validationErrors);
       result.push(
-          <Advanced.EavForm
-            key={ _.uniqueId(`${rowIndex}-${value.id}`) }
-            ref="eavForm"
-            formInstance={ _formInstance }
-            readOnly
-            useDefaultValue={false}/>
-        );
+        <Advanced.EavForm
+          key={ _.uniqueId(`${rowIndex}-${value.id}`) }
+          ref="eavForm"
+          formInstance={ _formInstance }
+          readOnly
+          useDefaultValue={false}/>
+      );
     }
     return (
       <Basic.Div className="abstract-form condensed" style={{minWidth: 150, padding: 0}}>
@@ -184,8 +184,10 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
       return null;
     }
     // contract force search parameters - contract filter is shown only if identity is given
+    const hasIdentityForceFilter = forceSearchParameters.getFilters().has('identityId');
+    const hasRoleForceFilter = forceSearchParameters.getFilters().has('roleId');
     let contractForceSearchparameters = null;
-    if (forceSearchParameters && forceSearchParameters.getFilters().has('identityId')) {
+    if (forceSearchParameters && hasIdentityForceFilter) {
       contractForceSearchparameters = new SearchParameters().setFilter('identity', forceSearchParameters.getFilters().get('identityId'));
     }
     //
@@ -243,7 +245,15 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                       ref="roleId"
                       label={ null }
                       placeholder={ this.i18n('filter.role.placeholder') }
-                      header={ this.i18n('filter.role.placeholder') }/>
+                      header={ this.i18n('filter.role.placeholder') }
+                      hidden={ hasRoleForceFilter }/>
+                    <Advanced.Filter.SelectBox
+                      ref="identityId"
+                      manager={ identityManager }
+                      label={ null }
+                      placeholder={ this.i18n('filter.identity.placeholder') }
+                      header={ this.i18n('filter.identity.placeholder') }
+                      hidden={ hasIdentityForceFilter }/>
                   </Basic.Col>
                   <Basic.Col lg={ 3 } rendered={ showEnvironment }>
                     <Advanced.CodeListSelect
@@ -252,6 +262,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                       label={ null }
                       placeholder={ this.i18n('entity.Role.environment.label') }
                       items={ environmentItems || [] }
+                      hidden={ hasRoleForceFilter }
                       multiSelect/>
                   </Basic.Col>
                   <Basic.Col lg={ showEnvironment ? 3 : 4 }>
@@ -315,6 +326,22 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             }
             rendered={ _.includes(columns, 'role') }/>
           <Advanced.Column
+            header={ this.i18n('entity.Identity._type') }
+            property="identityContract"
+            width={ 175 }
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data, property }) => (
+                <Advanced.EntityInfo
+                  entityType="identity"
+                  entityIdentifier={ data[rowIndex]._embedded[property].identity }
+                  entity={ data[rowIndex]._embedded[property]._embedded.identity }
+                  face="popover"
+                  showIcon />
+              )
+            }
+            rendered={ _.includes(columns, 'identity') }/>
+          <Advanced.Column
             header={ this.i18n('entity.Role.baseCode.label') }
             title={ this.i18n('entity.Role.baseCode.help') }
             width={ 125 }
@@ -358,17 +385,15 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             width={ 175 }
             cell={
               /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data, property }) => {
-                return (
-                  <Advanced.EntityInfo
-                    entityType="identityContract"
-                    entityIdentifier={ data[rowIndex][property] }
-                    entity={ data[rowIndex]._embedded[property] }
-                    showIdentity={ false }
-                    face="popover"
-                    showIcon />
-                );
-              }
+              ({ rowIndex, data, property }) => (
+                <Advanced.EntityInfo
+                  entityType="identityContract"
+                  entityIdentifier={ data[rowIndex][property] }
+                  entity={ data[rowIndex]._embedded[property] }
+                  showIdentity={ false }
+                  face="popover"
+                  showIcon />
+              )
             }
             rendered={ _.includes(columns, 'identityContract') }/>
           <Advanced.Column

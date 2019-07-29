@@ -2506,6 +2506,9 @@
         "filter": {
           "role": {
             "placeholder": "$t(content.identities.filter.role.placeholder)"
+          },
+          "identity": {
+            "placeholder": "$t(entity.Identity._type)"
           }
         },
         "changePermissions": "Žádost o změnu rolí",

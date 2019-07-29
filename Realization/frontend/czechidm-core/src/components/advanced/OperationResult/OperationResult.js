@@ -6,18 +6,15 @@ import * as Basic from '../../basic';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
 import { AttachmentService } from '../../../services';
 
+const PARTIAL_CONTENT_STATUS = 206;
+
 /**
 * Operation result component - shows enum value and result code with flash message
 *
-* TODO: less file - move inner styles there
-*
-* @author Patrik Stloukal
 * @author Radek Tomiška
+* @author Patrik Stloukal
 *
 */
-
-const PARTIAL_CONTENT_STATUS = 206;
-
 export default class OperationResult extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
@@ -81,15 +78,16 @@ export default class OperationResult extends Basic.AbstractContextComponent {
     //
     return (
       <Basic.Panel>
-        <Basic.PanelHeader rendered={ value.model !== null }>
-          { this.i18n('result.code') }
-          {': '}
-          { value.code }
-        </Basic.PanelHeader>
         <Basic.PanelBody style={{ padding: 2 }}>
           <Basic.FlashMessage
             message={ this.getFlashManager().convertFromResultModel(value.model) }
             style={{ wordWrap: 'break-word', margin: 0 }}/>
+        </Basic.PanelBody>
+        {/* RT: hidden - show as collapse, tooltip instead? */}
+        <Basic.PanelBody rendered={ value.model !== null } style={{ display: 'none' }}>
+          { this.i18n('result.code') }
+          {': '}
+          { value.code }
         </Basic.PanelBody>
         {
           !detailLink
@@ -167,19 +165,22 @@ export default class OperationResult extends Basic.AbstractContextComponent {
 
         <div style={{ marginBottom: 15 }}>
           { downloadComponent }
-          <Basic.EnumValue
-            level={ message ? message.level : null }
-            value={value.state}
-            style={{ marginLeft: downloadComponent ? 15 : 0 }}
-            enum={ OperationStateEnum }
-            label={ stateLabel }/>
+          <Basic.Div style={{ float: 'left' }}>
+            <Basic.EnumValue
+              level={ message ? message.level : null }
+              value={value.state}
+              style={{ marginLeft: downloadComponent ? 15 : 0 }}
+              enum={ OperationStateEnum }
+              label={ stateLabel }/>
+          </Basic.Div>
           {
             (!value || !value.code)
             ||
-            <span style={{ marginLeft: value.state ? 15 : 0 }}>
+            <Basic.Div style={{ marginLeft: value.state ? 15 : 0, fontStyle: 'italic', float: 'right'}}>
               { `${ this.i18n('result.code')}: ${ value.code}` }
-            </span>
+            </Basic.Div>
           }
+          <Basic.Div className="clearfix"/>
           <Basic.FlashMessage message={ message } style={{ margin: '15px 0 0 0' }}/>
         </div>
         {

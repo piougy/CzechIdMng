@@ -2006,7 +2006,7 @@
           "placeholder": "Search by whole username applicant."
         },
         "states":{
-          "placeholder": "Search by states in IdM"
+          "placeholder": "States in IdM"
         },
         "dateCreatedFrom":{
           "placeholder": "Created from"
@@ -2015,10 +2015,10 @@
           "placeholder": "Created to"
         },
         "applicants":{
-          "placeholder": "Search by applicants"
+          "placeholder": "Applicants"
         },
-        "statesSystem":{
-          "placeholder": "Search by states in system"
+        "systemStates":{
+          "placeholder": "States in systems"
         }
       }
     },

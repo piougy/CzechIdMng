@@ -222,7 +222,7 @@ public class DefaultIdmRoleRequestService
 			predicates.add(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.id).in(applicants));
 		}
 		//
-		List<OperationState> resultStates = filter.getResultStates();
+		List<OperationState> resultStates = filter.getSystemStates();
 		if (!resultStates.isEmpty()) {
 			predicates.add(root.get(IdmRoleRequest_.systemState).get(PROPERTY_STATE).in(resultStates));
 		}

@@ -14,6 +14,7 @@ const manager = new RoleRequestManager();
 
 /**
  * Role request table
+ *
  * @author Vít Švanda
  */
 export class RoleRequestTable extends Advanced.AbstractTableContent {
@@ -163,9 +164,9 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                   </Basic.Col>
                   <Basic.Col lg={ 3 }>
                     <Advanced.Filter.EnumSelectBox
-                      ref="resultStates"
+                      ref="systemStates"
                       multiSelect
-                      placeholder={ this.i18n('filter.statesSystem.placeholder') }
+                      placeholder={ this.i18n('filter.systemStates.placeholder') }
                       enum={ OperationStateEnum }/>
                   </Basic.Col>
                   <Basic.Col lg={ 3 } className="text-right">
@@ -203,7 +204,7 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                   _.includes(columns, 'createNew')
                     && createNewRequestFunc
                     && SecurityManager.hasAnyAuthority(['ROLEREQUEST_ADMIN'])
-                  }>
+                }>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -218,13 +219,11 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
             rendered={_.includes(columns, 'detail')}
             className="detail-button"
             cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <Advanced.DetailButton
+                  title={this.i18n('button.detail')}
+                  onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
+              )
             }/>
           <Advanced.Column
             property="state"
@@ -268,13 +267,13 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
             rendered={_.includes(columns, 'wf')}
             face="text"
             cell={this._getCurrentActivitiCell}
-            />
+          />
           <Advanced.Column
             property="candicateUsers"
             rendered={_.includes(columns, 'wf')}
             face="text"
             cell={this._getCandidatesCell}
-            />
+          />
           <Advanced.Column
             property="executeImmediately"
             rendered={_.includes(columns, 'executeImmediately')}

@@ -2054,7 +2054,7 @@
           "placeholder": "Vyhledání dle celého uživatelského jména žadatele"
         },
         "states":{
-          "placeholder": "Vyhledání podle stavů na IdM"
+          "placeholder": "Stav v IdM"
         },
         "dateCreatedFrom":{
           "placeholder": "Vytvořeno od"
@@ -2063,10 +2063,10 @@
           "placeholder": "Vytvořeno do"
         },
         "applicants":{
-          "placeholder": "Vyhledat podle žádajících"
+          "placeholder": "Žádost pro"
         },
-        "statesSystem":{
-          "placeholder": "Vyhledání podle stavů na systémech"
+        "systemStates":{
+          "placeholder": "Stav na systémech"
         }
       }
 

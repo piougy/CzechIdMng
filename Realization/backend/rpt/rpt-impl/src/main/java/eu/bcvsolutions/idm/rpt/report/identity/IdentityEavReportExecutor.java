@@ -192,7 +192,7 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 		//
 		List<String> formValues = new LinkedList<>();
 		for (IdmFormValueDto idmFormValueDto : formValue) {
-			formValues.add(idmFormValueDto.getShortTextValue());
+			formValues.add(idmFormValueDto.getValue().toString());
 		}
 		row.setFormValue(formValues);
 		getMapper().writeValue(jGenerator, row);

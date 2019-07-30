@@ -5132,7 +5132,7 @@
             "help": "Automatic role by tree structure."
           },
           "automaticroleattribute": {
-            "label": "Or automatic role by attribute",
+            "label": "Or: Automatic role by attribute",
             "help": "Automatic role by attribute."
           }
         }

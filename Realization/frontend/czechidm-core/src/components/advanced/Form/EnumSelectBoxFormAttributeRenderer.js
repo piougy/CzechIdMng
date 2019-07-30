@@ -6,7 +6,7 @@ import AbstractFormAttributeRenderer from './AbstractFormAttributeRenderer';
 import ShortTextFormAttributeRenderer from './ShortTextFormAttributeRenderer';
 
 /**
- * Code list select component
+ * Enumeration select box component
  *
  * @author Radek Tomiška
  */

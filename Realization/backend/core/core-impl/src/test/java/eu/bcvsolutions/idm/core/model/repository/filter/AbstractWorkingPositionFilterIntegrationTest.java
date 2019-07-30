@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.joda.time.LocalDate;
-import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,6 +25,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -56,15 +56,12 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	protected IdmTreeTypeDto structureTwo;
 	protected IdmIdentityContractDto contractOne;
 	protected IdmIdentityContractDto contractTwo;
+	protected IdmIdentityContractDto contractSubordinateTwo;
+	protected IdmIdentityContractDto contractThree;
 	
 	@Before
 	public void init() {
-		loginAsAdmin();
-	}
-	
-	@After
-	public void logout() {
-		super.logout();
+		// nothing needed now
 	}
 	
 	/**
@@ -117,10 +114,11 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		getHelper().createContractGuarantee(contractTwo.getId(), disabledGuarantee.getId());
 		// subordinate two
 		IdmTreeNodeDto subordinateTwoPosition = createPosition(structureOne, subordinateOnePositionOne);
-		IdmIdentityContractDto contractSubordinateTwo = getHelper().createIdentityContact(subordinateTwo, subordinateTwoPosition);
+		contractSubordinateTwo = getHelper().createIdentityContact(subordinateTwo, subordinateTwoPosition);
 		getHelper().createContractGuarantee(contractSubordinateTwo.getId(), guaranteeFour.getId());
 		// subordinate three
-		getHelper().createContractGuarantee(getHelper().createIdentityContact(subordinateThree).getId(), managerOne.getId());
+		contractThree = getHelper().createIdentityContact(subordinateThree);
+		getHelper().createContractGuarantee(contractThree.getId(), managerOne.getId());
 	}
 	
 	protected void testManagersBuilder(FilterBuilder<IdmIdentity, IdmIdentityFilter> builder) {
@@ -209,18 +207,18 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(invalidManagerExpiredContract.getId());
 		subordinates = builder.find(filter, null).getContent();
-		assertTrue(subordinates.isEmpty());		
+		assertTrue(subordinates.isEmpty());
 	}
 	
 	private IdmTreeNodeDto createPosition(IdmTreeTypeDto type, IdmTreeNodeDto parent) {
 		IdmTreeNodeDto node = getHelper().createTreeNode(type, parent);
 		
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmTreeNode.class, FormService.DEFAULT_DEFINITION_CODE);
-		IdmFormAttributeDto attr = formDefinition.getMappedAttributeByCode(EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
+		IdmFormAttributeDto attr = formDefinition.getMappedAttributeByCode(EavCodeContractByManagerFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
 		if (attr == null) {
 			attr = new IdmFormAttributeDto();
 			attr.setName("Parent code");
-			attr.setCode(EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
+			attr.setCode(EavCodeContractByManagerFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
 			attr.setFormDefinition(formDefinition.getId());
 			attr.setPersistentType(PersistentType.TEXT);
 			attr.setUnmodifiable(true);
@@ -241,4 +239,12 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 				.count() == 1;
 	}
 
+	protected boolean contains(List<IdmIdentityContract> contracts, IdmIdentityContractDto contract) {
+		return contracts
+				.stream()
+				.filter(m -> { 
+					return m.getId().equals(contract.getId()); 
+					})
+				.count() == 1;
+	}
 }

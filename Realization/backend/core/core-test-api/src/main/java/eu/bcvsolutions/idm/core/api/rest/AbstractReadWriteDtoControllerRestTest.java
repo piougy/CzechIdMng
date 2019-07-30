@@ -602,6 +602,52 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		Assert.assertEquals(1, count(parameters));
 	}
 	
+	/**
+	 * Test search by ids - supported by default, id DataFilter is used (see #toPedicates in services - has to call super implementation)
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testFindByIds() {
+		if (!DataFilter.class.isAssignableFrom(getController().getFilterClass())) {
+			LOG.warn("Controller [{}] doesn't support DataFilter. Find by id will not be tested.", getController().getClass());
+			return;
+		}
+		//
+		DTO createdDto = createDto(prepareDto());
+		DTO createdDtoTwo = createDto(prepareDto());
+		// mock dto
+		createDto(prepareDto());
+		//
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.put(DataFilter.PARAMETER_ID, Lists.newArrayList(createdDto.getId().toString(), createdDtoTwo.getId().toString()));
+		//
+		List<DTO> results = find(parameters);
+		//
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDto.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDtoTwo.getId())));
+		//
+		// find quick alias
+		results = findQuick(parameters);
+		//
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDto.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDtoTwo.getId())));
+		//
+		if (supportsAutocomplete()) {
+			results = autocomplete(parameters);
+			//
+			Assert.assertEquals(2, results.size());
+			Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDto.getId())));
+			Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDtoTwo.getId())));
+		} else {
+			LOG.info("Controller [{}] doesn't support autocomplete method. Method will not be tested.", getController().getClass());
+		}
+		//
+		Assert.assertEquals(2, count(parameters));
+	}
+	
 	@Test
 	public void testDeleteEntityNotExists() throws Exception {
 		if (!supportsDelete()) {

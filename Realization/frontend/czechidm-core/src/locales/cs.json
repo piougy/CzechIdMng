@@ -5182,7 +5182,7 @@
             "help": "Automatická role dle stromové struktury."
           },
           "automaticroleattribute": {
-            "label": "Or automatická role dle attributu",
+            "label": "Nebo: Automatická role dle attributu",
             "help": "Automatická role dle attributu."
           }
         }

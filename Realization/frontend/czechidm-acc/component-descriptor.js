@@ -38,7 +38,7 @@ module.exports = {
       persistentType: 'UUID',
       faceType: 'SYNCHRONIZATION-CONFIG-SELECT',
       component: require('czechidm-core/src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
-      labelKey: 'acc:component.advanced.EavForm.faceType.[SYNCHRONIZATION-CONFIG-SELECT',
+      labelKey: 'acc:component.advanced.EavForm.faceType.SYNCHRONIZATION-CONFIG-SELECT',
       manager: require('./src/redux').SynchronizationConfigManager
     },
     {

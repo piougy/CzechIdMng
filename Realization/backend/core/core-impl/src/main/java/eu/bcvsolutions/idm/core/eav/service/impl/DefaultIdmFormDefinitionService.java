@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
@@ -194,7 +195,13 @@ public class DefaultIdmFormDefinitionService
 	public IdmFormDefinitionDto updateDefinition(Class<? extends Identifiable> ownerType, String definitionCode, List<IdmFormAttributeDto> attributes) {
 		Assert.notNull(ownerType);
 		//
-		return updateDefinition(getOwnerType(ownerType), definitionCode, attributes);
+		IdmFormDefinitionDto definition = new IdmFormDefinitionDto();
+		definition.setType(getOwnerType(ownerType));
+		definition.setModule(EntityUtils.getModule(ownerType));
+		definition.setCode(definitionCode);
+		definition.setFormAttributes(attributes);
+		//
+		return updateDefinition(definition);
 	}
 	
 	@Override
@@ -202,15 +209,34 @@ public class DefaultIdmFormDefinitionService
 	public IdmFormDefinitionDto updateDefinition(String definitionType, String definitionCode, List<IdmFormAttributeDto> attributes) {
 		Assert.notNull(definitionType);
 		//
-		IdmFormDefinitionDto formDefinition = findOneByTypeAndCode(definitionType, definitionCode);
+		IdmFormDefinitionDto definition = new IdmFormDefinitionDto();
+		definition.setType(definitionType);
+		definition.setCode(definitionCode);
+		definition.setFormAttributes(attributes);
+		//
+		return updateDefinition(definition);
+	}
+	
+	@Override
+	@Transactional
+	public IdmFormDefinitionDto updateDefinition(IdmFormDefinitionDto definition) {
+		Assert.notNull(definition);
+		Assert.notNull(definition.getType());
+		Assert.notNull(definition.getCode());
+		//
+		IdmFormDefinitionDto formDefinition = findOneByTypeAndCode(definition.getType(), definition.getCode());
 		if (formDefinition == null) {
 			formDefinition = new IdmFormDefinitionDto();
-			formDefinition.setType(definitionType);
-			formDefinition.setCode(definitionCode);
-			// TODO: we don't set definition to unmodifiable - some changes can be done through ui?
+			formDefinition.setType(definition.getType());
+			formDefinition.setCode(definition.getCode());
+			formDefinition.setName(definition.getName());
+			formDefinition.setDescription(definition.getDescription());
+			formDefinition.setModule(definition.getModule());
+			// 
 			formDefinition = save(formDefinition);
 		}
 		//
+		List<IdmFormAttributeDto> attributes = definition.getFormAttributes();
 		if (attributes == null || attributes.isEmpty()) {
 			// delete attributes is not supported - its incompatible change
 			// change script has to be provided

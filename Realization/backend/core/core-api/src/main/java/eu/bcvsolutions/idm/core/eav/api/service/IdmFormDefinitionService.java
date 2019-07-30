@@ -124,4 +124,18 @@ public interface IdmFormDefinitionService extends
 	 * @since 7.7.0
 	 */
 	IdmFormDefinitionDto updateDefinition(String definitionType, String definitionCode, List<IdmFormAttributeDto> attributes);
+	
+	/**
+	 * Creates / updates definition with given attributes.
+	 * Update attributes in definition automatically except change persistent type and confidential. 
+	 * This incompatible changes have to be solved externally (e.g. by change script). 
+	 * Adding parameter is compatible change.
+	 * Removing attribute is ignored now - attributes remain in definition a can be removed e.g. by change script.
+	 * 
+	 * @param definition type and code has to be given
+	 * @param attributes
+	 * @return
+	 * @since 9.7.0
+	 */
+	IdmFormDefinitionDto updateDefinition(IdmFormDefinitionDto definition);
 }

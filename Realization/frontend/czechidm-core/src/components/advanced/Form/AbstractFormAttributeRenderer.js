@@ -370,13 +370,10 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
       values.forEach(value => {
         if (value._changed === true) {
           changed = true;
-          return;
         }
       });
-    } else {
-      if (values._changed === true) {
-        return true;
-      }
+    } else if (values._changed === true) {
+      return true;
     }
     return changed;
   }
@@ -394,14 +391,12 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
           originalValues.push(value);
         }
       });
-    } else {
-      if (values._changed === true) {
-        if (values._originalValue) {
-          originalValues.push(values._originalValue);
-        }
-      } else {
-        originalValues.push(values);
+    } else if (values._changed === true) {
+      if (values._originalValue) {
+        originalValues.push(values._originalValue);
       }
+    } else {
+      originalValues.push(values);
     }
     return originalValues;
   }
@@ -411,8 +406,16 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     // check confidential support
     if (attribute.confidential && !this.supportsConfidential()) {
       return (
-        <Basic.LabelWrapper label={attribute.name}>
-          <Basic.Alert level="warning" text={ this.i18n('component.advanced.EavForm.persistentType.unsupported.confidential', { name: attribute.persistentType}) } className="no-margin"/>
+        <Basic.LabelWrapper label={ attribute.name }>
+          <Basic.Alert
+            level="warning"
+            text={
+              this.i18n(
+                'component.advanced.EavForm.persistentType.unsupported.confidential',
+                { name: attribute.persistentType}
+              )
+            }
+            className="no-margin"/>
         </Basic.LabelWrapper>
       );
     }

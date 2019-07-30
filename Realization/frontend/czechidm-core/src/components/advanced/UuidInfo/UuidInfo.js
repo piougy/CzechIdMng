@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
@@ -71,7 +72,8 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
         className={
           classnames(
             'abstract-entity-info-popover',
-            'uuid-info-popover-value')
+            'uuid-info-popover-value'
+          )
         }
         value={
           <Basic.Panel

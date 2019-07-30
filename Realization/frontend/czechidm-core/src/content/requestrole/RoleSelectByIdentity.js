@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { RoleManager, IdentityManager, IdentityRoleManager, IdentityContractManager } from '../../redux';
+import { RoleManager, IdentityManager, IdentityRoleManager, IdentityContractManager, ConfigurationManager } from '../../redux';
 import ConfigLoader from '../../utils/ConfigLoader';
 //
 import SearchParameters from '../../domain/SearchParameters';
@@ -34,7 +34,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
       selectedIdentityRoles: [],
       showOnlyDirectRoles: true, // first initial value for show only directed roles
       selectedIdentityContract: null,
-      environment: ConfigLoader.getConfig('role.table.filter.environment', [])
+      environment: props.showEnvironment ? ConfigLoader.getConfig('role.table.filter.environment', []) : null
     };
   }
 
@@ -287,7 +287,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { identityRoles, identityRoleShowLoading, identityUsername, identity } = this.props;
+    const { identityRoles, identityRoleShowLoading, identityUsername, identity, showEnvironment } = this.props;
     const {
       selectedIdentity,
       identityRoleRoots,
@@ -342,7 +342,8 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                 multiSelect
                 onChange={ this._onEnvironmentChange.bind(this) }
                 value={ environment }
-                helpBlock={ this.i18n('environment.help') }/>
+                helpBlock={ this.i18n('environment.help') }
+                hidden={ !showEnvironment }/>
             </Basic.Col>
             <Basic.Col lg={ 6 }>
               <Basic.ContentHeader
@@ -509,7 +510,8 @@ function select(state, component) {
   return {
     identity: identityManager.getEntity(state, component.identityUsername),
     identityRoles: identityRoleManager.getEntities(state, IDENTITY_ROLE_BY_IDENTITY_UIKEY),
-    identityRoleShowLoading: identityRoleManager.isShowLoading(state, IDENTITY_ROLE_BY_IDENTITY_UIKEY)
+    identityRoleShowLoading: identityRoleManager.isShowLoading(state, IDENTITY_ROLE_BY_IDENTITY_UIKEY),
+    showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', true)
   };
 }
 

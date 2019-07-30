@@ -15,6 +15,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
@@ -410,6 +411,11 @@ public class DefaultIdmConceptRoleRequestService extends
 		
 		if (filter.getRoleEnvironment() != null) {
 			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.role).get(IdmRole_.environment), filter.getRoleEnvironment()));
+		}
+		
+		List<String> roleEnvironments = filter.getRoleEnvironments();
+		if (CollectionUtils.isNotEmpty(roleEnvironments)) {
+			predicates.add(root.get(IdmConceptRoleRequest_.role).get(IdmRole_.environment).in(roleEnvironments));
 		}
 		
 		if (filter.isIdentityRoleIsNull()) {

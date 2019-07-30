@@ -1,5 +1,7 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
+import equal from 'fast-deep-equal';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import PageHeader from '../PageHeader/PageHeader';
@@ -7,7 +9,6 @@ import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
 import ConfigurationManager from '../../../redux/data/ConfigurationManager';
 import { selectNavigationItems, selectNavigationItem, getNavigationItem, hideFooter } from '../../../redux/config/actions';
-import equal from 'fast-deep-equal';
 
 /**
 * Basic content = page representation
@@ -16,10 +17,6 @@ import equal from 'fast-deep-equal';
 * @author Radek Tomiška
 */
 export default class AbstractContent extends AbstractContextComponent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   /**
    * Don't forget to call super.componentDidMount() in subclass
@@ -251,7 +248,7 @@ export default class AbstractContent extends AbstractContextComponent {
     return (
       <PageHeader {...props}>
         <Helmet title={ props.title || this.i18n('title') } />
-        <Icon value={props.icon || navigationItem.icon}/>
+        <Icon value={ props.icon || navigationItem.icon }/>
         {' '}
         <span dangerouslySetInnerHTML={{__html: props.header || this.i18n('header')}}/>
         {' '}

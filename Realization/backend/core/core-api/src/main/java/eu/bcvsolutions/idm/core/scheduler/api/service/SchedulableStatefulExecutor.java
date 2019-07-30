@@ -28,7 +28,7 @@ public interface SchedulableStatefulExecutor<DTO extends AbstractDto, V> extends
 	 * 
 	 * of type {@link OperationResult}.
 	 */
-	static final String OPERATION_RESULT_VAR = "operationResult";
+	String OPERATION_RESULT_VAR = "operationResult";
 	
 	/**
 	 * Returns a pageable result set of DTOs the task should process.
@@ -80,6 +80,21 @@ public interface SchedulableStatefulExecutor<DTO extends AbstractDto, V> extends
 	void setContinueOnException(boolean continueOnException);
 	
 	/**
+	 * Returns true, when task uses queue for checking already processed items.
+	 * Returns {@code true} by default.
+	 * If {@code false} is returned:
+	 * - Then all available candidates will be processed.
+	 * - Queue will not be filled or loaded.
+	 * - Processed items will be logged only.
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	default boolean supportsQueue() {
+		return true;
+	}
+	
+	/**
 	 * Returns all entity references (of type {@link AbstractDto#getId()}
 	 * from processed items queue, including items that were processed in earlier
 	 * runs of this executor.
@@ -91,6 +106,7 @@ public interface SchedulableStatefulExecutor<DTO extends AbstractDto, V> extends
 	/**
 	 * Checks whether the given entity DTO has been already processed
 	 * and is active in processed items queue.
+	 * If {{@link #supportsQueue()} return {@code fale}, then {@code false} is returned immediately, without checking queue.
 	 * 
 	 * @param dto
 	 * @return
@@ -117,5 +133,4 @@ public interface SchedulableStatefulExecutor<DTO extends AbstractDto, V> extends
 	 * @param dto
 	 */
 	void removeFromProcessedQueue(DTO dto);
-
 }

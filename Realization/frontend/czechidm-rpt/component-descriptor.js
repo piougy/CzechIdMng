@@ -1,6 +1,6 @@
 module.exports = {
-  'id': 'rpt',
-  'components': [
+  id: 'rpt',
+  components: [
 
   ]
 };

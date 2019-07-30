@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import uuid from 'uuid';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -7,9 +8,11 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { SearchParameters } from '../../domain';
-import { SecurityManager, ConfigurationManager } from '../../redux';
+import { SecurityManager, ConfigurationManager, IdentityManager } from '../../redux';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
 import ConfigLoader from '../../utils/ConfigLoader';
+//
+const manager = new IdentityManager(); // default manager
 
 /**
  * Table of identities
@@ -144,7 +147,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={ uiKey }
           manager={ identityManager }
-          showRowSelection={ showRowSelection && (SecurityManager.hasAuthority('IDENTITY_UPDATE') || SecurityManager.hasAuthority('IDENTITY_DELETE')) }
+          showRowSelection={ showRowSelection }
           filter={
             <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
@@ -161,7 +164,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                       label={ null }
                       placeholder={ this.i18n('filter.role.placeholder') }
                       header={ this.i18n('filter.role.placeholder') }
-                      rendered={ !roleDisabled }/>
+                      rendered={ !roleDisabled }
+                      multiSelect/>
                   </Basic.Col>
                   <Basic.Col lg={ 3 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
@@ -272,7 +276,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="lastName" sort face="text" rendered={ _.includes(columns, 'lastName') }/>
           <Advanced.Column property="firstName" sort width="10%" face="text" rendered={ _.includes(columns, 'firstName') }/>
           <Advanced.Column property="externalCode" sort width="10%" face="text" rendered={ _.includes(columns, 'externalCode') }/>
-          <Advanced.Column property="email" width="15%" face="text" sort rendered={_ .includes(columns, 'email') }/>
+          <Advanced.Column property="email" width="15%" face="text" sort rendered={ _.includes(columns, 'email') }/>
           <Advanced.Column property="disabled" face="bool" sort width={ 100 } rendered={ _.includes(columns, 'disabled') }/>
           <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width="100px" rendered={ _.includes(columns, 'state') }/>
           <Advanced.Column property="description" sort face="text" rendered={ _.includes(columns, 'description') } maxLength={ 30 }/>
@@ -284,7 +288,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
 
 IdentityTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  identityManager: PropTypes.object.isRequired,
+  identityManager: PropTypes.object,
   /**
    * Rendered columns - see table columns above
    *
@@ -332,6 +336,7 @@ IdentityTable.propTypes = {
 };
 
 IdentityTable.defaultProps = {
+  identityManager: manager,
   columns: ['username', 'lastName', 'firstName', 'externalCode', 'email', 'state', 'description'],
   filterOpened: false,
   showAddButton: true,
@@ -349,7 +354,11 @@ function select(state, component) {
     i18nReady: state.config.get('i18nReady'),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     deleteEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.delete'),
-    skipDashboard: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.dashboard.skip', ConfigLoader.getConfig('identity.dashboard.skip', false))
+    skipDashboard: ConfigurationManager.getPublicValueAsBoolean(
+      state,
+      'idm.pub.core.identity.dashboard.skip',
+      ConfigLoader.getConfig('identity.dashboard.skip', false)
+    )
   };
 }
 

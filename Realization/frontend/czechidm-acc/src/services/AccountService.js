@@ -1,7 +1,5 @@
-import { Services } from 'czechidm-core';
-import { Domain } from 'czechidm-core';
+import { Services, Domain, Utils } from 'czechidm-core';
 import AccountTypeEnum from '../domain/AccountTypeEnum';
-import { Utils } from 'czechidm-core';
 
 /**
  * Accounts on target system
@@ -10,10 +8,6 @@ import { Utils } from 'czechidm-core';
  * @author Radek Tomiška
  */
 export default class AccountService extends Services.AbstractService {
-
-  constructor() {
-    super();
-  }
 
   getNiceLabel(entity) {
     if (!entity) {
@@ -44,7 +38,7 @@ export default class AccountService extends Services.AbstractService {
   */
   getConnectorObject(id) {
     return Services.RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/connector-object`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/connector-object`)
       .then(response => {
         if (!response) {
           return null;

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
@@ -8,7 +9,7 @@ import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 const manager = new ConfigurationManager();
 
 /**
- * Component for rendering information about password, similar function as roleInfo
+ * Component for rendering information about IdM configurations
  *
  * @author Radek Tomiška
  * @since 9.7.0

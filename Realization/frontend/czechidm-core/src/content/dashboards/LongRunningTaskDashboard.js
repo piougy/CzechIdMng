@@ -14,10 +14,6 @@ const uiKeyPrefix = 'long-running-taks-table-';
  */
 class LongRunningTaskDashboard extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'dashboard.longRunningTaskDashboard';
   }
@@ -30,7 +26,7 @@ class LongRunningTaskDashboard extends Basic.AbstractContent {
     }
     //
     return (
-      <div className={ _total ? '' : 'hidden' }>
+      <Basic.Div className={ _total ? '' : 'hidden' }>
         <Basic.ContentHeader
           icon="component:scheduled-task"
           text={ this.i18n('dashboard.longRunningTaskDashboard.header') }/>
@@ -40,7 +36,7 @@ class LongRunningTaskDashboard extends Basic.AbstractContent {
             uiKey={ `${ uiKeyPrefix }${ identity ? identity.id : 'dashboard' }` }
             creatorId={ identity ? identity.id : null } />
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

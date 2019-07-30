@@ -2,8 +2,8 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 
 import java.util.UUID;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -47,7 +47,7 @@ public class IdentityGuaranteesForRoleFilter extends AbstractFilterBuilder<IdmId
 	}
 	
 	@Override
-	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+	public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		UUID guaranteesForRole = filter.getGuaranteesForRole();
 		if (guaranteesForRole == null) {
 			return null;

@@ -364,6 +364,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 	 */
 	protected <T> List<T> getListProperty(String property, EntityEvent<?> event, Class<T> type) {
 		Assert.notNull(property, "Name of event property cannot be null!");
+		//
 		return event.getListProperty(property, type);
 	}
 	
@@ -378,6 +379,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 	 */
 	protected <T> Set<T> getSetProperty(String property, EntityEvent<?> event, Class<T> type) {
 		Assert.notNull(property, "Name of event property cannot be null!");
+		//
 		return event.getSetProperty(property, type);
 	}
 	
@@ -397,14 +399,17 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 				+ ConfigurationService.PROPERTY_SEPARATOR
 				+ PROPERTY_EVENT_TYPES);
 		//
-		return configValue == null ? null : Arrays.stream(configValue.split(ConfigurationService.PROPERTY_MULTIVALUED_SEPARATOR))
-			.map(String::trim)
-			.filter(s -> !s.isEmpty())
-			.collect(Collectors.toSet());
+		return configValue == null ? null : Arrays
+				.stream(configValue.split(ConfigurationService.PROPERTY_MULTIVALUED_SEPARATOR))
+				.map(String::trim)
+				.filter(s -> !s.isEmpty())
+				.collect(Collectors.toSet());
 	}
 
 	/**
 	 * Returns entity-event-manager
+	 * 
+	 * @since 9.7.0
 	 */
 	protected EntityEventManager getEntityEventManager() {
 		return entityEventManager;

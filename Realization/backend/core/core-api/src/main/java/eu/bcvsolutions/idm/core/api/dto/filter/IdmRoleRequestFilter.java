@@ -23,7 +23,7 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private UUID applicantId;
 	private String applicant;
 	private RoleRequestState state;
-	private List<OperationState> resultStates;
+	private List<OperationState> systemStates;
 	private UUID duplicatedToRequestId;
 	private List<RoleRequestState> states;
 	private DateTime createdFrom;
@@ -147,11 +147,11 @@ public class IdmRoleRequestFilter extends DataFilter {
 		this.executed = executed;
 	}
 
-	public List<OperationState> getResultStates() {
-		return resultStates;
+	public List<OperationState> getSystemStates() {
+		return systemStates;
 	}
 
-	public void setResultStates(List<OperationState> resultStates) {
-		this.resultStates = resultStates;
+	public void setSystemStates(List<OperationState> systemStates) {
+		this.systemStates = systemStates;
 	}
 }

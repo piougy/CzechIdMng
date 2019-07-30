@@ -418,24 +418,30 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                   { this._getApplicantAndImplementer(request) }
                 </Basic.Col>
               </Basic.Row>
-              <div style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' }}>
-                <Basic.EnumLabel
-                  ref="state"
-                  enum={RoleRequestStateEnum}
-                  label={this.i18n('entity.RoleRequest.states')}/>
-                <div style={{ marginTop: '14px', marginLeft: '-70px', height: '19px' }}>
-                  /
+              <Basic.LabelWrapper
+                label={ this.i18n('entity.RoleRequest.states') }>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Basic.Div>
+                    <Basic.EnumValue
+                      value={ request.state }
+                      enum={ RoleRequestStateEnum }/>
+                  </Basic.Div>
+                  <Basic.Div
+                    rendered={ !!request.systemState }
+                    style={{ margin: '0 7px' }}>
+                    /
+                  </Basic.Div>
+                  <Basic.Div>
+                    <Advanced.OperationResult
+                      value={ request.systemState }
+                      stateLabel={ request.systemState
+                        && request.systemState.state === 'CREATED'
+                        ? this.i18n('enums.RoleRequestStateEnum.CONCEPT')
+                        : null}
+                    />
+                  </Basic.Div>
                 </div>
-                <div style={{ marginLeft: '10px', marginTop: '14px', height: '19px' }}>
-                  <Advanced.OperationResult
-                    value={ request.systemState }
-                    stateLabel={ request.systemState
-                      && request.systemState.state === 'CREATED'
-                      ? this.i18n('enums.RoleRequestStateEnum.CONCEPT')
-                      : null}
-                  />
-                </div>
-              </div>
+              </Basic.LabelWrapper>
               <Basic.Checkbox
                 ref="executeImmediately"
                 hidden={!hasAdminRights}

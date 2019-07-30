@@ -12,7 +12,7 @@
       "EavForm": {
         "faceType": {
           "SYSTEM-SELECT": "System select (SelectBox)",
-          "[SYNCHRONIZATION-CONFIG-SELECT": "Synchronization configuration select (SelectBox)"
+          "SYNCHRONIZATION-CONFIG-SELECT": "Synchronization configuration select (SelectBox)"
         }
       }
     }
@@ -197,6 +197,10 @@
           "inactiveOwnerBehavior": {
             "label": "Behavior of the default role for inactive identities",
             "helpBlock": "How to behave if the identity doesn't have any valid contract for assigning the default role."
+          },
+          "assignDefaultRoleToAll": {
+            "label": "Assign default role to all valid contracts",
+            "helpBlock": "The default role will not be assigned to the main contract, but to all valid or in future valid contracts of the identity."
           },
           "startAutoRoleRec": {
             "label": "After end, start the automatic role recalculation",
@@ -587,7 +591,7 @@
         "resultCode": "Code",
         "nextAttempt": {
           "header": "Next attempt",
-          "label": "<strong>Attempt:</strong> {{currentAttempt}} / {{maxAttempts}}, Next attempt will start <strong>{{nextAttempt}}</strong>"
+          "label": "<strong>Attempt:</strong> {{currentAttempt}} / {{maxAttempts}}, Next attempt will execute after <strong>{{nextAttempt}}</strong>"
         }
       },
       "filter": {
@@ -1520,7 +1524,7 @@
           "operationstate": {
             "label": "Operation state",
             "placeholder": "All states or ...",
-            "help": "Delete operations in given state only. Available options [CREATED, RUNNING, EXECUTED, NOT_EXECUTED, BLOCKED, EXCEPTION, CANCELED]."
+            "help": "Delete operations in given state only."
           },
           "system": {
             "label": "System",

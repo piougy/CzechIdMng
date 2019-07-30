@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -13,10 +14,6 @@ import Tooltip from '../Tooltip/Tooltip';
  * @author Radek Tomiška
  */
 class Button extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   focus() {
     this.refs.button.focus();
@@ -48,10 +45,10 @@ class Button extends AbstractComponent {
     if (!rendered) {
       return null;
     }
-
+    //
     const classNames = classnames(
       'btn',
-      'btn-' + level,
+      `btn-${ level }`,
       { hidden },
       className
     );
@@ -61,7 +58,7 @@ class Button extends AbstractComponent {
     }
     //
     return (
-      <Tooltip placement={titlePlacement} value={title} delayShow={titleDelayShow}>
+      <Tooltip placement={ titlePlacement } value={ title } delayShow={ titleDelayShow }>
         <span>
           <button
             ref="button"

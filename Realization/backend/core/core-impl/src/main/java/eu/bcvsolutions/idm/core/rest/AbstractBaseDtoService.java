@@ -70,37 +70,37 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 
 	@Override
 	public DTO get(Serializable id, BasePermission... permission) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
 	public DTO get(Serializable id, F context, BasePermission... permission) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Page<DTO> find(Pageable pageable, BasePermission... permission) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Page<DTO> find(F filter, Pageable pageable, BasePermission... permission) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
 	public long count(F filter, BasePermission... permission) {
-		return 0;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Page<UUID> findIds(Pageable pageable, BasePermission... permission) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
 	public Page<UUID> findIds(F filter, Pageable pageable, BasePermission... permission) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -121,33 +121,37 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 
 	@Override
 	public DTO save(DTO dto, BasePermission... permission) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Iterable<DTO> saveAll(Iterable<DTO> dtos, BasePermission... permission) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void delete(DTO dto, BasePermission... permission) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void deleteById(Serializable id, BasePermission... permission) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public DTO saveInternal(DTO dto) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void deleteInternal(DTO dto) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void deleteInternalById(Serializable id) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

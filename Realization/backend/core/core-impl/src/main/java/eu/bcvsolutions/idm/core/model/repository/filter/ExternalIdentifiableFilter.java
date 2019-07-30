@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -32,7 +32,7 @@ public class ExternalIdentifiableFilter<E extends AbstractEntity> extends BaseFi
 	}
 	
 	@Override
-	public Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
+	public Predicate getPredicate(Root<E> root, AbstractQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
 		String externalId = (String) filter.getData().getFirst(ExternalIdentifiable.PROPERTY_EXTERNAL_ID);
 		if (StringUtils.isEmpty(externalId)) {
 			return null;

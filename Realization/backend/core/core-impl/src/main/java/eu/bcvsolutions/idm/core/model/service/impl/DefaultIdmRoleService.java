@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
@@ -50,10 +49,6 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
@@ -61,10 +56,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuaranteeRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuaranteeRole_;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
@@ -201,46 +192,6 @@ public class DefaultIdmRoleService
 		RoleType roleType = filter.getRoleType();
 		if (roleType != null) {
 			predicates.add(builder.equal(root.get(IdmRole_.roleType), roleType));
-		}
-		// guarantee	
-		UUID guaranteeId = filter.getGuaranteeId();
-		if (guaranteeId != null) {
-			// guarante by identity
-			Subquery<IdmRoleGuarantee> subquery = query.subquery(IdmRoleGuarantee.class);
-			Root<IdmRoleGuarantee> subRoot = subquery.from(IdmRoleGuarantee.class);
-			subquery.select(subRoot);
-		
-			subquery.where(
-                    builder.and(
-                    		builder.equal(subRoot.get(IdmRoleGuarantee_.role), root), // correlation attr
-                    		builder.equal(subRoot.get(IdmRoleGuarantee_.guarantee).get(IdmIdentity_.id), guaranteeId)
-                    		)
-            );
-			// guarantee by role - identity has assigned role
-			Subquery<UUID> subqueryIdentityRole = query.subquery(UUID.class);
-			Root<IdmIdentityRole> subRootIdentityRole = subqueryIdentityRole.from(IdmIdentityRole.class);
-			subqueryIdentityRole.select(subRootIdentityRole.get(IdmIdentityRole_.role).get(IdmRole_.id));
-			subqueryIdentityRole.where(
-                    builder.and(
-                    		builder.equal(subRootIdentityRole.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id), guaranteeId),
-                    		RepositoryUtils.getValidPredicate(subRootIdentityRole, builder)
-                    		)
-            );
-			//
-			Subquery<IdmRoleGuaranteeRole> subqueryRole = query.subquery(IdmRoleGuaranteeRole.class);
-			Root<IdmRoleGuaranteeRole> subRootRole = subqueryRole.from(IdmRoleGuaranteeRole.class);
-			subqueryRole.select(subRootRole);
-		
-			subqueryRole.where(
-                    builder.and(
-                    		builder.equal(subRootRole.get(IdmRoleGuaranteeRole_.role), root), // correlation attr
-                    		subRootRole.get(IdmRoleGuaranteeRole_.guaranteeRole).get(IdmRole_.id).in(subqueryIdentityRole)
-                    		)
-            );
-			predicates.add(builder.or(
-					builder.exists(subquery),
-					builder.exists(subqueryRole)
-					));
 		}
 		// role catalogue by forest index
 		UUID roleCatalogueId = filter.getRoleCatalogueId();

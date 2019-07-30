@@ -43,13 +43,11 @@ public class IdmRoleRequestFilterRestTest extends AbstractReadWriteDtoController
 	private static final String URL_PARAM_APPLICANTS = "applicants";
 
 	private static final String URL_PARAM_FACE = "face";
-	private static final String URL_PARAM_FACE_TODAY = "TODAY";
-	private static final String URL_PARAM_FACE_THIS_MONTH = "THIS_MONTH";
 	private static final String URL_PARAM_FACE_BETWEEN = "BETWEEN";
 	private static final String URL_PARAM_CREATED_FROM = "createdFrom";
 	private static final String URL_PARAM_CREATED_TILL = "createdTill";
 
-	private static final String URL_PARAM_RESULT_STATES = "resultStates";
+	private static final String URL_PARAM_SYSTEM_STATES = "systemStates";
 	private static final String URL_PARAM_STATES = "states";
 
 	private static final String URL_PARAM_SORT = "sort";
@@ -224,7 +222,7 @@ public class IdmRoleRequestFilterRestTest extends AbstractReadWriteDtoController
 	}
 
 	@Test
-	public void filterResultStates() throws Exception {
+	public void filterSystemStates() throws Exception {
 
 		List<IdmRoleRequestDto> idmRolesRequestDto = new ArrayList<>();
 		URIBuilder baseUrlBuilder = this.getBaseUrlBuilder();
@@ -232,13 +230,13 @@ public class IdmRoleRequestFilterRestTest extends AbstractReadWriteDtoController
 		idmRolesRequestDto.add(this.prepareDto());
 
 		idmRolesRequestDto.get(0).setSystemState(new OperationResultDto(OperationState.RUNNING));
-		baseUrlBuilder.addParameter(URL_PARAM_RESULT_STATES, idmRolesRequestDto.get(0).getSystemState().getState().name());
+		baseUrlBuilder.addParameter(URL_PARAM_SYSTEM_STATES, idmRolesRequestDto.get(0).getSystemState().getState().name());
 		baseUrlBuilder.addParameter(URL_PARAM_APPLICANTS, idmRolesRequestDto.get(0).getApplicant().toString());
 
 		idmRolesRequestDto.add(this.prepareDto());
 		idmRolesRequestDto.get(1).setSystemState(new OperationResultDto(OperationState.BLOCKED));
-		baseUrlBuilder.addParameter(URL_PARAM_RESULT_STATES, idmRolesRequestDto.get(1).getSystemState().getState().name());
 		baseUrlBuilder.addParameter(URL_PARAM_APPLICANTS, idmRolesRequestDto.get(1).getApplicant().toString());
+		baseUrlBuilder.addParameter(URL_PARAM_SYSTEM_STATES, idmRolesRequestDto.get(1).getSystemState().getState().name());
 
 		roleRequestService.saveAll(idmRolesRequestDto);
 
@@ -247,7 +245,7 @@ public class IdmRoleRequestFilterRestTest extends AbstractReadWriteDtoController
 		Assert.assertEquals(idmRolesRequestDto.get(0).getSystemState().getState(), OperationState.RUNNING);
 		Assert.assertEquals(idmRolesRequestDto.get(1).getSystemState().getState(), OperationState.BLOCKED);
 
-		baseUrlBuilder.setParameter(URL_PARAM_RESULT_STATES, OperationState.NOT_EXECUTED.name());
+		baseUrlBuilder.setParameter(URL_PARAM_SYSTEM_STATES, OperationState.NOT_EXECUTED.name());
 		results = sendReqest(baseUrlBuilder);
 		Assert.assertEquals(0, results.size());
 	}

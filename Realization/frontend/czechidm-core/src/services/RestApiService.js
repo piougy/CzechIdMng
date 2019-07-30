@@ -54,7 +54,7 @@ export default class RestApiService {
     return fetch(this.getUrl(path), {
       method: 'post',
       headers: {
-        'CIDMST': AuthenticateService.getTokenCIDMST()
+        CIDMST: AuthenticateService.getTokenCIDMST()
       },
       credentials: 'include',
       body: formData
@@ -65,7 +65,7 @@ export default class RestApiService {
     return fetch(this.getUrl(path), {
       method: 'get',
       headers: {
-        'CIDMST': AuthenticateService.getTokenCIDMST()
+        CIDMST: AuthenticateService.getTokenCIDMST()
       },
       credentials: 'include'
     });
@@ -87,7 +87,7 @@ export default class RestApiService {
     const fetchConfig = {
       method: methodType,
       headers: {
-        'Accept': 'application/hal+json',
+        Accept: 'application/hal+json',
         'Content-Type': 'application/hal+json;charset=UTF-8'
       },
       credentials: 'include'

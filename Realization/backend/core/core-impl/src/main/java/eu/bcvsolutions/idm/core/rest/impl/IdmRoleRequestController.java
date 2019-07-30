@@ -418,7 +418,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		// TODO: remove redundant state field
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
 		filter.setStates(getParameterConverter().toEnums(parameters, "states", RoleRequestState.class));
-		filter.setResultStates(getParameterConverter().toEnums(parameters, "resultStates", OperationState.class));
+		filter.setSystemStates(getParameterConverter().toEnums(parameters, "systemStates", OperationState.class));
 		filter.setApplicants(getParameterConverter().toUuids(parameters, "applicants"));
 		filter.setCreatorId(getParameterConverter().toEntityUuid(parameters, "creator", IdmIdentityDto.class));
 		filter.setExecuted(getParameterConverter().toBoolean(parameters, "executed"));

@@ -11,7 +11,6 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -39,7 +38,7 @@ import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
  * @author Vít Švanda
  *
  */
-@Component("vsRoleRequestCheckSystemStateProcessor")
+@Component(RoleRequestCheckSystemStateProcessor.PROCESSOR_NAME)
 @Description("Processor for check state on systems for given role-request (virtual systems)")
 public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<IdmRoleRequestDto>
 		implements RoleRequestProcessor {

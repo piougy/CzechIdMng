@@ -112,8 +112,8 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 				AccIdentityAccountDto identityAccountDto = identityAccountService.get(identityAccountId);
 				if (identityAccountDto != null) {
 					IdentityAccountEvent eventIdentityAccount = new IdentityAccountEvent(IdentityAccountEventType.DELETE, identityAccountDto,
-							ImmutableMap.of(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY, true,
-									AccIdentityAccountService.FORCE_DELETE_OF_IDENTITY_ACCOUNT_KEY, false,
+							ImmutableMap.of(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY, Boolean.TRUE,
+									AccIdentityAccountService.FORCE_DELETE_OF_IDENTITY_ACCOUNT_KEY, Boolean.FALSE,
 									IdmRoleRequestService.ROLE_REQUEST_ID_KEY, request.getId())); 
 					identityAccountService.publish(eventIdentityAccount);
 					accountsForProvisioning.add(identityAccountDto.getAccount());

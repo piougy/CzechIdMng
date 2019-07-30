@@ -2,10 +2,10 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter for roles
@@ -47,7 +48,11 @@ public class IdmRoleFilter
 	}
 	
 	public IdmRoleFilter(MultiValueMap<String, Object> data) {
-		super(IdmRoleDto.class, data);
+		this(data, null);
+	}
+	
+	public IdmRoleFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(IdmRoleDto.class, data, parameterConverter);
 	}
 
 	public RoleType getRoleType() {
@@ -109,22 +114,23 @@ public class IdmRoleFilter
 	}
     
     public void setEnvironment(String environment) {
-    	data.set(PARAMETER_ENVIRONMENT, environment);
+    	if (StringUtils.isEmpty(environment)) {
+    		data.remove(PARAMETER_ENVIRONMENT);
+    	} else {
+    		data.put(PARAMETER_ENVIRONMENT, Lists.newArrayList(environment));
+    	}
 	}
     
     public List<String> getEnvironments() {
-		List<Object> environments = data.get(PARAMETER_ENVIRONMENT);
-		if (environments == null) {
-			return Lists.newArrayList();
-		}
-		return environments
-				.stream()
-				.map(object -> Objects.toString(object, null))
-				.collect(Collectors.toList());
+		return getParameterConverter().toStrings(data, PARAMETER_ENVIRONMENT);
 	}
     
     public void setEnvironments(List<String> environments) {
-    	data.put(PARAMETER_ENVIRONMENT, environments == null ? null : new ArrayList<Object>(environments));
+    	if (CollectionUtils.isEmpty(environments)) {
+    		data.remove(PARAMETER_ENVIRONMENT);
+    	} else {
+    		data.put(PARAMETER_ENVIRONMENT, new ArrayList<Object>(environments));
+    	}
 	}
 	
 	public String getBaseCode() {
@@ -136,7 +142,7 @@ public class IdmRoleFilter
 	}
 	
 	public UUID getGuaranteeId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_GUARANTEE));
+		return getParameterConverter().toUuid(data ,PARAMETER_GUARANTEE);
 	}
 
 	public void setGuaranteeId(UUID guaranteeId) {
@@ -148,7 +154,7 @@ public class IdmRoleFilter
 	 * @return
 	 */
 	public UUID getParent() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT));
+		return getParameterConverter().toUuid(data, PARAMETER_PARENT);
 	}
 
 	/**

@@ -42,6 +42,7 @@
   "label": {
     "id": "Id",
     "action": "Actions",
+    "approved": "Approved",
     "otherAttributes": "Other attributes",
     "selectAll": "Select / unselect all",
     "validFrom": "$t(entity.validFrom)",
@@ -58,6 +59,7 @@
     "yes": "Yes",
     "no": "No",
     "readOnly": "Read only",
+    "removed": "Removed",
     "waiting": "Waiting"
   },
   "button": {
@@ -532,8 +534,10 @@
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
           "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
           "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)",
+          "ENUMERATION": "$t(enums.PersistentTypeEnum.ENUMERATION)",
           "AUTOMATIC-ROLE-TREE-SELECT": "Select automatic role by tree structure (SelectBox)",
-          "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Select automatic role by attribute (SelectBox)"
+          "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Select automatic role by attribute (SelectBox)",
+          "OPERATION-STATE-ENUM": "Operation state"
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes."
@@ -647,7 +651,8 @@
       "BYTEARRAY": "Byte array",
       "UUID": "Uuid identifier",
       "ATTACHMENT": "Attachment",
-      "CODELIST": "Code list"
+      "CODELIST": "Code list",
+      "ENUMERATION": "Enumeration"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -2001,7 +2006,7 @@
           "placeholder": "Search by whole username applicant."
         },
         "states":{
-          "placeholder": "Search by states in IdM"
+          "placeholder": "States in IdM"
         },
         "dateCreatedFrom":{
           "placeholder": "Created from"
@@ -2010,10 +2015,10 @@
           "placeholder": "Created to"
         },
         "applicants":{
-          "placeholder": "Search by applicants"
+          "placeholder": "Applicants"
         },
-        "statesSystem":{
-          "placeholder": "Search by states in system"
+        "systemStates":{
+          "placeholder": "States in systems"
         }
       }
     },
@@ -2450,6 +2455,9 @@
         "filter": {
           "role": {
             "placeholder": "$t(content.identities.filter.role.placeholder)"
+          },
+          "identity": {
+            "placeholder": "$t(entity.Identity._type)"
           }
         },
         "changePermissions": "Request to change roles",
@@ -5124,7 +5132,7 @@
             "help": "Automatic role by tree structure."
           },
           "automaticroleattribute": {
-            "label": "Or automatic role by attribute",
+            "label": "Or: Automatic role by attribute",
             "help": "Automatic role by attribute."
           }
         }

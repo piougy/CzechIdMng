@@ -10,6 +10,7 @@ import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import eu.bcvsolutions.idm.acc.eav.domain.AccFaceType;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -87,12 +89,6 @@ public class DeleteProvisioningArchiveTaskExecutor
 	}
 	
 	@Override
-	public boolean isInProcessedQueue(SysProvisioningArchiveDto dto) {
-		// we want to log items, but we want to execute them every times
-		return false;
-	}
-	
-	@Override
 	public Page<SysProvisioningArchiveDto> getItemsToProcess(Pageable pageable) {
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setResultState(operationState);
@@ -100,7 +96,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 		if (numberOfDays > 0) {
 			filter.setTill(DateTime.now().withTimeAtStartOfDay().minusDays(numberOfDays));
 		}
-		return service.find(filter, null); // pageable is not given => records are deleted and wee ned the fist page all time
+		return service.find(filter, new PageRequest(0, pageable.getPageSize())); // new pageable is given => records are deleted and we need the first page all time
 	}
 
 	@Override
@@ -134,9 +130,9 @@ public class DeleteProvisioningArchiveTaskExecutor
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		IdmFormAttributeDto numberOfDaysAttribute = new IdmFormAttributeDto(PARAMETER_NUMBER_OF_DAYS, PARAMETER_NUMBER_OF_DAYS, PersistentType.LONG);
 		numberOfDaysAttribute.setDefaultValue(String.valueOf(DEFAULT_NUMBER_OF_DAYS));
-		IdmFormAttributeDto operationStateAttribute = new IdmFormAttributeDto(PARAMETER_OPERATION_STATE, PARAMETER_OPERATION_STATE, PersistentType.SHORTTEXT);
+		IdmFormAttributeDto operationStateAttribute = new IdmFormAttributeDto(PARAMETER_OPERATION_STATE, PARAMETER_OPERATION_STATE, PersistentType.ENUMERATION);
 		operationStateAttribute.setDefaultValue(DEFAULT_OPERATION_STATE.name());
-		// TODO: enumeration state in forms
+		operationStateAttribute.setFaceType(BaseFaceType.OPERATION_STATE_ENUM);
 		IdmFormAttributeDto system = new IdmFormAttributeDto(
 				PARAMETER_SYSTEM,
 				"System", 
@@ -150,4 +146,14 @@ public class DeleteProvisioningArchiveTaskExecutor
     public boolean supportsDryRun() {
     	return false; // TODO: get context (or LRT) in getItems to process ...
     }
+    
+    @Override
+	public boolean requireNewTransaction() {
+		return true;
+	}
+    
+    @Override
+	public boolean supportsQueue() {
+		return false;
+	}
 }

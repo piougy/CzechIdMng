@@ -31,7 +31,7 @@ public interface IdmRoleRequestService extends
 		AuthorizableService<IdmRoleRequestDto>,
 		ExceptionProcessable<IdmRoleRequestDto> {
 	
-	public final static String ROLE_REQUEST_ID_KEY = "roleRequestId";
+	String ROLE_REQUEST_ID_KEY = "roleRequestId";
 
 
 	/**

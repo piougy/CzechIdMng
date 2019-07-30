@@ -38,7 +38,8 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
  *
  */
 @Entity
-@Table(name = "idm_role", indexes = { @Index(name = "ux_idm_role_code", columnList = "code", unique = true),
+@Table(name = "idm_role", indexes = { 
+		@Index(name = "ux_idm_role_code", columnList = "code", unique = true),
 		@Index(name = "idx_idm_role_name", columnList = "name"),
 		@Index(name = "idx_idm_role_external_id", columnList = "external_id"),
 		@Index(name = "idx_idm_role_environment", columnList = "environment"),

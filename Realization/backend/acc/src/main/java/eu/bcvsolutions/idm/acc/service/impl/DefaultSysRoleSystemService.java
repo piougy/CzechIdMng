@@ -13,6 +13,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,14 +68,11 @@ public class DefaultSysRoleSystemService
 
 	private final AccIdentityAccountRepository identityAccountRepository;
 	private final IdmRoleService roleService;
-	@Autowired
-	private RequestManager requestManager;
-	@Autowired
-	private SysSystemMappingService systemMappingService;
-	@Autowired
-	private SysRoleSystemAttributeService roleSystemAttributeService;
-	@Autowired
-	private IdmRoleCompositionService roleCompositionService;
+	//
+	@Autowired private RequestManager requestManager;
+	@Autowired private SysSystemMappingService systemMappingService;
+	@Autowired private SysRoleSystemAttributeService roleSystemAttributeService;
+	@Autowired private IdmRoleCompositionService roleCompositionService;
 
 	@Autowired
 	public DefaultSysRoleSystemService(SysRoleSystemRepository repository,
@@ -237,7 +235,7 @@ public class DefaultSysRoleSystemService
 		}
 
 		Set<UUID> ids = filter.getRoleIds();
-		if (ids != null && !ids.isEmpty()) {
+		if (CollectionUtils.isNotEmpty(ids)) {
 			predicates.add(root.get(SysRoleSystem_.role).get(IdmRole_.id).in(ids));
 		}
 

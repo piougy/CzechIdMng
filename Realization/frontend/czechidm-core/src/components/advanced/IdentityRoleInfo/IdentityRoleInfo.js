@@ -1,8 +1,9 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import { IdentityRoleManager, IdentityContractManager, RoleManager } from '../../../redux/';
+import { IdentityRoleManager, IdentityContractManager, RoleManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import DateValue from '../DateValue/DateValue';
 import EntityInfo from '../EntityInfo/EntityInfo';
@@ -17,10 +18,6 @@ const roleManager = new RoleManager();
  * @author Radek Tomiška
  */
 export class IdentityRoleInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -129,12 +126,17 @@ export class IdentityRoleInfo extends AbstractEntityInfo {
     content.push(
       {
         label: this.i18n('entity.Role._type'),
-        value: !entity._embedded || !entity._embedded.role ||
+        value: (
+          !entity._embedded
+          ||
+          !entity._embedded.role
+          ||
           <EntityInfo
             entityType="role"
             entity={ entity._embedded.role }
             entityIdentifier={ entity.role }
             face="link" />
+        )
       }
     );
     //

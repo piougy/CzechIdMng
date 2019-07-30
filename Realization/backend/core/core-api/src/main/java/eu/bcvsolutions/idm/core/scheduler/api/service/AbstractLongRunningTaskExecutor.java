@@ -322,7 +322,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 			opResult = new OperationResult.Builder(OperationState.EXECUTED).build();
 		}
 		//
-		return itemService.createLogItem(item, opResult, this.getLongRunningTaskId());
+		return getItemService().createLogItem(item, opResult, this.getLongRunningTaskId());
 	}
 	
 	@Override
@@ -363,6 +363,16 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 		if (task.getCount() != null && task.getCounter() == null) {
 			task.setCounter(0L);
 		}
+	}
+	
+	/**
+	 * Returns LRT item service => can be used, when item processing result has to persisted or updated.
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	protected IdmProcessedTaskItemService getItemService() {
+		return itemService;
 	}
 	
 }

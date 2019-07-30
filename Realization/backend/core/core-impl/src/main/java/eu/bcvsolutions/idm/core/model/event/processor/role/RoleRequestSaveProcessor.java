@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventTyp
  * @author Vít Švanda
  *
  */
-@Component
+@Component(RoleRequestSaveProcessor.PROCESSOR_NAME)
 @Description("Processor for save role-request")
 public class RoleRequestSaveProcessor extends CoreEventProcessor<IdmRoleRequestDto> implements RoleRequestProcessor {
 	public static final String PROCESSOR_NAME = "role-request-save-processor";

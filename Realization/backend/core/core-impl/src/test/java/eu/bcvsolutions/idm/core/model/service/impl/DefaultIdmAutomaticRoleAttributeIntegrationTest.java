@@ -45,6 +45,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseCodeList;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -900,6 +901,41 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		//
 		value.setValue(null);
 		formService.saveValues(primeContract, formDefinitionCodeList, Lists.newArrayList(value));
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
+	public void testAutomaticRoleContractExterneAttributeEnumeration() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity.getId());
+		//
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		attribute.setCode(getHelper().createName());
+		attribute.setName(getHelper().createName());
+		attribute.setPersistentType(PersistentType.ENUMERATION);
+		attribute.setFaceType(BaseFaceType.OPERATION_STATE_ENUM);
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentityContract.class);
+		attribute = formService.saveAttribute(IdmIdentityContract.class, attribute);
+		//
+		IdmRoleDto role = getHelper().createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+		getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.CONTRACT_EAV, attribute.getCode(), attribute.getId(), "test");
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		IdmFormValueDto value = new IdmFormValueDto(attribute);
+		value.setValue("test");
+		formService.saveValues(primeContract, formDefinition, Lists.newArrayList(value));
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		value.setValue(null);
+		formService.saveValues(primeContract, formDefinition, Lists.newArrayList(value));
 		//
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(0, identityRoles.size());

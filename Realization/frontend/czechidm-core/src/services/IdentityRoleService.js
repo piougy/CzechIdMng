@@ -11,7 +11,6 @@ import IdentityService from './IdentityService';
  */
 export default class IdentityRoleService extends FormableEntityService {
 
-
   constructor() {
     super();
     this.roleService = new RoleService();

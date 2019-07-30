@@ -221,8 +221,8 @@ public class DefaultIdmRequestIdentityRoleService extends
 	@Transactional
 	public IdmRequestIdentityRoleDto deleteRequestIdentityRole(IdmRequestIdentityRoleDto dto, BasePermission... permission) {
 		LOG.debug(MessageFormat.format("Delete idm-request-identity-role [{0}] ", dto));
-		Assert.notNull(dto);
-		Assert.notNull(dto.getId());
+		Assert.notNull(dto, "DTO cannot be null!");
+		Assert.notNull(dto.getId(), "ID of request-identity-role DTO cannot be null!");
 	
 		// We don`t know if is given DTO identity-role or role-concept.
 		if (dto.getId().equals(dto.getIdentityRole())) {

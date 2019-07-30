@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.activiti.bpmn.model.ValuedDataObject;
+import org.activiti.engine.repository.ProcessDefinition;
 
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -38,6 +39,8 @@ public interface WorkflowProcessDefinitionService extends ReadDtoService<Workflo
 	 */
 	String getProcessDefinitionId(String processDefinitionKey);
 
+	ProcessDefinition getProcessDefinition(String processDefinitionKey);
+
 	/**
 	 * Generate diagram for process definition ID
 	 */
@@ -55,4 +58,5 @@ public interface WorkflowProcessDefinitionService extends ReadDtoService<Workflo
 	 */
 	List<ValuedDataObject> getDataObjects(String definitionId);
 
+	InputStream getBpmnXML(String processDefinitionId);
 }

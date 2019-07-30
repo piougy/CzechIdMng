@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowProcessDefi
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 
-public class DownloaderDefinition extends AbstractRestTest {
+public class DownloaderWorkflowProcessDefinitioTest extends AbstractRestTest {
 
 	@Autowired
 	public DefaultWorkflowProcessDefinitionService workflowProcessDefinitionService;

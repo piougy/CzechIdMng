@@ -76,6 +76,9 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 
 	@Override
 	public IdmProcessedTaskItemDto addToProcessedQueue(DTO dto, OperationResult opResult) {
+		if (!supportsQueue()) {
+			return null;
+		}
 		Assert.notNull(dto);
 		Assert.notNull(opResult);
 		//
@@ -90,6 +93,10 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	
 	@Override
 	public Collection<UUID> getProcessedItemRefsFromQueue() {
+		if (!supportsQueue()) {
+			return new ArrayList<>();
+		}
+		//
 		if (this.getScheduledTaskId() == null) {
 			LOG.debug("Running stateful tasks outside scheduler programatically.");
 			//
@@ -100,6 +107,9 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	
 	@Override
 	public boolean isInProcessedQueue(DTO dto) {
+		if (!supportsQueue()) {
+			return false;
+		}
 		Assert.notNull(dto);
 		//
 		Page<IdmProcessedTaskItemDto> p = getItemFromQueue(dto.getId());
@@ -108,6 +118,9 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 
 	@Override
 	public void removeFromProcessedQueue(UUID entityRef) {
+		if (!supportsQueue()) {
+			return;
+		}
 		Assert.notNull(entityRef);
 		UUID scheduledTaskId = this.getScheduledTaskId();
 		if (scheduledTaskId == null) {
@@ -190,7 +203,9 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 				if (!result.isPresent() 
 						|| result.get().getState().isSuccessful() // executed
 						|| result.get().getState().isRunnable()) { // running (e.q. asynchronously)
-					processedRefs.add(candidate.getId());
+					if (supportsQueue()) {
+						processedRefs.add(candidate.getId());
+					}					
 				}
  				canContinue &= this.updateState();
  				//
@@ -204,6 +219,11 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			++page;
 			//
 		} while (canContinue);
+		//
+		// if task doesn't support queue, we can end
+		if (!supportsQueue()) {
+			return;
+		}
 		//
 		// check task was not canceled or interrupted, then clean history
 		// task is not ended yet - running is the correct state in this phase

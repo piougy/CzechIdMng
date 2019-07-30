@@ -217,7 +217,7 @@ public class DefaultIdmLongRunningTaskService
 		//
 		// warning items is all another items except executed and exception (eq. not_executed, ...)
 		totalElements = totalElements - (longRunningTaskDto.getFailedItemCount() + longRunningTaskDto.getSuccessItemCount());
-		longRunningTaskDto.setWarningItemCount(totalElements);
+		longRunningTaskDto.setWarningItemCount(totalElements > 0 ? totalElements : 0); // total can be decremented, when LRT runs
 		return longRunningTaskDto;
 	}
 }

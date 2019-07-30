@@ -10,6 +10,7 @@ import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -88,12 +89,6 @@ public class DeleteProvisioningArchiveTaskExecutor
 	}
 	
 	@Override
-	public boolean isInProcessedQueue(SysProvisioningArchiveDto dto) {
-		// we want to log items, but we want to execute them every times
-		return false;
-	}
-	
-	@Override
 	public Page<SysProvisioningArchiveDto> getItemsToProcess(Pageable pageable) {
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setResultState(operationState);
@@ -101,7 +96,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 		if (numberOfDays > 0) {
 			filter.setTill(DateTime.now().withTimeAtStartOfDay().minusDays(numberOfDays));
 		}
-		return service.find(filter, null); // pageable is not given => records are deleted and wee ned the fist page all time
+		return service.find(filter, new PageRequest(0, pageable.getPageSize())); // new pageable is given => records are deleted and we need the first page all time
 	}
 
 	@Override
@@ -151,4 +146,14 @@ public class DeleteProvisioningArchiveTaskExecutor
     public boolean supportsDryRun() {
     	return false; // TODO: get context (or LRT) in getItems to process ...
     }
+    
+    @Override
+	public boolean requireNewTransaction() {
+		return true;
+	}
+    
+    @Override
+	public boolean supportsQueue() {
+		return false;
+	}
 }

@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
  * - test queue items
  * - continueOnException
  * - requiresNewTransaction
+ * - supports queue
  * 
  * @author Jan Helbich
  * @author Radek Tomiška
@@ -556,6 +557,32 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		SchedulerTestUtils.checkQueueItems(scheduledTask, IdmIdentityDto.class, queueItems);
 	}
 	
+	@Test
+	public void testDontUseQueue() throws Exception {
+		TestIdentityIntegrationExecutor executor = new TestIdentityIntegrationExecutor();
+		AutowireHelper.autowire(executor);
+		// manually prepare control entities - normally scheduler will take care of it itself
+		IdmScheduledTaskDto scheduledTask = createIdmScheduledTask(UUID.randomUUID().toString());
+		IdmLongRunningTaskDto longRunningTask = createIdmLongRunningTask(scheduledTask, TestIdentityIntegrationExecutor.class);
+		executor.setLongRunningTaskId(longRunningTask.getId());
+		// first run
+		List<IdmIdentityDto> itemsToProcess = findTestIdentities();
+		// set executor data
+		executor.dtos = itemsToProcess;
+		executor.supportsQueue = false;
+		//
+		Boolean result = executor.process();
+		Page<IdmProcessedTaskItemDto> queueItems = itemService.findQueueItems(scheduledTask, null);
+		Page<IdmProcessedTaskItemDto> logItems = itemService.findLogItems(longRunningTask, null);
+		//
+		assertTrue(result);
+		assertEquals(longRunningTask.getScheduledTask(), scheduledTask.getId());
+		assertEquals(0, queueItems.getTotalElements());
+		assertEquals(itemsToProcess.size(), logItems.getTotalElements());
+		assertEquals(Long.valueOf(itemsToProcess.size()), executor.getCount());
+		assertEquals(Long.valueOf(itemsToProcess.size()), executor.getCounter());
+	}
+	
 	private List<IdmIdentityDto> findTestIdentities() {
 		// FIXME: prepare new identities instead ... 
 		return identityService.find(null, new PageRequest(0, 10)).getContent();
@@ -598,6 +625,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		private List<IdmIdentityDto> dtos = null;
 		private boolean continueOnException;
 		private boolean requireNewTransaction;
+		private boolean supportsQueue = true;
 		private Integer exceptionOnItem = null;
 		private String changeLastName = null;
 		private boolean cancel = false; 
@@ -610,6 +638,11 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		@Override
 		public boolean requireNewTransaction() {
 			return requireNewTransaction;
+		}
+		
+		@Override
+		public boolean supportsQueue() {
+			return supportsQueue;
 		}
 		
 		@Override

@@ -83,6 +83,14 @@
     "REPORT_RENDER_FAILED": {
       "title": "Report failed",
       "message": "Rendering of report [{{reportName}}] failed."
+    },
+    "REPORT_WRONG_DEFINITION": {
+      "title": "Report failed",
+      "message": "Report type [{{firstType}}] is wrong. Should be [{{secondType}}]."
+    },
+    "REPORT_NO_FORM_ATTRIBUTE": {
+      "title": "Report failed",
+      "message": "No form attribute with name [{{code}}] found!"
     }
   }
 }

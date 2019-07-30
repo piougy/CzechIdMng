@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 /**
  * Controller tests
  *
- * @author Radek Tomiška
+ * @author Kolychev Artem
  */
 @Rollback
 public class IdmRoleRequestFilterRestTest extends AbstractReadWriteDtoControllerRestTest<IdmRoleRequestDto> {

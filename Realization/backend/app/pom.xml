@@ -198,8 +198,8 @@
 								</goals>
 								<phase>generate-resources</phase>
 								<configuration>
-									<nodeVersion>v6.4.0</nodeVersion>
-									<npmVersion>3.6.0</npmVersion>
+									<nodeVersion>v10.15.3</nodeVersion>
+									<npmVersion>6.4.1</npmVersion>
 								</configuration>
 							</execution>
 							<!-- script within package.json checks whether node_modules directory

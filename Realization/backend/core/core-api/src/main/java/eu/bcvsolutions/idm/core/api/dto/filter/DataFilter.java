@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -153,7 +152,7 @@ public class DataFilter extends QuickFilter {
     	if (CollectionUtils.isEmpty(ids)) {
     		data.remove(PARAMETER_ID);
     	} else {
-    		data.put(PARAMETER_ID, new ArrayList<Object>(ids));
+    		data.put(PARAMETER_ID, Lists.newArrayList(ids));
     	}
 	}
 	

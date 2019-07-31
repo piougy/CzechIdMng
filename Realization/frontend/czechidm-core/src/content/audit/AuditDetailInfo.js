@@ -1,7 +1,11 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
+import { DataManager } from '../../redux';
+
+const dataManager = new DataManager();
 
 /**
  * Audit detail with info about class IdmAudit
@@ -9,10 +13,6 @@ import * as Basic from '../../components/basic';
  * @author Ondřej Kopr
  */
 class AuditDetailInfo extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.audit';
@@ -23,6 +23,20 @@ class AuditDetailInfo extends Basic.AbstractContent {
     return type[type.length - 1];
   }
 
+  showAudit(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const { auditManager } = this.props;
+    // set search parameters in redux
+    const searchParameters = auditManager.getDefaultSearchParameters().setFilter('transactionId', entity.transactionId);
+    // co conctete audit table
+    this.context.store.dispatch(auditManager.requestEntities(searchParameters, 'audit-table'));
+    // prevent to show loading, when transaction id is the same
+    this.context.store.dispatch(dataManager.stopRequest('audit-table'));
+    // redirect to audit of entities with prefiled search parameters
+    this.context.router.push(`/audit/entities?transactionId=${ entity.transactionId }`);
+  }
 
   render() {
     const { auditDetail, cbChangeSecondRev, useAsSelect, noVersion,
@@ -35,9 +49,11 @@ class AuditDetailInfo extends Basic.AbstractContent {
 
     return (
       <Basic.AbstractForm ref="form" data={noVersion ? {revisionDate: null} : data} showLoading={showLoading}>
-        <Basic.TextField hidden={useAsSelect}
-          ref="id" readOnly
-          label={this.i18n('revision.id')}/>
+        <Basic.TextField
+          hidden={useAsSelect}
+          ref="id"
+          readOnly
+          label={ this.i18n('revision.id') }/>
         {
           !useAsSelect
           ||
@@ -70,6 +86,22 @@ class AuditDetailInfo extends Basic.AbstractContent {
           readOnly
           label={this.i18n('revision.revisionDate')}
           timeFormat={ this.i18n('format.times') }/>
+        <Basic.LabelWrapper label={ this.i18n('entity.transactionId.label') }>
+          <Basic.Div style={{ display: 'flex' }}>
+            <input
+              value={ auditDetail ? auditDetail.transactionId : null }
+              className="form-control"
+              readOnly
+              style={{ flex: 1 }}/>
+            <Basic.Button
+              href="#"
+              onClick={ this.showAudit.bind(this, data) }
+              title={ this.i18n('component.advanced.Table.button.transactionId.title') }
+              icon="component:audit"/>
+          </Basic.Div>
+        </Basic.LabelWrapper>
+
+
       </Basic.AbstractForm>
     );
   }

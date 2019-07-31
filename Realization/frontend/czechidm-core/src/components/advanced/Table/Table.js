@@ -41,9 +41,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     let _actions = [];
     if (!manager.supportsBulkAction() && actions !== null && actions.length > 0) {
       _actions = actions
-        .filter(action => {
-          return action.rendered === undefined || action.rendered === true || action.rendered === null;
-        })
+        .filter(action => action.rendered === undefined || action.rendered === true || action.rendered === null)
         .map(action => {
           action.showWithSelection = (action.showWithSelection === null || action.showWithSelection === undefined)
             ? true
@@ -78,7 +76,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   _getBulkActionLabel(backendBulkAction) {
-    return this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label', {
+    return this.i18n(`${backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.label`, {
       defaultValue: backendBulkAction.description || backendBulkAction.name
     });
   }
@@ -626,7 +624,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           <Basic.Modal.Body style={ {padding: 0, marginBottom: -20} }>
             <LongRunningTask
               entityIdentifier={ backendBulkAction.longRunningTaskId }
-              header={ this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label')}
+              header={ this.i18n(`${backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.label`)}
               showProperties={ false }
               onComplete={ () => this.reload() }
               footerButtons={
@@ -636,8 +634,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   { this.i18n('button.close') }
                 </Basic.Button>
               }/>
-            </Basic.Modal.Body>
-          );
+          </Basic.Modal.Body>
+        );
       } else {
         modalContent = (
           <div>
@@ -659,12 +657,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         );
       }
     } else if (backendBulkAction) {
-      const helpKey = backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.help';
+      const helpKey = `${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.help`;
       const help = this.i18n(helpKey);
       //
       modalContent = (
         <form onSubmit={this.processBulkAction.bind(this, backendBulkAction)}>
-          <Basic.Modal.Header text={ this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label') }/>
+          <Basic.Modal.Header text={ this.i18n(`${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.label`) }/>
           <Basic.Modal.Body>
             <Basic.AbstractForm ref="bulkActionForm" showLoading={bulkActionShowLoading}>
               <Basic.Alert
@@ -834,7 +832,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         );
       }
       //
-      const key = 'column_' + i;
+      const key = `column_${ i }`;
       let cell = null;
       if (column.props.cell) {
         cell = column.props.cell;

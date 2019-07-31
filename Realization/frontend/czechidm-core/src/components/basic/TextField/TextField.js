@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Joi from 'joi';
 //
@@ -84,7 +85,7 @@ class TextField extends AbstractFormComponent {
     if (this.refs.popover) {
       this.refs.popover.show();
     }
-    this.setState( {
+    this.setState({
       confidentialState: {
         showInput: true
       }
@@ -181,7 +182,7 @@ class TextField extends AbstractFormComponent {
     //
     const className = classNames(
       'form-control',
-      { 'confidential': this._showConfidentialWrapper() }
+      { confidential: this._showConfidentialWrapper() }
     );
     const labelClassName = classNames(labelSpan, 'control-label');
     let showAsterix = false;

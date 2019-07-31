@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 //
@@ -138,17 +139,24 @@ class AuditDetail extends Basic.AbstractContent {
               <div className="col-md-6">
                 <AuditDetailInfo
                   ref="detailFirst"
-                  showLoading={auditDetailFirst === null}
-                  auditDetail={auditDetailFirst} />
+                  showLoading={ auditDetailFirst === null }
+                  auditDetail={ auditDetailFirst }
+                  auditManager={ auditManager } />
               </div>
               <div className="col-md-6">
-                <AuditDetailInfo ref="detailSecond"
-                  auditDetail={auditDetailSecondFinal} useAsSelect
+                <AuditDetailInfo
+                  ref="detailSecond"
+                  auditDetail={auditDetailSecondFinal}
+                  useAsSelect
                   noVersion={noVersion}
                   showLoading={showLoadingSelect}
                   cbChangeSecondRev={this.changeSecondRevision.bind(this)}
                   auditManager={auditManager}
-                  forceSearchParameters={auditManager.getDefaultSearchParameters().setFilter('entityId', auditDetailFirst ? auditDetailFirst.entityId : null)} />
+                  forceSearchParameters={
+                    auditManager
+                      .getDefaultSearchParameters()
+                      .setFilter('entityId', auditDetailFirst ? auditDetailFirst.entityId : null)
+                  } />
               </div>
             </Basic.Row>
             <Basic.Row >

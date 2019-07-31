@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - Deprecated module ``gui`` was removed from product. Prevent to pull target folder, if you are product developer.
 - Email templates ``changeIdentityRoleImplementer`` and ``changeIdentityRole`` were redesigned within task ``system state in request``
  [#1736](https://redmine.czechidm.com/issues/1736). **Please don't forget upgrade them (manually) in your projects.**
+- [Filters](https://wiki.czechidm.com/devel/documentation/architecture/dev/filters#defaultcontractbymanagerfilter) by manager for subordinate contracts were added.
 
 
 ## [9.6.3]

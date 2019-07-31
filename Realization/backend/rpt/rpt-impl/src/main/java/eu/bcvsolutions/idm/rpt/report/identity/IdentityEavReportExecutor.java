@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonEncoding;
@@ -32,6 +38,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.rpt.api.domain.RptResultCode;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
@@ -44,7 +51,7 @@ import eu.bcvsolutions.idm.rpt.dto.RptIdentityWithFormValueDto;
  *
  * @author Marek Klement
  */
-@Component("identityEavExecutor")
+@Component(IdentityEavReportExecutor.REPORT_NAME)
 @Description("Identities - report EAV attribute")
 public class IdentityEavReportExecutor extends AbstractReportExecutor {
 
@@ -99,27 +106,30 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 				if (disabled != null) {
 					fltr.setDisabled(Boolean.valueOf(disabled));
 				}
-				List<IdmIdentityDto> identities =
-						identityService.find(fltr, null, IdmBasePermission.READ).getContent();
-				//
-				if (count == null) {
-					// report extends long running task - show progress by count and counter lrt attributes
-					count = (long) identities.size();
-				}
-				//
-				boolean canContinue;
-				for (IdmIdentityDto identity : identities) {
-					try {
-						writeValues(identity, eavName, eavValue, jGenerator, definition);
+				// find a first page of identities
+				Pageable pageable = new PageRequest(0, 100, new Sort(Direction.ASC, IdmIdentity_.username.getName()));
+				
+				do {
+					Page<IdmIdentityDto> identities =
+							identityService.find(fltr, pageable, IdmBasePermission.READ);
+					//
+					if (count == null) {
+						// report extends long running task - show progress by count and counter lrt attributes
+						count = identities.getTotalElements();
+					}
+					
+					//
+					boolean canContinue = true;
+					for (Iterator<IdmIdentityDto> i = identities.iterator(); i.hasNext() && canContinue;) {
+						writeValues(i.next(), eavName, eavValue, jGenerator, definition);
 						canContinue = updateState();
 						if (!canContinue) {
 							break;
 						}
-					} catch (IOException e) {
-						e.printStackTrace();
 					}
-				}
-
+					pageable = identities.hasNext() && canContinue ? identities.nextPageable() : null;
+				} while (pageable != null);
+				//
 				jGenerator.writeEndArray();
 			} finally {
 				// close json stream

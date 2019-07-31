@@ -15,10 +15,6 @@ const ITEM_HEIGTH = 45; // item heigth for dynamic content resize
  */
 class TabPanel extends Basic.AbstractContextComponent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getNavigationItems() {
     const { navigation, userContext, parentId, selectedNavigationItems } = this.props;
     const { params } = this.props;

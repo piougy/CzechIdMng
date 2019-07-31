@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.util.LinkedMultiValueMap;
@@ -23,6 +25,11 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
     private UUID identityContractId;
     private UUID automaticRole;
     private ConceptRoleRequestOperation operation;
+    private Set<UUID> identityRoleIds;
+    private String roleEnvironment;
+    // Find only concepts, where identityRoleId is null
+    private boolean identityRoleIsNull = false;
+    private List<String> roleEnvironments;
     
     public IdmConceptRoleRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -88,7 +95,15 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
         this.operation = operation;
     }
     
-    /**
+    public Set<UUID> getIdentityRoleIds() {
+		return identityRoleIds;
+	}
+
+	public void setIdentityRoleIds(Set<UUID> identityRoleIds) {
+		this.identityRoleIds = identityRoleIds;
+	}
+
+	/**
      * @deprecated since 7.7.0 use {@link #getAutomaticRole()}
      * @return
      */
@@ -105,5 +120,29 @@ public class IdmConceptRoleRequestFilter extends DataFilter {
     public void setRoleTreeNodeId(UUID roleTreeNodeId) {
     	setAutomaticRole(roleTreeNodeId);
     }
+    
+	public String getRoleEnvironment() {
+		return roleEnvironment;
+	}
+
+	public void setRoleEnvironment(String roleEnvironment) {
+		this.roleEnvironment = roleEnvironment;
+	}
+
+	public boolean isIdentityRoleIsNull() {
+		return identityRoleIsNull;
+	}
+
+	public void setIdentityRoleIsNull(boolean identityRoleIsNull) {
+		this.identityRoleIsNull = identityRoleIsNull;
+	}
+
+	public List<String> getRoleEnvironments() {
+		return roleEnvironments;
+	}
+
+	public void setRoleEnvironments(List<String> roleEnvironments) {
+		this.roleEnvironments = roleEnvironments;
+	}
 
 }

@@ -106,6 +106,26 @@ public class SysSyncConfigController
 	}
 	
 	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete synchronization configs (selectbox usage)", 
+			nickname = "autocompleteSyncConfigs", 
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
 	public Page<AbstractSysSyncConfigDto> find(SysSyncConfigFilter filter, Pageable pageable,
 			BasePermission permission) {
 		Page<AbstractSysSyncConfigDto> results = super.find(filter, pageable, permission);
@@ -186,7 +206,7 @@ public class SysSyncConfigController
 	 * Start synchronization
 	 * 
 	 * @param backendId
-	 * @returnon
+	 * @return
 	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_CREATE + "')")

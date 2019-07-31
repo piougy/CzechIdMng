@@ -255,6 +255,8 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 			attachmentManager.purgeTemp();
 			Assert.assertEquals(3, countTempFiles());
 			//
+			getHelper().waitForResult(null, 5, 1);
+			//
 			attachmentConfiguration.setTempTtl(1);
 			attachmentManager.purgeTemp();
 			Assert.assertEquals(0, countTempFiles());

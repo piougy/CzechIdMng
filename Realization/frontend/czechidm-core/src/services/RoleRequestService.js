@@ -57,9 +57,8 @@ class RoleRequestService extends AbstractService {
   }
 
   copyRolesByIdentity(roleRequestByIdentity) {
-    const roleRequestId = roleRequestByIdentity.roleRequest;
     return RestApiService
-      .post(this.getApiPath() + `/${encodeURIComponent(roleRequestId)}/copy-roles`, roleRequestByIdentity)
+      .post(this.getApiPath() + `/copy-roles`, roleRequestByIdentity)
       .then(response => {
         return response.json();
       })

@@ -5,11 +5,11 @@ import { Link } from 'react-router';
 import _ from 'lodash';
 //
 import { Basic, Advanced, Utils } from 'czechidm-core';
-import { SystemInfo } from '../../components/SystemInfo/SystemInfo.js';
 import SearchParameters from 'czechidm-core/src/domain/SearchParameters';
 import { DataManager, ConfigurationManager, RoleManager } from 'czechidm-core/src/redux';
 import { SystemMappingManager, SystemManager, RoleSystemManager } from '../../redux';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
+import { SystemInfo } from '../../components/SystemInfo/SystemInfo';
 
 const originalManager = new RoleSystemManager();
 let manager = null;

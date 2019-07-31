@@ -83,6 +83,14 @@
     "REPORT_RENDER_FAILED": {
       "title": "Report selhal",
       "message": "Vykreslení reportu [{{reportName}}] selhalo."
+    },
+    "REPORT_WRONG_DEFINITION": {
+      "title": "Report selhal",
+      "message": "Typ definice pro report [{{firstType}}] není správně. Je vyžadována definice [{{secondType}}]."
+    },
+    "REPORT_NO_FORM_ATTRIBUTE": {
+      "title": "Report selhal",
+      "message": "Atribut s kódem [{{code}}] nenalezen!"
     }
   }
 }

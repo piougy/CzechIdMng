@@ -75,7 +75,7 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
 
   renderSingleInput(originalValues) {
     const { attribute, readOnly, values, className, style } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     const singleValue = this.state.value || this.toInputValue(showOriginalValue ? originalValues : values);
     // create radio inputs
     const inputs = [];
@@ -87,7 +87,9 @@ export default class PrioritySelectFormAttributeRenderer extends Advanced.Abstra
             type="radio"
             readOnly={ showOriginalValue ? true : (readOnly || attribute.readonly) }
             value={ i }
-            defaultChecked={ singleValue === i }/> { i }
+            defaultChecked={ singleValue === i }/>
+          {' '}
+          { i }
         </label>
       );
     }

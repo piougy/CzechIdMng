@@ -1,4 +1,4 @@
-import AbstractEnum from '../enums/AbstractEnum';
+import AbstractEnum from './AbstractEnum';
 
 /**
  * Persistent type enum for EAVs
@@ -33,3 +33,4 @@ PersistentTypeEnum.BYTEARRAY = Symbol('BYTEARRAY');
 PersistentTypeEnum.UUID = Symbol('UUID');
 PersistentTypeEnum.ATTACHMENT = Symbol('ATTACHMENT');
 PersistentTypeEnum.CODELIST = Symbol('CODELIST');
+PersistentTypeEnum.ENUMERATION = Symbol('ENUMERATION');

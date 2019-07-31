@@ -222,15 +222,13 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		// session
 		verify(entityManager, times(3)).getDelegate();
 		verify(hiberanteSession, times(3)).isOpen();
-		// 6x addToProcessQueue, 2x removeItemFromQueue, 2x stubbed
-		verify(executor, times(10)).getScheduledTaskId();
+		// 6x addToProcessQueue, 2x removeItemFromQueue
+		verify(executor, times(8)).getScheduledTaskId();
 		verify(executor, times(3)).processItem(any(IdmIdentityDto.class));
 		// 3x addToProcessQueue, 3x logItemProcessed
-		verify(itemService, times(2)).deleteInternal(any(IdmProcessedTaskItemDto.class));
+		verify(itemService, times(2)).deleteItem(any(UUID.class), any(UUID.class));
 		verify(itemService, times(3)).createLogItem(any(AbstractDto.class), any(OperationResult.class), any(UUID.class));
-		verify(itemService, times(3)).createQueueItem(any(AbstractDto.class), any(OperationResult.class), any(UUID.class));
-		// 2x from removeFromProcessedQueue, other invocations are stubbed
-		verify(itemService, times(2)).find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class));		
+		verify(itemService, times(3)).createQueueItem(any(AbstractDto.class), any(OperationResult.class), any(UUID.class));	
 	}
 	
 	@Test

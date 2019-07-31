@@ -1,9 +1,10 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Utils from '../../../utils';
 import * as Basic from '../../basic';
-import { ContractPositionManager } from '../../../redux/';
+import { ContractPositionManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import EntityInfo from '../EntityInfo/EntityInfo';
 
@@ -16,10 +17,6 @@ const manager = new ContractPositionManager();
  * @author Radek Tomiška
  */
 export class ContractPositionInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;

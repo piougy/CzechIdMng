@@ -129,7 +129,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		Assert.notNull(attributes, "Attributes cannot be null!");
 		Assert.notNull(uid, "UID cannot be null!");
-
+	
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");
 		}
@@ -690,6 +690,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		request.setConnectorObject(new IcConnectorObjectImpl(uidString, objectClass, attributes));
 		request.setExecuteImmediately(!this.virtualConfiguration.isRequiredConfirmation());
 		request.setOperationType(operationType);
+		// Set UUID of IdmRoleRequest (can be null, doesn't have to exist)
+		request.setRoleRequestId(objectClass.getRoleRequestId());
 		// request.setImplementers(this.loadImplementers(this.virtualConfiguration.getImplementers()));
 		return request;
 	}

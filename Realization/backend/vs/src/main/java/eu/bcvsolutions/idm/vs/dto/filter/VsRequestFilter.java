@@ -27,6 +27,7 @@ public class VsRequestFilter extends DataFilter {
 	private DateTime createdAfter;
 	private DateTime createdBefore;
 	private Boolean onlyArchived;
+	private UUID roleRequestId;
 	
 	public VsRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -98,5 +99,13 @@ public class VsRequestFilter extends DataFilter {
 
 	public void setCreatedBefore(DateTime createdBefore) {
 		this.createdBefore = createdBefore;
+	}
+
+	public UUID getRoleRequestId() {
+		return roleRequestId;
+	}
+
+	public void setRoleRequestId(UUID roleRequestId) {
+		this.roleRequestId = roleRequestId;
 	}
 }

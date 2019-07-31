@@ -1,11 +1,14 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -15,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Common filter for registrable filter builders - contains filter parameters as map. 
+ * Common filter for registerable filter builders - contains filter parameters as map. 
  * Registered filter builders will have all values available.
  * 
  * @see FilterBuilder
@@ -122,7 +125,35 @@ public class DataFilter extends QuickFilter {
 	
 	@Override
 	public void setId(UUID id) {
-		data.set(PARAMETER_ID, id);
+		if (id == null) {
+    		data.remove(PARAMETER_ID);
+    	} else {
+    		data.put(PARAMETER_ID, Lists.newArrayList(id));
+    	}
+	}
+	
+	/**
+	 * Entity identifiers.
+	 * 
+	 * @return
+	 * @since 9.7.0
+	 */
+	public List<UUID> getIds() {
+		return getParameterConverter().toUuids(data, PARAMETER_ID);
+	}
+    
+	/**
+	 * Entity identifiers.
+	 * 
+	 * @param ids
+	 * @since 9.7.0
+	 */
+    public void setIds(List<UUID> ids) {
+    	if (CollectionUtils.isEmpty(ids)) {
+    		data.remove(PARAMETER_ID);
+    	} else {
+    		data.put(PARAMETER_ID, Lists.newArrayList(ids));
+    	}
 	}
 	
 	@Override

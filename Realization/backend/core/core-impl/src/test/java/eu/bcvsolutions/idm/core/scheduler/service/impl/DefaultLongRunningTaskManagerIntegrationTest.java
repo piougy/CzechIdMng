@@ -16,6 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +31,13 @@ import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.exception.ConcurrentExecutionException;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -55,7 +55,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmProcessedTaskItemService itemService;
 	//
-	private LongRunningTaskManager manager;
+	private DefaultLongRunningTaskManager manager;
 	
 	@Before
 	public void init() {		
@@ -222,7 +222,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	@Test(expected = ConcurrentExecutionException.class)
 	public void testDisallowConcurrentExecution() {
 		TestTaskExecutor executorOne = new TestTaskExecutor();
-		executorOne.setCount(30L);
+		executorOne.setCount(300L);
 		LongRunningFutureTask<Boolean> longRunningFutureTask = manager.execute(executorOne);
 		getHelper().waitForResult(res -> {
 			return !service.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();
@@ -308,6 +308,36 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
 		//
 		assertEquals(0, content.size());
+	}
+	
+	@Test
+	public void testProcessCreatedLrtUnderNewTransactionId() {
+		TestTaskExecutor executorOne = new TestTaskExecutor();
+		executorOne.setDescription(getHelper().createName());
+		executorOne.setCount(1L);
+		//
+		manager.persistTask(executorOne, OperationState.CREATED);
+		executorOne.setLongRunningTaskId(null);
+		manager.persistTask(executorOne, OperationState.CREATED);
+		executorOne.setLongRunningTaskId(null);
+		manager.persistTask(executorOne, OperationState.CREATED);
+		//
+		manager.processCreated();
+		//
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setTaskType(TestTaskExecutor.class.getCanonicalName());
+		filter.setText(executorOne.getDescription());
+		filter.setOperationState(OperationState.EXECUTED);
+		getHelper().waitForResult(res -> {
+			return service.find(filter, null).getContent().size() != 3;
+		}, 500, Integer.MAX_VALUE);
+		//
+		List<IdmLongRunningTaskDto> ltrs = service.find(filter, null).getContent();
+		//
+		Assert.assertEquals(3, ltrs.size());
+		Assert.assertNotEquals(ltrs.get(0).getTransactionId(), ltrs.get(1).getTransactionId());
+		Assert.assertNotEquals(ltrs.get(0).getTransactionId(), ltrs.get(2).getTransactionId());
+		Assert.assertNotEquals(ltrs.get(1).getTransactionId(), ltrs.get(2).getTransactionId());
 	}
 	
 	private class TestLogItemLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<Boolean> {

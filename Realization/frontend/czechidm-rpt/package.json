@@ -1,9 +1,14 @@
 {
   "name": "czechidm-rpt",
+<<<<<<< HEAD
   "version": "9.6.6",
+=======
+  "version": "9.7.0-snapshot",
+>>>>>>> develop
   "description": "Report module. Contains support for reports.",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint ./",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

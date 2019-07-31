@@ -100,16 +100,16 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     }
     //
     if (Utils.Entity.isNew(entity)) {
-      this.context.store.dispatch(this.getManager().createEntity(entity, `${this.getUiKey()}-detail`, (createdEntity, error) => {
+      this.context.store.dispatch(this.getManager().createEntity(entity, `${ this.getUiKey() }-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
         if (!error && this.refs.table) {
           this.refs.table.getWrappedInstance().reload();
         }
       }));
     } else if (this.getManager().supportsPatch()) {
-      this.context.store.dispatch(this.getManager().patchEntity(entity, `${this.getUiKey()}-detail`, this.afterSave.bind(this)));
+      this.context.store.dispatch(this.getManager().patchEntity(entity, `${ this.getUiKey() }-detail`, this.afterSave.bind(this)));
     } else {
-      this.context.store.dispatch(this.getManager().updateEntity(entity, `${this.getUiKey()}-detail`, this.afterSave.bind(this)));
+      this.context.store.dispatch(this.getManager().updateEntity(entity, `${ this.getUiKey() }-detail`, this.afterSave.bind(this)));
     }
   }
 
@@ -132,12 +132,20 @@ export default class AbstractTableContent extends Basic.AbstractContent {
    */
   onDelete(bulkActionValue, selectedRows) {
     const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
+    this.beforeDelete(bulkActionValue, selectedEntities);
     //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
+    this.refs[`confirm-${ bulkActionValue }`].show(
+      this.i18n(`action.${ bulkActionValue }.message`, {
+        count: selectedEntities.length,
+        record: this.getManager().getNiceLabel(selectedEntities[0]),
+        records: this.getManager().getNiceLabels(selectedEntities).join(', ')
+      }),
+      this.i18n(`action.${ bulkActionValue }.header`, {
+        count: selectedEntities.length,
+        records: this.getManager().getNiceLabels(selectedEntities).join(', ')
+      })
     ).then(() => {
-      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, this.getUiKey(), (entity, error) => {
+      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, this.getUiKey(), (entity, error, successEntities) => {
         if (entity && error) {
           if (error.statusCode !== 202) {
             this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
@@ -145,7 +153,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
             this.addError(error);
           }
         } else {
-          this.afterDelete();
+          this.afterDelete(successEntities);
         }
       }));
     }, () => {
@@ -158,26 +166,52 @@ export default class AbstractTableContent extends Basic.AbstractContent {
   }
 
   /**
+   * Before delete
+   *
+   * @param bulkActionValue
+   * @param selectedEntities
+   */
+  beforeDelete() {
+    // By default nothing
+  }
+
+  /**
    * Bulk action operation
    */
   onAction(bulkActionValue, selectedRows, action) {
     const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
+    this.refs[`confirm-${ bulkActionValue }`].show(
+      this.i18n(`action.${ bulkActionValue }.message`, {
+        count: selectedEntities.length,
+        record: this.getManager().getNiceLabel(selectedEntities[0]),
+        records: this.getManager().getNiceLabels(selectedEntities).join(', ')
+      }),
+      this.i18n(`action.${ bulkActionValue }.header`, {
+        count: selectedEntities.length,
+        records: this.getManager().getNiceLabels(selectedEntities).join(', ')
+      })
     ).then(() => {
-      this.context.store.dispatch(this.getManager().action(action.method, action.value, selectedEntities, this.getUiKey(), (entity, error, successEntities) => {
-        if (entity && error) {
-          if (error.statusCode !== 202) {
-            this.addErrorMessage({ title: this.i18n(`action.${bulkActionValue}.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
+      this.context.store.dispatch(this.getManager().action(
+        action.method,
+        action.value,
+        selectedEntities,
+        this.getUiKey(),
+        (entity, error, successEntities) => {
+          if (entity && error) {
+            if (error.statusCode !== 202) {
+              this.addErrorMessage(
+                { title: this.i18n(`action.${ bulkActionValue }.error`, { record: this.getManager().getNiceLabel(entity) }) },
+                error
+              );
+            } else {
+              this.addError(error);
+            }
           } else {
-            this.addError(error);
+            this.afterAction(action, successEntities);
           }
-        } else {
-          this.afterAction(action, successEntities);
         }
-      }));
+      ));
     }, () => {
       // nothing
     });

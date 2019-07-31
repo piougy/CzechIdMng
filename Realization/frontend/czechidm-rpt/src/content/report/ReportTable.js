@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
@@ -44,7 +45,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    this.context.store.dispatch(manager.fetchSupportedReports( (data, error) => {
+    this.context.store.dispatch(manager.fetchSupportedReports((data, error) => {
       if (error) {
         this.addError(error);
       } else {
@@ -414,7 +415,9 @@ export class ReportTable extends Advanced.AbstractTableContent {
           keyboard={ !showLoadingDetail }>
 
           <form onSubmit={this.createReport.bind(this)}>
-            <Basic.Modal.Header closeButton={ !showLoadingDetail } text={ Utils.Entity.isNew(detail.entity) ? this.i18n('action.report-create.header') : this.i18n('action.report-detail.header') }/>
+            <Basic.Modal.Header
+              closeButton={ !showLoadingDetail }
+              text={ Utils.Entity.isNew(detail.entity) ? this.i18n('action.report-create.header') : this.i18n('action.report-detail.header') }/>
             <Basic.Modal.Body>
               <Basic.Loading isStatic show={ showLoadingDetail }/>
               <Basic.AbstractForm ref="form" readOnly={ !Utils.Entity.isNew(detail.entity) } className={ showLoadingDetail ? 'hidden' : '' }>
@@ -430,7 +433,12 @@ export class ReportTable extends Advanced.AbstractTableContent {
                   ||
                   <Advanced.EavForm
                     ref="reportFilter"
-                    formInstance={ new Domain.FormInstance(report.formDefinition, detail.entity && detail.entity.filter ? detail.entity.filter.values : null ) }
+                    formInstance={
+                      new Domain.FormInstance(
+                        report.formDefinition,
+                        detail.entity && detail.entity.filter ? detail.entity.filter.values : null
+                      )
+                    }
                     readOnly={ !Utils.Entity.isNew(detail.entity) }
                     useDefaultValue/>
                 }

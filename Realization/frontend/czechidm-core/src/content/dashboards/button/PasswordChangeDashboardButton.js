@@ -18,7 +18,7 @@ class PasswordChangeDashboardButton extends Advanced.AbstractIdentityDashboardBu
   }
 
   getIcon() {
-    return 'lock';
+    return 'component:password';
   }
 
   isRendered() {

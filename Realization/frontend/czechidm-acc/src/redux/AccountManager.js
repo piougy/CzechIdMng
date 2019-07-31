@@ -3,11 +3,12 @@ import { AccountService } from '../services';
 
 const service = new AccountService();
 
+/**
+ * Accounts.
+ *
+ * @author Radek Tomiška
+ */
 export default class AccountManager extends Managers.EntityManager {
-
-  constructor() {
-    super();
-  }
 
   getService() {
     return service;

@@ -1,9 +1,14 @@
 {
   "name": "czechidm-example",
+<<<<<<< HEAD
   "version": "9.6.6",
+=======
+  "version": "9.7.0-snapshot",
+>>>>>>> develop
   "description": "Example module for CzechIdM devstack. This module can be duplicated and rename for create new optional CzechIdM module.",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint ./",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

@@ -40,6 +40,7 @@ public class TestTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIde
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TestTaskExecutor.class);
 	private static final String PARAMETER_COUNT = "count";
 	private static final long DEFAULT_COUNT = 100L;
+	private String description;
 	
 	@Override
 	public String getName() {
@@ -104,4 +105,16 @@ public class TestTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIde
     public boolean supportsDryRun() {
     	return true;
     }
+    
+    @Override
+    public String getDescription() {
+    	if (description != null) {
+    		return description;
+    	}
+    	return super.getDescription();
+    }
+    
+    public void setDescription(String description) {
+		this.description = description;
+	}
 }

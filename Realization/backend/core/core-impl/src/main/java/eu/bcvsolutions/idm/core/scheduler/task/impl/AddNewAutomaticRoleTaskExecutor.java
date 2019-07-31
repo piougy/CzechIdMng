@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -33,6 +33,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -46,12 +49,13 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Jan Helbich
  *
  */
-@Service
+@Component(AddNewAutomaticRoleTaskExecutor.TASK_NAME)
 @Description("Add new automatic role by tree structure for existing identity contacts. "
 		+ "Can be executed repetitively to assign role to unprocessed identities, "
 		+ "after process was stopped or interrupted (e.g. by server restart).")
 public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityContractDto> {
 
+	public static final String TASK_NAME = "core-add-new-automatic-role-contract-long-running-task";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AddNewAutomaticRoleTaskExecutor.class);
 	//
 	@Autowired private IdmIdentityContractService identityContractService;
@@ -61,6 +65,11 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	//
 	private UUID roleTreeNodeId = null;
 	private IdmRoleTreeNodeDto roleTreeNode = null;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -191,5 +200,17 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		List<String> propertyNames = super.getPropertyNames();
 		propertyNames.add(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
 		return propertyNames;
+	}
+	
+	@Override
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		IdmFormAttributeDto automaticRoleAttribute = new IdmFormAttributeDto(
+				AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE,
+				AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE, 
+				PersistentType.UUID,
+				BaseFaceType.AUTOMATIC_ROLE_TREE_SELECT);
+		automaticRoleAttribute.setRequired(true);
+		//
+		return Lists.newArrayList(automaticRoleAttribute);
 	}
 }

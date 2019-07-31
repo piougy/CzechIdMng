@@ -1,12 +1,13 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import classNames from 'classnames';
 
 //
-import Footer from './Footer';
 import { Basic, Advanced, Managers } from 'czechidm-core';
 import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
+import Footer from './Footer';
 //
 const securityManager = new Managers.SecurityManager();
 
@@ -112,86 +113,90 @@ export class App extends Basic.AbstractContent {
   render() {
     const { userContext, bulk, appReady, navigationCollapsed, hideFooter } = this.props;
     const { isLogout } = this.state;
-    const titleTemplate = '%s | ' + this.i18n('app.name');
+    const titleTemplate = `%s | ${ this.i18n('app.name') }`;
     const classnames = classNames(
       { 'with-sidebar': !userContext.isExpired && Managers.SecurityManager.isAuthenticated(userContext) },
-      { 'collapsed': navigationCollapsed }
+      { collapsed: navigationCollapsed }
     );
     //
     return (
       <div id="content-wrapper">
-        <Basic.FlashMessages ref="messages"/>
+        <Basic.FlashMessages ref="messages" />
         {
           !appReady
           ?
-          <Basic.Loading className="global" showLoading/>
+          <Basic.Loading className="global" showLoading />
           :
-          <div>
-            <Helmet title={this.i18n('navigation.menu.home')} titleTemplate={titleTemplate}/>
-            <Advanced.Navigation/>
-            <div id="content-container" className={ classnames }>
-              {
-                userContext.isExpired
-                ||
-                isLogout
-                ||
-                <div>
-                  {/* Childrens are hiden, when token expires => all components are loaded (componentDidMount) after identity is logged again */}
-                  { this.props.children }
-                  <Footer rendered={ !hideFooter }/>
-                </div>
-              }
-
-              <Advanced.ModalProgressBar
-                show={bulk.showLoading}
-                text={bulk.action.title}
-                count={bulk.size}
-                counter={bulk.counter}/>
-
-              <Basic.Modal dialogClassName="login-container" show={ userContext.isExpired }>
-                <form onSubmit={this.login.bind(this)}>
-                  <Basic.Modal.Header text={this.i18n('error.LOG_IN.title')} />
-                  <Basic.Modal.Body>
-                    <Basic.Loading showLoading={userContext.showLoading}>
-                      <Basic.Alert text={this.i18n('error.LOG_IN.message')}/>
-                      <Basic.AbstractForm ref="form" className="form-horizontal" style={{ padding: 0, backgroundColor: '#fff' }}>
-                        <Basic.TextField
-                          ref="username"
-                          labelSpan="col-sm-5"
-                          componentSpan="col-sm-7"
-                          label={this.i18n('content.login.username')}
-                          placeholder={this.i18n('content.login.username')}
-                          required
-                          readOnly/>
-                        <Basic.TextField
-                          type="password"
-                          ref="password"
-                          labelSpan="col-sm-5"
-                          componentSpan="col-sm-7"
-                          className="last"
-                          label={this.i18n('content.login.password')}
-                          placeholder={this.i18n('content.login.password')}
-                          required/>
-                      </Basic.AbstractForm>
-                    </Basic.Loading>
-                  </Basic.Modal.Body>
-                  <Basic.Modal.Footer>
-                    <Basic.Button
-                      level="link"
-                      onClick={this.logout.bind(this)}
-                      showLoading={userContext.showLoading}
-                      title={this.i18n('content.login.button.logout.title')}
-                      titlePlacement="bottom">
-                      {this.i18n('content.login.button.logout.value')}
-                    </Basic.Button>
-                    <Basic.Button type="submit" level="success" showLoading={userContext.showLoading}>
-                      {this.i18n('content.login.button.login')}
-                    </Basic.Button>
-                  </Basic.Modal.Footer>
-                </form>
-              </Basic.Modal>
-            </div>
-          </div>
+          (
+            <Basic.Div>
+              <Helmet title={ this.i18n('navigation.menu.home') } titleTemplate={ titleTemplate } />
+              <Advanced.Navigation />
+              <div id="content-container" className={ classnames }>
+                {
+                  userContext.isExpired
+                  ||
+                  isLogout
+                  ||
+                  (
+                    <Basic.Div>
+                      {/* Childrens are hiden, when token expires => all components are loaded (componentDidMount) after identity is logged again */}
+                      { this.props.children }
+                      <Footer rendered={ !hideFooter } />
+                    </Basic.Div>
+                  )
+                }
+                <Advanced.ModalProgressBar
+                  show={ bulk.showLoading }
+                  text={ bulk.action.title }
+                  count={ bulk.size }
+                  counter={ bulk.counter }
+                />
+                <Basic.Modal dialogClassName="login-container" show={ userContext.isExpired }>
+                  <form onSubmit={ this.login.bind(this) }>
+                    <Basic.Modal.Header text={ this.i18n('error.LOG_IN.title') } />
+                    <Basic.Modal.Body>
+                      <Basic.Loading showLoading={ userContext.showLoading }>
+                        <Basic.Alert text={ this.i18n('error.LOG_IN.message') } />
+                        <Basic.AbstractForm ref="form" className="form-horizontal" style={{ padding: 0, backgroundColor: '#fff' }}>
+                          <Basic.TextField
+                            ref="username"
+                            labelSpan="col-sm-5"
+                            componentSpan="col-sm-7"
+                            label={ this.i18n('content.login.username') }
+                            placeholder={ this.i18n('content.login.username') }
+                            required
+                            readOnly
+                          />
+                          <Basic.TextField
+                            type="password"
+                            ref="password"
+                            labelSpan="col-sm-5"
+                            componentSpan="col-sm-7"
+                            className="last"
+                            label={ this.i18n('content.login.password') }
+                            placeholder={ this.i18n('content.login.password') }
+                            required
+                          />
+                        </Basic.AbstractForm>
+                      </Basic.Loading>
+                    </Basic.Modal.Body>
+                    <Basic.Modal.Footer>
+                      <Basic.Button
+                        level="link"
+                        onClick={ () => this.logout() }
+                        title={ this.i18n('content.login.button.logout.title') }
+                        titlePlacement="bottom">
+                        { this.i18n('content.login.button.logout.value') }
+                      </Basic.Button>
+                      <Basic.Button type="submit" level="success" showLoading={ userContext.showLoading }>
+                        { this.i18n('content.login.button.login') }
+                      </Basic.Button>
+                    </Basic.Modal.Footer>
+                  </form>
+                </Basic.Modal>
+              </div>
+            </Basic.Div>
+          )
         }
       </div>
     );

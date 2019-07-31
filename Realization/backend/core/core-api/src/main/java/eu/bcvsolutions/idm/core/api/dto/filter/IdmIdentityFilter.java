@@ -2,20 +2,18 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter for identities
@@ -26,80 +24,80 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, ExternalIdentifiable, ExternalCodeable {
 	
 	/**
-	 * Identity by username
+	 * Identity by username.
 	 */
 	public static final String PARAMETER_USERNAME = "username";
 	/**
-	 * Subordinates for given identity
+	 * Subordinates for given identity.
 	 */
 	public static final String PARAMETER_SUBORDINATES_FOR = "subordinatesFor";
 	/**
-	 * Subordinates by given tree structure
+	 * Subordinates by given tree structure.
 	 */
 	public static final String PARAMETER_SUBORDINATES_BY_TREE_TYPE = "subordinatesByTreeType";
 	/**
-	 * Managers for given identity
+	 * Managers with contract guarantees included (manually assigned guarantees).
+	 */
+	public static final String PARAMETER_INCLUDE_GUARANTEES = "includeGuarantees";
+	/**
+	 * Managers for given identity.
 	 */
 	public static final String PARAMETER_MANAGERS_FOR = "managersFor";
 	/**
-	 * Managers by given tree structure
+	 * Managers by given tree structure.
 	 */
 	public static final String PARAMETER_MANAGERS_BY_TREE_TYPE = "managersByTreeType";
 	/**
-	 * Returns managers by identity's contract working prosition 
+	 * Returns managers by identity's contract working prosition.
 	 */
 	public static final String PARAMETER_MANAGERS_BY_CONTRACT = "managersByContract";
 	/**
-	 * Identity is disabled
+	 * Identity is disabled.
 	 */
 	public static final String PARAMETER_DISABLED = "disabled";
 	/**
-	 * Identity state
+	 * Identity state.
 	 */
 	public static final String PARAMETER_STATE = "state";
 	/**
-	 * Automatic role (by tree, attribute)
+	 * Automatic role (by tree, attribute).
 	 */
 	public static final String PARAMETER_AUTOMATIC_ROLE = "automaticRoleId";
 	/**
-	 * Identifiers filter in externalCode, username
+	 * Identifiers filter in externalCode, username.
 	 */
 	public static final String PARAMETER_IDENTIFIERS = "identifiers";
 	/**
-	 * Guarantees for given role
+	 * Guarantees for given role.
 	 */
 	public static final String PARAMETER_GUARANTEES_FOR_ROLE = "guaranteesForRole";
 	/**
-	 * Identities by email
+	 * Identities by email.
 	 */
 	public static final String PARAMETER_EMAIL = "email";
 	/**
-	 * roles - OR
+	 * roles - OR.
 	 */
 	private List<UUID> roles;	
 	
 	/**
-	 * Identities for tree structure (by identity contract)
+	 * Identities for tree structure (by identity contract).
 	 */
 	private UUID treeNode;
 	/**
-	 * Identities for tree structure recursively down
+	 * Identities for tree structure recursively down.
 	 */
 	private boolean recursively = true;
 	/**
-	 * Identities for tree structure (by identity contract)
+	 * Identities for tree structure (by identity contract).
 	 */
 	private UUID treeType;
 	/**
-	 * managers with contract guarantees included
-	 */
-	private boolean includeGuarantees = true;
-	/**
-	 * Identity first name - exact match
+	 * Identity first name - exact match.
 	 */
 	private String firstName;
 	/**
-	 * Identity last name - exact match
+	 * Identity last name - exact match.
 	 */
 	private String lastName;
 	
@@ -108,7 +106,11 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public IdmIdentityFilter(MultiValueMap<String, Object> data) {
-		super(IdmIdentityDto.class, data);
+		this(data, null);
+	}
+	
+	public IdmIdentityFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(IdmIdentityDto.class, data, parameterConverter);
 	}
 	
 	public String getUsername() {
@@ -215,23 +217,15 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public boolean isIncludeGuarantees() {
-		return includeGuarantees;
+		return getParameterConverter().toBoolean(data, PARAMETER_INCLUDE_GUARANTEES, true);
 	}
 	
 	public void setIncludeGuarantees(boolean includeGuarantees) {
-		this.includeGuarantees = includeGuarantees;
+		data.set(PARAMETER_INCLUDE_GUARANTEES, includeGuarantees);
 	}
 
 	public Boolean getDisabled() {
-		// TODO: parameter converter
-		Object disabled = data.getFirst(PARAMETER_DISABLED);
-		if (disabled == null) {
-			return null;
-		}
-		if (disabled instanceof Boolean) {
-			return (Boolean) disabled;
-		}
-		return Boolean.valueOf(disabled.toString()) ;
+		return getParameterConverter().toBoolean(data, PARAMETER_DISABLED);
 	}
 
 	public void setDisabled(Boolean disabled) {
@@ -271,18 +265,15 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public void setIdentifiers(List<String> identifiers) {
-		data.put(PARAMETER_IDENTIFIERS, identifiers == null ? null : new ArrayList<Object>(identifiers));
+		if (CollectionUtils.isEmpty(identifiers)) {
+    		data.remove(PARAMETER_IDENTIFIERS);
+    	} else {
+    		data.put(PARAMETER_IDENTIFIERS, new ArrayList<Object>(identifiers));
+    	}
 	}
 
 	public List<String> getIdentifiers() {
-		List<Object> identifiers = data.get(PARAMETER_IDENTIFIERS);
-		if (identifiers == null) {
-			return Lists.newArrayList();
-		}
-		return identifiers
-				.stream()
-				.map(object -> Objects.toString(object, null))
-				.collect(Collectors.toList());
+		return getParameterConverter().toStrings(data, PARAMETER_IDENTIFIERS);
 	}
 
 	@Override

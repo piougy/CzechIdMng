@@ -1,10 +1,15 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -19,22 +24,25 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
+import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Default synchronization config service
  * 
  * @author svandav
- *
+ * @author Radek Tomiška
  */
 @Service
 public class DefaultSysSyncConfigService
@@ -55,25 +63,19 @@ public class DefaultSysSyncConfigService
 	}
 
 	@Override
-	public AbstractSysSyncConfigDto save(AbstractSysSyncConfigDto dto, BasePermission... permission) {
+	@Transactional
+	public AbstractSysSyncConfigDto saveInternal(AbstractSysSyncConfigDto dto) {
+		Assert.notNull(dto);
+		//
 		if (dto != null && !this.isNew(dto)) {
-			AbstractSysSyncConfigDto persistedConfig = this.get(dto.getId(), permission);
+			AbstractSysSyncConfigDto persistedConfig = this.get(dto.getId());
 			if (!dto.getClass().equals(persistedConfig.getClass())) {
 				throw new ResultCodeException(AccResultCode.SYNCHRONIZATION_CONFIG_TYPE_CANNOT_BE_CANGED,
 						ImmutableMap.of("old", persistedConfig.getClass().getSimpleName(), "new",
 								dto.getClass().getSimpleName()));
 			}
 		}
-		return super.save(dto, permission);
-	}
-
-	@Override
-	protected Page<SysSyncConfig> findEntities(SysSyncConfigFilter filter, Pageable pageable,
-			BasePermission... permission) {
-		if (filter == null) {
-			return repository.findAll(pageable);
-		}
-		return repository.find(filter, pageable);
+		return super.saveInternal(dto);
 	}
 
 	@Override
@@ -100,9 +102,8 @@ public class DefaultSysSyncConfigService
 
 	@Override
 	@Transactional
-	public void delete(AbstractSysSyncConfigDto synchronizationConfig, BasePermission... permission) {
+	public void deleteInternal(AbstractSysSyncConfigDto synchronizationConfig) {
 		Assert.notNull(synchronizationConfig);
-		checkAccess(getEntity(synchronizationConfig.getId()), permission);
 		//
 		// remove all synchronization logs
 		SysSyncLogFilter filter = new SysSyncLogFilter();
@@ -111,7 +112,47 @@ public class DefaultSysSyncConfigService
 			synchronizationLogService.delete(log);
 		});
 		//
-		super.delete(synchronizationConfig);
+		super.deleteInternal(synchronizationConfig);
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<SysSyncConfig> root, CriteriaQuery<?> query, CriteriaBuilder builder, SysSyncConfigFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
+		// quick - "fulltext"
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
+			predicates.add(builder.or(
+					builder.like(builder.lower(
+							root
+								.get(SysSyncConfig_.systemMapping)
+								.get(SysSystemMapping_.objectClass)
+								.get(SysSchemaObjectClass_.system)
+								.get(SysSystem_.name)),
+							"%" + text + "%"),
+					builder.like(builder.lower(root.get(SysSyncConfig_.name)), "%" + text + "%")
+					));
+		}
+		// id 
+		UUID systemId = filter.getSystemId();
+		if (systemId != null) {
+			predicates.add(
+					builder.equal(
+							root
+								.get(SysSyncConfig_.systemMapping)
+								.get(SysSystemMapping_.objectClass)
+								.get(SysSchemaObjectClass_.system)
+								.get(SysSystem_.id),
+								systemId));
+		}
+		// name
+		String name = filter.getName();
+		if (StringUtils.isNotEmpty(name)) {
+			predicates.add(builder.equal(root.get(SysSyncConfig_.name), name));
+		}
+		//
+		return predicates;
 	}
 
 	@Override
@@ -131,7 +172,7 @@ public class DefaultSysSyncConfigService
 
 		// We do detach this entity (and set id to null)
 		original.setId(null);
-		EntityUtils.clearAuditFields(original);
+		DtoUtils.clearAuditFields(original);
 		return original;
 	}
 

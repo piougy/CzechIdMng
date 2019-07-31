@@ -26,7 +26,8 @@ import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
  */
 @Entity
 @Table(name = "idm_form_definition", indexes = { 
-		@Index(name = "ux_idm_form_definition_tn", columnList = "definition_type,code", unique = true) })
+		@Index(name = "ux_idm_form_definition_tn", columnList = "definition_type,code", unique = true),
+		@Index(name = "idx_idm_form_definition_code", columnList = "code") })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEntity {

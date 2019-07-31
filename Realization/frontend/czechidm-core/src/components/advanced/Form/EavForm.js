@@ -155,6 +155,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
             //
             const FormValueComponent = component.component;
             const ManagerType = component.manager;
+            //
             return (
               <FormValueComponent
                 ref={ attribute.code }
@@ -167,7 +168,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 manager={ ManagerType ? new ManagerType() : null }
                 validationErrors={ this.getInvalidFormAttributes(validationErrors || formInstance.validationErrors, attribute.code) }
                 className={ formInstance.getAttributes().last().id === attribute.id ? 'last' : '' }
-                formableManager={ formableManager }/>
+                formableManager={ formableManager }
+                component={ component }/>
             );
           })
         }

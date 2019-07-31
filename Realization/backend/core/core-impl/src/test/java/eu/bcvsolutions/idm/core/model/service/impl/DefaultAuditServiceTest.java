@@ -18,12 +18,14 @@ import javax.persistence.PersistenceContext;
 import org.hibernate.envers.RevisionType;
 import org.joda.time.DateTime;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
@@ -37,8 +39,11 @@ import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditEntityDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -52,17 +57,16 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Audit tests
+ * - test transactional id
  * 
  * @author Ondrej Kopr
+ * @author Radek Tomiška
  */
 public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private TestHelper helper;
 	@Autowired
 	private IdmAuditService auditService;
 	@Autowired
@@ -109,7 +113,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		IdmAuditDto audit2 = result.get(result.size() - result.size());
 		assertEquals(RevisionType.ADD.toString(), audit2.getModification());
 
-		assertEquals(true, audit2.getTimestamp() < audit.getTimestamp());
+		Assert.assertFalse(audit2.getTimestamp() > audit.getTimestamp());
 	}
 
 	@Test
@@ -249,7 +253,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		identity = identityService.save(identity);
 		identity = identityService.get(identity.getId());
 		IdmRoleDto role = roleService.save(constructRole("aud_test_role"));		
-		helper.createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, role);
 		//
 		List<IdmAuditDto> result = auditService.findRevisions(IdmIdentity.class, identity.getId());
 		assertEquals(1, result.size()); // only one remove audited list
@@ -300,7 +304,11 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		assertEquals(newIdentity.getUsername(), username);
 		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
 		parameters.put("username", ImmutableList.of(username));
-		List<IdmAuditDto> audits = auditService.findEntityWithRelation(IdmIdentity.class, parameters, null).getContent();
+		
+		List<IdmAuditDto> audits = auditService.findEntityWithRelation(
+				IdmIdentity.class, 
+				parameters, 
+				new PageRequest(0, Integer.MAX_VALUE, new Sort("id"))).getContent();
 		assertEquals(2, audits.size());
 		//
 		String contractChangedAttribute = audits.get(0).getChangedAttributes();
@@ -456,7 +464,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 	public void testLoginAuditWithoutPagination() {
 		String password = "password-" + System.currentTimeMillis();
 		GuardedString passwordAsGuardedString = new GuardedString(password);
-		IdmIdentityDto identity = helper.createIdentity(passwordAsGuardedString);
+		IdmIdentityDto identity = getHelper().createIdentity(passwordAsGuardedString);
 		LoginDto loginDto = new LoginDto(identity.getUsername(), passwordAsGuardedString);
 		authenticationManager.authenticate(loginDto);
 		authenticationManager.authenticate(loginDto);
@@ -843,6 +851,32 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		assertEquals(IdmRole.class.getName(), auditDto.getSubOwnerType());
 
 		assertEquals(identityRole.getId(), auditDto.getEntityId());
+	}
+	
+	@Test
+	public void testFillTransactionalIdCreateIdentity() {
+		TransactionContextHolder.setContext(TransactionContextHolder.createEmptyContext()); //start transaction
+		UUID transactionId = TransactionContextHolder.getContext().getTransactionId();
+		Assert.assertNotNull(transactionId);
+		//	
+		IdmIdentityDto identity = getHelper().createIdentity(); // with password
+		Assert.assertEquals(transactionId, identity.getTransactionId());
+		// default contract and password has to have the same transaction id
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+		Assert.assertEquals(transactionId, contract.getTransactionId());
+		// default password
+		IdmPasswordDto password = getHelper().getPassword(identity);
+		Assert.assertEquals(transactionId, password.getTransactionId());
+		
+		// audit for identity, contract and password with the same transaction id
+		IdmAuditFilter filter = new IdmAuditFilter();
+		filter.setTransactionId(transactionId);
+		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
+		Assert.assertEquals(3, audits.size());
+		//
+		Assert.assertTrue(audits.stream().anyMatch(a -> a.getEntityId().equals(identity.getId())));
+		Assert.assertTrue(audits.stream().anyMatch(a -> a.getEntityId().equals(contract.getId())));
+		Assert.assertTrue(audits.stream().anyMatch(a -> a.getEntityId().equals(password.getId())));
 	}
 
 	private IdmRoleDto constructRole(String name) {

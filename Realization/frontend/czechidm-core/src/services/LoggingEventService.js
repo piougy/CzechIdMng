@@ -9,10 +9,6 @@ import SearchParameters from '../domain/SearchParameters';
 
 class LoggignEventService extends AbstractService {
 
-  constructor() {
-    super();
-  }
-
   getApiPath() {
     return '/logging-events';
   }

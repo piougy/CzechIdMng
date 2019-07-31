@@ -4,6 +4,12 @@ import java.util.ArrayList;
 
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
+/**
+ * Attribute for uniquely identification object on target resource
+ * 
+ * @author svandav
+ *
+ */
 public class IcUidAttributeImpl extends IcAttributeImpl implements IcUidAttribute {
 
 	private static final long serialVersionUID = 7514965769990064116L;
@@ -21,9 +27,7 @@ public class IcUidAttributeImpl extends IcAttributeImpl implements IcUidAttribut
 	}
 
 	 /**
-     * Obtain a string representation of the value.
-     *
-     * @return value that uniquely identifies an object.
+     * Identifier of connector object
      */
 	@Override
 	public String getUidValue() {

@@ -48,6 +48,7 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
      *  @since 9.6.0
      */
     private Boolean duplicate = null;
+    private OperationResultDto systemState;
 
 	public UUID getRoleRequest() {
         return roleRequest;
@@ -178,8 +179,38 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
 	public void setContractPosition(UUID contractPosition) {
 		this.contractPosition = contractPosition;
 	}
+	
+	
+	public Boolean getDuplicate() {
+		return duplicate;
+	}
 
-    @Override
+	public void setDuplicate(Boolean duplicate) {
+		this.duplicate = duplicate;
+	}
+
+	@JsonIgnore
+	public DuplicateRolesDto getDuplicates() {
+		DuplicateRolesDto duplicates = (DuplicateRolesDto) this.getEmbedded().get(DUPLICATES);
+		if (duplicates == null) {
+			return new DuplicateRolesDto();
+		}
+		return duplicates;
+	}
+
+	public void setDuplicates(DuplicateRolesDto duplicates) {
+		this.getEmbedded().put(DUPLICATES, duplicates);
+	}
+
+	public OperationResultDto getSystemState() {
+		return systemState;
+	}
+	
+	public void setSystemState(OperationResultDto systemState) {
+		this.systemState = systemState;
+	}
+
+	@Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
@@ -253,25 +284,4 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
         }
         return true;
     }
-
-	public Boolean getDuplicate() {
-		return duplicate;
-	}
-
-	public void setDuplicate(Boolean duplicate) {
-		this.duplicate = duplicate;
-	}
-
-	@JsonIgnore
-	public DuplicateRolesDto getDuplicates() {
-		DuplicateRolesDto duplicates = (DuplicateRolesDto) this.getEmbedded().get(DUPLICATES);
-		if (duplicates == null) {
-			return new DuplicateRolesDto();
-		}
-		return duplicates;
-	}
-
-	public void setDuplicates(DuplicateRolesDto duplicates) {
-		this.getEmbedded().put(DUPLICATES, duplicates);
-	}
  }

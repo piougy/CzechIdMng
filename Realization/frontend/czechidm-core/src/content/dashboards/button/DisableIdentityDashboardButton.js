@@ -15,10 +15,6 @@ const identityManager = new IdentityManager();
  */
 class DisableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardButton {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getIcon() {
     return this.i18n('eav.bulk-action.identity-disable-bulk-action.icon');
   }

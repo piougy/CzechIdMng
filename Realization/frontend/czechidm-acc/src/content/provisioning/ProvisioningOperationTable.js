@@ -1,6 +1,8 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { Link } from 'react-router';
 //
 import { Basic, Advanced, Enums, Utils, Managers } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
@@ -109,7 +111,8 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
       forceSearchParameters,
       columns,
       isArchive,
-      showDeleteAllButton
+      showDeleteAllButton,
+      showTransactionId
     } = this.props;
     const { filterOpened } = this.state;
     let systemId = null;
@@ -185,15 +188,24 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                       placeholder={ this.i18n('acc:entity.SystemEntity.entityType') }
                       enum={ SystemEntityTypeEnum }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.TextField
-                      ref="entityIdentifier"
-                      placeholder={ this.i18n('acc:entity.ProvisioningOperation.entityIdentifier') }/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.TextField
-                      ref="systemEntityUid"
-                      placeholder={ this.i18n('acc:entity.SystemEntity.uid') }/>
+                  <Basic.Col lg={ 8 }>
+                    <Basic.Row>
+                      <Basic.Col lg={ showTransactionId ? 4 : 6 }>
+                        <Advanced.Filter.TextField
+                          ref="entityIdentifier"
+                          placeholder={ this.i18n('acc:entity.ProvisioningOperation.entityIdentifier') }/>
+                      </Basic.Col>
+                      <Basic.Col lg={ showTransactionId ? 4 : 6 }>
+                        <Advanced.Filter.TextField
+                          ref="systemEntityUid"
+                          placeholder={ this.i18n('acc:entity.SystemEntity.uid') }/>
+                      </Basic.Col>
+                      <Basic.Col lg={ 4 } rendered={ showTransactionId }>
+                        <Advanced.Filter.TextField
+                          ref="transactionId"
+                          placeholder={ this.i18n('filter.transactionId.placeholder') }/>
+                      </Basic.Col>
+                    </Basic.Row>
                   </Basic.Col>
                 </Basic.Row>
 
@@ -358,6 +370,26 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
             sortProperty="systemEntity"
             face="text"
             rendered={ !isArchive && _.includes(columns, 'systemEntityUid') }/>
+          <Advanced.Column
+            property="roleRequestId"
+            header={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.label') }
+            sort
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                if (!entity || !entity.roleRequestId) {
+                  return null;
+                }
+                return (
+                  <Link
+                    to={ `/role-requests/${encodeURIComponent(entity.roleRequestId)}/detail` }
+                    title={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.help') }>
+                      <Basic.Icon value="fa:key" style={{marginLeft: '25px'}}/>
+                  </Link>
+                );
+              }
+            }
+            rendered={ _.includes(columns, 'roleRequestId') } />
         </Advanced.Table>
       </div>
     );
@@ -395,12 +427,13 @@ ProvisioningOperationTable.propTypes = {
 ProvisioningOperationTable.defaultProps = {
   showRowSelection: false,
   forceSearchParameters: null,
-  columns: ['resultState', 'created', 'modified', 'operationType', 'entityType', 'entityIdentifier', 'system', 'systemEntityUid'],
+  columns: ['resultState', 'created', 'modified', 'operationType', 'entityType', 'entityIdentifier', 'system', 'systemEntityUid', 'roleRequestId'],
   showDeleteAllButton: true
 };
 
 function select(state, component) {
   return {
+    showTransactionId: Managers.ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
   };
 }

@@ -12,10 +12,6 @@ import { Advanced } from 'czechidm-core';
  */
 export default class ExampleRoleIcon extends Advanced.AbstractIcon {
 
-  constructor(props) {
-    super(props);
-  }
-
   renderIcon() {
     return (
       <span className="fa-layers fa-fw">

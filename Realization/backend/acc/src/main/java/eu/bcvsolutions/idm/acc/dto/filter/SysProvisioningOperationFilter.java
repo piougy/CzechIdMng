@@ -10,8 +10,10 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
@@ -35,6 +37,7 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	public static final String PARAMETER_ATTRIBUTE_UPDATED = "attributeUpdated"; // list - OR
 	public static final String PARAMETER_ATTRIBUTE_REMOVED = "attributeRemoved"; // list - OR
 	public static final String PARAMETER_EMPTY_PROVISIONING = "emptyProvisioning"; // provisioning attributes are empty
+	public static final String PARAMETER_ROLE_REQUEST_ID = "roleRequestId";
 
 	public SysProvisioningOperationFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -97,7 +100,11 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	}
 
 	public UUID getEntityIdentifier() {
-		return getParameterConverter().toUuid(data, PARAMETER_ENTITY_IDENTIFIER);
+		try {
+			return getParameterConverter().toUuid(data, PARAMETER_ENTITY_IDENTIFIER);
+		} catch (ClassCastException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
+		}
 	}
 
 	public void setEntityIdentifier(UUID entityIdentifier) {
@@ -186,5 +193,13 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	 */
 	public void setEmptyProvisioning(Boolean emptyProvisioning) {
 		data.set(PARAMETER_EMPTY_PROVISIONING, emptyProvisioning);
+	}
+	
+	public UUID getRoleRequestId() {
+		return getParameterConverter().toUuid(data, PARAMETER_ROLE_REQUEST_ID);
+	}
+
+	public void setRoleRequestId(UUID roleRequestId) {
+		data.set(PARAMETER_ROLE_REQUEST_ID, roleRequestId);
 	}
 }

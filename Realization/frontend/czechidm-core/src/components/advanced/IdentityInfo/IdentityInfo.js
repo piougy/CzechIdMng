@@ -1,4 +1,5 @@
-import React, { PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import classNames from 'classnames';
@@ -16,10 +17,6 @@ const manager = new IdentityManager();
  * @author Radek Tomiška
  */
 export class IdentityInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getComponentKey() {
     return 'component.advanced.IdentityInfo';
@@ -100,7 +97,7 @@ export class IdentityInfo extends AbstractEntityInfo {
    * Renders nicelabel used in text and link face
    */
   _renderNiceLabel() {
-    const{ showOnlyUsername } = this.props;
+    const { showOnlyUsername } = this.props;
     //
     if (!showOnlyUsername) {
       return super._renderNiceLabel();
@@ -122,8 +119,7 @@ export class IdentityInfo extends AbstractEntityInfo {
           <Basic.Icon
             value="fa:refresh"
             showLoading
-            color={ '#FFFFFF' }
-            />
+            color="#FFFFFF" />
         </div>
       );
     } else if (_imageUrl) {
@@ -137,8 +133,7 @@ export class IdentityInfo extends AbstractEntityInfo {
           identity={ entity }
           className="text-center img-thumbnail img-none"
           style={{ backgroundColor: this.isDisabled(entity) ? '#FCF8E3' : '#DFF0D8' }}
-          color={ '#FFFFFF' }
-          />
+          color="#FFFFFF" />
       );
     }
     //
@@ -150,16 +145,18 @@ export class IdentityInfo extends AbstractEntityInfo {
   }
 
   renderRow(icon, entityAttr) {
-    if (entityAttr) {
-      return (
-        <tr>
-          <td>
-            <Basic.Icon value={ icon } style={{ marginRight: 5 }} />
-            { entityAttr }
-          </td>
-        </tr>
-      );
+    if (!entityAttr) {
+      return null;
     }
+    //
+    return (
+      <tr>
+        <td>
+          <Basic.Icon value={ icon } style={{ marginRight: 5 }} />
+          { entityAttr }
+        </td>
+      </tr>
+    );
   }
 
   _renderFull() {
@@ -175,7 +172,7 @@ export class IdentityInfo extends AbstractEntityInfo {
     );
     //
     return (
-      <Basic.Panel className={panelClassNames} style={style}>
+      <Basic.Panel className={ panelClassNames } style={ style }>
         <Basic.PanelHeader>
           <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
           { this.getPopoverTitle(_entity) }
@@ -261,7 +258,11 @@ function select(state, component) {
     _imageUrl: profile ? profile.imageUrl : null,
     userContext: state.security.userContext, // is needed for refresh after login
     _permissions: manager.getPermissions(state, null, identity),
-    skipDashboard: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.dashboard.skip', ConfigLoader.getConfig('identity.dashboard.skip', false))
+    skipDashboard: ConfigurationManager.getPublicValueAsBoolean(
+      state,
+      'idm.pub.core.identity.dashboard.skip',
+      ConfigLoader.getConfig('identity.dashboard.skip', false)
+    )
   };
 }
 export default connect(select)(IdentityInfo);

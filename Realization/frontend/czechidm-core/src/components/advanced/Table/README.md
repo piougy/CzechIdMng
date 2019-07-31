@@ -24,7 +24,8 @@ Encapsulates all features from BasicTable component. All BasicTable parameters a
 | showToolbar | bool | Shows toolbar. | true |
 | showRefreshButton | bool | Shows refresh button. | true |
 | className | string | Css | |
-| header | oneOfType([string, element]) | Table header |  ||
+| header | oneOfType([string, element]) | Table header |  |
+| hover | bool | Activate table hover (highligth selected row) | true ||
 
 # AdvancedColumn Component
 

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -14,6 +15,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
@@ -41,10 +43,10 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ValueGeneratorManager;
+import eu.bcvsolutions.idm.core.api.service.thin.IdmIdentityRoleThinService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -96,7 +98,7 @@ public class DefaultIdmConceptRoleRequestService extends
 	@Autowired
 	private FormService formService;
 	@Autowired
-	private IdmIdentityRoleService identityRoleService;
+	private IdmIdentityRoleThinService identityRoleThinService;
 	@Autowired
 	private ValueGeneratorManager valueGeneratorManager;
 
@@ -239,7 +241,6 @@ public class DefaultIdmConceptRoleRequestService extends
 	@Transactional
 	public IdmConceptRoleRequestDto saveInternal(IdmConceptRoleRequestDto dto) {
 		IdmConceptRoleRequestDto savedDto = super.saveInternal(dto);
-
 		if (dto != null && dto.getRole() != null) {
 			// TODO: concept role request hasn't events, after implement events for the dto, please remove this.
 			if (isNew(dto)) {
@@ -295,6 +296,9 @@ public class DefaultIdmConceptRoleRequestService extends
 				// Get form instance from given concept first
 				if (eavs != null && eavs.size() == 1) {
 					conceptFormInstance = eavs.get(0);
+					if(conceptFormInstance.getFormDefinition() == null) {
+						conceptFormInstance.setFormDefinition(formDefinitionDto);
+					}
 				} else {
 					conceptFormInstance = formService.getFormInstance(dto, formDefinitionDto);
 				}
@@ -310,9 +314,11 @@ public class DefaultIdmConceptRoleRequestService extends
 					IdmIdentityRoleDto identityRoleDto = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.identityRole,
 							IdmIdentityRoleDto.class, null);
 					if(identityRoleDto == null) {
-						identityRoleDto = identityRoleService.get(dto.getIdentityRole());
+						identityRoleDto = identityRoleThinService.get(dto.getIdentityRole());
 					}
-					IdmFormInstanceDto formInstance = formService.getFormInstance(identityRoleDto, formDefinitionDto);
+					IdmFormInstanceDto formInstance = formService.getFormInstance(
+							new IdmIdentityRoleDto(identityRoleDto.getId()), 
+							formDefinitionDto);
 					if (formInstance != null && conceptFormInstance != null) {
 						IdmFormInstanceDto conceptFormInstanceFinal = conceptFormInstance;
 						List<IdmFormValueDto> conceptValues = conceptFormInstanceFinal.getValues();
@@ -396,6 +402,24 @@ public class DefaultIdmConceptRoleRequestService extends
 		}
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.state), filter.getState()));
+		}
+		
+		Set<UUID> ids = filter.getIdentityRoleIds();
+		if (ids != null && !ids.isEmpty()) {
+			predicates.add(root.get(IdmConceptRoleRequest_.identityRole).get(IdmIdentityRole_.id).in(ids));
+		}
+		
+		if (filter.getRoleEnvironment() != null) {
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.role).get(IdmRole_.environment), filter.getRoleEnvironment()));
+		}
+		
+		List<String> roleEnvironments = filter.getRoleEnvironments();
+		if (CollectionUtils.isNotEmpty(roleEnvironments)) {
+			predicates.add(root.get(IdmConceptRoleRequest_.role).get(IdmRole_.environment).in(roleEnvironments));
+		}
+		
+		if (filter.isIdentityRoleIsNull()) {
+			predicates.add(builder.isNull(root.get(IdmConceptRoleRequest_.identityRole)));
 		}
 		//
 		return predicates;

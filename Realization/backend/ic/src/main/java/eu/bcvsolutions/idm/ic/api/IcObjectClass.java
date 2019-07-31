@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.ic.api;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
- * Interface for object class. Object class defined type or category of connector object.
+ * Interface for object class. Object class defined type or category of
+ * connector object.
  * 
- * @author svandav
+ * @author Vít Švanda
  *
  */
 public interface IcObjectClass extends Serializable {
@@ -25,5 +27,17 @@ public interface IcObjectClass extends Serializable {
 	String getDisplayName();
 
 	void setDisplayName(String displayName);
+
+	/**
+	 * Get relation on the IdmRoleRequest, can be null and request doesn't have to
+	 * exist (used in virtual systems).
+	 */
+	UUID getRoleRequestId();
+
+	/**
+	 * Set relation on the IdmRoleRequest, can be null and request doesn't have to
+	 * exist (used in virtual systems).
+	 */
+	void setRoleRequestId(UUID roleRequestId);
 
 }

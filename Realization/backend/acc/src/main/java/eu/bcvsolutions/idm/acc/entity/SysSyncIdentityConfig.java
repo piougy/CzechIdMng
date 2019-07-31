@@ -51,6 +51,14 @@ public class SysSyncIdentityConfig extends SysSyncConfig{
 	@NotNull
 	@Column(name = "start_auto_role_rec", nullable = false)
 	private boolean startAutoRoleRec = true;
+	
+	/*
+	 * Assign default role to all valid or future valid contracts
+	 */
+	@Audited
+	@NotNull
+	@Column(name = "assign_default_role_to_all", nullable = false)
+	private boolean assignDefaultRoleToAll = false;
 
 	/*
 	 * During creating identity will be created default contract for it
@@ -90,5 +98,13 @@ public class SysSyncIdentityConfig extends SysSyncConfig{
 
 	public void setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior) {
 		this.inactiveOwnerBehavior = inactiveOwnerBehavior;
+	}
+
+	public boolean isAssignDefaultRoleToAll() {
+		return assignDefaultRoleToAll;
+	}
+
+	public void setAssignDefaultRoleToAll(boolean assignDefaultRoleToAll) {
+		this.assignDefaultRoleToAll = assignDefaultRoleToAll;
 	}
 }

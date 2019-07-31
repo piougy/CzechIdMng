@@ -108,10 +108,11 @@ public class DefaultIdmIdentityRoleService
 		if (roleId != null) {
 			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmIdentityRole_.role, IdmRoleDto.class);
 			// Has role filled attribute definition?
-			UUID formDefintion = role.getIdentityRoleAttributeDefinition();
-			if (formDefintion != null) {
+			UUID formDefinition = role.getIdentityRoleAttributeDefinition();
+			if (formDefinition != null) {
 				IdmFormDefinitionDto formDefinitionDto = roleService.getFormAttributeSubdefinition(role);
-				return this.getFormService().getFormInstance(dto, formDefinitionDto);
+				// thin dto can be given -> owner is normal dto
+				return this.getFormService().getFormInstance(new IdmIdentityRoleDto(dto.getId()), formDefinitionDto);
 			}
 		}
 		return null;
@@ -176,10 +177,6 @@ public class DefaultIdmIdentityRoleService
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityRoleFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
-		// id
-		if (filter.getId() != null) {
-			predicates.add(builder.equal(root.get(AbstractEntity_.id), filter.getId()));
-		}
 		// quick - by identity's username
 		String text = filter.getText();
 		if (StringUtils.isNotEmpty(text)) {
@@ -190,19 +187,15 @@ public class DefaultIdmIdentityRoleService
 							"%" + text + "%")
 					);
 		}
-		UUID identityId = filter.getIdentityId();
-		if (identityId != null) {
-			predicates.add(builder.equal(
-					root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id), 
-					identityId)
-					);
+		List<UUID> identities = filter.getIdentities();
+		if (!identities.isEmpty()) {
+			predicates.add(
+					root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id).in(identities) 
+				);
 		}
-		UUID roleId = filter.getRoleId();
-		if (roleId != null) {
-			predicates.add(builder.equal(
-					root.get(IdmIdentityRole_.role).get(IdmRole_.id), 
-					roleId)
-					);
+		List<UUID> roles = filter.getRoles();
+		if (!roles.isEmpty()) {
+			predicates.add(root.get(IdmIdentityRole_.role).get(IdmRole_.id).in(roles));
 		}
 		List<String> roleEnvironments = filter.getRoleEnvironments();
 		if (CollectionUtils.isNotEmpty(roleEnvironments)) {

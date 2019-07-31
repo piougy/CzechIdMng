@@ -1,11 +1,12 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import { Basic, Advanced, Utils, Managers, Domain } from 'czechidm-core';
+import uuid from 'uuid';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 //
-import uuid from 'uuid';
 
 /**
 * Table of target systems
@@ -68,8 +69,15 @@ export class SystemTable extends Advanced.AbstractTableContent {
     const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
     this.refs['confirm-duplicate'].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
+      this.i18n(`action.${bulkActionValue}.message`, {
+        count: selectedEntities.length,
+        record: manager.getNiceLabel(selectedEntities[0]),
+        records: manager.getNiceLabels(selectedEntities).join(', ')
+      }),
+      this.i18n(`action.${bulkActionValue}.header`, {
+        count: selectedEntities.length,
+        records: manager.getNiceLabels(selectedEntities).join(', ')
+      })
     ).then(() => {
       this.context.store.dispatch(manager.duplicateEntities(selectedEntities, uiKey, (entity, error) => {
         if (entity && error) {
@@ -112,36 +120,36 @@ export class SystemTable extends Advanced.AbstractTableContent {
       const deleteKey = ProvisioningOperationTypeEnum.findKeyBySymbol(ProvisioningOperationTypeEnum.DELETE);
       return (
         <div>
-        {
-          !system.blockedOperation.createOperation
-          ||
-          <span>
-            {' '}
-            <Basic.Label
-              level={level}
-              value={ProvisioningOperationTypeEnum.getNiceLabel(createKey)}/>
-          </span>
-        }
-        {
-          !system.blockedOperation.updateOperation
-          ||
-          <span>
-            {' '}
-            <Basic.Label
-              level={level}
-              value={ProvisioningOperationTypeEnum.getNiceLabel(updateKey)}/>
-          </span>
-        }
-        {
-          !system.blockedOperation.deleteOperation
-          ||
-          <span>
-            {' '}
-            <Basic.Label
-              level={level}
-              value={ProvisioningOperationTypeEnum.getNiceLabel(deleteKey)}/>
-          </span>
-        }
+          {
+            !system.blockedOperation.createOperation
+            ||
+            <span>
+              {' '}
+              <Basic.Label
+                level={level}
+                value={ProvisioningOperationTypeEnum.getNiceLabel(createKey)}/>
+            </span>
+          }
+          {
+            !system.blockedOperation.updateOperation
+            ||
+            <span>
+              {' '}
+              <Basic.Label
+                level={level}
+                value={ProvisioningOperationTypeEnum.getNiceLabel(updateKey)}/>
+            </span>
+          }
+          {
+            !system.blockedOperation.deleteOperation
+            ||
+            <span>
+              {' '}
+              <Basic.Label
+                level={level}
+                value={ProvisioningOperationTypeEnum.getNiceLabel(deleteKey)}/>
+            </span>
+          }
         </div>
       );
     }
@@ -164,7 +172,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
           forceSearchParameters={ forceSearchParameters }
           showRowSelection={ showRowSelection }
           filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className="last">
                   <Basic.Col lg={ 4 }>
@@ -173,15 +181,14 @@ export class SystemTable extends Advanced.AbstractTableContent {
                       placeholder={this.i18n('acc:entity.System.name')}/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 } className="text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
           buttons={ this.getTableButtons(showAddButton) }
-          _searchParameters={ this.getSearchParameters() }
-          >
+          _searchParameters={ this.getSearchParameters() }>
 
           <Advanced.Column
             header=""
@@ -190,8 +197,8 @@ export class SystemTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 return (
                   <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    title={ this.i18n('button.detail') }
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
               }
             }

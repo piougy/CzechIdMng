@@ -22,22 +22,28 @@ public class SysSyncIdentityConfigDto extends AbstractSysSyncConfigDto {
 
 	@Embedded(dtoClass = IdmRoleDto.class)
 	private UUID defaultRole;
-	
+
 	/*
-	 * If the identity doesn't have any valid contract for assigning the default role,
-	 * this choice specifies if the account should be linked.
+	 * If the identity doesn't have any valid contract for assigning the default
+	 * role, this choice specifies if the account should be linked.
 	 */
 	private SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior;
-	
+
 	/*
-	 * Start recalculation after end synchronization for automatic roles by attribute
+	 * Start recalculation after end synchronization for automatic roles by
+	 * attribute
 	 */
 	private boolean startAutoRoleRec = true;
-	
+
 	/*
 	 * During creating identity will be created default contract for it
 	 */
 	private boolean createDefaultContract = false;
+
+	/*
+	 * Assign default role to all valid or future valid contracts
+	 */
+	private boolean assignDefaultRoleToAll = false;
 
 	public UUID getDefaultRole() {
 		return defaultRole;
@@ -69,5 +75,13 @@ public class SysSyncIdentityConfigDto extends AbstractSysSyncConfigDto {
 
 	public void setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior) {
 		this.inactiveOwnerBehavior = inactiveOwnerBehavior;
+	}
+
+	public boolean isAssignDefaultRoleToAll() {
+		return assignDefaultRoleToAll;
+	}
+
+	public void setAssignDefaultRoleToAll(boolean assignDefaultRoleToAll) {
+		this.assignDefaultRoleToAll = assignDefaultRoleToAll;
 	}
 }

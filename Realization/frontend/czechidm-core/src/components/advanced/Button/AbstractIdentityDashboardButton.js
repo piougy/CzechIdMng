@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import * as Basic from '../../basic';
 
 /**
@@ -75,7 +76,6 @@ export default class AbstractIdentityDashboardButton extends Basic.AbstractConte
    * OnClick button function
    */
   onClick() {
-    return;
   }
 
   /**

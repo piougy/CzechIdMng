@@ -4,9 +4,9 @@
  *
  */
 import Immutable from 'immutable';
-/*eslint-disable */
+/* eslint-disable */
 let moduleDescriptors = new Immutable.Map();
-/*eslint-enable */
+/* eslint-enable */
 // Default descriptors
 //
 // Additional modules (will added during compilation)

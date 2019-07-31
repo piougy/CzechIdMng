@@ -37,7 +37,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-@Transactional
 public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private ApplicationContext context;
@@ -54,6 +53,7 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 	}
 	
 	@Test
+	@Transactional
 	public void testReferentialIntegrity() {
 		IdmEntityEventDto entityEvent = new IdmEntityEventDto();
 		entityEvent.setOwnerType("empty");
@@ -115,6 +115,7 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 	}
 	
 	@Test
+	@Transactional
 	public void testReferentialIntegrityParentIsDeleted() {
 		IdmEntityEventDto parentEvent = new IdmEntityEventDto();
 		parentEvent.setOwnerType("empty");
@@ -188,6 +189,7 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 	}
 	
 	@Test
+	@Transactional
 	public void testReferentialIntegrityRootIsDeleted() {
 		IdmEntityEventDto parentEvent = new IdmEntityEventDto();
 		parentEvent.setId(UUID.randomUUID());
@@ -237,6 +239,7 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 	}
 	
 	@Test
+	@Transactional
 	public void testDeleteAll() {
 		String mockOwnerType = getHelper().createName();
 		//
@@ -280,6 +283,7 @@ public class DefaultIdmEntityEventServiceIntegrationTest extends AbstractIntegra
 	}
 	
 	@Test
+	@Transactional
 	public void testExceptOwner() {
 		String mockOwnerType = getHelper().createName();
 		String instanceId = getHelper().createName();

@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto.Builder;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
@@ -36,6 +37,7 @@ import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
@@ -57,6 +59,7 @@ public class DefaultSysProvisioningArchiveService
 	
 	@Autowired private SysSystemEntityService systemEntityService;
 	@Autowired private SysProvisioningAttributeService provisioningAttributeService;
+	@Autowired private SysSystemService systemService;
 
 	@Autowired
 	public DefaultSysProvisioningArchiveService(SysProvisioningArchiveRepository repository) {
@@ -100,6 +103,8 @@ public class DefaultSysProvisioningArchiveService
 		archive.setCreated(provisioningOperation.getCreated());
 		// archive modified is used as the executed / canceled 
 		archive.setModified(DateTime.now());
+		// archive relation on the role-request
+		archive.setRoleRequestId(provisioningOperation.getRoleRequestId());
 		//
 		archive = save(archive);
 		//
@@ -107,6 +112,23 @@ public class DefaultSysProvisioningArchiveService
 		provisioningAttributeService.saveAttributes(archive);
 		//
 		return archive;
+	}
+	
+	/**
+	 * Optimize - system can be pre-loaded in DTO.
+	 * 
+	 * @param archive
+	 * @return
+	 */
+	@Override
+	public SysSystemDto getSystem(SysProvisioningArchiveDto archive) {
+		SysSystemDto system = DtoUtils.getEmbedded(archive, SysProvisioningArchive_.system, (SysSystemDto) null);
+		if (system == null) {
+			// just for sure, self constructed operation can be given
+			system = systemService.get(archive.getSystem());
+		}
+		//
+		return system;
 	}
 	
 	@Override
@@ -164,6 +186,11 @@ public class DefaultSysProvisioningArchiveService
 		// Batch id
 		if (filter.getBatchId() != null) {
 			throw new UnsupportedOperationException("Filter by batch identifier is not supported in archive.");
+		}
+		// Role-request ID
+		UUID roleRequestId = filter.getRoleRequestId();
+		if (roleRequestId != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningArchive_.roleRequestId), roleRequestId));
 		}
 		// updated attributes
 		List<String> attributeUpdated = filter.getAttributeUpdated();

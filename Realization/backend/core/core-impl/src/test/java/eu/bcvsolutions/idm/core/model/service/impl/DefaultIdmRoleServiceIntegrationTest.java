@@ -49,6 +49,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
@@ -455,8 +456,11 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	                .getContentAsString();
 		
 		IdmRoleRequestDto createdDto = (IdmRoleRequestDto) mapper.readValue(response, roleRequest.getClass());
-		
+		// Request from REST doesn't contains concept (from version 9.7.0!)
+		assertTrue(createdDto.getConceptRoles().isEmpty());
 		roleRequestService.validate(createdDto);
+		
+		roleRequestService.validate(roleRequestService.get(createdDto.getId(), new IdmRoleRequestFilter(true)));
 	}
 	
 	@Test

@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -32,7 +32,7 @@ public class ExternalCodeableFilter<E extends AbstractEntity> extends BaseFilter
 	}
 	
 	@Override
-	public Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
+	public Predicate getPredicate(Root<E> root, AbstractQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
 		String externalCode = (String) filter.getData().getFirst(ExternalCodeable.PROPERTY_EXTERNAL_CODE);
 		if (StringUtils.isEmpty(externalCode)) {
 			return null;

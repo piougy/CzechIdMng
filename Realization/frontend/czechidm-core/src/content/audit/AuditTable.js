@@ -5,7 +5,7 @@ import _ from 'lodash';
 import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { AuditManager } from '../../redux';
+import { AuditManager, ConfigurationManager } from '../../redux';
 import AuditModificationEnum from '../../enums/AuditModificationEnum';
 
 const auditManager = new AuditManager();
@@ -14,17 +14,41 @@ const auditManager = new AuditManager();
 * Table of Audit for entities
 *
 * @author Ondřej Kopr
+* @author Radek Tomiška
 */
 export class AuditTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      transactionId: this._getTransactionId(props._searchParameters)
+    };
   }
 
   componentDidMount() {
     super.componentDidMount();
     //
     this.context.store.dispatch(auditManager.fetchAuditedEntitiesNames());
+  }
+
+  componentWillReceiveProps(nextProps) {
+    //  filters from redux
+    if (nextProps._searchParameters) {
+      const newTransactionId = this._getTransactionId(nextProps._searchParameters);
+      if (newTransactionId && this.state.transactionId !== newTransactionId) {
+        this.setState({
+          transactionId: newTransactionId
+        }, () => {
+          //
+          const filterData = {};
+          nextProps._searchParameters.getFilters().forEach((v, k) => {
+            filterData[k] = v;
+          });
+          this.refs.filterForm.setData(filterData);
+          this.refs.table.getWrappedInstance().useFilterData(filterData);
+        });
+      }
+    }
   }
 
   getContentKey() {
@@ -55,6 +79,13 @@ export class AuditTable extends Advanced.AbstractTableContent {
     return Utils.Ui.getSimpleJavaType(name);
   }
 
+  _getTransactionId(searchParameters) {
+    if (!searchParameters || !searchParameters.getFilters().has('transactionId')) {
+      return null;
+    }
+    return searchParameters.getFilters().get('transactionId');
+  }
+
   /**
   * Method get last string of arrays split string by dot.
   * Used method _getType
@@ -69,6 +100,12 @@ export class AuditTable extends Advanced.AbstractTableContent {
   }
 
   _getAdvancedFilter(auditedEntities, columns) {
+    const { showTransactionId, forceSearchParameters } = this.props;
+    let _showTransactionId = showTransactionId;
+    if (forceSearchParameters && forceSearchParameters.getFilters().has('transactionId')) {
+      _showTransactionId = false;
+    }
+    //
     return (
       <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
         <Basic.AbstractForm ref="filterForm">
@@ -98,7 +135,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
               <Advanced.Filter.TextField
                 className="pull-right"
                 ref="modifier"
-                placeholder={this.i18n('entity.Audit.modifier')}
+                placeholder={ this.i18n('entity.Audit.modifier') }
                 returnProperty="username"/>
             </Basic.Col>
           </Basic.Row>
@@ -106,13 +143,18 @@ export class AuditTable extends Advanced.AbstractTableContent {
             <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'entityId') }>
               <Advanced.Filter.TextField
                 ref="entityId"
-                placeholder={this.i18n('entity.Audit.entityId')}/>
+                placeholder={ this.i18n('entity.Audit.entityId') }/>
             </Basic.Col>
-            <Basic.Col lg={ 8 } rendered={ _.includes(columns, 'changedAttributes') }>
+            <Basic.Col lg={ !_showTransactionId ? 8 : 4 } rendered={ _.includes(columns, 'changedAttributes') }>
               <Advanced.Filter.CreatableSelectBox
                 ref="changedAttributesList"
                 placeholder={this.i18n('entity.Audit.changedAttributes.placeholder')}
                 tooltip={this.i18n('entity.Audit.changedAttributes.tooltip')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 } rendered={ _showTransactionId }>
+              <Advanced.Filter.TextField
+                ref="transactionId"
+                placeholder={ this.i18n('filter.transactionId.placeholder') }/>
             </Basic.Col>
           </Basic.Row>
         </Basic.AbstractForm>
@@ -130,16 +172,19 @@ export class AuditTable extends Advanced.AbstractTableContent {
   }
 
   _getForceSearchParameters() {
-    const { entityId, entityClass } = this.props;
+    const { entityId, entityClass, forceSearchParameters } = this.props;
 
     if (entityId !== undefined || entityClass !== undefined) {
+      if (forceSearchParameters) {
+        return forceSearchParameters.setFilter('type', entityClass).setFilter('entityId', entityId);
+      }
       return auditManager.getDefaultSearchParameters().setFilter('type', entityClass).setFilter('entityId', entityId);
     }
-    return null;
+    return forceSearchParameters;
   }
 
   render() {
-    const { columns, uiKey, auditedEntities } = this.props;
+    const { columns, uiKey, auditedEntities, className } = this.props;
     return (
       <div>
         <Advanced.Table
@@ -147,8 +192,9 @@ export class AuditTable extends Advanced.AbstractTableContent {
           uiKey={uiKey}
           filterOpened
           manager={auditManager}
-          forceSearchParameters={this._getForceSearchParameters()}
+          forceSearchParameters={ this._getForceSearchParameters() }
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+          className={ className }
           showId
           filter={ this._getAdvancedFilter(auditedEntities, columns) }
           _searchParameters={ this.getSearchParameters() }>
@@ -259,7 +305,8 @@ AuditTable.defaultProps = {
 function select(state, component) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    auditedEntities: auditManager.prepareOptionsFromAuditedEntitiesNames(auditManager.getAuditedEntitiesNames(state))
+    auditedEntities: auditManager.prepareOptionsFromAuditedEntitiesNames(auditManager.getAuditedEntitiesNames(state)),
+    showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false)
   };
 }
 

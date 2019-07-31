@@ -133,7 +133,8 @@ class ScriptArea extends Basic.ScriptArea {
                 <Basic.SelectBox
                   ref="selectedScript"
                   manager={scriptManager}
-                  useFirst clearable={false}
+                  useFirst
+                  clearable={ false }
                   onChange={this._chageScript.bind(this)}
                   forceSearchParameters={
                     scriptManager.getDefaultSearchParameters().setFilter('inCategory', scriptCategory)}
@@ -142,7 +143,9 @@ class ScriptArea extends Basic.ScriptArea {
               <Basic.AbstractForm ref="scriptDetail" data={script} >
                 <Basic.Row>
                   <Basic.Col lg={ 4 }>
-                    <Basic.TextField ref="code" readOnly
+                    <Basic.TextField
+                      ref="code"
+                      readOnly
                       label={this.i18n('entity.Script.code')}/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>

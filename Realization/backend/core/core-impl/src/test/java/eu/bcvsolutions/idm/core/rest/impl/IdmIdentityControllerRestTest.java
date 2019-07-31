@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -741,5 +742,42 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 				.anyMatch(ir -> { 
 					return ir.getSuperior().equals(roleThree.getId()) && ir.getSub().equals(roleFour.getId());
 				}));
+	}
+	
+	/**
+	 * Test search by ids - supported by default, id DataFilter is used (see #toPedicates in services - has to call super implementation)
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testFindByIds() {
+		IdmIdentityDto createdDto = createDto(prepareDto());
+		IdmIdentityDto createdDtoTwo = createDto(prepareDto());
+		// mock dto
+		createDto(prepareDto());
+		//
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.put(DataFilter.PARAMETER_ID, Lists.newArrayList(createdDto.getId().toString(), createdDtoTwo.getId().toString()));
+		//
+		List<IdmIdentityDto> results = find(parameters);
+		//
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDto.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDtoTwo.getId())));
+		//
+		// find quick alias
+		results = findQuick(parameters);
+		//
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDto.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDtoTwo.getId())));
+		//
+		results = autocomplete(parameters);
+		//
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDto.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDtoTwo.getId())));
+		//
+		Assert.assertEquals(2, count(parameters));
 	}
 }

@@ -9,7 +9,6 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
@@ -27,7 +26,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-@Transactional
 public class DeleteExecutedEventTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private IdmEntityEventService service;
@@ -62,7 +60,7 @@ public class DeleteExecutedEventTaskExecutorIntegrationTest extends AbstractInte
 		//
 		events = service.find(filter, null).getContent();
 		Assert.assertEquals(5, events.size());
-		Assert.assertTrue(events.stream().allMatch(a -> !a.getId().equals(operationOne.getId())));
+		Assert.assertTrue(events.stream().allMatch(a -> !a.getId().equals(operationOne.getId())));		
 	}
 	
 	private IdmEntityEventDto createDto(UUID ownerId, DateTime created, OperationState state) {

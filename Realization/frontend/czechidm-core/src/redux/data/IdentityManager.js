@@ -237,11 +237,14 @@ export default class IdentityManager extends FormableEntityManager {
         // profile already loaded or image not found before (imageUrl === false)
       } else {
         dispatch(this.dataManager.requestData(uiKey));
-        this.getService().downloadProfileImage(identityId)
+        this
+          .getService()
+          .downloadProfileImage(identityId)
           .then(response => {
             if (response.status === 404 || response.status === 204) {
               return null;
-            } else if (response.status === 200) {
+            }
+            if (response.status === 200) {
               return response.blob();
             }
             const json = response.json();
@@ -251,6 +254,8 @@ export default class IdentityManager extends FormableEntityManager {
             if (Utils.Response.hasInfo(json)) {
               throw Utils.Response.getFirstInfo(json);
             }
+            //
+            return null;
           })
           .then(blob => {
             let imageUrl = false;
@@ -294,17 +299,17 @@ export default class IdentityManager extends FormableEntityManager {
       }
       //
       this.getService().getProfilePermissions(id)
-      .then(permissions => {
-        const profileKey = this.profileManager.resolveUiKey(null, id);
-        //
-        dispatch({
-          type: RECEIVE_PERMISSIONS,
-          id,
-          entityType: this.profileManager.getEntityType(),
-          permissions,
-          uiKey: profileKey
+        .then(permissions => {
+          const profileKey = this.profileManager.resolveUiKey(null, id);
+          //
+          dispatch({
+            type: RECEIVE_PERMISSIONS,
+            id,
+            entityType: this.profileManager.getEntityType(),
+            permissions,
+            uiKey: profileKey
+          });
         });
-      });
     };
   }
 

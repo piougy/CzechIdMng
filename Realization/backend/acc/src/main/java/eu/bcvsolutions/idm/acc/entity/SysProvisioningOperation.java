@@ -37,7 +37,8 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 		@Index(name = "idx_sys_p_o_entity_type", columnList = "entity_type"),
 		@Index(name = "idx_sys_p_o_sys_entity", columnList = "system_entity_id"),
 		@Index(name = "idx_sys_p_o_entity_identifier", columnList = "entity_identifier"),
-		@Index(name = "idx_sys_pro_oper_batch_id", columnList = "provisioning_batch_id")
+		@Index(name = "idx_sys_pro_oper_batch_id", columnList = "provisioning_batch_id"),
+		@Index(name = "idx_sys_p_o_role_request_id", columnList = "role_request_id")
 		})
 public class SysProvisioningOperation extends AbstractEntity {
 
@@ -88,6 +89,10 @@ public class SysProvisioningOperation extends AbstractEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysProvisioningBatch batch;
+	
+	// ID of request, without DB relation on the request -> Request can be null or doesn't have to exist! 
+	@Column(name = "role_request_id")
+    private UUID roleRequestId;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -185,5 +190,13 @@ public class SysProvisioningOperation extends AbstractEntity {
 			return null;
 		}
 		return batch.getNextAttempt();
+	}
+
+	public UUID getRoleRequestId() {
+		return roleRequestId;
+	}
+
+	public void setRoleRequestId(UUID roleRequestId) {
+		this.roleRequestId = roleRequestId;
 	}
 }

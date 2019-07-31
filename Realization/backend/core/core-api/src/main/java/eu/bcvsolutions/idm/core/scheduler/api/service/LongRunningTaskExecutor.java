@@ -20,6 +20,7 @@ public interface LongRunningTaskExecutor<V> extends Callable<V>, Configurable {
 	
 	String CONFIGURABLE_TYPE = "long-running-task";
 	String PARAMETER_INSTANCE_ID = "core:instanceId"; // server instance id
+	String PARAMETER_TRANSACTION_CONTEXT = "core:transactionContext"; // user transaction context
 	
 	@Override
 	default String getConfigurableType() {

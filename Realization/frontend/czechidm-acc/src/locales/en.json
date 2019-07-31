@@ -11,7 +11,8 @@
     "advanced": {
       "EavForm": {
         "faceType": {
-          "SYSTEM-SELECT": "System select (SelectBox)"
+          "SYSTEM-SELECT": "System select (SelectBox)",
+          "SYNCHRONIZATION-CONFIG-SELECT": "Synchronization configuration select (SelectBox)"
         }
       }
     }
@@ -196,6 +197,10 @@
           "inactiveOwnerBehavior": {
             "label": "Behavior of the default role for inactive identities",
             "helpBlock": "How to behave if the identity doesn't have any valid contract for assigning the default role."
+          },
+          "assignDefaultRoleToAll": {
+            "label": "Assign default role to all valid contracts",
+            "helpBlock": "The default role will not be assigned to the main contract, but to all valid or in future valid contracts of the identity."
           },
           "startAutoRoleRec": {
             "label": "After end, start the automatic role recalculation",
@@ -586,7 +591,7 @@
         "resultCode": "Code",
         "nextAttempt": {
           "header": "Next attempt",
-          "label": "<strong>Attempt:</strong> {{currentAttempt}} / {{maxAttempts}}, Next attempt will start <strong>{{nextAttempt}}</strong>"
+          "label": "<strong>Attempt:</strong> {{currentAttempt}} / {{maxAttempts}}, Next attempt will execute after <strong>{{nextAttempt}}</strong>"
         }
       },
       "filter": {
@@ -799,6 +804,10 @@
       "transformFromResourceScriptSelectBox": {
         "label": "Available scripts for transformation from resource",
         "help": "After script selection, will be automatically insert code which calls selected script including sample parameters."
+      },
+      "notUseIfConctractExcluded": {
+        "label": "Skip value when contract is excluded",
+        "help": "If the contract is excluded, then that value will be skipped from the resulting merge of that attribute values."
       },
       "idmPropertyEnum": "Entity field",
       "schemaAttribute": "Attribute in schema",
@@ -1058,7 +1067,11 @@
       "operationType": "Operation",
       "entityIdentifier": "Entity identifier (IdM)",
       "resultState": "Result",
-      "entity": "IdM entity"
+      "entity": "IdM entity",
+      "roleRequestId": {
+        "label": "Request",
+        "help": "Go to the request within which this operation was created."
+      }
     },
     "ProvisioningArchive": {
       "_type": "Provisioning - archive",
@@ -1511,12 +1524,23 @@
           "operationstate": {
             "label": "Operation state",
             "placeholder": "All states or ...",
-            "help": "Delete operations in given state only. Available options [CREATED, RUNNING, EXECUTED, NOT_EXECUTED, BLOCKED, EXCEPTION, CANCELED]."
+            "help": "Delete operations in given state only."
           },
           "system": {
             "label": "System",
             "placeholder": "All systems or select ...",
             "help": "Delete operations with given system only."
+          }
+        }
+      },
+      "acc-synchronization-long-running-task": {
+        "label": "Run synchronization",
+        "help": "Run configured synchronization.",
+        "icon": "component:synchronization",
+        "attributes": {
+          "synchronization-uuid": {
+            "label": "Configured synchronization",
+            "placeholder": "Select synchronization to run ..."
           }
         }
       }
@@ -1914,6 +1938,30 @@
     "ROLE_SYSTEM_SUPPORTS_ONLY_IDENTITY": {
       "message": "Account management by roles supports 'Identity' type only (no [{{entityType}}])!",
       "title": "Unsupported system mapping type"
+    },
+    "ROLE_REQUEST_SOME_OPERATIONS_BLOCKED": {
+      "title": "Some operations were blocked!",
+      "message": "Some operations for systems [{{systems}}] were blocked!"
+    },
+    "ROLE_REQUEST_SOME_OPERATIONS_FAILED": {
+      "title": "Some operations failed!",
+      "message": "Some operations for systems [{{systems}}] failed!"
+    },
+    "ROLE_REQUEST_ALL_OPERATIONS_BLOCKED": {
+      "title": "All operations were blocked!",
+      "message": "All operations in this request were blocked!"
+    },
+    "ROLE_REQUEST_ALL_OPERATIONS_FAILED": {
+      "title": "All operations failed!",
+      "message": "All operations in this request failed!"
+    },
+    "ROLE_REQUEST_OPERATION_FAILED": {
+      "title": "Provisioning operation failed!",
+      "message": "Provisioning operation on the system [{{system}}] failed!"
+    },
+    "ROLE_REQUEST_OPERATION_CANCELED": {
+      "title": "Provisioning operation was canceled!",
+      "message": "Provisioning operation on the system [{{system}}] were canceled!"
     }
   },
   "processor": {

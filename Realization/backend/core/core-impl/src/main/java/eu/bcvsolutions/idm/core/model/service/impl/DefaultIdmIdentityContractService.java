@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
@@ -41,6 +42,8 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
@@ -204,6 +207,20 @@ public class DefaultIdmIdentityContractService
 								)
 						);
 			}
+		}
+		
+		UUID roleId = filter.getRoleId();
+		if (roleId != null) {
+			Subquery<IdmIdentityRole> identityRoleSubquery = query.subquery(IdmIdentityRole.class);
+			Root<IdmIdentityRole> subRootIdentityRole = identityRoleSubquery.from(IdmIdentityRole.class);
+			identityRoleSubquery.select(subRootIdentityRole);
+			
+			identityRoleSubquery.where(
+                    builder.and(
+                    		builder.equal(subRootIdentityRole.get(IdmIdentityRole_.identityContract), root),
+                    		builder.equal(subRootIdentityRole.get(IdmIdentityRole_.role).get(AbstractEntity_.id), roleId)
+                    		));
+			predicates.add(builder.exists(identityRoleSubquery));
 		}
 		//
 		return predicates;

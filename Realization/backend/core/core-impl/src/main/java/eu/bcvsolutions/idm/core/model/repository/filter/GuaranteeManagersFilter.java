@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
@@ -45,6 +46,13 @@ public class GuaranteeManagersFilter
 	}
 	
 	/**
+	 * @since 9.7.0 use {@link #getGuaranteesPredicate(Root, AbstractQuery, CriteriaBuilder, IdmIdentityFilter)}
+	 */
+	public Predicate getGuaranteesPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+		return getGuaranteesPredicate(root, (AbstractQuery<?>) query, builder, filter);
+	}
+	
+	/**
 	 * Predicate for manager as guarantee configured manually
 	 * 
 	 * @param root
@@ -53,7 +61,7 @@ public class GuaranteeManagersFilter
 	 * @param filter
 	 * @return
 	 */
-	public Predicate getGuaranteesPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+	public Predicate getGuaranteesPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		// manager as guarantee
 		Subquery<IdmIdentityContract> subqueryGuarantee = query.subquery(IdmIdentityContract.class);
 		Root<IdmContractGuarantee> subRootGuarantee = subqueryGuarantee.from(IdmContractGuarantee.class);
@@ -72,7 +80,7 @@ public class GuaranteeManagersFilter
 	}
 
 	@Override
-	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+	public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		if (filter.getManagersFor() == null) {
 			return null;
 		}

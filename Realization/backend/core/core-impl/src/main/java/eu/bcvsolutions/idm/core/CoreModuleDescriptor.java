@@ -36,8 +36,11 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 
 	public static final String MODULE_ID = "core";
+	//
 	public static final String TOPIC_CHANGE_IDENTITY_ROLES = String.format("%s:changeIdentityRole", MODULE_ID);
 	public static final String TOPIC_CHANGE_IDENTITY_ROLES_IMPLEMENTER = String.format("%s:changeIdentityRoleImplementer", MODULE_ID);
+	public static final String TOPIC_REQUEST_REALIZED_APPLICANT = String.format("%s:roleRequestRealizedApplicant", MODULE_ID);
+	public static final String TOPIC_REQUEST_REALIZED_IMPLEMENTER = String.format("%s:roleRequestRealizedImplementer", MODULE_ID);
 	public static final String TOPIC_DISAPPROVE_IDENTITY_ROLES = String.format("%s:disapproveIdentityRole", MODULE_ID);
 	public static final String TOPIC_DISAPPROVE_IDENTITY_ROLES_IMPLEMENTER = String.format("%s:disapproveIdentityRoleImplementer", MODULE_ID);
 	public static final String TOPIC_RETURN_REQUEST_IDENTITY_ROLES = String.format("%s:returnRequestIdentityRole", MODULE_ID);		
@@ -94,6 +97,28 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about result WF (change identity roles).", 
 				getNotificationTemplateId("changeIdentityRoleImplementer")));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_REQUEST_REALIZED_APPLICANT, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about changes made in specific role-request."
+				+ " Notification is send after realization of all changes on a systems."
+				+ " If target system is virtual system, then is notification send after resolving his request."
+				+ " Notification is send to the owner of the account in IdM.", 
+				getNotificationTemplateId("changeIdentityRole"),
+				true));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_REQUEST_REALIZED_IMPLEMENTER, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about changes made in specific role-request."
+				+ " Notification is send after realization of all changes on a systems."
+				+ " If target system is virtual system, then is notification send after resolving his request."
+				+ " Notification is send to who made the request.", 
+				getNotificationTemplateId("changeIdentityRoleImplementer"),
+				true));
 		//
 		configs.add(new NotificationConfigurationDto(
 				TOPIC_DISAPPROVE_IDENTITY_ROLES, 

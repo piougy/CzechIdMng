@@ -11,7 +11,8 @@
     "advanced": {
       "EavForm": {
         "faceType": {
-          "SYSTEM-SELECT": "Výběr systémů (SelectBox)"
+          "SYSTEM-SELECT": "Výběr systémů (SelectBox)",
+          "SYNCHRONIZATION-CONFIG-SELECT": "Výběr nakonfigurované synchronizace (SelectBox)"
         }
       }
     }
@@ -191,11 +192,15 @@
         "identityConfigDetail":{
           "defaultRole": {
             "label": "Výchozí role",
-            "helpBlock": "Při vytváření vztahu mezi identitou a účtem, bude identitě přiřazena tato role. Tato role bude navázána na hlavní smluvní vztah identity."
+            "helpBlock": "Při vytváření vztahu mezi identitou a účtem, bude identitě přiřazena tato role. Tato role bude navázána na hlavní kontrakt identity."
           },
           "inactiveOwnerBehavior": {
             "label": "Chování výchozí role pro neaktivní identity",
             "helpBlock": "Jak se zachovat, pokud se při přidělování výchozí role zjistí, že identita nemá žádný validní smluvní vztah."
+          },
+          "assignDefaultRoleToAll": {
+            "label": "Přiřadit výchozí roli všem platným kontraktům",
+            "helpBlock": "Výchozí role nebude přiřazena na hlavní kontrakt, ale na všechny platné, či v budoucnu platní kontrakty dané identity."
           },
           "startAutoRoleRec": {
             "label": "Po dokončení spustit přepočet automatických rolí",
@@ -586,7 +591,7 @@
         "resultCode": "Kód",
         "nextAttempt": {
           "header": "Další pokus",
-          "label": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn <strong>{{nextAttempt}}</strong>"
+          "label": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn po <strong>{{nextAttempt}}</strong>"
         }
       },
       "filter": {
@@ -800,6 +805,10 @@
       "transformFromResourceScriptSelectBox": {
         "label": "Dostupné skripty pro transformaci ze systému",
         "help": "Po výběru skriptu se vloží kód pro zavolání daného skriptu, včetně ukázkových parametrů."
+      },
+      "notUseIfConctractExcluded": {
+        "label": "Vynechat hodnotu, pokud je kontrakt vyňat",
+        "help": "Pokud bude kontrakt (na který je role vázána) vyňat z evidenčního počtu, pak bude tato hodnota vynechána z výsledného sloučení hodnot tohoto atributu. "
       },
       "idmPropertyEnum": "Položky entity",
       "schemaAttribute": "Atribut ve schéma",
@@ -1059,7 +1068,11 @@
       "operationType": "Typ operace",
       "entityIdentifier": "Identifikátor entity (IdM)",
       "resultState": "Výsledek",
-      "entity": "Entita (IdM)"
+      "entity": "Entita (IdM)",
+      "roleRequestId": {
+        "label": "Žádost",
+        "help": "Přejít na žádost v rámci které byla tato operace vytvořena."
+      }
     },
     "ProvisioningArchive": {
       "_type": "Provisioning - archív",
@@ -1513,12 +1526,23 @@
           "operationstate": {
             "label": "Stav operace",
             "placeholder": "Všechny stavy či zadejte ...",
-            "help": "Smazat pouze operace se zadaným stavem. Možno zadat [CREATED, RUNNING, EXECUTED, NOT_EXECUTED, BLOCKED, EXCEPTION, CANCELED]."
+            "help": "Smazat pouze operace se zadaným stavem."
           },
           "system": {
             "label": "Systém",
             "placeholder": "Všechny systémy či vyberte ...",
             "help": "Smazat pouze operace na zadaném systému."
+          }
+        }
+      },
+      "acc-synchronization-long-running-task": {
+        "label": "Spustit synchronizaci",
+        "help": "Spustit nakonfigurovanou synchronizaci.",
+        "icon": "component:synchronization",
+        "attributes": {
+          "synchronization-uuid": {
+            "label": "Synchronizace",
+            "placeholder": "Vyberte nakonfigurovanou synchronizaci pro spuštění ..."
           }
         }
       }
@@ -1916,6 +1940,30 @@
     "ROLE_SYSTEM_SUPPORTS_ONLY_IDENTITY": {
       "message": "Správa účtů dle přiřazených rolí, je podporována pouze pro 'Identity' (nikoli pro [{{entityType}}])!",
       "title": "Nepodporovaný typ mapování systému"
+    },
+    "ROLE_REQUEST_SOME_OPERATIONS_BLOCKED": {
+      "title": "Některé provisioning operace jsou blokovány!",
+      "message": "Některé provisioning operace na systémech [{{systems}}] jsou blokovány!"
+    },
+    "ROLE_REQUEST_SOME_OPERATIONS_FAILED": {
+      "title": "Některé provisioning operace selhaly!",
+      "message": "Některé provisioning operace na systémech [{{systems}}] selhaly!"
+    },
+    "ROLE_REQUEST_ALL_OPERATIONS_BLOCKED": {
+      "title": "Všechny provisioning operace jsou blokovány!",
+      "message": "Všechny provisioning operace pro žádost jsou blokovány!"
+    },
+    "ROLE_REQUEST_ALL_OPERATIONS_FAILED": {
+      "title": "Všechny provisioning operace selhaly!",
+      "message": "Všechny provisioning operace pro žádost selhaly!"
+    },
+    "ROLE_REQUEST_OPERATION_FAILED": {
+      "title": "Provisioning operace selhala!",
+      "message": "Provisioning operace na systému [{{system}}] selhala!"
+    },
+    "ROLE_REQUEST_OPERATION_CANCELED": {
+      "title": "Provisioning operace byla zrušena!",
+      "message": "Provisioning operace na systému [{{system}}] byla zrušena!"
     }
   },
   "processor": {

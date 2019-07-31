@@ -35,7 +35,8 @@ import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 @Entity
 @Table(name = "vs_request", indexes = {
 		@Index(name = "idx_vs_request_uid", columnList = "uid"),
-		@Index(name = "idx_vs_request_system", columnList = "system_id")})
+		@Index(name = "idx_vs_request_system", columnList = "system_id"),
+		@Index(name = "idx_vs_request_role_request_id", columnList = "role_request_id")})
 public class VsRequest extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -119,6 +120,10 @@ public class VsRequest extends AbstractEntity {
 	@Audited
 	@Column(name = "reason")
 	private String reason;
+	// ID of request, without DB relation on the request -> Request can be null or
+	// doesn't have to exist!
+	@Column(name = "role_request_id")
+	private UUID roleRequestId;
 
 	public VsOperationType getOperationType() {
 		return operationType;
@@ -207,4 +212,13 @@ public class VsRequest extends AbstractEntity {
 	public void setReason(String reason) {
 		this.reason = reason;
 	}
+
+	public UUID getRoleRequestId() {
+		return roleRequestId;
+	}
+
+	public void setRoleRequestId(UUID roleRequestId) {
+		this.roleRequestId = roleRequestId;
+	}
+	
 }

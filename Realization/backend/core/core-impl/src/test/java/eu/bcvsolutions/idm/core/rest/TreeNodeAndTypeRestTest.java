@@ -14,22 +14,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.rest.impl.IdmTreeNodeControllerRestTest;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 /**
@@ -38,28 +34,27 @@ import eu.bcvsolutions.idm.test.api.AbstractRestTest;
  * TODO: move to {@link IdmTreeNodeControllerRestTest}
  * 
  * @author Ondřej Kopr
- *
+ * @author Radek Tomiška
  */
+@Transactional
 public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 	
-	@Autowired private IdmTreeTypeRepository treeTypeRepository;
 	@Autowired private IdmTreeNodeRepository treeNodeRepository;
-	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmTreeNodeService treeNodeService;
 
 	@Test
 	public void testCreateRootNodeTwice() {
-		IdmTreeType type = getIdmTreeType("TEST_TYPE_ROOT", "TEST_TYPE_ROOT");
-		treeTypeRepository.save(type);
+		IdmTreeTypeDto type = getHelper().createTreeType();
 		
-		IdmTreeNode root = new IdmTreeNode();
-		root.setCode("TEST_ROOT");
-		root.setName("TEST_ROOT");
-		root.setTreeType(type);
+		IdmTreeNodeDto root = new IdmTreeNodeDto();
+		root.setCode(getHelper().createName());
+		root.setName(getHelper().createName());
+		root.setTreeType(type.getId());
 		
 		// save first root
 		Exception ex = null;
 		try {
-			treeNodeRepository.save(root);
+			treeNodeService.save(root);
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -68,8 +63,8 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		
 		// save second root, same type
 		Map<String, String> body = new HashMap<>();
-		body.put("code", "TEST_ROOT_second");
-		body.put("name", "TEST_ROOT_second");
+		body.put("code", getHelper().createName());
+		body.put("name", getHelper().createName());
 		body.put("treeType", type.getId().toString());
 		
 		String jsonContent = toJson(body);
@@ -78,7 +73,7 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		int status = 0;
 		try {
 			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH + "/tree-nodes")
-					.with(authentication(getAuthentication()))
+					.with(authentication(getAdminAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -93,25 +88,19 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 	
 	@Test
 	public void addChildrenToParent() {
-		IdmTreeType type = getIdmTreeType("TEST_TYPE", "TEST_TYPE");
-		treeTypeRepository.save(type);
+		IdmTreeTypeDto type = getHelper().createTreeType();
 		
-		IdmTreeNode node1 = getIdmTreeNode(type, null, "TEST_ROOT", "TEST_ROOT");
-		IdmTreeNode node2 = getIdmTreeNode(type, node1, "TEST_NODE_2", "TEST_NODE_2");
-		IdmTreeNode node3 = getIdmTreeNode(type, node2, "TEST_NODE_3", "TEST_NODE_2");
-		IdmTreeNode node4 = getIdmTreeNode(type, node3, "TEST_NODE_4", "TEST_NODE_2");
-		
-		treeNodeRepository.save(node1);
-		treeNodeRepository.save(node2);
-		treeNodeRepository.save(node3);
-		treeNodeRepository.save(node4);
+		IdmTreeNodeDto node1 = getHelper().createTreeNode(type, null);
+		IdmTreeNodeDto node2 = getHelper().createTreeNode(type, node1);
+		IdmTreeNodeDto node3 = getHelper().createTreeNode(type, node2);
+		IdmTreeNodeDto node4 = getHelper().createTreeNode(type, node3);
 		
 		// set parent of node4 to his children
 		Map<String, String> body = new HashMap<>();
 		body.put("id", node2.getId().toString());
 		body.put("code", "TEST_NODE_2_update");
 		body.put("name", "TEST_NODE_2_update");
-		body.put("treeType", node4.getTreeType().getId().toString());
+		body.put("treeType", node4.getTreeType().toString());
 		body.put("parent", node4.getId().toString());
 		
 		String jsonContent = toJson(body);
@@ -120,7 +109,7 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		Exception ex = null;
 		try {
 			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH + "/tree-nodes")
-					.with(authentication(getAuthentication()))
+					.with(authentication(getAdminAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -135,16 +124,13 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 
 	@Test
 	public void changeType() {
-		IdmTreeType type = getIdmTreeType("TEST_TYPE_1", "TEST_TYPE_1");
-		treeTypeRepository.save(type);
-
-		IdmTreeType type2 = getIdmTreeType("TEST_TYPE_2", "TEST_TYPE_2");
-		treeTypeRepository.save(type2);
+		IdmTreeTypeDto type = getHelper().createTreeType();
+		IdmTreeTypeDto type2 = getHelper().createTreeType();
 		
 		// save node trought rest
 		Map<String, String> body = new HashMap<>();
-		body.put("code", "TEST_NODE");
-		body.put("name", "TEST_NODE");
+		body.put("code", getHelper().createName());
+		body.put("name", getHelper().createName());
 		body.put("treeType", type.getId().toString());
 		
 		String jsonContent = toJson(body);
@@ -168,7 +154,7 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		// test with privileges
 		try {
 			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH + "/tree-nodes")
-					.with(authentication(getAuthentication()))
+					.with(authentication(getAdminAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -195,7 +181,7 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		ex = null;
 		try {
 			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH + "/tree-nodes/")
-					.with(authentication(getAuthentication()))
+					.with(authentication(getAdminAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -217,29 +203,5 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 			e1.printStackTrace();
 		}
 		return json;
-	}
-
-	private IdmTreeNode getIdmTreeNode(IdmTreeType type, IdmTreeNode parent, String code, String name) {
-		IdmTreeNode node2 = new IdmTreeNode();
-		node2.setCode(code);
-		node2.setName(name);
-		node2.setTreeType(type);
-		node2.setParent(parent);
-		return node2;
-	}
-
-	private IdmTreeType getIdmTreeType(String test_type_a, String test_type_aa) {
-		IdmTreeType type = new IdmTreeType();
-		type.setCode(test_type_a);
-		type.setName(test_type_aa);
-		return type;
-	}
-	
-	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication(
-				identityService.getByUsername(InitTestData.TEST_ADMIN_USERNAME), 
-				null, 
-				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), 
-				"test");
 	}
 }

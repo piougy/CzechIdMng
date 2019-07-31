@@ -4,7 +4,7 @@ import classNames from 'classnames';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
-import { RoleManager, RoleCatalogueManager, SecurityManager } from '../../../redux';
+import { RoleManager, RoleCatalogueManager, SecurityManager, ConfigurationManager } from '../../../redux';
 //
 import EntitySelectBox from '../EntitySelectBox/EntitySelectBox';
 import EntityInfo from '../EntityInfo/EntityInfo';
@@ -40,7 +40,14 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       selectedRows: [], // contains ids
       selectedRoles: [], // contains role object, this is for return object instend of ids
       roleCatalogue: null,
-      showRoleCatalogue: false
+      showRoleCatalogue: false,
+      showEnvironment: (
+        context && context.store
+        ?
+        ConfigurationManager.getPublicValueAsBoolean(context.store.getState(), 'idm.pub.app.show.environment', true)
+        :
+        true
+      )
     };
   }
 
@@ -93,7 +100,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     super.setState(json, () => {
       // FIXME: abstract form component everride standard state to show validations => we need to propage this state into component
       if (json && json.showValidationError !== undefined) {
-        this.refs.role.setState({ showValidationError: json.showValidationError}, cb);
+        this.refs.role.setState({ showValidationError: json.showValidationError }, cb);
       } else if (cb) {
         cb();
       }
@@ -262,7 +269,13 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     }
     //  default filters only
     const filterData = {
-      environment: ConfigLoader.getConfig('role.table.filter.environment', [])
+      environment: (
+        this.state.showEnvironment
+        ?
+        ConfigLoader.getConfig('role.table.filter.environment', [])
+        :
+        null
+      )
     };
     // FIXME: use role table component instead with redux state access
     this.refs.filterForm.setData(filterData);
@@ -325,6 +338,21 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     });
   }
 
+  addPage() {
+    const entities = this.getManager().getEntities(this.context.store.getState(), `${ this.getUiKey() }-table`);
+    const { selectedRows, selectedRoles } = this.state;
+    //
+    entities.forEach(entity => {
+      selectedRows.push(entity.id);
+      selectedRoles.push(entity);
+    });
+    //
+    this.setState({
+      selectedRows,
+      selectedRoles
+    });
+  }
+
   /**
   * Method filtering by roleCatalogue. Filtr si applied to role table
   */
@@ -373,10 +401,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
             }
           }
         }
-      } else {
-        if (value.id) {
-          selectedRows.push(value.id);
-        }
+      } else if (value.id) {
+        selectedRows.push(value.id);
       }
     }
     //
@@ -409,9 +435,9 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
             icon="fa:folder-open"
             style={{ marginLeft: 5 }}
             onClick={ this.showRoleCatalogue.bind(this) }
-            title={this.i18n('content.roles.select.showRoleCatalogue')}
+            title={ this.i18n('content.roles.select.showRoleCatalogue') }
             titlePlacement="bottom"
-            disabled={ readOnly }/>
+            disabled={ readOnly } />
         </Basic.LabelWrapper>
       </div>
     );
@@ -434,7 +460,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       selectedRows,
       roleCatalogue,
       showRoleCatalogue,
-      readOnly
+      readOnly,
+      showEnvironment
     } = this.state;
     //
     if (!rendered) {
@@ -449,8 +476,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     // TODO: add onRowClick={this._onRowClick.bind(this)}
     return (
       <span className={ classNames({ hidden }) }>
-        <div style={{ display: 'flex' }}>
-          <div style={{ flex: 1 }}>
+        <Basic.Div style={{ display: 'flex' }}>
+          <Basic.Div style={{ flex: 1 }}>
             <EntitySelectBox
               ref="role"
               manager={ this.getManager() }
@@ -466,10 +493,13 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               value={ value }
               optionComponent={ RoleOptionDecorator }
               valueComponent={ RoleValueDecorator }
-              forceSearchParameters={ forceSearchParameters }/>
-          </div>
+              forceSearchParameters={ forceSearchParameters }
+              niceLabel={(r) => {
+                return this.getManager().getNiceLabel(r, showEnvironment);
+              }}/>
+          </Basic.Div>
           { this._renderShowTreeIcon() }
-        </div>
+        </Basic.Div>
 
         <Basic.Modal
           show={ showRoleCatalogue }
@@ -503,7 +533,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                   forceSearchParameters={ _tableForceSearchParameters }
                   uiKey={ `${this.getUiKey()}-table` }
                   manager={ this.getManager() }
-                  showPageSize={ false }
+                  showPageSize={ this.isDevelopment() }
                   rowClass={({rowIndex, data}) => {
                     return _.includes(selectedRows, data[rowIndex].id) ? selectRowClass : Utils.Ui.getDisabledRowClass(data[rowIndex]);
                   }}
@@ -523,7 +553,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                               code="environment"
                               label={ null }
                               placeholder={ this.i18n('entity.Role.environment.label') }
-                              multiSelect/>
+                              multiSelect
+                              hidden={ !showEnvironment }/>
                           </Basic.Col>
                           <Basic.Col lg={ 3 } className="text-right">
                             <Filter.FilterButtons
@@ -536,12 +567,24 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                     </Filter>
                   }
                   defaultSearchParameters={
-                    this.getManager().getDefaultSearchParameters().setFilter('environment', ConfigLoader.getConfig('role.table.filter.environment', []))
+                    showEnvironment
+                    ?
+                    this
+                      .getManager()
+                      .getDefaultSearchParameters()
+                      .setFilter('environment', ConfigLoader.getConfig('role.table.filter.environment', []))
+                    :
+                    null
                   }>
                   <Column
                     property=""
-                    header=""
-                    width="5px"
+                    header={
+                      <Basic.Icon
+                        icon="fa:check"
+                        onClick={ this.addPage.bind(this) }
+                        style={{ color: 'transparent' }}/>
+                    }
+                    width={ 15 }
                     rendered={showActionButtons}
                     cell={
                       ({ rowIndex, data }) => {
@@ -557,16 +600,16 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                               !isSelected
                               ?
                               <input
-                                readOnly={readOnly}
+                                readOnly={ readOnly }
                                 type="checkbox"
-                                checked={false}
-                                onMouseDown={this._addRole.bind(this, rowIndex, data[rowIndex])}/>
+                                checked={ false }
+                                onMouseDown={ this._addRole.bind(this, rowIndex, data[rowIndex]) }/>
                               :
                               <input
                                 readOnly={readOnly}
                                 type="checkbox"
                                 checked
-                                onMouseDown={this._removeRole.bind(this, rowIndex, data[rowIndex])}/>
+                                onMouseDown={ this._removeRole.bind(this, rowIndex, data[rowIndex]) }/>
                             }
                           </span>
                         );
@@ -603,6 +646,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                     width={ 125 }
                     sort
                     face="text"
+                    rendered={ showEnvironment }
                     cell={
                       ({ rowIndex, data, property }) => {
                         return (

@@ -48,6 +48,7 @@ import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -378,19 +379,18 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 			return;
 		}
 		//
-		DTO dto = prepareDto();
-		//
-		dto.setTransactionId(UUID.randomUUID());
-		//
-		DTO createdDto = createDto(dto);
+		TransactionContextHolder.clearContext();
+		DTO createdDto = createDto();
+		Assert.assertNotNull(createdDto.getTransactionId());
 		//
 		// create another mock dto
-		DTO dtoTwo = prepareDto();
-		dtoTwo.setTransactionId(UUID.randomUUID());
-		createDto(dtoTwo);
+		TransactionContextHolder.clearContext();
+		DTO dtoTwo = createDto();
+		Assert.assertNotNull(dtoTwo.getTransactionId());
+		Assert.assertNotEquals(createdDto.getTransactionId(), dtoTwo.getTransactionId());
 		//
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-		parameters.set(DataFilter.PARAMETER_TRANSACTION_ID, dto.getTransactionId().toString());
+		parameters.set(DataFilter.PARAMETER_TRANSACTION_ID, createdDto.getTransactionId().toString());
 		//
 		List<DTO> results = find(parameters);
 		//

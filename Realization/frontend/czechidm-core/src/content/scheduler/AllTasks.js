@@ -23,18 +23,17 @@ export default class AllTasks extends Basic.AbstractContent {
     return 'content.scheduler.all-tasks';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['system', 'scheduler', 'scheduler-all-tasks']);
+  getNavigationKey() {
+    return 'scheduler-all-tasks';
   }
 
   render() {
     //
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
-
-        <LongRunningTaskTable manager={manager} uiKey={UIKEY}/>
-      </div>
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
+        <LongRunningTaskTable manager={ manager } uiKey= {UIKEY }/>
+      </Basic.Div>
     );
   }
 }

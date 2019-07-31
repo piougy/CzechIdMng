@@ -35,6 +35,7 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
     private UUID duplicatedToRequest;
     private String log;
     private String description;
+    private OperationResultDto systemState;
 
     public RoleRequestState getState() {
         return state;
@@ -118,8 +119,16 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
     public void setDescription(String description) {
         this.description = description;
     }
+    
+    public OperationResultDto getSystemState() {
+		return systemState;
+	}
 
-    @Override
+	public void setSystemState(OperationResultDto systemState) {
+		this.systemState = systemState;
+	}
+
+	@Override
     public String addToLog(String text) {
         if (text != null) {
             StringBuilder builder = new StringBuilder();

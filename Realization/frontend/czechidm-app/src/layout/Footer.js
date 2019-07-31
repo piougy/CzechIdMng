@@ -11,10 +11,6 @@ import packageInfo from '../../package.json';
  */
 class Footer extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   showAbout(event) {
     if (event) {
       event.preventDefault();
@@ -41,25 +37,45 @@ class Footer extends Basic.AbstractContent {
       <footer>
         <div className="pull-left">
           {/* RT: version is visible ion about page only */}
-          <span title={this.i18n('app.version.backend') + ': ' + backendVersion} className="hidden">
+          <span title={ this.i18n('app.version.backend') + ': ' + backendVersion } className="hidden">
             {this.i18n('app.version.frontend')} {packageInfo.version}
           </span>
           <span style={{margin: '0 10px'}} className="hidden">|</span>
-          <a href={this.i18n('app.author.homePage')} target="_blank">{this.i18n('app.author.name')}</a>
+          <a
+            href={this.i18n('app.author.homePage')}
+            target="_blank"
+            rel="noopener noreferrer">
+            { this.i18n('app.author.name') }
+          </a>
           <span style={{margin: '0 10px'}}>|</span>
-          <a href={ `${ this.i18n('app.documentation.url') }/start`} target="_blank">{this.i18n('app.helpDesk')}</a>
+          <a
+            href={ `${ this.i18n('app.documentation.url') }/start`}
+            target="_blank"
+            rel="noopener noreferrer">
+            { this.i18n('app.helpDesk') }
+          </a>
           <span style={{margin: '0 10px'}}>|</span>
-          <a href="http://redmine.czechidm.com/projects/czechidmng" target="_blank">{this.i18n('app.serviceDesk')}</a>
+          <a
+            href="http://redmine.czechidm.com/projects/czechidmng"
+            target="_blank"
+            rel="noopener noreferrer">
+            { this.i18n('app.serviceDesk') }
+          </a>
           <span style={{margin: '0 10px'}}>|</span>
-          <a href="#" onClick={this.showAbout.bind(this)} title={this.i18n('content.about.link')}>{this.i18n('content.about.link')}</a>
+          <a href="#" onClick={ this.showAbout.bind(this) } title={ this.i18n('content.about.link') }>
+            { this.i18n('content.about.link') }
+          </a>
         </div>
         <div className="pull-right">
-          <Basic.Button type="button" className="btn-xs" aria-label="Left Align"
-                  onClick={this.jumpTop.bind(this)}>
+          <Basic.Button
+            type="button"
+            className="btn-xs"
+            aria-label="Left Align"
+            onClick={ this.jumpTop.bind(this) }>
             <Basic.Icon icon="chevron-up"/>
           </Basic.Button>
         </div>
-        <div className="clearfix"></div>
+        <div className="clearfix" />
       </footer>
     );
   }

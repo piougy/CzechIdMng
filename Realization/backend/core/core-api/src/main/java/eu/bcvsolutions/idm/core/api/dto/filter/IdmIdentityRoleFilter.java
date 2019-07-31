@@ -2,11 +2,11 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -28,9 +28,9 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	public static final String PARAMETER_DIRECT_ROLE = "directRole"; //if its direct role (true) or not (false - depends on some filled direct role)
 	public static final String PARAMETER_DIRECT_ROLE_ID = "directRoleId";
 	public static final String PARAMETER_ROLE_COMPOSITION_ID = "roleCompositionId";
-	public static final String PARAMETER_ROLE_ID = "roleId";
+	public static final String PARAMETER_ROLE_ID = "roleId"; // list - OR
 	public static final String PARAMETER_ROLE_ENVIRONMENT = "roleEnvironment";  // list - OR
-	public static final String PARAMETER_IDENTITY_ID = "identityId";
+	public static final String PARAMETER_IDENTITY_ID = "identityId"; // list - OR
 	public static final String PARAMETER_ROLE_CATALOGUE_ID = "roleCatalogueId";
 	public static final String PARAMETER_VALID = "valid"; // valid identity roles with valid contract
 	public static final String PARAMETER_AUTOMATIC_ROLE = "automaticRole"; // true / false
@@ -51,15 +51,47 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
     }
 
     public void setIdentityId(UUID identityId) {
-    	data.set(PARAMETER_IDENTITY_ID, identityId);
+    	if (identityId == null) {
+    		data.remove(PARAMETER_IDENTITY_ID);
+    	} else {
+    		data.put(PARAMETER_IDENTITY_ID, Lists.newArrayList(identityId));
+    	}
     }
+    
+    public List<UUID> getIdentities() {
+		return getParameterConverter().toUuids(data, PARAMETER_IDENTITY_ID);
+	}
+    
+    public void setIdentities(List<UUID> identities) {
+    	if (CollectionUtils.isEmpty(identities)) {
+    		data.remove(PARAMETER_IDENTITY_ID);
+    	} else {
+    		data.put(PARAMETER_IDENTITY_ID, new ArrayList<Object>(identities));
+    	}
+	}
     
     public UUID getRoleId() {
     	return DtoUtils.toUuid(data.getFirst(PARAMETER_ROLE_ID));
 	}
     
     public void setRoleId(UUID roleId) {
-    	data.set(PARAMETER_ROLE_ID, roleId);
+    	if (roleId == null) {
+    		data.remove(PARAMETER_ROLE_ID);
+    	} else {
+    		data.put(PARAMETER_ROLE_ID, Lists.newArrayList(roleId));
+    	}
+	}
+    
+    public List<UUID> getRoles() {
+		return getParameterConverter().toUuids(data, PARAMETER_ROLE_ID);
+	}
+    
+    public void setRoles(List<UUID> roles) {
+    	if (CollectionUtils.isEmpty(roles)) {
+    		data.remove(PARAMETER_ROLE_ID);
+    	} else {
+    		data.put(PARAMETER_ROLE_ID, new ArrayList<Object>(roles));
+    	}
 	}
     
     public String getRoleEnvironment() {
@@ -67,22 +99,23 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
     
     public void setRoleEnvironment(String roleEnvironment) {
-    	data.set(PARAMETER_ROLE_ENVIRONMENT, roleEnvironment);
+    	if (StringUtils.isEmpty(roleEnvironment)) {
+    		data.remove(PARAMETER_ROLE_ENVIRONMENT);
+    	} else {
+    		data.put(PARAMETER_ROLE_ENVIRONMENT, Lists.newArrayList(roleEnvironment));
+    	}
 	}
     
     public List<String> getRoleEnvironments() {
-		List<Object> environments = data.get(PARAMETER_ROLE_ENVIRONMENT);
-		if (environments == null) {
-			return Lists.newArrayList();
-		}
-		return environments
-				.stream()
-				.map(object -> Objects.toString(object, null))
-				.collect(Collectors.toList());
+		return getParameterConverter().toStrings(data, PARAMETER_ROLE_ENVIRONMENT);
 	}
     
     public void setRoleEnvironments(List<String> roleEnvironments) {
-    	data.put(PARAMETER_ROLE_ENVIRONMENT, roleEnvironments == null ? null : new ArrayList<Object>(roleEnvironments));
+    	if (CollectionUtils.isEmpty(roleEnvironments)) {
+    		data.remove(PARAMETER_ROLE_ENVIRONMENT);
+    	} else {
+    		data.put(PARAMETER_ROLE_ENVIRONMENT, new ArrayList<Object>(roleEnvironments));
+    	}
 	}
 
 	public UUID getRoleCatalogueId() {

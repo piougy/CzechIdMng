@@ -164,7 +164,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		passwordService.setLastSuccessfulLogin(identity.getUsername());
 		//
 		assertNotNull(passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin());
-		assertTrue(DateTime.now().isAfter(passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin()));
+		assertTrue(DateTime.now().plusMillis(1).isAfter(passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin()));
 	}
 
 	@Test

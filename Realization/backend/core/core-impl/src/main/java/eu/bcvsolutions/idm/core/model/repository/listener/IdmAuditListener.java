@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * Creates records to global idm audit (searching through all entities, etc.)
  * TODO: refactor methods changeRevisionDto and changeRevision
  * 
+ * @see IdmAuditStrategy
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
@@ -106,6 +108,8 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		} else if (currentEntity instanceof Codeable) {
 			revisionEntity.setOwnerCode(((Codeable) currentEntity).getCode());
 		}
+		// transaction id
+		revisionEntity.setTransactionId(TransactionContextHolder.getContext().getTransactionId());
 	}
 	
 	private void changeRevisionEntity(Class<AbstractEntity> entityClass, String entityName, UUID entityId,
@@ -144,6 +148,8 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		} else if (currentEntity instanceof Codeable) {
 			revisionEntity.setOwnerCode(((Codeable) currentEntity).getCode());
 		}
+		// transaction id
+		revisionEntity.setTransactionId(TransactionContextHolder.getContext().getTransactionId());
 	}
 
 	/**

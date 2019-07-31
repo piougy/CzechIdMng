@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -37,12 +39,15 @@ import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -318,7 +323,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		Assert.isInstanceOf(AccIdentityAccountDto.class, entityAccount,
 				"For identity sync must be entity-account relation instance of AccIdentityAccountDto!");
 		AccIdentityAccountDto identityAccount = (AccIdentityAccountDto) entityAccount;
+		
 		SysSyncIdentityConfigDto config = this.getConfig(context);
+		SysSyncItemLogDto itemLog = context.getLogItem();
+
 		UUID defaultRoleId = config.getDefaultRole();
 		if (defaultRoleId == null) {
 			return identityAccount;
@@ -326,30 +334,59 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		// Default role is defined
 		IdmRoleDto defaultRole = DtoUtils.getEmbedded(config, SysSyncIdentityConfig_.defaultRole);
 		Assert.notNull(defaultRole, "Default role must be found for this sync configuration!");
-		context.getLogItem()
-				.addToLog(MessageFormat.format(
+		this.addToItemLog(itemLog, (MessageFormat.format(
 						"Default role [{1}] is defined and will be assigned to the identity [{0}].", entity.getCode(),
-						defaultRole.getCode()));
+						defaultRole.getCode())));
 		
-		IdmIdentityContractDto primeContract = identityContractService.getPrimeValidContract(entity.getId());
-		if (primeContract == null) {
+		List<IdmIdentityContractDto> contracts = Lists.newArrayList();
+		
+		// Could be default role assigned to all valid or future valid contracts?
+		if (config.isAssignDefaultRoleToAll()) {
+			
+			IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+			contractFilter.setValidNowOrInFuture(Boolean.TRUE);
+			contractFilter.setIdentity(entity.getId());
+			
+			contracts = identityContractService.find(contractFilter, null).getContent();
+			
+			this.addToItemLog(itemLog, (MessageFormat.format(
+					"Default role will be assigned to all valid or future valid contracts [number of found contracts {0}].", contracts.size())));
+		} else {
+			// Default role will be assigned only to prime contract
+			IdmIdentityContractDto primeContract = identityContractService.getPrimeValidContract(entity.getId());
+			if (primeContract != null) {
+				contracts.add(primeContract);
+			}
+		}
+		if (contracts.isEmpty()) {
 			SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
 			if (SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED == inactiveOwnerBehavior) {
-				context.getLogItem().addToLog(MessageFormat.format(
-						"Default role is set, but it will not be assigned - no valid identity contract was found for identity [{0}],"
-						+ " so the account will be in protection.", entity.getCode()));
+				this.addToItemLog(itemLog, (MessageFormat.format(
+						"Default role is set, but it will not be assigned - no contract was found for identity [{0}],"
+						+ " so the account will be in protection.", entity.getCode())));
 			} else {
-				context.getLogItem().addToLog(
-						"Warning! - Default role is set, but could not be assigned to identity, because the identity has not any valid contract!");
+				this.addToItemLog(itemLog, (
+						"Warning! - Default role is set, but could not be assigned to identity, because the identity has not any suitable contract!"));
 				this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 						context.getLog(), context.getActionLogs());
 			}
 			return identityAccount;
 		}
+		
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
+
+		for (IdmIdentityContractDto contract : contracts) {
+			IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+			concept.setIdentityContract(contract.getId());
+			concept.setValidFrom(contract.getValidFrom());
+			concept.setValidTill(contract.getValidTill());
+			concept.setRole(defaultRole.getId());
+			concept.setOperation(ConceptRoleRequestOperation.ADD);
+			concepts.add(concept);
+		}
 
 		// Create role request for default role and primary contract
-		IdmRoleRequestDto roleRequest = roleRequestService.createRequest(primeContract, defaultRole);
-		roleRequest = roleRequestService.startRequestInternal(roleRequest.getId(), false, true);
+		IdmRoleRequestDto roleRequest = roleRequestService.executeConceptsImmediate(entity.getId(), concepts);
 
 		// Load concept (can be only one)
 		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
@@ -363,13 +400,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			// This IdentityAccount is new and duplicated, we do not want create duplicated
 			// relation.
 			// Same IdentityAccount had to be created by assigned default role!
-			context.getLogItem().addToLog(MessageFormat.format(
+			this.addToItemLog(itemLog, (MessageFormat.format(
 					"This identity-account (identity-role id: {2}) is new and duplicated, "
 							+ "we do not want create duplicated relation! "
 							+ "We will reuse already persisted identity-account [{3}]. "
 							+ "Probable reason: Same identity-account had to be created by assigned default role!",
 					identityAccount.getAccount(), identityAccount.getIdentity(), identityAccount.getIdentityRole(),
-					duplicate.getId()));
+					duplicate.getId())));
 			// Reusing duplicate
 			return duplicate;
 		}
@@ -430,6 +467,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		StringBuilder builder = new StringBuilder();
 		builder.append("Specific settings:");
 		builder.append(MessageFormat.format("\nDefault role: {0}", defaultRoleCode));
+		builder.append(MessageFormat.format("\nAssign default role to all valid or future contracts: {0}", config.isAssignDefaultRoleToAll()));
 		builder.append(MessageFormat.format("\nBehavior of the default role for inactive identities: {0}", defaultRoleId == null ? "---" : inactiveOwnerBehavior));
 		if (createDefaultContract && !createDefaultContractSystem) {
 			builder.append("\nCreate default contract: WARNING! Creating default contract is enabled, but it's disabled on the system level. Contracts will not be created!");

@@ -37,6 +37,9 @@ export default class IdentityStateEnum extends AbstractEnum {
       case this.STARTING_CONTRACT: {
         return 'info';
       }
+      case this.DISABLED: {
+        return 'warning';
+      }
       default: {
         return 'default';
       }

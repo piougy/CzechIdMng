@@ -5,18 +5,25 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import {SecurityManager, IdentityManager, WorkflowTaskInstanceManager} from '../../redux';
+import { SecurityManager, IdentityManager, WorkflowTaskInstanceManager, RoleRequestManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
+import OperationStateEnum from '../../enums/OperationStateEnum';
 
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
+const manager = new RoleRequestManager();
+
 /**
  * Role request table
+ *
  * @author Vít Švanda
  */
 export class RoleRequestTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      filterOpened: props.filterOpened
+    };
     this.identityManager = new IdentityManager();
   }
 
@@ -98,7 +105,17 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, uiKey, startRequestFunc, createNewRequestFunc, columns, forceSearchParameters, showFilter, className, rendered, header } = this.props;
+    const { _showLoading,
+      uiKey,
+      startRequestFunc,
+      createNewRequestFunc,
+      columns,
+      forceSearchParameters,
+      showFilter,
+      className,
+      rendered,
+      header } = this.props;
+    const { filterOpened } = this.state;
     const innerShowLoading = _showLoading;
     //
     if (!rendered) {
@@ -118,10 +135,12 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
           manager={this.getManager()}
           showRowSelection={SecurityManager.hasAuthority('ROLEREQUEST_UPDATE')}
           actions={
-            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
-               action: this.onDelete.bind(this), disabled: false }]
+            [{ value: 'delete',
+              niceLabel: this.i18n('action.delete.action'),
+              action: this.onDelete.bind(this),
+              disabled: false }]
           }
-          filterOpened
+          filterOpened={ filterOpened }
           showFilter={ showFilter }
           filter={
             !showFilter
@@ -131,19 +150,26 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ 3 }>
                     <Advanced.Filter.TextField
                       ref="applicant"
                       placeholder={this.i18n('filter.applicant.placeholder')}/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ 3 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="states"
                       placeholder={ this.i18n('filter.states.placeholder') }
                       enum={ RoleRequestStateEnum }
                       multiSelect/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 } className="text-right">
+                  <Basic.Col lg={ 3 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="systemStates"
+                      multiSelect
+                      placeholder={ this.i18n('filter.systemStates.placeholder') }
+                      enum={ OperationStateEnum }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 3 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </Basic.Col>
                 </Basic.Row>
@@ -178,7 +204,7 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                   _.includes(columns, 'createNew')
                     && createNewRequestFunc
                     && SecurityManager.hasAnyAuthority(['ROLEREQUEST_ADMIN'])
-                  }>
+                }>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -193,13 +219,11 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
             rendered={_.includes(columns, 'detail')}
             className="detail-button"
             cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <Advanced.DetailButton
+                  title={this.i18n('button.detail')}
+                  onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
+              )
             }/>
           <Advanced.Column
             property="state"
@@ -207,6 +231,25 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
             sort
             face="enum"
             enumClass={RoleRequestStateEnum}/>
+          <Advanced.Column
+            property="systemState"
+            width={75}
+            face="text"
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                return (
+                  <Advanced.OperationResult
+                    value={ entity.systemState }
+                    stateLabel={ entity.systemState
+                      && entity.systemState.state === 'CREATED'
+                      ? this.i18n('enums.RoleRequestStateEnum.CONCEPT')
+                      : null}
+                  />
+                );
+              }
+            }
+            rendered={_.includes(columns, 'systemState')}/>
           <Advanced.Column
             property="applicant"
             rendered={_.includes(columns, 'applicant')}
@@ -224,13 +267,13 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
             rendered={_.includes(columns, 'wf')}
             face="text"
             cell={this._getCurrentActivitiCell}
-            />
+          />
           <Advanced.Column
             property="candicateUsers"
             rendered={_.includes(columns, 'wf')}
             face="text"
             cell={this._getCandidatesCell}
-            />
+          />
           <Advanced.Column
             property="executeImmediately"
             rendered={_.includes(columns, 'executeImmediately')}
@@ -264,13 +307,17 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                 const canBeStart = (state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT))
                 || (state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION))
                 || (state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED));
+                //
+                if (!startRequestFunc || !SecurityManager.hasAnyAuthority(['ROLEREQUEST_UPDATE']) || !canBeStart) {
+                  return null;
+                }
+                //
                 return (
                   <span>
                     <Basic.Button
                       ref="startButton"
                       type="button"
                       level="success"
-                      rendered={startRequestFunc && SecurityManager.hasAnyAuthority(['ROLEREQUEST_UPDATE']) && canBeStart}
                       style={{marginRight: '2px'}}
                       title={this.i18n('button.start')}
                       titlePlacement="bottom"
@@ -303,10 +350,12 @@ RoleRequestTable.propTypes = {
 };
 
 RoleRequestTable.defaultProps = {
+  manager,
   rendered: true,
   _showLoading: false,
   showFilter: true,
-  columns: ['state', 'created', 'modified', 'wf', 'applicant', 'executeImmediately', 'startRequest', 'createNew', 'detail']
+  filterOpened: true,
+  columns: ['state', 'created', 'modified', 'wf', 'applicant', 'executeImmediately', 'startRequest', 'createNew', 'detail', 'systemState']
 };
 
 function select(state, component) {

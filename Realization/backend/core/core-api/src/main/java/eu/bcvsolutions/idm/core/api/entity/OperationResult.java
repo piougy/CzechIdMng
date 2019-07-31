@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
 
@@ -29,9 +28,8 @@ public class OperationResult implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@NotNull
 	@Enumerated(EnumType.STRING)
-	@Column(name = "result_state", nullable = false, length = 45)
+	@Column(name = "result_state", length = DefaultFieldLengths.ENUMARATION)
 	private OperationState state = OperationState.CREATED;
 	
 	@Column(name = "result_code", length = DefaultFieldLengths.NAME)

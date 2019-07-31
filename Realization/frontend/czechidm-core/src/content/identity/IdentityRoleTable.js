@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import uuid from 'uuid';
 import _ from 'lodash';
@@ -7,13 +8,22 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityManager, RoleTreeNodeManager, RoleManager, IdentityContractManager, CodeListManager, DataManager } from '../../redux';
+import {
+  IdentityRoleManager,
+  IdentityManager,
+  RoleTreeNodeManager,
+  RoleManager,
+  IdentityContractManager,
+  CodeListManager,
+  DataManager,
+  ConfigurationManager
+} from '../../redux';
 import IdentityRoleEav from './IdentityRoleEav';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 import FormInstance from '../../domain/FormInstance';
 import ConfigLoader from '../../utils/ConfigLoader';
 
-const manager = new IdentityRoleManager();
+const manager = new IdentityRoleManager(); // default manager
 const identityManager = new IdentityManager();
 const roleManager = new RoleManager();
 const roleTreeNodeManager = new RoleTreeNodeManager();
@@ -31,17 +41,13 @@ const TEST_ADD_ROLE_DIRECTLY = false;
  */
 export class IdentityRoleTable extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   componentDidMount() {
     super.componentDidMount();
     //
     const { entityId } = this.props.params;
-    const { fetchIncompatibleRoles, fetchCodeLists } = this.props;
+    const { fetchIncompatibleRoles, fetchCodeLists, showEnvironment } = this.props;
     //
-    if (fetchCodeLists) {
+    if (fetchCodeLists && showEnvironment) {
       this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
     }
     if (fetchIncompatibleRoles) {
@@ -54,13 +60,15 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   getManager() {
-    return manager;
+    return this.props.manager;
   }
 
   getDefaultSearchParameters() {
     let searchParameters = this.getManager().getDefaultSearchParameters();
     //
-    searchParameters = searchParameters.setFilter('roleEnvironment', ConfigLoader.getConfig('identity-role.table.filter.environment', []));
+    if (this.props.showEnvironment) {
+      searchParameters = searchParameters.setFilter('roleEnvironment', ConfigLoader.getConfig('identity-role.table.filter.environment', []));
+    }
     //
     return searchParameters;
   }
@@ -129,20 +137,20 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
   _attributesCell({rowIndex, data}) {
     const value = data[rowIndex];
     const result = [];
-    if ( value
+    if (value
       && value._eav
       && value._eav.length === 1
       && value._eav[0].formDefinition) {
       const formInstance = value._eav[0];
       const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values, formInstance.validationErrors);
       result.push(
-          <Advanced.EavForm
-            key={ _.uniqueId(`${rowIndex}-${value.id}`) }
-            ref="eavForm"
-            formInstance={ _formInstance }
-            readOnly
-            useDefaultValue={false}/>
-        );
+        <Advanced.EavForm
+          key={ _.uniqueId(`${rowIndex}-${value.id}`) }
+          ref="eavForm"
+          formInstance={ _formInstance }
+          readOnly
+          useDefaultValue={false}/>
+      );
     }
     return (
       <Basic.Div className="abstract-form condensed" style={{minWidth: 150, padding: 0}}>
@@ -165,7 +173,10 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
       className,
       rendered,
       environmentItems,
-      showRefreshButton
+      showRefreshButton,
+      showEnvironment,
+      children,
+      rowClass
     } = this.props;
     const { detail, activeKey } = this.state;
     //
@@ -173,8 +184,10 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
       return null;
     }
     // contract force search parameters - contract filter is shown only if identity is given
+    const hasIdentityForceFilter = forceSearchParameters.getFilters().has('identityId');
+    const hasRoleForceFilter = forceSearchParameters.getFilters().has('roleId');
     let contractForceSearchparameters = null;
-    if (forceSearchParameters && forceSearchParameters.getFilters().has('identityId')) {
+    if (forceSearchParameters && hasIdentityForceFilter) {
       contractForceSearchparameters = new SearchParameters().setFilter('identity', forceSearchParameters.getFilters().get('identityId'));
     }
     //
@@ -183,7 +196,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
         <Advanced.Table
           ref="table"
           uiKey={ this.getUiKey() }
-          manager={ manager }
+          manager={ this.getManager() }
           forceSearchParameters={ forceSearchParameters }
           showRefreshButton={ showRefreshButton }
           className={ className }
@@ -212,7 +225,10 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
           ]}
           _searchParameters={ this.getSearchParameters() }
           rowClass={
-            ({rowIndex, data}) => {
+            ({ rowIndex, data, property }) => {
+              if (rowClass) {
+                return rowClass({ rowIndex, data, property });
+              }
               const entity = data[rowIndex];
               if (this._getIncompatibleRoles(entity).length > 0) {
                 // RT: is looks to agressive? Or combine disabled + incompatible
@@ -224,23 +240,32 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className="last">
-                  <Basic.Col lg={ 3 }>
+                  <Basic.Col lg={ showEnvironment ? 3 : 5 }>
                     <Advanced.Filter.RoleSelect
                       ref="roleId"
                       label={ null }
                       placeholder={ this.i18n('filter.role.placeholder') }
-                      header={ this.i18n('filter.role.placeholder') }/>
+                      header={ this.i18n('filter.role.placeholder') }
+                      hidden={ hasRoleForceFilter }/>
+                    <Advanced.Filter.SelectBox
+                      ref="identityId"
+                      manager={ identityManager }
+                      label={ null }
+                      placeholder={ this.i18n('filter.identity.placeholder') }
+                      header={ this.i18n('filter.identity.placeholder') }
+                      hidden={ hasIdentityForceFilter }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 3 }>
+                  <Basic.Col lg={ 3 } rendered={ showEnvironment }>
                     <Advanced.CodeListSelect
                       ref="roleEnvironment"
                       code="environment"
                       label={ null }
                       placeholder={ this.i18n('entity.Role.environment.label') }
                       items={ environmentItems || [] }
+                      hidden={ hasRoleForceFilter }
                       multiSelect/>
                   </Basic.Col>
-                  <Basic.Col lg={ 3 }>
+                  <Basic.Col lg={ showEnvironment ? 3 : 4 }>
                     <Basic.Div rendered={ contractForceSearchparameters !== null }>
                       <Advanced.Filter.SelectBox
                         ref="identityContractId"
@@ -269,9 +294,11 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                     title={ this.i18n('button.detail') }
                     onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
-                content.push(
-                  <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity) }/>
-                );
+                if (_.includes(columns, 'incompatibleRoles')) {
+                  content.push(
+                    <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity) }/>
+                  );
+                }
                 return content;
               }
             }
@@ -299,6 +326,22 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             }
             rendered={ _.includes(columns, 'role') }/>
           <Advanced.Column
+            header={ this.i18n('entity.Identity._type') }
+            property="identityContract"
+            width={ 175 }
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data, property }) => (
+                <Advanced.EntityInfo
+                  entityType="identity"
+                  entityIdentifier={ data[rowIndex]._embedded[property].identity }
+                  entity={ data[rowIndex]._embedded[property]._embedded.identity }
+                  face="popover"
+                  showIcon />
+              )
+            }
+            rendered={ _.includes(columns, 'identity') }/>
+          <Advanced.Column
             header={ this.i18n('entity.Role.baseCode.label') }
             title={ this.i18n('entity.Role.baseCode.help') }
             width={ 125 }
@@ -319,7 +362,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             face="text"
             sort
             sortProperty="role.environment"
-            rendered={ _.includes(columns, 'environment') }
+            rendered={ showEnvironment && _.includes(columns, 'environment') }
             cell={
               ({ rowIndex, data }) => {
                 return (
@@ -334,24 +377,23 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               ({rowIndex, data}) => {
                 return this._attributesCell({ rowIndex, data });
               }
-            }/>
+            }
+            rendered={ _.includes(columns, 'roleAttributes') }/>
           <Advanced.Column
             header={this.i18n('entity.IdentityRole.identityContract.title')}
             property="identityContract"
             width={ 175 }
             cell={
               /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data, property }) => {
-                return (
-                  <Advanced.EntityInfo
-                    entityType="identityContract"
-                    entityIdentifier={ data[rowIndex][property] }
-                    entity={ data[rowIndex]._embedded[property] }
-                    showIdentity={ false }
-                    face="popover"
-                    showIcon />
-                );
-              }
+              ({ rowIndex, data, property }) => (
+                <Advanced.EntityInfo
+                  entityType="identityContract"
+                  entityIdentifier={ data[rowIndex][property] }
+                  entity={ data[rowIndex]._embedded[property] }
+                  showIdentity={ false }
+                  face="popover"
+                  showIcon />
+              )
             }
             rendered={ _.includes(columns, 'identityContract') }/>
           <Advanced.Column
@@ -425,6 +467,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             }
             width={ 15 }
             rendered={ _.includes(columns, 'automaticRole') }/>
+          { children }
         </Advanced.Table>
 
         <Basic.Modal
@@ -548,6 +591,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
 
 IdentityRoleTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
+  manager: PropTypes.object,
   /**
    * Rendered columns - see table columns above
    *
@@ -585,8 +629,21 @@ IdentityRoleTable.propTypes = {
 };
 
 IdentityRoleTable.defaultProps = {
+  manager,
   rendered: true,
-  columns: ['role', 'baseCode', 'environment', 'identityContract', 'contractPosition', 'validFrom', 'validTill', 'directRole', 'automaticRole'],
+  columns: [
+    'role',
+    'roleAttributes',
+    'baseCode',
+    'environment',
+    'identityContract',
+    'contractPosition',
+    'validFrom',
+    'validTill',
+    'directRole',
+    'automaticRole',
+    'incompatibleRoles'
+  ],
   forceSearchParameters: null,
   showAddButton: true,
   showDetailButton: true,
@@ -599,6 +656,7 @@ IdentityRoleTable.defaultProps = {
 function select(state, component) {
   return {
     i18nReady: state.config.get('i18nReady'),
+    showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', true),
     _showLoading: Utils.Ui.isShowLoading(state, component.uiKey),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _incompatibleRoles: DataManager.getData(state, `${ uiKeyIncompatibleRoles }${ component.params.entityId }`),

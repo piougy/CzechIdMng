@@ -3,8 +3,12 @@ import { SynchronizationConfigService } from '../services';
 
 const service = new SynchronizationConfigService();
 
-export default class SynchronizationConfigManager
- extends Managers.EntityManager {
+/**
+ * Configured synchronizations.
+ *
+ * @author Vít Švanda
+ */
+export default class SynchronizationConfigManager extends Managers.EntityManager {
 
   constructor() {
     super();

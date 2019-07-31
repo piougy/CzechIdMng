@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import Joi from 'joi';
@@ -72,11 +73,11 @@ class ExampleProductDetail extends Basic.AbstractContent {
       };
 
       if (Utils.Entity.isNew(saveEntity)) {
-        this.context.store.dispatch(manager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, newError) => {
+        this.context.store.dispatch(manager.createEntity(saveEntity, `${ uiKey }-detail`, (createdEntity, newError) => {
           this._afterSave(createdEntity, newError, afterAction);
         }));
       } else {
-        this.context.store.dispatch(manager.updateEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+        this.context.store.dispatch(manager.updateEntity(saveEntity, `${ uiKey }-detail`, (patchedEntity, newError) => {
           this._afterSave(patchedEntity, newError, afterAction);
         }));
       }
@@ -101,7 +102,7 @@ class ExampleProductDetail extends Basic.AbstractContent {
         // reload options with remote connectors
         this.context.router.replace(`example/products`);
       } else {
-        this.context.router.replace(`example/product/${entity.id}/detail`);
+        this.context.router.replace(`example/product/${ entity.id }/detail`);
       }
     });
   }
@@ -137,7 +138,7 @@ class ExampleProductDetail extends Basic.AbstractContent {
                   <Basic.Col lg={ 10 }>
                     <Basic.TextField
                       ref="name"
-                      label={this.i18n('example:entity.ExampleProduct.name.label')}
+                      label={ this.i18n('example:entity.ExampleProduct.name.label') }
                       required
                       max={ 255 }/>
                   </Basic.Col>
@@ -148,7 +149,7 @@ class ExampleProductDetail extends Basic.AbstractContent {
                   label={ this.i18n('example:entity.ExampleProduct.price.label') }
                   placeholder={ this.i18n('example:entity.ExampleProduct.price.placeholder') }
                   helpBlock={ this.i18n('example:entity.ExampleProduct.price.help') }
-                  validation={ Joi.number().min(-Math.pow(10, 33)).max(Math.pow(10, 33)).concat(Joi.number().allow(null)) }/>
+                  validation={ Joi.number().min((-10) ** 33).max(10 ** 33).concat(Joi.number().allow(null)) }/>
 
                 <Basic.TextArea
                   ref="description"
@@ -175,7 +176,9 @@ class ExampleProductDetail extends Basic.AbstractContent {
                 rendered={ manager.canSave(entity, _permissions) }
                 pullRight
                 dropup>
-                <Basic.MenuItem eventKey="1" onClick={ this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose') }</Basic.MenuItem>
+                <Basic.MenuItem eventKey="1" onClick={ this.save.bind(this, 'CLOSE') }>
+                  { this.i18n('button.saveAndClose') }
+                </Basic.MenuItem>
               </Basic.SplitButton>
             </Basic.PanelFooter>
           </Basic.Panel>
@@ -191,7 +194,7 @@ ExampleProductDetail.propTypes = {
   /**
    * Loaded entity
    */
-  entity: PropTypes.object,
+  entity: PropTypes.instanceOf(PropTypes.object),
   /**
    * Entity, permissions etc. fro this content are stored in redux under given key
    */

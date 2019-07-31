@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.config.domain;
 
 import java.util.concurrent.Executor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -35,7 +36,12 @@ public class DefaultEventConfiguration extends AbstractConfiguration implements 
 	
 	@Override
 	public String getAsynchronousInstanceId() {
-		return getConfigurationService().getValue(PROPERTY_EVENT_ASYNCHRONOUS_INSTANCE_ID, getConfigurationService().getInstanceId());
+		String eventInstanceId = getConfigurationService().getValue(PROPERTY_EVENT_ASYNCHRONOUS_INSTANCE_ID);
+		if (StringUtils.isNotBlank(eventInstanceId)) {
+			return eventInstanceId;
+		}
+		// default instance id is the same as for LRT.
+		return getConfigurationService().getInstanceId();
 	}
 	
 	@Override

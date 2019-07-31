@@ -200,10 +200,10 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     return null;
   }
 
-/**
- * Render icon (rendered only if props showIcon is true)
- * @return {[type]} [description]
- */
+  /**
+   * Render icon (rendered only if props showIcon is true)
+   * @return {[type]} [description]
+   */
   _renderIcon(entity) {
     const { showIcon } = this.props;
     if (!showIcon) {
@@ -211,9 +211,9 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     }
     const _entity = entity || this.getEntity();
     return (
-    <span className="pull-left">
-      <Basic.Icon value={ this.getEntityIcon(_entity) } title={ this.getPopoverTitle(_entity) } style={{ marginRight: 5 }}/>
-    </span>
+      <span className="pull-left">
+        <Basic.Icon value={ this.getEntityIcon(_entity) } title={ this.getPopoverTitle(_entity) } style={{ marginRight: 5 }}/>
+      </span>
     );
   }
 
@@ -222,9 +222,10 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    */
   _renderNiceLabel(entity) {
     const { className, style } = this.props;
+    const _entity = entity || this.getEntity();
     //
     return (
-      <span className={ className } style={ style }>{ this.getNiceLabel(entity) }</span>
+      <span className={ className } style={ style }>{ this.getNiceLabel(_entity) }</span>
     );
   }
 
@@ -267,7 +268,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     //
     return (
       <Basic.Popover
-        trigger={['click']}
+        trigger={ ['click'] }
         value={ this._renderFull(entity) }
         className="abstract-entity-info-popover"
         onEnter={ this.onEnter.bind(this) }>
@@ -322,7 +323,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           hover={ false }
           noHeader
           data={ this.getPopoverContent(_entity) }
-          children={ this.getTableChildren() }/>
+          children={ this.getTableChildren() } />
 
         {
           !this.showLink()
@@ -330,8 +331,8 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           <Basic.PanelFooter>
             <Link to={ this.getLink(_entity) }>
               <Basic.Icon value="fa:angle-double-right"/>
-              {' '}
-              {this.i18n('component.advanced.EntityInfo.link.detail.label')}
+              { ' ' }
+              { this.i18n('component.advanced.EntityInfo.link.detail.label') }
             </Link>
           </Basic.PanelFooter>
         }

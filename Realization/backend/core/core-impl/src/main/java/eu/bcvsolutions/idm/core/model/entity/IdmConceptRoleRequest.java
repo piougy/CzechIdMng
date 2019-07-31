@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -21,6 +22,7 @@ import org.joda.time.LocalDate;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
@@ -99,6 +101,10 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	@Enumerated(EnumType.STRING)
 	@NotNull
 	private RoleRequestState state = RoleRequestState.CONCEPT;
+	
+	// @Audited
+	@Embedded
+	private OperationResult systemState;
 	
 	@Audited
 	@Column(name = "wf_process_id")
@@ -214,6 +220,14 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	 */
 	public void setContractPosition(UUID contractPosition) {
 		this.contractPosition = contractPosition;
+	}
+
+	public OperationResult getSystemState() {
+		return systemState;
+	}
+
+	public void setSystemState(OperationResult systemState) {
+		this.systemState = systemState;
 	}
 	
 }

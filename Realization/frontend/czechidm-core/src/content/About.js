@@ -19,31 +19,47 @@ class About extends Basic.AbstractContent {
     //
     return (
       <div>
-        <Helmet title={this.i18n('content.about.title')} />
+        <Helmet title={ this.i18n('content.about.title') } />
 
         <Basic.Row>
           <Basic.Col lg={ 4 } className="col-lg-offset-4">
             <Basic.Panel>
-              <Basic.PanelHeader text={this.i18n('content.about.header')}/>
+              <Basic.PanelHeader text={ this.i18n('content.about.header') } />
               <Basic.PanelBody className="text-center">
-                <div className="about-logo">
-                </div>
+                <div className="about-logo" />
                 <div className="about-text">
-                  <big>{ this.i18n('app.version.frontend') }: { version }</big>
+                  <big>
+                    { this.i18n('app.version.frontend') }
+                    :
+                    { version }
+                  </big>
                   <br />
                   {
                     !buildTimestamp
                     ||
-                    <div>
-                      <big>{this.i18n('app.version.releaseDate')}: <Advanced.DateValue value={ buildTimestamp } title={ `${this.i18n('entity.Module.buildNumber')}: ${buildNumber}` }/></big>
-                    </div>
+                    (
+                      <Basic.Div>
+                        <big>
+                          { this.i18n('app.version.releaseDate') }
+                          :
+                          <Advanced.DateValue
+                            value={ buildTimestamp }
+                            title={ `${ this.i18n('entity.Module.buildNumber') }: ${ buildNumber }` } />
+                        </big>
+                      </Basic.Div>
+                    )
                   }
-                  <a href={ this.i18n('app.author.homePage') } target="_blank">{this.i18n('app.author.name')}</a>
+                  <a
+                    href={ this.i18n('app.author.homePage') }
+                    target="_blank"
+                    rel="noreferrer noopener">
+                    {this.i18n('app.author.name')}
+                  </a>
                   <br />
                   <big>
                     { this.i18n('content.about.sourceCodeOn') }
                     {' '}
-                    <Basic.Link href="https://github.com/bcvsolutions/CzechIdMng" isExternal text="GitHub"/>
+                    <Basic.Link href="https://github.com/bcvsolutions/CzechIdMng" isExternal text="GitHub" />
                   </big>
                 </div>
               </Basic.PanelBody>

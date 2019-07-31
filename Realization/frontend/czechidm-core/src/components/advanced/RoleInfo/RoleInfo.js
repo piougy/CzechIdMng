@@ -1,8 +1,9 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import { RoleManager } from '../../../redux/';
+import { RoleManager, ConfigurationManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import RolePriorityEnum from '../../../enums/RolePriorityEnum';
 import Tree from '../Tree/Tree';
@@ -16,10 +17,6 @@ const manager = new RoleManager();
  * @author Radek Tomiška
  */
 export class RoleInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -128,7 +125,7 @@ export class RoleInfo extends AbstractEntityInfo {
         value: entity.baseCode
       }
     ];
-    if (entity.environment) {
+    if (entity.environment && this.props.showEnvironment) {
       content.push({
         label: this.i18n('entity.Role.environment.label'),
         value: (<CodeListValue code="environment" value={ entity.environment }/>)
@@ -137,7 +134,11 @@ export class RoleInfo extends AbstractEntityInfo {
     //
     content.push({
       label: this.i18n('entity.Role.priorityEnum'),
-      value: (<Basic.EnumValue enum={ RolePriorityEnum } value={ RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(entity.priority)) } />)
+      value: (
+        <Basic.EnumValue
+          enum={ RolePriorityEnum }
+          value={ RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(entity.priority)) } />
+      )
     });
     //
     if (entity.description) {
@@ -178,12 +179,13 @@ RoleInfo.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityIdentifier, entity } = component;
+  const { entityIdentifier, entity, showEnvironment } = component;
   let entityId = entityIdentifier;
   if (!entityId && entity) {
     entityId = entity.id;
   }
   return {
+    showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', showEnvironment || true),
     _entity: manager.getEntity(state, entityId),
     _showLoading: manager.isShowLoading(state, null, entityId),
     _permissions: manager.getPermissions(state, null, entityId)

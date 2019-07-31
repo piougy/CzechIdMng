@@ -120,6 +120,15 @@ public class DefaultIdmProcessedTaskItemService
 		//
 		repository.deleteAllByScheduledTaskId(dto.getId());
 	}
+	
+	@Override
+	@Transactional
+	public void deleteItem(UUID scheduledTaskId, UUID referencedEntityId) {
+		Assert.notNull(scheduledTaskId);
+		Assert.notNull(referencedEntityId);
+		//
+		repository.deleteItem(scheduledTaskId, referencedEntityId);
+	}
 
 	@Override
 	@Transactional(readOnly = true)

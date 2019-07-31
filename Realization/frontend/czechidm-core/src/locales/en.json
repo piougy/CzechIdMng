@@ -42,6 +42,7 @@
   "label": {
     "id": "Id",
     "action": "Actions",
+    "approved": "Approved",
     "otherAttributes": "Other attributes",
     "selectAll": "Select / unselect all",
     "validFrom": "$t(entity.validFrom)",
@@ -58,6 +59,7 @@
     "yes": "Yes",
     "no": "No",
     "readOnly": "Read only",
+    "removed": "Removed",
     "waiting": "Waiting"
   },
   "button": {
@@ -126,6 +128,9 @@
     "module": {
       "label": "Modul",
       "placeholder": "Modul"
+    },
+    "transactionId": {
+      "placeholder": "$t(entity.transactionId.label) (uuid)"
     }
   },
   "action": {
@@ -383,6 +388,11 @@
           }
         }
       },
+      "UuidInfo": {
+        "copy": {
+          "message": "Identifier copied into clipboard."
+        }
+      },
       "IdentityInfo": {
         "link": {
           "detail": {
@@ -429,7 +439,11 @@
           "load": "Error during loading records to the table."
         },
         "button": {
-          "refresh": "Reload records"
+          "refresh": "Reload records",
+          "transactionId" : {
+            "label": "Show in audit",
+            "title": "Show all audit records with given user transaction identifier."
+          }
         },
         "noData": "$t(component.basic.Table.noData)",
         "filter": {
@@ -519,7 +533,11 @@
           "ROLE-CATALOGUE-SELECT": "Select folder in role catalogue (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
           "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
-          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)"
+          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)",
+          "ENUMERATION": "$t(enums.PersistentTypeEnum.ENUMERATION)",
+          "AUTOMATIC-ROLE-TREE-SELECT": "Select automatic role by tree structure (SelectBox)",
+          "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Select automatic role by attribute (SelectBox)",
+          "OPERATION-STATE-ENUM": "Operation state"
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes."
@@ -633,7 +651,8 @@
       "BYTEARRAY": "Byte array",
       "UUID": "Uuid identifier",
       "ATTACHMENT": "Attachment",
-      "CODELIST": "Code list"
+      "CODELIST": "Code list",
+      "ENUMERATION": "Enumeration"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -725,9 +744,9 @@
       "CONCEPT": "Concept",
       "EXECUTED": "Executed",
       "CANCELED": "Canceled",
-      "APPROVED": "In progress (approved)",
+      "APPROVED": "In progress",
       "DISAPPROVED": "Disapproved",
-      "IN_PROGRESS": "In progress",
+      "IN_PROGRESS": "Approving",
       "EXCEPTION": "Exception",
       "DUPLICATED": "Duplicated"
     },
@@ -851,7 +870,7 @@
       "VALID": "Valid",
       "PASSWORD_EXPIRED": "Password expired",
       "LEFT": "Left",
-      "DISABLED": "$t(label.disabled)",
+      "DISABLED": "$t(enums.ContractStateEnum.EXCLUDED)",
       "DISABLED_MANUALLY": "$t(label.disabled) - manually"
     },
     "PriorityTypeEnum": {
@@ -1028,8 +1047,8 @@
         "help": "The valid till is composed from the password policy setting."
       },
       "lastSuccessfulLogin": {
-        "label": "Las successful login",
-        "help": "Date of last successful login to IdM. It is possible update las successful login by authenticate by another system."
+        "label": "Last successful login",
+        "help": "Date of last successful login to IdM. It is possible update last successful login by authenticate by another system."
       },
       "blockLoginDate": {
         "label": "Login block date",
@@ -1321,6 +1340,8 @@
       "IdentityRoleConceptTable": {
         "oldValue": "Old value {{oldValue}}",
         "oldValueNotExist": "Old value was empty",
+        "switchShowChangesOnly": "Show changes only",
+        "systemState": "System state",
         "create": {
           "header": "Add roles",
           "headerByIdentity": "Add roles by user"
@@ -1350,10 +1371,6 @@
           "deleteRemoved": {
             "header": "Delete removed roles",
             "message": "Do you really want to delete removed roles?"
-          },
-          "delete": {
-            "header": "Delete roles",
-            "message": "Do you really want to delete roles"
           }
         },
         "identityRoleAttributes": {
@@ -1989,7 +2006,7 @@
           "placeholder": "Search by whole username applicant."
         },
         "states":{
-          "placeholder": "Search by states"
+          "placeholder": "States in IdM"
         },
         "dateCreatedFrom":{
           "placeholder": "Created from"
@@ -1998,7 +2015,10 @@
           "placeholder": "Created to"
         },
         "applicants":{
-          "placeholder": "Search by applicants"
+          "placeholder": "Applicants"
+        },
+        "systemStates":{
+          "placeholder": "States in systems"
         }
       }
     },
@@ -2435,6 +2455,9 @@
         "filter": {
           "role": {
             "placeholder": "$t(content.identities.filter.role.placeholder)"
+          },
+          "identity": {
+            "placeholder": "$t(entity.Identity._type)"
           }
         },
         "changePermissions": "Request to change roles",
@@ -2933,8 +2956,13 @@
         "tabs": {
           "basic": "Basic information",
           "items": "Processed items",
-          "queue": "Queue"
+          "queue": "Queue",
+          "audit": "Audit"
         }
+      },
+      "audit": {
+        "header": "Audit <small>entities modified by this task</small>",
+        "title": "Audit"
       }
     },
     "notifications": {
@@ -3207,6 +3235,12 @@
         },
         "ownerId": {
           "placeholder": "$t(entity.EntityEvent.ownerId.label) (uuid)"
+        },
+        "rootId": {
+          "placeholder": "$t(entity.EntityEvent.rootId.label) (uuid)"
+        },
+        "parent": {
+          "placeholder": "$t(entity.EntityEvent.parent.label) (uuid)"
         }
       },
       "event": {
@@ -3255,9 +3289,15 @@
   },
   "entity": {
     "id": {
+      "short": "ID",
       "label": "Id",
       "title": "Identifier",
-      "help": "Internal identifier"
+      "help": "Internal entity identifier"
+    },
+    "transactionId": {
+      "short": "TI",
+      "label": "Transaction identifier",
+      "help": "User transaction identifier - entity was saved in this context (batch)."
     },
     "name": "Name",
     "created": "Created",
@@ -3304,6 +3344,9 @@
         "label": "$t(label.disabled)",
         "help": "$t(label.disabled) identity cannot log in. It's controlled by the state."
       }
+    },
+    "Password": {
+      "_type": "User password"
     },
     "RoleCatalogue": {
       "_type": "Catalog folder",
@@ -3922,6 +3965,7 @@
       "type": "$t(entity.Notification.type)"
     },
     "Configuration": {
+      "_type": "Configuration item",
       "name": "Key",
       "value": "Value",
       "secured": "System",
@@ -4204,9 +4248,12 @@
       }
     },
     "RoleRequest": {
+      "_type": "Request for change roles",
+      "systemState": "State on systems",
       "applicant": "Requested for",
       "implementer": "Applicant",
-      "state": "State",
+      "state": "State in IdM",
+      "states": "State in IdM / systems",
       "executeImmediately": "Without approval",
       "log": "Log",
       "description": {
@@ -4218,7 +4265,8 @@
       "candicateUsers": "Can solve",
       "currentActivity": "Approval state",
       "originalRequest": "Original request",
-      "wfProcessId": "WF identifier"
+      "wfProcessId": "WF identifier",
+      "systemStateLog": "Error log from a systems"
     },
     "ConceptRoleRequest": {
       "identityContract": "Employment relationship",
@@ -4351,7 +4399,7 @@
         "title": "Event type"
       },
       "rootId": {
-        "label": "Root"
+        "label": "Root event"
       },
       "parent": {
         "label": "Parent event"
@@ -5035,6 +5083,59 @@
             "help": "Delete events older than given number of days."
           }
         }
+      },
+      "core-add-new-automatic-role-contract-long-running-task": {
+        "label": "Recalculate automatic role by tree structure for contracts",
+        "help": "Assign roles for identities with contract match selected automatic role by tree structure.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatic role",
+            "help": "Automatic role by tree structure."
+          }
+        }
+      },
+      "core-add-new-automatic-role-position-long-running-task": {
+        "label": "Recalculate automatic role by tree structure for other contract positions",
+        "help": "Assign roles for identities with other contract position which match selected automatic role by tree structure.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatic role",
+            "help": "Automatic role by tree structure."
+          }
+        }
+      },
+      "core-process-all-automatic-role-attribute-long-running-task": {
+        "label": "Recalculate all automatic roles by attribute",
+        "help": "Recalculate all automatic roles by attribute. Creates new request with concepts.",
+        "icon": "component:automatic-role"
+      },
+      "core-process-automatic-role-attribute-long-running-task": {
+        "label": "Recalculate automatic role by attribute",
+        "help": "Recalculate roles for identities for selected automatic role by attribute.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatic role",
+            "help": "Automatic role by attribute."
+          }
+        }
+      },
+      "core-remove-automatic-role-long-running-task": {
+        "label": "Remove automatic role",
+        "help": "Remove automatic role - removes all roles assigned by selected automatic role definition. $t(error.AUTOMATIC_ROLE_TASK_INVALID.message)",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "automaticroletree": {
+            "label": "Automatic role by tree structure",
+            "help": "Automatic role by tree structure."
+          },
+          "automaticroleattribute": {
+            "label": "Or: Automatic role by attribute",
+            "help": "Automatic role by attribute."
+          }
+        }
       }
     }
   },
@@ -5287,7 +5388,7 @@
     },
     "LONG_RUNNING_TASK_NOT_RUNNING": {
       "title": "The task is already running",
-      "message": "Task [{{taskType}}] on instance [{{instanceId}}] already finished."
+      "message": "Task on instance [{{instanceId}}] already finished."
     },
     "LONG_RUNNING_TASK_INIT_FAILED": {
       "title": "Task has invalid configuration",
@@ -5572,6 +5673,10 @@
     "AUTOMATIC_ROLE_TASK_EMPTY": {
       "title": "Missing 'id' of automatic role",
       "message": "Id of automatic role is required."
+    },
+    "AUTOMATIC_ROLE_TASK_INVALID": {
+      "title": "",
+      "message": "Select only one of automatic role - by tree structure or by attribute."
     },
     "BACKUP_FAIL": {
       "title": "Backup failed",
@@ -5944,6 +6049,10 @@
     "OPTIMISTIC_LOCK_ERROR": {
       "title": "Record was modified",
       "message": "Record was modified by other process or logged user. Try to reload the record and then retry the operation."
+    },
+    "ROLE_REQUEST_SYSTEM_STATE_CANCELED": {
+      "title": "Role request's system state was canceled!",
+      "message": "System state was canceled from the state [{{state}}]."
     }
   },
   "validationError": {

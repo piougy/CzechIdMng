@@ -19,39 +19,39 @@ module.exports = {
     {
       path: 'identity/new',
       component: require('./src/content/identity/Create'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_CREATE' ] } ],
+      access: [ { type: 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_CREATE' ] } ],
       priority: 0
     },
     {
       path: 'identity/:entityId/dashboard',
       component: require('./src/content/identity/IdentityDashboard'),
-      access: [ { 'type': 'IS_AUTHENTICATED'}]
+      access: [ { type: 'IS_AUTHENTICATED'}]
     },
     {
       path: 'identity/:entityId/',
       component: require('./src/content/identity/Identity'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ],
+      access: [ { type: 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ],
       childRoutes: [
         {
           path: 'profile',
           component: require('./src/content/identity/IdentityProfile'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ],
+          access: [ { type: 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ],
           priority: 0
         },
         {
           path: 'password',
           component: require('./src/content/identity/password/PasswordRoute'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE', 'PASSWORD_READ' ] } ],
+          access: [ { type: 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE', 'PASSWORD_READ' ] } ],
           childRoutes: [
             {
               path: 'change',
               component: require('./src/content/identity/PasswordChangeRoute'),
-              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE' ] } ]
+              access: [ { type: 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE' ] } ]
             },
             {
               path: 'detail',
               component: require('./src/content/identity/password/IdentityPasswordDetail'),
-              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORD_READ' ] } ]
+              access: [ { type: 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORD_READ' ] } ]
             }
           ]
         },
@@ -635,6 +635,11 @@ module.exports = {
           component: require('./src/content/scheduler/LongRunningTaskQueue'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_EXECUTE'] } ]
         },
+        {
+          path: 'audit',
+          component: require('./src/content/scheduler/LongRunningTaskAudit'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+        }
       ]
     },
     {

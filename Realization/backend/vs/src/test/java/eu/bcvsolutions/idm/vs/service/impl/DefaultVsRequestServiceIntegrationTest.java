@@ -785,7 +785,7 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		IdmRoleDto roleOne = helper.createRole(roleOneName);
 
 		// Create policy for vs evaluator and user role
-		helper.createAuthorizationPolicy(roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME).getId(),
+		helper.createAuthorizationPolicy(this.createDefaultRole().getId(),
 				VirtualSystemGroupPermission.VSREQUEST, VsRequest.class, VsRequestByImplementerEvaluator.class,
 				IdmBasePermission.ADMIN);
 
@@ -822,6 +822,21 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		if (roleService.getByCode(roleOneName) != null) {
 			roleService.delete(roleService.getByCode(roleOneName));
 		}
+	}
+	
+	/**
+	 * Method check  if exists role with name/code defined in {@link InitDemoData#DEFAULT_ROLE_NAME}
+	 * @return
+	 */
+	private IdmRoleDto createDefaultRole() {
+		IdmRoleDto defaultRole = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
+		if (defaultRole != null) {
+			return defaultRole;
+		}
+		//
+		defaultRole = new IdmRoleDto();
+		defaultRole.setCode(InitDemoData.DEFAULT_ROLE_NAME);
+		return roleService.save(defaultRole);
 	}
 
 }

@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
@@ -294,16 +293,11 @@ class Configurations extends Advanced.AbstractTableContent {
     const render = detail.show || detail.addMore ? true : false;
     //
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Confirm ref="confirm-task-save" level="danger"/>
 
-        <Basic.PageHeader>
-          <Basic.Icon value="cog"/>
-          {' '}
-          {this.i18n('header')}
-        </Basic.PageHeader>
+        { this.renderPageHeader() }
 
         <Basic.ContentHeader rendered={ !render }>
           { this.i18n('configurable', { escape: false }) }
@@ -550,12 +544,12 @@ class Configurations extends Advanced.AbstractTableContent {
               header={ this.i18n('fromEnvironment', { escape: false } ) }
               showLoading={ _environmentConfigurationsShowLoading }
               noData={ this.i18n('component.basic.Table.noData') }>
-              <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="150px"/>
-              <Basic.Column property="value" header={this.i18n('entity.Configuration.value')}/>
+              <Basic.Column property="name" header={ this.i18n('entity.Configuration.name') } width={ 150 }/>
+              <Basic.Column property="value" header={ this.i18n('entity.Configuration.value') }/>
             </Basic.Table>
           </Basic.Panel>
         }
-      </div>
+      </Basic.Div>
     );
   }
 }

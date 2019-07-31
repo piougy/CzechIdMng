@@ -272,7 +272,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       label={ this.i18n('entity.FormAttribute.faceType.label') }
                       helpBlock={ this.i18n('entity.FormAttribute.faceType.help') }
                       placeholder={ this.i18n('entity.FormAttribute.faceType.placeholder') }
-                      hidden={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) }/>
+                      hidden={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) }
+                      required={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.ENUMERATION) }/>
                     <Basic.SelectBox
                       ref="codeList"
                       manager={ codeListManager }

@@ -403,11 +403,11 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
               <Basic.Button
                 type="submit"
                 level="success"
-                readOnly={manager.canSave(detail.entity, _permissions)}
-                showLoading={_showLoading}
+                rendered={ this.getManager().canSave(detail.entity, _permissions) }
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
-                {this.i18n('button.save')}
+                showLoadingText={ this.i18n('button.saving') }>
+                { this.i18n('button.save') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>

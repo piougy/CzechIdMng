@@ -35,7 +35,8 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 		@Index(name = "idx_sys_p_o_arch_system", columnList = "system_id"),
 		@Index(name = "idx_sys_p_o_arch_entity_type", columnList = "entity_type"),
 		@Index(name = "idx_sys_p_o_arch_entity_identifier", columnList = "entity_identifier"),
-		@Index(name = "idx_sys_p_o_arch_uid", columnList = "system_entity_uid")
+		@Index(name = "idx_sys_p_o_arch_uid", columnList = "system_entity_uid"),
+		@Index(name = "idx_sys_p_a_role_request_id", columnList = "role_request_id")
 		})
 public class SysProvisioningArchive extends AbstractEntity {
 
@@ -70,6 +71,10 @@ public class SysProvisioningArchive extends AbstractEntity {
 	
 	@Embedded
 	private OperationResult result;
+	
+	// ID of request, without DB relation on the request -> Request can be null or doesn't have to exist! 
+	@Column(name = "role_request_id")
+    private UUID roleRequestId;
 	
 	/**
 	 * Provisioning operation type
@@ -165,5 +170,14 @@ public class SysProvisioningArchive extends AbstractEntity {
 	
 	public void setProvisioningContext(ProvisioningContext provisioningContext) {
 		this.provisioningContext = provisioningContext;
+	}
+
+	public UUID getRoleRequestId() {
+		return roleRequestId;
+	}
+
+	public void setRoleRequestId(UUID roleRequestId) {
+		this.roleRequestId = roleRequestId;
 	}	
+
 }

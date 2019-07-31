@@ -40,7 +40,7 @@ export default class AbstractIcon extends Basic.AbstractComponent {
         <Basic.Icon
           value="fa:refresh"
           showLoading
-          className={ classnames({ 'disabled': disabled === true }, className) }
+          className={ classnames({ disabled: disabled === true }, className) }
           style={ _style }
           title={ title } />
       );
@@ -48,7 +48,7 @@ export default class AbstractIcon extends Basic.AbstractComponent {
     //
     return (
       <span
-        className={ classnames({ 'disabled': disabled === true }, className) }
+        className={ classnames({ disabled: disabled === true }, className) }
         style={ _style }
         title={ title }
         onClick={ onClick }>

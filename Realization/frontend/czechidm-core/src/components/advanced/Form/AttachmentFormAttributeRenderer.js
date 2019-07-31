@@ -232,13 +232,14 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
               <a
                 href={ downloadUrl }
                 target="_blank"
-                onClick={ (e) => e.stopPropagation() }>
+                rel="noreferrer noopener"
+                onClick={ e => e.stopPropagation() }>
                 <Basic.Div
                   rendered={ previewUrl === false }
                   className="text-center img-thumbnail"
                   style={{ backgroundColor: '#FCF8E3', height: 100, width: 100, paddingTop: 36 }}
                   title={ this.i18n('label.download') }>
-                  <Basic.Icon value="fa:ban" className="fa-2x" title={ this.i18n('button.preview.disabled') }/>
+                  <Basic.Icon value="fa:ban" className="fa-2x" title={ this.i18n('button.preview.disabled') } />
                 </Basic.Div>
                 <Basic.Div rendered={ previewUrl !== false }>
                   <Basic.Div
@@ -248,8 +249,8 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
                     <Basic.Icon
                       value="fa:refresh"
                       showLoading
-                      color={ '#FFFFFF' }
-                      className="fa-2x"/>
+                      color="#FFFFFF"
+                      className="fa-2x" />
                   </Basic.Div>
                   <Basic.Div rendered={ !previewLoading && previewUrl !== null } style={{ position: 'relative' }}>
                     <img src={ previewUrl } className="img-thumbnail" style={{ height: 100, padding: 0 }} title={ this.i18n('label.download') } />

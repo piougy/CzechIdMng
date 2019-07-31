@@ -12,10 +12,6 @@ const manager = new ExampleManager();
  */
 export default class ExampleContent extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   /**
    * "Shorcut" for localization
    */

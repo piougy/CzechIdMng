@@ -42,6 +42,7 @@
   "label": {
     "id": "Identifikátor",
     "action": "Akce",
+    "approved": "Scháleno",
     "otherAttributes": "Další atributy",
     "selectAll": "Vybrat vše / nic",
     "validFrom": "$t(entity.validFrom)",
@@ -58,6 +59,7 @@
     "yes": "Ano",
     "no": "Ne",
     "readOnly": "Pouze pro čtení",
+    "removed": "Odebráno",
     "waiting": "Čeká"
   },
   "button": {
@@ -126,6 +128,9 @@
     "module": {
       "label": "Modul",
       "placeholder": "Modul"
+    },
+    "transactionId": {
+      "placeholder": "$t(entity.transactionId.label) (uuid)"
     }
   },
   "action": {
@@ -413,6 +418,11 @@
           }
         }
       },
+      "UuidInfo": {
+        "copy": {
+          "message": "Identifikátor zkopírován do schránky."
+        }
+      },
       "IdentityInfo": {
         "link": {
           "detail": {
@@ -460,7 +470,11 @@
           "load": "Při načítání záznamů do tabulky nastala chyba"
         },
         "button": {
-          "refresh": "Znovu načíst záznamy"
+          "refresh": "Znovu načíst záznamy",
+          "transactionId" : {
+            "label": "Zobrazit v auditu",
+            "title": "Zobrazit v auditu všechny záznamy s daným identifikátorem uživatelské transacke."
+          }
         },
         "noData": "$t(component.basic.Table.noData)",
         "filter": {
@@ -550,7 +564,11 @@
           "ROLE-CATALOGUE-SELECT": "Výběr složky z katalogu rolí (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
           "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
-          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)"
+          "CODELIST": "$t(enums.PersistentTypeEnum.CODELIST)",
+          "ENUMERATION": "$t(enums.PersistentTypeEnum.ENUMERATION)",
+          "AUTOMATIC-ROLE-TREE-SELECT": "Výběr automatické role dle stromové struktury (SelectBox)",
+          "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Výběr automatické role dle atributu (SelectBox)",
+          "OPERATION-STATE-ENUM": "Stav operace"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
@@ -664,7 +682,8 @@
       "BYTEARRAY": "Bitové pole",
       "UUID": "Uuid identifikátor",
       "ATTACHMENT": "Příloha",
-      "CODELIST": "Číselník"
+      "CODELIST": "Číselník",
+      "ENUMERATION": "Enumerace"
     },
     "ObjectClassEnum": {
       "Identity": "Identity",
@@ -756,9 +775,9 @@
       "CONCEPT": "Koncept",
       "EXECUTED": "Provedeno",
       "CANCELED": "Zrušeno",
-      "APPROVED": "Zpracovává se (schváleno)",
+      "APPROVED": "Zpracovává se",
       "DISAPPROVED": "Zamítnuto",
-      "IN_PROGRESS": "Zpracovává se",
+      "IN_PROGRESS": "Schvalování",
       "EXCEPTION": "Chyba",
       "DUPLICATED": "Duplicitní"
     },
@@ -882,7 +901,7 @@
       "VALID": "Validní",
       "PASSWORD_EXPIRED": "Heslo vypršelo",
       "LEFT": "Odešel(a)",
-      "DISABLED": "$t(label.disabled)",
+      "DISABLED": "$t(enums.ContractStateEnum.EXCLUDED)",
       "DISABLED_MANUALLY": "$t(label.disabled) - manuálně"
     },
     "PriorityTypeEnum": {
@@ -1365,6 +1384,8 @@
         "IdentityRoleConceptTable": {
           "oldValue": "Původní hodnota {{oldValue}}",
           "oldValueNotExist": "Původní hodnota byla prázdná",
+          "switchShowChangesOnly": "Zobrazit pouze změny",
+          "systemState": "Stav na systému",
           "create": {
             "header": "Přidat role",
             "headerByIdentity": "Přidat role podle uživatele"
@@ -1394,10 +1415,6 @@
             "deleteRemoved": {
               "header": "Odstranění úprav",
               "message": "Opravdu chcete zrušit úpravy nad touto rolí?"
-            },
-            "delete": {
-              "header": "Odebrání role",
-              "message": "Opravdu chcete tuto roli odebrat?"
             }
           },
           "identityRoleAttributes": {
@@ -2037,7 +2054,7 @@
           "placeholder": "Vyhledání dle celého uživatelského jména žadatele"
         },
         "states":{
-          "placeholder": "Vyhledání podle stavů"
+          "placeholder": "Stav v IdM"
         },
         "dateCreatedFrom":{
           "placeholder": "Vytvořeno od"
@@ -2046,7 +2063,10 @@
           "placeholder": "Vytvořeno do"
         },
         "applicants":{
-          "placeholder": "Vyhledat podle žádajících"
+          "placeholder": "Žádost pro"
+        },
+        "systemStates":{
+          "placeholder": "Stav na systémech"
         }
       }
 
@@ -2486,6 +2506,9 @@
         "filter": {
           "role": {
             "placeholder": "$t(content.identities.filter.role.placeholder)"
+          },
+          "identity": {
+            "placeholder": "$t(entity.Identity._type)"
           }
         },
         "changePermissions": "Žádost o změnu rolí",
@@ -2984,8 +3007,13 @@
         "tabs": {
           "basic": "Základní informace",
           "items": "Zpracované položky",
-          "queue": "Fronta"
+          "queue": "Fronta",
+          "audit": "Audit"
         }
+      },
+      "audit": {
+        "header": "Audit <small>entity upravené touto úlohou</small>",
+        "title": "Audit"
       }
     },
     "notifications": {
@@ -3258,6 +3286,12 @@
         },
         "ownerId": {
           "placeholder": "$t(entity.EntityEvent.ownerId.label) (uuid)"
+        },
+        "rootId": {
+          "placeholder": "$t(entity.EntityEvent.rootId.label) (uuid)"
+        },
+        "parent": {
+          "placeholder": "$t(entity.EntityEvent.parent.label) (uuid)"
         }
       },
       "event": {
@@ -3306,9 +3340,15 @@
   },
   "entity": {
     "id": {
+      "short": "ID",
       "label": "Id",
       "title": "Identifikátor",
-      "help": "Interní identifikátor"
+      "help": "Interní identifikátor entity"
+    },
+    "transactionId": {
+      "short": "TI",
+      "label": "Identifikátor transakce",
+      "help": "Interní identifikátor uživatelské transakce - entity byly uloženy v rámci této dávky (operace)."
     },
     "name": "Název",
     "created": "Vytvořeno",
@@ -3355,6 +3395,9 @@
         "label": "$t(label.disabled)",
         "help": "Neaktivní uživatel se nemůže přihlásit. Aktivita je řízena stavem uživatele."
       }
+    },
+    "Password": {
+      "_type": "Heslo uživatele"
     },
     "RoleCatalogue": {
       "_type": "Složka katalogu",
@@ -3560,7 +3603,7 @@
       "environment": {
         "label": "Prostředí",
         "help": "Prostředí, pro které je role určena.",
-        "helpCode": "$t(entity.Role.environment.help) Plný kód role včetně prostředí bude obsahovat hodnotu <strong>{{ code }}</strong>. Tento unikátní kód bude použít pro identifikaci role."
+        "helpCode": "$t(entity.Role.environment.help) Plný kód role včetně prostředí bude obsahovat hodnotu <strong>{{ code }}</strong>. Tento unikátní kód bude použit pro identifikaci role."
       },
       "name": "Název role",
       "roleType": "Typ role",
@@ -3972,6 +4015,7 @@
       "type": "$t(entity.Notification.type)"
     },
     "Configuration": {
+      "_type": "Konfigurační položka",
       "name": "Klíč",
       "value": "Hodnota",
       "secured": "Systémové",
@@ -4254,9 +4298,12 @@
       }
     },
     "RoleRequest": {
+      "_type": "Žádost o změnu rolí",
+      "systemState": "Stav na systémech",
       "applicant": "Žádost pro",
       "implementer": "Žadatel",
-      "state": "Stav",
+      "state": "Stav v IdM",
+      "states": "Stav v IdM / systémech",
       "executeImmediately": "Provést bez schválení",
       "log": "Log",
       "description": {
@@ -4268,7 +4315,8 @@
       "candicateUsers": "Mohou řešit",
       "currentActivity": "Stav schvalování",
       "originalRequest": "Žádost v okamžiku podání",
-      "wfProcessId": "WF"
+      "wfProcessId": "WF",
+      "systemStateLog": "Výpis chyby ze systémů"
     },
     "ConceptRoleRequest": {
       "identityContract": "Vztah",
@@ -4401,7 +4449,7 @@
         "title": "Typ události, který vyvolal změnu"
       },
       "rootId": {
-        "label": "Root"
+        "label": "Root event"
       },
       "parent": {
         "label": "Vychází z"
@@ -5085,6 +5133,59 @@
             "help": "Smazat události starší, než-li zadaný počet dní."
           }
         }
+      },
+      "core-add-new-automatic-role-contract-long-running-task": {
+        "label": "Přepočítat automatickou roli dle stromové struktury pro kontrakty",
+        "help": "Přiřadí role pro uživatele s kontraktem vyhovující zadané automatické roli dle stromové struktury.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatická role",
+            "help": "Automatická role dle stromové struktury."
+          }
+        }
+      },
+      "core-add-new-automatic-role-position-long-running-task": {
+        "label": "Přepočítat automatickou roli dle stromové struktury pro další pozice kontraktu",
+        "help": "Přiřadí role pro uživatele s kontraktem a další pozicí vyhovující zadané automatické roli dle stromové struktury.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatická role",
+            "help": "Automatická role dle stromové struktury."
+          }
+        }
+      },
+      "core-process-all-automatic-role-attribute-long-running-task": {
+        "label": "Přepočítat všechny automatické role dle atributu",
+        "help": "Přepočítá všechny nakonfigurované automatické role dle atributu.",
+        "icon": "component:automatic-role"
+      },
+      "core-process-automatic-role-attribute-long-running-task": {
+        "label": "Přepočítat automatickou roli dle atribute",
+        "help": "Přepočítá přiřazené role uživatelům dle zadané automatické role dle atributu.",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "roletreenode": {
+            "label": "Automatická role",
+            "help": "Automatická role dle attributu."
+          }
+        }
+      },
+      "core-remove-automatic-role-long-running-task": {
+        "label": "Odebrat automatickou roli",
+        "help": "Odebrat automatickou roli - odebere všechny role přiřazené dle této definice. $t(error.AUTOMATIC_ROLE_TASK_INVALID.message)",
+        "icon": "component:automatic-role",
+        "attributes": {
+          "automaticroletree": {
+            "label": "Automatická role dle stromové struktury",
+            "help": "Automatická role dle stromové struktury."
+          },
+          "automaticroleattribute": {
+            "label": "Nebo: Automatická role dle attributu",
+            "help": "Automatická role dle attributu."
+          }
+        }
       }
     }
   },
@@ -5337,7 +5438,7 @@
     },
     "LONG_RUNNING_TASK_NOT_RUNNING": {
       "title": "Úloha již neběží",
-      "message": "Úloha [{{taskType}}] na instanci [{{instanceId}}] již byla ukončena."
+      "message": "Úloha na instanci [{{instanceId}}] již byla ukončena."
     },
     "LONG_RUNNING_TASK_INIT_FAILED": {
       "title": "Úloha je chybně nakonfigurovaná",
@@ -5622,6 +5723,10 @@
     "AUTOMATIC_ROLE_TASK_EMPTY": {
       "title": "Chybí 'id' automatické role",
       "message": "Id automatické role je povinné."
+    },
+    "AUTOMATIC_ROLE_TASK_INVALID": {
+      "title": "",
+      "message": "Vyberte pouze jednu z automatických rolí - dle stromové struktury nebo dle atributu."
     },
     "BACKUP_FAIL": {
       "title": "Záloha nebyla provedena",
@@ -5994,6 +6099,10 @@
     "OPTIMISTIC_LOCK_ERROR": {
       "title": "Záznam byl upraven",
       "message": "Záznam byl upraven jiným proceses či uživatelem. Zkuste záznam obnovit a akci opakovat."
+    },
+    "ROLE_REQUEST_SYSTEM_STATE_CANCELED": {
+      "title": "Stav na systémech byl pro tuto žádost zrušen!",
+      "message": "Stav na systeméch byl zrušen. Předchozí stav byl: [{{state}}]."
     }
   },
   "validationError": {

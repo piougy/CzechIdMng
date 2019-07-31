@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.security.evaluator.identity;
 
 import java.util.Set;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -9,6 +10,7 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -20,7 +22,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluator;
 
 /**
- * Permissions to subordinates
+ * Permissions to subordinates.
  * 
  * @author Radek Tomiška
  *
@@ -42,7 +44,10 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		}
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(securityService.getAuthentication().getCurrentIdentity().getId());
-		return filterManager.getBuilder(IdmIdentity.class, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR).getPredicate(root, query, builder, filter);
+		//
+		return filterManager
+				.getBuilder(IdmIdentity.class, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR)
+				.getPredicate(root, (AbstractQuery<?>) query, builder, filter);
 	}
 	
 	@Override
@@ -53,11 +58,11 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		}
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setManagersFor(entity.getId());
-		boolean isManager = filterManager.getBuilder(IdmIdentity.class, IdmIdentityFilter.PARAMETER_MANAGERS_FOR).find(filter, null).getContent()
-				.stream()
-				.anyMatch(identity -> {
-			return identity.getUsername().equals(securityService.getUsername());
-		});
+		filter.setUsername(securityService.getUsername());
+		boolean isManager = filterManager
+				.getBuilder(IdmIdentity.class, IdmIdentityFilter.PARAMETER_MANAGERS_FOR)
+				.find(filter, new PageRequest(0, 1))
+				.getTotalElements() > 0;
 		if (isManager) {
 			permissions.addAll(policy.getPermissions());
 		}

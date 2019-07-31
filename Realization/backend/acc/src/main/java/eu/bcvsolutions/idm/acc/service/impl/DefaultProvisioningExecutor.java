@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -30,12 +32,16 @@ import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -60,6 +66,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	private final SecurityService securityService;
 	private final ProvisioningConfiguration provisioningConfiguration;
 	private final SysSystemEntityService systemEntityService;
+	//
+	@Autowired private IdmRoleRequestService roleRequestService;
 
 	@Autowired
 	public DefaultProvisioningExecutor(
@@ -97,9 +105,17 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		//
 		// execute - after original transaction is commited
 		// only if system supports synchronous processing
-		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
+		SysSystemDto system = DtoUtils.getEmbedded(provisioningOperation, SysProvisioningOperation_.system.getName(), SysSystemDto.class, null);
+		if(system == null) {
+			system = systemService.get(provisioningOperation.getSystem());;
+		}
 		Assert.notNull(system);
 		if (!system.isQueue()) {
+			if (provisioningOperationService.isNew(provisioningOperation)) {
+				// In sync mode, we need to save operation now (for request and system state)
+				SysProvisioningOperationDto provisioningOperationSaved = persistOperation(provisioningOperation);
+				provisioningOperation.setId(provisioningOperationSaved.getId());
+			}
 			entityEventManager.publishEvent(provisioningOperation);
 			return;
 		}
@@ -150,6 +166,37 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			return context.getContent();
 		} catch (Exception ex) {
 			return provisioningOperationService.handleFailed(provisioningOperation, ex);
+		} finally {
+			try {
+				UUID roleRequestId = provisioningOperation.getRoleRequestId();
+				if (roleRequestId != null) {
+					// Check of the state for whole request
+					// Create mock request -> we don't wont load request from DB -> optimization
+					IdmRoleRequestDto mockRequest = new IdmRoleRequestDto();
+					mockRequest.setId(roleRequestId);
+					mockRequest.setState(RoleRequestState.EXECUTED);
+
+					IdmRoleRequestDto returnedReqeust = roleRequestService.refreshSystemState(mockRequest);
+					OperationResultDto systemState = returnedReqeust.getSystemState(); 
+					if (systemState == null) {
+						// State on system of request was not changed (may be not all provisioning operations are
+						// resolved)
+					} else {
+						// We have final state on systems
+						IdmRoleRequestDto requestDto = roleRequestService.get(roleRequestId);
+						if (requestDto != null) {
+							requestDto.setSystemState(systemState);
+							roleRequestService.save(requestDto);
+						} else {
+							LOG.info(MessageFormat.format(
+									"Refresh role-request system state: Role-request with ID [{0}] was not found (maybe was deleted).",
+									roleRequestId));
+						}
+					}
+				}
+			} catch (Exception ex) {
+				return provisioningOperationService.handleFailed(provisioningOperation, ex);
+			}
 		}
 	}
 	

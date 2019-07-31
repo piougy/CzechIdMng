@@ -139,7 +139,10 @@ public abstract class AbstractReportExecutor
 		// check form definition for given executor
 		// incompatible changes has to be solved by change script or by adding new executor
 		// adding parameter is compatible change
-		return formDefinitionService.updateDefinition(RptReportDto.class, getName(), formDefinition.getFormAttributes());
+		formDefinition.setType(formDefinitionService.getOwnerType(RptReportDto.class));
+		formDefinition.setCode(getName());
+		//
+		return formDefinitionService.updateDefinition(formDefinition);
 	}
 	
 	/**

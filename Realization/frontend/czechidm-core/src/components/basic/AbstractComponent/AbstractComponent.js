@@ -10,10 +10,6 @@ const PROPERTY_SHOW_LOADING = 'showLoading';
  */
 export default class AbstractComponent extends React.Component {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   /**
    * Returs true, if given component supports given property (by propTypes)
    *

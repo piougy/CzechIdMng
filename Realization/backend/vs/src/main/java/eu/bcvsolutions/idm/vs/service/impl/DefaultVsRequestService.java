@@ -27,13 +27,18 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -96,6 +101,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	private final ConfigurationService configurationService;
 	@Autowired
 	private VsSystemService vsSystemService;
+	@Autowired
+	private IdmRoleRequestService roleRequestService;
 
 	@Autowired
 	public DefaultVsRequestService(VsRequestRepository repository, EntityEventManager entityEventManager,
@@ -145,6 +152,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		LOG.info(MessageFormat.format("Virtual system request [{0}] was realized. Output UID attribute: [{1}]", request,
 				uidAttribute));
+		// Refresh role-request state
+		refreshRoleRequestState(request);
+		
 		return request;
 	}
 
@@ -168,6 +178,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		LOG.info(MessageFormat.format("Virtual system request [{0}] for UID [{1}] was canceled.", request,
 				request.getUid()));
+		// Refresh role-request state
+		refreshRoleRequestState(request);
+		
 		return request;
 	}
 
@@ -517,6 +530,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 					builder.equal(root.get(VsRequest_.state), VsRequestState.REJECTED), //
 					builder.equal(root.get(VsRequest_.state), VsRequestState.DUPLICATED)));
 		}
+		
+		// Role-request
+		if (filter.getRoleRequestId() != null) {
+			predicates.add(builder.equal(root.get(VsRequest_.roleRequestId), filter.getRoleRequestId()));
+		}
 
 		return predicates;
 	}
@@ -524,6 +542,23 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(VirtualSystemGroupPermission.VSREQUEST, getEntityClass());
+	}
+	
+	/**
+	 * Optimize - system can be pre-loaded in DTO.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@Override
+	public SysSystemDto getSystem(VsRequestDto request) {
+		SysSystemDto system = DtoUtils.getEmbedded(request, VsRequest_.system.getName(), (SysSystemDto) null);
+		if (system == null) {
+			// just for sure, self constructed operation can be given
+			system = systemService.get(request.getSystem());
+		}
+		//
+		return system;
 	}
 
 	/**
@@ -669,6 +704,38 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 					.orElse(null);
 		}
 		return previousRequest;
+	}
+	
+	/**
+	 * Refresh state of role request
+	 * 
+	 * @param request
+	 */
+	private void refreshRoleRequestState(VsRequestDto request) {
+		UUID requestId = request.getRoleRequestId();
+		if (requestId != null) {
+			IdmRoleRequestDto mockRequest = new IdmRoleRequestDto();
+			mockRequest.setId(requestId);
+			mockRequest.setState(RoleRequestState.EXECUTED);
+			IdmRoleRequestDto returnedReqeust = roleRequestService.refreshSystemState(mockRequest);
+			
+			OperationResultDto systemState = returnedReqeust.getSystemState(); 
+			if (systemState == null) {
+				// State on system of request was not changed (may be not all provisioning operations are
+				// resolved)
+			} else {
+				// We have final state on systems
+				IdmRoleRequestDto requestDto = roleRequestService.get(requestId);
+				if (requestDto != null) {
+					requestDto.setSystemState(systemState);
+					roleRequestService.save(requestDto);
+				} else {
+					LOG.info(MessageFormat.format(
+							"Refresh role-request system state: Role-request with ID [{0}] was not found (maybe was deleted).",
+							requestId));
+				}
+			}
+		}
 	}
 
 }

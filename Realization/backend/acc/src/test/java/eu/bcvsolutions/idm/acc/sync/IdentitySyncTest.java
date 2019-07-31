@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
+import org.activiti.engine.ProcessEngine;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.After;
@@ -174,6 +175,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private SynchronizationService synchronizationService;
 	@Autowired
 	private IdentityConfiguration identityConfiguration;
+	@Autowired
+	private ProcessEngine processEngine;
 
 	@After
 	public void logout() {
@@ -267,6 +270,130 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(accountFilter, null).getContent();
 		Assert.assertEquals(1, identityAccounts.size());
 		Assert.assertEquals(assignedRole.getId(), identityAccounts.get(0).getIdentityRole());
+		
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+	
+	@Test
+	public void testDefaultRoleToAllContractsWithDefaultContract() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		IdmRoleDto defaultRole = helper.createRole();
+		//
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		// Set default role to sync configuration
+		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
+		config.setCreateDefaultContract(true);
+		config.setAssignDefaultRoleToAll(true);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		//
+		// create default mapping for provisioning
+		helper.createMapping(system);
+		helper.createRoleSystem(defaultRole, system);
+
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+
+		helper.startSynchronization(config);
+
+		// Have to be in the success state, because default role will be assigned to the default contract.
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1, OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		IdmIdentityDto identity = identities.get(0);
+		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identities.get(0).getId());
+		Assert.assertEquals(1, roles.size());
+		IdmIdentityRoleDto assignedRole = roles.get(0);
+		Assert.assertEquals(defaultRole.getId(), assignedRole.getRole());
+		
+		// check only one identity account is created
+		AccIdentityAccountFilter accountFilter = new AccIdentityAccountFilter();
+		accountFilter.setIdentityId(identity.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(accountFilter, null).getContent();
+		Assert.assertEquals(1, identityAccounts.size());
+		Assert.assertEquals(assignedRole.getId(), identityAccounts.get(0).getIdentityRole());
+		
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+	
+	@Test
+	public void testDefaultRoleToAllContracts() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		IdmRoleDto defaultRole = helper.createRole();
+		//
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		// Set default role to sync configuration
+		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
+		config.setCreateDefaultContract(false);
+		config.setAssignDefaultRoleToAll(true);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		//
+		// create default mapping for provisioning
+		helper.createMapping(system);
+		helper.createRoleSystem(defaultRole, system);
+
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+		
+		IdmIdentityDto identityDto = helper.createIdentity(IDENTITY_ONE);
+		IdmIdentityContractDto validContract = helper.getPrimeContract(identityDto);
+		IdmIdentityContractDto validFutureContract = helper.createIdentityContact(identityDto, null, LocalDate.now().plusDays(10), null);
+		helper.createIdentityContact(identityDto, null, null, LocalDate.now().minusDays(1));
+		
+		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identityDto.getId());
+		Assert.assertEquals(3, contracts.size());
+
+		helper.startSynchronization(config);
+
+		// Have to be in the success state, because default role will be assigned to the valid contracts.
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK, 1, OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		IdmIdentityDto identity = identities.get(0);
+		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identities.get(0).getId());
+		Assert.assertEquals(2, roles.size());
+		
+		long identityRolesWithDefaultRole = roles.stream()
+			.filter(role -> role.getRole().equals(defaultRole.getId()))
+			.count();
+		Assert.assertEquals(2, identityRolesWithDefaultRole);
+		
+		// Valid contract must have default role
+		long identityRolesWithValidContract = roles.stream()
+			.filter(role -> role.getIdentityContract().equals(validContract.getId()))
+			.count();
+		Assert.assertEquals(1, identityRolesWithValidContract);
+		
+		// Future contract must have default role
+		long identityRolesWithFutureContract = roles.stream()
+			.filter(role -> role.getIdentityContract().equals(validFutureContract.getId()))
+			.count();
+		Assert.assertEquals(1, identityRolesWithFutureContract);
+		
+		// Check on only one identity-account was created
+		AccIdentityAccountFilter accountFilter = new AccIdentityAccountFilter();
+		accountFilter.setIdentityId(identity.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(accountFilter, null).getContent();
+		Assert.assertEquals(1, identityAccounts.size());
 		
 		// Delete log
 		syncLogService.delete(log);
@@ -952,6 +1079,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		identityFilter.setUsername(IDENTITY_ONE);
 		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
 		Assert.assertEquals(0, identities.size());
+		
+		long countOfHistoricProcesses = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -969,6 +1102,15 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, emailValues.size());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+		
+		long countOfHistoricProcessesAfter = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
+
+		// We deleting a historic processes created during sync -> count must be same!
+		Assert.assertEquals(countOfHistoricProcesses, countOfHistoricProcessesAfter);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -993,6 +1135,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
 		Assert.assertEquals(0, identities.size());
 		getHelper().createIdentity(IDENTITY_ONE);
+		
+		long countOfHistoricProcesses = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -1010,6 +1158,15 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, emailValues.size());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+		
+		long countOfHistoricProcessesAfter = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
+
+		// We deleting a historic processes created during sync -> count must be same!
+		Assert.assertEquals(countOfHistoricProcesses, countOfHistoricProcessesAfter);
 
 		// Delete log
 		syncLogService.delete(log);
@@ -1037,6 +1194,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		config.setMissingEntityActionWfKey(wfExampleKey);
 		config.setUnlinkedActionWfKey(wfExampleKey);
 		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		long countOfHistoricProcesses = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -1054,6 +1217,15 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, emailValues.size());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, emailValues.get(0).getValue());
 		Assert.assertEquals(IDENTITY_ONE_EMAIL, identity.getEmail());
+		
+		long countOfHistoricProcessesAfter = processEngine.getHistoryService() //
+				.createHistoricProcessInstanceQuery() //
+				.processDefinitionKey(wfExampleKey) //
+				.finished() //
+				.count(); //
+
+		// We deleting a historic processes created during sync -> count must be same!
+		Assert.assertEquals(countOfHistoricProcesses, countOfHistoricProcessesAfter);
 
 		// Delete log
 		syncLogService.delete(log);

@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,10 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent;
+import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -106,12 +111,19 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 			removedIdentityAccounts.stream().distinct().forEach(identityAccountId -> {
 				AccIdentityAccountDto identityAccountDto = identityAccountService.get(identityAccountId);
 				if (identityAccountDto != null) {
-					identityAccountService.delete(identityAccountDto);
+					IdentityAccountEvent eventIdentityAccount = new IdentityAccountEvent(IdentityAccountEventType.DELETE, identityAccountDto,
+							ImmutableMap.of(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY, Boolean.TRUE,
+									AccIdentityAccountService.FORCE_DELETE_OF_IDENTITY_ACCOUNT_KEY, Boolean.FALSE,
+									IdmRoleRequestService.ROLE_REQUEST_ID_KEY, request.getId())); 
+					identityAccountService.publish(eventIdentityAccount);
 					accountsForProvisioning.add(identityAccountDto.getAccount());
 				}
 			});
 		}
-
+		
+		// Init context in identity DTO and set ID of role-request to it.
+		initContext(identity, request);
+		
 		// Provisioning for modified account
 		accountsForProvisioning.forEach(accountId -> {
 			AccAccountDto account = accountService.get(accountId);
@@ -123,6 +135,20 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 		});
 		
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	/**
+	 * Init context in identity DTO and set ID of role-request to it.
+	 * @param identity
+	 * @param request
+	 */
+	private void initContext(IdmIdentityDto identity, IdmRoleRequestDto request) {
+		Map<String, Object> context = identity.getContext();
+		if (context == null) {
+			context = new HashMap<String, Object>();
+		}
+		context.put(IdmRoleRequestService.ROLE_REQUEST_ID_KEY, request.getId());
+		identity.setContext(context);
 	}
 
 

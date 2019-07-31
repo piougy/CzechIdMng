@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -46,7 +46,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service("accIdentityAccountService")
 public class DefaultAccIdentityAccountService extends
-		AbstractReadWriteDtoService<AccIdentityAccountDto, AccIdentityAccount, AccIdentityAccountFilter> implements AccIdentityAccountService {
+	AbstractEventableDtoService<AccIdentityAccountDto, AccIdentityAccount, AccIdentityAccountFilter> implements AccIdentityAccountService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAccIdentityAccountService.class);
 	
@@ -56,7 +56,7 @@ public class DefaultAccIdentityAccountService extends
 	public DefaultAccIdentityAccountService(
 			AccIdentityAccountRepository identityAccountRepository,
 			EntityEventManager entityEventManager) {
-		super(identityAccountRepository);
+		super(identityAccountRepository, entityEventManager);
 		//
 		Assert.notNull(entityEventManager);
 		Assert.notNull(identityAccountRepository);
@@ -114,6 +114,7 @@ public class DefaultAccIdentityAccountService extends
 	protected List<Predicate> toPredicates(Root<AccIdentityAccount> root, CriteriaQuery<?> query,
 			CriteriaBuilder builder, AccIdentityAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
 		if (filter.getAccountId() != null) {
 			predicates.add(builder.equal(root.get(AccIdentityAccount_.account).get(AccAccount_.id), filter.getAccountId()));
 		}

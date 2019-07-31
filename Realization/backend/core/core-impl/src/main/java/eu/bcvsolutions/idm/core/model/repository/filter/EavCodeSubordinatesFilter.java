@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -38,8 +38,9 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * - by guarantee and tree structure - finds parent tree node by code in eav attribute value
  * 
  * @author Radek Tomiška
- *
+ * @Deprecated @since 9.7.0 use EavCodeContractByManagerFilter
  */
+@Deprecated
 @Component("eavCodeSubordinatesFilter")
 public class EavCodeSubordinatesFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
@@ -50,7 +51,7 @@ public class EavCodeSubordinatesFilter
 	protected static final String DEFAULT_FORM_ATTRIBUTE_CODE = "parentCode";
 	protected static final String DEFAULT_PERSISTENT_TYPE = "stringValue";
 	//
-	@Autowired private GuaranteeSubordinatesFilter guaranteeSubordinatesFilter;
+	@Autowired GuaranteeSubordinatesFilter guaranteeSubordinatesFilter;
 	
 	@Override
 	public String getName() {
@@ -72,7 +73,7 @@ public class EavCodeSubordinatesFilter
 	}
 
 	@Override
-	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
+	public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
 		if (filter.getSubordinatesFor() == null) {
 			return null;
 		}

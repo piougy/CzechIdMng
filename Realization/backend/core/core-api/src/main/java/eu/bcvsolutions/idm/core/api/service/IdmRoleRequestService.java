@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
@@ -22,12 +23,15 @@ import eu.bcvsolutions.idm.core.security.api.service.ExceptionProcessable;
 /**
  * Service for role request
  * 
- * @author svandav
+ * @author Vít Švanda
  * 
  */
 public interface IdmRoleRequestService extends 
-		ReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequestFilter>, AuthorizableService<IdmRoleRequestDto>,
+		EventableDtoService<IdmRoleRequestDto, IdmRoleRequestFilter>,
+		AuthorizableService<IdmRoleRequestDto>,
 		ExceptionProcessable<IdmRoleRequestDto> {
+	
+	String ROLE_REQUEST_ID_KEY = "roleRequestId";
 
 
 	/**
@@ -190,5 +194,24 @@ public interface IdmRoleRequestService extends
 	 */
 	List<IdmConceptRoleRequestDto> markDuplicates(List<IdmConceptRoleRequestDto> concepts,
 			List<IdmIdentityRoleDto> allByIdentity);
+
+	/**
+	 * Method create {@link IdmConceptRoleRequestDto}
+	 * 
+	 * @param roleRequest
+	 * @param contract
+	 * @param roleId
+	 * @param operation
+	 * @return
+	 */
+	IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, IdmIdentityContractDto contract, UUID identityRoleId, UUID roleId,
+			ConceptRoleRequestOperation operation);
+
+	/**
+	 * Refresh state on a systems. If is state changed, then will be returned in the request
+	 * 
+	 * @param request
+	 */
+	IdmRoleRequestDto refreshSystemState(IdmRoleRequestDto request);
 
 }

@@ -1,6 +1,7 @@
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import { LocalizationTester } from '../../src/utils/TestHelper';
+
 chai.use(dirtyChai);
 
 /**

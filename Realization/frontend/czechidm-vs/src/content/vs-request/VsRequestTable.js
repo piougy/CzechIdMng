@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import uuid from 'uuid';
+import { Link } from 'react-router';
 //
 import { Basic, Advanced, Utils, Domain, Managers} from 'czechidm-core';
 import { VsRequestManager} from '../../redux';
@@ -260,6 +261,25 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="created" width="30%" sort face="datetime" rendered={_.includes(columns, 'created')}/>
           <Advanced.Column property="creator" width="15%" sort face="text" rendered={_.includes(columns, 'creator')}/>
           <Advanced.Column
+            property="roleRequestId"
+            header={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.label') }
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                if (!entity || !entity.roleRequestId) {
+                  return null;
+                }
+                return (
+                  <Link
+                    to={ `/role-requests/${encodeURIComponent(entity.roleRequestId)}/detail` }
+                    title={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.help') }>
+                      <Basic.Icon value="fa:key" style={{marginLeft: '25px'}}/>
+                  </Link>
+                );
+              }
+            }
+            rendered={ _.includes(columns, 'roleRequestId') } />
+          <Advanced.Column
             property=""
             header=""
             rendered={_.includes(columns, 'operations')}
@@ -296,7 +316,7 @@ VsRequestTable.propTypes = {
 };
 
 VsRequestTable.defaultProps = {
-  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created', 'creator', 'operations'],
+  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created', 'creator', 'operations', 'roleRequestId'],
   filterOpened: false,
   forceSearchParameters: new Domain.SearchParameters(),
   showAddButton: true,

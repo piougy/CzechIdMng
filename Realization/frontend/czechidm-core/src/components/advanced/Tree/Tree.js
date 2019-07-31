@@ -339,7 +339,7 @@ class Tree extends Basic.AbstractContextComponent {
   }
 
   _loadNodes(nodeId = null, props = null, filter = null) {
-    const _props = props ? props : this.props;
+    const _props = props || this.props;
     const { roots, forceSearchParameters } = _props;
     if (!_props.rendered) {
       // component is not rendered ... loading is not needed
@@ -370,8 +370,9 @@ class Tree extends Basic.AbstractContextComponent {
       searchParameters = searchParameters.setFilter('text', filter);
     }
     //
+    const { ui } = this.state;
     this.setState({
-      ui: this.state.ui.set(nodeId, {
+      ui: ui.set(nodeId, {
         ...uiState,
         searchParameters,
         showLoading: true

@@ -18,19 +18,15 @@ const identityManager = new IdentityManager();
  */
 class IdentityRoleDashboard extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   render() {
     const { identity, entityId, permissions } = this.props;
     //
-    if (!entityId || !SecurityManager.hasAuthority('IDENTITYROLE_READ') ) {
+    if (!entityId || !SecurityManager.hasAuthority('IDENTITYROLE_READ')) {
       return null;
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.ContentHeader
           icon="component:identity-role"
           text={ this.i18n('content.identity.roles.directRoles.header') }
@@ -44,22 +40,24 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
                   { this.i18n('component.advanced.IdentityInfo.link.detail.label') }
                 </Link>
               ]
-              :
-              null
-            }/>
+            :
+            null
+          } />
         <Basic.Panel>
           <IdentityRoleTableComponent
             uiKey={ `dashboard-${ entityId }` }
-            forceSearchParameters={ new Domain.SearchParameters()
-              .setFilter('identityId', entityId)
-              .setFilter('directRole', true)
-              .setFilter('addEavMetadata', true) }
+            forceSearchParameters={
+              new Domain.SearchParameters()
+                .setFilter('identityId', entityId)
+                .setFilter('directRole', true)
+                .setFilter('addEavMetadata', true)
+            }
             showAddButton={ false }
             params={{ ...this.props.params, entityId }}
             columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole', 'contractPosition']) }
             _permissions={ permissions }/>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -54,6 +54,8 @@ import CodeListValue from './CodeListValue/CodeListValue';
 import AbstractIcon from './Icon/AbstractIcon';
 import Icons from './Icon/Icons';
 import AbstractIdentityDashboardButton from './Button/AbstractIdentityDashboardButton';
+import RoleRequestInfo from './RoleRequestInfo/RoleRequestInfo';
+import PasswordInfo from './PasswordInfo/PasswordInfo';
 
 const Components = {
   Table,
@@ -113,7 +115,9 @@ const Components = {
   CodeListValue,
   AbstractIcon,
   Icons,
-  AbstractIdentityDashboardButton
+  AbstractIdentityDashboardButton,
+  RoleRequestInfo,
+  PasswordInfo
 };
 
 Components.version = '9.4.0';

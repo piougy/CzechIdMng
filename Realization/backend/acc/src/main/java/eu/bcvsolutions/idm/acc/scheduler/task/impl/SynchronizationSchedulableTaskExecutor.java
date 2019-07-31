@@ -7,15 +7,19 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.eav.domain.AccFaceType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
@@ -25,14 +29,14 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author svandav
  *
  */
-@Service
+@Component(SynchronizationSchedulableTaskExecutor.TASK_NAME)
 @Description("Synchronization scheduling - publishes start event only")
 public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
-	@Autowired
-	private SynchronizationService synchronizationService;
-	@Autowired
-	private SysSyncConfigService service;
+	public static final String TASK_NAME = "acc-synchronization-long-running-task";
+	//
+	@Autowired private SynchronizationService synchronizationService;
+	@Autowired private SysSyncConfigService service;
 	//
 	private UUID synchronizationId;
 
@@ -43,13 +47,17 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	public SynchronizationSchedulableTaskExecutor(UUID synchronizationId) {
 		this.synchronizationId = synchronizationId;
 	}
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 
 	@Override
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		//
-		synchronizationId = getParameterConverter().toUuid(properties,
-				SynchronizationService.PARAMETER_SYNCHRONIZATION_ID);
+		synchronizationId = getParameterConverter().toUuid(properties, SynchronizationService.PARAMETER_SYNCHRONIZATION_ID);
 		//
 		// validation only
 	    getConfig();
@@ -104,6 +112,18 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 		props.put(SynchronizationService.PARAMETER_SYNCHRONIZATION_ID, synchronizationId);
 		//
 		return props;
+	}
+	
+	@Override
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		IdmFormAttributeDto synchronizationAttribute = new IdmFormAttributeDto(
+				SynchronizationService.PARAMETER_SYNCHRONIZATION_ID,
+				SynchronizationService.PARAMETER_SYNCHRONIZATION_ID, 
+				PersistentType.UUID,
+				AccFaceType.SYNCHRONIZATION_CONFIG_SELECT);
+		synchronizationAttribute.setRequired(true);
+		//
+		return Lists.newArrayList(synchronizationAttribute);
 	}
 
 }

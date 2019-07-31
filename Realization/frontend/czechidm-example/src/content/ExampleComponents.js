@@ -62,12 +62,11 @@ export default class ExampleComponents extends Basic.AbstractContent {
   onChange(selectedNodes) {
     const { disableSelect, multiSelect } = this.state.setting;
     //
-    if (disableSelect) {
-      return false;
+    if (!disableSelect) {
+      this.setState({
+        selectedNodes: multiSelect ? selectedNodes : [ selectedNodes ]
+      });
     }
-    this.setState({
-      selectedNodes: multiSelect ? selectedNodes : [ selectedNodes ]
-    });
   }
 
   onSettingSubmit(event) {

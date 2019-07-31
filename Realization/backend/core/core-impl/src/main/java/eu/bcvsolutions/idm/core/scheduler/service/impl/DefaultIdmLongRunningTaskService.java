@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @Transactional(propagation = Propagation.REQUIRES_NEW) is needed. 
  * LRT has to be persist and read separately from outer transaction => we want to see LRT progress all time. And result with exception.
  * 
- * 
  * @author Radek Tomiška
  *
  */
@@ -66,21 +65,27 @@ public class DefaultIdmLongRunningTaskService
 	}
 
 	@Override
-	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity, IdmLongRunningTaskDto dto) {
-		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity, dto);
-		return setFailedAndSuccessItems(longRunningTaskDto);
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.SCHEDULER, getEntityClass());
 	}
 	
 	@Override
-	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity) {
-		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity);
-		//
-		return setFailedAndSuccessItems(longRunningTaskDto);
+	public boolean supportsToDtoWithFilter() {
+		return true;
 	}
-
+	
 	@Override
-	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.SCHEDULER, getEntityClass());
+	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity, IdmLongRunningTaskDto dto, IdmLongRunningTaskFilter filter) {
+		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity, dto, filter);
+		//
+		if (filter == null) {
+			return longRunningTaskDto;
+		}
+		//
+		if (filter.isIncludeItemCounts()) {
+			longRunningTaskDto = setFailedAndSuccessItems(longRunningTaskDto);
+		}
+		return longRunningTaskDto;
 	}
 	
 	@Override
@@ -89,35 +94,45 @@ public class DefaultIdmLongRunningTaskService
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// quick - "fulltext"
-		if (StringUtils.isNotEmpty(filter.getText())) {
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
 			predicates.add(builder.or(
-					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskType)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskDescription)), "%" + filter.getText().toLowerCase() + "%")					
+					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskType)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskDescription)), "%" + text + "%")					
 					));
 		}
-		if (StringUtils.isNotEmpty(filter.getInstanceId())) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.instanceId), filter.getInstanceId()));
+		String instanceId = filter.getInstanceId();
+		if (StringUtils.isNotEmpty(instanceId)) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.instanceId), instanceId));
 		}
-		if (StringUtils.isNotEmpty(filter.getTaskType())) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.taskType), filter.getTaskType()));
+		String taskType = filter.getTaskType();
+		if (StringUtils.isNotEmpty(taskType)) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.taskType), taskType));
 		}
-		if (filter.getFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmLongRunningTask_.created), filter.getFrom()));
+		DateTime from = filter.getFrom();
+		if (from != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmLongRunningTask_.created), from));
 		}
-		if (filter.getTill() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(IdmLongRunningTask_.created), filter.getTill().plusDays(1)));
+		DateTime till = filter.getTill();
+		if (till != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmLongRunningTask_.created), till.plusDays(1)));
 		}
-		if (filter.getOperationState() != null) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.result).get(OperationResult_.state), filter.getOperationState()));
+		OperationState operationState = filter.getOperationState();
+		if (operationState != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.result).get(OperationResult_.state), operationState));
 		}
-		if (filter.getRunning() != null) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.running), filter.getRunning()));
+		Boolean running = filter.getRunning();
+		if (running != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.running), running));
 		}
-		if (filter.getStateful() != null) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.stateful), filter.getStateful()));
+		Boolean stateful = filter.getStateful();
+		if (stateful != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.stateful), stateful));
 		}
-		if (filter.getCreatorId() != null) {
-			predicates.add(builder.equal(root.get(IdmLongRunningTask_.creatorId), filter.getCreatorId()));
+		UUID creatorId = filter.getCreatorId();
+		if (creatorId != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.creatorId), creatorId));
 		}
 		//
 		return predicates;
@@ -162,6 +177,7 @@ public class DefaultIdmLongRunningTaskService
 		task.setInstanceId(instanceId);
 		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 		task.setScheduledTask(scheduledTask.getId());
+		//
 		return this.save(task);
 	}
 	
@@ -192,13 +208,16 @@ public class DefaultIdmLongRunningTaskService
 		//
 		filter.setOperationState(OperationState.EXECUTED);
 		longRunningTaskDto.setSuccessItemCount(itemService.findIds(filter, null).getTotalElements());
+		// TODO: multi state filter
+		filter.setOperationState(OperationState.CREATED);
+		longRunningTaskDto.setSuccessItemCount(longRunningTaskDto.getSuccessItemCount() + itemService.findIds(filter, null).getTotalElements());
 		//
 		filter.setOperationState(OperationState.EXCEPTION);
 		longRunningTaskDto.setFailedItemCount(itemService.findIds(filter, null).getTotalElements());
 		//
 		// warning items is all another items except executed and exception (eq. not_executed, ...)
 		totalElements = totalElements - (longRunningTaskDto.getFailedItemCount() + longRunningTaskDto.getSuccessItemCount());
-		longRunningTaskDto.setWarningItemCount(totalElements);
+		longRunningTaskDto.setWarningItemCount(totalElements > 0 ? totalElements : 0); // total can be decremented, when LRT runs
 		return longRunningTaskDto;
 	}
 }

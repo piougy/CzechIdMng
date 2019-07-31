@@ -69,6 +69,10 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                         if (Utils.Ui.isEmpty(entity.taskProperties[propertyName])) {
                           return null;
                         }
+                        if (propertyName === 'core:transactionContext') {
+                          // FIXME: transaction context info
+                          return null;
+                        }
                         return (
                           <div>{ propertyName }: { Utils.Ui.toStringValue(entity.taskProperties[propertyName]) }</div>
                         );

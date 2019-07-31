@@ -66,10 +66,6 @@ const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
  */
 export default class ValidationMessage extends Basic.AbstractFormComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     const { error, validationDefinition } = this.props;
     this._prepareValidationMessage(error, validationDefinition);

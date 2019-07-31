@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import { Basic, Advanced } from 'czechidm-core';
@@ -39,7 +40,7 @@ class ExampleProductRoute extends Basic.AbstractContent {
 }
 
 ExampleProductRoute.propTypes = {
-  entity: PropTypes.object,
+  entity: PropTypes.instanceOf(PropTypes.object),
   showLoading: PropTypes.bool
 };
 ExampleProductRoute.defaultProps = {

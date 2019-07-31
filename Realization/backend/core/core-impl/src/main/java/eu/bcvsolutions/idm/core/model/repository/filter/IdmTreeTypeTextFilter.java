@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -37,7 +37,7 @@ public class IdmTreeTypeTextFilter extends AbstractFilterBuilder<IdmTreeType, Id
 	}
 	
 	@Override
-	public Predicate getPredicate(Root<IdmTreeType> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmTreeTypeFilter filter) {
+	public Predicate getPredicate(Root<IdmTreeType> root, AbstractQuery<?> query, CriteriaBuilder builder, IdmTreeTypeFilter filter) {
 		if (StringUtils.isEmpty(filter.getText())) {
 			return null;
 		}	

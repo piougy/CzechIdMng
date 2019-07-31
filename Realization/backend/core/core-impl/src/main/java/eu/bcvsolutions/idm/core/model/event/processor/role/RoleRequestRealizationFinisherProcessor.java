@@ -48,7 +48,9 @@ public class RoleRequestRealizationFinisherProcessor extends CoreEventProcessor<
 		RoleRequestState state = requestDto.getState();
 		if(RoleRequestState.APPROVED  == state || RoleRequestState.IN_PROGRESS  == state) {
 			requestDto.setState(RoleRequestState.EXECUTED);
-			event.setContent(service.save(requestDto));
+			
+			IdmRoleRequestDto returnedReqeust = service.refreshSystemState(requestDto);;
+			event.setContent(service.save(returnedReqeust));
 		}
 		
 		return new DefaultEventResult<>(event, this);

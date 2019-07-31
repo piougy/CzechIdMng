@@ -19,7 +19,7 @@
         "label": "Type"
       },
       "executeImmediately": {
-        "label": "Without confirmation"
+        "label": "Immediately"
       },
       "implementers": {
         "label": "Implementers"
@@ -234,6 +234,14 @@
     "VS_SYSTEM_DELETE_FAILED_HAS_REQUEST": {
       "title": "Virtual system cannot be deleted!",
       "message": "Virtual system [{{system}}] cannot be deleted, because it has some unresolved requests!"
+    },
+    "ROLE_REQUEST_VS_REQUEST_REJECTED": {
+      "title": "Request on the virtual system was rejected!",
+      "message": "Request on the virtual system [{{system}}] was rejected!"
+    },
+    "ROLE_REQUEST_VS_REQUEST_IN_PROGRESS": {
+      "title": "Some requests on a virtual systems are not resloved!",
+      "message": "Some requests on this vritual systems [{{systems}}] are not resloved!"
     }
   }
 }

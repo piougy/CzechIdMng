@@ -40,11 +40,22 @@ public class NotificationConfigurationDto extends AbstractDto implements Disable
 			String notificationType,
 			String description, 
 			UUID template) {
+		this(topic, level, notificationType, description, template, false);
+	}
+	
+	public NotificationConfigurationDto(
+			String topic, 
+			NotificationLevel level, 
+			String notificationType,
+			String description, 
+			UUID template,
+			boolean disabled) {
 		this.topic = topic;
 		this.level = level;
 		this.notificationType = notificationType;
 		this.description = description;
 		this.template = template;
+		this.disabled = disabled;
 	}
 
 	public NotificationConfigurationDto(NotificationConfigurationDto other) {
@@ -52,6 +63,7 @@ public class NotificationConfigurationDto extends AbstractDto implements Disable
 		level = other.getLevel();
 		notificationType = other.getNotificationType();
 		description = other.getDescription();
+		disabled = other.isDisabled(); 
 	}
 
 	public String getTopic() {

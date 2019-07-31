@@ -21,10 +21,13 @@ export default class RoleTreeNodeService extends AbstractService {
   }
 
   getNiceLabel(entity) {
-    if (!entity || !entity._embedded) {
+    if (!entity) {
       return '';
     }
-    return `${this.roleService.getNiceLabel(entity._embedded.role)} - ${this.treeNodeService.getNiceLabel(entity._embedded.treeNode)}`;
+    if (!entity._embedded) {
+      return entity.name;
+    }
+    return `${this.roleService.getNiceLabel(entity._embedded.role)}, ${this.treeNodeService.getNiceLabel(entity._embedded.treeNode)} - ${ entity.name }`;
   }
 
   supportsPatch() {

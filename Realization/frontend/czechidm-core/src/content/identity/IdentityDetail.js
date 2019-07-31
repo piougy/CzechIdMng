@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Joi from 'joi';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
@@ -184,14 +185,17 @@ class IdentityDetail extends Basic.AbstractContent {
         <Helmet title={ identity && identity.id === userContext.id ? this.i18n('title') : this.i18n('content.identity.profile.userDetail') } />
         <form onSubmit={this.onSave.bind(this)}>
           <Basic.Panel className="no-border last">
-            <Basic.PanelHeader text={this.i18n('header')}/>
+            <Basic.PanelHeader text={ this.i18n('header') }/>
             <Basic.Alert
               ref="blockLoginDate"
               level="warning"
-              rendered={blockLoginDate !== null}
-              text={this.i18n('blockLoginDate', {date: blockLoginDate})} />
+              rendered={ blockLoginDate !== null }
+              text={this.i18n('blockLoginDate', { date: blockLoginDate })} />
 
-            <Basic.AbstractForm ref="form" readOnly={ !identityManager.canSave(identity, _permissions) || readOnly } showLoading={ showLoadingIdentityTrimmed || showLoading }>
+            <Basic.AbstractForm
+              ref="form"
+              readOnly={ !identityManager.canSave(identity, _permissions) || readOnly }
+              showLoading={ showLoadingIdentityTrimmed || showLoading }>
               <div className="image-field-container">
                 <div className="image-col">
                   <div className="image-wrapper">

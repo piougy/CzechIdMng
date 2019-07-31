@@ -16,7 +16,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -34,7 +33,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  *
  * @author Kolychev Artem
  */
-@Rollback
 public class IdmRoleRequestFilterRestTest extends AbstractReadWriteDtoControllerRestTest<IdmRoleRequestDto> {
 
 	private static final String URL_PARAM_SIZE = "size";
@@ -116,19 +114,6 @@ public class IdmRoleRequestFilterRestTest extends AbstractReadWriteDtoController
 	}
 
 	@Test
-	public void filterWithoutParams() throws Exception {
-
-		List<IdmRoleRequestDto> idmRolesRequestDto = new ArrayList<>();
-		idmRolesRequestDto.add(this.prepareDto());
-		idmRolesRequestDto.add(this.prepareDto());
-		roleRequestService.saveAll(idmRolesRequestDto);
-
-		List<IdmRoleRequestDto> results = sendReqest(this.getBaseUrlBuilder());
-
-		Assert.assertEquals(results.size(), idmRolesRequestDto.size());
-	}
-
-	@Test
 	public void filterNullResult() throws Exception {
 
 		URIBuilder baseUrlBuilder = this.getBaseUrlBuilder();
@@ -136,30 +121,32 @@ public class IdmRoleRequestFilterRestTest extends AbstractReadWriteDtoController
 
 		List<IdmRoleRequestDto> idmRolesRequestDto = new ArrayList<>();
 		roleRequestService.saveAll(idmRolesRequestDto);
-		List<IdmRoleRequestDto> results = sendReqest(this.getBaseUrlBuilder());
+		List<IdmRoleRequestDto> results = sendReqest(baseUrlBuilder);
 		Assert.assertTrue(results.isEmpty());
 	}
 
 	@Test
 	public void filterOneState() throws Exception {
 
-		List<IdmRoleRequestDto> idmRolesRequestDto = new ArrayList<>();
+		List<IdmRoleRequestDto> roleRequestDtos = new ArrayList<>();
 		URIBuilder baseUrlBuilder = this.getBaseUrlBuilder();
 
-		idmRolesRequestDto.add(this.prepareDto());
-		idmRolesRequestDto.get(0).setState(RoleRequestState.EXECUTED);
-		baseUrlBuilder.addParameter(URL_PARAM_STATES, idmRolesRequestDto.get(0).getState().name());
-		baseUrlBuilder.addParameter(URL_PARAM_APPLICANTS, idmRolesRequestDto.get(0).getApplicant().toString());
+		IdmRoleRequestDto requestDto = this.prepareDto();
+		roleRequestDtos.add(requestDto);
+		requestDto.setState(RoleRequestState.EXECUTED);
+		baseUrlBuilder.addParameter(URL_PARAM_STATES, requestDto.getState().name());
+		baseUrlBuilder.addParameter(URL_PARAM_APPLICANTS, requestDto.getApplicant().toString());
 
-		idmRolesRequestDto.add(this.prepareDto());
-		idmRolesRequestDto.get(1).setState(RoleRequestState.CANCELED);
-		baseUrlBuilder.addParameter(URL_PARAM_APPLICANTS, idmRolesRequestDto.get(1).getApplicant().toString());
+		IdmRoleRequestDto requestDtoTwo = this.prepareDto();
+		roleRequestDtos.add(requestDtoTwo);
+		requestDtoTwo.setState(RoleRequestState.CANCELED);
+		baseUrlBuilder.addParameter(URL_PARAM_APPLICANTS, requestDtoTwo.getApplicant().toString());
 
-		roleRequestService.saveAll(idmRolesRequestDto);
+		roleRequestService.saveAll(roleRequestDtos);
 
 		List<IdmRoleRequestDto> results = sendReqest(baseUrlBuilder);
 		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(idmRolesRequestDto.get(0).getId(), results.get(0).getId());
+		Assert.assertEquals(requestDto.getId(), results.get(0).getId());
 	}
 
 	@Test

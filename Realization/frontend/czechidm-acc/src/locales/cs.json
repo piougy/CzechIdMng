@@ -932,7 +932,10 @@
       "linkedAction": "Vazba existuje",
       "unlinkedAction": "Vazba neexistuje",
       "missingEntityAction": "Entita neexistuje",
-      "missingAccountAction": "Účet neexistuje"
+      "missingAccountAction": "Účet neexistuje",
+      "button": {
+        "lastSyncLog": "Přejít na poslední log synchronizace."
+      }
     },
     "SynchronizationLog": {
       "running": "Spuštěna",

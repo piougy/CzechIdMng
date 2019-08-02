@@ -63,32 +63,34 @@ class SystemSyncItemLogDetail extends Advanced.AbstractTableContent {
         <Basic.ContentHeader>
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
-          <Basic.Panel className="no-border">
-            <Basic.AbstractForm readOnly ref="form" data={syncItemLog} showLoading={_showLoading}>
-              <Basic.TextField
-                ref="displayName"
-                label={this.i18n('acc:entity.SyncItemLog.displayName')}/>
-              <Basic.TextField
-                ref="type"
-                label={this.i18n('acc:entity.SyncItemLog.type')}/>
-              <Basic.TextField
-                ref="identification"
-                label={this.i18n('acc:entity.SyncItemLog.identification')}/>
-              <Basic.ScriptArea
-                ref="log"
-                mode="sqlserver"
-                height="35em"
-                label={this.i18n('acc:entity.SyncItemLog.log')}/>
-            </Basic.AbstractForm>
-            <Basic.PanelFooter>
-              <Basic.Button type="button" level="link"
-                onClick={this.context.router.goBack}
-                showLoading={_showLoading}>
-                {this.i18n('button.back')}
-              </Basic.Button>
-            </Basic.PanelFooter>
-          </Basic.Panel>
-        </div>
+        <Basic.Panel className="no-border">
+          <Basic.AbstractForm readOnly ref="form" data={syncItemLog} showLoading={_showLoading}>
+            <Basic.TextField
+              ref="displayName"
+              label={this.i18n('acc:entity.SyncItemLog.displayName')}/>
+            <Basic.TextField
+              ref="type"
+              label={this.i18n('acc:entity.SyncItemLog.type')}/>
+            <Basic.TextField
+              ref="identification"
+              label={this.i18n('acc:entity.SyncItemLog.identification')}/>
+            <Basic.ScriptArea
+              ref="log"
+              mode="sqlserver"
+              height="35em"
+              label={this.i18n('acc:entity.SyncItemLog.log')}/>
+          </Basic.AbstractForm>
+          <Basic.PanelFooter>
+            <Basic.Button
+              type="button"
+              level="link"
+              onClick={this.context.router.goBack}
+              showLoading={_showLoading}>
+              {this.i18n('button.back')}
+            </Basic.Button>
+          </Basic.PanelFooter>
+        </Basic.Panel>
+      </div>
     );
   }
 }

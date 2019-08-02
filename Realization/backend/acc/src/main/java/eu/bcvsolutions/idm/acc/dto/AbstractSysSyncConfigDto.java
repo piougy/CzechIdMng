@@ -67,6 +67,10 @@ public abstract class AbstractSysSyncConfigDto extends AbstractDto {
 	@JsonProperty(access = Access.READ_ONLY)
 	@ApiModelProperty(notes = "Synchronization is running.")
 	private Boolean running;
+	/**
+	 * Contains last log of this sync. Is filled only if filter.includeLastLog = true.
+	 */
+	private SysSyncLogDto lastSyncLog;
 	
 	public boolean isEnabled() {
 		return enabled;
@@ -238,6 +242,14 @@ public abstract class AbstractSysSyncConfigDto extends AbstractDto {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public SysSyncLogDto getLastSyncLog() {
+		return lastSyncLog;
+	}
+
+	public void setLastSyncLog(SysSyncLogDto lastSyncLog) {
+		this.lastSyncLog = lastSyncLog;
 	}
 
 	/**

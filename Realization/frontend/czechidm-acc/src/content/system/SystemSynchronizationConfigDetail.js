@@ -14,6 +14,8 @@ import IcFilterOperationTypeEnum from '../../domain/IcFilterOperationTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SyncIdentityConfig from '../sync/SyncIdentityConfig';
 import SyncContractConfig from '../sync/SyncContractConfig';
+import SyncStatistic from '../sync/SyncStatistic';
+import SyncResult from '../sync/SyncResult';
 
 const uiKey = 'system-synchronization-config';
 const uiKeyLogs = 'system-synchronization-logs';
@@ -129,7 +131,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const filterData = this.refs.formFilter.getData(false);
     if (this.refs.formSpecific) {
       const specificData = this.refs.formSpecific.getData(false);
-        // Merge specific data to form.
+      // Merge specific data to form.
       _.merge(formEntity, specificData);
     }
     // Merge filter data to form.
@@ -219,7 +221,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         this.setState({
           showLoading: false
         });
-        this.addMessage({ level: 'info', message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.started', { name: json.name }) });
+        this.addMessage({ level: 'info',
+          message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.started',
+            { name: json.name }) });
         this.context.store.dispatch(synchronizationConfigManager.fetchEntity(sync.id));
       }).catch(ex => {
         this.setState({
@@ -233,7 +237,6 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         showLoading: false
       });
     });
-    return;
   }
 
   /**
@@ -274,31 +277,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     if (!data[rowIndex].syncActionLogs) {
       return actions;
     }
-    for (const action of data[rowIndex].syncActionLogs) {
-      let level = 'default';
-      if (action.operationResult === 'SUCCESS') {
-        level = 'success';
-      }
-      if (action.operationResult === 'ERROR') {
-        level = 'danger';
-      }
-      if (action.operationResult === 'WARNING') {
-        level = 'warning';
-      }
-      if (action.operationResult === 'WF') {
-        level = 'warning';
-      }
-      if (action.operationResult === 'IGNORE') {
-        level = 'primary';
-      }
-      actions.push(
-        <div>
-          <Basic.Label style={{marginRight: '5px'}} level={level} text={action.operationCount}/>
-          <label>{this.i18n(`acc:entity.SynchronizationLog.actions.${action.operationResult}.${action.syncAction}`)} </label>
-        </div>
-      );
-    }
-    return actions;
+    const log = data[rowIndex];
+    return (
+      <SyncResult log={log}/>
+    );
   }
 
   _generateStatisticCell(rowIndex, data) {
@@ -306,42 +288,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     if (!data[rowIndex].syncActionLogs) {
       return actions;
     }
-    const started = data[rowIndex].started;
-    const ended = data[rowIndex].ended ? data[rowIndex].ended : moment().utc().valueOf();
-    const timeDiff = moment.utc(moment.duration(moment(ended).diff(moment(started))).asMilliseconds());
-    const timeDiffHumanized = moment.duration(moment(ended).diff(moment(started))).locale(Services.LocalizationService.getCurrentLanguage()).humanize();
-    let allOperationsCount = 0;
-    for (const action of data[rowIndex].syncActionLogs) {
-      allOperationsCount = allOperationsCount + action.operationCount;
-    }
-    const itemsPerSec = Math.round((allOperationsCount / timeDiff * 1000) * 100) / 100;
-    if (data[rowIndex].running || data[rowIndex].ended) {
-      actions.push(
-        <div>
-          <Basic.Label
-            style={{marginRight: '5px'}}
-            level="info"
-            title={timeDiffHumanized}
-            text={timeDiff.format(this.i18n('format.times'))}/>
-          <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.timeDiff`)} </label>
-        </div>
-      );
-    }
-    actions.push(
-      <div>
-        <Basic.Label style={{marginRight: '5px'}} level="info" text={allOperationsCount}/>
-        <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.allOperations`)} </label>
-      </div>
+    const log = data[rowIndex];
+    return (
+      <SyncStatistic log={log}/>
     );
-    if (data[rowIndex].running || data[rowIndex].ended) {
-      actions.push(
-        <div>
-          <Basic.Label style={{marginRight: '5px'}} level="info" text={itemsPerSec}/>
-          <label>{this.i18n(`acc:entity.SynchronizationLog.statistic.itemsPerSec`)} </label>
-        </div>
-      );
-    }
-    return actions;
   }
 
   _onChangeSelectTabs(activeKey) {
@@ -368,7 +318,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     let helpContent = new Domain.HelpContent();
     helpContent = helpContent.setHeader(
       <span>
-        <Basic.Icon value="filter"/> { this.i18n('help.header') }
+        <Basic.Icon value="filter"/>
+        { this.i18n('help.header') }
       </span>
     );
     helpContent = helpContent.setBody(this.i18n('help.body', { escape: false }));
@@ -382,12 +333,14 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const isNew = this._getIsNew();
     const innerShowLoading = isNew ? showLoading : (_showLoading || showLoading);
     const systemId = this.props.params.entityId;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('synchronizationConfigId', _synchronizationConfig ? _synchronizationConfig.id : Domain.SearchParameters.BLANK_UUID);
+    const forceSearchParameters = new Domain.SearchParameters()
+      .setFilter('synchronizationConfigId', _synchronizationConfig ? _synchronizationConfig.id : Domain.SearchParameters.BLANK_UUID);
     const forceSearchMappingAttributes = new Domain.SearchParameters().setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
     const forceSearchSyncActionWfKey = new Domain.SearchParameters().setFilter('category', syncActionWfKey);
     const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
     const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping : null;
-    const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
+    const forceSearchCorrelationAttribute = new Domain.SearchParameters()
+      .setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
     let isSelectedTree = false;
     let specificConfiguration = null;
     const finalEntityType = this._getEntityType(synchronizationConfig, entityType);
@@ -398,11 +351,26 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     }
     if (finalEntityType) {
       if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT)) {
-        specificConfiguration = <SyncContractConfig ref="formSpecific" synchronizationConfig={synchronizationConfig} showLoading={innerShowLoading} isNew={isNew} className="panel-body"/>;
+        specificConfiguration = <SyncContractConfig
+          ref="formSpecific"
+          synchronizationConfig={synchronizationConfig}
+          showLoading={innerShowLoading}
+          isNew={isNew}
+          className="panel-body"/>;
       } else if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.CONTRACT_SLICE)) {
-        specificConfiguration = <SyncContractConfig ref="formSpecific" synchronizationConfig={synchronizationConfig} showLoading={innerShowLoading} isNew={isNew} className="panel-body"/>;
+        specificConfiguration = <SyncContractConfig
+          ref="formSpecific"
+          synchronizationConfig={synchronizationConfig}
+          showLoading={innerShowLoading}
+          isNew={isNew}
+          className="panel-body"/>;
       } else if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
-        specificConfiguration = <SyncIdentityConfig ref="formSpecific" synchronizationConfig={synchronizationConfig} showLoading={innerShowLoading} isNew={isNew} className="panel-body"/>;
+        specificConfiguration = <SyncIdentityConfig
+          ref="formSpecific"
+          synchronizationConfig={synchronizationConfig}
+          showLoading={innerShowLoading}
+          isNew={isNew}
+          className="panel-body"/>;
       }
     }
     return (
@@ -439,11 +407,11 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     hidden={!isSelectedTree}
                     label=" ">
                     <Basic.Alert
-                       key="treeInfo"
-                       level="warning"
-                       icon="exclamation-sign"
-                       className="no-margin"
-                       text={this.i18n('treeInfo')}/>
+                      key="treeInfo"
+                      level="warning"
+                      icon="exclamation-sign"
+                      className="no-margin"
+                      text={this.i18n('treeInfo')}/>
                   </Basic.LabelWrapper>
                   <Basic.TextField
                     ref="name"
@@ -476,10 +444,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     label={this.i18n('acc:entity.SynchronizationConfig.description')}/>
                   <Basic.LabelWrapper label=" ">
                     <Basic.Alert
-                       key="situationActionsAndWfInfo"
-                       icon="exclamation-sign"
-                       className="no-margin"
-                       text={this.i18n('situationActionsAndWf')}/>
+                      key="situationActionsAndWfInfo"
+                      icon="exclamation-sign"
+                      className="no-margin"
+                      text={this.i18n('situationActionsAndWf')}/>
                   </Basic.LabelWrapper>
                   <Basic.ContentHeader text={ this.i18n('acc:entity.SynchronizationConfig.linkedAction') } className="marginable"/>
                   <Basic.EnumSelectBox
@@ -539,7 +507,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     manager={workflowProcessDefinitionManager}/>
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
-                  <Basic.Button type="button" level="link"
+                  <Basic.Button
+                    type="button"
+                    level="link"
                     onClick={this.context.router.goBack}
                     showLoading={innerShowLoading}>
                     {this.i18n('button.back')}
@@ -557,7 +527,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={ (enabled === null || enabled === true) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
+                      rendered={ (enabled === null || enabled === true)
+                        && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
                       onClick={this.save.bind(this, true, false, finalEntityType)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
@@ -571,12 +542,18 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
               </Basic.Panel>
             </form>
           </Basic.Tab>
-          <Basic.Tab rendered={specificConfiguration !== null} eventKey={2} title={this.i18n('tabs.specificConfiguration.label')} className="bordered">
+          <Basic.Tab
+            rendered={specificConfiguration !== null}
+            eventKey={2}
+            title={this.i18n('tabs.specificConfiguration.label')}
+            className="bordered">
             <form onSubmit={this.save.bind(this)}>
               <Basic.Panel className="no-border">
                 {specificConfiguration}
                 <Basic.PanelFooter>
-                  <Basic.Button type="button" level="link"
+                  <Basic.Button
+                    type="button"
+                    level="link"
                     onClick={this.context.router.goBack}
                     showLoading={innerShowLoading}>
                     {this.i18n('button.back')}
@@ -594,7 +571,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={ (enabled === null || enabled === true) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
+                      rendered={ (enabled === null || enabled === true)
+                        && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
                       onClick={this.save.bind(this, true, false, finalEntityType)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
@@ -618,10 +596,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilter.help')}/>
                   <Basic.LabelWrapper label=" ">
                     <Basic.Alert
-                       key="customFilterInfo"
-                       icon="exclamation-sign"
-                       className="no-margin"
-                       text={this.i18n('customFilterInfo')}/>
+                      key="customFilterInfo"
+                      icon="exclamation-sign"
+                      className="no-margin"
+                      text={this.i18n('customFilterInfo')}/>
                   </Basic.LabelWrapper>
                   <Basic.SelectBox
                     ref="filterAttribute"
@@ -649,7 +627,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     help={ this.getHelp() }/>
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
-                  <Basic.Button type="button" level="link"
+                  <Basic.Button
+                    type="button"
+                    level="link"
                     onClick={this.context.router.goBack}
                     showLoading={innerShowLoading}>
                     {this.i18n('button.back')}
@@ -667,7 +647,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={ (enabled === null || enabled === true) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
+                      rendered={ (enabled === null || enabled === true)
+                        && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
                       onClick={this.save.bind(this, true, false, finalEntityType)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
@@ -695,7 +676,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
               showLoading={innerShowLoading}
               forceSearchParameters={forceSearchParameters}
               showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
-              rowClass={({rowIndex, data}) => { return data[rowIndex].containsError ? 'danger' : ''; }}
+              rowClass={({rowIndex, data}) => (data[rowIndex].containsError ? 'danger' : '')}
               actions={
                 Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
                 ?
@@ -708,39 +689,33 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                 header=""
                 className="detail-button"
                 cell={
-                  ({ rowIndex, data }) => {
-                    return (
-                      <Advanced.DetailButton
-                        title={this.i18n('button.detail')}
-                        onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                    );
-                  }
+                  ({ rowIndex, data }) => (
+                    <Advanced.DetailButton
+                      title={this.i18n('button.detail')}
+                      onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
+                  )
                 }/>
-                <Advanced.Column property="running" face="boolean" header={this.i18n('acc:entity.SynchronizationLog.running')} sort/>
-                <Advanced.Column
-                  property="syncActionLogs"
-                  header={this.i18n('acc:entity.SynchronizationLog.results')}
-                  cell={
-                    ({ rowIndex, data }) => {
-                      return this._generateResultCell(rowIndex, data);
-                    }
-                  }
-                  />
-                <Advanced.Column property="started" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.started')} sort/>
-                <Advanced.Column property="ended" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.ended')} sort/>
-                <Advanced.Column
-                  property="statistic"
-                  header={this.i18n('acc:entity.SynchronizationLog.statistic.label')}
-                  cell={
-                    ({ rowIndex, data }) => {
-                      return this._generateStatisticCell(rowIndex, data);
-                    }
-                  }
-                  />
+              <Advanced.Column property="running" face="boolean" header={this.i18n('acc:entity.SynchronizationLog.running')} sort/>
+              <Advanced.Column
+                property="syncActionLogs"
+                header={this.i18n('acc:entity.SynchronizationLog.results')}
+                cell={
+                  ({ rowIndex, data }) => this._generateResultCell(rowIndex, data)
+                }
+              />
+              <Advanced.Column property="started" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.started')} sort/>
+              <Advanced.Column property="ended" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.ended')} sort/>
+              <Advanced.Column
+                property="statistic"
+                header={this.i18n('acc:entity.SynchronizationLog.statistic.label')}
+                cell={
+                  ({ rowIndex, data }) => this._generateStatisticCell(rowIndex, data)
+                }
+              />
             </Advanced.Table>
-            </Basic.Tab>
-          </Basic.Tabs>
-        </div>
+          </Basic.Tab>
+        </Basic.Tabs>
+      </div>
     );
   }
 }

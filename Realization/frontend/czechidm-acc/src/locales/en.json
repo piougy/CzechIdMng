@@ -931,7 +931,10 @@
       "linkedAction": "Linked",
       "unlinkedAction": "Not linked",
       "missingEntityAction": "Missing entity",
-      "missingAccountAction": "Missing account"
+      "missingAccountAction": "Missing account",
+      "button": {
+        "lastSyncLog": "Go to the last synchronization log."
+      }
     },
     "SynchronizationLog": {
       "running": "Running",

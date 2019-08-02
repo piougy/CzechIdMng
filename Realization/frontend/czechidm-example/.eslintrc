@@ -84,7 +84,7 @@
     "no-eq-null": 0,
     "no-unused-vars": ["warn", {"vars": "local", "args": "after-used"}],
     "no-unneeded-ternary": "warn",
-    "no-restricted-syntax": "warn",
+    "no-restricted-syntax": "off",
     "no-prototype-builtins": "warn",
     "no-shadow": 1,
     "no-tabs": "warn",

@@ -2335,6 +2335,74 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	}
 
 	//-------------------------------------- System entity wish tests end--------------------------------------------------------
+	
+	/**
+	 *  Unlinked, valid contract, different UID on system and on entity - correlation by email
+	 */
+	@Test
+	public void testLinkWithChangeUIDSync() {
+		String uniqueEmail = getHelper().createName() + "@bcv.eu";
+		SysSystemDto system = initData(uniqueEmail);
+		Assert.assertNotNull(system);
+		IdmRoleDto defaultRole = helper.createRole();
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system, true);
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY);
+		// Set default role to sync configuration
+		config.setDefaultRole(defaultRole.getId());
+		// Don't link without owner
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.DO_NOT_LINK);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// create default mapping for provisioning
+		helper.createMapping(system);
+		helper.createRoleSystem(defaultRole, system);
+
+		IdmIdentityDto identity = helper.createIdentity();
+		identity.setEmail(uniqueEmail);
+		identity = identityService.save(identity);
+		
+		String lastNameBefore = identity.getLastName();
+		Assert.assertNotEquals(IDENTITY_ONE, lastNameBefore);
+		String usernameBefore = identity.getLastName();
+		Assert.assertNotEquals(IDENTITY_ONE, usernameBefore);
+		
+		IdmIdentityContractDto primeValidContract = contractService.getPrimeValidContract(identity.getId());
+		Assert.assertNotNull(primeValidContract);
+
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK_AND_UPDATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, roles.size());
+		IdmIdentityRoleDto assignedRole = roles.get(0);
+		Assert.assertEquals(defaultRole.getId(), assignedRole.getRole());
+		Assert.assertEquals(primeValidContract.getId(), assignedRole.getIdentityContract());
+
+		// account is linked without protection
+		checkAccAccount(1, false, null);
+
+		// account is assigned by the role
+		checkIdentityAccount(identity, 1, assignedRole.getId());
+
+		// check that identity was updated
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals(IDENTITY_ONE, identities.get(0).getLastName());
+		IdmIdentityDto currentIdentity = identityService.get(identity.getId());
+		Assert.assertEquals(IDENTITY_ONE, currentIdentity.getUsername());
+		
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
 
 	private Task createSyncTask(UUID syncConfId) {
 		Task task = new Task();
@@ -2373,8 +2441,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		return log;
 	}
-
+	
 	public SysSyncIdentityConfigDto doCreateSyncConfig(SysSystemDto system) {
+		return this.doCreateSyncConfig(system, false);
+	}
+
+	public SysSyncIdentityConfigDto doCreateSyncConfig(SysSystemDto system, boolean correlationByEmail) {
 
 		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
@@ -2388,7 +2460,11 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
 				.getContent();
-		SysSystemAttributeMappingDto uidAttribute = attributes.stream().filter(attribute -> {
+		SysSystemAttributeMappingDto correlationAttribute = attributes.stream().filter(attribute -> {
+			if (correlationByEmail) {
+				return ATTRIBUTE_EMAIL.equals(attribute.getIdmPropertyName());
+			}
+			
 			return attribute.isUid();
 		}).findFirst().orElse(null);
 
@@ -2397,7 +2473,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		syncConfigCustom.setReconciliation(true);
 		syncConfigCustom.setCustomFilter(false);
 		syncConfigCustom.setSystemMapping(mapping.getId());
-		syncConfigCustom.setCorrelationAttribute(uidAttribute.getId());
+		syncConfigCustom.setCorrelationAttribute(correlationAttribute.getId());
 		syncConfigCustom.setName(SYNC_CONFIG_NAME);
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
 		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK);
@@ -2413,6 +2489,10 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	}
 
 	private SysSystemDto initData() {
+		return this.initData(IDENTITY_ONE_EMAIL);
+	}
+	
+	private SysSystemDto initData(String email) {
 
 		// create test system
 		SysSystemDto system = helper.createSystem(TestResource.TABLE_NAME);
@@ -2429,7 +2509,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		syncSystemMapping.setObjectClass(objectClasses.get(0).getId());
 		final SysSystemMappingDto syncMapping = systemMappingService.save(syncSystemMapping);
 		createMapping(system, syncMapping);
-		this.getBean().initIdentityData();
+		this.getBean().initIdentityData(email);
 		return system;
 
 	}
@@ -2447,7 +2527,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	}
 
 	@Transactional
-	public void initIdentityData() {
+	public void initIdentityData(String email) {
 		deleteAllResourceData();
 
 		TestResource resourceUserOne = new TestResource();
@@ -2455,7 +2535,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		resourceUserOne.setFirstname(IDENTITY_ONE);
 		resourceUserOne.setLastname(IDENTITY_ONE);
 		resourceUserOne.setEavAttribute("1");
-		resourceUserOne.setEmail(IDENTITY_ONE_EMAIL);
+		resourceUserOne.setEmail(email);
 		entityManager.persist(resourceUserOne);
 
 	}

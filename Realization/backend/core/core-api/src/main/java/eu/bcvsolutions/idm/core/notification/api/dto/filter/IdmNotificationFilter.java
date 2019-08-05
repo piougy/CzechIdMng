@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 /**
  * Filter for notifications (notification, email ...)
  * 
- * TODO: add topic
+ * TODO: add topic!
  * 
  * @author Radek Tomiška
  *

@@ -568,15 +568,24 @@ public interface TestHelper {
 	 * @param id
 	 */
 	void deleteIdentityContact(UUID id);
+	
+	/**
+	 * Creates identity contract's guarantee
+	 *
+	 * @param identityContract
+	 * @param guarantee
+	 * @return
+	 */
+	IdmContractGuaranteeDto createContractGuarantee(IdmIdentityContractDto identityContract, IdmIdentityDto guarantee);
 
 	/**
 	 * Creates identity contract's guarantee
 	 *
 	 * @param identityContractId
-	 * @param identityId
+	 * @param guaranteeId
 	 * @return
 	 */
-	IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId);
+	IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID guaranteeId);
 	
 	/**
 	 * Create contact position with random work position (tree node)

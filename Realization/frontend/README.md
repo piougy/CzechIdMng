@@ -39,6 +39,12 @@ Check gulp version:
 
 `gulp -v`
 
+For Mac:
+
+If command `gulp -v` returns ``no command ‘gulp’ found`` then try to change npm's default directory to:
+
+`npm config set prefix /usr/local`
+
 
 ## Install the dependencies for application module
 

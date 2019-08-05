@@ -29,9 +29,9 @@ import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationInactiveOwnerBehaviorType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationInactiveOwnerBehaviorType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -54,7 +54,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
@@ -2416,11 +2415,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType, int count,
 			OperationResultType resultType) {
-		SysSyncLogFilter logFilter = new SysSyncLogFilter();
-		logFilter.setSynchronizationConfigId(config.getId());
-		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
-		Assert.assertEquals(1, logs.size());
-		SysSyncLogDto log = logs.get(0);
+		SysSyncConfigFilter logFilter = new SysSyncConfigFilter();
+		logFilter.setId(config.getId());
+		logFilter.setIncludeLastLog(Boolean.TRUE);
+		List<AbstractSysSyncConfigDto> configs = syncConfigService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, configs.size());
+		SysSyncLogDto log = configs.get(0).getLastSyncLog();
 		if (actionType == null) {
 			return log;
 		}

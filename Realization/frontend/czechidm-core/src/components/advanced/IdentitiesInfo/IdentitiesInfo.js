@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import IdentityInfo from '../IdentityInfo/IdentityInfo';
 import * as Basic from '../../basic';
@@ -7,12 +8,7 @@ import * as Basic from '../../basic';
  * Cells for Candicates
  * maxEntry - max entry in candidates
  */
-
 class IdentitiesInfo extends Basic.AbstractComponent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   render() {
     const { identities, maxEntry, showOnlyUsername} = this.props;

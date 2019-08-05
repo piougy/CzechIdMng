@@ -1,8 +1,11 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -29,7 +32,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
@@ -62,7 +64,6 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAttributeTaskExecutor;
-import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
 /**
  * Identity sync executor
@@ -73,6 +74,8 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 @Component
 public class IdentitySynchronizationExecutor extends AbstractSynchronizationExecutor<IdmIdentityDto>
 		implements SynchronizationEntityExecutor {
+	
+	private static final String PRIME_VALID_CONTRACT_KEY = "prime-valid-contract";
 
 	@Autowired
 	private IdmIdentityService identityService;
@@ -206,70 +209,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	/**
-	 * Fill data from IC attributes to entity (EAV and confidential storage too)
-	 * 
-	 * @param account
-	 * @param entityType
-	 * @param uid
-	 * @param icAttributes
-	 * @param mappedAttributes
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	@Override
-	protected void doUpdateEntity(SynchronizationContext context) {
-		String uid = context.getUid();
-		SysSyncLogDto log = context.getLog();
-		SysSyncItemLogDto logItem = context.getLogItem();
-
-		if (context.isSkipEntityUpdate()) {
-			addToItemLog(logItem, MessageFormat.format("Update of entity for account with uid {0} is skipped", uid));
-			return;
-		}
-
-		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
-		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
-		AccAccountDto account = context.getAccount();
-		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
-		SystemEntityType entityType = context.getEntityType();
-
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmIdentityDto identity = null;
-		if (entityId != null) {
-			identity = identityService.get(entityId);
-		}
-		if (identity != null) {
-			// Update identity
-			identity = fillEntity(mappedAttributes, uid, icAttributes, identity, false, context);
-			identity = this.save(identity, true, context);
-			// Update extended attribute (entity must be persisted first)
-			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, false, context);
-			// Update confidential attribute (entity must be persisted
-			// first)
-			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, false, context);
-
-			// Identity Updated
-			addToItemLog(logItem, MessageFormat.format("Identity with id {0} was updated", identity.getId()));
-			if (logItem != null) {
-				logItem.setDisplayName(identity.getUsername());
-			}
-
-			if (this.isProvisioningImplemented(entityType, logItem)) {
-				// Call provisioning for this entity
-				callProvisioningForEntity(identity, entityType, logItem);
-			}
-
-			return;
-		} else {
-			addToItemLog(logItem, "Warning! - Identity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-	}
-
-	/**
 	 * Operation remove IdentityAccount relations and linked roles
 	 * 
 	 * @param account
@@ -386,7 +325,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		}
 
 		// Create role request for default role and primary contract
-		IdmRoleRequestDto roleRequest = roleRequestService.executeConceptsImmediate(entity.getId(), concepts);
+		// Add skip of provisioning property. We don't want execute provisioning now, but after update of entity (only once).
+		Map<String, Serializable> properties = new LinkedHashMap<>();
+		properties.put(ProvisioningService.SKIP_PROVISIONING, Boolean.TRUE);
+		IdmRoleRequestDto roleRequest = roleRequestService.executeConceptsImmediate(entity.getId(), concepts, properties);
 
 		// Load concept (can be only one)
 		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
@@ -571,9 +513,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			return account;
 		}
 
-		IdmIdentityContractDto primeContract = entity != null ? identityContractService.getPrimeValidContract(entity.getId()) : null;
+		IdmIdentityContractDto primeContract = this.getPrimeValidContract(entity, context);
 		if (primeContract != null) {
-			// Default role can be assigned - no problem
+			// Default role can be assigned
 			return account;
 		}
 
@@ -610,6 +552,50 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		default:
 			return account;
 		}
+	}
+	
+	@Override
+	protected boolean skipEntityUpdate(IdmIdentityDto entity, SynchronizationContext context) {
+		IdmIdentityContractDto primeContract = this.getPrimeValidContract(entity, context);
+		if (primeContract != null) {
+			// Default role can be assigned
+			return false;
+		}
+		SysSyncIdentityConfigDto config = this.getConfig(context);
+		UUID defaultRoleId = config.getDefaultRole();
+		if (defaultRoleId == null) {
+			// Default role is not specified
+			return false;
+		}
+
+		SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
+		if (SynchronizationInactiveOwnerBehaviorType.DO_NOT_LINK == inactiveOwnerBehavior && entity != null) {
+			return true;
+		}
+
+		return false;
+	}
+	
+	/**
+	 * Get prime valid contract for given identity. Using a cache in the context.
+	 * 
+	 * @param entity
+	 * @param context
+	 * @return
+	 */
+	private IdmIdentityContractDto getPrimeValidContract(IdmIdentityDto entity, SynchronizationContext context) {
+		if (context.getProperties().containsKey(PRIME_VALID_CONTRACT_KEY)) {
+			Object primeContract = context.getProperty(PRIME_VALID_CONTRACT_KEY);
+			if (primeContract == null) {
+				return null;
+			}
+			return (IdmIdentityContractDto) primeContract;
+		}
+		
+		IdmIdentityContractDto primeContract =  entity != null ? identityContractService.getPrimeValidContract(entity.getId()) : null;
+		context.addProperty(PRIME_VALID_CONTRACT_KEY, primeContract);
+		
+		return primeContract;
 	}
 
 	private void activateProtection(AccAccountDto account, IdmIdentityDto entity, SynchronizationContext context) {

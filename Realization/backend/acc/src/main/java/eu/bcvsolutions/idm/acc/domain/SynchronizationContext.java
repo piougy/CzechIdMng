@@ -1,17 +1,20 @@
 package eu.bcvsolutions.idm.acc.domain;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
-import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
@@ -75,7 +78,11 @@ public class SynchronizationContext implements Serializable {
 	private SysSystemEntityDto systemEntity;
 	private SynchronizationActionType actionType;
 	private boolean skipEntityUpdate = false;
+	private boolean skipProvisioning = false;
 	private Integer protectionInterval;
+	private AbstractDto entityDto;
+	// Properties - map for additionally data. Good as cache for contract ...
+	private Map<String, Object> properties = new HashMap<String, Object>();
 
 	public String getUid() {
 		return uid;
@@ -247,6 +254,16 @@ public class SynchronizationContext implements Serializable {
 		this.skipEntityUpdate = skipEntityUpdate;
 		return this;
 	}
+	
+	public boolean isSkipProvisioning() {
+		return skipProvisioning;
+	}
+
+	public SynchronizationContext addSkipProvisioning(boolean skipProvisioning) {
+		this.skipProvisioning = skipProvisioning;
+		return this;
+	}
+
 
 	public Integer getProtectionInterval() {
 		return protectionInterval;
@@ -254,6 +271,33 @@ public class SynchronizationContext implements Serializable {
 
 	public SynchronizationContext addProtectionInterval(Integer protectionInterval) {
 		this.protectionInterval = protectionInterval;
+		return this;
+	}
+
+	public AbstractDto getEntityDto() {
+		return entityDto;
+	}
+
+	public SynchronizationContext addEntityDto(AbstractDto entityDto) {
+		this.entityDto = entityDto;
+		return this;
+	}
+	
+	public Object getProperty(String key) {
+		return this.properties.get(key);
+	}
+
+	public SynchronizationContext addProperty(String key, Object object) {
+		this.properties.put(key, object);
+		return this;
+	}
+	
+	public Map<String, Object> getProperties() {
+		return this.properties;
+	}
+
+	public SynchronizationContext setProperties(Map<String, Object> properties) {
+		this.properties = properties;
 		return this;
 	}
 
@@ -278,7 +322,9 @@ public class SynchronizationContext implements Serializable {
 		.addGeneratedUid(context.getGeneratedUid())
 		.addActionType(context.getActionType())
 		.addSkipEntityUpdate(context.isSkipEntityUpdate())
-		.addProtectionInterval(context.getProtectionInterval());
+		.addSkipProvisioning(context.isSkipProvisioning())
+		.addProtectionInterval(context.getProtectionInterval())
+		.setProperties(context.getProperties());
 		
 		return newContext;
 	}

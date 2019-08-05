@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -111,10 +113,25 @@ public interface IdmRoleRequestService extends
 	 * 
 	 * @param applicant
 	 * @param concepts [optional] - if empty concepts are given, then no request will be executed.
+	 * 
 	 * @return
 	 * @since 9.6.0
 	 */
 	IdmRoleRequestDto executeConceptsImmediate(UUID applicant, List<IdmConceptRoleRequestDto> concepts);
+	
+
+	/**
+	 * Execute concepts via request - usable programmatically, where identity roles are added / updated / removed.
+	 * 
+	 * @param applicant
+	 * @param concepts [optional] - if empty concepts are given, then no request will be executed.
+	 * @param additional properties (will be added to the request event)
+	 * 
+	 * @return
+	 * @since 9.7.1
+	 */
+	IdmRoleRequestDto executeConceptsImmediate(UUID applicant, List<IdmConceptRoleRequestDto> concepts,
+			Map<String, Serializable> additionalProperties);
 
 	/**
 	 * Start approval procces for this request.

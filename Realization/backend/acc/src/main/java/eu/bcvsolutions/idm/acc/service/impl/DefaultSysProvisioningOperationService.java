@@ -255,25 +255,36 @@ public class DefaultSysProvisioningOperationService
 			//
 			Predicate provisioningPredicate = builder.exists(subquery); // has attributes
 			if (emptyProvisioning) {
-				provisioningPredicate = builder.not(provisioningPredicate); // empty
+				provisioningPredicate = builder.and(
+						builder.not(provisioningPredicate), // empty
+						builder.notEqual(root.get(SysProvisioningOperation_.operationType), ProvisioningEventType.DELETE) // delete operations are not considered as empty
+				);
+			} else {
+				// delete operations are not considered as empty or filled => show all time
+				provisioningPredicate = builder.or(
+						provisioningPredicate,
+						builder.equal(root.get(SysProvisioningOperation_.operationType), ProvisioningEventType.DELETE)
+				);
 			}
-			predicates.add(builder.and(
-					provisioningPredicate,
-					// Not executed operations (already in queue, created) are not wanted - attributes are not computed in this phase.
-					builder.notEqual(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.CREATED),
-					builder.notEqual(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.RUNNING),
-					builder.or(
-							builder.notEqual(
-									root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), 
-									OperationState.NOT_EXECUTED
-							),
-							// only readOnly has attributes evaluated
-							builder.equal(
-									root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_CODE), 
-									AccResultCode.PROVISIONING_SYSTEM_READONLY.name()
+			predicates.add(
+					builder.and(
+							provisioningPredicate,
+							// Not executed operations (already in queue, created) are not wanted - attributes are not computed in this phase.
+							builder.notEqual(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.CREATED),
+							builder.notEqual(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.RUNNING),
+							builder.or(
+									builder.notEqual(
+											root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), 
+											OperationState.NOT_EXECUTED
+									),
+									// only readOnly has attributes evaluated
+									builder.equal(
+											root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_CODE), 
+											AccResultCode.PROVISIONING_SYSTEM_READONLY.name()
+									)
 							)
 					)
-				));
+			);
 		}
 		return predicates;
 	}

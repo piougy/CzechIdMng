@@ -141,7 +141,9 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional
 	public IdmIdentityDto saveInternal(IdmIdentityDto identity) {
-		if (identity != null && identity.getState() == null) {
+		Assert.notNull(identity);
+		//
+		if (identity.getState() == null) {
 			identity.setState(evaluateState(identity));
 		}
 		return super.saveInternal(identity);

@@ -68,7 +68,7 @@ public class TextExampleProductFilterIntegrationTest extends AbstractIntegration
 		productService.save(productThree);
 		
 		ExampleProductFilter filter = new ExampleProductFilter();
-		filter.setText("textValue" + System.currentTimeMillis()); // different value than in variable textValue
+		filter.setText("textValue" + getHelper().createName()); // different value than in variable textValue
 		List<ExampleProduct> products = textProductFilter.find(filter, null).getContent();
 		
 		assertEquals(0, products.size());

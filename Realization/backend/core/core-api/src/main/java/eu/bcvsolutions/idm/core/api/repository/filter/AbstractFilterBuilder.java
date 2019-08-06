@@ -51,7 +51,8 @@ public abstract class AbstractFilterBuilder<E extends BaseEntity, F extends Data
 		// transform filter to criteria
 		Specification<E> criteria = new Specification<E>() {
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate predicate = AbstractFilterBuilder.this.getPredicate(root, (AbstractQuery<?>) query, builder, filter);
+				// TODO: deprecated in 9.7.0, but fix this after original method will be removed => all custom filters can use original
+				Predicate predicate = AbstractFilterBuilder.this.getPredicate(root, query, builder, filter);
 				if (predicate == null) {
 					return query.getRestriction();
 				}

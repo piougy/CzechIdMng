@@ -55,6 +55,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractEnableProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractEndProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -419,5 +421,51 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		//
 		Assert.assertNotEquals(firstIdentity, findIds.getContent().get(0));
 		Assert.assertNotEquals(secondIdentity, findIds.getContent().get(1));
+	}
+	
+	@Test
+	public void testEvaluateStateAgain() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		identity.setState(null);
+		//
+		identity = identityService.save(identity);
+		//
+		Assert.assertEquals(IdentityState.VALID, identity.getState());
+		Assert.assertFalse(identity.isDisabled());
+		//
+		try {
+			getHelper().disableProcessor(IdentityContractEndProcessor.PROCESSOR_NAME);
+			getHelper().disableProcessor(IdentityContractEnableProcessor.PROCESSOR_NAME);
+			//
+			IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+			contract.setValidTill(LocalDate.now().minusDays(1));
+			identityContractService.save(contract);
+			//
+			identity = identityService.get(identity);
+			Assert.assertEquals(IdentityState.VALID, identity.getState());
+			Assert.assertFalse(identity.isDisabled());
+			//
+			identity.setState(null);
+			identity = identityService.save(identity);
+			//
+			Assert.assertEquals(IdentityState.LEFT, identity.getState());
+			Assert.assertTrue(identity.isDisabled());
+			//
+			contract.setValidTill(null);
+			identityContractService.save(contract);
+			//
+			identity = identityService.get(identity);
+			Assert.assertEquals(IdentityState.LEFT, identity.getState());
+			Assert.assertTrue(identity.isDisabled());
+			//
+			identity.setState(null);
+			identity = identityService.save(identity);
+			//
+			Assert.assertEquals(IdentityState.VALID, identity.getState());
+			Assert.assertFalse(identity.isDisabled());
+		} finally {
+			getHelper().enableProcessor(IdentityContractEndProcessor.PROCESSOR_NAME);
+			getHelper().enableProcessor(IdentityContractEnableProcessor.PROCESSOR_NAME);
+		}
 	}
 }

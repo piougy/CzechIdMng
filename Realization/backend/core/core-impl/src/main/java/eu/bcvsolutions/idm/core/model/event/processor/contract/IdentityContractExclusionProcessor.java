@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.model.event.processor.AbstractWorkflowEventProce
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(IdentityContractExclusionProcessor.PROCESSOR_NAME)
 @Description("HR process - identity's contract exclusion. The processes is started for"
 		+ " contracts that are both valid (meaning validFrom and validTill) and excluded.")
 public class IdentityContractExclusionProcessor extends AbstractWorkflowEventProcessor<IdmIdentityContractDto>

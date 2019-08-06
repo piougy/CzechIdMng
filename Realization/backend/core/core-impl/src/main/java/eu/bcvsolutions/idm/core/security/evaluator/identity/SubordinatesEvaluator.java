@@ -47,7 +47,8 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		//
 		return filterManager
 				.getBuilder(IdmIdentity.class, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR)
-				.getPredicate(root, (AbstractQuery<?>) query, builder, filter);
+				// TODO: deprecated in 9.7.0, but fix this after original method will be removed => all custom filters can use original
+				.getPredicate(root, query, builder, filter);
 	}
 	
 	@Override

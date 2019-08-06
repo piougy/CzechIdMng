@@ -225,8 +225,8 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                       ref="emptyProvisioning"
                       placeholder={ this.i18n('filter.emptyProvisioning.placeholder') }
                       options={ [
-                        { value: 'false', niceLabel: this.i18n('filter.emptyProvisioning.yes') },
-                        { value: 'true', niceLabel: this.i18n('filter.emptyProvisioning.no') }
+                        { value: 'true', niceLabel: this.i18n('filter.emptyProvisioning.yes') },
+                        { value: 'false', niceLabel: this.i18n('filter.emptyProvisioning.no') }
                       ]}/>
                   </Basic.Col>
                 </Basic.Row>

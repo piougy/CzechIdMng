@@ -45,6 +45,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 	public static final String PARAMETER_NUMBER_OF_DAYS = "numberOfDays"; // archive older than
 	public static final String PARAMETER_OPERATION_STATE = "operationState"; // archive state
 	public static final String PARAMETER_SYSTEM = "system"; // system
+	public static final String PARAMETER_EMPTY_PROVISIONING = SysProvisioningOperationFilter.PARAMETER_EMPTY_PROVISIONING; // empty provisioning
 	public static final int DEFAULT_NUMBER_OF_DAYS = 90;
 	public static final OperationState DEFAULT_OPERATION_STATE = OperationState.EXECUTED;
 	//
@@ -53,6 +54,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 	private int numberOfDays = 0; // optional
 	private OperationState operationState; // optional
 	private UUID systemId = null;
+	private Boolean emptyProvisioning = null;
 	
 	@Override
 	public String getName() {
@@ -71,11 +73,13 @@ public class DeleteProvisioningArchiveTaskExecutor
 		}
 		operationState = getParameterConverter().toEnum(properties, PARAMETER_OPERATION_STATE, OperationState.class);
 		systemId = getParameterConverter().toEntityUuid(properties, PARAMETER_SYSTEM, SysSystemDto.class);
+		emptyProvisioning = getParameterConverter().toBoolean(properties, PARAMETER_EMPTY_PROVISIONING);
 	}
 	
 	@Override
 	protected boolean start() {
-		LOG.warn("Start deleting archived provisioning operations older than [{}] days in state [{}] with system [{}].", numberOfDays, operationState, systemId);
+		LOG.warn("Start deleting empty [{}] archived provisioning operations older than [{}] days in state [{}] with system [{}].", 
+				emptyProvisioning, numberOfDays, operationState, systemId);
 		//
 		return super.start();
 	}
@@ -83,8 +87,8 @@ public class DeleteProvisioningArchiveTaskExecutor
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
 		result = super.end(result, ex);
-		LOG.warn("End deleting archived provisioning operations older than [{}] days in state [{}] with system [{}]. Processed operations [{}].", 
-				numberOfDays, operationState, systemId, counter);
+		LOG.warn("End deleting empty [{}] archived provisioning operations older than [{}] days in state [{}] with system [{}]. Processed operations [{}].", 
+				emptyProvisioning, numberOfDays, operationState, systemId, counter);
 		return result;
 	}
 	
@@ -93,6 +97,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setResultState(operationState);
 		filter.setSystemId(systemId);
+		filter.setEmptyProvisioning(emptyProvisioning);
 		if (numberOfDays > 0) {
 			filter.setTill(DateTime.now().withTimeAtStartOfDay().minusDays(numberOfDays));
 		}
@@ -112,6 +117,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 		parameters.add(PARAMETER_NUMBER_OF_DAYS);
 		parameters.add(PARAMETER_OPERATION_STATE);
 		parameters.add(PARAMETER_SYSTEM);
+		parameters.add(PARAMETER_EMPTY_PROVISIONING);
 		//
 		return parameters;
 	}
@@ -122,6 +128,7 @@ public class DeleteProvisioningArchiveTaskExecutor
 		properties.put(PARAMETER_NUMBER_OF_DAYS, numberOfDays);
 		properties.put(PARAMETER_OPERATION_STATE, operationState);
 		properties.put(PARAMETER_SYSTEM, systemId);
+		properties.put(PARAMETER_EMPTY_PROVISIONING, emptyProvisioning);
 		//
 		return properties;
 	}
@@ -130,16 +137,24 @@ public class DeleteProvisioningArchiveTaskExecutor
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		IdmFormAttributeDto numberOfDaysAttribute = new IdmFormAttributeDto(PARAMETER_NUMBER_OF_DAYS, PARAMETER_NUMBER_OF_DAYS, PersistentType.LONG);
 		numberOfDaysAttribute.setDefaultValue(String.valueOf(DEFAULT_NUMBER_OF_DAYS));
+		//
 		IdmFormAttributeDto operationStateAttribute = new IdmFormAttributeDto(PARAMETER_OPERATION_STATE, PARAMETER_OPERATION_STATE, PersistentType.ENUMERATION);
 		operationStateAttribute.setDefaultValue(DEFAULT_OPERATION_STATE.name());
 		operationStateAttribute.setFaceType(BaseFaceType.OPERATION_STATE_ENUM);
+		//
 		IdmFormAttributeDto system = new IdmFormAttributeDto(
 				PARAMETER_SYSTEM,
 				"System", 
 				PersistentType.UUID);
 		system.setFaceType(AccFaceType.SYSTEM_SELECT);
+		IdmFormAttributeDto emptyProvisioningAttribute = new IdmFormAttributeDto(
+				PARAMETER_EMPTY_PROVISIONING,
+				PARAMETER_EMPTY_PROVISIONING, 
+				PersistentType.BOOLEAN,
+				BaseFaceType.BOOLEAN_SELECT);
+		emptyProvisioningAttribute.setDefaultValue(Boolean.TRUE.toString());
 		//
-		return Lists.newArrayList(numberOfDaysAttribute, operationStateAttribute, system);
+		return Lists.newArrayList(numberOfDaysAttribute, operationStateAttribute, system, emptyProvisioningAttribute);
 	}
 	
     @Override

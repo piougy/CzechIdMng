@@ -17,6 +17,8 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningAttribute;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -34,6 +36,7 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 	
 	@Autowired private SysProvisioningArchiveService service;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	@Autowired private SysProvisioningAttributeRepository provisioningAttributeRepository;
 	
 	@Test
 	public void testDeleteOldProvisioningArchives() {
@@ -41,33 +44,37 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 		SysSystemDto system = getHelper().createTestResourceSystem(false);
 		SysSystemDto systemOther = getHelper().createTestResourceSystem(false);
 		DateTime createdOne = DateTime.now().minusDays(2);
-		SysProvisioningArchiveDto operationOne = createDto(system, createdOne, OperationState.EXECUTED);
+		SysProvisioningArchiveDto operationOne = createDto(system, createdOne, OperationState.EXECUTED, ProvisioningEventType.CANCEL);
 		// all other variants for not removal
-		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED);
-		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.CREATED);
-		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED);
-		createDto(system, DateTime.now().minusDays(2), OperationState.EXCEPTION);
-		createDto(system, DateTime.now().withTimeAtStartOfDay().minusHours(23), OperationState.EXECUTED);
-		SysProvisioningArchiveDto operationOther = createDto(systemOther, DateTime.now().minusDays(2), OperationState.EXECUTED);
+		createDto(system, createdOne, OperationState.EXECUTED, ProvisioningEventType.DELETE);
+		SysProvisioningArchiveDto operationTwo = createDto(system, createdOne, OperationState.EXECUTED, ProvisioningEventType.CANCEL);
+		createAttribute(operationTwo.getId(), getHelper().createName(), true);
+		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
+		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.CREATED, ProvisioningEventType.CANCEL);
+		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
+		createDto(system, DateTime.now().minusDays(2), OperationState.EXCEPTION, ProvisioningEventType.CANCEL);
+		createDto(system, DateTime.now().withTimeAtStartOfDay().minusHours(23), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
+		SysProvisioningArchiveDto operationOther = createDto(systemOther, DateTime.now().minusDays(2), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
 		//
 		Assert.assertEquals(createdOne, operationOne.getCreated());
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setSystemId(system.getId());
 		List<SysProvisioningArchiveDto> archives = service.find(filter, null).getContent();
-		Assert.assertEquals(6, archives.size());
+		Assert.assertEquals(8, archives.size());
 		//
 		DeleteProvisioningArchiveTaskExecutor taskExecutor = new DeleteProvisioningArchiveTaskExecutor();
 		Map<String, Object> properties = new HashMap<>();
 		properties.put(DeleteProvisioningArchiveTaskExecutor.PARAMETER_NUMBER_OF_DAYS, 1);
 		properties.put(DeleteProvisioningArchiveTaskExecutor.PARAMETER_OPERATION_STATE, OperationState.EXECUTED);
 		properties.put(DeleteProvisioningArchiveTaskExecutor.PARAMETER_SYSTEM, system.getId());
+		properties.put(DeleteProvisioningArchiveTaskExecutor.PARAMETER_EMPTY_PROVISIONING, Boolean.TRUE);
 		AutowireHelper.autowire(taskExecutor);
 		taskExecutor.init(properties);
 		//
 		longRunningTaskManager.execute(taskExecutor);
 		//
 		archives = service.find(filter, null).getContent();
-		Assert.assertEquals(5, archives.size());
+		Assert.assertEquals(7, archives.size());
 		Assert.assertTrue(archives.stream().allMatch(a -> !a.getId().equals(operationOne.getId())));
 		//
 		filter.setSystemId(systemOther.getId());
@@ -92,17 +99,28 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 		Assert.assertTrue(archives.isEmpty());
 	}
 	
-	private SysProvisioningArchiveDto createDto(SysSystemDto system, DateTime created, OperationState state) {
+	private SysProvisioningArchiveDto createDto(
+			SysSystemDto system, 
+			DateTime created,
+			OperationState state, 
+			ProvisioningEventType provisioningEventType) {
 		SysProvisioningArchiveDto dto = new SysProvisioningArchiveDto();
 		dto.setCreated(created);
 		dto.setSystem(system.getId());
 		dto.setEntityIdentifier(UUID.randomUUID());
-		dto.setOperationType(ProvisioningEventType.CANCEL);
+		dto.setOperationType(provisioningEventType);
 		dto.setEntityType(SystemEntityType.CONTRACT);
 		dto.setProvisioningContext(new ProvisioningContext());
 		dto.setResult(new OperationResult(state));
 		//
 		return service.save(dto);
+	}
+	
+	private SysProvisioningAttribute createAttribute(UUID provisioningId, String name, boolean removed) {
+		SysProvisioningAttribute attribute = new SysProvisioningAttribute(provisioningId, name);
+		attribute.setRemoved(removed);
+		//
+		return provisioningAttributeRepository.save(attribute);
 	}
 	
 	@Override

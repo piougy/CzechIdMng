@@ -54,7 +54,7 @@
       <xs:element name="cron" type="xs:string" minOccurs="0"/>
       <xs:element name="state" type="xs:string" minOccurs="0"/>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
-      <xs:element name="fireTime" type="dateTime" minOccurs="0"/>
+      <xs:element name="fireTime" type="xs:long" minOccurs="0"/>
       <xs:element name="nextFireTime" type="dateTime" minOccurs="0"/>
       <xs:element name="previousFireTime" type="dateTime" minOccurs="0"/>
     </xs:sequence>

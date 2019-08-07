@@ -1306,6 +1306,7 @@
       "SYNCHRONIZATION": "Synchronization",
       "TREEACCOUNT": "Tree accounts",
       "IDENTITYACCOUNT": "Identity accounts",
+      "IDENTITYROLEACCOUNT": "Assigned identity role accounts",
       "CONTRACTACCOUNT": "Accounts for contractual relationships",
       "CONTRACTSLICEACCOUNT": "Accounts for time slices of contractual relationships",
       "PROVISIONINGBREAK": "Provisioning - brake",

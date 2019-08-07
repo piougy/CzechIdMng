@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.bulk.action.impl.role.RoleDuplicateBulkAction;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;

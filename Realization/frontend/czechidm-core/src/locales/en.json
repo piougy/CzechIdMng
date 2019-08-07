@@ -4898,6 +4898,11 @@
             "help": "Creates (or updates) configured role attributes."
           }
         }
+      },
+      "core-identity-contract-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected contracted positions.",
+        "icon": "fa:trash"
       }
     },
     "authorization-evaluator": {

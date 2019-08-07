@@ -1307,6 +1307,7 @@
       "SYNCHRONIZATION": "Synchronizace",
       "TREEACCOUNT": "Účty pro prvky stromu",
       "IDENTITYACCOUNT": "Účty pro identity",
+      "IDENTITYROLEACCOUNT": "Účty pro přiřazené role",
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
       "CONTRACTSLICEACCOUNT": "Účty pro časové řezy vztahů identity",
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",

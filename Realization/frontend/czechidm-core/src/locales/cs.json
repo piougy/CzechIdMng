@@ -4948,6 +4948,11 @@
             "help": "Vytvoří (či aktializuje) nakonfigurované attributy role."
           }
         }
+      },
+      "core-identity-contract-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané pracovněprávní vztahy.",
+        "icon": "fa:trash"
       }
     },
     "authorization-evaluator": {

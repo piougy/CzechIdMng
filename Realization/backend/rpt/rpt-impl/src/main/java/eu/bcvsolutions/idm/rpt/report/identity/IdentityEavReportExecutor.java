@@ -101,11 +101,11 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 				//
 				Serializable eavCodeSerializable = formInstance.toSinglePersistentValue(PARAMETER_FORM_ATTRIBUTE);
 				if (eavCodeSerializable == null) {
-					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code", eavCodeSerializable));
+					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code", "null"));
 				}
 				IdmFormAttributeDto formAttribute = definition.getMappedAttributeByCode(eavCodeSerializable.toString());
 				if (formAttribute == null) {
-					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code", eavCodeSerializable));
+					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code", eavCodeSerializable.toString()));
 				}
 				//				
 				IdmIdentityFilter identityFilter = new IdmIdentityFilter();

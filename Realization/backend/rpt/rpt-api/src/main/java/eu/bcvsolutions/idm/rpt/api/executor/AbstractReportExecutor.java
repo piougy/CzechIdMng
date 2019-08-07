@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -64,6 +65,8 @@ public abstract class AbstractReportExecutor
 			IdmAttachmentDto data = generateData(report);
 			report.setData(data.getId());
 			return report;
+		} catch (ResultCodeException ex) {
+			throw ex;
 		} catch (Exception ex) {
 			// TODO: better exception
 			throw new CoreException(ex);

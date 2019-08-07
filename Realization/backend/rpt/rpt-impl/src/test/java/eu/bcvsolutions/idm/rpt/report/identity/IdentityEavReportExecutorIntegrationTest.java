@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,23 +39,23 @@ import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.dto.RptIdentityWithFormValueDto;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
+/**
+ * Report test
+ * 
+ * @author Marek Klement
+ * @author Radek Tomiška
+ */
 public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private IdentityEavReportExecutor reportExecutor;
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private AttachmentManager attachmentManager;
+	@Autowired private IdentityEavReportExecutor reportExecutor;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private AttachmentManager attachmentManager;
+	@Autowired private LoginService loginService;
+	@Autowired private FormService formService;
+	@Autowired private IdmFormAttributeService formAttributeService;
 	@Qualifier("objectMapper")
 	@Autowired
 	private ObjectMapper mapper;
-	@Autowired
-	private LoginService loginService;
-	@Autowired
-	private FormService formService;
-	@Autowired
-	private IdmFormAttributeService formAttributeService;
 
 	@Before
 	public void before() {
@@ -95,7 +94,7 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 		formDefinitionAttribute.setValue(definitionAttribute.getId());
 		//
 		IdmFormValueDto eavName =
-				new IdmFormValueDto(definition.getMappedAttributeByCode(IdentityEavReportExecutor.PARAMETER_EAV_CODE));
+				new IdmFormValueDto(definition.getMappedAttributeByCode(IdentityEavReportExecutor.PARAMETER_FORM_ATTRIBUTE));
 		String code = "testAttribute001";
 		createFormAttribute(code, definitionAttribute.getId());
 		eavName.setValue(code);
@@ -119,16 +118,14 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 		// generate report
 		report = reportExecutor.generate(report);
 		Assert.assertNotNull(report.getData());
-		List<HashMap<String, Object>> objects = mapper.readValue(
-				attachmentManager.getAttachmentData(report.getData()),
-				new TypeReference<List<HashMap<String, Object>>>() {
-				});
+		
+		List<RptIdentityWithFormValueDto> identities = mapper.readValue(
+				attachmentManager.getAttachmentData(report.getData()), 
+				new TypeReference<List<RptIdentityWithFormValueDto>>(){});
 		//
 		// test
-		assertEquals(1, objects.size());
-		HashMap<String, Object> stringObjectHashMap = objects.get(0);
-		List<String> o = (List<String>) objects.get(0).get("formValue");
-		assertEquals(testValue, (o.get(0)));
+		assertEquals(1, identities.size());
+		assertEquals(testValue, identities.get(0).getFormValues().get(0));
 		//
 		attachmentManager.deleteAttachments(report);
 	}

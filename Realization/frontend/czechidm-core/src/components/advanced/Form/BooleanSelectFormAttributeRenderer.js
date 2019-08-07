@@ -33,17 +33,17 @@ export default class BooleanSelectFormAttributeRenderer extends BooleanFormAttri
    * @return {object} value by persistent type
    */
   getInputValue(formValue) {
-    // Warning: string representation is needed (false value not work as selected value for react-select clearable functionality)
-    if (formValue.booleanValue === null || formValue.booleanValue === undefined
-      || formValue.value === null || formValue.value === undefined) {
+    const value = formValue.booleanValue ? formValue.booleanValue : formValue.value;
+    if (value === null) {
       return null;
     }
-    return formValue.booleanValue ? formValue.booleanValue.toString() : formValue.value.toString();
+    // Warning: string representation is needed (false value not work as selected value for react-select clearable functionality)
+    return value.toString();
   }
 
   renderSingleInput(originalValues) {
     const { values, validationErrors, className, style } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     //
     return (
       <Basic.BooleanSelectBox

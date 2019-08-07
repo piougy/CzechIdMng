@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import moment from 'moment';
@@ -106,7 +107,10 @@ class ProvisioningOperations extends Basic.AbstractContent {
         <Helmet title={this.i18n('title')} />
 
         <Basic.Tabs>
-          <Basic.Tab eventKey={ 1 } title={ this.i18n('tabs.active.label') } rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGOPERATION_READ']) }>
+          <Basic.Tab
+            eventKey={ 1 }
+            title={ this.i18n('tabs.active.label') }
+            rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGOPERATION_READ']) }>
             <ProvisioningOperationTableComponent
               ref="table"
               uiKey={ uiKey }
@@ -119,7 +123,10 @@ class ProvisioningOperations extends Basic.AbstractContent {
               showDeleteAllButton={ showDeleteAllButton }/>
           </Basic.Tab>
 
-          <Basic.Tab eventKey={ 2 } title={ this.i18n('tabs.archive.label') } rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGARCHIVE_READ']) }>
+          <Basic.Tab
+            eventKey={ 2 }
+            title={ this.i18n('tabs.archive.label') }
+            rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGARCHIVE_READ']) }>
             <ProvisioningOperationTableComponent
               ref="archiveTable"
               uiKey={ `archive-${uiKey}` }
@@ -179,7 +186,10 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
                   <Basic.Row>
                     <Basic.Col lg={ 4 }>
-                      <Basic.EnumLabel ref="operationType" label={ this.i18n('acc:entity.ProvisioningOperation.operationType') } enum={ ProvisioningOperationTypeEnum }/>
+                      <Basic.EnumLabel
+                        ref="operationType"
+                        label={ this.i18n('acc:entity.ProvisioningOperation.operationType') }
+                        enum={ ProvisioningOperationTypeEnum }/>
                     </Basic.Col>
                   </Basic.Row>
 
@@ -234,11 +244,14 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   ||
                   <div style={{ marginBottom: 15 }}>
                     <Basic.ContentHeader text={ this.i18n('detail.nextAttempt.header') }/>
-                    <span dangerouslySetInnerHTML={{__html: this.i18n('detail.nextAttempt.label', {
-                      currentAttempt: detail.entity.currentAttempt,
-                      maxAttempts: detail.entity.maxAttempts,
-                      nextAttempt: moment(detail.entity._embedded.batch.nextAttempt).format(this.i18n('format.datetime'))
-                    })}}/>
+                    {
+                      this.i18n('detail.nextAttempt.label', {
+                        escape: false,
+                        currentAttempt: detail.entity.currentAttempt,
+                        maxAttempts: detail.entity.maxAttempts,
+                        nextAttempt: moment(detail.entity._embedded.batch.nextAttempt).format(this.i18n('format.datetime'))
+                      })
+                    }
                   </div>
                 }
 

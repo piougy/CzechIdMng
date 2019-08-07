@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
@@ -11,7 +12,7 @@ import { LongRunningTaskManager, ConfigurationManager, SecurityManager } from '.
 const manager = new LongRunningTaskManager();
 
 /**
- * Long running task detail - progress bar
+ * Long running task detail - progress bar.
  *
  * @author Radek Tomiška
  */
@@ -31,7 +32,7 @@ class LongRunningTask extends Basic.AbstractContent {
   componentDidMount() {
     const { entity, _entity } = this.props;
     if (entity || _entity) {
-      this.setRefresh(entity ? entity : _entity);
+      this.setRefresh(entity || _entity);
     }
     this._loadEntity();
   }
@@ -134,11 +135,8 @@ class LongRunningTask extends Basic.AbstractContent {
     const { updateInterval, onComplete } = this.props;
     if (task && OperationStateEnum.findSymbolByKey(task.resultState) === OperationStateEnum.RUNNING) {
       this.updateIntervalId = setInterval(this.updateLrtState.bind(this), updateInterval);
-    } else {
-      // task ended right after he was ececuted
-      if (onComplete) {
-        onComplete({ task });
-      }
+    } else if (onComplete) { // task ended right after he was ececuted
+      onComplete({ task });
     }
   }
 
@@ -161,10 +159,26 @@ class LongRunningTask extends Basic.AbstractContent {
     }
     return (
       <span>
-        <Basic.Label level="success" value={ entity.successItemCount } style={{ marginRight: 3 }} title={ this.i18n('entity.LongRunningTask.successItemCount.help') }/>
-        <Basic.Label level="warning" value={ entity.warningItemCount } style={{ marginRight: 3 }} title={ this.i18n('entity.LongRunningTask.warningItemCount.help') }/>
-        <Basic.Label level="danger" value={ entity.failedItemCount } style={{ marginRight: 3 }} title={ this.i18n('entity.LongRunningTask.failedItemCount.help') }/>
-        <span title={ this.i18n('entity.LongRunningTask.count') } className={ !entity.count ? 'hidden' : '' }>{ `/ ${entity.count}` }</span>
+        <Basic.Label
+          level="success"
+          value={ entity.successItemCount }
+          style={{ marginRight: 3 }}
+          title={ this.i18n('entity.LongRunningTask.successItemCount.help') }/>
+        <Basic.Label
+          level="warning"
+          value={ entity.warningItemCount }
+          style={{ marginRight: 3 }}
+          title={ this.i18n('entity.LongRunningTask.warningItemCount.help') }/>
+        <Basic.Label
+          level="danger"
+          value={ entity.failedItemCount }
+          style={{ marginRight: 3 }}
+          title={ this.i18n('entity.LongRunningTask.failedItemCount.help') }/>
+        <span
+          title={ this.i18n('entity.LongRunningTask.count') }
+          className={ !entity.count ? 'hidden' : '' }>
+          { `/ ${entity.count}` }
+        </span>
       </span>
     );
   }
@@ -185,14 +199,14 @@ class LongRunningTask extends Basic.AbstractContent {
         <Basic.Confirm ref="confirm-cancel" level="warning"/>
         <Basic.Confirm ref="confirm-interrupt" level="danger"/>
         <Basic.PanelHeader text={
-            header
-            ||
-            <span>
-              { Utils.Ui.getSimpleJavaType(_entity.taskType) }
-              {' '}
-              <small>{ _entity.taskDescription }</small>
-            </span>
-          } />
+          header
+          ||
+          <span>
+            { Utils.Ui.getSimpleJavaType(_entity.taskType) }
+            {' '}
+            <small>{ _entity.taskDescription }</small>
+          </span>
+        } />
         <Basic.PanelBody>
           {
             !showProperties
@@ -200,18 +214,19 @@ class LongRunningTask extends Basic.AbstractContent {
             <div>
               <div><strong>{ this.i18n('entity.LongRunningTask.taskProperties.label') }</strong></div>
               {
-                _.keys(_entity.taskProperties).map(propertyName => {
-                  if (Utils.Ui.isEmpty(_entity.taskProperties[propertyName])) {
-                    return null;
-                  }
-                  if (propertyName === 'core:transactionContext') {
-                    // FIXME: transaction context info
-                    return null;
-                  }
-                  return `${ propertyName }: ${ Utils.Ui.toStringValue(_entity.taskProperties[propertyName]) }`;
-                })
-                .filter(v => v !== null)
-                .join(', ')
+                _.keys(_entity.taskProperties)
+                  .map(propertyName => {
+                    if (Utils.Ui.isEmpty(_entity.taskProperties[propertyName])) {
+                      return null;
+                    }
+                    if (propertyName === 'core:transactionContext') {
+                      // FIXME: transaction context info
+                      return null;
+                    }
+                    return `${ propertyName }: ${ Utils.Ui.toStringValue(_entity.taskProperties[propertyName]) }`;
+                  })
+                  .filter(v => v !== null)
+                  .join(', ')
               }
             </div>
           }
@@ -223,7 +238,14 @@ class LongRunningTask extends Basic.AbstractContent {
             bars={[
               { now: _entity.failedItemCount, bsStyle: 'danger' },
               { now: _entity.warningItemCount, bsStyle: 'warning' },
-              { now: (_entity.counter > 0 && !_entity.successItemCount && !_entity.warningItemCount && !_entity.failedItemCount) ? _entity.counter : _entity.successItemCount, bsStyle: 'success' }]
+              {
+                now: (_entity.counter > 0 && !_entity.successItemCount && !_entity.warningItemCount && !_entity.failedItemCount)
+                  ?
+                  _entity.counter
+                  :
+                  _entity.successItemCount,
+                bsStyle: 'success'
+              }]
             }/>
         </Basic.PanelBody>
         <Basic.PanelFooter>
@@ -299,7 +321,7 @@ LongRunningTask.propTypes = {
     PropTypes.string,
     PropTypes.node
   ]),
-  footerButtons: PropTypes.arrayOf(React.PropTypes.object),
+  footerButtons: PropTypes.arrayOf(PropTypes.object),
   updateInterval: PropTypes.number,
   /**
    * Show task properties

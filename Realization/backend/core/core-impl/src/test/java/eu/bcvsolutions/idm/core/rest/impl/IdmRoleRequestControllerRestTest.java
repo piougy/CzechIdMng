@@ -35,6 +35,8 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Controller tests
+ * - crud
+ * - filters
  * 
  * @author Radek Tomiška
  *
@@ -224,5 +226,33 @@ public class IdmRoleRequestControllerRestTest extends AbstractReadWriteDtoContro
 		requests = find(filter);
 		Assert.assertEquals(1, requests.size());
 		Assert.assertEquals(roleRequesttwo.getId(), requests.get(0).getId());
+	}
+	
+	@Test
+	public void testFindByWrongApplicant() throws Exception {
+		MultiValueMap<String, String> filter = new LinkedMultiValueMap<>();
+		filter.set("applicant", "not-exist-name");
+		List<IdmRoleRequestDto> results = find(filter);
+		//
+		Assert.assertTrue(results.isEmpty());
+	}
+	
+	@Test
+	public void testFindByState() throws Exception {
+		IdmRoleRequestDto requestOne = this.createDto();
+		requestOne.setState(RoleRequestState.EXECUTED);
+		requestOne = createDto(requestOne);
+		IdmRoleRequestDto requestTwo = this.createDto();
+		requestTwo.setState(RoleRequestState.CANCELED);
+		requestTwo.setApplicant(requestOne.getApplicant());
+		requestTwo = createDto(requestTwo);
+		//
+		MultiValueMap<String, String> filter = new LinkedMultiValueMap<>();
+		filter.set("state", RoleRequestState.EXECUTED.name());
+		filter.set("applicant", requestOne.getApplicant().toString());
+		//
+		List<IdmRoleRequestDto> results = find(filter);
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(requestOne.getId(), results.get(0).getId());
 	}
 }

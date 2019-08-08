@@ -81,8 +81,9 @@ class WorkflowProcessDefinitionService extends AbstractService {
   /**
    * Generate and download diagram of process as XML file
    */
-  getDownloadXmlUrl(reportId) {
-    return RestApiService.getUrl(this.getApiPath() + `/${encodeURIComponent(reportId)}/definition?cidmst=${AuthenticateService.getTokenCIDMST()}`);
+  getProcessDefinitionUrl(definitionId) {
+    return RestApiService.getUrl(this.getApiPath() +
+        `/${encodeURIComponent(definitionId)}/definition?cidmst=${AuthenticateService.getTokenCIDMST()}`);
   }
 }
 

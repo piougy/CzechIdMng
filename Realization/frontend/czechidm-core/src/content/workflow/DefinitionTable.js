@@ -108,6 +108,28 @@ export class DefinitionTable extends Advanced.AbstractTableContent {
         <Advanced.Column property="resourceName" header={this.i18n('resourceName')} width="15%" />
         <Advanced.Column property="description" header={this.i18n('description')} width="25%" />
         <Advanced.Column property="version" header={this.i18n('version')} width="5%" />
+
+        <Advanced.Column
+          header={this.i18n('label.download')}
+          className="download-button"
+          cell={
+            ({ rowIndex, data }) => {
+              const rowData = data[rowIndex]
+              return (
+                <span>
+                  <a
+                    key={`rep-${rowData.id}`}
+                    href={this.getManager().getService().getProcessDefinitionUrl(rowData.id)}
+                    target={'_blanc'}
+                    className={`btn btn-primary  btn-xs`}
+                    style={{ color: 'white', marginLeft: 3 }}>
+                    <Basic.Icon value="fa:download"/> {' XML '}
+                  </a>
+                </span>
+              )
+            }
+          }
+          sort={false}/>
       </Advanced.Table>
     );
   }

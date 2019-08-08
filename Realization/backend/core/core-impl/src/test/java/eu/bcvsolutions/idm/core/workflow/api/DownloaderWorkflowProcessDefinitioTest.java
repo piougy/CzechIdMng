@@ -18,6 +18,11 @@ import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowProcessDefi
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 
+/**
+ * @author artem
+ * <p>
+ * Testing download / upload workflow definitions as XML file
+ */
 public class DownloaderWorkflowProcessDefinitioTest extends AbstractRestTest {
 
 	@Autowired
@@ -42,7 +47,7 @@ public class DownloaderWorkflowProcessDefinitioTest extends AbstractRestTest {
 				.andExpect(MockMvcResultMatchers.status().is(200))
 				.andReturn();
 		Assert.assertEquals(200, result.getResponse().getStatus());
-		Assert.assertEquals(MediaType.APPLICATION_XML.toString(), result.getResponse().getContentType());
+		Assert.assertEquals(MediaType.APPLICATION_OCTET_STREAM_VALUE, result.getResponse().getContentType());
 
 		Assert.assertEquals((Integer) 1, definitionService.getByName(WORK_DEFINITION_ID).getVersion());
 

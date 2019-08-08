@@ -58,6 +58,7 @@ export class DefinitionTable extends Advanced.AbstractTableContent {
     return (
       <Advanced.Table
         ref="table"
+        uiKey={uiKey}
         manager={ this.getManager() }
         showLoading={showLoading}
         rowClass={({rowIndex, data}) => { return Utils.Ui.getDisabledRowClass(data[rowIndex]); }}
@@ -118,7 +119,7 @@ export class DefinitionTable extends Advanced.AbstractTableContent {
                 <span>
                   <a
                     key={`rep-${rowData.id}`}
-                    href={this.getManager().getService().getDownloadXmlUrl(rowData.id)}
+                    href={this.getManager().getService().getProcessDefinitionUrl(rowData.id)}
                     target={'_blanc'}
                     className={`btn btn-primary  btn-xs`}
                     style={{ color: 'white', marginLeft: 3 }}>

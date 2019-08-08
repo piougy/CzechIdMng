@@ -248,7 +248,7 @@ public class DefaultWorkflowProcessDefinitionService
 	 * @return InputStream
 	 */
 	@Override
-	public InputStream getBpmnXML(String processDefinitionId) {
+	public InputStream getProcessDefinitionAsStream(String processDefinitionId) {
 		ProcessDefinition processDefinition = getProcessDefinition(processDefinitionId);
 		String resourceName = processDefinition.getResourceName();
 		return repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), resourceName);

@@ -58,5 +58,11 @@ public interface WorkflowProcessDefinitionService extends ReadDtoService<Workflo
 	 */
 	List<ValuedDataObject> getDataObjects(String definitionId);
 
-	InputStream getBpmnXML(String processDefinitionId);
+	/**
+	 * get process definition by id as InputStream
+	 *
+	 * @param processDefinitionId
+	 * @return InputStream
+	 */
+	InputStream getProcessDefinitionAsStream(String processDefinitionId);
 }

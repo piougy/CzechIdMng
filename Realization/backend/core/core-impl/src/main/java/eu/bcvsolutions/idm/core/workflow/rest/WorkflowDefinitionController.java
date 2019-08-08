@@ -195,40 +195,37 @@ public class WorkflowDefinitionController extends AbstractReadDtoController<Work
 	}
 
 	/**
-	 * Upload new deployment to Activiti engine
+     * Download deployment to Activiti engine
 	 *
 	 * @return ResponseEntity<InputStreamResource>
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/{backendId}/definition", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.WORKFLOW_DEFINITION_CREATE + "') or hasAuthority('" + CoreGroupPermission.WORKFLOW_DEFINITION_READ + "')")
+    @RequestMapping(value = "/{backendId}/definition", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @PreAuthorize("hasAuthority('" + CoreGroupPermission.WORKFLOW_DEFINITION_READ + "')")
 	@ApiOperation(
 			value = "Download workflow definition",
 			nickname = "getWorkflowDefinition",
-			//response = WorkflowDeploymentDto.class,
 			tags = {WorkflowDefinitionController.TAG},
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
-							@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_DEFINITION_CREATE, description = ""),
 							@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_DEFINITION_READ, description = "")}),
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
-							@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_DEFINITION_CREATE, description = ""),
 							@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_DEFINITION_READ, description = "")})
 			},
 			notes = "Return XML file with definition.")
-	public ResponseEntity<InputStreamResource> getXml(@PathVariable String backendId) {
+    public ResponseEntity<InputStreamResource> getProcessDefinition(@PathVariable String backendId) {
 		WorkflowProcessDefinitionDto result = definitionService.getByName(backendId);
 		if (result == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 
 		try {
-			InputStream inputXMLStream = definitionService.getBpmnXML(backendId);
+            InputStream inputXMLStream = definitionService.getProcessDefinitionAsStream(backendId);
 			return ResponseEntity
 					.ok()
 					.header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", result.getResourceName()))
 					.contentLength(inputXMLStream.available())
-					.contentType(MediaType.APPLICATION_XML)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
 					.body(new InputStreamResource(inputXMLStream));
 		} catch (Exception e) {
 			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, e);

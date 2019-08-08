@@ -99,13 +99,13 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 							);
 				}
 				//
-				Serializable eavCodeSerializable = formInstance.toSinglePersistentValue(PARAMETER_FORM_ATTRIBUTE);
-				if (eavCodeSerializable == null) {
+				String eavCode = (String) formInstance.toMultiValueMap().getFirst(PARAMETER_FORM_ATTRIBUTE);
+				if (eavCode == null) {
 					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code", "null"));
 				}
-				IdmFormAttributeDto formAttribute = definition.getMappedAttributeByCode(eavCodeSerializable.toString());
+				IdmFormAttributeDto formAttribute = definition.getMappedAttributeByCode(eavCode);
 				if (formAttribute == null) {
-					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code", eavCodeSerializable.toString()));
+					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code", eavCode));
 				}
 				//				
 				IdmIdentityFilter identityFilter = new IdmIdentityFilter();
@@ -155,35 +155,28 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 		boolean ret = true;
 		List<IdmFormValueDto> formValues = formService.getValues(identity, formAttribute); // FIXME: IdmBasePermission.READ should be added?
 		//
+		if (formValues.isEmpty()) {
+			count--;
+			return ret;
+		}
+		//
 		if (eavValue == null) {
-			if (formValues != null) {
-				if (formValues.size() != 0) {
-					createData(identity, jGenerator, formValues);
-					ret = updateState();
-					counter++;
-				} else {
-					count--;
+			createData(identity, jGenerator, formValues);
+			ret = updateState();
+			counter++;
+		} else {
+			List<IdmFormValueDto> listOfValues = new LinkedList<>();
+			for (IdmFormValueDto val : formValues) {
+				if (val.getValue().toString().equals(eavValue)) {
+					listOfValues.add(val);
 				}
 			}
-		} else {
-			if (formValues != null) {
-				if (formValues.size() != 0) {
-					List<IdmFormValueDto> listOfValues = new LinkedList<>();
-					for (IdmFormValueDto val : formValues) {
-						if (val.getValue().toString().equals(eavValue)) {
-							listOfValues.add(val);
-						}
-					}
-					if (listOfValues.size() > 0) {
-						createData(identity, jGenerator, listOfValues);
-						ret = updateState();
-						counter++;
-					} else {
-						count--;
-					}
-				} else {
-					count--;
-				}
+			if (listOfValues.size() > 0) {
+				createData(identity, jGenerator, listOfValues);
+				ret = updateState();
+				counter++;
+			} else {
+				count--;
 			}
 		}
 		return ret;

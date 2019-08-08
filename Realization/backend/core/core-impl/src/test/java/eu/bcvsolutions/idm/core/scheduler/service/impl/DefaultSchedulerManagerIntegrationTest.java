@@ -296,6 +296,31 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		assertTrue(ObserveLongRunningTaskEndProcessor.getLongRunningTask(dependentTask.getId()).isDryRun());
 	}
 	
+	@Test
+	public void testGetAllTasksByType() {
+		Task taskOne = createTask(null);
+		Task taskTwo = createTask(null);
+		//
+		List<Task> tasks = manager.getAllTasksByType(taskOne.getTaskType());
+		Assert.assertTrue(tasks.size() >= 2);
+		Assert.assertTrue(tasks.stream().allMatch(t -> t.getTaskType().equals(taskTwo.getTaskType())));
+		Assert.assertTrue(tasks.stream().anyMatch(t -> t.getId().equals(taskOne.getId())));
+		Assert.assertTrue(tasks.stream().anyMatch(t -> t.getId().equals(taskOne.getId())));
+	}
+	
+	@Test
+	public void testUpdateTask() {
+		Task taskOne = createTask("one");
+		Assert.assertEquals("one", taskOne.getParameters().get(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY));
+		//
+		taskOne.getParameters().put(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY, "update");
+		manager.updateTask(taskOne.getId(), taskOne);
+		//
+		taskOne = manager.getTask(taskOne.getId());
+		Assert.assertEquals("update", taskOne.getParameters().get(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY));
+	}
+	
+	
 	private Task createTask(String result) {
 		Task task = new Task();
 		task.setInstanceId(configurationService.getInstanceId());

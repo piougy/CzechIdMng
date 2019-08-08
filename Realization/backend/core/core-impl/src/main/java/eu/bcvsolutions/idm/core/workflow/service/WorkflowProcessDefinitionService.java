@@ -16,8 +16,8 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
  */
 public interface WorkflowProcessDefinitionService extends ReadDtoService<WorkflowProcessDefinitionDto, WorkflowFilterDto> {
 	
-	public static final String SORT_BY_KEY = "key";
-	public static final String SORT_BY_NAME = "name";
+	String SORT_BY_KEY = "key";
+	String SORT_BY_NAME = "name";
 
 	/**
 	 * Find all last version and active process definitions
@@ -39,6 +39,13 @@ public interface WorkflowProcessDefinitionService extends ReadDtoService<Workflo
 	 */
 	String getProcessDefinitionId(String processDefinitionKey);
 
+	/**
+	 * Find process definition by its key.
+	 * 
+	 * @param processDefinitionKey
+	 * @return
+	 * @since 9.7.2
+	 */
 	ProcessDefinition getProcessDefinition(String processDefinitionKey);
 
 	/**
@@ -59,10 +66,11 @@ public interface WorkflowProcessDefinitionService extends ReadDtoService<Workflo
 	List<ValuedDataObject> getDataObjects(String definitionId);
 
 	/**
-	 * get process definition by id as InputStream
+	 * Get process definition by key as InputStream.
 	 *
-	 * @param processDefinitionId
+	 * @param processDefinitionKey
 	 * @return InputStream
+	 * @since 9.7.2
 	 */
-	InputStream getProcessDefinitionAsStream(String processDefinitionId);
+	InputStream getBpmnDefinition(String processDefinitionKey);
 }

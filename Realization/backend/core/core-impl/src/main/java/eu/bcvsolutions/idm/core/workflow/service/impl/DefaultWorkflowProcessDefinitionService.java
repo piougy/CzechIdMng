@@ -243,13 +243,9 @@ public class DefaultWorkflowProcessDefinitionService
 		return new PageImpl<>(dtos);
 	}
 
-	/**
-	 * @param processDefinitionId
-	 * @return InputStream
-	 */
 	@Override
-	public InputStream getProcessDefinitionAsStream(String processDefinitionId) {
-		ProcessDefinition processDefinition = getProcessDefinition(processDefinitionId);
+	public InputStream getBpmnDefinition(String processDefinitionKey) {
+		ProcessDefinition processDefinition = getProcessDefinition(processDefinitionKey);
 		String resourceName = processDefinition.getResourceName();
 		return repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), resourceName);
 	}

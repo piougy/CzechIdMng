@@ -1,4 +1,5 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
@@ -61,7 +62,7 @@ export class DefinitionTable extends Advanced.AbstractTableContent {
         uiKey={uiKey}
         manager={ this.getManager() }
         showLoading={showLoading}
-        rowClass={({rowIndex, data}) => { return Utils.Ui.getDisabledRowClass(data[rowIndex]); }}
+        rowClass={ ({rowIndex, data}) => Utils.Ui.getDisabledRowClass(data[rowIndex]) }
         noData={this.i18n('component.basic.Table.noData')}
         forceSearchParameters={forceSearchParameters}
         filter={
@@ -93,17 +94,19 @@ export class DefinitionTable extends Advanced.AbstractTableContent {
           header=""
           className="detail-button"
           cell={
-            ({ rowIndex, data }) => {
-              return (
-                <Advanced.DetailButton
-                  title={this.i18n('button.detail')}
-                  onClick={this.showDetail.bind(this, data[rowIndex])}/>
-              );
-            }
+            ({ rowIndex, data }) => (
+              <Advanced.DetailButton
+                title={this.i18n('button.detail')}
+                onClick={this.showDetail.bind(this, data[rowIndex])}/>
+            )
           }
           sort={false}/>
-        <Advanced.Column property="key" header={this.i18n('key')} width="25%"
-          cell={<Basic.LinkCell property="key" to="workflow/definitions/:key"/>} sort />
+        <Advanced.Column
+          property="key"
+          header={this.i18n('key')}
+          width="25%"
+          cell={ <Basic.LinkCell property="key" to="workflow/definitions/:key"/> }
+          sort />
         <Advanced.Column property="name" header={this.i18n('name')} width="20%" sort />
         <Advanced.Column property="resourceName" header={this.i18n('resourceName')} width="15%" />
         <Advanced.Column property="description" header={this.i18n('description')} width="25%" />
@@ -114,19 +117,23 @@ export class DefinitionTable extends Advanced.AbstractTableContent {
           className="download-button"
           cell={
             ({ rowIndex, data }) => {
-              const rowData = data[rowIndex]
+              const rowData = data[rowIndex];
+              //
               return (
                 <span>
                   <a
-                    key={`rep-${rowData.id}`}
-                    href={this.getManager().getService().getProcessDefinitionUrl(rowData.id)}
-                    target={'_blanc'}
-                    className={`btn btn-primary  btn-xs`}
-                    style={{ color: 'white', marginLeft: 3 }}>
-                    <Basic.Icon value="fa:download"/> {' XML '}
+                    key={ `rep-${rowData.id}` }
+                    href={ this.getManager().getService().getProcessDefinitionUrl(rowData.id) }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary btn-xs"
+                    style={{ color: 'white' }}
+                    title={ this.i18n('label.download') }>
+                    <Basic.Icon value="fa:download"/>
+                    {' XML '}
                   </a>
                 </span>
-              )
+              );
             }
           }
           sort={false}/>

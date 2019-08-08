@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.workflow.api;
+package eu.bcvsolutions.idm.core.workflow.rest;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
@@ -19,11 +19,11 @@ import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 
 /**
+ * Testing download / upload workflow definitions as XML file.
+ * 
  * @author artem
- * <p>
- * Testing download / upload workflow definitions as XML file
  */
-public class DownloaderWorkflowProcessDefinitioTest extends AbstractRestTest {
+public class WorkflowDefinitionControllerRestTest extends AbstractRestTest {
 
 	@Autowired
 	public DefaultWorkflowProcessDefinitionService workflowProcessDefinitionService;
@@ -32,15 +32,14 @@ public class DownloaderWorkflowProcessDefinitioTest extends AbstractRestTest {
 	@Autowired
 	public WorkflowProcessDefinitionService definitionService;
 
-
-	private static final String WORK_DEFINITION_ID = "testDeployAndRun";
+	private static final String WF_DEFINITION_KEY = "testDeployAndRun";
 
 	@Test
 	@Deployment(resources = {"eu/bcvsolutions/idm/workflow/deploy/testDeployAndRun.bpmn20.xml"})
 	public void testDownloadFile() throws Exception {
 		MvcResult result = getMockMvc()
 				.perform(MockMvcRequestBuilders
-						.get(String.format("%s/%s/definition", BaseDtoController.BASE_PATH + "/workflow-definitions", WORK_DEFINITION_ID))
+						.get(String.format("%s/%s/definition", BaseDtoController.BASE_PATH + "/workflow-definitions", WF_DEFINITION_KEY))
 						.contentType(MediaType.APPLICATION_OCTET_STREAM)
 						.with(authentication(getAdminAuthentication()))
 				)
@@ -49,7 +48,7 @@ public class DownloaderWorkflowProcessDefinitioTest extends AbstractRestTest {
 		Assert.assertEquals(200, result.getResponse().getStatus());
 		Assert.assertEquals(MediaType.APPLICATION_OCTET_STREAM_VALUE, result.getResponse().getContentType());
 
-		Assert.assertEquals((Integer) 1, definitionService.getByName(WORK_DEFINITION_ID).getVersion());
+		Assert.assertEquals((Integer) 1, definitionService.getByName(WF_DEFINITION_KEY).getVersion());
 
 		result = getMockMvc()
 				.perform(MockMvcRequestBuilders
@@ -65,7 +64,7 @@ public class DownloaderWorkflowProcessDefinitioTest extends AbstractRestTest {
 				.andReturn();
 		Assert.assertEquals(200, result.getResponse().getStatus());
 
-		Assert.assertEquals((Integer) 2, definitionService.getByName(WORK_DEFINITION_ID).getVersion());
+		Assert.assertEquals((Integer) 2, definitionService.getByName(WF_DEFINITION_KEY).getVersion());
 
 	}
 }

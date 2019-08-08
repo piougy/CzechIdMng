@@ -220,7 +220,7 @@ public class WorkflowDefinitionController extends AbstractReadDtoController<Work
 		}
 
 		try {
-            InputStream inputXMLStream = definitionService.getProcessDefinitionAsStream(backendId);
+            InputStream inputXMLStream = definitionService.getBpmnDefinition(backendId);
 			return ResponseEntity
 					.ok()
 					.header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", result.getResourceName()))

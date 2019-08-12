@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.security.evaluator.identity;
 
 import java.util.Set;
 
-import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -47,7 +46,8 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		//
 		return filterManager
 				.getBuilder(IdmIdentity.class, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR)
-				.getPredicate(root, (AbstractQuery<?>) query, builder, filter);
+				// TODO: deprecated in 9.7.0, but fix this after original method will be removed => all custom filters can use original
+				.getPredicate(root, query, builder, filter);
 	}
 	
 	@Override

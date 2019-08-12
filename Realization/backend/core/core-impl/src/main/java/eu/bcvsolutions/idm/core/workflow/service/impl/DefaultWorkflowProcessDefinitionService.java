@@ -161,8 +161,19 @@ public class DefaultWorkflowProcessDefinitionService
 	 */
 	@Override
 	public String getProcessDefinitionId(String processDefinitionKey) {
+		return getProcessDefinition(processDefinitionKey).getId();
+	}
+
+	/**
+	 * Find last version of process definition by key
+	 *
+	 * @param processDefinitionKey
+	 * @return
+	 */
+	@Override
+	public ProcessDefinition getProcessDefinition(String processDefinitionKey) {
 		return repositoryService.createProcessDefinitionQuery().processDefinitionKey(processDefinitionKey)
-				.latestVersion().singleResult().getId();
+				.latestVersion().singleResult();
 	}
 
 	/**
@@ -230,6 +241,13 @@ public class DefaultWorkflowProcessDefinitionService
 			return new PageImpl<>(dtos, pageRequest, totalElements);
 		}
 		return new PageImpl<>(dtos);
+	}
+
+	@Override
+	public InputStream getBpmnDefinition(String processDefinitionKey) {
+		ProcessDefinition processDefinition = getProcessDefinition(processDefinitionKey);
+		String resourceName = processDefinition.getResourceName();
+		return repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), resourceName);
 	}
 
 }

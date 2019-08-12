@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -9,10 +10,6 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
  * @author Radek Tomiška
  */
 class Row extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { rendered, children, className, ...others } = this.props;

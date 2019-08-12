@@ -51,6 +51,7 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
@@ -917,7 +918,8 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 						IdmBasePermission.READ);
 				// create test identity
 				IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-				getHelper().createIdentityRole(identity, readRole);
+				IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+				getHelper().createIdentityRole(contract, readRole);
 				authentication = getAuthentication(identity.getUsername());
 			}
 		}

@@ -225,8 +225,8 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                       ref="emptyProvisioning"
                       placeholder={ this.i18n('filter.emptyProvisioning.placeholder') }
                       options={ [
-                        { value: 'false', niceLabel: this.i18n('filter.emptyProvisioning.yes') },
-                        { value: 'true', niceLabel: this.i18n('filter.emptyProvisioning.no') }
+                        { value: 'true', niceLabel: this.i18n('filter.emptyProvisioning.yes') },
+                        { value: 'false', niceLabel: this.i18n('filter.emptyProvisioning.no') }
                       ]}/>
                   </Basic.Col>
                 </Basic.Row>
@@ -257,13 +257,11 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
               header=""
               className="detail-button"
               cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={() => showDetail(data[rowIndex], isArchive)}/>
-                  );
-                }
+                ({ rowIndex, data }) => (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={() => showDetail(data[rowIndex], isArchive)}/>
+                )
               }/>
           }
           <Advanced.Column
@@ -292,7 +290,13 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
             property="modified"
             width={ 100 }
             header={ isArchive ? this.i18n('acc:entity.ProvisioningArchive.modified.short') : this.i18n('entity.modified.short') }
-            title={ isArchive ? this.i18n('acc:entity.ProvisioningArchive.modified.title') : this.i18n('acc:entity.ProvisioningOperation.modified.label') }
+            title={
+              isArchive
+              ?
+              this.i18n('acc:entity.ProvisioningArchive.modified.title')
+              :
+              this.i18n('acc:entity.ProvisioningOperation.modified.label')
+            }
             sort
             face="datetime"
             rendered={ _.includes(columns, 'modified') }/>
@@ -382,9 +386,9 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 }
                 return (
                   <Link
-                    to={ `/role-requests/${encodeURIComponent(entity.roleRequestId)}/detail` }
+                    to={ `/role-requests/${ encodeURIComponent(entity.roleRequestId) }/detail` }
                     title={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.help') }>
-                      <Basic.Icon value="fa:key" style={{marginLeft: '25px'}}/>
+                    <Basic.Icon value="fa:key" style={{ marginLeft: 25 }}/>
                   </Link>
                 );
               }

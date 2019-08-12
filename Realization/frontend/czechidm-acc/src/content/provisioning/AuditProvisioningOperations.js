@@ -10,10 +10,6 @@ import ProvisioningOperations from './ProvisioningOperations';
  */
 export default class AuditProvisioningOperations extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'acc:content.provisioningOperations';
   }
@@ -24,11 +20,11 @@ export default class AuditProvisioningOperations extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         <Basic.PageHeader text={ this.i18n('header', { escape: false }) }/>
 
         <ProvisioningOperations uiKey="provisioning-operation-audit-table"/>
-      </div>
+      </Basic.Div>
     );
   }
 }

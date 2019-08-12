@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Joi from 'joi';
 //
@@ -6,10 +7,6 @@ import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponen
 import Tooltip from '../Tooltip/Tooltip';
 
 class LabelWrapper extends AbstractFormComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   getRequiredValidationSchema() {
     return Joi.string().required();

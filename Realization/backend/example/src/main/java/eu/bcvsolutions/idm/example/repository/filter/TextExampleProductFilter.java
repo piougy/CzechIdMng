@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.example.repository.filter;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -37,14 +37,17 @@ public class TextExampleProductFilter extends AbstractFilterBuilder<ExampleProdu
 	}
 	
 	@Override
-	public Predicate getPredicate(Root<ExampleProduct> root, CriteriaQuery<?> query, CriteriaBuilder builder, ExampleProductFilter filter) {
+	public Predicate getPredicate(Root<ExampleProduct> root, AbstractQuery<?> query, CriteriaBuilder builder, ExampleProductFilter filter) {
+		String text = filter.getText();
 		if (StringUtils.isEmpty(filter.getText())) {
 			return null;
-		}	
+		}
+		//
+		text = text.toLowerCase();
 		return builder.or(
-				builder.like(builder.lower(root.get(ExampleProduct_.name)), "%" + filter.getText().toLowerCase() + "%"),
-				builder.like(builder.lower(root.get(ExampleProduct_.code)), "%" + filter.getText().toLowerCase() + "%"),
-				builder.like(builder.lower(root.get(ExampleProduct_.description)), "%" + filter.getText().toLowerCase() + "%")					
+				builder.like(builder.lower(root.get(ExampleProduct_.name)), "%" + text + "%"),
+				builder.like(builder.lower(root.get(ExampleProduct_.code)), "%" + text + "%"),
+				builder.like(builder.lower(root.get(ExampleProduct_.description)), "%" + text + "%")					
 				);
 	}
 }

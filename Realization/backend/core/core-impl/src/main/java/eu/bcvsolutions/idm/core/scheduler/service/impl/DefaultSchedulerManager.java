@@ -166,10 +166,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			task.setTriggers(new ArrayList<>());
 			// task properties
 			// TODO: deprecated since 9.2.0 - remove in 10.x
-			for(Entry<String, Object> entry : jobDetail.getJobDataMap().entrySet()) {
+			for (Entry<String, Object> entry : jobDetail.getJobDataMap().entrySet()) {
 				task.getParameters().put(entry.getKey(), entry.getValue() == null ? null : entry.getValue().toString());
 			}
-			if (context != null) { // scheduler is inited before application context
+			if (context != null) { // scheduler is initialized before application context
 				task.setFormDefinition(taskExecutor.getFormDefinition());
 			}
 			// scheduled triggers - native

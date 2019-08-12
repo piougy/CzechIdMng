@@ -11,10 +11,6 @@ import Loading from '../Loading/Loading';
  */
 export default class Div extends AbstractComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {
       className,

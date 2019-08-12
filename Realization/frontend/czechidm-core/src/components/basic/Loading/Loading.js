@@ -1,13 +1,16 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
-class Loading extends AbstractComponent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
+/**
+ * Loading indicator/
+ *
+ * @author Radek Tomiška
+ */
+class Loading extends AbstractComponent {
 
   _showLoading() {
     const { showLoading, show } = this.props;
@@ -56,8 +59,8 @@ class Loading extends AbstractComponent {
     const loaderClassNames = classNames(
       className,
       'loading',
-      { 'hidden': !showLoading },
-      { 'static': isStatic }
+      { hidden: !showLoading },
+      { static: isStatic }
     );
     return (
       <div ref="container" className="loader-container" style={style}>
@@ -65,7 +68,7 @@ class Loading extends AbstractComponent {
           showLoading
           ?
           <div className={loaderClassNames}>
-            <div className="loading-wave-top"></div>
+            <div className="loading-wave-top" />
             {showAnimation
               ?
               <div className="loading-wave-container" title={loadingTitle}>

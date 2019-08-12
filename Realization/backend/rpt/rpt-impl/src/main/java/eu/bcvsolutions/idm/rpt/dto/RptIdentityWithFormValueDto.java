@@ -3,6 +3,12 @@ package eu.bcvsolutions.idm.rpt.dto;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Identity with eav value
+ * 
+ * @author Marek Klement
+ *
+ */
 public class RptIdentityWithFormValueDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -14,7 +20,7 @@ public class RptIdentityWithFormValueDto implements Serializable {
 	private String titleBefore;
 	private String titleAfter;
 	private String externalCode;
-	private List<String> formValue;
+	private List<String> formValues;
 
 	public String getFirstName() {
 		return firstName;
@@ -72,11 +78,11 @@ public class RptIdentityWithFormValueDto implements Serializable {
 		this.externalCode = personalNumber;
 	}
 
-	public List<String> getFormValue() {
-		return formValue;
+	public List<String> getFormValues() {
+		return formValues;
 	}
 
-	public void setFormValue(List<String> formValue) {
-		this.formValue = formValue;
+	public void setFormValues(List<String> formValues) {
+		this.formValues = formValues;
 	}
 }

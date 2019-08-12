@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { SplitButton } from 'react-bootstrap';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Icon from '../Icon/Icon';
@@ -9,10 +10,6 @@ import Icon from '../Icon/Icon';
  * @author Radek Tomiška
  */
 class BasicSplitButton extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { level, rendered, showLoading, showLoadingIcon, showLoadingText, disabled, title, ...others } = this.props;

@@ -143,7 +143,7 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 		}
 		//
 		// remove all contract roles
-		if(!contract.isValidNowOrInFuture()) {
+		if (!contract.isValidNowOrInFuture()) {
 			List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
 			for(IdmIdentityRoleDto identityRole : identityRoleService.findAllByContract(contract.getId())) {
 				if (identityRole.getDirectRole() != null) {

@@ -10,23 +10,19 @@ import * as Basic from '../../basic';
  */
 export default class ProgressBar extends Basic.AbstractContextComponent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   /**
    * Resolves default label from localization
    *
    * @return {string}
    */
   _resolveLabel() {
-    const { label, now, min, max } = this.props;
+    const { label, now, min, max, active } = this.props;
     //
     if (label) { // label was given
       return label;
     }
     // resolve default label from localization
-    if (now === 0 || max === 0) {
+    if ((now === 0 || max === 0) && active) {
       // start label
       return this.i18n('component.basic.ProgressBar.start');
     }
@@ -34,7 +30,7 @@ export default class ProgressBar extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { rendered, active, label, className, bars, ...others } = this.props;
+    const { rendered, active, className, bars, ...others } = this.props;
     if (!rendered) {
       return null;
     }

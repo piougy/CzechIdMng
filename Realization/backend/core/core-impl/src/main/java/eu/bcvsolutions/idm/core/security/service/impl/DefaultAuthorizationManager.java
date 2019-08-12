@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -240,7 +241,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			evaluatorDto.setId(evaluator.getId());
 			evaluatorDto.setName(evaluator.getName());
 			evaluatorDto.setEntityType(evaluator.getEntityClass().getCanonicalName());
-			evaluatorDto.setEvaluatorType(evaluator.getClass().getCanonicalName());
+			evaluatorDto.setEvaluatorType(AutowireHelper.getTargetType(evaluator));
 			evaluatorDto.setModule(evaluator.getModule());
 			evaluatorDto.setSupportsPermissions(evaluator.supportsPermissions());
 			evaluatorDto.setDescription(evaluator.getDescription());

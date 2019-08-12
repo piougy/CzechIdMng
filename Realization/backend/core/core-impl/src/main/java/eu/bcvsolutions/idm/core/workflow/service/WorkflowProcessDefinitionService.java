@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.activiti.bpmn.model.ValuedDataObject;
+import org.activiti.engine.repository.ProcessDefinition;
 
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -15,8 +16,8 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
  */
 public interface WorkflowProcessDefinitionService extends ReadDtoService<WorkflowProcessDefinitionDto, WorkflowFilterDto> {
 	
-	public static final String SORT_BY_KEY = "key";
-	public static final String SORT_BY_NAME = "name";
+	String SORT_BY_KEY = "key";
+	String SORT_BY_NAME = "name";
 
 	/**
 	 * Find all last version and active process definitions
@@ -39,6 +40,15 @@ public interface WorkflowProcessDefinitionService extends ReadDtoService<Workflo
 	String getProcessDefinitionId(String processDefinitionKey);
 
 	/**
+	 * Find process definition by its key.
+	 * 
+	 * @param processDefinitionKey
+	 * @return
+	 * @since 9.7.2
+	 */
+	ProcessDefinition getProcessDefinition(String processDefinitionKey);
+
+	/**
 	 * Generate diagram for process definition ID
 	 */
 	InputStream getDiagram(String definitionId);
@@ -55,4 +65,12 @@ public interface WorkflowProcessDefinitionService extends ReadDtoService<Workflo
 	 */
 	List<ValuedDataObject> getDataObjects(String definitionId);
 
+	/**
+	 * Get process definition by key as InputStream.
+	 *
+	 * @param processDefinitionKey
+	 * @return InputStream
+	 * @since 9.7.2
+	 */
+	InputStream getBpmnDefinition(String processDefinitionKey);
 }

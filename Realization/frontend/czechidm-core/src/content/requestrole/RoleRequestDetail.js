@@ -7,16 +7,13 @@ import moment from 'moment';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager, DataManager, ConfigurationManager } from '../../redux';
+import { RoleRequestManager, IdentityRoleManager, DataManager, ConfigurationManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
-import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import RequestIdentityRoleTable from './RequestIdentityRoleTable';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
 //
 const uiKey = 'role-request';
-const uiKeyAttributes = 'concept-role-requests';
 const uiKeyIncompatibleRoles = 'request-incompatible-roles-';
-const conceptRoleRequestManager = new ConceptRoleRequestManager();
 const roleRequestManager = new RoleRequestManager();
 const identityRoleManager = new IdentityRoleManager();
 
@@ -26,10 +23,6 @@ const identityRoleManager = new IdentityRoleManager();
  * @author Vít Švanda
  */
 class RoleRequestDetail extends Advanced.AbstractTableContent {
-
-  getManager() {
-    return conceptRoleRequestManager;
-  }
 
   getUiKey() {
     return uiKey;
@@ -226,94 +219,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     }
   }
 
-  _renderRoleConceptChangesTable(request, forceSearchParameters, rendered) {
-    if (!rendered) {
-      return null;
-    }
-
-    return (
-      <div>
-        <Basic.ContentHeader rendered={ request !== null }>
-          <Basic.Icon value="list"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptHeader') }}/>
-        </Basic.ContentHeader>
-        <Basic.Panel rendered={ request !== null }>
-          <Advanced.Table
-            ref="table"
-            uiKey={uiKeyAttributes}
-            manager={conceptRoleRequestManager}
-            forceSearchParameters={forceSearchParameters}>
-            <Advanced.Column
-              header={this.i18n('entity.ConceptRoleRequest.role')}
-              cell={
-                /* eslint-disable react/no-multi-comp */
-                ({ rowIndex, data }) => {
-                  const role = data[rowIndex]._embedded.role;
-                  if (!role) {
-                    return '';
-                  }
-                  return (
-                    <Advanced.EntityInfo
-                      entityType="role"
-                      entityIdentifier={ role.id }
-                      entity={ role }
-                      face="popover" />
-                  );
-                }
-              }/>
-            <Advanced.Column
-              property="identityContract"
-              header={this.i18n('entity.ConceptRoleRequest.identityContract')}
-              cell={
-                ({rowIndex, data}) => {
-                  const contract = data[rowIndex].identityContract;
-                  if (!contract) {
-                    return '';
-                  }
-                  return (
-                    <Advanced.IdentityContractInfo
-                      entityIdentifier={ contract }
-                      entity={ data[rowIndex]._embedded.identityContract }
-                      showIdentity={ false }
-                      face="popover" />
-                  );
-                }
-              }
-            />
-            <Advanced.Column
-              property="operation"
-              face="enum"
-              enumClass={ConceptRoleRequestOperationEnum}
-              header={this.i18n('entity.ConceptRoleRequest.operation')}
-              sort/>
-            <Advanced.Column
-              property="state"
-              face="enum"
-              enumClass={RoleRequestStateEnum}
-              header={this.i18n('entity.ConceptRoleRequest.state')}
-              sort/>
-            <Advanced.Column
-              property="validFrom"
-              face="date"
-              header={this.i18n('entity.ConceptRoleRequest.validFrom')}
-              sort/>
-            <Advanced.Column
-              property="validTill"
-              face="date"
-              header={this.i18n('entity.ConceptRoleRequest.validTill')}
-              sort/>
-            <Advanced.Column
-              property="wfProcessId"
-              cell={this._getWfProcessCell}
-              header={this.i18n('entity.ConceptRoleRequest.wfProcessId')}
-              sort/>
-          </Advanced.Table>
-        </Basic.Panel>
-      </div>
-    );
-  }
-
   _getApplicantAndImplementer(request) {
     return (
       <div>
@@ -376,6 +281,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const _adminMode = hasAdminRights && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
     const showLoading = !request || (_showLoading && !isNew) || this.state.showLoading || this.props.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
+    const canExecuteTheRequest = isEditable && _.includes(['CONCEPT', 'EXCEPTION'], request.state);
     const systemStateLog = request && request.systemState ? request.systemState.stackTrace : null;
 
     if (this.state.showLoading || !request) {
@@ -406,13 +312,14 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             {' '}
             <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
           </Basic.ContentHeader>
-          <Basic.Panel rendered={ showRequestDetail }>
+          <Basic.Panel>
             <Basic.AbstractForm
               readOnly={!isEditable}
+              hidden={ !showRequestDetail }
               ref="form"
               data={requestForForm}
               showLoading={showLoading}
-              style={{ padding: '15px 15px 0 15px' }}>
+              style={{ padding: '15px 15px 0 15px', display: (showRequestDetail ? null : 'none') }}>
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   { this._getApplicantAndImplementer(request) }
@@ -536,7 +443,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               <Basic.Button
                 level="success"
                 icon="fa:object-group"
-                disabled={!isEditable}
+                disabled={!canExecuteTheRequest}
                 showLoading={ showLoading || _incompatibleRolesLoading }
                 onClick={ this._confirmIncompatibleRoles.bind(this, _incompatibleRoles) }
                 rendered={ request && roleRequestManager.canSave(request, _permissions)}

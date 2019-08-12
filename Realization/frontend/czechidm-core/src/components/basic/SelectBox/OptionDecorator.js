@@ -61,8 +61,8 @@ export default class OptionDecorator extends AbstractContextComponent {
    * react-select method
    */
   handleTouchEnd(event) {
-		// Check if the view is being dragged, In this case
-		// we don't want to fire the click event (because the user only wants to scroll)
+    // Check if the view is being dragged, In this case
+    // we don't want to fire the click event (because the user only wants to scroll)
     if (this.dragging) {
       return;
     }
@@ -73,7 +73,7 @@ export default class OptionDecorator extends AbstractContextComponent {
    * react-select method
    */
   handleTouchMove() {
-		// Set a flag that the view is being dragged
+    // Set a flag that the view is being dragged
     this.dragging = true;
   }
 
@@ -81,7 +81,7 @@ export default class OptionDecorator extends AbstractContextComponent {
    * react-select method
    */
   handleTouchStart() {
-		// Set a flag that the view is not being dragged
+    // Set a flag that the view is not being dragged
     this.dragging = false;
   }
 
@@ -92,6 +92,18 @@ export default class OptionDecorator extends AbstractContextComponent {
    */
   getEntityIcon(/* entity*/) {
     return null;
+  }
+
+  /**
+   * Returns description.
+   *
+   * @return {string}
+   */
+  getDescription(entity) {
+    if (!entity || !entity.description) {
+      return null;
+    }
+    return entity.description;
   }
 
   /**
@@ -135,13 +147,17 @@ export default class OptionDecorator extends AbstractContextComponent {
    * @return {element}
    */
   renderDescription(entity) {
-    if (!entity || !entity.description) {
+    if (!entity) {
+      return null;
+    }
+    const description = this.getDescription(entity);
+    if (!description) {
       return null;
     }
     //
     return (
       <ShortText
-        value={ entity.description }
+        value={ description }
         maxLength={ this.getDescriptionMaxLength() }
         style={{ color: this.isDisabled(entity) ? '#ccc' : '#555', fontSize: '0.95em', fontStyle: 'italic' }}/>
     );
@@ -158,19 +174,21 @@ export default class OptionDecorator extends AbstractContextComponent {
         style={ option.style }
         role="option"
         aria-label={ option.label }
-				onMouseDown={ disabled === true ? undefined : this.handleMouseDown.bind(this) }
-				onMouseEnter={ disabled === true ? undefined : this.handleMouseEnter.bind(this) }
-				onMouseMove={ disabled === true ? undefined : this.handleMouseMove.bind(this) }
+        aria-selected={ false }
+        tabIndex={ 0 }
+        onMouseDown={ disabled === true ? undefined : this.handleMouseDown.bind(this) }
+        onMouseEnter={ disabled === true ? undefined : this.handleMouseEnter.bind(this) }
+        onMouseMove={ disabled === true ? undefined : this.handleMouseMove.bind(this) }
         onTouchStart={ disabled === true ? undefined : this.handleTouchStart.bind(this) }
-				onTouchMove={ disabled === true ? undefined : this.handleTouchMove.bind(this) }
-				onTouchEnd={ disabled === true ? undefined : this.handleTouchEnd.bind(this) }
-				title={option.title}>
-				<div>
+        onTouchMove={ disabled === true ? undefined : this.handleTouchMove.bind(this) }
+        onTouchEnd={ disabled === true ? undefined : this.handleTouchEnd.bind(this) }
+        title={ option.title }>
+        <div>
           { this.renderIcon(option) }
           { children }
         </div>
         { this.renderDescription(option) }
-			</div>
-		);
+      </div>
+    );
   }
 }

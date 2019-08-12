@@ -18,7 +18,10 @@ class ScriptService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return entity.name;
+    if (entity.name === entity.code) {
+      return entity.name;
+    }
+    return `${entity.name} (${entity.code})`;
   }
 
   // dto

@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 //
 import * as Basic from '../../basic';
+import ScriptOptionDecorator from './ScriptOptionDecorator';
+import ScriptValueDecorator from './ScriptValueDecorator';
+import RichTextArea from '../RichTextArea/RichTextArea';
 
 /**
  * ScriptArea + select script by category.
@@ -9,6 +12,7 @@ import * as Basic from '../../basic';
  * Select script from agenda is realized as new modal window.
  *
  * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 class ScriptArea extends Basic.ScriptArea {
 
@@ -106,7 +110,7 @@ class ScriptArea extends Basic.ScriptArea {
         {' '}
         { this._getMaximalizationButton(showMaximalizationBtn) }
       </div>
-     );
+    );
   }
 
   render() {
@@ -133,13 +137,16 @@ class ScriptArea extends Basic.ScriptArea {
               <Basic.AbstractForm ref="form" >
                 <Basic.SelectBox
                   ref="selectedScript"
-                  manager={scriptManager}
+                  manager={ scriptManager }
                   useFirst
                   clearable={ false }
-                  onChange={this._chageScript.bind(this)}
+                  onChange={ this._chageScript.bind(this) }
                   forceSearchParameters={
-                    scriptManager.getDefaultSearchParameters().setFilter('inCategory', scriptCategory)}
-                  label={this.i18n('entity.Script.select.label')}/>
+                    scriptManager.getDefaultSearchParameters().setFilter('inCategory', scriptCategory)
+                  }
+                  label={ this.i18n('entity.Script.select.label') }
+                  optionComponent={ ScriptOptionDecorator }
+                  valueComponent={ ScriptValueDecorator }/>
               </Basic.AbstractForm>
               <Basic.AbstractForm ref="scriptDetail" data={script} >
                 <Basic.Row>
@@ -150,13 +157,19 @@ class ScriptArea extends Basic.ScriptArea {
                       label={this.i18n('entity.Script.code')}/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
-                    <Basic.TextField ref="name" readOnly
+                    <Basic.TextField
+                      ref="name"
+                      readOnly
                       label={this.i18n('entity.Script.name')}/>
                   </Basic.Col>
                 </Basic.Row>
-                <Basic.TextArea ref="description" readOnly
+                <RichTextArea
+                  ref="description"
+                  readOnly
                   label={this.i18n('entity.Script.description')}/>
-                <Basic.ScriptArea ref="script" readOnly
+                <Basic.ScriptArea
+                  ref="script"
+                  readOnly
                   label={this.i18n('entity.Script.script.label')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>

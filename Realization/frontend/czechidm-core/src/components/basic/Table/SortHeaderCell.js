@@ -38,7 +38,7 @@ class SortHeaderCell extends AbstractComponent {
       // if handleSort is not set, then its nothing to do
       return null;
     }
-    sortHandler(sortProperty || property, order, shiftKey);
+    return sortHandler(sortProperty || property, order, shiftKey);
   }
 
   render() {
@@ -82,7 +82,7 @@ SortHeaderCell.propTypes = {
   /**
    * Current searchparameters - sort
    */
-  searchParameters: React.PropTypes.object,
+  searchParameters: PropTypes.object,
   /**
    * Callback action for data sorting
 
@@ -90,11 +90,11 @@ SortHeaderCell.propTypes = {
    * @param string order [ASC, DESC]
    * @param bool shiftKey - append sort property, if shift is pressed.
    */
-  sortHandler: React.PropTypes.func,
+  sortHandler: PropTypes.func,
   /**
    * loadinig indicator
    */
-  showLoading: React.PropTypes.bool
+  showLoading: PropTypes.bool
 };
 SortHeaderCell.defaultProps = {
   showLoading: false
@@ -109,11 +109,11 @@ class SortIcon extends AbstractComponent {
     const { active, showLoading } = this.props;
     const ascClassName = classnames(
       'sort-icon sort-asc',
-      { 'active': active === ASC}
+      { active: active === ASC}
     );
     const descClassName = classnames(
       'sort-icon sort-desc',
-      { 'active': active === DESC }
+      { active: active === DESC }
     );
 
     return (
@@ -140,15 +140,15 @@ SortIcon.propTypes = {
   /**
    * loadinig indicator
    */
-  showLoading: React.PropTypes.bool
+  showLoading: PropTypes.bool
 };
 SortIcon.defaultProps = {
   active: null,
   showLoading: false
 };
 
-const SortHeader = ({...props}) => (
-  <SortHeaderCell {...props}/>
+const SortHeader = ({ ...props }) => (
+  <SortHeaderCell { ...props }/>
 );
 
 export default SortHeader;

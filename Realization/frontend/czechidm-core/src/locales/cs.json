@@ -381,7 +381,12 @@
           },
           "from": "z"
         },
-        "noData": "Nenalezeny žádné záznamy"
+        "noData": "Nenalezeny žádné záznamy",
+        "select": {
+          "remove": "Zrušit výběr",
+          "add": "Vybrat záznam",
+          "addAll": "Vybrat záznamy"
+        }
       },
       "ProgressBar": {
         "start": "Zpracovávám",

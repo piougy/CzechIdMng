@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import AbstractComponent from '../AbstractComponent/AbstractComponent';
+import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Cell from './Cell';
 
 /**
@@ -10,7 +10,7 @@ import Cell from './Cell';
  *
  * @author Radek Tomiška
  */
-class Row extends AbstractComponent {
+class Row extends AbstractContextComponent {
 
   _onClick(event) {
     this.props.onClick(event, this.props.rowIndex, this.props.data);
@@ -29,14 +29,13 @@ class Row extends AbstractComponent {
   }
 
   _getTitle({ selected, rowIndex }) {
-    // TODO: localization - move to props adn fill in advanced table
     if (selected) {
-      return 'Zrušit výběr';
+      return this.i18n('component.basic.Table.select.clear', { defaultValue: 'Clear selection' });
     }
     if (rowIndex !== undefined && rowIndex !== null && rowIndex > -1) {
-      return 'Vybrat záznam';
+      return this.i18n('component.basic.Table.select.add', { defaultValue: 'Select record' });
     }
-    return 'Vybrat záznamy';
+    return this.i18n('component.basic.Table.select.addAll', { defaultValue: 'Select records' });
   }
 
   _showRowSelection({ rowIndex, data, showRowSelection }) {
@@ -56,14 +55,14 @@ class Row extends AbstractComponent {
       const columnProps = columns[i].props;
       cells[i] = (
         <Cell
-          key={`cell_${i}`}
-          rowIndex={rowIndex}
-          cell={columnProps.cell}
-          property={columnProps.property}
-          data={data}
-          showLoading={this.props.showLoading}
-          width={columnProps.width}
-          className={columnProps.className}
+          key={ `cell_${i}` }
+          rowIndex={ rowIndex }
+          cell={ columnProps.cell }
+          property={ columnProps.property }
+          data={ data }
+          showLoading={ this.props.showLoading }
+          width={ columnProps.width }
+          className={ columnProps.className }
         />
       );
     }
@@ -81,22 +80,22 @@ class Row extends AbstractComponent {
 
     return (
       <tr
-        onClick={this.props.onClick ? this._onClick.bind(this) : null}
-        onDoubleClick={this.props.onDoubleClick ? this._onDoubleClick.bind(this) : null}
-        className={_rowClass}>
+        onClick={ this.props.onClick ? this._onClick.bind(this) : null }
+        onDoubleClick={ this.props.onDoubleClick ? this._onDoubleClick.bind(this) : null }
+        className={ _rowClass }>
         {
           !onRowSelect
           ||
           <td width="16px" className="bulk-selection">
             <input
               type="checkbox"
-              checked={selected}
-              onChange={this._onSelect.bind(this)}
-              title={this._getTitle(this.props)}
-              disabled={!this._showRowSelection(this.props)}/>
+              checked={ selected }
+              onChange={ this._onSelect.bind(this) }
+              title={ this._getTitle(this.props) }
+              disabled={ !this._showRowSelection(this.props) }/>
           </td>
         }
-        {cells}
+        { cells }
       </tr>
     );
   }
@@ -108,11 +107,11 @@ Row.propTypes = {
   /**
    * loadinig indicator
    */
-  showLoading: React.PropTypes.bool,
+  showLoading: PropTypes.bool,
   /**
    * input data as array of json objects
    */
-  data: PropTypes.array,
+  data: PropTypes.arrayOf(PropTypes.object),
   /**
    * Callback that is called when a row is clicked.
    */
@@ -129,11 +128,11 @@ Row.propTypes = {
   /**
    * Row selection
    */
-  onRowSelect: React.PropTypes.func,
+  onRowSelect: PropTypes.func,
   /**
    * If row is selected
    */
-  selected: React.PropTypes.bool,
+  selected: PropTypes.bool,
   /**
    * css added to row
    */

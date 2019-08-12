@@ -7,10 +7,6 @@ import Tooltip from '../Tooltip/Tooltip';
 
 class Checkbox extends AbstractFormComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   onChange(event) {
     if (this.props.onChange) {
       this.props.onChange(event);

@@ -1,16 +1,15 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 /**
  * Simple date formatter
+ *
+ * @author Radek Tomiška
  */
 class DateValue extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { rendered, value, format, title } = this.props;

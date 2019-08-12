@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Cell from './Cell';
 
@@ -10,10 +11,6 @@ import Cell from './Cell';
  * @author Radek Tomiška
  */
 class Row extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   _onClick(event) {
     this.props.onClick(event, this.props.rowIndex, this.props.data);

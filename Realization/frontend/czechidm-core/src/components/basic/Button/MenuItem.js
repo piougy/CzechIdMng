@@ -9,9 +9,6 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
  * @author Radek Tomiška
  */
 class ButtonMenuItem extends AbstractComponent {
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const {rendered, eventKey, onClick, children, showLoading} = this.props;

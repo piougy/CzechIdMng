@@ -1,14 +1,18 @@
-import React, { PropTypes } from 'react';
-import AbstractComponent from '../AbstractComponent/AbstractComponent';
-import Loading from '../Loading/Loading';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { AutoAffix } from 'react-overlays';
+//
+import AbstractComponent from '../AbstractComponent/AbstractComponent';
+import Loading from '../Loading/Loading';
 
+
+/**
+ * Toolbal panel.
+ *
+ * @author Radek Tomiška
+ */
 export default class Toolbar extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { className, rendered, showLoading, viewportOffsetTop, container, ...other } = this.props;

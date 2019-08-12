@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import _ from 'lodash';
 import classnames from 'classnames';
@@ -14,10 +15,6 @@ import Tooltip from '../Tooltip/Tooltip';
  */
 export default class BasicPopover extends AbstractComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   /**
    * Close popover
    */
@@ -28,7 +25,23 @@ export default class BasicPopover extends AbstractComponent {
   }
 
   render() {
-    const { id, rendered, children, value, text, title, placement, showLoading, trigger, delayShow, level, className, icon, rootClose, ...others } = this.props;
+    const {
+      id,
+      rendered,
+      children,
+      value,
+      text,
+      title,
+      placement,
+      showLoading,
+      trigger,
+      delayShow,
+      level,
+      className,
+      icon,
+      rootClose,
+      ...others
+    } = this.props;
     if (!rendered || (!children)) {
       return null;
     }
@@ -41,7 +54,7 @@ export default class BasicPopover extends AbstractComponent {
     //
     const classNames = classnames(
       'basic-popover',
-      'popover-' + level,
+      `popover-${ level }`,
       className
     );
 

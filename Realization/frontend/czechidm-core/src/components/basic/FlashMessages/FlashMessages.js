@@ -1,14 +1,16 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import NotificationSystem from 'react-notification-system';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 
+/**
+ * Closable notification messages.
+ *
+ * @author Radek Tomiška
+ */
 export class FlashMessages extends AbstractContextComponent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   componentWillReceiveProps(nextProps) {
     const unprocessedMessages = this._getUnproccessedMessages(nextProps.messages, this.props.messages);

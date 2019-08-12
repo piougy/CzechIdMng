@@ -9,10 +9,6 @@ import Icon from '../Icon/Icon';
  */
 class PageHeader extends AbstractComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { rendered, showLoading, children, className, text, ...others } = this.props;
     if (!rendered) {

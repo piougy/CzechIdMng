@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import DefaultCell from './DefaultCell';
@@ -11,10 +12,6 @@ import DefaultCell from './DefaultCell';
  * @author Radek Tomiška
  */
 class Cell extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { property, data, showLoading, width, className, ...props } = this.props;

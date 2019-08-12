@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -11,10 +12,6 @@ import HelpIcon from '../HelpIcon/HelpIcon';
  * @author Radek Tomiška
  */
 class ContentHeader extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { rendered, showLoading, children, className, help, text, icon, buttons, ...others } = this.props;

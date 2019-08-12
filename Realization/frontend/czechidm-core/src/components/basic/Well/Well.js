@@ -5,13 +5,11 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Icon from '../Icon/Icon';
 
 /**
- * Bootstrap row
+ * Bootstrap decorator.
+ *
+ * @author Radek Tomiška
  */
 class Well extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { rendered, showLoading, children, className, ...others } = this.props;

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -11,10 +12,6 @@ import Icon from '../Icon/Icon';
  */
 class Label extends AbstractComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   _onClose(event) {
     const { onClose } = this.props;
     if (!onClose) {
@@ -24,14 +21,14 @@ class Label extends AbstractComponent {
   }
 
   render() {
-    const { level, title, text, value, className, icon, rendered, showLoading, ...others } = this.props;
+    const { level, title, text, value, className, rendered, showLoading, ...others } = this.props;
     const _text = text || value;
     if (!rendered || !_text) {
       return null;
     }
     const classNames = classnames(
       'label',
-      'label-' + (level === 'error' ? 'danger' : level),
+      `label-${ (level === 'error' ? 'danger' : level) }`,
       className
     );
     return (

@@ -867,9 +867,13 @@ public interface TestHelper {
 	 * @param value
 	 * @return
 	 */
-	IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(UUID automaticRoleId,
-			AutomaticRoleAttributeRuleComparison comparsion, AutomaticRoleAttributeRuleType type, String attrName,
-			UUID formAttrId, String value);
+	IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(
+			UUID automaticRoleId,
+			AutomaticRoleAttributeRuleComparison comparsion, 
+			AutomaticRoleAttributeRuleType type, 
+			String attrName,
+			UUID formAttrId, 
+			String value);
 	
 	/**
 	 * Creates automatic roles by tree structure without recursion.

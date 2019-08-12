@@ -571,8 +571,13 @@ public class DefaultIdmAutomaticRoleAttributeService
 			SingularAttribute<? super IdmIdentityContract, ?> singularAttribute = metamodel.entity(IdmIdentityContract.class)
 					.getSingularAttribute(rule.getAttributeName());
 			Path<Object> path = root.get(singularAttribute.getName());
-			return getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue()), cb,
-					rule.getComparison(), !pass);
+			//
+			return getPredicateWithComparsion(
+					path,
+					castToType(singularAttribute, rule.getValue()),
+					cb,
+					rule.getComparison(),
+					!pass);
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.CONTRACT_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
 			//
@@ -779,9 +784,18 @@ public class DefaultIdmAutomaticRoleAttributeService
 			} else {
 				throw new UnsupportedOperationException("Primitive type :" + javaType.getName() + ", can't be cast!");
 			}
-		} else {
-			return javaType.cast(value);
 		}
+		// identity and contract specific enumeration
+		/* TODO: RT: works, but why? Only usable state is future contract or created maybe? Other options except valid one cannot have roles.
+		 * if (javaType.equals(ContractState.class)) {
+		 *   return IdentityState.valueOf(value);
+		 * }
+		*/
+		if (javaType.equals(ContractState.class)) {
+			return ContractState.valueOf(value);
+		}
+		//
+		return javaType.cast(value);
 	}
 	
 	/**

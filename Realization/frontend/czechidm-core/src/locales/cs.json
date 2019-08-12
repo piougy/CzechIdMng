@@ -5167,7 +5167,7 @@
         "icon": "component:automatic-role"
       },
       "core-process-automatic-role-attribute-long-running-task": {
-        "label": "Přepočítat automatickou roli dle atribute",
+        "label": "Přepočítat automatickou roli dle atributu",
         "help": "Přepočítá přiřazené role uživatelům dle zadané automatické role dle atributu.",
         "icon": "component:automatic-role",
         "attributes": {

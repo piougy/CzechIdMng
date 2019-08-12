@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
@@ -7,7 +8,13 @@ import * as Basic from '../../basic';
 import { LocalizationService } from '../../../services';
 import { ConfigurationManager } from '../../../redux/data';
 import { SecurityManager, IdentityManager } from '../../../redux';
-import { getNavigationItems, resolveNavigationParameters, collapseNavigation, i18nChange, selectNavigationItems } from '../../../redux/config/actions';
+import {
+  getNavigationItems,
+  resolveNavigationParameters,
+  collapseNavigation,
+  i18nChange,
+  selectNavigationItems
+} from '../../../redux/config/actions';
 import NavigationItem from './NavigationItem';
 import NavigationSeparator from './NavigationSeparator';
 
@@ -19,10 +26,6 @@ const identityManager = new IdentityManager();
  * @author Radek Tomiška
  */
 export class Navigation extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   renderNavigationItems(section = 'main') {
     const { navigation, userContext, selectedNavigationItems } = this.props;
@@ -50,16 +53,18 @@ export class Navigation extends Basic.AbstractContent {
 
     if (item.labelKey) {
       return (
-          <span>{this.i18n(item.labelKey, labelParams)}</span>
+        <span>{this.i18n(item.labelKey, labelParams)}</span>
       );
     }
     if (item.label) {
       return (
-          <span>{item.label}</span>
+        <span>{item.label}</span>
       );
     }
     return (
-      <span className="visible-xs-inline"> { this.i18n(item.titleKey, { defaultValue: item.title }) }</span>
+      <span className="visible-xs-inline">
+        { this.i18n(item.titleKey, { defaultValue: item.title }) }
+      </span>
     );
   }
 

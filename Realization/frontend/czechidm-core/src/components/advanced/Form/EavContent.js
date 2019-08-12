@@ -1,9 +1,10 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 //
-import * as Basic from '../../../components/basic';
+import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
 import { DataManager, FormDefinitionManager } from '../../../redux';
 import EavForm from './EavForm';

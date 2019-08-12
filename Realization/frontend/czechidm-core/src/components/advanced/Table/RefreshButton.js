@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import * as Basic from '../../basic';
 
 /**
@@ -7,10 +8,6 @@ import * as Basic from '../../basic';
  * @author Radek Tomiška
  */
 export default class RefreshButton extends Basic.AbstractContextComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { rendered, showLoading, title, onClick } = this.props;

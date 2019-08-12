@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 //
 import { AbstractComponent } from '../../basic';
 import AdvancedColumn from './Column';
@@ -9,10 +10,6 @@ import AdvancedColumn from './Column';
  * @author Radek Tomiška
  */
 class AdvancedColumnLink extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { rendered } = this.props;

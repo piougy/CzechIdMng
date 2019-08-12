@@ -1,10 +1,11 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 //
 import * as Basic from '../../basic';
-import { WorkflowTaskInstanceManager } from '../../../redux/';
+import { WorkflowTaskInstanceManager } from '../../../redux';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
@@ -16,10 +17,6 @@ const manager = new WorkflowTaskInstanceManager();
  * @author Švanda
  */
 export class WorkflowTaskInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;

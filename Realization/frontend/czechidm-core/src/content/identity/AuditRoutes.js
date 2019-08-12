@@ -11,10 +11,6 @@ import * as Advanced from '../../components/advanced';
 
 export default class AuditRoutes extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.audit';
   }

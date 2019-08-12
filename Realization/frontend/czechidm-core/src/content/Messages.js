@@ -12,10 +12,6 @@ import { HelpContent } from '../domain';
  */
 class Messages extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   componentDidMount() {
     this.selectNavigationItem('messages');
   }

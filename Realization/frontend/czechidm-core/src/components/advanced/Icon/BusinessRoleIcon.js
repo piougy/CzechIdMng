@@ -15,10 +15,6 @@ import AbstractIcon from './AbstractIcon';
  */
 export default class BusinessRoleIcon extends AbstractIcon {
 
-  constructor(props) {
-    super(props);
-  }
-
   renderIcon() {
     return (
       <span className="fa-layers fa-fw" title={ i18n('entity.RoleComposition._type') } style={{ fontSize: '0.9em' }}>

@@ -13,10 +13,6 @@ const manager = new IdentityManager();
  */
 export default class IdentityEav extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.identity.eav';
   }

@@ -1,13 +1,13 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import _ from 'lodash';
+import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
 import DecisionButtons from '../DecisionButtons';
 import DynamicTaskDetail from '../DynamicTaskDetail';
 import RoleConceptDetail from '../../requestrole/RoleConceptDetail';
 import { ConceptRoleRequestManager } from '../../../redux';
-import { connect } from 'react-redux';
 
 const conceptRoleRequestManager = new ConceptRoleRequestManager();
 
@@ -55,7 +55,9 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
     this.setState({
       showLoading: true
     });
-    const formData = {'decision': decision.id, 'formData': formDataConverted};
+    const formData = {
+      decision: decision.id,
+      formData: formDataConverted};
     const { taskManager} = this.props;
     this.context.store.dispatch(taskManager.completeTask(task, formData, this.props.uiKey, this._afterComplete.bind(this)));
   }
@@ -64,15 +66,18 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
   _updateConcept(data, type, formInstance) {
     this.setState({showLoading: true});
     const concept = {
-      'id': data.id,
-      'operation': type,
-      'roleRequest': data.roleRequest,
-      'identityContract': data.identityContract.id,
-      'role': data.role,
-      'identityRole': data.identityRole,
-      'validFrom': data.validFrom,
-      'validTill': data.validTill,
-      '_eav': [formInstance]
+      id: data.id,
+      operation: type,
+      roleRequest: data.roleRequest,
+      identityContract: data.identityContract.id,
+      role: data.role,
+      identityRole: data.identityRole,
+      validFrom: data.validFrom,
+      validTill: data.validTill,
+      state: data.state,
+      wfProcessId: data.wfProcessId,
+      log: data.log,
+      _eav: [formInstance]
     };
     this.context.store.dispatch(conceptRoleRequestManager.updateEntity(concept, null, (updatedEntity, error) => {
       if (!error) {
@@ -140,11 +145,14 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
 
-        <Basic.PageHeader>{taskName}
-          <small> {this.i18n('header')}</small>
+        <Basic.PageHeader>
+          {taskName}
+          <small>
+            {this.i18n('header')}
+          </small>
         </Basic.PageHeader>
 
-        <Basic.Panel showLoading = {showLoadingInternal}>
+        <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             {this._getTaskInfo(task)}
             {this._getApplicantAndRequester(task)}
@@ -161,7 +169,7 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
               readOnly={!canExecute} />
           </Basic.PanelFooter>
         </Basic.Panel>
-        <Basic.Panel showLoading = {showLoadingInternal}>
+        <Basic.Panel showLoading={showLoadingInternal}>
           <RoleConceptDetail
             ref="roleConceptDetail"
             identityUsername={task.applicant}
@@ -171,13 +179,14 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
             entity={entity}
             isEdit={canExecute}
             multiAdd={false}
-            />
+          />
           <Basic.PanelFooter>
             <Basic.Button
               type="button"
               level="link"
               onClick={this._goBack.bind(this)}
-              showLoading={showLoading}>{this.i18n('button.back')}
+              showLoading={showLoading}>
+              {this.i18n('button.back')}
             </Basic.Button>
             <Basic.Button
               level="success"

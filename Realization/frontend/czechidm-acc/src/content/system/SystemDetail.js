@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
@@ -54,48 +55,50 @@ class SystemDetail extends Basic.AbstractContent {
       ...entity,
     };
 
-    if (entity && entity._embedded && entity._embedded.passwordPolicyGenerate) {
-      data.passwordPolicyGenerate = entity._embedded.passwordPolicyGenerate;
-    }
-    if (entity && entity._embedded && entity._embedded.passwordPolicyValidate) {
-      data.passwordPolicyValidate = entity._embedded.passwordPolicyValidate;
-    }
-    if (entity.disabledProvisioning) {
-      if (entity.disabled) {
-        data.stateEnum = 'disabledProvisioning';
-      } else {
-        data.stateEnum = 'readonlyDisabledProvisioning';
+    if (entity) {
+      if (entity._embedded && entity._embedded.passwordPolicyGenerate) {
+        data.passwordPolicyGenerate = entity._embedded.passwordPolicyGenerate;
       }
-    } else if (entity.disabled) {
-      data.stateEnum = 'disabled';
-    } else if (entity.readonly) {
-      data.stateEnum = 'readonly';
-    } else {
-      data.stateEnum = null;
-    }
+      if (entity._embedded && entity._embedded.passwordPolicyValidate) {
+        data.passwordPolicyValidate = entity._embedded.passwordPolicyValidate;
+      }
+      if (entity.disabledProvisioning) {
+        if (entity.disabled) {
+          data.stateEnum = 'disabledProvisioning';
+        } else {
+          data.stateEnum = 'readonlyDisabledProvisioning';
+        }
+      } else if (entity.disabled) {
+        data.stateEnum = 'disabled';
+      } else if (entity.readonly) {
+        data.stateEnum = 'readonly';
+      } else {
+        data.stateEnum = null;
+      }
 
-    // connector is part of entity, not embedded
-    if (entity && entity.connectorServer) {
-      // set data for connector server
-      data = {
-        ...data,
-        host: entity.connectorServer.host,
-        port: entity.connectorServer.port,
-        useSs: entity.connectorServer.useSsl,
-        password: entity.connectorServer.password,
-        timeout: entity.connectorServer.timeout
-      };
-    }
+      // connector is part of entity, not embedded
+      if (entity.connectorServer) {
+        // set data for connector server
+        data = {
+          ...data,
+          host: entity.connectorServer.host,
+          port: entity.connectorServer.port,
+          useSs: entity.connectorServer.useSsl,
+          password: entity.connectorServer.password,
+          timeout: entity.connectorServer.timeout
+        };
+      }
 
-    if (entity && entity.blockedOperation) {
-      data = {
-        ...data,
-        createOperation: entity.blockedOperation.createOperation,
-        updateOperation: entity.blockedOperation.updateOperation,
-        deleteOperation: entity.blockedOperation.deleteOperation
-      };
+      if (entity.blockedOperation) {
+        data = {
+          ...data,
+          createOperation: entity.blockedOperation.createOperation,
+          updateOperation: entity.blockedOperation.updateOperation,
+          deleteOperation: entity.blockedOperation.deleteOperation
+        };
+      }
     }
-
+    //
     this.refs.form.setData(data);
     this.refs.name.focus();
   }
@@ -206,11 +209,18 @@ class SystemDetail extends Basic.AbstractContent {
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
-            <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } } showLoading={ _showLoading } >
+            <Basic.PanelBody
+              style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }
+              showLoading={ _showLoading } >
               <Basic.AbstractForm
                 ref="form"
                 uiKey={ uiKey}
-                readOnly={ Utils.Entity.isNew(entity) ? !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } >
+                readOnly={
+                  Utils.Entity.isNew(entity)
+                  ?
+                  !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE')
+                  :
+                  !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }>
                 <Basic.Alert
                   level="warning"
                   icon="exclamation-sign"
@@ -332,7 +342,13 @@ class SystemDetail extends Basic.AbstractContent {
                 showLoading={_showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={ Utils.Entity.isNew(entity) ? Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
+                rendered={
+                  Utils.Entity.isNew(entity)
+                  ?
+                  Managers.SecurityManager.hasAuthority('SYSTEM_CREATE')
+                  :
+                  Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')
+                }
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>

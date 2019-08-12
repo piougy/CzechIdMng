@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
@@ -17,10 +18,6 @@ const identityManager = new IdentityManager();
  * @author Radek Tomiška
  */
 class IdentityAuthorities extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.identity.authorities';

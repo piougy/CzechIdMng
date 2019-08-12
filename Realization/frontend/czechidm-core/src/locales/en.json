@@ -351,6 +351,11 @@
           },
           "from": "of"
         },
+        "select": {
+          "remove": "Clear selection",
+          "add": "Select record",
+          "addAll": "Select records"
+        },
         "noData": "No results found"
       },
       "ProgressBar": {

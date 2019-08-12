@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 //
 import * as Basic from '../../basic';
 
@@ -11,10 +12,6 @@ import * as Basic from '../../basic';
  * @author Radek Tomiška
  */
 export default class FilterButtons extends Basic.AbstractContextComponent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   _cancelFilter(event) {
     const { cancelFilter } = this.props;

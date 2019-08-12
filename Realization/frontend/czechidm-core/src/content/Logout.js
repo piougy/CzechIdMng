@@ -11,10 +11,6 @@ const securityManager = new SecurityManager();
  */
 export default class Logout extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   componentWillMount() {
     // logout immediately, when component will mount
     this.context.store.dispatch(securityManager.logout(() => {

@@ -11,17 +11,14 @@ import FormInstance from '../../domain/FormInstance';
  */
 export default class IdentityRoleEav extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.identity.roles';
   }
 
   render() {
     const { entity } = this.props;
-    if ( entity
+    if (
+      entity
       && entity._eav
       && entity._eav.length === 1
       && entity._eav[0].formDefinition) {

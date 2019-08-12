@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -15,10 +16,6 @@ const componentService = new ComponentService();
  * @author Ondřej Kopr
  */
 class PasswordChangeForm extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   /**
    * Return all components of password-change-component type

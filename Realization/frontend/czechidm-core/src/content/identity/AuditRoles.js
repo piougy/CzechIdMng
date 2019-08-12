@@ -15,10 +15,6 @@ const identityManager = new IdentityManager();
  */
 class AuditRoles extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.audit';
   }

@@ -1,5 +1,6 @@
-import TextFormAttributeRenderer from './TextFormAttributeRenderer';
 import Joi from 'joi';
+//
+import TextFormAttributeRenderer from './TextFormAttributeRenderer';
 
 /**
  * Uuid form value component

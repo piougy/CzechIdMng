@@ -1,7 +1,7 @@
-import { PropTypes } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
-import { TreeTypeManager, SecurityManager, DataManager } from '../../../redux/';
+import { TreeTypeManager, SecurityManager, DataManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new TreeTypeManager();
@@ -15,10 +15,6 @@ const manager = new TreeTypeManager();
  * @author Patrik Stloukal
  */
 export class TreeTypeInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   _onEnter() {
     super._onEnter();
@@ -34,7 +30,7 @@ export class TreeTypeInfo extends AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ']})) {
+    if (!SecurityManager.hasAccess({ type: 'HAS_ANY_AUTHORITY', authorities: ['TREETYPE_READ']})) {
       return false;
     }
     return true;

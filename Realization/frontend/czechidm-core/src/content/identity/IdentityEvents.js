@@ -18,10 +18,6 @@ const identityManager = new IdentityManager();
  */
 class IdentityEvents extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return identityManager;
   }

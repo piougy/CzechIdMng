@@ -1,8 +1,9 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import { PasswordManager, SecurityManager } from '../../../redux/';
+import { PasswordManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import EntityInfo from '../EntityInfo/EntityInfo';
 import DateValue from '../DateValue/DateValue';
@@ -17,10 +18,6 @@ const manager = new PasswordManager();
  */
 export class PasswordInfo extends AbstractEntityInfo {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return manager;
   }
@@ -29,7 +26,7 @@ export class PasswordInfo extends AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORD_READ']})) {
+    if (!SecurityManager.hasAccess({ type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORD_READ']})) {
       return false;
     }
     return true;

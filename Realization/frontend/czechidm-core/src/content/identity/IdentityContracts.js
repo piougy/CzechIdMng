@@ -13,11 +13,6 @@ import ContractSlices from './ContractSlices';
  */
 export default class IdentityContracts extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
-
   getContentKey() {
     return 'content.identity.identityContracts';
   }

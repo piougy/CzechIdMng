@@ -270,7 +270,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     this.state = {
       showLoading: false,
       typeForceSearchParameters: null, // force search parameters for EAV attribute
-      type: AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY), // default type, show when create new entity
+      // default type, show when create new entity
+      type: AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY),
       valueRequired: true, // flag for required field
       formAttribute: null, // instance of form attribute, is used for computed field input
       attributeName: null // name of identity attribute
@@ -405,6 +406,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
         return eav[field];
       }
     }
+    //
+    return null;
   }
 
   _typeChange(option) {

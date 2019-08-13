@@ -612,7 +612,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     ref="filterOperation"
                     enum={IcFilterOperationTypeEnum}
                     label={this.i18n('acc:entity.SynchronizationConfig.filterOperation')}
-                    required/>
+                    required
+                    clearable={ false }/>
                   <Basic.SelectBox
                     ref="tokenAttribute"
                     manager={systemAttributeMappingManager}

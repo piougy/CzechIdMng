@@ -172,13 +172,16 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		LongRunningTaskExecutor<String> taskExecutor = new TestStopableLongRunningTaskExecutor(result, count);
 		//
 		manager.execute(taskExecutor);
+		IdmLongRunningTaskDto longRunningTask = manager.getLongRunningTask(taskExecutor);
+		// task has to be marked as running immediately
+		Assert.assertEquals(OperationState.RUNNING, longRunningTask.getResult().getState());
 		//
 		Function<String, Boolean> continueFunction = res -> {
 			return !manager.getLongRunningTask(taskExecutor).isRunning();
 		};
 		getHelper().waitForResult(continueFunction);
 		//
-		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.RUNNING, longRunningTask.getResult().getState());
 		assertEquals(count, longRunningTask.getCount());
 		assertTrue(longRunningTask.isRunning());

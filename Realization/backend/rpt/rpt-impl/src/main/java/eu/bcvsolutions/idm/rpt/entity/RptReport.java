@@ -35,8 +35,7 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 		@Index(name = "idx_rpt_report_name", columnList = "name"),
 		@Index(name = "idx_rpt_report_executor", columnList = "executor_name"),
 		@Index(name = "idx_rpt_report_lrt_id", columnList = "long_running_task_id")})
-public class RptReport extends AbstractEntity 
-		implements FormableEntity, AttachableEntity {
+public class RptReport extends AbstractEntity implements FormableEntity, AttachableEntity {
 	
 	private static final long serialVersionUID = 1L;
 	//

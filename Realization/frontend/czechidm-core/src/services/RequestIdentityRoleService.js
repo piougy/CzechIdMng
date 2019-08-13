@@ -23,7 +23,7 @@ class RequestIdentityRoleService extends FormableEntityService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('role.name', 'desc');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('role.name', 'asc');
   }
 }
 

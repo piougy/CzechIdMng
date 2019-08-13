@@ -28,7 +28,7 @@ class Badge extends AbstractComponent {
     }
     const classNames = classnames(
       'badge',
-      `badge- ${ (level === 'error' ? 'danger' : level) }`,
+      `badge-${ (level === 'error' ? 'danger' : level) }`,
       className
     );
     return (

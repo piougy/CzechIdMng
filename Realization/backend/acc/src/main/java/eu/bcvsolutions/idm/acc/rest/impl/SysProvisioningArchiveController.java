@@ -131,12 +131,18 @@ public class SysProvisioningArchiveController extends AbstractReadWriteDtoContro
 		Page<SysProvisioningArchiveDto> results = super.find(filter, pageable, permission);
 		// fill entity embedded for FE
 		Map<UUID, BaseDto> loadedDtos = new HashMap<>();
-		results.getContent().forEach(operation -> {
-			if (!loadedDtos.containsKey(operation.getEntityIdentifier())) {
-				loadedDtos.put(operation.getEntityIdentifier(), getLookupService().lookupDto(operation.getEntityType().getEntityType(), operation.getEntityIdentifier()));
-			}
-			operation.getEmbedded().put("entity", loadedDtos.get(operation.getEntityIdentifier()));
-		});
+		results
+			.getContent()
+			.stream()
+			.filter(operation -> {
+				return operation.getEntityIdentifier() != null;
+			})
+			.forEach(operation -> {
+				if (!loadedDtos.containsKey(operation.getEntityIdentifier())) {
+					loadedDtos.put(operation.getEntityIdentifier(), getLookupService().lookupDto(operation.getEntityType().getEntityType(), operation.getEntityIdentifier()));
+				}
+				operation.getEmbedded().put("entity", loadedDtos.get(operation.getEntityIdentifier()));
+			});
 		return results;
 	}
 

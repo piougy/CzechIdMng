@@ -78,8 +78,8 @@ def conceptDto = conceptRoleRequestService.get(conceptRole.id);
 conceptDto.setState(RoleRequestState.APPROVED);
 
 // Set current validity dates
-conceptDto.setValidFrom(conceptRole.validFrom);
-conceptDto.setValidTill(conceptRole.validTill);
+// conceptDto.setValidFrom(conceptRole.validFrom);
+// conceptDto.setValidTill(conceptRole.validTill);
 
 conceptRoleRequestService.save(conceptDto);</script>
     </scriptTask>

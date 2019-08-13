@@ -132,7 +132,7 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
     const showLoadingInternal = task && _entity ? showLoading : true;
     const formDataValues = this._toFormDataValues(task.formData);
     const taskName = taskManager.localize(task, 'name');
-    const entity = _.merge({}, _entity);
+    const entity = _entity ? _.merge({}, _entity) : null;
     if (_entity && _entity.identityContract && _entity._embedded && _entity._embedded.identityContract) {
       entity.identityContract = _entity._embedded.identityContract;
     }

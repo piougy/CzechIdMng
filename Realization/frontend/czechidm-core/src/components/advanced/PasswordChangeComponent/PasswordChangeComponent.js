@@ -278,7 +278,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     //
     const allOnlyWarningClassNames = classnames(
       'form-group',
-      { 'hidden': passwordChangeType !== IdentityManager.idm || SecurityManager.isAdmin(userContext) }
+      { hidden: passwordChangeType !== IdentityManager.idm || SecurityManager.isAdmin(userContext) }
     );
     //
     // if current user is admin, old password is never required

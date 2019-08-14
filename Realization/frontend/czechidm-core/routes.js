@@ -39,14 +39,14 @@ module.exports = {
           priority: 0
         },
         {
-          path: 'password',
+          path: 'password', // TODO: PASSWORDRESET is from pwdreset module, implement some conditional iten hidding
           component: require('./src/content/identity/password/PasswordRoute'),
-          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_PASSWORDCHANGE', 'PASSWORD_READ' ] } ],
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_PASSWORDCHANGE', 'PASSWORD_READ', 'IDENTITY_PASSWORDRESET' ] } ],
           childRoutes: [
             {
               path: 'change',
               component: require('./src/content/identity/PasswordChangeRoute'),
-              access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_PASSWORDCHANGE' ] } ]
+              access: [ { type: 'HAS_ANY_AUTHORITY', authorities: [ 'IDENTITY_PASSWORDCHANGE', 'IDENTITY_PASSWORDRESET' ] } ]
             },
             {
               path: 'detail',

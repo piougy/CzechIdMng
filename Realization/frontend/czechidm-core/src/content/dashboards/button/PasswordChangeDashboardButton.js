@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 //
 import * as Advanced from '../../../components/advanced';
+import * as Utils from '../../../utils';
 import { IdentityManager, ConfigurationManager } from '../../../redux';
 
 const identityManager = new IdentityManager();
@@ -13,10 +14,6 @@ const identityManager = new IdentityManager();
  */
 class PasswordChangeDashboardButton extends Advanced.AbstractIdentityDashboardButton {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getIcon() {
     return 'component:password';
   }
@@ -24,7 +21,8 @@ class PasswordChangeDashboardButton extends Advanced.AbstractIdentityDashboardBu
   isRendered() {
     const { passwordChangeType, permissions } = this.props;
     //
-    return identityManager.canChangePassword(passwordChangeType, permissions);
+    return identityManager.canChangePassword(passwordChangeType, permissions)
+      || Utils.Permission.hasPermission(permissions, 'PASSWORDRESET');
   }
 
   getLabel() {

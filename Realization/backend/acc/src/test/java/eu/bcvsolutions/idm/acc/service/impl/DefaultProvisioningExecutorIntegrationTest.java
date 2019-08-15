@@ -523,7 +523,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 					)
 					.getContent();
 			Assert.assertEquals(3, archived.size());
-			Assert.assertEquals(OperationState.EXECUTED, archived.get(0).getResultState());
+			Assert.assertTrue(archived.stream().anyMatch(a -> a.getResultState() == OperationState.EXECUTED));
 		} finally {
 			testProvisioningExceptionProcessor.setDisabled(true);
 		}

@@ -91,12 +91,6 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
         level={VsOperationType.getLevel(entity.value)}
         text={VsOperationType.getNiceLabel(entity.value)}/>));
     }
-    if (entity.label === this.i18n('acc:entity.System.name')) {
-      return ((<Advanced.EntityInfo
-        entityType="system"
-        entityIdentifier={ entity.value }
-        face="link" />));
-    }
     return entity.value;
   }
 
@@ -118,7 +112,13 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
     content = content.concat([
       {
         label: this.i18n('acc:entity.System.name'),
-        value: entity._embedded.system.id
+        value: (
+          <Advanced.EntityInfo
+            entityType="system"
+            entityIdentifier={ entity.system }
+            entity={ entity._embedded.system }
+            face="popover" />
+        )
       },
       {
         label: this.i18n('vs:entity.VsRequest.uid.label'),

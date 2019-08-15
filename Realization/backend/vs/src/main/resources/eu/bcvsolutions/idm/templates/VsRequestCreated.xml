@@ -132,11 +132,41 @@ New virtual system request (for realization) was created and send to implementer
 	 #end
     #end
 
+	## Print contact about applicat of role request
+    #macro( printContactApplicant $roleRequestCreator $loc )
+     #if($roleRequestCreator)
+    	#set($locEng = 'ENG')
+		#if($locEng == $loc)
+			Name: 
+		#else
+			Jméno: 
+		#end
+		<b>$!roleRequestCreator.firstName $!roleRequestCreator.lastName ($roleRequestCreator.username)</b>
+		<br />
+		
+		#if($locEng == $loc)
+			Phone:  
+		#else
+			Telefon: 
+		#end
+		<b>$!roleRequestCreator.getPhone()</b><br />
+		Email: <b>$!roleRequestCreator.getEmail()</b><br />
+	 #end
+    #end
+
     Dobrý den,<br />
     byl vytvořen požadavek na realizaci účtu '<b>$request.getUid()</b>' na virtuálním systému '<b>$systemName</b>'.<br />
     <br />
 
     #printContact($fullName $identity 'CZ')
+    #if($roleRequestCreator)
+	    <br />
+	    <br />
+	    Informace o žadateli, který vyvolal změnu přiřazením role:
+	    <br />
+	    #printContactApplicant($roleRequestCreator 'CZ')
+    #end
+
     <br />
     #set($operationTypeDelete = 'DELETE')
     #if($operationTypeDelete == $request.getOperationType())
@@ -182,6 +212,13 @@ New virtual system request (for realization) was created and send to implementer
     <br />
 
     #printContact($fullName $identity 'ENG')
+    #if($roleRequestCreator )
+	    <br />
+	    <br />
+	    Information about applicat who caused the change by assigning a role
+	    <br />
+	    #printContactApplicant($roleRequestCreator 'ENG')
+    #end
     <br />
     #set($operationTypeDelete = 'DELETE')
     #if($operationTypeDelete == $request.getOperationType())

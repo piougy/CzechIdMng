@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [9.7.3]
 
+- [#1794](https://redmine.czechidm.com/issues/1794) Notification template with code ``vs:vsRequestCreated`` was changed. Please redeploy manually this notification template.
 - [#1798](https://redmine.czechidm.com/issues/1798) - **New base permissions for disable / enable identity manually was added**. Configure this new permissions (``MANUALLYDISABLE``, ``MANUALLYENABLE``) to role, which enables bulk action and dashboard button for activate / deactivate user manually. Previously configured permissions ``UPDATE`` on identity will be not suffiscient to execute this function.
 
 ## [9.7.0]

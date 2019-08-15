@@ -600,6 +600,20 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		}
 		SysSystemDto system = systemService.get(request.getSystem());
 
+		// For information about role request and role request applicant
+		UUID roleRequestId = request.getRoleRequestId();
+		IdmRoleRequestDto roleRequestDto = null;
+		IdmIdentityDto roleRequestCreator = null;
+		if (roleRequestId != null) {
+			roleRequestDto = roleRequestService.get(roleRequestId);
+
+			UUID roleRequestCreatorId = roleRequestDto.getCreatorId();
+			if (roleRequestCreatorId != null) {
+				roleRequestCreator = identityService.get(roleRequestDto.getCreatorId());
+				
+			}
+		}
+
 		// send create notification
 		notificationManager.send(VirtualSystemModuleDescriptor.TOPIC_VS_REQUEST_CREATED, new IdmMessageDto.Builder()
 				.setLevel(NotificationLevel.INFO)
@@ -611,6 +625,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				.addParameter("url", getUrl(request))//
 				.addParameter("previousUrl", getUrl(previous))//
 				.addParameter("request", request)//
+				.addParameter("roleRequestCreator", roleRequestCreator)//
 				.addParameter("systemName", system.getName()).build(), implementers);
 
 	}

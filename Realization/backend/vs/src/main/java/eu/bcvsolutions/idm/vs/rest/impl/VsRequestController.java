@@ -38,7 +38,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
@@ -144,12 +143,12 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 
 		UUID roleRequestId = request.getRoleRequestId();
 		if (roleRequestId != null) {
-			IdmRoleRequestDto roleRequestDto = rolerequestService.get(roleRequestId, IdmBasePermission.AUTOCOMPLETE);
+			IdmRoleRequestDto roleRequestDto = rolerequestService.get(roleRequestId);
 			if (roleRequestDto != null) {
 
 				UUID roleRequestCreatorId = roleRequestDto.getCreatorId();
 				if (roleRequestCreatorId != null) {
-					IdmIdentityDto roleRequestCreator = identityService.get(roleRequestCreatorId, IdmBasePermission.AUTOCOMPLETE);
+					IdmIdentityDto roleRequestCreator = identityService.get(roleRequestCreatorId);
 					roleRequestDto.getEmbedded().put(Auditable.PROPERTY_CREATOR, roleRequestCreator);
 				}
 

@@ -606,11 +606,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		IdmIdentityDto roleRequestCreator = null;
 		if (roleRequestId != null) {
 			roleRequestDto = roleRequestService.get(roleRequestId);
-
-			UUID roleRequestCreatorId = roleRequestDto.getCreatorId();
-			if (roleRequestCreatorId != null) {
-				roleRequestCreator = identityService.get(roleRequestDto.getCreatorId());
-				
+			if (roleRequestDto != null) {
+				UUID roleRequestCreatorId = roleRequestDto.getCreatorId();
+				if (roleRequestCreatorId != null) {
+					roleRequestCreator = identityService.get(roleRequestCreatorId);
+				}
 			}
 		}
 

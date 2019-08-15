@@ -38,7 +38,7 @@
       },
       "roleRequest": {
         "implementer": {
-            "label": "Applicant, that caused the request by changing roles"
+            "label": "The applicant, that created request to change of assigned roles"
         }
       }
     }

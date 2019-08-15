@@ -162,7 +162,7 @@ New virtual system request (for realization) was created and send to implementer
     #if($roleRequestCreator)
 	    <br />
 	    <br />
-	    Informace o žadateli, který vyvolal změnu přiřazením role:
+	    Informace o žadateli, který vytvořil žádost o změnu přiřazných rolí:
 	    <br />
 	    #printContactApplicant($roleRequestCreator 'CZ')
     #end
@@ -215,7 +215,7 @@ New virtual system request (for realization) was created and send to implementer
     #if($roleRequestCreator )
 	    <br />
 	    <br />
-	    Information about applicat who caused the change by assigning a role
+	    Information about the applicant, that created the request to change of assigned roles:
 	    <br />
 	    #printContactApplicant($roleRequestCreator 'ENG')
     #end

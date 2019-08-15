@@ -589,7 +589,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   <Advanced.EavForm
                     ref="formInstance"
                     formInstance={ formInstance }
-                    useDefaultValue/>
+                    useDefaultValue={ Utils.Entity.isNew(detail.entity) }/>
                 </div>
               </Basic.AbstractForm>
             </Basic.Modal.Body>

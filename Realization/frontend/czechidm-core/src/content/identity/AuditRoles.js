@@ -38,10 +38,10 @@ class AuditRoles extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-          <AuditIdentityRolesTable
-            singleUserMod
-            id={identity.id}
-            uiKey={`identity-roles-audit-table-${identity.id}`}/>
+        <AuditIdentityRolesTable
+          singleUserMod
+          id={identity.id}
+          uiKey={`identity-roles-audit-table-${identity.id}`}/>
       </div>
     );
   }

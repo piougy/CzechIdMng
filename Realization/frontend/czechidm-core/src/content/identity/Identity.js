@@ -59,17 +59,21 @@ class IdentityContent extends Basic.AbstractContent {
           {
             _imageUrl
             ?
-            <img src={ _imageUrl } className="img-circle img-thumbnail" style={{ height: 40, padding: 0 }} />
+            <img src={ _imageUrl } alt="profile" className="img-circle img-thumbnail" style={{ height: 40, padding: 0 }} />
             :
             <Basic.Icon icon="component:identity" identity={ identity }/>
           }
           { ' ' }
-          { identityManager.getNiceLabel(identity) } <small> { this.i18n('content.identity.profile.userDetail') }</small>
+          { identityManager.getNiceLabel(identity) }
+          <small>
+            {' '}
+            { this.i18n('content.identity.profile.userDetail') }
+          </small>
         </Basic.PageHeader>
 
         <OrganizationPosition identity={ entityId }/>
 
-        <Advanced.TabPanel position="left" parentId="identity-profile" params={ this.props.params } style={{ display: 'none'}}>
+        <Advanced.TabPanel position="left" parentId="identity-profile" params={ this.props.params }>
           { this.props.children }
         </Advanced.TabPanel>
       </div>

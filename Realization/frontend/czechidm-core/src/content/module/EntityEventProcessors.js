@@ -110,9 +110,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
         });
       });
       // sort _entityTypes
-      _registeredEntityTypes = _registeredEntityTypes.sort((one, two) => {
-        return one > two;
-      });
+      _registeredEntityTypes = _registeredEntityTypes.sort((one, two) => one > two);
     }
     //
     // filtered processors and entity types
@@ -140,7 +138,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
           <div>
             <div className="pull-right">
               <Advanced.Filter.ToogleButton
-                filterOpen={ (open)=> this.setState({ filterOpened: open }) }
+                filterOpen={ (open) => this.setState({ filterOpened: open }) }
                 filterOpened={ filterOpened }
                 style={{ marginLeft: 3 }}
                 searchParameters={ _searchParameters }/>
@@ -149,7 +147,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                 title={ this.i18n('button.refresh') }
                 showLoading={ showLoading }/>
             </div>
-            <div className="clearfix"></div>
+            <div className="clearfix" />
           </div>
           <Basic.Collapse in={filterOpened}>
             <div>
@@ -175,14 +173,14 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                       <Advanced.Filter.EnumSelectBox
                         ref="entityType"
                         placeholder={ this.i18n('filter.entityType.placeholder') }
-                        options={ _registeredEntityTypes.toArray().map(value => { return { value, niceLabel: value }; }) }
+                        options={ _registeredEntityTypes.toArray().map(value => ({ value, niceLabel: value })) }
                         searchable/>
                     </Basic.Col>
                     <Basic.Col lg={ 4 }>
                       <Advanced.Filter.EnumSelectBox
                         ref="eventTypes"
                         placeholder={ this.i18n('filter.eventTypes.placeholder') }
-                        options={ _registeredEventTypes.toArray().map(value => { return { value, niceLabel: value }; }) }
+                        options={ _registeredEventTypes.toArray().map(value => ({ value, niceLabel: value })) }
                         multiSelect
                         searchable/>
                     </Basic.Col>
@@ -194,121 +192,121 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
         </Basic.Toolbar>
 
         <Basic.Loading isStatic show={ showLoading }/>
-        <Basic.Alert level="info" text={ this.i18n('component.basic.Table.noData') } style={{ margin: 15 }} rendered={ !showLoading && _processors.size === 0 } />
+        <Basic.Alert
+          level="info"
+          text={ this.i18n('component.basic.Table.noData') }
+          style={{ margin: 15 }}
+          rendered={ !showLoading && _processors.size === 0 } />
 
         {
           showLoading || _processors.size === 0
           ||
           <div>
             {
-              _entityTypes.map((entityType) => {
-                return (
-                  <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>
-                    <Basic.ContentHeader text={entityType}/>
+              _entityTypes.map((entityType) => (
+                <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>
+                  <Basic.ContentHeader text={entityType}/>
 
-                    <Basic.Table
-                      data={ _processors.get(entityType) }
-                      showLoading={ showLoading }
-                      noData={ this.i18n('component.basic.Table.noData') }
-                      rowClass={({ rowIndex, data }) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>
-                      <Basic.Column property="module" header={this.i18n('entity.EntityEventProcessor.module')} width={75} />
-                      <Basic.Column property="name" header={this.i18n('entity.EntityEventProcessor.name')} width="30%"/>
-                      <Basic.Column
-                        property="description"
-                        header={this.i18n('entity.EntityEventProcessor.description')}
-                        cell={
-                          ({ rowIndex, data, property }) => {
-                            const values = [];
-                            _.keys(data[rowIndex].configurationProperties).map(configurationProperty => {
-                              const value = data[rowIndex].configurationProperties[configurationProperty];
-                              if (value) {
-                                values.push({ configurationProperty, value });
+                  <Basic.Table
+                    data={ _processors.get(entityType) }
+                    showLoading={ showLoading }
+                    noData={ this.i18n('component.basic.Table.noData') }
+                    rowClass={ ({ rowIndex, data }) => Utils.Ui.getRowClass(data[rowIndex]) }>
+                    <Basic.Column property="module" header={ this.i18n('entity.EntityEventProcessor.module') } width={75} />
+                    <Basic.Column property="name" header={ this.i18n('entity.EntityEventProcessor.name') } width="30%"/>
+                    <Basic.Column
+                      property="description"
+                      header={this.i18n('entity.EntityEventProcessor.description')}
+                      cell={
+                        ({ rowIndex, data, property }) => {
+                          const values = [];
+                          _.keys(data[rowIndex].configurationProperties).forEach(configurationProperty => {
+                            const value = data[rowIndex].configurationProperties[configurationProperty];
+                            if (value) {
+                              values.push({ configurationProperty, value });
+                            }
+                          });
+                          return (
+                            <div>
+                              <div>{data[rowIndex][property]}</div>
+                              {
+                                values.length === 0
+                                ||
+                                <div>
+                                  <div>Configuration:</div>
+                                  {
+                                    values.map(value => (
+                                      <div>{ `- ${value.configurationProperty}: ${value.value}` }</div>
+                                    ))
+                                  }
+                                </div>
                               }
-                            });
-                            return (
-                              <div>
-                                <div>{data[rowIndex][property]}</div>
-                                {
-                                  values.length === 0
-                                  ||
-                                  <div>
-                                    <div>Configuration:</div>
-                                    {
-                                      values.map(value => {
-                                        return (<div>{ `- ${value.configurationProperty}: ${value.value}` }</div>);
-                                      })
-                                    }
-                                  </div>
-                                }
-                              </div>
-                            );
+                            </div>
+                          );
+                        }
+                      }/>
+                    <Basic.Column
+                      property="eventTypes"
+                      header={this.i18n('entity.EntityEventProcessor.eventTypes')}
+                      width={125}
+                      cell={
+                        ({ rowIndex, data, property }) => {
+                          if (!data[rowIndex][property]) {
+                            return null;
                           }
-                        }/>
-                      <Basic.Column
-                        property="eventTypes"
-                        header={this.i18n('entity.EntityEventProcessor.eventTypes')}
-                        width={125}
-                        cell={
-                          ({ rowIndex, data, property }) => {
-                            if (!data[rowIndex][property]) {
-                              return null;
-                            }
-                            return data[rowIndex][property].join(', ');
-                          }
-                        }/>
-                      <Basic.Column property="order" header={this.i18n('entity.EntityEventProcessor.order')} width={100}/>
-                      <Basic.Column
-                        property="disabled"
-                        header={<Basic.Cell className="column-face-bool">{this.i18n('entity.EntityEventProcessor.disabled')}</Basic.Cell>}
-                        cell={<Basic.BooleanCell className="column-face-bool"/>}
-                        width={ 100 }/>
-                      <Basic.Column
-                        header={ this.i18n('entity.id.label') }
-                        property="id"
-                        rendered={ this.isDevelopment() }
-                        className="text-center"
-                        width={ 100 }
-                        cell={
-                          ({rowIndex, data, property}) => {
-                            return (
-                              <Advanced.UuidInfo value={data[rowIndex][property]}/>
-                            );
-                          }
-                        }/>
-                      <Basic.Column
-                        header={this.i18n('label.action')}
-                        className="action"
-                        cell={
-                          ( {rowIndex, data} ) => {
-                            if (!data[rowIndex].disabled) {
-                              return (
-                                <Basic.Button
-                                  level="warning"
-                                  onClick={this.onEnable.bind(this, data[rowIndex], false)}
-                                  className="btn-xs"
-                                  title={this.i18n('button.deactivate')}
-                                  titlePlacement="bottom"
-                                  rendered={data[rowIndex].disableable}>
-                                  {this.i18n('button.deactivate')}
-                                </Basic.Button>
-                              );
-                            }
+                          return data[rowIndex][property].join(', ');
+                        }
+                      }/>
+                    <Basic.Column property="order" header={this.i18n('entity.EntityEventProcessor.order')} width={100}/>
+                    <Basic.Column
+                      property="disabled"
+                      header={<Basic.Cell className="column-face-bool">{this.i18n('entity.EntityEventProcessor.disabled')}</Basic.Cell>}
+                      cell={<Basic.BooleanCell className="column-face-bool"/>}
+                      width={ 100 }/>
+                    <Basic.Column
+                      header={ this.i18n('entity.id.label') }
+                      property="id"
+                      rendered={ this.isDevelopment() }
+                      className="text-center"
+                      width={ 100 }
+                      cell={
+                        ({rowIndex, data, property}) => (
+                          <Advanced.UuidInfo value={data[rowIndex][property]}/>
+                        )
+                      }/>
+                    <Basic.Column
+                      header={this.i18n('label.action')}
+                      className="action"
+                      cell={
+                        ({rowIndex, data}) => {
+                          if (!data[rowIndex].disabled) {
                             return (
                               <Basic.Button
-                                level="success"
-                                onClick={this.onEnable.bind(this, data[rowIndex], true)}
+                                level="warning"
+                                onClick={this.onEnable.bind(this, data[rowIndex], false)}
                                 className="btn-xs"
-                                title={this.i18n('button.activate')}
-                                titlePlacement="bottom">
-                                {this.i18n('button.activate')}
+                                title={this.i18n('button.deactivate')}
+                                titlePlacement="bottom"
+                                rendered={data[rowIndex].disableable}>
+                                {this.i18n('button.deactivate')}
                               </Basic.Button>
                             );
                           }
-                        }/>
-                    </Basic.Table>
-                  </div>
-                );
-              })
+                          return (
+                            <Basic.Button
+                              level="success"
+                              onClick={this.onEnable.bind(this, data[rowIndex], true)}
+                              className="btn-xs"
+                              title={this.i18n('button.activate')}
+                              titlePlacement="bottom">
+                              {this.i18n('button.activate')}
+                            </Basic.Button>
+                          );
+                        }
+                      }/>
+                  </Basic.Table>
+                </div>
+              ))
             }
             <Basic.Pagination total={ processors.length } />
           </div>

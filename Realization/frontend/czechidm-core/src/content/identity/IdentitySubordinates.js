@@ -38,7 +38,7 @@ export default class IdentitySubordinates extends Basic.AbstractContent {
     columns.push('entityInfo');
     //
     return (
-      <div className="tab-pane-table-body">
+      <Basic.Div className="tab-pane-table-body">
         { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
         <IdentityTableComponent
@@ -49,7 +49,7 @@ export default class IdentitySubordinates extends Basic.AbstractContent {
           columns={ columns }
           className="no-margin"
           showAddButton={ false }/>
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -21,7 +21,7 @@ class TabPanel extends Basic.AbstractContextComponent {
     const { params } = this.props;
     //
     return getNavigationItems(navigation, parentId, null, userContext, params).map(item => {
-      // reslve label
+      // resolve label
       const labelParams = resolveNavigationParameters(userContext, params);
       labelParams.defaultValue = item.label;
       let label = item.label;
@@ -49,7 +49,9 @@ class TabPanel extends Basic.AbstractContextComponent {
           );
         }
         default: {
-          this.getLogger().error('WARNING: navigation: ' + item.type + ' type not implemeted for item id [' + item.id + ']');
+          this.getLogger().error(`WARNING: navigation: ${ item.type } type not implemeted for item id [${ item.id }]`);
+          //
+          return null;
         }
       }
     });

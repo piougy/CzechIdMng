@@ -104,34 +104,34 @@ class BackendModules extends Basic.AbstractContent {
           data={_installedModules}
           showLoading={showLoading}
           noData={this.i18n('component.basic.Table.noData')}
-          rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>
+          rowClass={({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex]) }>
 
           <Basic.Column property="id" header={this.i18n('entity.Module.id')}/>
           <Basic.Column property="name" header={this.i18n('entity.Module.name')}/>
           <Basic.Column property="vendor" header={this.i18n('entity.Module.vendor')}/>
           <Basic.Column property="version" header={this.i18n('entity.Module.version')}/>
-            <Basic.Column
-              property="build"
-              header={this.i18n('entity.Module.build')}
-              cell={
-                ({rowIndex, data}) => {
-                  const moduleDescriptor = data[rowIndex];
-                  if (moduleDescriptor.buildNumber === '@buildNumber@') {
-                    // buildNumber doesn't be filled on development stage
-                    // TODO: build with eclipse skips some maven plugins (e.g. buildNumber)
-                    return null;
-                  }
-                  return (
-                    <span>
-                      <span title={ this.i18n('entity.Module.buildNumber') }>{ moduleDescriptor.buildNumber }</span>
-                      <br />
-                      <Advanced.DateValue
-                        value={ parseInt(moduleDescriptor.buildTimestamp, 10) }
-                        title={ this.i18n('entity.Module.buildTimestamp') }
-                        showTime/>
-                    </span>);
+          <Basic.Column
+            property="build"
+            header={this.i18n('entity.Module.build')}
+            cell={
+              ({rowIndex, data}) => {
+                const moduleDescriptor = data[rowIndex];
+                if (moduleDescriptor.buildNumber === '@buildNumber@') {
+                  // buildNumber doesn't be filled on development stage
+                  // TODO: build with eclipse skips some maven plugins (e.g. buildNumber)
+                  return null;
                 }
-              }/>
+                return (
+                  <span>
+                    <span title={ this.i18n('entity.Module.buildNumber') }>{ moduleDescriptor.buildNumber }</span>
+                    <br />
+                    <Advanced.DateValue
+                      value={ parseInt(moduleDescriptor.buildTimestamp, 10) }
+                      title={ this.i18n('entity.Module.buildTimestamp') }
+                      showTime/>
+                  </span>);
+              }
+            }/>
           <Basic.Column property="description" header={this.i18n('entity.Module.description')}/>
           <Basic.Column
             property="documentation"
@@ -145,15 +145,17 @@ class BackendModules extends Basic.AbstractContent {
                 const links = [];
                 //
                 if (moduleDescriptor.documentationAvailable) {
+                  const apiUrl = ConfigLoader.getServerUrl().replace('/v1', '');
                   links.push(
                     <Basic.Link
-                      href={ `${ConfigLoader.getServerUrl().replace('/v1', '')}?group=${moduleDescriptor.id}` }
+                      href={ `${ apiUrl }?group=${ moduleDescriptor.id }` }
                       text="Api"
                       style={{ marginRight: 5 }}/>
                   );
+                  const htmlUrl = ConfigLoader.getServerUrl().replace('/api/v1', '');
                   links.push(
                     <Basic.Link
-                      href={ `${ConfigLoader.getServerUrl().replace('/api/v1', '')}/webjars/${moduleDescriptor.id}/${moduleDescriptor.version}/doc/index.html` }
+                      href={ `${ htmlUrl }/webjars/${ moduleDescriptor.id }/${ moduleDescriptor.version }/doc/index.html` }
                       text="Html"
                       style={{ marginRight: 5 }}/>
                   );

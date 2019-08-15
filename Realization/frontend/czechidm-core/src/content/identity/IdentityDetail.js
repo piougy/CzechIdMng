@@ -166,7 +166,7 @@ class IdentityDetail extends Basic.AbstractContent {
       // append selected fileName
       formData.fileName = this.state.fileName;
       formData.name = this.state.fileName;
-      formData.append( 'fileName', this.state.fileName);
+      formData.append('fileName', this.state.fileName);
       //
       this.context.store.dispatch(identityManager.uploadProfileImage(this.props.entityId, formData));
     });
@@ -206,11 +206,11 @@ class IdentityDetail extends Basic.AbstractContent {
                       onDrop={ this._onDrop.bind(this) }
                       showLoading={ _imageLoading }
                       readOnly={ !profileManager.canSave(identity, _profilePermissions) }>
-                      <img className="img-thumbnail" src={ _imageUrl } />
+                      <img className="img-thumbnail" alt="profile" src={ _imageUrl } />
                     </Advanced.ImageDropzone>
                     <Basic.Button
                       type="button"
-                      rendered={ cropperSrc && _imageUrl ? true : false }
+                      rendered={ !!(cropperSrc && _imageUrl) }
                       titlePlacement="right"
                       onClick={ this._showCropper.bind(this) }
                       className="btn-xs btn-edit">
@@ -219,7 +219,7 @@ class IdentityDetail extends Basic.AbstractContent {
                     <Basic.Button
                       type="button"
                       level="danger"
-                      rendered={ _imageUrl && profileManager.canSave(identity, _profilePermissions) ? true : false }
+                      rendered={ !!(_imageUrl && profileManager.canSave(identity, _profilePermissions)) }
                       titlePlacement="left"
                       onClick={ this.deleteImage.bind(this) }
                       className="btn-xs btn-remove">
@@ -286,7 +286,13 @@ class IdentityDetail extends Basic.AbstractContent {
             </Basic.AbstractForm>
 
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button
+                type="button"
+                level="link"
+                onClick={ this.context.router.goBack }
+                showLoading={ showLoading }>
+                { this.i18n('button.back') }
+              </Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"

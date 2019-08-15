@@ -31,9 +31,11 @@ class Dashboard extends Basic.AbstractContent {
     //
     const { userContext } = this.props;
     if (userContext) {
-      this.context.store.dispatch(identityManager.fetchAuthorities(userContext.username, `identity-authorities-${ userContext.username }`, (entity, error) => {
-        this.handleError(error);
-      }));
+      this.context.store.dispatch(
+        identityManager.fetchAuthorities(userContext.username, `identity-authorities-${ userContext.username }`, (entity, error) => {
+          this.handleError(error);
+        })
+      );
     }
   }
 
@@ -56,7 +58,7 @@ class Dashboard extends Basic.AbstractContent {
         {
           !identity
           ||
-          componentService.getComponentDefinitions(ComponentService.DASHBOARD_COMPONENT_TYPE).map(component=> {
+          componentService.getComponentDefinitions(ComponentService.DASHBOARD_COMPONENT_TYPE).map(component => {
             const DashboardComponent = component.component;
             return (
               <DashboardComponent
@@ -68,15 +70,18 @@ class Dashboard extends Basic.AbstractContent {
 
         <div className="hidden">
           <Basic.Alert level="info">
-            Super Admin: { SecurityManager.hasAuthority('APP_ADMIN', { authorities: _authorities, isAuthenticated: true }) ? 'yes' : 'no' } (monitoring, event queue)
+            Super Admin:
+            {
+              SecurityManager.hasAuthority('APP_ADMIN', { authorities: _authorities, isAuthenticated: true })
+              ?
+              'yes'
+              :
+              'no'
+            }
+            (monitoring, event queue)
             <br />
-            Loaded authorities: { _authorities ? _authorities.join(', ') : '[N/A]' }
-          </Basic.Alert>
-          <Basic.Alert level="info">
-            System admin: { SecurityManager.hasAuthority('SYSTEM_ADMIN', { authorities: _authorities, isAuthenticated: true }) ? 'yes' : 'no' } (provisioning queue)
-          </Basic.Alert>
-          <Basic.Alert level="info">
-            System VS: { SecurityManager.hasAuthority('VSREQUEST_READ', { authorities: _authorities, isAuthenticated: true }) ? 'yes' : 'no' } (vs tasks)
+            Loaded authorities:
+            { _authorities ? _authorities.join(', ') : '[N/A]' }
           </Basic.Alert>
         </div>
       </div>

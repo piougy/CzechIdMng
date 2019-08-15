@@ -30,8 +30,13 @@ class FrontendModules extends Basic.AbstractContent {
     return 'content.system.fe-modules';
   }
 
+  getNavigationKey() {
+    return 'fe-modules';
+  }
+
   componentDidMount() {
-    this.selectNavigationItems(['system', 'modules', 'fe-modules']);
+    super.componentDidMount();
+    //
     this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
   }
 
@@ -76,20 +81,32 @@ class FrontendModules extends Basic.AbstractContent {
           <Basic.Loading isStatic showLoading/>
           :
           ConfigLoader.getModuleDescriptors()
-            .sort((one, two) => {
-              return one.id > two.id;
-            }).map(moduleDescriptor => {
+            .sort((one, two) => one.id > two.id)
+            .map(moduleDescriptor => {
               const componentDescriptor = ComponentLoader.getComponentDescriptor(moduleDescriptor.id);
-              const enableable = !moduleDescriptor.backendId || moduleDescriptor.backendId === moduleDescriptor.id || ConfigurationManager.isModuleEnabled(this.context.store.getState(), moduleDescriptor.backendId);
+              const enableable =
+                !moduleDescriptor.backendId
+                || moduleDescriptor.backendId === moduleDescriptor.id
+                || ConfigurationManager.isModuleEnabled(this.context.store.getState(), moduleDescriptor.backendId);
               //
               return (
                 <Basic.Panel>
                   <Basic.PanelHeader>
                     <div className="pull-left">
                       <h2 className={ConfigLoader.isEnabledModule(moduleDescriptor.id) ? '' : 'disabled'} style={{ display: 'inline-block' }}>
-                        <span>{moduleDescriptor.name} <small>{moduleDescriptor.id}</small></span>
+                        <span>
+                          {moduleDescriptor.name}
+                          <small>
+                            {' '}
+                            { moduleDescriptor.id }
+                          </small>
+                        </span>
                       </h2>
-                      <Basic.Label text={this.i18n('label.disabled')} level="default" rendered={!ConfigLoader.isEnabledModule(moduleDescriptor.id)} style={{ marginLeft: 5 }}/>
+                      <Basic.Label
+                        text={ this.i18n('label.disabled') }
+                        level="default"
+                        rendered={ !ConfigLoader.isEnabledModule(moduleDescriptor.id) }
+                        style={{ marginLeft: 5 }}/>
                     </div>
 
                     <div className="pull-right" style={{ marginTop: 4}}>
@@ -110,14 +127,20 @@ class FrontendModules extends Basic.AbstractContent {
                           level="success"
                           onClick={this.onEnable.bind(this, moduleDescriptor, true)}
                           className="btn-xs"
-                          title={ enableable ? this.i18n('button.activate') : this.i18n('activate.disabled', { backendId: moduleDescriptor.backendId })}
+                          title={
+                            enableable
+                            ?
+                            this.i18n('button.activate')
+                            :
+                            this.i18n('activate.disabled', { backendId: moduleDescriptor.backendId })
+                          }
                           titlePlacement="bottom"
                           disabled={!enableable}>
                           {this.i18n('button.activate')}
                         </Basic.Button>
                       }
                     </div>
-                    <div className="clearfix"></div>
+                    <div className="clearfix" />
                   </Basic.PanelHeader>
 
                   <Basic.PanelBody>
@@ -152,7 +175,9 @@ class FrontendModules extends Basic.AbstractContent {
                             {
                               !overrided
                               ||
-                              <span> ({overridedInModule})</span>
+                              <span>
+                                {` (${ overridedInModule })`}
+                              </span>
                             }
                           </span>
                         );
@@ -160,7 +185,16 @@ class FrontendModules extends Basic.AbstractContent {
                     <Basic.Column property="priority" header={this.i18n('components.priority')} width="100px"/>
                     <Basic.Column property="type" header={this.i18n('components.type')} width="100px"/>
                     <Basic.Column property="order" header={this.i18n('components.order')} width="100px"/>
-                    <Basic.Column property="span" header={<span>Span <small>col-lg</small></span>} width="100px"/>
+                    <Basic.Column
+                      property="span"
+                      header={
+                        <span>
+                          Span
+                          <small> col-lg</small>
+                        </span>
+                      }
+                      width={ 100 }
+                    />
                   </Basic.Table>
                 </Basic.Panel>
               );

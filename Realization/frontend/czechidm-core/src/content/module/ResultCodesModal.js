@@ -111,9 +111,7 @@ class ResultCodesModal extends Basic.AbstractContent {
       return this.sortByStatusEnum(one.statusEnum, two.statusEnum);
     });
 
-    _statusEnum = _statusEnum.sort((one, two) => {
-      return this.sortByStatusEnum(one, two);
-    });
+    _statusEnum = _statusEnum.sort((one, two) => this.sortByStatusEnum(one, two));
 
     return (
       <Basic.Modal
@@ -149,7 +147,7 @@ class ResultCodesModal extends Basic.AbstractContent {
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('filter.text.placeholder')}
-                        options={_statusEnum.toArray().map(value => { return {value, niceLabel: value}; })}
+                        options={ _statusEnum.toArray().map(value => ({ value, niceLabel: value })) }
                         searchable />
                     </Basic.Col>
                     <Basic.Col lg={ 6 } className="text-right">
@@ -168,7 +166,7 @@ class ResultCodesModal extends Basic.AbstractContent {
           noData={this.i18n('component.basic.Table.noData')}
           hover={ false }
           condensed
-          rowClass={({ rowIndex, data }) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+          rowClass={({ rowIndex, data }) => Utils.Ui.getRowClass(data[rowIndex]) }
           showLoading={ showLoading }>
           <Basic.Column
             property="statusCode"

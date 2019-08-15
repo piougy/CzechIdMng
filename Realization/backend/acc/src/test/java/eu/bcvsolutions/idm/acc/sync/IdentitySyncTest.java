@@ -103,6 +103,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -328,7 +329,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testDefaultRoleToAllContracts() {
-		SysSystemDto system = initData();
+		IdmIdentityDto identityDto = helper.createIdentity((GuardedString) null);
+		SysSystemDto system = initData(identityDto.getUsername());
 		Assert.assertNotNull(system);
 		IdmRoleDto defaultRole = helper.createRole();
 		//
@@ -343,13 +345,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// create default mapping for provisioning
 		helper.createMapping(system);
 		helper.createRoleSystem(defaultRole, system);
-
-		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
-		identityFilter.setUsername(IDENTITY_ONE);
-		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
-		Assert.assertEquals(0, identities.size());
 		
-		IdmIdentityDto identityDto = helper.createIdentity(IDENTITY_ONE);
+		
 		IdmIdentityContractDto validContract = helper.getPrimeContract(identityDto);
 		IdmIdentityContractDto validFutureContract = helper.createIdentityContact(identityDto, null, LocalDate.now().plusDays(10), null);
 		helper.createIdentityContact(identityDto, null, null, LocalDate.now().minusDays(1));
@@ -365,10 +362,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
-		identities = identityService.find(identityFilter, null).getContent();
-		Assert.assertEquals(1, identities.size());
-		IdmIdentityDto identity = identities.get(0);
-		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identities.get(0).getId());
+		IdmIdentityDto identity = identityService.get(identityDto);
+		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(2, roles.size());
 		
 		long identityRolesWithDefaultRole = roles.stream()
@@ -2341,7 +2336,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	@Test
 	public void testLinkWithChangeUIDSync() {
 		String uniqueEmail = getHelper().createName() + "@bcv.eu";
-		SysSystemDto system = initData(uniqueEmail);
+		SysSystemDto system = initData(IDENTITY_ONE, uniqueEmail);
 		Assert.assertNotNull(system);
 		IdmRoleDto defaultRole = helper.createRole();
 
@@ -2487,12 +2482,16 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, syncConfigService.find(configFilter, null).getTotalElements());
 		return syncConfigCustom;
 	}
-
+	
 	private SysSystemDto initData() {
-		return this.initData(IDENTITY_ONE_EMAIL);
+		return this.initData(IDENTITY_ONE);
+	}
+
+	private SysSystemDto initData(String username) {
+		return this.initData(username, IDENTITY_ONE_EMAIL);
 	}
 	
-	private SysSystemDto initData(String email) {
+	private SysSystemDto initData(String username, String email) {
 
 		// create test system
 		SysSystemDto system = helper.createSystem(TestResource.TABLE_NAME);
@@ -2503,13 +2502,13 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// Create synchronization mapping
 		SysSystemMappingDto syncSystemMapping = new SysSystemMappingDto();
-		syncSystemMapping.setName("default_" + System.currentTimeMillis());
+		syncSystemMapping.setName(getHelper().createName());
 		syncSystemMapping.setEntityType(SystemEntityType.IDENTITY);
 		syncSystemMapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		syncSystemMapping.setObjectClass(objectClasses.get(0).getId());
 		final SysSystemMappingDto syncMapping = systemMappingService.save(syncSystemMapping);
 		createMapping(system, syncMapping);
-		this.getBean().initIdentityData(email);
+		this.getBean().initIdentityData(username, email);
 		return system;
 
 	}
@@ -2527,13 +2526,13 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	}
 
 	@Transactional
-	public void initIdentityData(String email) {
+	public void initIdentityData(String username, String email) {
 		deleteAllResourceData();
 
 		TestResource resourceUserOne = new TestResource();
-		resourceUserOne.setName(IDENTITY_ONE);
-		resourceUserOne.setFirstname(IDENTITY_ONE);
-		resourceUserOne.setLastname(IDENTITY_ONE);
+		resourceUserOne.setName(username);
+		resourceUserOne.setFirstname(username);
+		resourceUserOne.setLastname(username);
 		resourceUserOne.setEavAttribute("1");
 		resourceUserOne.setEmail(email);
 		entityManager.persist(resourceUserOne);

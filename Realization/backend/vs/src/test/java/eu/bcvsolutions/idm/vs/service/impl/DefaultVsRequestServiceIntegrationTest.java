@@ -781,7 +781,7 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 	 * @param ROLE_ONE_NAME
 	 * @return
 	 */
-	private SysSystemDto assignRoleSystem(SysSystemDto system, IdmIdentityDto userOne, String roleOneName) {
+	public SysSystemDto assignRoleSystem(SysSystemDto system, IdmIdentityDto userOne, String roleOneName) {
 		IdmRoleDto roleOne = helper.createRole(roleOneName);
 
 		// Create policy for vs evaluator and user role
@@ -795,7 +795,7 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		return system;
 	}
 
-	private SysSystemDto createVirtualSystem(String userImplementerName, List<String> attributes) {
+	public SysSystemDto createVirtualSystem(String userImplementerName, List<String> attributes) {
 		IdmIdentityDto userImplementer = helper.createIdentity(userImplementerName);
 		VsSystemDto config = new VsSystemDto();
 		config.setName("vsSystemOne" + new Date().getTime());
@@ -828,7 +828,7 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 	 * Method check  if exists role with name/code defined in {@link InitDemoData#DEFAULT_ROLE_NAME}
 	 * @return
 	 */
-	private IdmRoleDto createDefaultRole() {
+	public IdmRoleDto createDefaultRole() {
 		IdmRoleDto defaultRole = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
 		if (defaultRole != null) {
 			return defaultRole;

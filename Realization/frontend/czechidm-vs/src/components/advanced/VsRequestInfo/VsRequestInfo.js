@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import {VsRequestManager} from '../../../redux/';
+import { VsRequestManager } from '../../../redux/';
 import { Utils, Advanced, Managers, Basic } from 'czechidm-core';
 import VsOperationType from '../../../enums/VsOperationType';
 import VsRequestState from '../../../enums/VsRequestState';
@@ -19,6 +19,8 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
 
   constructor(props, context) {
     super(props, context);
+
+    this.identityManager = new Managers.IdentityManager();
   }
 
   getManager() {
@@ -81,13 +83,13 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
     }
     if (entity.label === this.i18n('vs:entity.VsRequest.state.label')) {
       return ((<Basic.Label
-          level={VsRequestState.getLevel(entity.value)}
-          text={VsRequestState.getNiceLabel(entity.value)}/>));
+        level={VsRequestState.getLevel(entity.value)}
+        text={VsRequestState.getNiceLabel(entity.value)}/>));
     }
     if (entity.label === this.i18n('vs:entity.VsRequest.operationType.label')) {
       return ((<Basic.Label
-          level={VsOperationType.getLevel(entity.value)}
-          text={VsOperationType.getNiceLabel(entity.value)}/>));
+        level={VsOperationType.getLevel(entity.value)}
+        text={VsOperationType.getNiceLabel(entity.value)}/>));
     }
     if (entity.label === this.i18n('acc:entity.System.name')) {
       return ((<Advanced.EntityInfo
@@ -110,7 +112,10 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    return [
+    const { face } = this.props;
+    let content = [];
+
+    content = content.concat([
       {
         label: this.i18n('acc:entity.System.name'),
         value: entity._embedded.system.id
@@ -133,13 +138,42 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
       },
       {
         label: this.i18n('vs:entity.VsRequest.creator.label'),
-        value: entity.creator
+        value: (
+          <Advanced.EntityInfo
+            entityType="identity"
+            entityIdentifier={ entity.creator}
+            face="popover"/>
+        )
       },
       {
         label: this.i18n('entity.created'),
         value: (<Advanced.DateValue value={ entity.created } showTime/>)
       }
-    ];
+    ]);
+
+    if (entity && entity._embedded) {
+      const roleRequest = entity._embedded.roleRequest;
+      if (roleRequest && roleRequest._embedded) {
+        const roleRequestCreator = roleRequest._embedded.creator;
+
+        if (roleRequestCreator) {
+          content.push(
+            {
+              label: this.i18n('vs:entity.VsRequest.roleRequest.implementer.label'),
+              value: (
+                <Advanced.EntityInfo
+                  style={{ marginBottom: '0px' }}
+                  entityType="identity"
+                  entity={ roleRequestCreator }
+                  entityIdentifier={ roleRequestCreator ? roleRequestCreator.id : null}
+                  face={ face }/>
+              )
+            }
+          );
+        }
+      }
+    }
+    return content;
   }
 }
 

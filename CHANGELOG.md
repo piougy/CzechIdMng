@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.7.3]
+- [#1794](https://redmine.czechidm.com/issues/1794) Notification template with code ``vs:vsRequestCreated`` was changed. Please redeploy manually this notification template.
+
 ## [9.7.0]
 - Deprecated class (since 7.3.0) ``AuditableListener`` was removed. Use class ``AuditableEntityListener`` instead.
 - Deprecated classes (since 7.7.0) for long running tasks placed in core ``impl`` package was removed. Used the same classes from core ``api``.

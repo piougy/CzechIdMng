@@ -918,7 +918,9 @@
       "DELETE": "Delete",
       "EXECUTE": "Execute",
       "PASSWORDCHANGE": "Password change",
-      "CHANGEPERMISSION": "Change roles"
+      "CHANGEPERMISSION": "Change roles",
+      "MANUALLYDISABLE": "Deactivate user manually",
+      "MANUALLYENABLE": "Activate user manually"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",

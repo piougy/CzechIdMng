@@ -949,7 +949,9 @@
       "DELETE": "Mazání",
       "EXECUTE": "Spouštění",
       "PASSWORDCHANGE": "Změna hesla",
-      "CHANGEPERMISSION": "Změna rolí"
+      "CHANGEPERMISSION": "Změna rolí",
+      "MANUALLYDISABLE": "Manuální deaktivace uživatele",
+      "MANUALLYENABLE": "Manuální aktivace uživatele"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",

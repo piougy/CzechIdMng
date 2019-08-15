@@ -49,7 +49,7 @@ public class IdentityEnableBulkAction extends AbstractBulkAction<IdmIdentityDto,
 
 	@Override
 	protected List<String> getAuthoritiesForEntity() {
-		return Lists.newArrayList(CoreGroupPermission.IDENTITY_UPDATE);
+		return Lists.newArrayList(CoreGroupPermission.IDENTITY_MANUALLYENABLE);
 	}
 
 	@Override

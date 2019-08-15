@@ -12,10 +12,6 @@ import * as Advanced from '../../../components/advanced';
  */
 class ChangePermissionDashboardButton extends Advanced.AbstractIdentityDashboardButton {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getIcon() {
     return 'component:identity-roles';
   }

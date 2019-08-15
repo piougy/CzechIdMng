@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.7.3]
+
+- [#1798](https://redmine.czechidm.com/issues/1798) - **New base permissions for disable / enable identity manually was added**. Configure this new permissions (``MANUALLYDISABLE``, ``MANUALLYENABLE``) to role, which enables bulk action and dashboard button for activate / deactivate user manually. Previously configured permissions ``UPDATE`` on identity will be not suffiscient to execute this function.
+
 ## [9.7.0]
 - Deprecated class (since 7.3.0) ``AuditableListener`` was removed. Use class ``AuditableEntityListener`` instead.
 - Deprecated classes (since 7.7.0) for long running tasks placed in core ``impl`` package was removed. Used the same classes from core ``api``.

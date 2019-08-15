@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
+import * as Utils from '../../../utils';
 import { IdentityManager } from '../../../redux';
 import IdentityStateEnum from '../../../enums/IdentityStateEnum';
 
@@ -16,10 +17,6 @@ const identityManager = new IdentityManager();
  */
 class EnableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardButton {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getIcon() {
     return this.i18n('eav.bulk-action.identity-enable-bulk-action.icon');
   }
@@ -29,7 +26,7 @@ class EnableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardBu
     //
     return identity.state === IdentityStateEnum.findKeyBySymbol(IdentityStateEnum.DISABLED_MANUALLY)
       && userContext.id !== identity.id
-      && identityManager.canSave(identity, permissions);
+      && Utils.Permission.hasPermission(permissions, 'MANUALLYENABLE');
   }
 
   getLabel() {

@@ -18,8 +18,10 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmGenerateValueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.generator.AbstractValueGenerator;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -48,6 +50,8 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private LookupService lookupService;
 	
 	@Override
 	public String getName() {
@@ -62,12 +66,13 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 		IdmFormDefinitionDto formDefinition = getFormDefinition(valueGenerator);
 
 		// if is set form definition must by for IdmIdentity type
-		if (formDefinition != null && !formDefinition.getType().equals(getDtoClass().getCanonicalName())) {
+		Class<? extends BaseEntity> entityClass = lookupService.getEntityClass(getDtoClass());
+		if (formDefinition != null && !formDefinition.getType().equals(entityClass.getCanonicalName())) {
 			LOG.error("Given form definition isn't for entity!");
 			throw new ResultCodeException(CoreResultCode.GENERATOR_FORM_DEFINITION_BAD_TYPE,
 					ImmutableMap.of(
 							"formDefinitionId", formDefinition.getId(),
-							"dtoType", getDtoClass().getCanonicalName()));
+							"entityType", getDtoClass().getCanonicalName()));
 		}
 
 		List<IdmFormDefinitionDto> formDefinitions = new ArrayList<>();

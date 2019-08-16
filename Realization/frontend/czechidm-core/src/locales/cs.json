@@ -6006,7 +6006,7 @@
     },
     "GENERATOR_FORM_DEFINITION_BAD_TYPE": {
       "title": "Definice má špatný typ",
-      "message": "Formulářová definice id [{{formDefinitionId}}], má špatný typ. Správný typ: [{{dtoType}}]."
+      "message": "Formulářová definice id [{{formDefinitionId}}], má špatný typ. Správný typ: [{{entityType}}]."
     },
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
       "title": "Uživatelské jméno nemůže být prázdné",

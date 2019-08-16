@@ -5956,7 +5956,7 @@
     },
     "GENERATOR_FORM_DEFINITION_BAD_TYPE": {
       "title": "Form definition has wrong type",
-      "message": "Form definition id [{{formDefinitionId}}], has not type. Correct type: [{{entityType}}]."
+      "message": "Form definition configured in value generator, has wrong type. Correct type: [{{entityType}}]. Configure default value generator properly."
     },
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
       "title": "Login cannot be empty",

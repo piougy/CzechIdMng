@@ -72,7 +72,7 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 			throw new ResultCodeException(CoreResultCode.GENERATOR_FORM_DEFINITION_BAD_TYPE,
 					ImmutableMap.of(
 							"formDefinitionId", formDefinition.getId(),
-							"entityType", getDtoClass().getCanonicalName()));
+							"entityType", entityClass.getSimpleName()));
 		}
 
 		List<IdmFormDefinitionDto> formDefinitions = new ArrayList<>();

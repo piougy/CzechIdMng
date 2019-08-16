@@ -86,7 +86,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
 
   render() {
     const { entityId, identityId} = this.props.params;
-    const {rendered} = this.props;
+    const { rendered } = this.props;
 
     let identityLocalId = identityId;
     let contractLocalId = null;
@@ -115,7 +115,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
           uiKey={ this.getUiKey() }
           manager={ this.contractSliceManager }
           forceSearchParameters={ new SearchParameters().setFilter('identity', identityLocalId).setFilter('parentContract', contractLocalId) }
-          rowClass={({rowIndex, data}) => { return data[rowIndex].state ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); }}
+          rowClass={ ({rowIndex, data}) => (data[rowIndex].state ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex])) }
           className="no-margin"
           showRowSelection={ SecurityManager.hasAuthority('CONTRACTSLICE_DELETE') }
           actions={
@@ -139,11 +139,9 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
           <Basic.Column
             className="detail-button"
             cell={
-              ({rowIndex, data}) => {
-                return (
-                  <Advanced.DetailButton onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                );
-              }
+              ({rowIndex, data}) => (
+                <Advanced.DetailButton onClick={this.showDetail.bind(this, data[rowIndex])}/>
+              )
             }/>
           <Advanced.Column
             property="contractCode"
@@ -179,23 +177,21 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
             property="workPosition"
             header={this.i18n('entity.ContractSlice.workPosition')}
             cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <span>
-                    {
-                      data[rowIndex]._embedded && data[rowIndex]._embedded.workPosition
-                      ?
-                      <Advanced.EntityInfo
-                        entity={ data[rowIndex]._embedded.workPosition }
-                        entityType="treeNode"
-                        entityIdentifier={ data[rowIndex].workPosition }
-                        face="popover" />
-                      :
-                      data[rowIndex].position
-                    }
-                  </span>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <span>
+                  {
+                    data[rowIndex]._embedded && data[rowIndex]._embedded.workPosition
+                    ?
+                    <Advanced.EntityInfo
+                      entity={ data[rowIndex]._embedded.workPosition }
+                      entityType="treeNode"
+                      entityIdentifier={ data[rowIndex].workPosition }
+                      face="popover" />
+                    :
+                    data[rowIndex].position
+                  }
+                </span>
+              )
             }
           />
           <Advanced.Column

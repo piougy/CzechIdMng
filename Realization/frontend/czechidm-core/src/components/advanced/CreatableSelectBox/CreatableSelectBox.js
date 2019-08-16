@@ -26,7 +26,7 @@ class CreatableSelectBox extends Basic.EnumSelectBox {
   getValue() {
     const { options } = this.state;
     const values = [];
-    options.forEach( option => {
+    options.forEach(option => {
       values.push(option.value);
     });
     return values;

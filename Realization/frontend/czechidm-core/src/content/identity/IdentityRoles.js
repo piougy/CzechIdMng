@@ -64,8 +64,11 @@ class IdentityRoles extends Basic.AbstractContent {
     const { entityId } = this.props.params;
     this.context.store.dispatch(
       identityContractManager.fetchEntities(
-        new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('identity', entityId).setFilter('validNowOrInFuture', true), `${uiKeyContracts}-${entityId}`
-        , () => {
+        new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE)
+          .setFilter('identity', entityId)
+          .setFilter('validNowOrInFuture', true),
+        `${uiKeyContracts}-${entityId}`,
+        () => {
           this.context.store.dispatch(identityManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
           this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
         }
@@ -74,7 +77,7 @@ class IdentityRoles extends Basic.AbstractContent {
   }
 
   showProcessDetail(entity) {
-    this.context.router.push('workflow/history/processes/' + entity.id);
+    this.context.router.push(`workflow/history/processes/${ entity.id }`);
   }
 
   /**
@@ -98,12 +101,12 @@ class IdentityRoles extends Basic.AbstractContent {
       event.preventDefault();
     }
     this.refs['confirm-delete'].show(
-      this.i18n('content.identity.roles.changeRoleProcesses.deleteConfirm', {'processId': entity.id}),
+      this.i18n('content.identity.roles.changeRoleProcesses.deleteConfirm', { processId: entity.id }),
       this.i18n(`action.delete.header`, { count: 1 })
     ).then(() => {
       this.context.store.dispatch(workflowProcessInstanceManager.deleteEntity(entity, null, (deletedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n('content.identity.roles.changeRoleProcesses.deleteSuccess', {'processId': entity.id})});
+          this.addMessage({ message: this.i18n('content.identity.roles.changeRoleProcesses.deleteSuccess', { processId: entity.id })});
         } else {
           this.addError(error);
         }
@@ -115,11 +118,13 @@ class IdentityRoles extends Basic.AbstractContent {
   }
 
   _roleNameCell({ rowIndex, data }) {
-    const roleId = data[rowIndex].processVariables.conceptRole ? data[rowIndex].processVariables.conceptRole.role : data[rowIndex].processVariables.entityEvent.content.role;
+    const roleId = data[rowIndex].processVariables.conceptRole
+      ? data[rowIndex].processVariables.conceptRole.role
+      : data[rowIndex].processVariables.entityEvent.content.role;
     return (
       <Advanced.RoleInfo
-      entityIdentifier={ roleId}
-      face="popover" />
+        entityIdentifier={ roleId}
+        face="popover" />
     );
   }
 
@@ -143,6 +148,7 @@ class IdentityRoles extends Basic.AbstractContent {
    */
   _canChangePermissions() {
     const { _permissions } = this.props;
+    //
     return Utils.Permission.hasPermission(_permissions, 'CHANGEPERMISSION');
   }
 
@@ -181,16 +187,6 @@ class IdentityRoles extends Basic.AbstractContent {
     });
   }
 
-  /**
-   * Can change identity permission
-   *
-   * @return {[type]} [description]
-   */
-  _canChangePermissions() {
-    const { _permissions } = this.props;
-    //
-    return Utils.Permission.hasPermission(_permissions, 'CHANGEPERMISSION');
-  }
   _changePermissions() {
     const { entityId } = this.props.params;
     const identity = identityManager.getEntity(this.context.store.getState(), entityId);
@@ -265,7 +261,8 @@ class IdentityRoles extends Basic.AbstractContent {
           <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
             {this._getToolbar(_contracts)}
             <Basic.ContentHeader
-              icon="component:identity-roles" text={ this.i18n('directRoles.header') }
+              icon="component:identity-roles"
+              text={ this.i18n('directRoles.header') }
               style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}/>
             <IdentityRoleTableComponent
               ref="direct_roles"
@@ -275,7 +272,7 @@ class IdentityRoles extends Basic.AbstractContent {
                 .setFilter('directRole', true)
                 .setFilter('addEavMetadata', true) }
               showAddButton={ false }
-              showRefreshButton = { false }
+              showRefreshButton={ false }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole']) }
               _permissions={ _permissions }
@@ -295,7 +292,7 @@ class IdentityRoles extends Basic.AbstractContent {
                 .setFilter('directRole', false)
                 .setFilter('addEavMetadata', true) }
               showAddButton={ false }
-              showRefreshButton = { false }
+              showRefreshButton={ false }
               params={ this.props.params }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['automaticRole']) }
               fetchIncompatibleRoles={ false }
@@ -327,7 +324,7 @@ class IdentityRoles extends Basic.AbstractContent {
                   style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}/>
                 <RoleRequestTable
                   ref="requestTable"
-                  uiKey={ 'table-applicant-requests' }
+                  uiKey="table-applicant-requests"
                   showFilter={ false }
                   forceSearchParameters={ roleRequestsForceSearch }
                   columns={ ['state', 'created', 'modified', 'wf', 'detail', 'systemState'] }
@@ -351,15 +348,13 @@ class IdentityRoles extends Basic.AbstractContent {
               <Advanced.Column
                 property="detail"
                 cell={
-                  ({ rowIndex, data }) => {
-                    return (
-                      <Advanced.DetailButton
-                        title={this.i18n('button.detail')}
-                        onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
-                    );
-                  }
+                  ({ rowIndex, data }) => (
+                    <Advanced.DetailButton
+                      title={this.i18n('button.detail')}
+                      onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
+                  )
                 }
-                header={' '}
+                header=" "
                 sort={false}
                 face="text"/>
               <Advanced.Column
@@ -378,7 +373,7 @@ class IdentityRoles extends Basic.AbstractContent {
                 header={this.i18n('content.roles.processRoleChange.candicateUsers')}
                 face="text"
                 cell={this._getCandidatesCell}
-                />
+              />
               <Advanced.Column
                 property="processVariables.conceptRole.validFrom"
                 header={this.i18n('content.roles.processRoleChange.roleValidFrom')}
@@ -407,8 +402,8 @@ IdentityRoles.propTypes = {
   identity: PropTypes.object,
   _showLoading: PropTypes.bool,
   _showLoadingContracts: PropTypes.bool,
-  _entities: PropTypes.arrayOf(React.PropTypes.object),
-  _contracts: PropTypes.arrayOf(React.PropTypes.object),
+  _entities: PropTypes.arrayOf(PropTypes.object),
+  _contracts: PropTypes.arrayOf(PropTypes.object),
   userContext: PropTypes.object,
   _permissions: PropTypes.oneOfType([
     PropTypes.bool,

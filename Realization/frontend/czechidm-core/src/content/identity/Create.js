@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
@@ -87,7 +88,7 @@ class Create extends Basic.AbstractContent {
       })
       .catch(error => {
         if (!error) {
-          return {};
+          return;
         }
         if (error.statusEnum === PASSWORD_PREVALIDATION) {
           this.addErrorMessage({hidden: true}, error);
@@ -211,9 +212,7 @@ class Create extends Basic.AbstractContent {
         identityManager
           .getService()
           .generatePassword()
-          .then(response => {
-            return response.json();
-          })
+          .then(response => response.json())
           .then(json => {
             if (!json.error) {
               this.setState({
@@ -300,7 +299,8 @@ class Create extends Basic.AbstractContent {
                       </Basic.Row>
                       {/* TODO: support creating disabled identities? */}
                       <Basic.Checkbox ref="disabled" label={ this.i18n('entity.Identity.disabled') } rendered={ false }/>
-                      <Basic.TextArea ref="description"
+                      <Basic.TextArea
+                        ref="description"
                         label={ this.i18n('content.identity.profile.description.label') }
                         placeholder={ this.i18n('content.identity.profile.description.placeholder') }
                         rows={ 4 }
@@ -325,7 +325,7 @@ class Create extends Basic.AbstractContent {
                         readOnly={ generatePassword }
                         newPassword={ password }
                         newPasswordAgain={ passwordAgain }/>
-                      </Basic.Div>
+                    </Basic.Div>
                     <Advanced.ValidationMessage error={ validationError } validationDefinition={ validationDefinition }/>
                   </Basic.Col>
                 </Basic.Row>
@@ -370,7 +370,7 @@ class Create extends Basic.AbstractContent {
 }
 
 Create.propTypes = {
-  userContext: React.PropTypes.object
+  userContext: PropTypes.object
 };
 Create.defaultProps = {
   userContext: null

@@ -37,10 +37,10 @@ class AuditPasswordChanges extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-          <AuditIdentityPasswordChangeTable
-            singleUserMod
-            id={identity.id}
-            uiKey={`identity-password-change-audit-table-${identity.id}`}/>
+        <AuditIdentityPasswordChangeTable
+          singleUserMod
+          id={identity.id}
+          uiKey={`identity-password-change-audit-table-${identity.id}`}/>
       </div>
     );
   }

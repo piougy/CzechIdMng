@@ -13,6 +13,9 @@ const identityManager = new IdentityManager();
 
 const uiKey = 'audit-';
 
+/**
+ * FIXME: where is this content used? Some skeleton?
+ */
 class AuditDetail extends Basic.AbstractContent {
 
   getContentKey() {
@@ -39,35 +42,42 @@ class AuditDetail extends Basic.AbstractContent {
     const { entityId, revID } = this.props.params;
     return (
       <div>
-          <Helmet title={this.i18n('navigation.menu.audit.profile')} />
-          <Basic.Loading isStatic showLoading={showLoading} />
-          {
-            !auditIdentity
-            ||
-            <div>
-              <Basic.PageHeader>
-                {identityManager.getNiceLabel(auditIdentity)}
-                {' '}
-                  <small>
+        <Helmet title={this.i18n('navigation.menu.audit.profile')} />
+        <Basic.Loading isStatic showLoading={showLoading} />
+        {
+          !auditIdentity
+          ||
+          <div>
+            <Basic.PageHeader>
+              {identityManager.getNiceLabel(auditIdentity)}
+              {' '}
+              <small>
+                {
+                  this.i18n('content.audit.profile.userDetail',
                     {
-                      this.i18n('content.audit.profile.userDetail',
-                        {
-                          revision: revID,
-                          name: auditIdentity.modifier ? auditIdentity.modifier : auditIdentity.creator,
-                          date: moment(!auditIdentity.modified ? auditIdentity.created : auditIdentity.modified).format(this.i18n('format.datetime'))
-                        })
-                    }
-                  </small>
-              </Basic.PageHeader>
-              <Basic.Panel>
-                <Basic.PanelHeader text={<span>{identityManager.getNiceLabel(auditIdentity)} <small> Detail uživatele</small></span>} className="hidden">
-                </Basic.PanelHeader>
-                <Advanced.TabPanel parentId="profile-audit" params={this.props.params}>
-                  <IdentityDetail identity={auditIdentity} entityId={entityId} readOnly />
-                </Advanced.TabPanel>
-              </Basic.Panel>
-            </div>
-          }
+                      revision: revID,
+                      name: auditIdentity.modifier ? auditIdentity.modifier : auditIdentity.creator,
+                      date: moment(!auditIdentity.modified ? auditIdentity.created : auditIdentity.modified).format(this.i18n('format.datetime'))
+                    })
+                }
+              </small>
+            </Basic.PageHeader>
+            <Basic.Panel>
+              <Basic.PanelHeader
+                text={
+                  <span>
+                    { identityManager.getNiceLabel(auditIdentity) }
+                    <small> Detail uživatele</small>
+                  </span>
+                }
+                className="hidden">
+              </Basic.PanelHeader>
+              <Advanced.TabPanel parentId="profile-audit" params={this.props.params}>
+                <IdentityDetail identity={auditIdentity} entityId={entityId} readOnly />
+              </Advanced.TabPanel>
+            </Basic.Panel>
+          </div>
+        }
       </div>
     );
   }

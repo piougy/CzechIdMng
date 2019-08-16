@@ -349,12 +349,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             sort
             sortProperty="role.baseCode"
             rendered={ _.includes(columns, 'baseCode') }
-            cell={
-              ({ rowIndex, data }) => {
-                return data[rowIndex]._embedded.role.baseCode;
-              }
-            }
-            />
+            cell={ ({ rowIndex, data }) => data[rowIndex]._embedded.role.baseCode }
+          />
           <Advanced.Column
             header={ this.i18n('entity.Role.environment.label') }
             title={ this.i18n('entity.Role.environment.help') }
@@ -364,20 +360,14 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             sortProperty="role.environment"
             rendered={ showEnvironment && _.includes(columns, 'environment') }
             cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.CodeListValue code="environment" value={ data[rowIndex]._embedded.role.environment }/>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <Advanced.CodeListValue code="environment" value={ data[rowIndex]._embedded.role.environment }/>
+              )
             }
-            />
+          />
           <Advanced.Column
             header={this.i18n('content.task.IdentityRoleConceptTable.identityRoleAttributes.header')}
-            cell={
-              ({rowIndex, data}) => {
-                return this._attributesCell({ rowIndex, data });
-              }
-            }
+            cell={ ({rowIndex, data}) => this._attributesCell({ rowIndex, data }) }
             rendered={ _.includes(columns, 'roleAttributes') }/>
           <Advanced.Column
             header={this.i18n('entity.IdentityRole.identityContract.title')}
@@ -459,11 +449,9 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             face="bool"
             cell={
               /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data }) => {
-                return (
-                  <Basic.BooleanCell propertyValue={ data[rowIndex].automaticRole !== null } className="column-face-bool"/>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <Basic.BooleanCell propertyValue={ data[rowIndex].automaticRole !== null } className="column-face-bool"/>
+              )
             }
             width={ 15 }
             rendered={ _.includes(columns, 'automaticRole') }/>
@@ -485,7 +473,13 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               text={ this.i18n('create.header') }
               rendered={ Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Header
-              icon={ detail.entity._embedded && detail.entity._embedded.role && detail.entity._embedded.role.childrenCount > 0 ? 'component:business-role' : 'component:identity-role' }
+              icon={
+                detail.entity._embedded && detail.entity._embedded.role && detail.entity._embedded.role.childrenCount > 0
+                ?
+                'component:business-role'
+                :
+                'component:identity-role'
+              }
               closeButton={ !_showLoading }
               text={this.i18n('edit.header', { role: detail.entity._embedded ? roleManager.getNiceLabel(detail.entity._embedded.role) : null })}
               rendered={ !Utils.Entity.isNew(detail.entity) }/>
@@ -496,8 +490,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                 <Basic.Tab
                   eventKey={ 1 }
                   title={ this.i18n('detail.tabs.basic') }
-                  style={{ padding: 15}}
-                  >
+                  style={{ padding: 15 }}>
                   <Basic.AbstractForm ref="form" showLoading={ _showLoading } readOnly={ !TEST_ADD_ROLE_DIRECTLY }>
                     <Basic.SelectBox
                       ref="role"
@@ -554,13 +547,13 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                 </Basic.Tab>
                 <Basic.Tab
                   eventKey={ 2 }
-                  rendered={detail && detail.entity && detail.entity._embedded && detail.entity._embedded.role.identityRoleAttributeDefinition ? true : false}
+                  rendered={!!(detail && detail.entity && detail.entity._embedded && detail.entity._embedded.role.identityRoleAttributeDefinition)}
                   style={{ padding: 15}}
                   title={this.i18n('detail.tabs.attributes')}>
-                    <IdentityRoleEav
-                      entityId={detail.entity.id}
-                      entity={detail.entity}
-                    />
+                  <IdentityRoleEav
+                    entityId={detail.entity.id}
+                    entity={detail.entity}
+                  />
                 </Basic.Tab>
               </Basic.Tabs>
             </Basic.Modal.Body>
